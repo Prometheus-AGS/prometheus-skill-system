@@ -246,36 +246,75 @@ os_mark_done() {
   local change="$1" id="$2"
   local tasks_file="openspec/changes/$change/tasks.md"
   [ -f "$tasks_file" ] || { warn "no tasks.md at $tasks_file"; return 1; }
-  # OpenSpec (spec-driven schema) task ids are POSITIONAL and match the
-  # `openspec instructions apply --json` ordinal that os_list surfaces: "1" =
-  # the first TOP-LEVEL checkbox, "2" = the second, etc. The JSON API does not
-  # count indented sub-bullets (e.g. sub-rules nested under a parent task) as
-  # separate tasks, so this awk must only count non-indented checkbox lines
-  # too — otherwise ordinals drift the moment any task has nested children.
-  # If the id is non-numeric, fall back to a text match on the description.
-  local tmp; tmp="$(mktemp)"
-  if printf '%s' "$id" | grep -qE '^[0-9]+$'; then
-    awk -v id="$id" '
-      BEGIN { n=0 }
-      {
-        if ($0 ~ /^-[[:space:]]*\[[ xX]\]/) {
-          n++
-          if (n == id) sub(/\[[ xX]\]/, "[x]")
-        }
-        print
-      }
-    ' "$tasks_file" > "$tmp" && mv "$tmp" "$tasks_file"
-  else
-    awk -v id="$id" '
-      BEGIN { done=0 }
-      {
-        if (!done && $0 ~ /^-[[:space:]]*\[[[:space:]]\]/ && index($0, id)>0) {
-          sub(/\[[[:space:]]\]/, "[x]"); done=1
-        }
-        print
-      }
-    ' "$tasks_file" > "$tmp" && mv "$tmp" "$tasks_file"
+  # Task IDs are whatever `openspec instructions apply --json` (os_list) says
+  # they are, and OpenSpec's counting rule has changed across releases: older
+  # versions counted only column-0 checkboxes, 1.10.0 counts every checkbox
+  # line (nested sub-tasks and `*` bullets included). Re-deriving the count
+  # here drifts whenever the rule changes, and a drift checks off the wrong
+  # task. So resolve the ID through OpenSpec's own list: its description, and
+  # which occurrence of that description it is, then flip that line.
+  # Checkbox lines are matched with OpenSpec 1.10's TASK_LINE_PATTERN
+  # (^\s*[-*]\s*\[([\sxX])\]). Without JSON, fall back to that pattern's
+  # ordinal. A non-numeric id is a text match on the first open task line.
+  local js="" resolved="" tmp
+  js="$(_os_apply_json "$change")" || js=""
+  if [ -n "$js" ]; then
+    resolved="$(printf '%s' "$js" | jq -r --arg id "$id" '
+      (.tasks // []) as $t
+      | ($t | map(.id | tostring) | index($id)) as $i
+      | if $i == null then empty
+        else $t[$i].description as $d
+          | "\([$t[0:$i+1][] | select(.description == $d)] | length)\t\($d)"
+        end' 2>/dev/null)" || resolved=""
   fi
+  tmp="$(mktemp)"
+  if [ -n "$resolved" ]; then
+    KBD_OCC="${resolved%%$'\t'*}" KBD_DESC="${resolved#*$'\t'}" awk '
+      BEGIN { want = ENVIRON["KBD_DESC"]; occ = ENVIRON["KBD_OCC"] + 0; n = 0; hit = 0 }
+      {
+        line = $0; sub(/\r$/, "", line)
+        if (!hit && match(line, /^[[:space:]]*[-*][[:space:]]*\[[[:space:]xX]\]/)) {
+          desc = substr(line, RLENGTH + 1); gsub(/^[[:space:]]+|[[:space:]]+$/, "", desc)
+          if (desc == want && ++n == occ) {
+            prefix = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+            sub(/\[[[:space:]xX]\]$/, "[x]", prefix); $0 = prefix rest; hit = 1
+          }
+        }
+        print
+      }
+      END { exit hit ? 0 : 3 }
+    ' "$tasks_file" > "$tmp"
+    if [ $? -ne 0 ]; then
+      rm -f "$tmp"
+      warn "task $id (\"${resolved#*$'\t'}\") from openspec has no matching line in $tasks_file"
+      return 1
+    fi
+  elif printf '%s' "$id" | grep -qE '^[0-9]+$'; then
+    awk -v id="$id" '
+      BEGIN { n = 0 }
+      {
+        if (match($0, /^[[:space:]]*[-*][[:space:]]*\[[[:space:]xX]\]/)) {
+          if (++n == id) {
+            prefix = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+            sub(/\[[[:space:]xX]\]$/, "[x]", prefix); $0 = prefix rest
+          }
+        }
+        print
+      }
+    ' "$tasks_file" > "$tmp"
+  else
+    KBD_ID="$id" awk '
+      BEGIN { want = ENVIRON["KBD_ID"]; done = 0 }
+      {
+        if (!done && match($0, /^[[:space:]]*[-*][[:space:]]*\[[[:space:]]\]/) && index($0, want) > 0) {
+          prefix = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+          sub(/\[[[:space:]]\]$/, "[x]", prefix); $0 = prefix rest; done = 1
+        }
+        print
+      }
+    ' "$tasks_file" > "$tmp"
+  fi
+  mv "$tmp" "$tasks_file"
 }
 
 os_verify()  { openspec validate "$1" >/dev/null 2>&1; }
