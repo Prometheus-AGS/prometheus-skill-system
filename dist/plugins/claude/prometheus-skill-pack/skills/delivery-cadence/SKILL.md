@@ -43,3 +43,16 @@ Use the selected `.agent-team/project-routing.json` / team manifest and the inst
 Refresh Compass for changed repositories about hourly when resources permit. Record stale/deferred status; do not launch a competing heavy build. Keep optional services optional.
 
 For KBD/native goal binding and the Boss build-and-publication policy, read [harness adapters](references/adapters.md). Completion of this skill never closes unfinished product work.
+
+## Progress Signals
+
+Emit to plain response text (no tool call) at each delivery increment and child-phase boundary:
+
+```
+Starting delivery-cadence — <profile> increment <i> of <n>
+Starting phase <i> out of <n>: <child-phase>
+Completed phase <i> out of <n>: <child-phase>
+Completed delivery-cadence — <profile> increment <i> of <n> (<accepted|pending|blocked>)
+```
+
+Acceptance and publication are reported separately; never report an increment as published because it was accepted.

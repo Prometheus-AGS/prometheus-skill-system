@@ -52,3 +52,14 @@ Karpathy progress is recorded only by the existing canonical boundary flow,
 and `pk` owns knowledge bundles. Never write those stores directly or report
 handoff acceptance as successful task completion. Finish with packet ID, current
 owner/revision, acceptance state, evidence and unresolved work.
+
+## Progress Signals
+
+Emit to plain response text (no tool call):
+
+```
+Starting agent-team-handoff — <team-id>: <from-owner> → <to-owner>
+Completed agent-team-handoff — <team-id>: <accepted|rejected|pending> (<task-count> tasks)
+```
+
+Emit the Completed line only after `handoff-create` or `handoff-accept` returns; report the actual outcome.
