@@ -42,7 +42,10 @@ Use `team-update` only for the schema-v1 local coordination manifest while
 preserving team identity and referenced historical roles. Use
 `$agent-team-creator` for an immutable AgentDefinition, TeamDefinition,
 WorkflowDefinition or PackageManifest revision, its semantic-version diff, native
-re-export, UAR package preflight/install, and DeploymentBinding maintenance. A
+re-export, draft.2 file-backed workspace, UAR package preflight/install, and
+DeploymentBinding maintenance. Manager actions may select an already installed
+package or request a creator-owned revision; they never edit canonical definition
+source, migration receipts, package bytes, or private binding records directly. A
 local ledger edit never updates a resident UAR or BossFang instance.
 
 Use `$agent-team-handoff` for a context-bearing transfer. Ordinary reassignment
