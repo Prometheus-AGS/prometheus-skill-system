@@ -1,4 +1,4 @@
-import { promises as fs } from 'node:fs';
+import { createReadStream, promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { randomUUID } from 'node:crypto';
@@ -65,24 +65,28 @@ export async function withLock(root, action) {
 
 export async function loadState(root, { optional = false, recover = false } = {}) {
   const file = path.join(root, 'events.jsonl');
-  let data;
-  try { data = await fs.readFile(file, 'utf8'); }
-  catch (error) { if (error.code === 'ENOENT' && optional) return null; throw error; }
-  let state = null, seq = 0;
-  const lines = data.split('\n');
-  const incomplete = lines.pop();
-  for (const line of lines) {
-    if (!line) continue;
-    const event = JSON.parse(line);
-    if (event.seq !== seq + 1 || event.state?.eventsSeq !== event.seq) throw new Error(`Cadence event sequence broken at ${seq + 1}`);
-    seq = event.seq; state = event.state;
-  }
+  let state = null, seq = 0, incomplete = '', boundary = 0;
+  try {
+    let pending = '';
+    for await (const chunk of createReadStream(file, { encoding: 'utf8' })) {
+      pending += chunk;
+      for (let newline = pending.indexOf('\n'); newline !== -1; newline = pending.indexOf('\n')) {
+        const line = pending.slice(0, newline);
+        pending = pending.slice(newline + 1);
+        boundary += Buffer.byteLength(line) + 1;
+        if (!line) continue;
+        const event = JSON.parse(line);
+        if (event.seq !== seq + 1 || event.state?.eventsSeq !== event.seq) throw new Error(`Cadence event sequence broken at ${seq + 1}`);
+        seq = event.seq; state = event.state;
+      }
+    }
+    incomplete = pending;
+  } catch (error) { if (error.code === 'ENOENT' && optional) return null; throw error; }
   if (incomplete) {
     if (!recover) throw new Error('Interrupted event append; use resume to preserve and recover the incomplete tail');
     await fs.writeFile(path.join(root, `interrupted-tail-${randomUUID()}.jsonl`), incomplete, { flag: 'wx', mode: 0o600 });
-    const boundary = data.lastIndexOf('\n') + 1;
     const handle = await fs.open(file, 'r+');
-    try { await handle.truncate(Buffer.byteLength(data.slice(0, boundary))); await handle.sync(); }
+    try { await handle.truncate(boundary); await handle.sync(); }
     finally { await handle.close(); }
   }
   if (!state && !optional) throw new Error('Cadence run has no committed state');
