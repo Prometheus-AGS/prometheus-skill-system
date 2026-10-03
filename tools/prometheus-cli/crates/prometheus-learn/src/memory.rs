@@ -57,8 +57,18 @@ impl SurrealMemoryClient {
     pub fn from_env() -> Option<Self> {
         let url = std::env::var("SURREAL_MEMORY_URL")
             .unwrap_or_else(|_| "http://127.0.0.1:23001".to_string());
-
-        Some(Self::new(url))
+        let mut headers = reqwest::header::HeaderMap::new();
+        if let Ok(token) = std::env::var("SURREAL_MEMORY_TOKEN") {
+            if !token.is_empty() {
+                let mut value = reqwest::header::HeaderValue::from_str(&format!("Bearer {token}")).ok()?;
+                value.set_sensitive(true);
+                headers.insert(reqwest::header::AUTHORIZATION, value);
+            }
+        }
+        Some(Self {
+            base_url: url.trim_end_matches('/').to_owned(),
+            client: reqwest::Client::builder().no_proxy().default_headers(headers).build().ok()?,
+        })
     }
 
     /// Check if the server is reachable.

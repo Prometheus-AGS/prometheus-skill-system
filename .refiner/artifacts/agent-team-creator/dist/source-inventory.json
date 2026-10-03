@@ -1,0 +1,262 @@
+[
+  {
+    "file": "CLAUDE.md",
+    "bytes": 59386,
+    "sha256": "5dfdf6298ed8c46e4206b99b0cefd9605995ce076c11aa2e51026a72823cb215"
+  },
+  {
+    "file": "README.md",
+    "bytes": 31352,
+    "sha256": "4161f6f6b7eff019ac72c10f49e59ef43c7aca5604215f3650fcdff7055ea743"
+  },
+  {
+    "file": "SKILLS.md",
+    "bytes": 21916,
+    "sha256": "c31cb240c49fd9fbcd68369bf22db372499489ce7695dc3d0edcd1bfc347ea8f"
+  },
+  {
+    "file": "docs/codex-plugin.md",
+    "bytes": 5846,
+    "sha256": "17488959765e2425af766643e8de312c9b5f46737d432820649d1031b2af429c"
+  },
+  {
+    "file": "docs/generated/runtime-reference.md",
+    "bytes": 4944,
+    "sha256": "49526bc3f41f0dab7953fa24669920f5fa6e4dbe82497b7b5ca4f76e97a700ed"
+  },
+  {
+    "file": "openspec/changes/archive/2026-09-24-agent-team-creator/tasks.md",
+    "bytes": 1832,
+    "sha256": "2f7a2fa0241a66d72452e0f0884331c29f21e30cadc243ff4c3e0bde56bdd4a9"
+  },
+  {
+    "file": "scripts/validate-skills.js",
+    "bytes": 16171,
+    "sha256": "d971648d26b552da7655f130ad3f251806ae01ee0e05132e31668aa6342c62ec"
+  },
+  {
+    "file": "site/docs/operations/generated-reference.md",
+    "bytes": 5083,
+    "sha256": "36320d8bcaa2beff2288c30cee9d966571260275db05d4aada1dc792effe1350"
+  },
+  {
+    "file": "site/scripts/generate-skills-catalog.mjs",
+    "bytes": 5044,
+    "sha256": "bae97a6a866461f365c097506dafca6966d51d7995f1946cfe0475052dca147a"
+  },
+  {
+    "file": "skills/process/.claude-plugin/plugin.json",
+    "bytes": 938,
+    "sha256": "806039961a5a71647713781cb8359410240ab7f1f933ed92eabb57b4429694e0"
+  },
+  {
+    "file": "docs/agent-teams.md",
+    "bytes": 14363,
+    "sha256": "be5f53a59324a7f8c9ffba68e99d1c2b892b048af83d273193affec3b36ef692"
+  },
+  {
+    "file": "docs/guide/24-agent-teams.md",
+    "bytes": 6578,
+    "sha256": "219cb784aa86d714954aa2df2d4aa7f1dcc136302cda0ae23f8d9ee46f462973"
+  },
+  {
+    "file": "skills/process/agent-team-creator/SKILL.md",
+    "bytes": 6629,
+    "sha256": "f9499c34faf89af0b11c8a791998ed4b8dfc643df5e4d976e60885c49a4a4e8b"
+  },
+  {
+    "file": "skills/process/agent-team-creator/agents/openai.yaml",
+    "bytes": 209,
+    "sha256": "6605ed41446890050e2b32534d10ffa2e3d99f5abc7bcb4f810991b9a42d46d1"
+  },
+  {
+    "file": "skills/process/agent-team-creator/assets/intake.json",
+    "bytes": 375,
+    "sha256": "3a6b9ad249b0adf16c730f99143280ace41355a9592efe3eb834b720543477f3"
+  },
+  {
+    "file": "skills/process/agent-team-creator/references/manifest.md",
+    "bytes": 6999,
+    "sha256": "d419e580599a586d0511e245453c660e29c809698d8ad7ba9facb13f97b2f321"
+  },
+  {
+    "file": "skills/process/agent-team-creator/references/models-memory.md",
+    "bytes": 9621,
+    "sha256": "948d23f9c3596899f77405590b9f521fa0428cc1aebc7984604a1b37e80cabec"
+  },
+  {
+    "file": "skills/process/agent-team-creator/references/native-harnesses.md",
+    "bytes": 9491,
+    "sha256": "bf35120b77eb7f18f55c0fd0b86cee8e23681334adcd97639fe23e4781fd4181"
+  },
+  {
+    "file": "skills/process/agent-team-creator/references/task-handoff.md",
+    "bytes": 21479,
+    "sha256": "9eacc067f5684d9318e5809083bd378fda4b7447a0a7f19f203fb4951952cfee"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/.gitignore",
+    "bytes": 14,
+    "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/package.json",
+    "bytes": 382,
+    "sha256": "0f26c4c08d6c2c24d4e68fcc481145ea51e39679ddf0443de6f96530accd2f91"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/adapters-codecs.mts",
+    "bytes": 3075,
+    "sha256": "45bdfeae8048dcaa8149ec89df7260985c0d5066b08df1b608edf0d7c711c90d"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+    "bytes": 8328,
+    "sha256": "0759b7138ca1421be9d79d2684662ce3c054e2a76ca566189e1468e062447670"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/adapters-services.mts",
+    "bytes": 5634,
+    "sha256": "c54f3db1bb899d59f7db901745696f541fc3c3c5626aafad5b571515e6c55d17"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/adapters.mts",
+    "bytes": 5672,
+    "sha256": "0121f618548d1bc72c2c4d233ab771609f0196f29b6afe726cd2f58c551610e1"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/cli.mts",
+    "bytes": 5207,
+    "sha256": "45dbaba85f05246fbffc4cbe0d196ea80cd083c34ecabddfea6c8181d414e39d"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/export-files.mts",
+    "bytes": 1911,
+    "sha256": "36ef91333e7d4b5216826d11ae344e7a87d1497262dfbe0973332563e4afe6f4"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/guidance.mts",
+    "bytes": 7083,
+    "sha256": "e1034056185364cc55b32e3acb21f215445c9bd3ab1925a22bf5b892893c0d52"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/handoff.mts",
+    "bytes": 5447,
+    "sha256": "621ebe0dc0ab197da7e70a121953ed6dd2bf47ca4f3cf35c367aa38dcdaa09e2"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/memory.mts",
+    "bytes": 9559,
+    "sha256": "183a0e80864919c4ab8e16a75aa3774ffbb2e0114780d6ae257562eeebf6fea4"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/models-http.mts",
+    "bytes": 5160,
+    "sha256": "1c71810b84836375f076e4d3aafd3493b1d22ea86e8675588526ca63ff012e27"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/models.mts",
+    "bytes": 12375,
+    "sha256": "ff8a4366a637eb2a02ddbd0b2dd9e7f40411eaba9120da1069a405450f812ec1"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/state-kbd.mts",
+    "bytes": 5227,
+    "sha256": "653614a24dcb49b39089a70c96278393d78a7eef692ca4dae6623dbce4f5a2ee"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/state-tasks.mts",
+    "bytes": 5719,
+    "sha256": "97a0b2986b597636e3a9f1855f0aec88fa9fdfa818404d690d6a40e338e449b2"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/state-validation.mts",
+    "bytes": 9564,
+    "sha256": "b1c89ee09c226e6c38c0f3134a5111a7d9724b75f57ae12a047bfcd8c32a72a6"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/state.mts",
+    "bytes": 4781,
+    "sha256": "51f9b29c50ca14c8ce6af539c203390f44d6215b7c98fb312abd4cee4dacd797"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/types.mts",
+    "bytes": 2719,
+    "sha256": "092b955ed86c49992f60bea8932f0332fa9fac621ec6a9e7364a6ac22f34efd5"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/src/validation.mts",
+    "bytes": 5438,
+    "sha256": "86c67c85760ef2a6b0ebda4016e22e6a8b6c0a1415c1f60dda181849185046b2"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/test-src/export.integration.mts",
+    "bytes": 8255,
+    "sha256": "67966d9ecf9e23476a092bd1ff91bf7cbefb5f79b42eb2db06da3bc74cf3e5ed"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/test-src/fixture.mts",
+    "bytes": 2465,
+    "sha256": "ee2911b7ec3bc832ee6372ff3064e96fab77e2f1836035c35453ee9558eb734a"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/test-src/kbd.integration.mts",
+    "bytes": 9820,
+    "sha256": "af46a51cb71bf8ea300e18c9a534941703934656fa3b9246dcc56a87bef796a5"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/test-src/models-memory.integration.mts",
+    "bytes": 16025,
+    "sha256": "8ab207b37cbbf32d7f25da6a52901fb761377401c82d418aafeab3988d4ef7f7"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/test-src/state.integration.mts",
+    "bytes": 14291,
+    "sha256": "929719ff2a562a6712fcabdb6dd715c64985a650ac497fee5e00406054b9e795"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/tsconfig.json",
+    "bytes": 313,
+    "sha256": "2e1e208abd20ca4c26a103e199feb49bfd39e21eeff32a52575af9c9853bc322"
+  },
+  {
+    "file": "skills/process/agent-team-creator/runtime/tsconfig.tests.json",
+    "bytes": 159,
+    "sha256": "fcb187289ca8003900d8ac1acfbc947de8afbd3b424987482873dd6edaffb060"
+  },
+  {
+    "file": "skills/process/agent-team-creator/schemas/team.schema.json",
+    "bytes": 2808,
+    "sha256": "76ccd7ef710ee72f60ae89480167fa0129da9f795a103849b2315595d2ff59e9"
+  },
+  {
+    "file": "skills/process/agent-team-handoff/SKILL.md",
+    "bytes": 3302,
+    "sha256": "ce8e6c64a50e35ee5f7ce44a07fc98bafd9592cbb896c3dbc076df04d7c5db3e"
+  },
+  {
+    "file": "skills/process/agent-team-handoff/agents/openai.yaml",
+    "bytes": 230,
+    "sha256": "72e890158a9d95da16c829ce97ab76036d156c572888fee688e05fcde6e270ac"
+  },
+  {
+    "file": "skills/process/agent-team-manage/SKILL.md",
+    "bytes": 3811,
+    "sha256": "851a75e5854ad0a2778d274c00585d7da796e96e11b2903d2fd35efd911bc224"
+  },
+  {
+    "file": "skills/process/agent-team-manage/agents/openai.yaml",
+    "bytes": 215,
+    "sha256": "cfaf68e2410f6ebb078c8c4e8ed3b0547728f913ad94b0f112ec5c680816f87e"
+  },
+  {
+    "file": "skills/process/agent-team-models/SKILL.md",
+    "bytes": 3231,
+    "sha256": "1d5bdc4306a02986129563954cbac2b7697b13d3a87771168b4cb6006f912a5c"
+  },
+  {
+    "file": "skills/process/agent-team-models/agents/openai.yaml",
+    "bytes": 231,
+    "sha256": "1a10ef43d4e3fb9b6950c8085baed0bcb690971daf47d1942903ed3b2dbedcae"
+  }
+]

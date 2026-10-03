@@ -1,11 +1,17 @@
 #!/usr/bin/env bats
-# Regression test: os_list and os_mark_done must agree on task ordinal
-# numbering when tasks.md contains nested/indented sub-bullets under a
-# parent task. Prior to the fix, os_mark_done's awk counted every checkbox
-# line regardless of indentation, while os_list defers to the openspec CLI's
-# `instructions apply --json`, which only counts top-level (non-indented)
-# checkboxes. That mismatch caused mark-done to flip the wrong line whenever
-# a task had nested sub-bullets (see kbd-apply.sh os_mark_done).
+# Regression test: os_list and os_mark_done must agree on which line a task ID
+# names. os_list defers to `openspec instructions apply --json`. That API's
+# counting rule has changed across releases: older OpenSpec counted only
+# column-0 checkboxes (an earlier fix here made os_mark_done match that), while
+# OpenSpec 1.10.0 (utils/task-progress.js TASK_LINE_PATTERN) counts EVERY
+# checkbox line, nested sub-tasks at any indent and `*` bullets included. With
+# the top-level-only awk, `mark-done 4` flipped the 4th top-level task while
+# os_list's task 4 was a sub-bullet: the wrong task was checked off.
+# os_mark_done now resolves the ID through OpenSpec's own task list
+# (description + occurrence), so the two cannot drift whatever rule the
+# installed OpenSpec uses.
+
+bats_require_minimum_version 1.5.0
 
 setup() {
   export KBD_APPLY_LIB_ONLY=1
@@ -13,6 +19,7 @@ setup() {
   TMPDIR_ROOT="$(mktemp -d)"
   cd "$TMPDIR_ROOT"
   mkdir -p "openspec/changes/test-nested"
+  printf 'schema: spec-driven\n' > openspec/config.yaml
   cat > "openspec/changes/test-nested/proposal.md" <<'EOF'
 # Proposal: test-nested
 
@@ -30,14 +37,11 @@ EOF
 - [ ] 1.3 Create validator.rs
   - [ ] Add email format sub-rule
   - [ ] Add phone format sub-rule
-  - [ ] Add postal code sub-rule
-  - [ ] Add currency sub-rule
-  - [ ] Add date format sub-rule
+    - [ ] Add E.164 normalization
 - [ ] 1.4 Wire validator into pipeline
-- [ ] 1.5 Write unit tests
-- [ ] 1.6 Write integration tests
-- [ ] 1.7 Update docs/sync-rules-reference.md
-- [ ] 1.8 Run cargo clippy
+* [ ] 1.5 Write unit tests
+- [ ] Write tests
+- [ ] Write tests
 EOF
   # shellcheck source=/dev/null
   . "$SCRIPT"
@@ -47,53 +51,58 @@ teardown() {
   rm -rf "$TMPDIR_ROOT"
 }
 
-@test "os_mark_done ordinal 8 flips the 8th top-level task, not a nested sub-bullet" {
-  run os_mark_done "test-nested" "8"
-  [ "$status" -eq 0 ]
-  grep -qE '^\- \[x\] 1\.8 Run cargo clippy$' "openspec/changes/test-nested/tasks.md"
-  ! grep -qE '^\s+- \[x\]' "openspec/changes/test-nested/tasks.md"
-}
+# The os_list ID of the Nth task whose title is exactly $1 (default: first).
+id_for() { os_list "test-nested" | awk -F'\t' -v t="$1" -v n="${2:-1}" '$3 == t && ++seen == n { print $1 }'; }
+checked_lines() { grep -E '\[[xX]\]' "openspec/changes/test-nested/tasks.md"; }
+checked_count() { checked_lines | grep -c . || true; }
 
-@test "os_mark_done ordinal 3 flips the parent task line, not any of its 5 nested sub-bullets" {
-  run os_mark_done "test-nested" "3"
-  [ "$status" -eq 0 ]
-  grep -qE '^\- \[x\] 1\.3 Create validator\.rs$' "openspec/changes/test-nested/tasks.md"
-  ! grep -qE '^\s+- \[x\]' "openspec/changes/test-nested/tasks.md"
-}
-
-@test "nested sub-bullets never count toward top-level ordinals 4-8" {
-  os_mark_done "test-nested" "4"
-  os_mark_done "test-nested" "5"
-  os_mark_done "test-nested" "6"
-  os_mark_done "test-nested" "7"
-  os_mark_done "test-nested" "8"
-  grep -qE '^\- \[x\] 1\.4 Wire validator into pipeline$' "openspec/changes/test-nested/tasks.md"
-  grep -qE '^\- \[x\] 1\.5 Write unit tests$' "openspec/changes/test-nested/tasks.md"
-  grep -qE '^\- \[x\] 1\.6 Write integration tests$' "openspec/changes/test-nested/tasks.md"
-  grep -qE '^\- \[x\] 1\.7 Update docs/sync-rules-reference\.md$' "openspec/changes/test-nested/tasks.md"
-  grep -qE '^\- \[x\] 1\.8 Run cargo clippy$' "openspec/changes/test-nested/tasks.md"
-  # None of the 5 nested sub-bullets should ever have flipped to [x].
-  local nested_done
-  nested_done="$(grep -cE '^\s+- \[x\]' "openspec/changes/test-nested/tasks.md" || true)"
-  [ "$nested_done" -eq 0 ]
-}
-
-@test "os_list count (8 top-level tasks) matches the number of ordinals os_mark_done accepts" {
+@test "os_list counts nested sub-tasks and * bullets (current OpenSpec rule)" {
   run os_list "test-nested"
   [ "$status" -eq 0 ]
-  local list_count
-  list_count="$(printf '%s\n' "$output" | grep -c .)"
-  [ "$list_count" -eq 8 ]
+  [ "$(printf '%s\n' "$output" | grep -c .)" -eq 10 ]
+}
 
-  # Every ordinal 1..8 from os_list must land on a distinct top-level line
-  # when passed through os_mark_done — i.e. no collisions on nested lines.
-  local i
-  for i in 1 2 3 4 5 6 7 8; do
-    os_mark_done "test-nested" "$i"
+@test "marking a nested sub-task's ID flips that sub-task, not a top-level task" {
+  local id; id="$(id_for "Add email format sub-rule")"
+  [ -n "$id" ]
+  os_mark_done "test-nested" "$id"
+  [ "$(checked_count)" -eq 1 ]
+  checked_lines | grep -qE '^  - \[x\] Add email format sub-rule$'
+}
+
+@test "the ID os_list gives '1.4 Wire validator into pipeline' flips exactly that line" {
+  os_mark_done "test-nested" "$(id_for "1.4 Wire validator into pipeline")"
+  [ "$(checked_count)" -eq 1 ]
+  checked_lines | grep -qE '^- \[x\] 1\.4 Wire validator into pipeline$'
+}
+
+@test "a * bullet task is marked by its os_list ID" {
+  os_mark_done "test-nested" "$(id_for "1.5 Write unit tests")"
+  checked_lines | grep -qE '^\* \[x\] 1\.5 Write unit tests$'
+}
+
+@test "duplicate titles: the second occurrence's ID flips the second line only" {
+  os_mark_done "test-nested" "$(id_for "Write tests" 2)"
+  [ "$(checked_count)" -eq 1 ]
+  [ "$(grep -nE '\[x\] Write tests$' openspec/changes/test-nested/tasks.md | cut -d: -f1)" = \
+    "$(grep -nE 'Write tests$' openspec/changes/test-nested/tasks.md | tail -1 | cut -d: -f1)" ]
+}
+
+@test "every os_list ID flips a distinct line; progress then reports complete" {
+  local id
+  for id in $(os_list "test-nested" | cut -f1); do
+    os_mark_done "test-nested" "$id"
   done
-  local top_done nested_done
-  top_done="$(grep -cE '^\- \[x\]' "openspec/changes/test-nested/tasks.md" || true)"
-  nested_done="$(grep -cE '^\s+- \[x\]' "openspec/changes/test-nested/tasks.md" || true)"
-  [ "$top_done" -eq 8 ]
-  [ "$nested_done" -eq 0 ]
+  [ "$(checked_count)" -eq 10 ]
+  ! grep -qE '\[ \]' "openspec/changes/test-nested/tasks.md"
+  run os_progress "test-nested"
+  [ "$output" = "10 10 0" ]
+}
+
+@test "marking one ID at a time sets exactly that ID's done flag in os_list" {
+  local id
+  for id in $(os_list "test-nested" | cut -f1); do
+    os_mark_done "test-nested" "$id"
+    os_list "test-nested" | awk -F'\t' -v id="$id" '$1 == id { exit ($2 == "1" ? 0 : 1) }'
+  done
 }

@@ -1,0 +1,33 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/progress.json",
+      "line": 1,
+      "claim": "The change rewrites unrelated historical phase state and erases prior completion evidence, violating the requirement to preserve prior event history and unrelated work.",
+      "evidence": "Acceptance criteria say: \"Preserve prior event history, unrelated work\" and design non-goals include \"without rewriting canonical events, resetting earlier evidence\". The diff replaces the existing openspec-mirror-drift-cleanup progress ledger containing completed changes, decisions, QA, commits, and reflection data with a projection showing `\"changes_total\": 0`, `\"changes_completed\": 0`, `\"changes\": []`, and phase evidence/certification/publication as `NOT_TRACKED`.",
+      "suggested_fix": "Revert unrelated `.kbd-orchestrator/phases/**/progress.json` and `tasks.md` rewrites/deletions that are not the active consistency change; if projection format changes are needed, generate them only from canonical history without dropping historical change/evidence content."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/phases/agent-team-creator/handoffs/execute.handoff.json",
+      "line": 3,
+      "claim": "The execute stage is marked complete and handed off to reflect while the active consistency change still has a pending task, allowing stage-gate bypass before QA/review completion.",
+      "evidence": "The new execute handoff has `\"completedAt\": \"2026-09-24T14:51:07.916Z\"`, `\"nextStage\": \"reflect\"`, and summary says `\"Start consistency 1.1; no implementation complete yet\"`; the same diff adds `.kbd-orchestrator/phases/agent-team-creator/progress.json` with `kbd-consistency-before-agent-teams` `\"tasks_total\": 3`, `\"tasks_done\": 2`, and `\"next_task_pending\": \"Run deterministic QA and independent cumulative diff review...\"`. Acceptance task 3.1 is explicitly still unchecked: `Run deterministic QA and independent cumulative diff review...`.",
+      "suggested_fix": "Do not write an execute-stage completion handoff until all execute tasks for the change are complete and reviewed; replace it with an in-progress execution artifact or remove `nextStage: reflect` until task 3.1 completes."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/phases/canonical-lifecycle/tasks.md",
+      "claim": "The diff deletes generated task projections for unrelated phases, removing task visibility outside the reviewed change scope.",
+      "evidence": "The diff deletes `.kbd-orchestrator/phases/canonical-lifecycle/tasks.md` and many other unrelated phase `tasks.md` files; acceptance impact is limited to correcting KBD consistency before agent teams and states that unrelated work must be preserved. Example deleted file contained the canonical-lifecycle task view for five changes, but no acceptance criterion authorizes removing unrelated phase task projections.",
+      "suggested_fix": "Restore deleted unrelated `tasks.md` projections, or regenerate them from canonical state without removing historical phase task views as part of this change."
+    }
+  ]
+}

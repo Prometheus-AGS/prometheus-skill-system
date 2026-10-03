@@ -1,0 +1,9 @@
+{
+  "firstReadyFalse": true,
+  "firstHasNoTeam": true,
+  "firstNamesAllFourOwnershipQuestions": true,
+  "secondExitZero": true,
+  "secondReadyTrue": true,
+  "allFourRolesReturned": true,
+  "everyOwnsMatchesSuppliedPaths": true
+}

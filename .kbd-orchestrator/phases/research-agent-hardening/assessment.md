@@ -98,6 +98,6 @@ ADVERSARIAL REVIEW
 - W2 (G5 descoping): resolved; open question 4 reframed as sequencing only.
 - W3 (compile claim unsupported): resolved by downgrading to UNKNOWN and adding the blocking precondition above. The cargo check itself remains outstanding because another build held the machine at both attempts.
 - S1 (orphan findings): resolved by tagging documentation drift to G1 under C-03 and listing out-of-scope findings as deferred.
-- Sycophancy self-check: score 0.02, one low S-07 length note, no correction. Receipt at `sycophancy/assess-2026-09-03T23:47:29Z.json`.
+- Sycophancy self-check: score 0.02, one low S-07 length note, no correction. Receipt at `sycophancy/assess-2026-09-03T23-47-29Z.json`.
 
 ASSESSMENT COMPLETE

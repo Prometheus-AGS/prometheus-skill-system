@@ -1,0 +1,266 @@
+{
+  "status": "deterministic-and-independent-review-pass",
+  "results": [
+    {
+      "name": "index-1",
+      "command": [
+        "npm",
+        "run",
+        "generate:skills-index"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "docs-sync-1",
+      "command": [
+        "npm",
+        "run",
+        "docs:sync"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "distribution-1",
+      "command": [
+        "npm",
+        "run",
+        "build:distribution"
+      ],
+      "exitCode": 0,
+      "summary": [
+        "Generated 174 skills for Claude and Codex."
+      ]
+    },
+    {
+      "name": "catalog-1",
+      "command": [
+        "node",
+        "site/scripts/generate-skills-catalog.mjs"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "index-2",
+      "command": [
+        "npm",
+        "run",
+        "generate:skills-index"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "docs-sync-2",
+      "command": [
+        "npm",
+        "run",
+        "docs:sync"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "distribution-2",
+      "command": [
+        "npm",
+        "run",
+        "build:distribution"
+      ],
+      "exitCode": 0,
+      "summary": [
+        "Generated 174 skills for Claude and Codex."
+      ]
+    },
+    {
+      "name": "catalog-2",
+      "command": [
+        "node",
+        "site/scripts/generate-skills-catalog.mjs"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "distribution-check",
+      "command": [
+        "node",
+        "scripts/generate-skill-system-distribution.js",
+        "--check"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "strict-creator",
+      "command": [
+        "node",
+        "scripts/validate-skills.js",
+        "--strict",
+        "--exclude-submodules",
+        "skills/process/agent-team-creator"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "strict-manage",
+      "command": [
+        "node",
+        "scripts/validate-skills.js",
+        "--strict",
+        "--exclude-submodules",
+        "skills/process/agent-team-manage"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "strict-models",
+      "command": [
+        "node",
+        "scripts/validate-skills.js",
+        "--strict",
+        "--exclude-submodules",
+        "skills/process/agent-team-models"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "strict-handoff",
+      "command": [
+        "node",
+        "scripts/validate-skills.js",
+        "--strict",
+        "--exclude-submodules",
+        "skills/process/agent-team-handoff"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "plugins",
+      "command": [
+        "npm",
+        "run",
+        "validate:plugins"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "index-check",
+      "command": [
+        "npm",
+        "run",
+        "check:skills-index"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "docs-check",
+      "command": [
+        "npm",
+        "run",
+        "docs:sync:check"
+      ],
+      "exitCode": 0,
+      "summary": []
+    },
+    {
+      "name": "integration",
+      "command": [
+        "node",
+        "--test",
+        "skills/process/agent-team-creator/tests/export.integration.mjs",
+        "skills/process/agent-team-creator/tests/kbd.integration.mjs",
+        "skills/process/agent-team-creator/tests/models-memory.integration.mjs",
+        "skills/process/agent-team-creator/tests/state.integration.mjs"
+      ],
+      "exitCode": 0,
+      "summary": [
+        "✔ packaged guide recommends minimal work and explains editable specialist teams (827.644583ms)",
+        "✔ packaged export uar: parse actual serialized proposals and preserve native files (317.646458ms)",
+        "✔ packaged export bossfang: parse actual serialized proposals and preserve native files (209.100333ms)",
+        "✔ packaged export codex: parse actual serialized proposals and preserve native files (183.694459ms)",
+        "✔ packaged export claude: parse actual serialized proposals and preserve native files (196.981708ms)",
+        "✔ packaged export copilot: parse actual serialized proposals and preserve native files (101.222209ms)",
+        "✔ packaged export kimi: parse actual serialized proposals and preserve native files (198.278625ms)",
+        "✔ packaged export minimax: parse actual serialized proposals and preserve native files (194.735417ms)",
+        "✔ packaged export opencode: parse actual serialized proposals and preserve native files (115.466208ms)",
+        "✔ packaged export deepseek: parse actual serialized proposals and preserve native files (204.236667ms)",
+        "✔ export refuses collisions, unsafe paths and overwriting existing proposals (1179.770667ms)",
+        "✔ manifest rejects misspelled common fields and dependency cycles; native options remain explicit (1277.404583ms)",
+        "✔ all four shipped skill frontmatters use the AgentSkills standard metadata shape (4.427667ms)",
+        "✔ packaged linked completion commits through the real canonical CLI and records its returned identity (10026.740875ms)",
+        "✔ each wrong canonical identity is rejected without canonical or local completion (7021.659208ms)",
+        "✔ a real prior canonical completion reconciles local state without submitting another transition (3863.400583ms)",
+        "✔ packaged model selection resolves every layer and ANDs capabilities (289.305417ms)",
+        "✔ packaged catalog adaptation converts per-token cost and makes deterministic price ties explicit (145.714ms)",
+        "✔ ceilings reject context-tier costs, unknown prices and unknown capabilities (195.145042ms)",
+        "✔ names never infer tiers or aliases, and a static catalog never proves availability (367.299708ms)",
+        "✔ packaged CLI rejects invalid catalog mappings and task policies explicitly (606.457459ms)",
+        "✔ discovery refuses literal credentials, unsafe URLs and invalid environment references before any network request (561.062375ms)",
+        "✔ memory queue is durable across CLI restarts, idempotent, scoped, and refuses identity conflicts (1197.820542ms)",
+        "✔ no memory service preserves queued content and durable unavailable receipt (784.74575ms)",
+        "✔ closed real loopback endpoint preserves durable uncertainty and requires explicit retry (1536.947583ms)",
+        "✔ invalid memory scope mapping, unsupported KBD reference and credentials cannot change durable state (922.329125ms)",
+        "✔ packaged CLI preserves owner/revision boundaries through dependencies, blocking, reassignment and completion (3112.984709ms)",
+        "✔ cancelled dependencies stay unsatisfied and invalid additions never persist (1960.333542ms)",
+        "✔ simultaneous packaged writers have one winner and preserve the other task on revision-aware retry (563.847375ms)",
+        "✔ an existing real filesystem lock is never stolen and team replacement preserves history references (1632.667167ms)",
+        "✔ handoff snapshots real clean/dirty Git and transfers only on targeted revision-safe acceptance (1634.63425ms)",
+        "✔ unknown Git stays explicit and changed, reassigned or cancelled work rejects pending handoffs (1285.803375ms)",
+        "ℹ tests 32",
+        "ℹ suites 0",
+        "ℹ pass 32",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 20986.494375"
+      ]
+    },
+    {
+      "name": "site",
+      "command": [
+        "npm",
+        "--prefix",
+        "site",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "summary": [
+        "Generated API examples are deterministic and current.",
+        "[SUCCESS] Generated static files in \"build\"."
+      ]
+    },
+    {
+      "name": "openspec",
+      "command": [
+        "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/.worktrees/agent-team-creator/node_modules/.bin/openspec",
+        "validate",
+        "agent-team-creator",
+        "--strict"
+      ],
+      "exitCode": 0,
+      "summary": []
+    }
+  ],
+  "limits": [
+    "macOS Node execution only; Windows unverified",
+    "Native formats/source verified; native inference, remote registration and memory success against live services unverified"
+  ],
+  "review": {
+    "model": "gpt-5.5",
+    "producer": "gpt-6",
+    "round": 2,
+    "verdict": "PASS",
+    "findings": 0
+  }
+}

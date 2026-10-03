@@ -36,6 +36,26 @@ export function registerKbd(project, entry) {
   } finally { fs.closeSync(lock); fs.rmSync(`${file}.cadence.lock`); }
 }
 
+/** Keep the approved operation intact across planning dispatch and child scope splits. */
+export function dispatchContext(project, input) {
+  if (!object(input) || !object(input.featureOperation)) {
+    throw new Error('Dispatch requires the approved featureOperation; name its creation task if the procedure is not implemented');
+  }
+  const operation = input.featureOperation;
+  if (!operation.id || !(operation.promisedCapability || operation.outcome) || !operation.procedure || !operation.checkpointId) {
+    throw new Error('Dispatch featureOperation requires id, capability, procedure and checkpointId');
+  }
+  if (!operation.entrypoint && !operation.creationTaskRef) {
+    throw new Error('Dispatch requires a production entrypoint or an approved operation creationTaskRef');
+  }
+  const canonical = canonicalSnapshot(project);
+  if (input.phaseId && input.phaseId !== canonical.phaseId) {
+    throw new Error('Dispatch phase differs from the canonical active phase; reconcile the scope before dispatch');
+  }
+  return { ...input, phaseId: canonical.phaseId, canonical,
+    lifecycleAuthority: 'kbd', operationContractSource: input.operationContractSource ?? null };
+}
+
 export function reconcileKbd(project) {
   const binding = bindingAt(project);
   if (!binding) return { status: 'degraded', reason: 'cadence-binding-absent' };
@@ -48,7 +68,12 @@ export function reconcileKbd(project) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'cadence-kbd-'));
   try {
     const input = path.join(directory, 'canonical.json');
-    writeJson(input, { canonical });
+    const authored = binding.dispatchFile ? readJson(path.resolve(project, binding.dispatchFile)) : {};
+    if (!object(authored)) throw new Error('Cadence dispatchFile must contain an authored JSON object');
+    // Only context flows through the hook; it never creates tasks or certifies a return.
+    writeJson(input, { canonical, featureOperation: authored.featureOperation ?? null,
+      operationContractSource: binding.dispatchFile ?? null,
+      candidateId: authored.candidateId ?? null, workAheadId: authored.workAheadId ?? null });
     return runJson(process.execPath, [entry, 'child', 'reconcile', '--root', stateRoot, '--input', input], project);
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 }
@@ -58,9 +83,13 @@ export async function kbdMain(args, options) {
   const action = args._[0] ?? 'reconcile';
   if (action === 'snapshot') return canonicalSnapshot(project);
   if (action === 'register') return registerKbd(project, options.entry);
+  if (action === 'dispatch') {
+    if (!args.input) throw new Error('Dispatch requires --input with the approved request');
+    return dispatchContext(project, readJson(path.resolve(project, args.input)));
+  }
   if (action === 'reconcile') {
     try { return reconcileKbd(project); }
     catch { return { status: 'degraded', reason: 'canonical-or-cadence-reconciliation-unavailable' }; }
   }
-  throw new Error('Use register, snapshot, or reconcile');
+  throw new Error('Use register, snapshot, dispatch, or reconcile');
 }

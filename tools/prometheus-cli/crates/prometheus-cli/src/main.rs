@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 use std::collections::BTreeMap;
 
 mod commands;
+mod host;
 
 #[derive(Parser)]
 #[command(name = "prometheus")]
@@ -928,8 +929,13 @@ enum LearningAction {
     },
 }
 
+fn main() -> Result<()> {
+    if let Some(code) = host::launch_if_needed()? { std::process::exit(code); }
+    run()
+}
+
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn run() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()),

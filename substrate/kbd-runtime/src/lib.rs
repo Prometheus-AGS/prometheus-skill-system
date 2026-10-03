@@ -5212,6 +5212,22 @@ impl Runtime {
         } else {
             None
         };
+        let active_phase_record = active_phase_id
+            .as_ref()
+            .and_then(|phase_id| state.phases.get(phase_id));
+        let parent_phase = active_phase_record
+            .and_then(|phase| phase.parent_phase_id.as_ref())
+            .and_then(|parent_id| state.phases.get(parent_id))
+            .map(|phase| phase.slug.clone());
+        let stage_status = active_phase_record
+            .and_then(|phase| {
+                state
+                    .active_path
+                    .stage_id
+                    .as_ref()
+                    .and_then(|stage_id| phase.stages.get(stage_id))
+            })
+            .map(|stage| work_status_name(&stage.status));
         let implementation = state
             .completion
             .get(&CompletionDimension::Implementation)
@@ -5238,11 +5254,14 @@ impl Runtime {
             "activePhaseId": active_phase_id,
             "activePhase": active_phase.clone(),
             "phase": waypoint_phase.clone(),
-            "parentPhase": phase_path.first().cloned(),
+            "parentPhase": parent_phase,
             "childPointer": child_pointer,
             "change": waypoint_change,
             "currentTask": waypoint_task,
             "status": lifecycle_name(&state.lifecycle),
+            "lifecycle": lifecycle_name(&state.lifecycle),
+            "stageId": state.active_path.stage_id,
+            "stageStatus": stage_status,
             "completionMetric": "implementation",
             "implementationCompleted": implementation.completed,
             "implementationTotal": implementation.total,
@@ -5294,7 +5313,9 @@ impl Runtime {
         let reminder = format!(
             "POSITION REMINDER — read this as your FIRST tool call every turn\n\
              Position: {position}\n\
-             Stage: {status}\n\
+             Stage: {stage}\n\
+             Stage status: {stage_status}\n\
+             Lifecycle: {lifecycle}\n\
              Project-wide progress: {done} of {total} (implementation, ALL phases)\n\
              {next_work}\
              Operator note (intent, NOT a work selector — may name superseded work): {next}\n\
@@ -5310,7 +5331,9 @@ impl Runtime {
              not available here. For THIS phase read the active phase's\n\
              revision-bound progress.json, where changes[] is authoritative.\n",
             position = position,
-            status = lifecycle_name(&state.lifecycle),
+            stage = state.active_path.stage_id.as_deref().unwrap_or("(none)"),
+            stage_status = stage_status.unwrap_or("(none)"),
+            lifecycle = lifecycle_name(&state.lifecycle),
             done = implementation.completed,
             total = implementation.total,
             next_work = next_work_line,
@@ -6171,6 +6194,19 @@ fn phase_progress_projection(
         "completion": {
             "primaryCounter": "implementation",
             "implementation": count_completion_projection(&implementation),
+            "evidence": {"status": "NOT_TRACKED", "summary": null, "blockers": []},
+            "certification": {"status": "NOT_TRACKED", "summary": null, "blockers": []},
+            "publication": {"status": "NOT_TRACKED", "summary": null, "blockers": []}
+        },
+        "completionScopes": {
+            "completion": "phase",
+            "runCompletion": "run"
+        },
+        "runCompletion": {
+            "scope": "run",
+            "runId": state.run_id,
+            "primaryCounter": "implementation",
+            "implementation": count_completion_projection(&dimension(CompletionDimension::Implementation)),
             "evidence": status_completion_projection(&dimension(CompletionDimension::Evidence)),
             "certification": status_completion_projection(&dimension(CompletionDimension::Certification)),
             "publication": status_completion_projection(&dimension(CompletionDimension::Publication))

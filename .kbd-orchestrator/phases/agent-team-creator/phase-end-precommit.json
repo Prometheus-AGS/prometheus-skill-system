@@ -1,0 +1,125 @@
+{
+  "outcome": "pass",
+  "authoritativeRevision": 1354,
+  "sourceRevision": 1354,
+  "position": "agent-team-creator",
+  "findings": [],
+  "outstandingObligations": {
+    "phase:agent-team-creator": {
+      "key": "phase:agent-team-creator",
+      "receiptId": "c2d197221625515bc68edbc4610112ad4e82aeb776dbb9887e2bcb4b775acd4b",
+      "boundary": "phase",
+      "subject": "agent-team-creator",
+      "sourceRevision": 1295,
+      "exactSignal": "Starting phase 6 out of 6: agent-team-creator"
+    },
+    "phase:control-plane-to-companion": {
+      "key": "phase:control-plane-to-companion",
+      "receiptId": "6b623f80c1b11b83b9f02c983b3fa8c07459d98f1f089f9b75ff26b892914cc1",
+      "boundary": "phase",
+      "subject": "control-plane-to-companion",
+      "sourceRevision": 385,
+      "exactSignal": "Starting phase 3 out of 3: control-plane-to-companion"
+    },
+    "phase:deep-research-onyx-parity": {
+      "key": "phase:deep-research-onyx-parity",
+      "receiptId": "c84904edcec054b380cb083745af2928d4c408ac22967485d7a9968c14a4119d",
+      "boundary": "phase",
+      "subject": "deep-research-onyx-parity",
+      "sourceRevision": 916,
+      "exactSignal": "Starting phase 5 out of 5: deep-research-onyx-parity"
+    },
+    "phase:deep-research-onyx-parity::stage-10-hang-investigation": {
+      "key": "phase:deep-research-onyx-parity::stage-10-hang-investigation",
+      "receiptId": "522f4364cdba756d39d95e7182db10c2e7152862b20f5988c3080a5f69458333",
+      "boundary": "phase",
+      "subject": "deep-research-onyx-parity::stage-10-hang-investigation",
+      "sourceRevision": 1102,
+      "exactSignal": "Starting phase 1 out of 1: stage-10-hang-investigation"
+    },
+    "phase:research-agent-hardening": {
+      "key": "phase:research-agent-hardening",
+      "receiptId": "8be7b4584cf2ee95249a7386c3e2bb7a645d67da0998b214aaff20a7b7ccf8a4",
+      "boundary": "phase",
+      "subject": "research-agent-hardening",
+      "sourceRevision": 612,
+      "exactSignal": "Starting phase 4 out of 4: research-agent-hardening"
+    },
+    "task:create companion skills/sync-status|sync-peers|sync-push and skill-package.json; rewrite endpoint references": {
+      "key": "task:create companion skills/sync-status|sync-peers|sync-push and skill-package.json; rewrite endpoint references",
+      "receiptId": "48d1e26a2d1575c0d23a3d5eabe26e996615b0b000e428077d7aeb73c41fb4b2",
+      "boundary": "task",
+      "subject": "Create Companion skills/sync-status|sync-peers|sync-push and skill-package.json; rewrite endpoint references",
+      "sourceRevision": 608,
+      "exactSignal": "Starting task 1 out of 1: Create Companion skills/sync-status|sync-peers|sync-push and skill-package.json; rewrite endpoint references"
+    },
+    "task:define the label enum, graph.json schema with claim labels, and the package derivation rule in okf-research-format.md and research-package-spec.md": {
+      "key": "task:define the label enum, graph.json schema with claim labels, and the package derivation rule in okf-research-format.md and research-package-spec.md",
+      "receiptId": "212075ce31b87ecf2e6c1843a500c85d5bee7fdbad7e224a0890e0e5634da086",
+      "boundary": "task",
+      "subject": "Define the label enum, graph.json schema with claim labels, and the package derivation rule in okf-research-format.md and research-package-spec.md",
+      "sourceRevision": 758,
+      "exactSignal": "Starting task 1 out of 1: Define the label enum, graph.json schema with claim labels, and the package derivation rule in okf-research-format.md and research-package-spec.md"
+    },
+    "task:implement scripts/merge-threads.sh: union sources by canonical url into the existing stage 02/04 shapes, chunks into stage 03, claims by content-addressed id, and write citation-map.json": {
+      "key": "task:implement scripts/merge-threads.sh: union sources by canonical url into the existing stage 02/04 shapes, chunks into stage 03, claims by content-addressed id, and write citation-map.json",
+      "receiptId": "c894f0329b2fcf31dbed255a7b2379cdf8abe3aa41e740031d0cf46a3343ff02",
+      "boundary": "task",
+      "subject": "Implement scripts/merge-threads.sh: union sources by canonical URL into the existing stage 02/04 shapes, chunks into stage 03, claims by content-addressed id, and write citation-map.json",
+      "sourceRevision": 1010,
+      "exactSignal": "Starting task 1 out of 1: Implement scripts/merge-threads.sh: union sources by canonical URL into the existing stage 02/04 shapes, chunks into stage 03, claims by content-addressed id, and write citation-map.json"
+    },
+    "task:re-derive and record the footprint; delete substrate/sovereign-sync, sovereign-client, kbd-mobile, storage-provider iroh_docs.rs and its feature; retire the four sovereign-sync openspec main specs with a decision record; delete docs/sovereign_sync_testing.md; cut the estate-feature dependency in prometheus-exec/exec-remote": {
+      "key": "task:re-derive and record the footprint; delete substrate/sovereign-sync, sovereign-client, kbd-mobile, storage-provider iroh_docs.rs and its feature; retire the four sovereign-sync openspec main specs with a decision record; delete docs/sovereign_sync_testing.md; cut the estate-feature dependency in prometheus-exec/exec-remote",
+      "receiptId": "9cf4d5ab1c96960eab82a1ead9b854e2f84ce43354c3f0b6c909332039d7fe03",
+      "boundary": "task",
+      "subject": "Re-derive and record the footprint; delete substrate/sovereign-sync, sovereign-client, kbd-mobile, storage-provider iroh_docs.rs and its feature; retire the four sovereign-sync OpenSpec main specs with a decision record; delete docs/SOVEREIGN_SYNC_TESTING.md; cut the estate-feature dependency in prometheus-exec/exec-remote",
+      "sourceRevision": 650,
+      "exactSignal": "Starting task 1 out of 1: Re-derive and record the footprint; delete substrate/sovereign-sync, sovereign-client, kbd-mobile, storage-provider iroh_docs.rs and its feature; retire the four sovereign-sync OpenSpec main specs with a decision record; delete docs/SOVEREIGN_SYNC_TESTING.md; cut the estate-feature dependency in prometheus-exec/exec-remote"
+    },
+    "task:release-skill-pack-1-10-recovery/recovery-4": {
+      "key": "task:release-skill-pack-1-10-recovery/recovery-4",
+      "receiptId": "9e26f18f080e8f9d830288e4b4656dab9f12e486d5fd031e662c03c35132276e",
+      "boundary": "task",
+      "subject": "release-skill-pack-1-10-recovery/recovery-4",
+      "sourceRevision": 1186,
+      "exactSignal": "Starting task 4 out of 6: Integrate unique recovered work onto current origin main"
+    },
+    "task:repoint probes and cli (doctor.rs, setup.rs, control_transport.rs) to optional contract discovery with no warning when absent; add the doctor test case; update shell tests": {
+      "key": "task:repoint probes and cli (doctor.rs, setup.rs, control_transport.rs) to optional contract discovery with no warning when absent; add the doctor test case; update shell tests",
+      "receiptId": "ece5b58210a47767658a46552930de5bd3ad697809ad422d457b24ea281e17f0",
+      "boundary": "task",
+      "subject": "Repoint probes and CLI (doctor.rs, setup.rs, control_transport.rs) to optional contract discovery with no warning when absent; add the doctor test case; update shell tests",
+      "sourceRevision": 662,
+      "exactSignal": "Starting task 2 out of 2: Repoint probes and CLI (doctor.rs, setup.rs, control_transport.rs) to optional contract discovery with no warning when absent; add the doctor test case; update shell tests"
+    },
+    "task:update site/docs, docs/codex-plugin.md, and claude.md; regenerate plugin surfaces; run validate:codex and the footprint check": {
+      "key": "task:update site/docs, docs/codex-plugin.md, and claude.md; regenerate plugin surfaces; run validate:codex and the footprint check",
+      "receiptId": "044fdc5154c4ac030906a3e511cd0e4c82933be4abd80b09fff2bd4ca45ac391",
+      "boundary": "task",
+      "subject": "Update site/docs, docs/codex-plugin.md, and CLAUDE.md; regenerate plugin surfaces; run validate:codex and the footprint check",
+      "sourceRevision": 691,
+      "exactSignal": "Starting task 3 out of 3: Update site/docs, docs/codex-plugin.md, and CLAUDE.md; regenerate plugin surfaces; run validate:codex and the footprint check"
+    },
+    "task:vendor the adopted criteria, english criteria prompt, and a 10-task query subset pinned at upstream commit 469cce54; write attribution.md per apache-2.0": {
+      "key": "task:vendor the adopted criteria, english criteria prompt, and a 10-task query subset pinned at upstream commit 469cce54; write attribution.md per apache-2.0",
+      "receiptId": "26cd0e8b68314439cc2bafd3585917c64b9ef62290c97fa86c9a733f8ca74bea",
+      "boundary": "task",
+      "subject": "Vendor the adopted criteria, English criteria prompt, and a 10-task query subset pinned at upstream commit 469cce54; write ATTRIBUTION.md per Apache-2.0",
+      "sourceRevision": 1098,
+      "exactSignal": "Starting task 1 out of 1: Vendor the adopted criteria, English criteria prompt, and a 10-task query subset pinned at upstream commit 469cce54; write ATTRIBUTION.md per Apache-2.0"
+    },
+    "task:write research-manifest.schema.json from the spec; make the spec normative (no .research suffix, plan.md, package dir naming); delete the template": {
+      "key": "task:write research-manifest.schema.json from the spec; make the spec normative (no .research suffix, plan.md, package dir naming); delete the template",
+      "receiptId": "4d58a2fd94f51787bb94306cd24143653a48e32a004e8027135cf9f1ada52c28",
+      "boundary": "task",
+      "subject": "Write research-manifest.schema.json from the spec; make the spec normative (no .research suffix, plan.md, package dir naming); delete the template",
+      "sourceRevision": 702,
+      "exactSignal": "Starting task 1 out of 1: Write research-manifest.schema.json from the spec; make the spec normative (no .research suffix, plan.md, package dir naming); delete the template"
+    }
+  },
+  "exactSignal": "Completed phase 6 out of 6: agent-team-creator",
+  "repairedProjections": [],
+  "receiptId": null,
+  "precommit": true
+}

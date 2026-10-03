@@ -31,6 +31,13 @@ while [[ $# -gt 0 ]]; do
 done
 [[ -d "$project_path" ]] || die "--path is not a directory: $project_path"
 project_path="$(cd "$project_path" && pwd)"
+
+# Shared UI contract preflight before legacy writes; the helper uses Node on every platform.
+uiux_runtime="$SKILL_ROOT/../prometheus-ui-ux/scripts/cli.mjs"
+[[ -f "$uiux_runtime" ]] || uiux_runtime="$SKILL_ROOT/../../ui-ux/prometheus-ui-ux/scripts/cli.mjs"
+[[ -f "$uiux_runtime" ]] || die "bundled prometheus-ui-ux runtime missing"
+node "$uiux_runtime" install --project "$project_path" --dry-run >/dev/null
+
 [[ -d "$SRC" && -f "$ASSETS/v4/rules/build.py" ]] || die "skill payload missing: references/rules-src or assets/v4"
 command -v python3 >/dev/null 2>&1 || die "python3 is required for the v4 layout"
 
@@ -181,3 +188,7 @@ Next: replace the first §P line in rules/src/constitution.md; set Status in rul
 $( [[ "$dry_run" == "1" ]] && echo "DRY RUN — nothing was written." )
 Completed prometheus-context-bootstrap — $project_path
 EOF
+
+if [[ "$dry_run" != "1" ]]; then
+  node "$uiux_runtime" install --project "$project_path"
+fi

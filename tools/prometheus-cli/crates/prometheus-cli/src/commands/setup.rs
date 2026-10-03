@@ -135,11 +135,7 @@ fn detect_launchd(label: &str) -> bool {
 }
 
 fn detect_binary(name: &str) -> bool {
-    std::process::Command::new("which")
-        .arg(name)
-        .output()
-        .map(|o| o.status.success())
-        .unwrap_or(false)
+    crate::host::find_executable(name).is_some()
 }
 
 // ─── Staleness detection ────────────────────────────────────────────────────
@@ -187,8 +183,7 @@ fn repo_root() -> Option<PathBuf> {
 /// so we check that path specifically rather than whatever `which` returns first on PATH
 /// (which may shadow our install with an unrelated leftover in `/usr/local/bin/`).
 fn binary_mtime(name: &str) -> Option<SystemTime> {
-    let bin_dir = dirs::home_dir()?.join(".local/bin");
-    let path = bin_dir.join(name);
+    let path = bin_dir().join(format!("{name}{}", std::env::consts::EXE_SUFFIX));
     std::fs::metadata(&path).ok()?.modified().ok()
 }
 
@@ -433,7 +428,8 @@ fn load_launchd_pk_mcp() -> Result<()> {
 // (not liter-llm).
 
 fn bin_dir() -> PathBuf {
-    dirs::home_dir().unwrap_or_default().join(".local/bin")
+    std::env::var_os("PROMETHEUS_COMMAND_DIRECTORY").map(PathBuf::from)
+        .unwrap_or_else(|| dirs::home_dir().unwrap_or_default().join(".local/bin"))
 }
 
 /// Shared helper: build a single cargo package in `crate_dir`, then copy the
@@ -450,10 +446,11 @@ fn cargo_build_and_install(crate_dir: &Path, pkg: &str, bin_name: &str) -> Resul
         .status()?;
     anyhow::ensure!(status.success(), "cargo build failed for {pkg}");
 
-    let src = crate_dir.join("target/release").join(bin_name);
+    let filename = format!("{bin_name}{}", std::env::consts::EXE_SUFFIX);
+    let src = crate_dir.join("target/release").join(&filename);
     let dst_dir = bin_dir();
     std::fs::create_dir_all(&dst_dir)?;
-    let dst = dst_dir.join(bin_name);
+    let dst = dst_dir.join(&filename);
     std::fs::copy(&src, &dst)
         .with_context(|| format!("failed to copy {} → {}", src.display(), dst.display()))?;
     Ok(())
@@ -693,6 +690,7 @@ pub async fn run(
     check: bool,
     rebuild: bool,
 ) -> Result<()> {
+    if crate::host::is_managed() { return crate::host::setup(full, check, dry_run, rebuild); }
     // --rebuild implies --non-interactive (locked decision: rebuild is automation).
     let non_interactive = non_interactive || rebuild;
 

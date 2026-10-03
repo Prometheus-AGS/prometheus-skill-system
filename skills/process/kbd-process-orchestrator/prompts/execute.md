@@ -11,8 +11,10 @@ Select the best execution backend for the active phase, write a canonical KBD
 execution artifact, dispatch the phase to the appropriate tool(s), and preserve
 KBD as the single source of truth for execution state.
 
-This is an orchestration step. You select, delegate, and coordinate — you do
-not necessarily execute all tasks yourself.
+You select, delegate, and coordinate the work through completion; you do not
+necessarily execute every task yourself. Dispatch is the beginning of Execute.
+Keep the parent Execute stage active until every assigned change/task and its
+required QA, review, verification, and archival work has completed.
 
 ## Model Selection
 
@@ -109,7 +111,8 @@ authorize substituting a model or bypassing unresolved worker prerequisites.
 
 ## Required Output
 
-Write `.kbd-orchestrator/phases/<phase-name>/execution.md`:
+At dispatch, write `.kbd-orchestrator/phases/<phase-name>/execution.md`:
+This is a dispatch contract, not evidence that Execute has completed.
 
 ```md
 EXECUTION: <phase-name>
@@ -163,16 +166,22 @@ BLOCKERS
 
 - <blocker or NONE>
 
-REFLECTION HANDOFF
+PLANNED REFLECTION INPUTS
 
-- <what kbd-reflect should consume from this phase>
+- <what kbd-reflect should consume after execution completes>
 
-EXECUTION READY
+DISPATCH READY — EXECUTE REMAINS ACTIVE
 ```
 
-Register changes/tasks and refresh canonical execution state through typed KBD
-commands. Runtime-owned progress and waypoint files are projections; never edit
-their counters directly. Legacy initialization follows the existing KBD adapter.
+Write a separate phase-root `execute-dispatch.json` receipt containing the
+actual dispatch time, assigned changes, and pending work. It must not carry
+`completedAt` or `nextStage: reflect` and must not occupy
+`handoffs/execute.handoff.json`. Do not emit `execute:after` at dispatch.
+
+Register missing changes/tasks through typed `prometheus kbd change register`
+and `task register` commands and record the active stage through `stage enter`
+/ `stage transition`. Let the runtime create or refresh missing progress and
+waypoint projections; never initialize them by copying a compatibility schema.
 
 ## Dispatch Protocol
 
@@ -229,7 +238,19 @@ Plan/execute boundary (F3): `/kbd-plan` *creates* the change (`/opsx:new`);
 
 ## Completion Condition
 
-Execute phase is complete when `execution.md` exists, all changes have backend
-assignments and handoff notes, every task has a scoped model selection with route
-status, and canonical execution state is registered. Unresolved routes remain
-explicit blockers; execution-ready artifacts are not proof of completed work.
+The dispatch contract and registered work only establish readiness. Execute
+is complete only after all changes/tasks assigned to this phase’s execution
+scope are complete, required QA and independent review are satisfied by real
+receipts or an explicitly permitted signed waiver, and required driver
+verification/archive operations have succeeded for every applicable change.
+Include phase-owned reconciliation work; one completed change cannot complete
+the parent stage. `pending_review`, blockers, or missing evidence keep Execute
+active even if implementation N/N is complete.
+
+At that boundary, use a typed `prometheus kbd stage transition` to record
+Execute completion, fire `execute:after`, inspect its actual outcome under
+project hook policy, and write `handoffs/execute.handoff.json` only once the
+required outcomes are satisfied. Follow the completion checklist and handoff
+contract in `skills/kbd-execute/SKILL.md`. That handoff names completed scope
+and real QA/review/verification/archive evidence for Reflect. Never infer past
+hook success or write a completion handoff merely because dispatch is ready.

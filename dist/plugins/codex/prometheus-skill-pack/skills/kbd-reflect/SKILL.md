@@ -75,7 +75,7 @@ All changes for this phase must be:
 
 - Implemented (`implementation_status: COMPLETE` in `progress.json`)
 - QA gate passed (artifact-refiner, unless skipped)
-- If OpenSpec: verified (`/opsx:verify`) and archived (`/opsx:archive`)
+- If OpenSpec: verified (`kbd-apply verify`) and archived (`kbd-apply archive`)
 - If native KBD: moved to `.kbd-orchestrator/changes/archive/<date>-<id>/`
 
 These are separate prerequisites: implementation completion drives the N/N
@@ -118,7 +118,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 6. **Follow the reflect protocol** in `../prompts/reflect.md`
 7. **Write reflection** to `.kbd-orchestrator/phases/<phase>/reflection.md`
 8. **If evolver bridge exists**: write execution results back to evolver state
-9. **Advance the waypoint** to the next phase
+9. **Advance when authorized** through `/kbd-next-phase`; its helper activates the phase and generates projections
 10. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
 
 ## Examples
@@ -180,6 +180,8 @@ kbd_stage_gate reflect || exit 2
 kbd_stage_handoff_write reflect "<1–3 sentences: deltas found, corrective actions, recommended next phase>" reflection.md
 ```
 
-Phases without a `handoffs/` directory are legacy: the gate warns and passes.
+A missing `handoffs/` directory does not bypass required predecessors.
+A missing required handoff fails with remediation: complete the predecessor
+stage, or record an explicit skip with its reason under project policy.
 A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
 "<reason>"`. Schema: `references/schemas/handoff.schema.json`.

@@ -183,7 +183,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
     Reconcile all emitted task IDs with the table before handoff; re-vet material
     changes to scope or routing, then reconcile again.
 11. **Write evolver-bridge.json** if evolver plan exists
-12. **Refresh waypoint** files (`current-waypoint.md` and `current-waypoint.json`)
+12. **Record plan state** through typed KBD stage/change/task commands; the runtime regenerates progress and waypoint projections
 
 ## Examples
 
@@ -223,6 +223,8 @@ kbd_stage_gate plan || exit 2
 kbd_stage_handoff_write plan "<1–3 sentences: change count, ordering rationale, first change; Task model assignments location and unresolved routes; review warnings>" plan.md
 ```
 
-Phases without a `handoffs/` directory are legacy: the gate warns and passes.
+A missing `handoffs/` directory does not bypass required predecessors.
+A missing required handoff fails with remediation: complete the predecessor
+stage, or record an explicit skip with its reason under project policy.
 A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
 "<reason>"`. Schema: `references/schemas/handoff.schema.json`.

@@ -87,29 +87,44 @@ directly names this policy.
   only after the implementation covers the specification and again at final local
   certification when applicable.
 
-### Rust build-speed, lock, and disk discipline
+### Rust development skills and phase gates
 
-- Do not run `cargo build`, `cargo test`, `cargo clippy`, or a workspace-wide
-  `cargo check` during ordinary implementation. Batch the code first.
-- When intermediate compiler feedback is indispensable, use one package-scoped
-  `cargo check -p <package>` (or an exact `--manifest-path`) without
-  `--workspace` or `--all-targets`. `cargo check` is a compiler diagnostic, not
-  test evidence.
+- For any Rust or Cargo task, load `prometheus-rust-workspace` first. It routes to
+  the minimum relevant installed skills and keeps its detailed catalog out of the
+  resident context. Use `rust-best-practices` for general Rust work,
+  `rust-async-patterns` for Tokio/concurrency, and `rust-mcp-server-generator` for
+  Rust MCP server or transport work. Project dependency pins always win over
+  generator examples.
+- Skill activation provides static guidance; it does not authorize immediate
+  command execution. Finish every planned production change in the phase, then run
+  one consolidated integration batch at the final phase boundary. A task/change
+  boundary, reviewer request, or available check command does not authorize earlier
+  verification. Use an intermediate package-scoped compiler check only when an
+  observed compiler error blocks further implementation.
+- Start with the smallest integration target that exercises the real production path
+  and collaborators. Unit, module-local, mock-only, and filtered function tests do
+  not count as completion evidence. Escalate only when the change or diagnostics
+  cross package boundaries. Repository acceptance still requires the full
+  integration gates defined above.
+- Read all diagnostics, batch fixes, and rerun only the smallest confirming command.
+  Reserve workspace-wide, all-target, release, Clippy, specialized, and feature
+  matrix commands for the applicable final boundary.
 - Only one Cargo/rustc build process may operate on the development machine at a
-  time. Check for any active local build before starting, reuse or wait for it,
-  and never dispatch competing Rust builds from agents, terminals, worktrees, or
-  other repositories.
-- Reserve full-workspace, all-target, release, Clippy, and full-integration builds
-  for the completed implementation's final local certification or for producing a
-  specifically requested artifact. Combine edits and fix failures in batches to
-  minimize relinks and lock reacquisition.
-- Keep separate default `target/` directories per Cargo workspace/worktree to
-  isolate build locks. Share compiled work across them through `sccache`; do not
-  point concurrent worktrees at one shared Cargo target directory.
-- Repository Cargo profiles must favor fast iteration and small artifacts: no dev
-  or test debug payloads, incremental compilation enabled, high parallel codegen
-  units, and automatic global-cache cleanup. Production/release optimization is
-  deferred to the final build.
+  time. Check for an active build, reuse or wait for it, and never dispatch competing
+  builds from agents, terminals, worktrees, or other repositories.
+- Keep separate default `target/` directories per workspace/worktree. Share compiled
+  work through `sccache`; do not point concurrent worktrees at one target directory,
+  create extra targets to bypass ordinary contention, or run `cargo clean` unless
+  cleanup is the task.
+- Repository Cargo profiles must favor fast iteration and small artifacts. Defer
+  production/release optimization to the final build.
+
+## Agent Team Routing
+
+For complex work, use the harness's installed agent team. Assign production work
+to implementation roles with disjoint ownership. Keep reviewer, auditor, verifier,
+and integration-checker roles dormant until every planned production change in the
+phase is complete; those roles run only at the single final integration boundary.
 
 ## Memory — Check Before You Code, Write After You Ship
 
@@ -970,19 +985,34 @@ Codex CLI (OpenAI) discovers skills differently from every other platform in thi
 Two of its behaviours are load-bearing and non-obvious — both were verified empirically
 against codex-cli 0.144.1.
 
-### Codex plugin & marketplace (generated — parity with the Claude plugin)
+### Codex plugin & marketplace (generated from the shared inventory)
 
-The pack ships a Codex plugin in parity with `.claude-plugin/`. Artifacts are
-**generated**, never hand-edited: `npm run build:codex` emits
-`.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json` from the
-canonical `.claude-plugin/*` sources; `npm run validate:codex` (`--check`) is the
-local drift/validity guard. Codex reads the existing `mcpServers`-wrapper `.mcp.json`
-and the PascalCase `hooks/hooks.json` **as-is** (verified: `codex plugin
-marketplace add .` resolves all 11 plugins; the 7 MCP servers register). Full
-guide: [`docs/codex-plugin.md`](docs/codex-plugin.md). Codex verbs are `codex
-plugin marketplace add` / `codex plugin add|remove|list` (not `install`/`details`
-— those are *Claude* plugin verbs). Codex also reads the legacy
-`.claude-plugin/marketplace.json`.
+The four agent-team procedures (`agent-team-creator`, `agent-team-manage`,
+`agent-team-models`, `agent-team-handoff`) are ordinary distributed skills.
+Their process-domain source roster is `skills/process/.claude-plugin/plugin.json`;
+generated plugin payloads and catalog entries remain generator-owned. Their shared
+runtime is `agent-team-creator/scripts/cli.mjs` (Node.js 22+), compiled from the
+skill's TypeScript 7 `.mts` sources and shipped without runtime dependencies.
+
+Team export is separate from plugin installation: it stages native
+`.codex/agents/*.toml` and optional `.codex/config.toml` proposals with provenance
+and rejects collisions. Do not add an unverified `agents` field to Codex plugin
+manifests, infer execution from export, or overwrite existing project config.
+See [the agent-team request guide](docs/agent-teams.md) and the skill's
+[native contract reference](skills/process/agent-team-creator/references/native-harnesses.md).
+
+The Codex package and marketplace are **generated**, never hand-edited.
+`npm run build:codex` runs `scripts/generate-skill-system-distribution.js` from
+`skill-system.json` and its collected skill inventory; `npm run validate:codex`
+runs its local drift check. The packaged manifest lives in
+`dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json`; the
+marketplace is `.agents/plugins/marketplace.json`. The manifest advertises skills
+and MCP, and does not contain `hooks` or a native-team `agents` field.
+`scripts/build-codex-plugin.js` is a compatibility wrapper that also rejects a
+`hooks` field. Full guide: [`docs/codex-plugin.md`](docs/codex-plugin.md).
+The recorded codex-cli 0.144.1 install verbs were `codex plugin marketplace add`
+and `codex plugin add|remove|list`; inspect the installed CLI before applying
+historical invocation evidence to a new version.
 
 Codex and ordinary `prometheus setup --full` use the signed local KBD runtime;
 they do not require an always-on control plane. Cross-machine replication is an
@@ -1050,29 +1080,16 @@ macOS `/bin/bash` is 3.2. `mapfile` and `declare -A` do not exist there and fail
 exit 127 under launchd even though they work in an interactive bash 5 shell. Test any
 launchd-invoked script with `/bin/bash script.sh`, not just `bash script.sh`.
 
-### Codex hooks — two paths, one works
+### Codex hook evidence and current packaging
 
-The `config.toml [hooks]` **snake_case** path (`pre_tool_use`, `session_start`, …)
-parsed cleanly (`config.toml parse ok`) yet **never fired** — reverted, do not use.
-
-The **plugin** path works and is the supported one: the Codex plugin bundles the
-pack's PascalCase `hooks/hooks.json` (Codex plugin hooks share Claude's event
-schema). These are **non-managed hooks** — an interactive `codex` session shows a
-one-time trust prompt before running them. **Firing is verified** (codex-cli
-0.144.1): a `SessionStart` hook fires and writes to `${PLUGIN_DATA}`, and it can be
-exercised **headlessly** with `codex exec --dangerously-bypass-hook-trust` (for
-vetted automation) — so it is NOT interactive-only. The hooks use
-`${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` to resolve under both harnesses (Codex sets
-`PLUGIN_ROOT`/`PLUGIN_DATA`, not `CLAUDE_PLUGIN_ROOT`). Wired via
-`.codex-plugin/plugin.json → hooks`; see [`docs/codex-plugin.md`](docs/codex-plugin.md)
-and the change-cpd-006 hook-trust-verification evidence.
-
-Every signed plugin-generation publication refreshes the immutable bundle ID in
-both `hooks/hooks.json` and `hooks/codex-hooks.json`. Treat the pair as generated
-release provenance: regenerate and validate them together, then verify the active
-manifest and all 14 target receipts. A bundle-ID-only refresh does not alter hook
-matchers, trust semantics, or the repository policy that keeps Bash and Python
-unrestricted during agent work.
+The change-cpd-006 codex-cli 0.144.1 hook experiment is historical evidence,
+not the current package contract. The current Codex distribution advertises
+skills and MCP only; its compatibility validator rejects `manifest.hooks`.
+Do not reintroduce that field, claim that installing the current package fires
+hooks, or infer team execution from skill installation. Generated hook files for
+other installation surfaces remain owned by their existing generators and
+receipt contracts. Neither the old snake_case config experiment nor an old
+plugin invocation authorizes changing the unrestricted Bash/Python policy.
 
 ## Integration Contract — how this pack is extended
 
@@ -1378,3 +1395,10 @@ rm SCRATCHPAD.md
 ```
 
 `SCRATCHPAD.md` is listed in `.gitignore` so it is never accidentally committed.
+
+<!-- uiux-routing:start v1 -->
+## UI/UX routing
+UI, styles, tokens, motion or copy → `prometheus-ui-ux`. Read `.agents/UI_UX_PROTOCOL.md` or its bundled default; preserve design authority.
+All code: detect `.agent-team/project-routing.json` and real team manifests. Preserve selection; adopt a sole team; ask if ambiguous. Use relevant roles, disclosing sequential fallback.
+Backend work loads no UI guidance. Review respects user-only skills and the completed-phase boundary.
+<!-- uiux-routing:end -->

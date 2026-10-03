@@ -24,3 +24,9 @@ At the operator's request, updated 11 active local installations to OpenSpec 1.1
 All 23 executable checks returned exactly 1.14.0, including every discovered PATH entry, explicit global binaries and the managed runner. The current shell resolves 1.14.0. Source dependencies in both release branches remain pinned to 1.14.0. Local dependency-tree updates used no-save and preserved project manifests/lockfiles; older branch pins and historical source/rollback snapshots were not rewritten.
 
 Machine receipts and recoverable backups: /Users/gqadonis/.prometheus/releases/openspec-machine-1.14.0-2026-10-03T09-41-58-885Z. Runtime installation changes live outside Git; this document records the verification boundary. The release branches are pushed separately without unrelated dirty-checkout edits or a merge.
+
+## PR documentation and current-main integration
+
+Updated both Docusaurus sites with task model assignments and OpenSpec lifecycle guides, navigation, release links and deployment triggers. Reconciled current main without reverting canonical task identity, Windows spawn behavior or dispatch/completion semantics. Regenerated distributions from merged canonical sources.
+
+Local gates passed: both npm run build:deploy site builds, distribution parity, full version matrix, documentation sync/public-docs checks, 26 real-process KBD lifecycle cases (zero skips), and both real task drivers marking only the selected nested repeated-description task using OpenSpec 1.14.0. Read-only adversarial review of the completed docs and semantic resolutions found no actionable defects. Windows runtime and cross-model independence remain unverified. GitHub Pages publication is pending PR merge because both workflows restrict deployment to main.

@@ -35,12 +35,12 @@ phase you are in. Do not execute before a plan exists.
 
 Finish a coherent implementation set before testing it. During implementation,
 use static inspection and reasoning; use a narrow compiler check only when it is
-required to unblock progress. At a completed change or phase boundary, run the
-smallest integration gate that exercises the real production path and its real
-collaborators. Unit, mock-only, filtered-function, and per-edit tests are not
-completion evidence. Run broad integration and release gates only at the final
-applicable boundary. Per-stack commands live in `.claude/rules/`, loaded only
-when a matching file is read.
+required to unblock progress. Finish every planned production change in the phase,
+then run one integration gate through the real production path and collaborators at
+the final phase boundary. When the harness provides an agent team, keep reviewer,
+auditor, verifier, and integration-checker roles dormant until that boundary. Unit,
+mock-only, filtered-function, and per-edit tests are not completion evidence.
+Per-stack commands live in `.claude/rules/`, loaded only when a matching file is read.
 
 <!-- prometheus-base:stacks -->
 

@@ -143,8 +143,9 @@ before handoff; review material changes and record unresolved routes. Execution
 must recheck the selected route and record explicit alternatives rather than
 silently downgrading. Legacy plans receive explicit selections at execution time.
 
-After writing, refresh the waypoint:
-
-- Update `.kbd-orchestrator/current-waypoint.json` → `next_pending_change` = first change ID
-- Set `exact_next_command` to the first `/opsx:new` or change creation command
-- Update `.kbd-orchestrator/current-waypoint.md` with the same data
+After writing, register the ordered changes and tasks through typed
+`prometheus kbd change register` and `task register` commands (register each task with its backend task ID, i.e. the ordinal that `kbd-apply list <change>` prints, so `/kbd-apply` transitions the same records), and record the
+plan stage through `stage enter` / `stage transition`. The runtime regenerates
+the progress and waypoint projections. Resolve the next task from canonical
+pending work; `exactNextCommand` is context, not authority to repeat stale work.
+Never edit generated waypoint fields directly.

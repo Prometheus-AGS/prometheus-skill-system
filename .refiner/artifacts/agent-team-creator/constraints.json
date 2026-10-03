@@ -1,0 +1,52 @@
+{
+  "artifact_type": "content",
+  "constraints": [
+    {
+      "id": "packaged-integration",
+      "description": "32 real packaged CLI scenarios pass on full and mini, with actual KBD process boundary.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "dist/verification.json"
+      }
+    },
+    {
+      "id": "source-parity",
+      "description": "Identical TS7 source and Node emitted runtime in full and mini; generated distributions deterministic.",
+      "severity": "blocking",
+      "type": "structural",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": ".kbd-orchestrator/phases/agent-team-creator/team-parity.json and generation-pass.json"
+      }
+    },
+    {
+      "id": "scope-and-native-honesty",
+      "description": "Two authorized repositories only; native unknown options preserved without false validation/execution claims.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": false,
+        "validation_method": "Source inventory, native-harnesses.md, source contracts, operator authorization"
+      }
+    },
+    {
+      "id": "local-gates",
+      "description": "Strict skills, plugin/distribution checks, two local sites, mini compatibility and specs pass.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "dist/verification.json"
+      }
+    }
+  ],
+  "global_rules": [
+    "Both repository AGENTS and constraints apply; explicit operator authorization permits both source repos.",
+    "New runtime TS7/Node only. No live service mutation, no Windows certification."
+  ],
+  "termination_conditions": [
+    "Independent review resolves critical findings before archive; committed-state protected test gate before push."
+  ]
+}

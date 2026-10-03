@@ -1,0 +1,58 @@
+{
+  "boundary": "complete-production-phase",
+  "platform": "linux",
+  "environment": "local Docker Linux container; network disabled; source mount read-only; isolated working copy",
+  "image": "node:22-bookworm-slim@sha256:43ac6c60b8f89723f746e8a92ce91abd5017e627ce1ddfe4238355d3a30b772c",
+  "node": "v22.23.3",
+  "results": [
+    {
+      "name": "bootstrap-preservation-idempotence",
+      "status": "pass"
+    },
+    {
+      "name": "corrupt-markers-preflight",
+      "status": "pass"
+    },
+    {
+      "name": "linked-instructions-and-path-boundary",
+      "status": "pass"
+    },
+    {
+      "name": "override-dry-run-and-injector",
+      "status": "pass"
+    },
+    {
+      "name": "nested-platform-and-operation-routing",
+      "status": "pass"
+    },
+    {
+      "name": "team-install-export-and-native-preservation",
+      "status": "pass"
+    },
+    {
+      "name": "team-sole-ambiguous-and-unavailable-delegation",
+      "status": "pass"
+    },
+    {
+      "name": "phase-boundary-evidence-honesty",
+      "status": "pass"
+    }
+  ],
+  "nativeWindows": "unverified",
+  "additionalSmoke": [
+    {
+      "name": "Pro Max style JSON",
+      "status": "pass"
+    },
+    {
+      "name": "Pro Max design-system JSON",
+      "status": "pass"
+    }
+  ],
+  "correctiveConfirmation": {
+    "scenario": "bootstrap-preservation-idempotence",
+    "reason": "Add Claude-native skill discovery copy",
+    "status": "pass",
+    "node": "v22.23.3"
+  }
+}

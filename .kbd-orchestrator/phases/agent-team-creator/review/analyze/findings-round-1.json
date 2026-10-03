@@ -1,0 +1,31 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "library-candidates.json",
+      "line": 0,
+      "claim": "The analysis omits evaluation of the required liter-llm model routing dependency and instead treats model-policy mapping as build-required without assessing the existing local candidate.",
+      "evidence": "Goals require \"model strength/cost/capability routing via liter-llm\" and the file tree contains \"./tools/liter-llm\", but library-candidates.json has no candidate for liter-llm; its build_required entry says \"Native adapter coverage and model-policy mapping\" with \"why_no_candidate\": \"Common config cannot replace native-specific schemas and capability diagnostics.\"",
+      "suggested_fix": "Add liter-llm as a candidate, inspect its local contract/version/maintenance status, and state whether to adapt it for model capability/cost routing or why it is unsuitable."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 0,
+      "claim": "The analysis does not provide a strategy or candidate evaluation for the required Docusaurus site updates, so the plan can omit a stated delivery surface.",
+      "evidence": "Goals require \"update skills, agents, plugins, marketplaces, repository docs and both Docusaurus sites\"; analysis.md discusses \"Regenerate owned surfaces\" and \"repository docs\" but never mentions Docusaurus or site update mechanics, and library-candidates.json gaps are only \"process-conflicts\", \"team-runtime\", \"native-fidelity\", \"memory-models\", and \"packaging\".",
+      "suggested_fix": "Add a documentation/site gap covering both Docusaurus sites, identify existing site build/update mechanisms in each repository, and define validation expected for those site changes."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

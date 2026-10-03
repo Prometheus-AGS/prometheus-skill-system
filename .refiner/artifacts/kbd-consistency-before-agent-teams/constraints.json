@@ -1,0 +1,62 @@
+{
+  "artifact_type": "content",
+  "constraints": [
+    {
+      "id": "behavior-integration",
+      "description": "Production entrypoints and actual journal/filesystem/process collaborators pass after implementation.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Recorded real Rust and helper integration commands in dist/verification.json"
+      }
+    },
+    {
+      "id": "projection-ownership",
+      "description": "Canonical state stays authoritative; phase-local counters do not inherit run completion, metadata validated before mutation.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "phase_scope and actual new-phase process suites"
+      }
+    },
+    {
+      "id": "scope-and-preservation",
+      "description": "Only authorized two worktrees changed; no protected full tests, global install, secrets or user edit overwrite.",
+      "severity": "blocking",
+      "type": "structural",
+      "validation": {
+        "requires_code_execution": false,
+        "validation_method": "Git diff inventory plus source audit and scoped constraint scans"
+      }
+    },
+    {
+      "id": "generated-surfaces",
+      "description": "Full C-01 authorized deferral to agent-team-creator task2.1; no distribution certification in prerequisite.",
+      "severity": "blocking",
+      "type": "structural",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Named deferral in approved plan and execution.md"
+      }
+    },
+    {
+      "id": "evidence-limits",
+      "description": "Whole-tree mini scans contain only baseline matches; Windows not run; skips are not acceptance. Independent review still required.",
+      "severity": "medium",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": false,
+        "validation_method": "constraint-scan.json baseline attribution and explicit limits"
+      }
+    }
+  ],
+  "global_rules": [
+    "Both repository constraints and AGENTS.md apply at their respective roots.",
+    "Do not interpret baseline findings or skipped checks as whole-repository certification."
+  ],
+  "termination_conditions": [
+    "Change-scoped deterministic checks pass and separate adversarial review resolves critical findings before archive."
+  ]
+}

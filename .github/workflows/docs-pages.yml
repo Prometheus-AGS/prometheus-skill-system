@@ -9,7 +9,9 @@ on:
     paths:
       - 'site/**'
       - 'docs/**'
-      - 'skills/**/SKILL.md'
+      - 'skills/**'
+      - 'package.json'
+      - 'skill-system.json'
       - '.github/workflows/docs-pages.yml'
   workflow_dispatch:
 

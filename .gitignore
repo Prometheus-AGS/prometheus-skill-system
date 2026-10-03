@@ -112,3 +112,9 @@ site/docs-catalog/
 .opencode/opencode-loop/*.json
 
 # sccache/cargo local build caches are machine-specific
+
+# Local verification fixtures, private test signers and transient command logs
+/.scratch/
+
+# Local instruction-install recovery receipts
+.prometheus/recovery/

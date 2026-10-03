@@ -1,0 +1,11 @@
+{
+  "kind": "execute-dispatch",
+  "dispatchedAt": "2026-09-24T14:51:07.916Z",
+  "summary": "OpenSpec backend through KBD apply; two changes/seven tasks verified in this project. Start consistency 1.1; no implementation complete yet. Team 2.1 owns final generated reconciliation.",
+  "outputs": [
+    "execution.md",
+    "progress.json"
+  ],
+  "completion": false,
+  "correction": "Former handoff incorrectly signaled completion at dispatch. Execute remains active. A completion handoff is written only after all phase execution gates."
+}
