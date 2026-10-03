@@ -13,6 +13,7 @@ shift || true
 # run for any other operator.
 # shellcheck source=../config/defaults.env
 . "$REPO_ROOT/config/defaults.env"
+. "$REPO_ROOT/shared/scripts/surreal-bin.sh"
 ALLOW_USER_OVERRIDE=false
 EXCLUDED_SERVICES=""
 
@@ -55,7 +56,7 @@ TEMPLATES=("ai.prometheus.surrealdb-native.plist" "ai.prometheus.surreal-memory-
 DOCTOR_LABELS=("${LABELS[@]}" "ai.prometheus.learning-worker" "ai.prometheus.hooks-logrotate" "ai.prometheus.exec")
 
 usage() {
-    cat <<'EOF'
+    cat <<EOF
 Usage: scripts/prometheus-services.sh <command> [--user <account>] [--exclude service]
 
 Commands:
@@ -67,8 +68,8 @@ Commands:
   logs      Tail recent service logs
 
 Managed LaunchAgents:
-  ai.prometheus.surrealdb-native       SurrealDB 3.2.4 native binary on 127.0.0.1:28000
-  ai.prometheus.surreal-memory-native  Native surreal-memory-server -> SurrealDB 3.2.4 (port 23001)
+  ai.prometheus.surrealdb-native       SurrealDB $SURREALDB_VERSION native binary on 127.0.0.1:28000
+  ai.prometheus.surreal-memory-native  Native surreal-memory-server -> SurrealDB $SURREALDB_VERSION (port 23001)
   ai.prometheus.pk-cherry              pk-cherry HTTP MCP for Karpathy KB (port 8942)
   ai.prometheus.forge-mcp              Forge code-enrichment MCP (port 8943)
   ai.prometheus.prometheus-nudge       Periodic self-learning nudge (every 4h, cron-style)
@@ -143,14 +144,13 @@ render_template() {
     pk_cherry_bin="$(resolve_bin pk-cherry)"
     forge_bin="$(resolve_bin forge)"
     docker_bin="$(resolve_bin docker)"
-    surreal_bin="$(resolve_bin surreal)"
+    surreal_bin="$(resolve_surreal_bin "$PROMETHEUS_HOME" "$PROMETHEUS_PATH")" || return 1
     surreal_memory_bin="$(resolve_bin surreal-memory-server)"
     surreal_mlx_executor="$(resolve_bin surreal-memory-mlx-executor)"
 
     [ -n "$pk_cherry_bin" ] || pk_cherry_bin="/usr/local/bin/pk-cherry"
     [ -n "$forge_bin" ] || forge_bin="/usr/local/bin/forge"
     [ -n "$docker_bin" ] || docker_bin="/usr/local/bin/docker"
-    [ -n "$surreal_bin" ] || surreal_bin="/usr/local/bin/surreal"
     [ -n "$surreal_memory_bin" ] || surreal_memory_bin="/usr/local/bin/surreal-memory-server"
     [ -n "$surreal_mlx_executor" ] || surreal_mlx_executor="/usr/local/bin/surreal-memory-mlx-executor"
     local local_embedding_backend="${PROMETHEUS_LOCAL_EMBEDDING_BACKEND:-mlx}"
