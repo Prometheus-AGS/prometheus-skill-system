@@ -1,12 +1,13 @@
 ---
 license: MIT
 name: kbd-plan
-version: '1.0.0'
+version: '1.1.0'
 description: >
   Create a prioritized, ordered change list for the current project phase.
   Project-agnostic: reads assessment and project constraints to produce
   an ordered change list. Auto-detects OpenSpec availability and emits
-  appropriate change formats. Bridges with iterative-evolver plan items
+  appropriate change formats with task-level model and worker-route assignments.
+  Bridges with iterative-evolver plan items
   when running inside an evolution cycle.
 metadata:
   tags: [process, orchestration, automation]
@@ -24,7 +25,7 @@ every tool knows the exact next step.
 
 Output:
 
-- `.kbd-orchestrator/phases/<phase-name>/plan.md` — ordered change list
+- `.kbd-orchestrator/phases/<phase-name>/plan.md` — ordered changes and Task model assignments
 - `.kbd-orchestrator/current-waypoint.md` and `current-waypoint.json` — refreshed
 
 ## Analyze inputs (when the Analyze stage ran)
@@ -85,6 +86,52 @@ When this plan is being created as part of an iterative-evolver cycle:
 This enables the Reflect phase to report back to the evolver with precise
 completion status per plan item.
 
+## OpenSpec lifecycle preflight
+
+At session startup and before starting or entering a phase, resolve the installed
+`kbd-process-orchestrator` skill directory as `KBD_ORCHESTRATOR_ROOT` and run:
+
+```bash
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "<project-root>" --timeout-ms 120000
+```
+
+This resolves the latest stable official OpenSpec CLI and refreshes the project's
+generated OpenSpec skills/commands while preserving authored specs, changes and
+custom configuration. Read the receipt: failed or pending refresh is unresolved,
+not current-version proof. A cached offline version is explicitly unverified for
+latest freshness. Resolve reported conflicts before dependent phase mutations.
+Native KBD projects remain usable without adopting OpenSpec; the helper skips
+projects without an existing OpenSpec root.
+
+Use the same preflight in harnesses without startup hooks and before raw
+`prometheus kbd` phase commands that bypass the lifecycle scripts. Invoke
+OpenSpec through the managed runner, including commands copied from generated
+skills, rather than an independently versioned global executable:
+
+```bash
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" run --project "<project-root>" -- <openspec arguments>
+```
+
+The runner preserves CLI stdout for JSON consumers. Planning model assignments
+still never launches workers or changes inference providers. A dry-run or
+read-only request does not authorize this mutating refresh; report its pending
+preflight and defer it until a writable invocation.
+
+## Task model planning
+
+Read [references/task-model-selection.md](references/task-model-selection.md)
+before drafting assignments. Draft concrete tasks and backend identities first,
+then analyze each task's requirements and recommend a concrete provider/model,
+supported reasoning effort and documented execution route. Use task suitability
+first, with cost and latency breaking close ties, subject to explicit user,
+project and budget constraints. Discover current capabilities for the selected
+harness; do not turn model names or change complexity classes into fixed rankings.
+
+Author one **Task model assignments** table in `plan.md`, keyed by full phase
+path, change ID and backend task ID. Record evidence, native alternatives and
+unresolved prerequisites. liter-llm supplies inference; a documented tool-enabled
+worker supplies execution. Planning never launches workers or changes providers.
+
 ## Progress Signals (MANDATORY)
 
 **FIRST tool call of every turn:** Read `.kbd-orchestrator/position-reminder.txt` (if it exists) to get the current phase, step N of T, and next command. If that file is absent, read `.kbd-orchestrator/current-waypoint.json`.
@@ -118,8 +165,11 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 4. **Read project constraints** — from `AGENTS.md` and project spec files
 5. **Detect change backend** — OpenSpec or native KBD (see OpenSpec Detection)
 6. **Check for evolver bridge** — is this phase driven by an evolution cycle?
-7. **Follow the plan protocol** in `../prompts/plan.md`
-8. **Write plan.md** with ordered change list and recommended agent per change
+7. **Follow the plan protocol**: in a nested orchestrator installation, read
+   `../../prompts/plan.md`; in a flat skill installation, read
+   `../kbd-process-orchestrator/prompts/plan.md`. Resolve these relative to this
+   skill directory, using the matching installed layout. Draft tasks and IDs.
+8. **Write plan.md** with ordered changes and every task's model assignment
 9. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
    `/adversarial-review --mode artifact plan` on the written plan (see
    orchestrator `references/integrations/adversarial-review.md`). CRITICAL
@@ -128,7 +178,10 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
    "Unresolved review findings" section appended). WARNING findings → carry
    into the stage handoff summary. Vet **before** emitting change
    structures, so a corrected plan never leaves stale changes behind.
-10. **Emit change structures** via OpenSpec or native KBD
+10. **Emit change structures** via OpenSpec or native KBD; add non-task references
+    to matching plan assignments without changing checkbox syntax or task titles.
+    Reconcile all emitted task IDs with the table before handoff; re-vet material
+    changes to scope or routing, then reconcile again.
 11. **Write evolver-bridge.json** if evolver plan exists
 12. **Refresh waypoint** files (`current-waypoint.md` and `current-waypoint.json`)
 
@@ -167,7 +220,7 @@ record the handoff that execute reads first:
 kbd_stage_gate plan || exit 2
 # … draft plan.md …
 # … adversarial vet (step 9) runs here, before the handoff …
-kbd_stage_handoff_write plan "<1–3 sentences: change count, ordering rationale, first change to apply; include any WARNING findings from adversarial review>" plan.md
+kbd_stage_handoff_write plan "<1–3 sentences: change count, ordering rationale, first change; Task model assignments location and unresolved routes; review warnings>" plan.md
 ```
 
 Phases without a `handoffs/` directory are legacy: the gate warns and passes.

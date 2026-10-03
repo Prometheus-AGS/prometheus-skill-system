@@ -14,7 +14,12 @@ wp=".kbd-orchestrator/current-waypoint.json"
 jq -e . "$wp" >/dev/null 2>&1 || die "malformed waypoint at $wp"
 
 # Runtime-authority mode selects siblings through the canonical phase graph.
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+PHASE_SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+LOCAL_ORCHESTRATOR_ROOT="$(cd "$PHASE_SKILL_DIR/../.." && pwd -P)"
+if [ ! -f "$LOCAL_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" ]; then
+  LOCAL_ORCHESTRATOR_ROOT="$PHASE_SKILL_DIR/../kbd-process-orchestrator"
+fi
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$LOCAL_ORCHESTRATOR_ROOT}"
 export KBD_ORCHESTRATOR_ROOT
 if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh" ]]; then
   . "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
@@ -54,6 +59,8 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
     [[ -n "$ancestor" ]] || continue
     ancestor_args+=(--ancestor "$ancestor")
   done < <(printf '%s' "$parent_path" | jq -r '.[]')
+  node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "$PWD" --timeout-ms 120000 \
+    || die "OpenSpec refresh failed; child was not activated"
   prometheus kbd --path . phase activate \
     --command-id "phase-next-child:${parent_id}:${next_id}" \
     --id "$next_id" "${ancestor_args[@]}" \
@@ -90,6 +97,9 @@ else
     [[ -n "$next" ]] || die "already on last child '$prior' — run /kbd-reflect, then /kbd-next-phase"
   fi
 fi
+
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "$PWD" --timeout-ms 120000 \
+  || die "OpenSpec refresh failed; child was not activated"
 
 # Hook subsystem
 hooks_avail=0

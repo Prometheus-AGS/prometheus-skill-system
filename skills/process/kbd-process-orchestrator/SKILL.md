@@ -78,6 +78,37 @@ Read `changes_total` and the phase list from `progress.json` or `current-waypoin
 
 ---
 
+## OpenSpec lifecycle preflight
+
+At session startup and before starting or entering a phase, resolve the installed
+`kbd-process-orchestrator` skill directory as `KBD_ORCHESTRATOR_ROOT` and run:
+
+```bash
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "<project-root>" --timeout-ms 120000
+```
+
+This resolves the latest stable official OpenSpec CLI and refreshes the project's
+generated OpenSpec skills/commands while preserving authored specs, changes and
+custom configuration. Read the receipt: failed or pending refresh is unresolved,
+not current-version proof. A cached offline version is explicitly unverified for
+latest freshness. Resolve reported conflicts before dependent phase mutations.
+Native KBD projects remain usable without adopting OpenSpec; the helper skips
+projects without an existing OpenSpec root.
+
+Use the same preflight in harnesses without startup hooks and before raw
+`prometheus kbd` phase commands that bypass the lifecycle scripts. Invoke
+OpenSpec through the managed runner, including commands copied from generated
+skills, rather than an independently versioned global executable:
+
+```bash
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" run --project "<project-root>" -- <openspec arguments>
+```
+
+The runner preserves CLI stdout for JSON consumers. Planning model assignments
+still never launches workers or changes inference providers. A dry-run or
+read-only request does not authorize this mutating refresh; report its pending
+preflight and defer it until a writable invocation.
+
 ## Project Context Discovery
 
 On every invocation, before acting, KBD MUST:

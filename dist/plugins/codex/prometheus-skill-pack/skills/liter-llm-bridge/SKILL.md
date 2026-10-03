@@ -79,7 +79,7 @@ Two files own the configuration, and **neither is a script**:
 
 | File | Owns |
 |---|---|
-| `~/.prometheus/kbd/models.toml` | role → model **name** (KBD) |
+| `~/.prometheus/kbd/models.toml` | role → served alias plus canonical provider-connection/provider/model identity (KBD) |
 | `~/.config/liter-llm/liter-llm-proxy.toml` | name → provider + `base_url` + `${KEY}` (liter-llm) |
 
 Secrets never enter the TOML: keys live in `~/.prometheus/kbd/secrets.env` (0600) and

@@ -14,6 +14,10 @@ metadata:
 
 Run the **Assess** phase of the KBD lifecycle for any project.
 
+## OpenSpec lifecycle preflight
+
+Before this stage, follow the parent OpenSpec lifecycle preflight (nested `../../SKILL.md`, or flat `../kbd-process-orchestrator/SKILL.md`): refresh existing KBD/OpenSpec projects through the managed latest-stable CLI and use that runner for subsequent OpenSpec commands. Retry a pending startup refresh before OpenSpec work; preserve authored specs and task state.
+
 ## What this does
 
 Inspects the current codebase and produces a structured gap report against the

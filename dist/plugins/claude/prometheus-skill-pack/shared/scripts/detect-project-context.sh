@@ -12,6 +12,17 @@ command -v hook_log_start >/dev/null 2>&1 && hook_log_start "SessionStart" "dete
 command -v hook_log_end >/dev/null 2>&1 && trap 'hook_log_end $?' EXIT
 
 
+# Refresh OpenSpec within this context hook's 15-second budget. The one-second
+# KBD control hook never performs package or project updates.
+BUNDLE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+OPENSPEC_RUNNER="$BUNDLE_ROOT/skills/process/kbd-process-orchestrator/shared/openspec/cli.mjs"
+if [[ ! -f "$OPENSPEC_RUNNER" ]]; then
+  OPENSPEC_RUNNER="$BUNDLE_ROOT/skills/kbd-process-orchestrator/shared/openspec/cli.mjs"
+fi
+if ! node "$OPENSPEC_RUNNER" refresh --project "$PWD" --timeout-ms 12000; then
+  echo "OpenSpec refresh unresolved; rerun the KBD OpenSpec preflight before phase work." >&2
+fi
+
 echo "═══ Prometheus GitOps Skills — Project Context ═══"
 
 # GitOps structure presence

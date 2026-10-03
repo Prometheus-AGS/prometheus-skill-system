@@ -38,7 +38,12 @@ KBD_DIR="${PROJECT_ROOT}/.kbd-orchestrator"
 WAYPOINT_JSON="${KBD_DIR}/current-waypoint.json"
 WAYPOINT_MD="${KBD_DIR}/current-waypoint.md"
 PROJECT_JSON="${KBD_DIR}/project.json"
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)}"
+PHASE_SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+LOCAL_ORCHESTRATOR_ROOT="$(cd "$PHASE_SKILL_DIR/../.." && pwd -P)"
+if [ ! -f "$LOCAL_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" ]; then
+  LOCAL_ORCHESTRATOR_ROOT="$PHASE_SKILL_DIR/../kbd-process-orchestrator"
+fi
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$LOCAL_ORCHESTRATOR_ROOT}"
 export KBD_ORCHESTRATOR_ROOT
 hooks_avail=0
 if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh" ]]; then
@@ -183,6 +188,9 @@ if [[ -d "$NEW_PHASE_DIR" ]]; then
   exit 1
 fi
 
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "$PROJECT_ROOT" --timeout-ms 120000 \
+  || { echo "[kbd-next-phase] OpenSpec refresh failed; phase was not started" >&2; exit 1; }
+
 # ── Create phase directory and seed files ─────────────────────────────────
 mkdir -p "$NEW_PHASE_DIR"
 
@@ -211,7 +219,7 @@ GOALS_EOF
 
 # In runtime-authority mode the phase and active path are typed journal
 # mutations. The compatibility JSON and waypoint markdown are projections.
-SKILL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)"
+SKILL_ROOT="$KBD_ORCHESTRATOR_ROOT"
 runtime_lib="$SKILL_ROOT/shared/lib/runtime-authority.sh"
 if [[ -f "$runtime_lib" ]]; then
   # shellcheck source=/dev/null

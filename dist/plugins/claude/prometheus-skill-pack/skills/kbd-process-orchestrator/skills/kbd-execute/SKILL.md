@@ -24,6 +24,50 @@ phase while keeping KBD as the source of truth.
 Also refreshes `.kbd-orchestrator/current-waypoint.json` so any AI tool can
 resume cleanly.
 
+## OpenSpec lifecycle preflight
+
+At session startup and before starting or entering a phase, resolve the installed
+`kbd-process-orchestrator` skill directory as `KBD_ORCHESTRATOR_ROOT` and run:
+
+```bash
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "<project-root>" --timeout-ms 120000
+```
+
+This resolves the latest stable official OpenSpec CLI and refreshes the project's
+generated OpenSpec skills/commands while preserving authored specs, changes and
+custom configuration. Read the receipt: failed or pending refresh is unresolved,
+not current-version proof. A cached offline version is explicitly unverified for
+latest freshness. Resolve reported conflicts before dependent phase mutations.
+Native KBD projects remain usable without adopting OpenSpec; the helper skips
+projects without an existing OpenSpec root.
+
+Use the same preflight in harnesses without startup hooks and before raw
+`prometheus kbd` phase commands that bypass the lifecycle scripts. Invoke
+OpenSpec through the managed runner, including commands copied from generated
+skills, rather than an independently versioned global executable:
+
+```bash
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" run --project "<project-root>" -- <openspec arguments>
+```
+
+The runner preserves CLI stdout for JSON consumers. Planning model assignments
+still never launches workers or changes inference providers. A dry-run or
+read-only request does not authorize this mutating refresh; report its pending
+preflight and defer it until a writable invocation.
+
+## Task model dispatch
+
+Read the phase plan's **Task model assignments** and
+[task selection protocol](../kbd-plan/references/task-model-selection.md).
+Resolve each entry by full phase path, change ID and backend task ID. Recheck
+availability, policy and documented worker controls before dispatch; carry the
+assignment reference and actual model/route into `execution.md` and worker
+handoffs. For legacy plans, record an explicit task selection using that protocol.
+Refresh assignments after material task, harness or capability changes. Unavailable
+routes remain unresolved; record any deliberate alternative selection and its
+rationale before running it. Other eligible tasks can continue. liter-llm inference
+requires a tool-enabled execution mechanism; KBD retains task completion ownership.
+
 ## Final phase QA gate
 
 Do not run tests, verification builds, artifact refinement, or adversarial review
