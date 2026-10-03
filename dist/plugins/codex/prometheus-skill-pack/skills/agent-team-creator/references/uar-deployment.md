@@ -1,8 +1,8 @@
 # UAR draft.2 authoring and deployment
 
 This skill consumes the UAR collaboration profile
-`urn:prometheus:uar:collaboration:0.1.0-draft.2` from immutable provider commit
-`41375cf6cd137a8a825be102c49516211c3fa2e5`. The versioned schemas under
+`urn:prometheus:uar:collaboration:0.1.0-draft.2` from the immutable provider commit
+recorded in `schemas/uar/0.1.0-draft.2/consumer-source-receipt.json`. The versioned schemas under
 `schemas/uar/0.1.0-draft.2/` are byte-identical provider data. Draft.1 schemas
 and inline authoring remain available for explicit migration and are never
 rewritten or relabeled.
@@ -129,5 +129,14 @@ The accepted provider checkpoint does not change the existing versioned routes:
 
 Package requests send the exact reviewed manifest string and definition byte map.
 Binding requests send `x-uar-workspace-id` and an optional expected revision for
-compare-and-swap. `uar-activate` always refuses: this checkpoint defines the
-document and private-binding boundary but does not claim a durable team runtime.
+compare-and-swap. `uar-activate` always refuses because this authoring client owns
+definitions and deployment rather than execution. Use The Boss or another
+authorized host supporting the selected runtime's negotiated execution profile.
+
+## Shared team instructions and cooperating-pair deployment
+
+TeamDefinition may carry `instructions: {revision, digest, text}`. The revision is a positive safe integer, digest is SHA-256 of the exact UTF-8 text, and text is nonempty and at most 16384 UTF-8 bytes. Omit the object when no shared guidance is desired; null is not an omission. Shared guidance is below immutable host policy and above member specialization/task instructions. It cannot expand policy, credentials or resource grants. Peer messages, task input and artifacts remain attributed untrusted data.
+
+Changing guidance requires a new immutable definition/package version and a revisioned private binding. Existing attempts retain captured evidence; do not rewrite history. Preserve exact member skill ID/version/digest/config/required/entrypoint/tool requirements through authoring, maintenance and export. Required unsupported context/history/memory/child declarations refuse runtime admission with field diagnostics; optional exclusions must remain visible. A nested definition graph is not proof of nested team execution.
+
+For cooperation, explicitly install coordinator-to-worker trigger-turn and worker-to-coordinator queue-only result-disclosure edges. Sending queues a message; delegation explicitly requests work; waiting yields the live turn and creates a separate governed continuation. Do not infer reverse permission or automatic activation from a package receipt. Discover the execution profile and its peer-tools/shared-instructions/continuations capabilities before offering those runtime actions. Package/binding installation remains separate from activation, and this creator does not schedule agents.

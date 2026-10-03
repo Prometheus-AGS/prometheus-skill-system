@@ -4,7 +4,7 @@ description: "Create, revise, package, and deploy agent-team definitions with st
 license: MIT
 compatibility: Requires Node.js 22 or newer. Git is optional for handoff snapshots. Model gateways, memory services and native harness CLIs are optional and separately configured.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
   tags: "agents, teams, orchestration, coding"
 ---
 
@@ -129,7 +129,9 @@ native reference for supported project agents or plugin/marketplace installation
 Do not invent plugin agent fields where a harness has none. A plugin installation
 does not start an agent team.
 
-For UAR, use the draft.2 file-backed workspace, canonical package, and private binding path in
+For UAR, first clarify shared behavioral guidance (or explicitly none), exact member skills/tools, required versus optional context resources, and manual versus cooperating-pair execution. Reuse known answers. Directed delegation requires a trigger-turn edge, and worker results need a separately permitted return edge. Catalog validity alone does not certify a runnable execution profile.
+
+Use the draft.2 file-backed workspace, canonical package, and private binding path in
 [UAR deployment](references/uar-deployment.md). It preserves complete
 AgentDefinition, TeamDefinition, WorkflowDefinition, PackageManifest and
 DeploymentBinding fields, resolves immutable references, and installs the whole
@@ -144,8 +146,9 @@ answer with `uar-workspace-answer`, or update one declared file with
 instance URL and `env:VARIABLE` credential reference. Run capability discovery,
 package preflight, install and exact status before an optional binding preflight
 and install. Package installation confers no credential, representation grant,
-consent, authority, or activation. The `uar-activate` command refuses because the
-accepted draft.2 checkpoint does not claim durable team runtime conformance.
+consent, authority, or activation. The `uar-activate` command refuses because
+this authoring client does not own execution. Operate through The Boss or another
+authorized host after negotiating the selected UAR instance's execution profile.
 
 Schema-v1 `export --target uar` remains a compatibility projection for existing
 single-agent consumers. It cannot represent a UAR team and must not be used to

@@ -61,7 +61,7 @@ function collaborationBoundary(operation: string, response: unknown, binding = f
     },
     activation: {
       supported: false,
-      reason: 'The accepted draft.2 checkpoint defines document conformance but does not claim durable team runtime conformance.',
+      reason: 'This authoring client installs definitions and private bindings; runtime activation belongs to the selected UAR instance and its negotiated execution profile.',
     },
   };
 }
@@ -142,5 +142,5 @@ export async function uarBindingStatus(input: ObjectValue): Promise<ObjectValue>
 }
 
 export function refuseUarActivation(): never {
-  throw new Error('UAR collaboration draft.2 is a document contract checkpoint; this client does not claim or invoke durable team activation.');
+  throw new Error('This authoring client does not invoke team activation. Use the selected UAR instance through a host supporting its negotiated execution profile.');
 }

@@ -19,6 +19,7 @@ Environment=SURREAL_USERNAME=root
 Environment=SURREAL_PASSWORD=root
 Environment=SURREAL_NAMESPACE=memory
 Environment=SURREAL_DATABASE=mcp
+Environment=API_HOST=127.0.0.1
 Environment=API_PORT=23001
 Environment=MCP_STDIO=false
 Environment=EMBEDDING_PROVIDER=local
