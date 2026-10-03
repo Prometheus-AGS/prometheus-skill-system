@@ -12,8 +12,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const contract = readSkillSystem(root);
 const skills = collectDistributionSkills(root, contract);
 
-assert.equal(contract.releaseVersion, '1.10.0');
-assert.equal(contract.minimumActiveVersion, '1.10.0');
+const packageVersion = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version;
+assert.equal(contract.releaseVersion, packageVersion);
+assert.equal(contract.minimumActiveVersion, packageVersion);
 assert.equal(contract.targets.length, 14);
 assert.equal(new Set(skills.map(skill => skill.name)).size, skills.length);
 assert(skills.some(skill => skill.name === 'artifact-refiner'));
@@ -68,6 +69,29 @@ for (const target of hookTargets) {
   const packaged = path.join(claudePackageRoot, ...target.split('/'));
   assert(fs.existsSync(packaged), `hooks.json references ${target}, which is missing from the claude payload`);
   assert.deepEqual(fs.readFileSync(packaged), canonicalBytes(path.join(root, ...target.split('/'))), `${target} differs from source`);
+}
+
+// Import closure: the payload ships scripts by an explicit list, so a module a shipped script imports can
+// be left behind and the failure only appears at run time on a user's machine
+// (ERR_MODULE_NOT_FOUND from install-plugin-generation.js -> ./lib/capabilities.js). Resolve every static
+// relative import of every packaged script against the packaged tree itself.
+function packagedScripts(directory) {
+  if (!fs.existsSync(directory)) return [];
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const absolute = path.join(directory, entry.name);
+    if (entry.isDirectory()) return packagedScripts(absolute);
+    return /\.(m?js)$/.test(entry.name) ? [absolute] : [];
+  });
+}
+const importSpecifier = /(?:^|[\n;])\s*(?:import|export)\s+(?:[^'"\n;]*?\sfrom\s+)?['"](\.{1,2}\/[^'"]+)['"]/g;
+for (const platform of ['claude', 'codex']) {
+  const scriptsRoot = path.join(root, 'dist/plugins', platform, contract.name, 'scripts');
+  for (const script of packagedScripts(scriptsRoot)) {
+    for (const match of fs.readFileSync(script, 'utf8').matchAll(importSpecifier)) {
+      const resolved = path.resolve(path.dirname(script), match[1]);
+      assert(fs.existsSync(resolved), `${platform}: ${path.relative(root, script)} imports ${match[1]}, which is missing from the payload`);
+    }
+  }
 }
 
 const codexManifest = JSON.parse(fs.readFileSync(path.join(root, contract.outputs.codexPackage, '.codex-plugin/plugin.json')));

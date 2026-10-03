@@ -183,10 +183,9 @@ function materializePackage(root, platform) {
       path.join(sourceRoot, 'scripts/install-plugin-generation.js'),
       path.join(root, 'scripts/install-plugin-generation.js')
     );
-    copy(
-      path.join(sourceRoot, 'scripts/lib/skill-system.js'),
-      path.join(root, 'scripts/lib/skill-system.js')
-    );
+    // The whole directory, not a name list: install-plugin-generation.js and hook-entry.mjs import
+    // several modules from scripts/lib, and a list drifts the moment either gains a dependency.
+    copy(path.join(sourceRoot, 'scripts/lib'), path.join(root, 'scripts/lib'));
     write(root, 'package.json', {
       name: '@prometheus-ags/prometheus-skill-pack-payload',
       version: contract.releaseVersion,
