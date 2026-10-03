@@ -179,7 +179,10 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 2. **Confirm the active phase** — from argument or waypoint
 3. **Load waypoint** — `.kbd-orchestrator/current-waypoint.json` first when it exists
 4. **Load assessment and plan** for the phase
-5. **Follow the execute protocol** in `../prompts/execute.md`
+5. **Follow the execute protocol**: in a nested orchestrator installation, read
+   `../../prompts/execute.md`; in a flat skill installation, read
+   `../kbd-process-orchestrator/prompts/execute.md`. Resolve these relative to
+   this skill directory, using the matching installed layout.
 6. **Write `execution.md`** with selected backend + dispatch contract
 7. **Record the active path** with a typed KBD command; projections refresh automatically
 8. **Register planned changes and tasks** with `prometheus kbd change|task`

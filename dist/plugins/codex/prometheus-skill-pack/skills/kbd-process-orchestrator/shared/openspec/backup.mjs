@@ -6,6 +6,14 @@ import { writeJson } from './state.mjs';
 
 const upstream = (runtime, relative) => import(pathToFileURL(path.join(runtime.root, 'dist', 'core', relative)).href);
 
+export function legacyCommandPath(commandPath, currentRoot, legacyRoot) {
+  if (path.isAbsolute(commandPath)) return undefined;
+  const segments = commandPath.split(/[\\/]/);
+  if (segments[0] !== currentRoot) return undefined;
+  segments[0] = legacyRoot;
+  return path.join(...segments);
+}
+
 // Read the selected official CLI's own path declarations. If its internal API
 // changes, refuse before update rather than guess which user files it may delete.
 export async function updateFootprint(runtime, project) {
@@ -36,7 +44,8 @@ export async function updateFootprint(runtime, project) {
       const command = adapter.getFilePath(workflow);
       add(command);
       for (const root of legacyRoots) {
-        if (tool.skillsDir && command.startsWith(tool.skillsDir + '/')) add(root + command.slice(tool.skillsDir.length));
+        const legacyCommand = legacyCommandPath(command, tool.skillsDir, root);
+        if (legacyCommand) add(legacyCommand);
       }
     }
   }

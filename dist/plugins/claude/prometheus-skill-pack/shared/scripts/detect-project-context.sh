@@ -34,7 +34,10 @@ if find . -name "*.yaml" -maxdepth 6 | xargs grep -l "argoproj.io/v1alpha1" 2>/d
 fi
 
 # CI presence
-WORKFLOWS=$(find .github/workflows -name "*.yml" -o -name "*.yaml" 2>/dev/null | wc -l | tr -d ' ')
+WORKFLOWS=0
+if [[ -d .github/workflows ]]; then
+  WORKFLOWS=$(find .github/workflows -name "*.yml" -o -name "*.yaml" | wc -l | tr -d ' ')
+fi
 echo "CI: $WORKFLOWS GitHub Actions workflow(s) found"
 
 # Cloud presence

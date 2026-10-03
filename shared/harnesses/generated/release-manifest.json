@@ -103,7 +103,7 @@
     },
     {
       "path": "shared/scripts/detect-project-context.sh",
-      "sha256": "9365889f46c43e4c23a8f07ac97aa924547d2828f9fb7df8cb1b5a8139ce7649",
+      "sha256": "abc98efbdd518324e382cb8f9c76847045a176f8dbfde7f3dcf006204c838fd1",
       "executable": true
     },
     {
@@ -397,5 +397,5 @@
       "executable": true
     }
   ],
-  "bundleId": "9d671bf051c1c77ff26590bd35307961c9ef45f498866ec311281c1cbc76638d"
+  "bundleId": "fe234cca231957e47d60b4412076ded3e946b7f79f0acaecb3578df5027f06c8"
 }
