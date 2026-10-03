@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/skill-package.schema.json",
+  "title": "Connected skill package declaration",
+  "description": "Seam 4 of docs/integration-contract.md. A repository that extends prometheus-skill-pack declares itself with a skill-package.json at its root. The pack validates the declaration with `prometheus contract validate`; it never installs the extension. The extension's own installer places its skills and registers its MCP servers and hook bundles with each harness.",
+  "type": "object",
+  "required": ["name", "version", "minimumContractVersion"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 64,
+      "description": "Package identity, kebab-case. Namespaces the extension's hook bundles and skills so they cannot collide with the pack's."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z-.]+)?(?:\\+[0-9A-Za-z-.]+)?$",
+      "description": "The extension's own semantic version."
+    },
+    "minimumContractVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "description": "Minimum integration-contract version this extension requires. Validation fails when it exceeds the version the pack implements, naming both."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1024
+    },
+    "skills": {
+      "type": "string",
+      "description": "Directory of skills the extension installs, relative to its repository root, in agentskills.io layout."
+    },
+    "hooks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bundles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*$",
+            "description": "Namespaced bundle name, '<package>/<bundle>', resolved through run-hook --bundle. A bare name is refused because it could collide with a pack bundle."
+          }
+        }
+      }
+    },
+    "mcpServers": {
+      "type": "object",
+      "description": "MCP servers the extension registers with harnesses. The extension's installer writes and owns these entries; the pack never writes them.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["command"],
+        "properties": {
+          "command": { "type": "string" },
+          "args": { "type": "array", "items": { "type": "string" } },
+          "env": { "type": "object", "additionalProperties": { "type": "string" } }
+        }
+      }
+    },
+    "services": {
+      "type": "array",
+      "description": "Services the extension installs and supervises itself. The pack's own services are described by shared/services.manifest.json (seam 3) and are not listed here.",
+      "items": {
+        "type": "object",
+        "required": ["label"],
+        "properties": {
+          "label": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

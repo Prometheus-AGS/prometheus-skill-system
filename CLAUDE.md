@@ -1010,6 +1010,33 @@ marketplace is `.agents/plugins/marketplace.json`. The manifest advertises skill
 and MCP, and does not contain `hooks` or a native-team `agents` field.
 `scripts/build-codex-plugin.js` is a compatibility wrapper that also rejects a
 `hooks` field. Full guide: [`docs/codex-plugin.md`](docs/codex-plugin.md).
+
+**Codex hooks ship as `hooks/hooks.json` at the package root, discovered by
+convention, exactly like Claude.** The package carries `hooks/codex-hooks.json`
+renamed, plus the same hook runtime closure as the Claude package. From PR #54
+(2026-08-10) until this was fixed, the generated Codex package shipped no hooks at
+all and no Prometheus hook fired in Codex. Two Codex behaviours, verified with a
+probe plugin on codex-cli 0.158.0, shape the generated file
+(`COMMAND_STRING_HARNESSES` and `CODEX_MIN_HOOK_TIMEOUT_MS` in
+`scripts/lib/hook-config.js`):
+
+1. **Codex ignores `args`.** Exec-form entries (`command: "node"` plus `args`)
+   never run, even with an absolute script path. Codex entries are therefore one
+   command string, `node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle …`.
+   Codex substitutes `${CLAUDE_PLUGIN_ROOT}` and exports both `CLAUDE_PLUGIN_ROOT`
+   and `PLUGIN_ROOT`.
+2. **Codex reads `timeout` as milliseconds; Claude Code reads seconds.** Starting
+   `hook-entry.mjs` takes about one second, so Codex timeouts have a 5000 ms floor.
+
+Codex also treats hook stdout that starts with `{` as a structured response, so a
+hook must not open its output with raw JSON.
+
+**Testing hooks touches the real runtime unless isolated.** `hook-entry.mjs`
+bootstraps and activates its bundle under `~/.prometheus/plugins/prometheus-skill-pack`,
+which every harness on the machine shares, and that activation re-points the
+installed skill symlinks. Setting a scratch `CODEX_HOME` is not enough: also set
+`PROMETHEUS_PLUGIN_ROOT` (and `HOME`) to scratch paths before running `codex exec`
+against a test build.
 The recorded codex-cli 0.144.1 install verbs were `codex plugin marketplace add`
 and `codex plugin add|remove|list`; inspect the installed CLI before applying
 historical invocation evidence to a new version.

@@ -62,14 +62,27 @@ for (const platform of ['claude', 'codex']) {
 // Every file the packaged hooks.json tells the harness to run must ship in the payload. When one is
 // missing, EVERY hook dies with MODULE_NOT_FOUND before any of our code runs, so nothing inside the
 // hook can report or recover from it — it can only be caught here, at packaging time.
-const claudePackageRoot = path.join(root, 'dist/plugins/claude', contract.name);
-const packagedHooks = fs.readFileSync(path.join(claudePackageRoot, 'hooks/hooks.json'), 'utf8');
-const hookTargets = [...new Set([...packagedHooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+)/g)].map(match => match[1]))];
-assert(hookTargets.length > 0, 'packaged hooks.json references no ${CLAUDE_PLUGIN_ROOT} path');
-for (const target of hookTargets) {
-  const packaged = path.join(claudePackageRoot, ...target.split('/'));
-  assert(fs.existsSync(packaged), `hooks.json references ${target}, which is missing from the claude payload`);
-  assert.deepEqual(fs.readFileSync(packaged), canonicalBytes(path.join(root, ...target.split('/'))), `${target} differs from source`);
+// Both harnesses discover hooks/hooks.json at the plugin root; neither manifest declares it. Codex
+// lost its hooks for two months (PR #54 dropped them from the generated package) and nobody noticed,
+// so its payload is held to the same rule as Claude's.
+for (const [platform, hooksSource] of [['claude', 'hooks/hooks.json'], ['codex', 'hooks/codex-hooks.json']]) {
+  const packageRoot = path.join(root, 'dist/plugins', platform, contract.name);
+  const packagedHooks = fs.readFileSync(path.join(packageRoot, 'hooks/hooks.json'), 'utf8');
+  assert.equal(packagedHooks, fs.readFileSync(path.join(root, hooksSource), 'utf8'), `${platform} hooks.json is not ${hooksSource}`);
+  const hookTargets = [...new Set([...packagedHooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"\s]+)/g)].map(match => match[1]))];
+  assert(hookTargets.length > 0, `${platform}: packaged hooks.json references no \${CLAUDE_PLUGIN_ROOT} path`);
+  for (const target of hookTargets) {
+    const packaged = path.join(packageRoot, ...target.split('/'));
+    assert(fs.existsSync(packaged), `hooks.json references ${target}, which is missing from the ${platform} payload`);
+    assert.deepEqual(fs.readFileSync(packaged), canonicalBytes(path.join(root, ...target.split('/'))), `${target} differs from source`);
+  }
+}
+// Codex runs only the command string and ignores `args` (verified on codex-cli 0.158.0).
+for (const groups of Object.values(JSON.parse(fs.readFileSync(path.join(root, 'hooks/codex-hooks.json'), 'utf8')).hooks)) {
+  for (const hook of groups.flatMap(group => group.hooks)) {
+    assert.equal(hook.args, undefined, 'a Codex hook uses exec form, which Codex ignores');
+    assert(hook.command.startsWith('node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs '), 'a Codex hook bypasses the entry point');
+  }
 }
 
 // Import closure: the payload ships scripts by an explicit list, so a module a shipped script imports can
@@ -94,7 +107,7 @@ assert.deepEqual(
 );
 for (const platform of ['claude', 'codex']) {
   const scriptsRoot = path.join(root, 'dist/plugins', platform, contract.name, 'scripts');
-  if (platform === 'claude') assert(fs.existsSync(path.join(scriptsRoot, 'lib')), 'claude payload has no scripts/lib');
+  assert(fs.existsSync(path.join(scriptsRoot, 'lib')), `${platform} payload has no scripts/lib`);
   for (const script of packagedScripts(scriptsRoot)) {
     for (const specifier of relativeImports(fs.readFileSync(script, 'utf8'))) {
       const resolved = path.resolve(path.dirname(script), specifier);

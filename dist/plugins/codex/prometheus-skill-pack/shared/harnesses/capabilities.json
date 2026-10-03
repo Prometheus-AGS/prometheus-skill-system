@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "2",
+  "contractVersion": "karpathy-learning-v2",
+  "harnesses": {
+    "claude-code": {
+      "events": {
+        "sessionStart": "SessionStart",
+        "preCompact": "PreCompact",
+        "postCompact": "SessionStart:compact",
+        "prompt": "UserPromptSubmit",
+        "stop": "Stop",
+        "interrupt": null,
+        "postMutation": "PostToolUse"
+      },
+      "nativeMutationGuard": false,
+      "promptOutputInjection": true,
+      "learningDispatch": true,
+      "writerRole": true
+    },
+    "codex": {
+      "events": {
+        "sessionStart": "session_start",
+        "preCompact": "pre_compact",
+        "postCompact": "post_compact",
+        "prompt": "user_prompt_submit",
+        "stop": "stop",
+        "interrupt": "turn_cancelled",
+        "postMutation": "post_tool"
+      },
+      "nativeMutationGuard": false,
+      "promptOutputInjection": true,
+      "learningDispatch": true,
+      "writerRole": true
+    },
+    "opencode": {
+      "events": {
+        "sessionStart": "session.created",
+        "preCompact": "session.compacting",
+        "postCompact": "session.compacted",
+        "prompt": "chat.message",
+        "stop": "session.idle",
+        "interrupt": "session.status:cancelled",
+        "postMutation": "tool.execute.after"
+      },
+      "nativeMutationGuard": false,
+      "promptOutputInjection": false,
+      "learningDispatch": true,
+      "writerRole": true
+    },
+    "kimi": {
+      "events": {
+        "sessionStart": "SessionStart",
+        "preCompact": "PreCompact",
+        "postCompact": "PostCompact",
+        "prompt": "UserPromptSubmit",
+        "stop": "Stop",
+        "interrupt": "Interrupt",
+        "postMutation": "PostToolUse"
+      },
+      "nativeMutationGuard": false,
+      "promptOutputInjection": true,
+      "learningDispatch": true,
+      "writerRole": true
+    }
+  }
+}

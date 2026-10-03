@@ -7,7 +7,11 @@ import { fileURLToPath } from 'node:url';
 
 import { probeFilesystemCapabilities } from './lib/capabilities.js';
 import { checkoutConversions, describeCheckoutConversions } from './lib/checkout-bytes.js';
-import { shellOnlyExecutableError } from './lib/hook-config.js';
+import {
+  CODEX_MIN_HOOK_TIMEOUT_MS,
+  COMMAND_STRING_HARNESSES,
+  shellOnlyExecutableError,
+} from './lib/hook-config.js';
 import { readIngestOracle } from './lib/payload-manifest.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -302,8 +306,18 @@ function renderHooks(bundleId, harness) {
         // suspicious, so it cannot silently stop being true.
         const shellOnly = shellOnlyExecutableError(command);
         if (shellOnly) failures.push(`${harness}/${hook.id}: ${shellOnly}`);
-        const value = { type: 'command', command, args };
-        if (hook.timeout !== undefined) value.timeout = hook.timeout;
+        if (COMMAND_STRING_HARNESSES.includes(harness) && args.some(arg => /\s/.test(arg))) {
+          failures.push(`${harness}/${hook.id}: command-string hook argument contains whitespace`);
+        }
+        // Codex ignores `args` (see COMMAND_STRING_HARNESSES), so it gets the same
+        // vector joined into one command string. No token contains whitespace.
+        const value = COMMAND_STRING_HARNESSES.includes(harness)
+          ? { type: 'command', command: [command, ...args].join(' ') }
+          : { type: 'command', command, args };
+        if (hook.timeout !== undefined) {
+          value.timeout =
+            harness === 'codex' ? Math.max(hook.timeout, CODEX_MIN_HOOK_TIMEOUT_MS) : hook.timeout;
+        }
         return value;
       }),
     };

@@ -19,7 +19,11 @@ OPENSPEC_RUNNER="$BUNDLE_ROOT/skills/process/kbd-process-orchestrator/shared/ope
 if [[ ! -f "$OPENSPEC_RUNNER" ]]; then
   OPENSPEC_RUNNER="$BUNDLE_ROOT/skills/kbd-process-orchestrator/shared/openspec/cli.mjs"
 fi
-if ! node "$OPENSPEC_RUNNER" refresh --project "$PWD" --timeout-ms 12000; then
+# The runner prints its JSON receipt (also saved under ~/.prometheus/openspec/receipts)
+# to stdout. Hook stdout is session context, and Codex parses stdout that opens
+# with `{` as a structured hook response -- this receipt failed the whole hook
+# there -- so the receipt goes to stderr.
+if ! node "$OPENSPEC_RUNNER" refresh --project "$PWD" --timeout-ms 12000 1>&2; then
   echo "OpenSpec refresh unresolved; rerun the KBD OpenSpec preflight before phase work." >&2
 fi
 

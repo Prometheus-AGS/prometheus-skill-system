@@ -1,0 +1,13 @@
+[Unit]
+Description=Rotate Prometheus hook logs under writer lock
+
+[Service]
+Type=oneshot
+Environment=HOME=__PROMETHEUS_HOME__
+Environment=USER=__PROMETHEUS_USER__
+Environment=PATH=__PROMETHEUS_PATH__
+Environment=PROMETHEUS_LOGROTATE_BIN=__LOGROTATE_BIN__
+Environment=PROMETHEUS_FLOCK_BIN=__FLOCK_BIN__
+ExecStart=/bin/bash __PROMETHEUS_ROOT__/shared/scripts/rotate-hooks-log.sh
+StandardOutput=append:__PROMETHEUS_LOG_DIR__/hooks-logrotate.stdout.log
+StandardError=append:__PROMETHEUS_LOG_DIR__/hooks-logrotate.stderr.log

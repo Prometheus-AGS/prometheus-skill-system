@@ -9,7 +9,7 @@ The Codex package is generated from `skill-system.json` and the collected skill 
 | Packaged `skills/` and `skill-index.json` | Collected skill source directories | Same generator |
 | Packaged `.mcp.json` | Root MCP template, checked for machine paths and literal credentials | Same generator |
 
-The current manifest exposes `skills: "./skills"`, `mcpServers: "./.mcp.json"` and the Codex `interface` metadata. It has no `hooks` or native-team `agents` field. The compatibility wrapper `scripts/build-codex-plugin.js` delegates to the distribution generator and explicitly rejects a manifest containing `hooks`.
+The current manifest exposes `skills: "./skills"`, `mcpServers: "./.mcp.json"` and the Codex `interface` metadata. It has no `hooks` or native-team `agents` field: hooks ship as `hooks/hooks.json` at the package root, which Codex discovers by convention (see Hooks below). The compatibility wrapper `scripts/build-codex-plugin.js` delegates to the distribution generator and explicitly rejects a manifest containing `hooks`.
 
 ## Local generation and installation
 
@@ -66,7 +66,19 @@ projections or treating a local team status as canonical completion.
 
 ## Hook evidence is version-scoped
 
-The earlier change-cpd-006 experiment recorded plugin-hook behavior with codex-cli 0.144.1. That historical evidence does not describe the current generated package, whose manifest advertises skills and MCP and excludes `hooks`. Do not add a rejected field or claim hook firing from current plugin installation. Other generated hook artifacts retain their own installation and receipt contracts; they are not proof that the Codex plugin consumes them.
+## Hooks
+
+The package ships `hooks/hooks.json`, rendered from `shared/harnesses/hook-contract.json` as `hooks/codex-hooks.json`, together with the runtime closure every hook needs: `scripts/hook-entry.mjs`, `scripts/lib`, `shared/` and the signed-skill runtime. Codex finds a plugin's `hooks/hooks.json` by convention, so the manifest declares no `hooks` key.
+
+Verified on codex-cli 0.158.0 (2026-10-03):
+
+- **Codex runs only the `command` string and ignores `args`.** Every Codex entry is one string: `node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle <id> --hook <id> --harness codex`. Codex substitutes `${CLAUDE_PLUGIN_ROOT}` and exports both `CLAUDE_PLUGIN_ROOT` and `PLUGIN_ROOT`.
+- **`timeout` is milliseconds in Codex** (seconds in Claude Code). Codex timeouts have a 5000 ms floor, because starting the entry point alone takes about one second.
+- **Hook stdout that opens with `{` is parsed as a structured response.** Hooks must not begin their output with raw JSON.
+
+To check firing without touching the machine's real hook runtime, isolate all three of `CODEX_HOME`, `PROMETHEUS_PLUGIN_ROOT` and `HOME`. Then run `codex plugin marketplace add <repo>`, `codex plugin add prometheus-skill-pack@prometheus-skill-pack`, and `codex exec --skip-git-repo-check --dangerously-bypass-hook-trust "ok"`, and count the `hook: SessionStart Completed` lines on stderr.
+
+From PR #54 (2026-08-10) until this fix, the generated package shipped no hooks and no Prometheus hook fired in Codex. The change-cpd-006 evidence for codex-cli 0.144.1 predates both the generated package and the exec-form hooks.
 
 ## Updating the distribution
 

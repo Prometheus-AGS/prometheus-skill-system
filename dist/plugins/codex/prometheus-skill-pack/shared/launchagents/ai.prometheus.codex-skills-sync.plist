@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Keeps ~/.codex/skills in sync with the skill-pack repo.
+
+  Codex CLI (0.144.x) does not traverse symlinked skill directories, so the pack
+  is COPIED into ~/.codex/skills rather than linked. Copies go stale when a skill
+  is edited in the repo; this agent re-syncs whenever the repo's skills change,
+  so the next Codex session always sees current instructions.
+
+  Trigger strategy: launchd's WatchPaths on a DIRECTORY only fires when that
+  directory's own entries change (add/remove/rename) -- it does NOT fire when a
+  file nested inside it is edited. Editing skills/<domain>/<skill>/SKILL.md is
+  exactly that nested case, so WatchPaths alone silently misses the common edit.
+  StartInterval is therefore the primary trigger; WatchPaths is kept because it
+  reacts instantly when a skill is added or deleted.
+
+  codex-sync-skills.sh is idempotent (rsync + prune), so a no-op run costs ~10ms
+  and redundant firings are safe.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>ai.prometheus.codex-skills-sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>__REPO_ROOT__/scripts/codex-sync-skills.sh</string>
+        <string>--quiet</string>
+    </array>
+
+    <!-- Primary: catches edits to files nested inside skill directories. -->
+    <key>StartInterval</key>
+    <integer>120</integer>
+
+    <!-- Secondary: instant reaction when a skill dir is added or removed. -->
+    <key>WatchPaths</key>
+    <array>
+        <string>__REPO_ROOT__/skills</string>
+        <string>__REPO_ROOT__/config/codex-catalog.txt</string>
+    </array>
+
+    <!-- Sync once at login so a fresh boot is never stale. -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/.prometheus/logs/codex-skills-sync.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/.prometheus/logs/codex-skills-sync.log</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>LowPriorityIO</key>
+    <true/>
+</dict>
+</plist>

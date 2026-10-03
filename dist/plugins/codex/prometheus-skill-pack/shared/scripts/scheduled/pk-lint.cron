@@ -1,0 +1,3 @@
+# pk lint --fix weekly — runs Saturday 03:00
+# Install: crontab -e  and paste the line below (replace PROMETHEUS_SKILL_PACK_ROOT)
+# 0 3 * * 6 PROMETHEUS_SKILL_PACK_ROOT/shared/scripts/pk-lint.sh >> ~/.prometheus/pk-lint-cron.log 2>&1
