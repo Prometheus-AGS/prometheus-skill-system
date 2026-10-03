@@ -42,6 +42,13 @@ harness’s real resume interface only for that same harness/session when useful
 there is no portable session token. A state transfer does not stop the source
 process. Coordinate stopping or pausing native work to prevent concurrent edits.
 
+For UAR work, carry the workspace path, exact package ID/version/digest, definition
+identities, binding revision, and migration receipt references as evidence. A
+handoff transfers task context only: it does not mutate an immutable workspace or
+package, install a binding, convey credential or RepresentationGrant values, or
+grant the destination authority. Request canonical definition or binding changes
+through `$agent-team-creator`.
+
 For shared memory, use the creator’s durable local queue and verified/configured
 provider mappings described in `references/models-memory.md`. Scope and
 provenance travel with the record, but a memory reference grants no authorization.

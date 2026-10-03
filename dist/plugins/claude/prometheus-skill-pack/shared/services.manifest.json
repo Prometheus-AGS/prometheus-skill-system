@@ -434,7 +434,7 @@
           "restart": {
             "keepAlive": true,
             "throttleInterval": 10,
-            "processType": "Background"
+            "processType": "Standard"
           },
           "logs": {
             "stdout": "__PROMETHEUS_LOG_DIR__/surreal-memory-native.stdout.log",
@@ -484,7 +484,7 @@
           "restart": {
             "keepAlive": true,
             "throttleInterval": 10,
-            "processType": "Background"
+            "processType": "Standard"
           },
           "logs": {
             "stdout": "__PROMETHEUS_LOG_DIR__/surrealdb-native.stdout.log",
