@@ -16,3 +16,11 @@ Final adversarial review passed after fixing execution-prompt routing/completion
 Full installation used clean-source and expected-commit verification. Payload audit matched 189 installed skill trees (3,072 file instances), including nested resources. Native Claude/Codex registrations use the persistent full release checkout. Kimi Desktop custom MCP configuration and other Codex plugin settings were preserved. Fresh Codex worker found and read the installed skill using directory discovery after a truncated catalog; this does not prove catalog visibility in every harness.
 
 Existing sessions must reload. Previous generation and configuration backups are retained. No remote publication or service changes. These completion documents were committed after installation; they do not change the installed payload or its implementation commit.
+
+## Machine-wide CLI follow-up — 2026-10-03
+
+At the operator's request, updated 11 active local installations to OpenSpec 1.14.0: six Node-manager/Homebrew global prefixes, three mini checkout dependency trees and two launcher runtime dependency trees. The Homebrew entry no longer points at the older development clone. Two stale npx caches were moved to the private rollback directory. The managed KBD runtime and remaining npx cache were already 1.14.0.
+
+All 23 executable checks returned exactly 1.14.0, including every discovered PATH entry, explicit global binaries and the managed runner. The current shell resolves 1.14.0. Source dependencies in both release branches remain pinned to 1.14.0. Local dependency-tree updates used no-save and preserved project manifests/lockfiles; older branch pins and historical source/rollback snapshots were not rewritten.
+
+Machine receipts and recoverable backups: /Users/gqadonis/.prometheus/releases/openspec-machine-1.14.0-2026-10-03T09-41-58-885Z. Runtime installation changes live outside Git; this document records the verification boundary. The release branches are pushed separately without unrelated dirty-checkout edits or a merge.
