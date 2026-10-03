@@ -2,8 +2,8 @@
   "$schema": "./schemas/skill-system.schema.json",
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
-  "releaseVersion": "1.10.0",
-  "minimumActiveVersion": "1.10.0",
+  "releaseVersion": "1.11.1",
+  "minimumActiveVersion": "1.11.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
     "skills": ["darwin", "linux", "windows-git-bash", "windows-wsl"],
@@ -83,7 +83,7 @@
       "id": "liter-llm",
       "path": "tools/liter-llm",
       "repository": "https://github.com/GQAdonis/liter-llm.git",
-      "commit": "c5c6caac617eb931cd5009146a70831422ec236c",
+      "commit": "12a2fae9675e34b88e9373caa2bca9959f416493",
       "requiredFor": ["full"]
     },
     {
@@ -122,7 +122,7 @@
     "plugins": [
       { "name": "prometheus-ui-ux-skills", "path": "skills/ui-ux", "version": "1.0.0", "category": "frontend" },
       { "name": "prometheus-react-skills", "path": "skills/react/prometheus-entity-skills", "version": "1.5.0", "category": "frontend" },
-      { "name": "prometheus-process-skills", "path": "skills/process", "version": "1.6.0", "category": "productivity" },
+      { "name": "prometheus-process-skills", "path": "skills/process", "version": "1.7.0", "category": "productivity" },
       { "name": "prometheus-devops-skills", "path": "skills/devops", "version": "1.5.0", "category": "devops" },
       { "name": "prometheus-testing-skills", "path": "skills/testing", "version": "1.5.0", "category": "testing" },
       { "name": "learn", "path": "skills/learn", "version": "1.6.0", "category": "productivity" },

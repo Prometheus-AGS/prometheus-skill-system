@@ -32,7 +32,12 @@ wp=".kbd-orchestrator/current-waypoint.json"
 jq -e . "$wp" >/dev/null 2>&1 || die "malformed waypoint at $wp"
 
 # --- Resolve the active node from path[] (v3) -------------------------------
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+PHASE_SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+LOCAL_ORCHESTRATOR_ROOT="$(cd "$PHASE_SKILL_DIR/../.." && pwd -P)"
+if [ ! -f "$LOCAL_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" ]; then
+  LOCAL_ORCHESTRATOR_ROOT="$PHASE_SKILL_DIR/../kbd-process-orchestrator"
+fi
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$LOCAL_ORCHESTRATOR_ROOT}"
 export KBD_ORCHESTRATOR_ROOT
 waypoint_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
 [[ -f "$waypoint_lib" ]] || die "waypoint.sh not found at $waypoint_lib"
@@ -90,6 +95,9 @@ fi
 
 child_dir="$parent_node_dir/children/$name"
 [[ -e "$child_dir" ]] && die "child directory already exists: $child_dir"
+
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "$PWD" --timeout-ms 120000 \
+  || die "OpenSpec refresh failed; child was not created"
 
 now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 mkdir -p "$child_dir"

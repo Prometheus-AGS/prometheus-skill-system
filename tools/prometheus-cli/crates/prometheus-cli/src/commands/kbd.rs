@@ -884,7 +884,10 @@ fn guard_context(state: &RuntimeState, boundary: BoundaryKind, subject: &str) ->
         BoundaryKind::Task => {
             let phase_id = active_phase_id.clone();
             let phase = phase_id.as_ref().and_then(|id| state.phases.get(id));
-            let qualified = subject.split_once('/').or_else(|| subject.split_once(':'));
+            let qualified = subject
+                .split_once('/')
+                .or_else(|| subject.split_once("::"))
+                .or_else(|| subject.split_once(':'));
             let qualified_match = qualified.and_then(|(change_id, task_id)| {
                 phase
                     .and_then(|phase| phase.changes.get(change_id))

@@ -81,6 +81,7 @@ service_is_excluded() {
 # shellcheck source-path=SCRIPTDIR
 # shellcheck source=../shared/scripts/service-probe.sh
 . "$REPO_ROOT/shared/scripts/service-probe.sh"
+. "$REPO_ROOT/shared/scripts/surreal-bin.sh"
 
 # ── Platform detection ───────────────────────────────────────────────────────
 case "$(uname -s 2>/dev/null)" in
@@ -97,13 +98,11 @@ if [ "$OS" = "macos" ]; then
     }
     PROMETHEUS_HOME="$(user_home "$PROMETHEUS_USER")"
     PROMETHEUS_PATH="/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-    SURREAL_FALLBACK="/opt/homebrew/bin/surreal"
     BIN_FALLBACK_DIR="$PROMETHEUS_HOME/.local/bin"
 else
     PROMETHEUS_HOME="$(getent passwd "$PROMETHEUS_USER" 2>/dev/null | cut -d: -f6)"
     [ -n "$PROMETHEUS_HOME" ] || PROMETHEUS_HOME="$HOME"
     PROMETHEUS_PATH="$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
-    SURREAL_FALLBACK="/usr/local/bin/surreal"
     BIN_FALLBACK_DIR="$PROMETHEUS_HOME/.local/bin"
     SYSTEMD_USER_DIR="$PROMETHEUS_HOME/.config/systemd/user"
     export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u "$PROMETHEUS_USER" 2>/dev/null || id -u)}"
@@ -196,7 +195,7 @@ render_template() {
     pk_cherry_bin="$(resolve_bin pk-cherry)";  [ -n "$pk_cherry_bin" ] || pk_cherry_bin="$BIN_FALLBACK_DIR/pk-cherry"
     forge_bin="$(resolve_bin forge)";          [ -n "$forge_bin" ]     || forge_bin="$BIN_FALLBACK_DIR/forge"
     docker_bin="$(resolve_bin docker)";        [ -n "$docker_bin" ]    || docker_bin="/usr/local/bin/docker"
-    surreal_bin="$(resolve_bin surreal)";      [ -n "$surreal_bin" ]   || surreal_bin="$SURREAL_FALLBACK"
+    surreal_bin="$(resolve_surreal_bin "$PROMETHEUS_HOME" "$PROMETHEUS_PATH")" || return 1
     surreal_memory_bin="$(resolve_bin surreal-memory-server)"
     [ -n "$surreal_memory_bin" ] || surreal_memory_bin="$REPO_ROOT/tools/surreal-memory-server/target/release/surreal-memory-server"
     [ -f "$surreal_memory_bin" ] || surreal_memory_bin="$BIN_FALLBACK_DIR/surreal-memory-server"

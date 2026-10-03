@@ -144,9 +144,9 @@ class SkillValidator {
         if (!frontmatter.version && !frontmatter.metadata?.version) {
           this.addError(skillName, 'Strict: missing required field: version');
         }
-        const tags = frontmatter.metadata?.tags;
-        const validTags = Array.isArray(tags) ? tags.length > 0 : typeof tags === 'string' && tags.trim().length > 0;
-        if (!validTags) {
+        const rawTags = frontmatter.metadata?.tags;
+        const tags = typeof rawTags === 'string' ? rawTags.split(',').map(tag => tag.trim()).filter(Boolean) : rawTags;
+        if (!tags || !Array.isArray(tags) || tags.length === 0) {
           this.addError(
             skillName,
             'Strict: missing required field: metadata.tags (must be a non-empty string or legacy array)'

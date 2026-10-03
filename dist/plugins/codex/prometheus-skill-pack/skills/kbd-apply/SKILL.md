@@ -32,6 +32,17 @@ calling the spec backend per task.
 
 ## The per-task loop (what the model does each turn)
 
+Before `begin-task`, resolve the plan's **Task model assignments** entry using
+the full phase path, change ID and backend task ID. Follow
+[task selection protocol](../kbd-plan/references/task-model-selection.md):
+recheck the concrete model and native or liter-llm worker route, then pass the
+assignment reference, scope, working directory, tools, skills and result handoff
+to the documented worker. Record explicit selections for legacy plans and any
+changed recommendation. Missing prerequisites remain unresolved; never silently
+substitute the native alternative. Continue other dependency-eligible tasks where
+possible. Worker results return to this driver, which alone owns begin/end and
+canonical completion updates. Assignments do not introduce task-level QA gates.
+
 ```sh
 ROOT="$KBD_ORCHESTRATOR_ROOT"
 APPLY="$ROOT/skills/kbd-apply/kbd-apply.sh"
@@ -55,8 +66,8 @@ read -r TOTAL COMPLETE REMAINING < <("$APPLY" progress "$CHANGE")
 #     fires task:after, prints "Completed task <I> of <TOTAL>: <TITLE>"
 #   → on the final task, closes change:after and records change progress
 
-# 3. After the LAST task (on_change_complete fired automatically by the
-#    index==total sentinel): run the artifact-refiner QA gate, then:
+# 3. After ALL planned production changes are complete, run the phase's
+#    production-path integration and cumulative review gates. Once they pass:
 "$APPLY" verify  "$CHANGE"   # backend verify (openspec validate / /opsx:verify)
 "$APPLY" archive "$CHANGE"   # backend archive (openspec archive / /opsx:archive)
 ```

@@ -390,7 +390,7 @@ function atomicWrite(file, content, mode = 0o644) {
   } finally {
     fs.closeSync(descriptor);
   }
-  fs.renameSync(temporary, file);
+  renameSyncWithRetry(temporary, file);
   syncDirectory(path.dirname(file));
 }
 
@@ -434,6 +434,39 @@ const STORE_LOCK_TIMEOUT_MS = 60_000;
 
 function sleepSync(milliseconds) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+// A rename of a JUST-WRITTEN tree is transiently refused on Windows. Defender
+// real-time protection (and the Search indexer) hold a scan handle on files the
+// installer has only now closed, and MoveFileExW fails with
+// ERROR_ACCESS_DENIED -- surfaced by libuv as EPERM -- even when the
+// destination does not exist and the process owns the whole path. The handle is
+// released within milliseconds, so the failure is a race and not a permission
+// state: a run aborts at a DIFFERENT skill each time, and the identical rename
+// succeeds by hand a second later.
+//
+// Retrying is therefore the correct reading of the error rather than a
+// workaround for a broken one. The retry is confined to win32 and to the three
+// codes that carry a holder-released-it-later meaning, so a genuine permission
+// failure still aborts after the backoff and no other platform changes
+// behavior at all.
+const TRANSIENT_RENAME_ERRORS = ['EPERM', 'EACCES', 'EBUSY'];
+const RENAME_RETRY_DELAYS_MS = [10, 25, 50, 100, 200, 400, 800, 1600];
+
+function renameSyncWithRetry(from, to) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      fs.renameSync(from, to);
+      return;
+    } catch (error) {
+      const retryable =
+        process.platform === 'win32' &&
+        TRANSIENT_RENAME_ERRORS.includes(error.code) &&
+        attempt < RENAME_RETRY_DELAYS_MS.length;
+      if (!retryable) throw error;
+      sleepSync(RENAME_RETRY_DELAYS_MS[attempt]);
+    }
+  }
 }
 
 function processAlive(pid) {
@@ -1664,8 +1697,8 @@ function copySkill(source, targetRoot, target, skill, generation, projection) {
   atomicWrite(path.join(temporary, '.prometheus-generation'), `${generation}\n`);
   const prior = `${destination}.${process.pid}.old`;
   fs.rmSync(prior, { recursive: true, force: true });
-  if (fs.existsSync(destination)) fs.renameSync(destination, prior);
-  fs.renameSync(temporary, destination);
+  if (fs.existsSync(destination)) renameSyncWithRetry(destination, prior);
+  renameSyncWithRetry(temporary, destination);
   fs.rmSync(prior, { recursive: true, force: true });
   syncDirectory(targetRoot);
 }
@@ -2410,7 +2443,7 @@ function install(args) {
       verifyGeneration(generationPath, generation, args.trustStore);
       fs.rmSync(staging, { recursive: true, force: true });
     } else {
-      fs.renameSync(staging, generationPath);
+      renameSyncWithRetry(staging, generationPath);
       syncDirectory(generations);
     }
 

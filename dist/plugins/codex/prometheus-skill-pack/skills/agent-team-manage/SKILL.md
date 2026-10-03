@@ -62,3 +62,16 @@ of its knowledge bundle. Never manufacture a completion log from a team event.
 
 Finish with actual changes, evidence, remaining work and revision. Do not claim
 native execution, policy enforcement or remote cancellation from local state.
+
+## Progress Signals
+
+Emit to plain response text (no tool call):
+
+```
+Starting agent-team-manage — <team-id> (<operation>)
+Starting task <i> out of <n>: <task-id>
+Completed task <i> out of <n>: <task-id>
+Completed agent-team-manage — <team-id> (<done>/<total> tasks)
+```
+
+Counts come from the team state (`status`), never from estimates.

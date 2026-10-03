@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.10.0",
+  "sourceVersion": "1.11.1",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -13,7 +13,7 @@
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "0c6de653ede8a9cd3ac55ccec04e3f512e75377c4852e75943b72aa372f274c9",
+      "sha256": "f5f1f6e37b78b03972196684ff46541207846d94424fa94dab0abba66a665738",
       "executable": true
     },
     {
@@ -77,6 +77,16 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/cadence-karpathy-adapter.mjs",
+      "sha256": "7470cdda1cfae5a1109238a7289b4dffa6ab63b91335dbfe6ad7f2951e5f002c",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/cadence-kbd-adapter.mjs",
+      "sha256": "e4aaa71f36d17969a1e30c0f8753e925738d5da81a25a2058093f8e4f922a681",
+      "executable": false
+    },
+    {
       "path": "shared/scripts/cedar-skill-gate.sh",
       "sha256": "9f48546001c6236ceff704a3375fdd44e3708d256de113c6530e5a8cdd307eb5",
       "executable": true
@@ -93,7 +103,7 @@
     },
     {
       "path": "shared/scripts/detect-project-context.sh",
-      "sha256": "07ff7be3bf0621ef65b83a3ca7e0d1400dcac137ec2b282bcc60d70c715d43ca",
+      "sha256": "abc98efbdd518324e382cb8f9c76847045a176f8dbfde7f3dcf006204c838fd1",
       "executable": true
     },
     {
@@ -173,7 +183,7 @@
     },
     {
       "path": "shared/scripts/lib/kbd-model-resolve.sh",
-      "sha256": "2cd2fee573c5b13cfaa31c202e9675d97234390f4974fc288e898f59d9c94ee7",
+      "sha256": "41539d8242f7aff0820e873be10a0d4015ce651edf9b5b68990495275d2417dd",
       "executable": true
     },
     {
@@ -387,5 +397,5 @@
       "executable": true
     }
   ],
-  "bundleId": "35e2ecbe4e2930effb273a69cddebf0e9faef6ce508228e652d192011e8545d6"
+  "bundleId": "8934f84aef86073af922dcffa4b277a61aa1b69090b6f142b57d0b0d579fd6f8"
 }

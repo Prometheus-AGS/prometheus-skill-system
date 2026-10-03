@@ -25,6 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`REPAIR`), and `verify.sh` fails any project whose deny list covers the whole
   directory so the rule cannot return unnoticed.
 
+## [1.11.1] - 2026-10-03
+
+### Fixed
+
+- The Claude plugin payload now ships every `scripts/lib` module that `install-plugin-generation.js` and
+  `hook-entry.mjs` import. The distribution generator copied only `scripts/lib/skill-system.js`, so Stop
+  hooks that ran the packaged installer failed with `ERR_MODULE_NOT_FOUND` for `./lib/capabilities.js`.
+  The generator now copies the directory, and `skill-system-distribution.test.mjs` resolves every relative
+  import of every packaged script against the payload so the omission cannot recur silently.
+
 ## [1.10.0] - 2026-09-19
 
 ### Added

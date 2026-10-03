@@ -1,0 +1,16 @@
+{
+  "status": "pending_review",
+  "producer_model": "gpt-6",
+  "scope": "Recovered double-colon task selector in tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+  "source_commit": "39e0521",
+  "attempts": [
+    {
+      "model": "MiniMax-M3",
+      "outcome": "REST gateway timeout after 45000 ms"
+    },
+    {
+      "model": "kimi-k3:cloud",
+      "outcome": "Provider rejected dispatch: usage credits required"
+    }
+  ]
+}

@@ -149,7 +149,7 @@ human approves `SPEC.md`.
 
 See [references/templates/creation-phase.md](references/templates/creation-phase.md)
 
-**Loop:** decompose approved scope, implement every production task, then build the deliverable and run its actual function. Fix boundary failures before admitting another increment. Do not run per-task tests or verifier loops. Use delivery-cadence for timed, independently usable deliveries.
+**Loop:** decompose approved scope, implement every production task, then build the deliverable and run its actual function. Fix boundary failures before promoting work-ahead. Do not run per-task tests or verifier loops. Use delivery-cadence for timed, independently usable deliveries.
 
 ## Inner-Loop Auto-Promotion
 
@@ -261,3 +261,11 @@ When a cadence profile is requested, use delivery-cadence and kbd-loop directly 
 ## Cadence child recovery
 
 When a cadence binding exists, use delivery-cadence `child enter` after the canonical child transition, and `child return` after canonical parent restoration with explicit return evidence. Keep the parent clock running and preserve publication debt. Nested children do not count as separate deliveries. On every resumed session, reconcile canonical position before admitting scope. Load delivery-cadence/references/child-recovery.md for commands and failure recovery. An architectural approval is never implied by autonomous iteration policy.
+
+## Bounded delivery pipeline
+
+Use the authored dispatch contract to retain the named capability, complete featureOperation, approved creation task when needed, source/output ownership and candidate/work-ahead references. A child or change split cannot silently move the only operation to a later delivery. KBD owns scope revisions and completion; Cadence dispatch metadata does not authorize either.
+
+After the completed current candidate is frozen, admit at most one approved independent work-ahead scope in isolated roots. Work-ahead is an assignment, not a second active iteration or phase. Preserve firstWorkAt; promote only after local delivery, required hooks, child return, review and repaired-base conditions are satisfied. Current failures receive repair priority; only disjoint authorized edits continue.
+
+Do not hold the entire team idle for platform publication. Track candidate-specific obligations and one in-flight/one pending release; protect any version/branch the existing publisher consumes. Required remote capabilities must be observed, not inferred from local locks. Installed acceptance can remain explicitly pending independently of publication scheduling. Preserve approved duration and recurrence rather than asking again after every delivery. No background continuation is implied.

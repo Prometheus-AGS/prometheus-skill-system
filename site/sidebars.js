@@ -133,7 +133,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Lifecycle',
-      items: ['kbd/overview', 'kbd/stages'],
+      items: ['kbd/overview', 'kbd/stages', 'kbd/task-model-assignments', 'kbd/openspec-lifecycle'],
     },
     {
       type: 'category',

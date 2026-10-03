@@ -16,6 +16,14 @@ metadata:
 
 Seed and initialize the next KBD phase from the previous phase's reflection.
 
+Before creating or entering a phase, the lifecycle script refreshes the latest
+stable OpenSpec CLI and existing project integrations through the orchestrator’s
+`shared/openspec/cli.mjs`. For direct `prometheus kbd` commands or harnesses without
+hooks, first run `node "<installed-orchestrator>/shared/openspec/cli.mjs" refresh
+--project "<project-root>" --timeout-ms 120000` as one command. Do not start the
+phase when refresh reports an unresolved failure or pending update. Use its
+`run --project "<project-root>" -- <openspec arguments>` interface for OpenSpec.
+
 ## What this does
 
 1. Reads `current-waypoint.json` to find the completed phase name and stage

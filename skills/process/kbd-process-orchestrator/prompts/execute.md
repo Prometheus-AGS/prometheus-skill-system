@@ -18,21 +18,24 @@ required QA, review, verification, and archival work has completed.
 
 ## Model Selection
 
-**This phase is model-tiered.** Each change routes independently based on its `Model class` annotation from `plan.md`. If a change lacks the annotation, score it using the rules in `references/model-routing.md` before dispatching.
+Read `plan.md` **Task model assignments** and
+[task model selection](../skills/kbd-plan/references/task-model-selection.md).
+Resolve each task by full phase path, change ID and backend task ID. Honor its
+concrete provider/model, supported reasoning effort and documented worker route;
+change-level model classes are summaries, not replacement dispatch decisions.
 
-For each change, resolve the concrete model:
+Recheck actual availability and user/project/budget constraints before dispatch.
+Use demonstrated task suitability first, with cost and latency breaking close
+ties. For legacy plans without assignments, perform that analysis and record an
+explicit selection before running a task. Material task, harness or capability
+changes require an updated assignment.
 
-1. Read `Model class` from `plan.md` (`small | medium | frontier`).
-2. If absent, score by complexity rules in `references/model-routing.md`:
-   - **Low** (small): task count ≤ 3, no new abstractions, single layer touched
-   - **Medium** (medium): task count 4–8, one module boundary crossed, no design markers
-   - **High** (frontier): task count > 8, cross-domain, new abstractions, `TODO:` / `DECISION:` markers
-3. Resolve the concrete model: `project.json → model_policy.registry.<class>.<active_environment>`.
-4. Annotate the dispatch contract (see Required Output) with `Model class`, `Concrete model`, and `Model rationale`.
-
-The execute phase prompt itself can run on a small model — it is mechanical orchestration. The cost reduction comes from routing each *dispatched* change to the cheapest viable model.
-
-See `references/model-routing.md` for the full routing contract.
+Prefer native execution of the selected model where supported. External models
+need both liter-llm inference and an existing documented tool-enabled worker.
+Missing prerequisites leave the route unresolved; record an explicit alternative
+selection and rationale before using it, never silently substitute. Independent
+eligible work may continue. Carry the scoped assignment and actual dispatch
+identity into every handoff. See `references/model-routing.md` for policy context.
 
 ## Inputs Available to You
 
@@ -67,7 +70,7 @@ See `references/model-routing.md` for the full routing contract.
 
 > Spec backends (`openspec`, `speckit`) are always driven through `/kbd-apply`
 > task-by-task — never via a bare `/opsx:apply` or `/speckit.implement`.
-> `/kbd-apply detect` selects the backend automatically (openspec dir+CLI →
+> `/kbd-apply detect` selects the backend automatically (openspec directory →
 > `openspec`; `.specify/` or `specs/*/tasks.md` → `speckit`).
 
 ### Selection Rules
@@ -102,7 +105,9 @@ If the selected non-OpenSpec backend:
 - Cannot keep scope bounded to the phase
 - Becomes blocked by missing structure
 
-→ Fall back to `openspec` and document why.
+→ Record an explicit backend change to `openspec` and its rationale. Reconcile
+task identities and assignments before dispatch. A backend change does not
+authorize substituting a model or bypassing unresolved worker prerequisites.
 
 ## Required Output
 
@@ -125,15 +130,17 @@ EXECUTION SCOPE
 - <change-id>: <one-line description>
 
 DISPATCH CONTRACTS
-For each change assigned to a non-self tool:
+For every task, including self-execution:
 
-- <change-id> → <tool>
-  Entry: <exact prompt or command to give the tool>
-  Model class: <small | medium | frontier>
-  Concrete model: <resolved from model_policy.registry.<class>.<active_environment>>
-  Model rationale: <one line — why this class for this change>
-  Progress view: .kbd-orchestrator/phases/<phase>/progress.json (generated)
-  Handoff: Report through kbd-apply task boundaries and typed KBD transitions
+- <full phase path> / <change-id> / <backend task ID> → <harness>
+  Assignment: <plan.md Task model assignments scoped entry>
+  Entry: <documented worker invocation; scope, working directory, tools, skills>
+  Concrete model: <provider/model and supported reasoning effort>
+  Route: <native or liter-llm plus tool-enabled worker; actual availability>
+  Model rationale: <task fit and dated evidence; explicit policy tradeoffs>
+  Native alternative: <if different; not an automatic fallback>
+  Prerequisites: <unresolved route requirements or none>
+  Handoff: Return artifacts and evidence to the KBD driver; do not update task state
 
 APPROVAL GATES
 
@@ -180,22 +187,19 @@ waypoint projections; never initialize them by copying a compatibility schema.
 
 ### If dispatching to a non-self tool (Roo, Cursor, Cline, etc.)
 
-Produce a **Tool Handoff Note** embedded in `execution.md` under each change:
+Produce a **Tool Handoff Note** embedded in `execution.md` for each scoped task:
 
 ```
 HANDOFF NOTE for <tool>:
 1. Read .kbd-orchestrator/current-waypoint.json
 2. Read the change spec: [openspec path | .kbd-orchestrator/changes/<id>/change.md]
-3. Before each task: run kbd-apply begin-task with its real ID and plan totals.
-4. After implementing that task: run kbd-apply end-task; the driver records
-   canonical transitions and regenerates progress/waypoint projections.
-5. Record implementation completion through a typed KBD change transition.
-   Evidence/certification/publication remain independent; record their actual
-   outcomes through typed commands. Use kbd-apply verify then archive after
-   the applicable gates pass, including for OpenSpec changes.
-6. On blocker: use the typed KBD blocker command and retain the pending task.
-   Review and commit only the intended artifacts/state under project policy.
-   Never increment counters or edit generated progress/waypoint fields.
+3. Read the exact scoped assignment and use its verified model and worker route.
+   Report unresolved prerequisites; do not silently substitute another model.
+4. Implement only the assigned task and return artifacts, evidence and blockers.
+5. The KBD driver alone owns begin-task/end-task and canonical completion updates;
+   workers never edit progress.json, task markers, counters or waypoints.
+6. Final integration, review and archive remain deferred until every planned
+   production change is complete and the required final gates pass.
 ```
 
 ### If backend = `openspec` (or any spec backend) and self-executing
@@ -213,9 +217,10 @@ Plan/execute boundary (F3): `/kbd-plan` *creates* the change (`/opsx:new`);
      done, syncs `progress.json` + waypoint, fires `task:after` + "Completed
      task i of n")
 3. On the final task the `on_change_complete` sentinel fires automatically.
-4. Run the artifact-refiner QA gate and independent adversarial review, then
-   `kbd-apply verify` → `kbd-apply archive` (which call `openspec validate` /
-   `openspec archive`). Keep Execute active while other phase work remains.
+4. After every planned production change is complete, run the production-path
+   integration and cumulative review gates. Once they pass, run `kbd-apply verify`
+   → `kbd-apply archive` through the managed OpenSpec CLI. Do not run per-task or
+   per-change QA gates while production implementation remains unfinished.
 
 > **Why not bare `/opsx:apply`?** It is unmodified upstream OpenSpec: it fires
 > no KBD hooks, writes no `progress.json`, and refreshes no waypoint. Invoking

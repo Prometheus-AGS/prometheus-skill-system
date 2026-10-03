@@ -14,6 +14,10 @@ metadata:
 Resume an explicitly paused KBD run. A normal assistant response is never a
 resume signal.
 
+## OpenSpec lifecycle preflight
+
+Before this stage, follow the parent OpenSpec lifecycle preflight (nested `../../SKILL.md`, or flat `../kbd-process-orchestrator/SKILL.md`): refresh existing KBD/OpenSpec projects through the managed latest-stable CLI and use that runner for subsequent OpenSpec commands. Retry a pending startup refresh before OpenSpec work; preserve authored specs and task state.
+
 ## Progress Signals (MANDATORY)
 
 Before validation, emit:

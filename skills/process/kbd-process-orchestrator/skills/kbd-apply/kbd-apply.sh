@@ -35,7 +35,12 @@ warn() { printf '%s: warn: %s\n' "$SELF" "$*" >&2; }
 
 command -v jq >/dev/null 2>&1 || die "jq is required"
 
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+APPLY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+LOCAL_ORCHESTRATOR_ROOT="$(cd "$APPLY_DIR/../.." && pwd -P)"
+if [ ! -f "$LOCAL_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" ]; then
+  LOCAL_ORCHESTRATOR_ROOT="$APPLY_DIR/../kbd-process-orchestrator"
+fi
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$LOCAL_ORCHESTRATOR_ROOT}"
 # Source hooks (which now self-sources waypoint.sh). Best-effort.
 if [ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh" ]; then
   # shellcheck source=/dev/null
@@ -88,8 +93,7 @@ backend_detect() {
        || [ -f ".kbd-orchestrator/changes/$change/change.md" ]; then
       printf 'native-kbd'; return 0
     fi
-    if { [ -f "openspec/changes/$change/proposal.md" ] || [ -f "openspec/changes/$change/tasks.md" ]; } \
-       && command -v openspec >/dev/null 2>&1; then
+    if [ -f "openspec/changes/$change/proposal.md" ] || [ -f "openspec/changes/$change/tasks.md" ]; then
       printf 'openspec'; return 0
     fi
     if [ -f "specs/$change/tasks.md" ]; then
@@ -99,7 +103,7 @@ backend_detect() {
     # to the repo-wide heuristic below rather than failing outright.
   fi
 
-  if [ -d openspec ] && command -v openspec >/dev/null 2>&1; then
+  if [ -d openspec ]; then
     printf 'openspec'; return 0
   fi
   if [ -d .specify ] || ls specs/*/tasks.md >/dev/null 2>&1; then
@@ -222,7 +226,8 @@ nk_archive() {
 
 # ---- OpenSpec adapter ------------------------------------------------------
 
-_os_apply_json() { openspec instructions apply --change "$1" --json 2>/dev/null; }
+_os_run() { node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" run --project "$PWD" -- "$@"; }
+_os_apply_json() { _os_run instructions apply --change "$1" --json; }
 
 os_list() {
   local change="$1" js
@@ -317,7 +322,7 @@ os_mark_done() {
   mv "$tmp" "$tasks_file"
 }
 
-os_verify()  { openspec validate "$1" >/dev/null 2>&1; }
+os_verify()  { _os_run validate "$1" >/dev/null; }
 # `--yes` is REQUIRED, not cosmetic: without it `openspec archive` waits on an
 # interactive confirmation. Driven from a script there is no stdin to answer it,
 # so the command fails — and because the old form also swallowed stderr, the
@@ -327,7 +332,7 @@ os_verify()  { openspec validate "$1" >/dev/null 2>&1; }
 #
 # stderr is deliberately NOT swallowed now, so a real archive failure is visible
 # rather than inferred.
-os_archive() { openspec archive "$1" --yes >/dev/null; }
+os_archive() { _os_run archive "$1" --yes >/dev/null; }
 
 # ---- Spec Kit (GitHub) adapter --------------------------------------------
 # A "change" for Spec Kit is a feature dir name under specs/. tasks.md uses a

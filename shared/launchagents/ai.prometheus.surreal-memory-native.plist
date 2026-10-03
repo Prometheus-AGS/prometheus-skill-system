@@ -45,6 +45,9 @@
     <string>mcp</string>
 
     <!-- HTTP server — bind on 23001 to preserve existing MCP client configs -->
+    <!-- REST/MCP endpoints have no authentication: bind to loopback only. -->
+    <key>API_HOST</key>
+    <string>127.0.0.1</string>
     <key>API_PORT</key>
     <string>23001</string>
     <key>MCP_STDIO</key>
@@ -92,8 +95,14 @@
   <true/>
   <key>KeepAlive</key>
   <true/>
+  <!-- Standard, not Background: launchd runs Background jobs at darwin
+       background priority (scheduler priority 4, throttled disk and network
+       I/O). surreal-memory-server sits on the interactive path of every memory read and
+       write; at background priority a one-row query took p50 ~250 ms and
+       p99 6-15 s on a loaded host versus 16/22 ms at Standard, which is what
+       produced the 10 s ledger timeouts (surreal-memory-server#36). -->
   <key>ProcessType</key>
-  <string>Background</string>
+  <string>Standard</string>
 
   <!-- Throttle restart to avoid hammering on crash loops -->
   <key>ThrottleInterval</key>
