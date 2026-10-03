@@ -12,8 +12,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const contract = readSkillSystem(root);
 const skills = collectDistributionSkills(root, contract);
 
-assert.equal(contract.releaseVersion, '1.10.0');
-assert.equal(contract.minimumActiveVersion, '1.10.0');
+const packageVersion = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version;
+assert.equal(contract.releaseVersion, packageVersion);
+// A patch release must not raise the floor: the installer refuses to run while an enabled umbrella is below it.
+assert(contract.minimumActiveVersion.split('.')[0] === packageVersion.split('.')[0] && contract.minimumActiveVersion <= packageVersion);
 assert.equal(contract.targets.length, 14);
 assert.equal(new Set(skills.map(skill => skill.name)).size, skills.length);
 assert(skills.some(skill => skill.name === 'artifact-refiner'));
@@ -68,6 +70,41 @@ for (const target of hookTargets) {
   const packaged = path.join(claudePackageRoot, ...target.split('/'));
   assert(fs.existsSync(packaged), `hooks.json references ${target}, which is missing from the claude payload`);
   assert.deepEqual(fs.readFileSync(packaged), canonicalBytes(path.join(root, ...target.split('/'))), `${target} differs from source`);
+}
+
+// Import closure: the payload ships scripts by an explicit list, so a module a shipped script imports can
+// be left behind and the failure only appears at run time on a user's machine
+// (ERR_MODULE_NOT_FOUND from install-plugin-generation.js -> ./lib/capabilities.js). Resolve every static
+// relative import of every packaged script against the packaged tree itself.
+function packagedScripts(directory) {
+  if (!fs.existsSync(directory)) return [];
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const absolute = path.join(directory, entry.name);
+    if (entry.isDirectory()) return packagedScripts(absolute);
+    return /\.(m?js)$/.test(entry.name) ? [absolute] : [];
+  });
+}
+// `from` clauses may span lines; dynamic import() and side-effect imports are covered too.
+const importSpecifier = /\bfrom\s*['"](\.{1,2}\/[^'"]+)['"]|\bimport\s*\(\s*['"](\.{1,2}\/[^'"]+)['"]|^\s*import\s+['"](\.{1,2}\/[^'"]+)['"]/gm;
+const relativeImports = text => [...text.matchAll(importSpecifier)].map(match => match[1] ?? match[2] ?? match[3]);
+assert.deepEqual(
+  relativeImports("import {\n  a,\n  b,\n} from './multi.js';\nexport * from './star.js';\nawait import('./dyn.js');\nimport './side.js';\nimport fs from 'node:fs';"),
+  ['./multi.js', './star.js', './dyn.js', './side.js'],
+  'relative-import scanner self-check'
+);
+for (const platform of ['claude', 'codex']) {
+  const scriptsRoot = path.join(root, 'dist/plugins', platform, contract.name, 'scripts');
+  if (platform === 'claude') assert(fs.existsSync(path.join(scriptsRoot, 'lib')), 'claude payload has no scripts/lib');
+  for (const script of packagedScripts(scriptsRoot)) {
+    for (const specifier of relativeImports(fs.readFileSync(script, 'utf8'))) {
+      const resolved = path.resolve(path.dirname(script), specifier);
+      assert(fs.existsSync(resolved), `${platform}: ${path.relative(root, script)} imports ${specifier}, which is missing from the payload`);
+    }
+  }
+}
+// scripts/lib is copied wholesale, so keep tests, fixtures and dotfiles out of it.
+for (const name of fs.readdirSync(path.join(root, 'dist/plugins/claude', contract.name, 'scripts/lib'))) {
+  assert(!/\.test\.|^\./.test(name), `scripts/lib/${name} must not ship in the payload`);
 }
 
 const codexManifest = JSON.parse(fs.readFileSync(path.join(root, contract.outputs.codexPackage, '.codex-plugin/plugin.json')));

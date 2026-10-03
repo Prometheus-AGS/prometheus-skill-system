@@ -112,7 +112,7 @@
       "description": "Install signed skills only; do not build binaries, configure MCP, or install services."
     }
   },
-  "releaseVersion": "1.11.0",
+  "releaseVersion": "1.11.1",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "schemaVersion": "prometheus-skill-system-v1",
   "targets": [

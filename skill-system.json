@@ -2,7 +2,7 @@
   "$schema": "./schemas/skill-system.schema.json",
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
-  "releaseVersion": "1.11.0",
+  "releaseVersion": "1.11.1",
   "minimumActiveVersion": "1.11.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
@@ -83,7 +83,7 @@
       "id": "liter-llm",
       "path": "tools/liter-llm",
       "repository": "https://github.com/GQAdonis/liter-llm.git",
-      "commit": "3392482a2a1e14d114ee1115db3684334aaaa2cb",
+      "commit": "12a2fae9675e34b88e9373caa2bca9959f416493",
       "requiredFor": ["full"]
     },
     {
