@@ -99,10 +99,10 @@ before loading services:
 
 ```text
 prometheus 1.8.0
-pk 1.8.0
+pk 1.9.0
 pk-cherry 1.8.0
 prometheus-learning-worker 1.8.0
-surreal-memory-server 1.8.0
+surreal-memory-server 1.9.0
 sovereign-sync 1.8.0
 prometheus-exec 1.7.0
 ```
