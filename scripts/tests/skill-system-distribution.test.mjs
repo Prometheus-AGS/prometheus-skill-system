@@ -83,15 +83,27 @@ function packagedScripts(directory) {
     return /\.(m?js)$/.test(entry.name) ? [absolute] : [];
   });
 }
-const importSpecifier = /(?:^|[\n;])\s*(?:import|export)\s+(?:[^'"\n;]*?\sfrom\s+)?['"](\.{1,2}\/[^'"]+)['"]/g;
+// `from` clauses may span lines; dynamic import() and side-effect imports are covered too.
+const importSpecifier = /\bfrom\s*['"](\.{1,2}\/[^'"]+)['"]|\bimport\s*\(\s*['"](\.{1,2}\/[^'"]+)['"]|^\s*import\s+['"](\.{1,2}\/[^'"]+)['"]/gm;
+const relativeImports = text => [...text.matchAll(importSpecifier)].map(match => match[1] ?? match[2] ?? match[3]);
+assert.deepEqual(
+  relativeImports("import {\n  a,\n  b,\n} from './multi.js';\nexport * from './star.js';\nawait import('./dyn.js');\nimport './side.js';\nimport fs from 'node:fs';"),
+  ['./multi.js', './star.js', './dyn.js', './side.js'],
+  'relative-import scanner self-check'
+);
 for (const platform of ['claude', 'codex']) {
   const scriptsRoot = path.join(root, 'dist/plugins', platform, contract.name, 'scripts');
+  if (platform === 'claude') assert(fs.existsSync(path.join(scriptsRoot, 'lib')), 'claude payload has no scripts/lib');
   for (const script of packagedScripts(scriptsRoot)) {
-    for (const match of fs.readFileSync(script, 'utf8').matchAll(importSpecifier)) {
-      const resolved = path.resolve(path.dirname(script), match[1]);
-      assert(fs.existsSync(resolved), `${platform}: ${path.relative(root, script)} imports ${match[1]}, which is missing from the payload`);
+    for (const specifier of relativeImports(fs.readFileSync(script, 'utf8'))) {
+      const resolved = path.resolve(path.dirname(script), specifier);
+      assert(fs.existsSync(resolved), `${platform}: ${path.relative(root, script)} imports ${specifier}, which is missing from the payload`);
     }
   }
+}
+// scripts/lib is copied wholesale, so keep tests, fixtures and dotfiles out of it.
+for (const name of fs.readdirSync(path.join(root, 'dist/plugins/claude', contract.name, 'scripts/lib'))) {
+  assert(!/\.test\.|^\./.test(name), `scripts/lib/${name} must not ship in the payload`);
 }
 
 const codexManifest = JSON.parse(fs.readFileSync(path.join(root, contract.outputs.codexPackage, '.codex-plugin/plugin.json')));
