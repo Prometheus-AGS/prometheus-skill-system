@@ -105,8 +105,11 @@ function validateContract() {
       if (!/^[a-z0-9-]+$/.test(hook.id ?? '')) failures.push(`unsafe hook id: ${hook.id}`);
       if (ids.has(hook.id)) failures.push(`duplicate hook id: ${hook.id}`);
       ids.add(hook.id);
-      if (Boolean(hook.target) === Boolean(hook.externalTarget)) {
-        failures.push(`${hook.id}: exactly one target kind is required`);
+      // Every hook runs a script shipped in the bundle. The one external target,
+      // $HOME/.local/bin/kbd-open, now ships as shared/scripts/kbd-open.sh so the
+      // hook behaves the same on every machine and harness.
+      if (!hook.target || hook.externalTarget !== undefined) {
+        failures.push(`${hook.id}: a bundle-relative target is required`);
       }
       if (hook.target) {
         const normalized = path.posix.normalize(hook.target);
@@ -119,9 +122,6 @@ function validateContract() {
         } else if (!fs.existsSync(path.join(root, ...normalized.split('/')))) {
           failures.push(`${hook.id}: target is missing: ${hook.target}`);
         }
-      }
-      if (hook.externalTarget && hook.externalTarget !== '$HOME/.local/bin/kbd-open') {
-        failures.push(`${hook.id}: external target is not allowlisted`);
       }
     }
   }
@@ -139,9 +139,7 @@ function renderArgs(args = []) {
 
 function renderInvocation(hook) {
   const args = renderArgs(hook.args);
-  const command = hook.target
-    ? `run_bundle_script ${shellQuote(hook.target)}${args ? ` ${args}` : ''}`
-    : `bash "$HOME/.local/bin/kbd-open"${args ? ` ${args}` : ''}`;
+  const command = `run_bundle_script ${shellQuote(hook.target)}${args ? ` ${args}` : ''}`;
   const redirected = hook.stderrToStdout ? `${command} 2>&1` : command;
   return hook.ignoreFailure ? `${redirected} || true` : redirected;
 }
