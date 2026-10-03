@@ -45,6 +45,9 @@
     <string>mcp</string>
 
     <!-- HTTP server — bind on 23001 to preserve existing MCP client configs -->
+    <!-- REST/MCP endpoints have no authentication: bind to loopback only. -->
+    <key>API_HOST</key>
+    <string>127.0.0.1</string>
     <key>API_PORT</key>
     <string>23001</string>
     <key>MCP_STDIO</key>
