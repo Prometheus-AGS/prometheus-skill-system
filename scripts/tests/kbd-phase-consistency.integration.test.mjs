@@ -56,6 +56,7 @@ function fixture(t, mode) {
   fs.mkdirSync(data, { recursive: true });
   write(path.join(orchestrator, 'hooks', 'hooks.json'), { hooks: [] });
   fs.cpSync(path.join(sourceOrchestrator, 'shared', 'lib'), path.join(orchestrator, 'shared', 'lib'), { recursive: true });
+  fs.cpSync(path.join(sourceOrchestrator, 'shared', 'openspec'), path.join(orchestrator, 'shared', 'openspec'), { recursive: true });
 
   // A private, fresh real signer; canonical CLI calls cannot consult the host keychain.
   const { privateKey, publicKey } = generateKeyPairSync('ed25519');

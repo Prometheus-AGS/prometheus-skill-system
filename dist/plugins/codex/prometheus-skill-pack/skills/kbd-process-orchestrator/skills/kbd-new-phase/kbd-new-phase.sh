@@ -56,7 +56,12 @@ now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 # Runtime-authority mode records phase creation and activation as typed events.
 # A terminal run must first roll forward through the operator-signed runtime
 # command; compatibility projections are never hand-edited here.
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+PHASE_SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+LOCAL_ORCHESTRATOR_ROOT="$(cd "$PHASE_SKILL_DIR/../.." && pwd -P)"
+if [ ! -f "$LOCAL_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" ]; then
+  LOCAL_ORCHESTRATOR_ROOT="$PHASE_SKILL_DIR/../kbd-process-orchestrator"
+fi
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$LOCAL_ORCHESTRATOR_ROOT}"
 runtime_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
 if [[ -f "$runtime_lib" ]]; then
   # shellcheck source=/dev/null
@@ -67,6 +72,9 @@ if [[ -f "$bottleneck_lib" ]]; then
   # shellcheck source=/dev/null
   . "$bottleneck_lib"
 fi
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "$PWD" --timeout-ms 120000 \
+  || die "OpenSpec refresh failed; phase was not started"
+
 runtime_authoritative=false
 if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
   runtime_authoritative=true

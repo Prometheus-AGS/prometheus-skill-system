@@ -24,7 +24,15 @@ Expected: <model from policy.registry.frontier.<active_environment>>
 Re-invoke via prom-lanes/UAR with the correct model.
 ```
 
-Each change in the output below MUST be annotated with a `Complexity score` and `Model class` (see `references/model-routing.md` for scoring rules) so `/kbd-apply` can route to the cheapest viable model without re-scoring.
+The hosting phase policy above is separate from task assignment. Before choosing
+execution models, draft each change's concrete tasks and backend identities. Read
+[task model selection](../skills/kbd-plan/references/task-model-selection.md) and
+author one **Task model assignments** table in `plan.md`. Analyze each task's
+reasoning, uncertainty, scope, tools, context, modalities and independence needs;
+discover the installed harness and configured provider capabilities. Prefer
+demonstrated task suitability, then cost/latency for close ties, while honoring
+explicit user, project and budget constraints. Complexity classes summarize the
+change; they do not override explicit task assignments or select a cheapest model.
 
 See `references/model-routing.md` for the full routing contract.
 
@@ -53,14 +61,14 @@ Check if `openspec/` directory exists at the project root.
 
 4. **Keep changes implementable in one agent session** — if an area is too large, split into multiple changes.
 
-5. **Assign an execution agent** — for each change, recommend the best tool:
-
-   - Complex multi-file features, UI pages → **Antigravity** or **Claude Code**
-   - Architecture decisions → **Roo Code (Architect mode)**
-   - Focused implementation → **Roo Code (Code mode)** or **Codex**
-   - Quick targeted edits → **OpenCode**, **Kilo Code**, or **Cline**
-   - Parallel isolated tasks → **Codex** (via git worktrees) or **Cursor Agent**
-   - Human review required → **Manual**
+5. **Assign task models and execution routes** — select from observed harness
+   capabilities, including Codex, Claude Code, OpenCode, DeepSeek Harness and Kimi
+   Code where available. Record a concrete provider/model and supported reasoning
+   setting, dated rationale/evidence, native or liter-llm route, documented worker
+   mechanism, native alternative, verification status and unresolved prerequisites.
+   The worker contract includes scope, working directory, tools, skills and result
+   handoff. liter-llm is inference, not a workspace worker. Do not launch agents or
+   change provider configuration while planning.
 
 6. **Estimate complexity** — use S (&lt; 1 hour), M (1–4 hours), L (4–8 hours) as a rough guide for a skilled AI agent, not for a human.
 
@@ -88,12 +96,16 @@ CHANGE LIST (ordered)
    - Depends on: NONE | <change-id>
    - Recommended agent: <tool from registry>
    - Est. complexity: S | M | L
-   - Complexity score: Low | Medium | High   # routing classifier — see references/model-routing.md
-   - Model class: small | medium | frontier  # derived from complexity score
+   - Complexity score: Low | Medium | High   # change summary, not task selection
+   - Model class: small | medium | frontier  # project policy summary only
    - Customer value: HIGH | MEDIUM | LOW
    - Details: <2-3 sentences describing what to build>
 
 2. ...
+
+TASK MODEL ASSIGNMENTS
+<Insert the Task model assignments table from the task model selection reference;
+every concrete task has a key: full phase path + change ID + backend task ID.>
 
 EXECUTION ROUND ORDER
 Round 1 (parallel): <change-ids with no dependencies>
@@ -123,6 +135,13 @@ Before finalizing the plan, verify it is not sycophantic:
 If the `sycophancy-correction` MCP skill is available, invoke `detect_sycophancy` with `context.evaluation_domain: "pmpo_plan_phase"` and `strictness: standard` on the plan draft. See `references/integrations/sycophancy-correction.md` §Plan Phase for thresholds.
 
 Write output to `.kbd-orchestrator/phases/<phase-name>/plan.md`.
+
+After emitting OpenSpec or native change artifacts, add non-task prose references
+to their matching scoped assignment entries. Preserve checkbox syntax, task titles
+and canonical identity resolution. Reconcile generated tasks against the table
+before handoff; review material changes and record unresolved routes. Execution
+must recheck the selected route and record explicit alternatives rather than
+silently downgrading. Legacy plans receive explicit selections at execution time.
 
 After writing, register the ordered changes and tasks through typed
 `prometheus kbd change register` and `task register` commands (register each task with its backend task ID, i.e. the ordinal that `kbd-apply list <change>` prints, so `/kbd-apply` transitions the same records), and record the

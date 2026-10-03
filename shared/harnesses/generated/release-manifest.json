@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.10.0",
+  "sourceVersion": "1.11.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -103,7 +103,7 @@
     },
     {
       "path": "shared/scripts/detect-project-context.sh",
-      "sha256": "07ff7be3bf0621ef65b83a3ca7e0d1400dcac137ec2b282bcc60d70c715d43ca",
+      "sha256": "abc98efbdd518324e382cb8f9c76847045a176f8dbfde7f3dcf006204c838fd1",
       "executable": true
     },
     {
@@ -397,5 +397,5 @@
       "executable": true
     }
   ],
-  "bundleId": "85323c9d480550d0a17b17b9a753ed0c12f2f93acfe639ffe02b10b76aa2c0fd"
+  "bundleId": "0f3d23052cb979d328766a39ad7eed597555dfc88da61da968593283930dd072"
 }

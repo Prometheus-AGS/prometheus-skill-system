@@ -20,6 +20,10 @@ governed, audited, and reproducible.
 
 ---
 
+## Full 1.11.0: task models and OpenSpec updates
+
+Every KBD task now gets an evidenced model recommendation and an explicit native or liter-llm plus worker route. Existing KBD/OpenSpec projects refresh generated integrations using a managed latest-stable CLI, with OpenSpec 1.14.0 as the release baseline. See [task model assignments](site/docs/kbd/task-model-assignments.md) and [OpenSpec lifecycle updates](site/docs/kbd/openspec-lifecycle.md) for planning, handoff, offline behavior and recovery.
+
 ## 📚 Documentation
 
 The complete, official product documentation lives in **[`docs/guide/`](docs/guide/README.md)** — linked

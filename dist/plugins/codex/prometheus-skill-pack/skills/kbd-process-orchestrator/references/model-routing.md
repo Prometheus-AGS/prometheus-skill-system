@@ -1,6 +1,11 @@
 # KBD Model Routing Policy
 
-KBD uses **tiered model selection** to minimize frontier API spend while preserving quality at the boundaries where ambiguity lives.
+KBD retains project-level phase policies and complexity classes. Task execution
+uses quality-first recommendations within explicit user, project and budget
+constraints; cost and latency break close ties. Read
+[task model selection](../skills/kbd-plan/references/task-model-selection.md) for
+the authoritative task assignment and harness discovery contract. Optional
+cheapest-first discovery helpers do not override this objective.
 
 ## Reading the Policy
 
@@ -24,9 +29,13 @@ Phase KeyClassRationale`kbd-assess`frontierOpen-ended gap analysis requires full
 
 ---
 
-## Task Complexity Scoring (for `/kbd-apply` routing)
+## Change Complexity Summary (legacy routing context)
 
-When `/kbd-apply` is invoked without an explicit complexity override, score the change by reading `design.md` and `tasks.md` before dispatching:
+These classes describe a change and existing project policy; they are not a
+per-task model ranking. `/kbd-plan` analyzes concrete tasks and records scoped
+assignments in `plan.md`. `/kbd-execute` and `/kbd-apply` honor those assignments.
+For legacy plans, analyze and record explicit task selections before dispatch,
+using `design.md`, `tasks.md` and the current harness/provider capabilities.
 
 ### Low → `opsx-apply-low` (small model)
 
@@ -56,16 +65,22 @@ When `/kbd-apply` is invoked without an explicit complexity override, score the 
 
 ## Dispatch Annotation
 
-When writing `execution.md`, include a `MODEL CLASS` line per change so external orchestrators (prom-lanes, UAR) can route without re-scoring:
+When writing `execution.md`, reference each scoped Task model assignments entry
+and record its actual concrete model, supported reasoning setting, harness, route
+and documented worker mechanism. Retain a model-class summary where needed by an
+existing consumer, but never let it replace the concrete assignment. Recheck
+availability before dispatch. This illustrative contract uses discovered values:
 
 ```
 DISPATCH CONTRACTS
 
 - change-007 → roo-code
   Entry: <prompt>
-  Model class: medium
-  Concrete model: Qwen3.5-27B-Q4   (resolved from model_policy.registry.medium.t4)
-  Model rationale: crosses domain/application boundary, no ambiguous design decisions
+  Assignment: <full phase path> / change-007 / <backend task ID>
+  Model class: <project policy summary>
+  Concrete model: <discovered provider/model and supported reasoning effort>
+  Route and worker: <native or liter-llm; documented tool-enabled execution mechanism>
+  Model rationale: <task fit and dated evidence; policy tradeoffs>
   Progress file: .kbd-orchestrator/phases/<phase>/progress.json
 ```
 
