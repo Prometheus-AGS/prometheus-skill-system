@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import { probeFilesystemCapabilities } from './lib/capabilities.js';
 import { checkoutConversions, describeCheckoutConversions } from './lib/checkout-bytes.js';
-import { shellOnlyExecutableError } from './lib/hook-config.js';
+import { COMMAND_STRING_HARNESSES, hookArgv, shellOnlyExecutableError } from './lib/hook-config.js';
 import { readIngestOracle } from './lib/payload-manifest.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -86,14 +86,22 @@ for (const [harness, manifest] of Object.entries(manifests)) {
   // the old substring match on a quoted string could be satisfied by an
   // accident of quoting.
   for (const hook of emitted) {
-    if (hook.type !== 'command' || !Array.isArray(hook.args)) {
-      failures.push(`${harness}: hook is not exec form, so a shell would parse it`);
+    // Codex runs only the command string (COMMAND_STRING_HARNESSES); every other
+    // harness must receive exec form so no shell parses the plugin root.
+    const commandString = COMMAND_STRING_HARNESSES.includes(harness);
+    if (hook.type !== 'command' || Array.isArray(hook.args) === commandString) {
+      failures.push(
+        commandString
+          ? `${harness}: hook uses exec form, which this harness ignores, so it never runs`
+          : `${harness}: hook is not exec form, so a shell would parse it`
+      );
       continue;
     }
+    const args = hookArgv(hook);
     if (shellOnlyExecutableError(hook.command)) {
       failures.push(`${harness}: hook executable cannot be spawned without a shell`);
     }
-    const entry = hook.args[0] ?? '';
+    const entry = args[0] ?? '';
     if (!entry.startsWith('${CLAUDE_PLUGIN_ROOT}/')) {
       failures.push(`${harness}: hook entry point is not resolved from the plugin root`);
     }
@@ -101,8 +109,8 @@ for (const [harness, manifest] of Object.entries(manifests)) {
       failures.push(`${harness}: hook bypasses the guarded entry point`);
     }
     const flag = name => {
-      const index = hook.args.indexOf(name);
-      return index < 0 ? null : (hook.args[index + 1] ?? null);
+      const index = args.indexOf(name);
+      return index < 0 ? null : (args[index + 1] ?? null);
     };
     if (flag('--bundle') !== release.bundleId) {
       failures.push(`${harness}: hook does not embed release bundle ${release.bundleId}`);
@@ -116,11 +124,11 @@ for (const [harness, manifest] of Object.entries(manifests)) {
     // The entry point is the ONE cache-resident script a hook may reach; it
     // performs the guarded acquisition itself. Anything else under the plugin
     // root would be a second, unguarded execution dependency.
-    const cacheScripts = hook.args.filter(value => value.includes('${CLAUDE_PLUGIN_ROOT}'));
+    const cacheScripts = args.filter(value => value.includes('${CLAUDE_PLUGIN_ROOT}'));
     if (cacheScripts.length !== 1) {
       failures.push(`${harness}: hook has a non-canonical cache execution dependency`);
     }
-    if (hook.args.some(value => value.includes('/stable/') || value.includes('/current/'))) {
+    if (args.some(value => value.includes('/stable/') || value.includes('/current/'))) {
       failures.push(`${harness}: hook resolves through mutable runtime state`);
     }
   }
@@ -141,9 +149,9 @@ for (const hook of contractHooks) {
     const emittedIds = new Set(
       Object.values(manifest.hooks ?? {})
         .flatMap(groups => groups.flatMap(entry => entry.hooks ?? []))
-        .filter(entry => Array.isArray(entry.args))
-        .filter(entry => entry.args[entry.args.indexOf('--harness') + 1] === harness)
-        .map(entry => entry.args[entry.args.indexOf('--hook') + 1])
+        .map(entry => hookArgv(entry))
+        .filter(args => args[args.indexOf('--harness') + 1] === harness)
+        .map(args => args[args.indexOf('--hook') + 1])
     );
     if (expected && !emittedIds.has(hook.id)) {
       failures.push(`${harness}: manifest omits contract hook: ${hook.id}`);

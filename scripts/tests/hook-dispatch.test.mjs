@@ -18,7 +18,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { probeShell } from '../lib/capabilities.js';
-import { SHELL_ONLY_EXECUTABLES, hookExecutable, shellOnlyExecutableError } from '../lib/hook-config.js';
+import { SHELL_ONLY_EXECUTABLES, hookArgv, hookExecutable, shellOnlyExecutableError } from '../lib/hook-config.js';
 import { __testing } from '../install-plugin-generation.js';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -65,7 +65,7 @@ check('the executable is taken from the command, not the whole string', () => {
   assert.equal(shellOnlyExecutableError(''), 'hook entry has no executable');
 });
 
-check('every emitted hook entry is exec form with a real executable', () => {
+check('every emitted hook entry has the form its harness runs, with a real executable', () => {
   // The whole point of exec form is that `args` is present: without it the
   // harness hands `command` to a shell -- `sh -c` on POSIX, and PowerShell on
   // Windows whenever Git Bash is absent, which is what made the previous
@@ -77,10 +77,17 @@ check('every emitted hook entry is exec form with a real executable', () => {
     for (const groups of Object.values(config.hooks)) {
       for (const group of groups) {
         for (const hook of group.hooks) {
-          assert.ok(Array.isArray(hook.args), `${file} still emits a shell-form entry`);
-          assert.equal(hook.command, 'node', `${file} names a non-portable executable`);
+          if (file === 'hooks/codex-hooks.json') {
+            // Codex ignores `args` (verified on codex-cli 0.158.0), so its entries are
+            // one command string; exec form there is a hook that never runs.
+            assert.equal(hook.args, undefined, `${file} emits exec form, which Codex ignores`);
+            assert.equal(hookExecutable(hook.command), 'node', `${file} names a non-portable executable`);
+          } else {
+            assert.ok(Array.isArray(hook.args), `${file} still emits a shell-form entry`);
+            assert.equal(hook.command, 'node', `${file} names a non-portable executable`);
+          }
           assert.equal(
-            hook.args[0],
+            hookArgv(hook)[0],
             '${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs',
             `${file} does not route through the entry point`
           );

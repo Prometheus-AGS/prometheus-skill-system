@@ -38,7 +38,7 @@
     },
     {
       "path": "scripts/lib/hook-config.js",
-      "sha256": "9e8b3ee3c6db885387c7cd3b60cb2c7586399334c029be416277908f04d4a8fb",
+      "sha256": "cd0cc22c739672bfb740b9be312c97004fafc858022da8e20eb5f659fdf9d106",
       "executable": false
     },
     {
@@ -103,7 +103,7 @@
     },
     {
       "path": "shared/scripts/detect-project-context.sh",
-      "sha256": "abc98efbdd518324e382cb8f9c76847045a176f8dbfde7f3dcf006204c838fd1",
+      "sha256": "a5472d71d13f5fd2391717b3136a1dfa8ee400ebbf26f5ccfd8f0e28bd350481",
       "executable": true
     },
     {
@@ -327,6 +327,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/surreal-bin.sh",
+      "sha256": "03f0d0c9a16e08b504b475083db1e700b095ea5041ab61a8fd6f01c764c12511",
+      "executable": false
+    },
+    {
       "path": "shared/scripts/sycophancy-check-artifact.sh",
       "sha256": "40735952f80fbf085e53f111299e400d0f02fb53f56956e1f7cbd76f1a593c28",
       "executable": true
@@ -397,5 +402,5 @@
       "executable": true
     }
   ],
-  "bundleId": "8934f84aef86073af922dcffa4b277a61aa1b69090b6f142b57d0b0d579fd6f8"
+  "bundleId": "1e46a6a07a2d2e983e3ea53143bf603a7e0d227420ad9eb9d457905ba769739e"
 }

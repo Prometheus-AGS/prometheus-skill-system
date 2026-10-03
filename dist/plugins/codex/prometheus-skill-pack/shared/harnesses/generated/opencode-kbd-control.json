@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "2",
+  "harness": "opencode",
+  "controlAdapter": "${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh",
+  "learningDispatcher": "$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh",
+  "events": {
+    "sessionStart": "session.created",
+    "preCompact": "session.compacting",
+    "postCompact": "session.compacted",
+    "prompt": "chat.message",
+    "stop": "session.idle",
+    "interrupt": "session.status:cancelled",
+    "postMutation": "tool.execute.after"
+  },
+  "controlTimeoutMs": 250
+}

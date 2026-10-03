@@ -19,7 +19,12 @@ OPENSPEC_RUNNER="$BUNDLE_ROOT/skills/process/kbd-process-orchestrator/shared/ope
 if [[ ! -f "$OPENSPEC_RUNNER" ]]; then
   OPENSPEC_RUNNER="$BUNDLE_ROOT/skills/kbd-process-orchestrator/shared/openspec/cli.mjs"
 fi
-if ! node "$OPENSPEC_RUNNER" refresh --project "$PWD" --timeout-ms 12000; then
+# The runner prints a JSON receipt, which it also saves under
+# ~/.prometheus/openspec/receipts. Hook output is session context, and Codex parses
+# output that opens with `{` as a structured hook response, so this receipt failed
+# the whole hook there. Redirecting to stderr is not enough: the dispatcher runs
+# this script with 2>&1. The exit status still reports a failed refresh.
+if ! node "$OPENSPEC_RUNNER" refresh --project "$PWD" --timeout-ms 12000 >/dev/null 2>&1; then
   echo "OpenSpec refresh unresolved; rerun the KBD OpenSpec preflight before phase work." >&2
 fi
 

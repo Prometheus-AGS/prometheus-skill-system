@@ -1,0 +1,3 @@
+# mem0 memory compression — runs weekly (Sunday 03:00)
+# Install: crontab -e  and paste the line below (replace PROMETHEUS_SKILL_PACK_ROOT)
+# 0 3 * * 0 PROMETHEUS_SKILL_PACK_ROOT/shared/scripts/mem0-compress.sh >> ~/.prometheus/mem0-compress-cron.log 2>&1

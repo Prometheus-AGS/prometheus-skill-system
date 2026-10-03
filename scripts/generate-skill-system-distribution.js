@@ -125,16 +125,18 @@ function copySignedSkillRuntimeFiles(root) {
 // event dies with MODULE_NOT_FOUND before any pack code runs, so it can only be prevented here.
 // Derived from hooks.json rather than listed by hand: the list that was kept by hand is how
 // scripts/hook-entry.mjs came to be referenced but never packaged.
-function copyHookTargets(root) {
-  const hooks = fs.readFileSync(path.join(sourceRoot, 'hooks/hooks.json'), 'utf8');
+function copyHookTargets(root, hooksSource) {
+  const hooks = fs.readFileSync(path.join(sourceRoot, hooksSource), 'utf8');
+  // Stop at whitespace as well as the closing quote: Codex entries are one command
+  // string, so the plugin-root path is followed by its arguments, not a quote.
   const targets = new Set(
-    [...hooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+)/g)].map(match => path.posix.normalize(match[1]))
+    [...hooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"\s]+)/g)].map(match => path.posix.normalize(match[1]))
   );
   for (const target of [...targets].sort()) {
     if (target.startsWith('../') || path.posix.isAbsolute(target))
-      throw new Error(`hooks.json references a path outside the plugin root: ${target}`);
+      throw new Error(`${hooksSource} references a path outside the plugin root: ${target}`);
     const source = path.join(sourceRoot, ...target.split('/'));
-    if (!fs.existsSync(source)) throw new Error(`hooks.json references a missing file: ${target}`);
+    if (!fs.existsSync(source)) throw new Error(`${hooksSource} references a missing file: ${target}`);
     copy(source, path.join(root, ...target.split('/')));
   }
 }
@@ -163,6 +165,29 @@ function copyCadenceRuntimeFiles(root) {
   }
 }
 
+// The runtime closure every hook entry needs, identical for both harnesses: the
+// files the hooks file names, the shared scripts they dispatch to, and the
+// signed-skill runtime and plugin-generation installer hook-entry.mjs imports.
+function copyHookRuntime(root, hooksSource) {
+  copyHookTargets(root, hooksSource);
+  copy(path.join(sourceRoot, 'shared'), path.join(root, 'shared'));
+  copySignedSkillRuntimeFiles(root);
+  copy(
+    path.join(sourceRoot, 'scripts/install-plugin-generation.js'),
+    path.join(root, 'scripts/install-plugin-generation.js')
+  );
+  // The whole directory, not a name list: install-plugin-generation.js and hook-entry.mjs import
+  // several modules from scripts/lib, and a list drifts the moment either gains a dependency.
+  copy(path.join(sourceRoot, 'scripts/lib'), path.join(root, 'scripts/lib'));
+  write(root, 'package.json', {
+    name: '@prometheus-ags/prometheus-skill-pack-payload',
+    version: contract.releaseVersion,
+    private: true,
+    type: 'module',
+  });
+  write(root, 'config/prometheus-exec-component.json', packagedExecutionDescriptor());
+}
+
 function materializePackage(root, platform) {
   for (const skill of skills) copy(skill.source, path.join(root, 'skills', skill.name));
   copyCadenceRuntimeFiles(root);
@@ -173,27 +198,15 @@ function materializePackage(root, platform) {
     releaseVersion: contract.releaseVersion,
     skills: skills.map(skill => ({ name: skill.name, path: `skills/${skill.name}` })),
   });
+  // Both harnesses discover hooks/hooks.json at the plugin root by convention, so
+  // neither manifest declares a `hooks` key. Each gets its own rendering of the
+  // contract (Codex runs command strings, Claude Code runs exec form) plus the
+  // runtime closure every hook entry needs.
+  const hooksSource = platform === 'claude' ? 'hooks/hooks.json' : 'hooks/codex-hooks.json';
+  copy(path.join(sourceRoot, hooksSource), path.join(root, 'hooks/hooks.json'));
+  copyHookRuntime(root, hooksSource);
   if (platform === 'claude') {
     write(root, '.claude-plugin/plugin.json', baseManifest());
-    copy(path.join(sourceRoot, 'hooks/hooks.json'), path.join(root, 'hooks/hooks.json'));
-    copyHookTargets(root);
-    copy(path.join(sourceRoot, 'shared'), path.join(root, 'shared'));
-    copySignedSkillRuntimeFiles(root);
-    copy(
-      path.join(sourceRoot, 'scripts/install-plugin-generation.js'),
-      path.join(root, 'scripts/install-plugin-generation.js')
-    );
-    // The whole directory, not a name list: install-plugin-generation.js and hook-entry.mjs import
-    // several modules from scripts/lib, and a list drifts the moment either gains a dependency.
-    copy(path.join(sourceRoot, 'scripts/lib'), path.join(root, 'scripts/lib'));
-    write(root, 'package.json', {
-      name: '@prometheus-ags/prometheus-skill-pack-payload',
-      version: contract.releaseVersion,
-      private: true,
-      type: 'module',
-    });
-    write(root, 'skill-system.json', packagedContract());
-    write(root, 'config/prometheus-exec-component.json', packagedExecutionDescriptor());
   } else {
     write(root, '.codex-plugin/plugin.json', {
       ...baseManifest(),

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.surrealdb-native</string>
+
+  <!-- Runs SurrealDB natively on 127.0.0.1:28000 (same host port as the former Docker mapping 28000:8000).
+       Data lives at ~/.prometheus/data/surrealdb/database.db (RocksDB directory). -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>__SURREAL_BIN__</string>
+    <string>start</string>
+    <string>--log=info</string>
+    <string>--user=root</string>
+    <string>--pass=root</string>
+    <string>--bind=127.0.0.1:28000</string>
+    <string>rocksdb:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_HOME__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+    <!-- SurrealDB otherwise reserves roughly half of host memory for RocksDB.
+         Keep its block cache bounded while AI tools coexist. -->
+    <key>SURREAL_ROCKSDB_BLOCK_CACHE_SIZE</key>
+    <string>1073741824</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <!-- Standard, not Background: launchd runs Background jobs at darwin
+       background priority (scheduler priority 4, throttled disk and network
+       I/O). SurrealDB sits on the interactive path of every memory read and
+       write; at background priority a one-row query took p50 ~250 ms and
+       p99 6-15 s on a loaded host versus 16/22 ms at Standard, which is what
+       produced the 10 s ledger timeouts (surreal-memory-server#36). -->
+  <key>ProcessType</key>
+  <string>Standard</string>
+
+  <!-- Throttle restart to avoid hammering disk on crash loops -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surrealdb-native.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surrealdb-native.stderr.log</string>
+</dict>
+</plist>

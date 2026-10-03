@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.exec</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__PROMETHEUS_EXEC_BIN__</string>
+    <string>daemon</string>
+    <string>--socket</string>
+    <string>__PROMETHEUS_EXEC_SOCKET__</string>
+    <string>--state-dir</string>
+    <string>__PROMETHEUS_EXEC_STATE__</string>
+    <string>--identity</string>
+    <string>__PROMETHEUS_EXEC_IDENTITY__</string>
+    <string>--plugin-root</string>
+    <string>__PROMETHEUS_PLUGIN_ROOT__</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <!-- The dictionary form already suppresses restarts after a clean exit, but a
+       crash still respawns immediately. Without a throttle, a persistent crash
+       (unwritable socket path, stale identity file) is a tight loop, and
+       launchd may stop respawning a job that restarts >5 times in 10s. -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/prometheus-exec.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/prometheus-exec.stderr.log</string>
+</dict>
+</plist>
