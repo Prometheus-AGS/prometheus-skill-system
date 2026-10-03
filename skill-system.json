@@ -3,7 +3,7 @@
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
   "releaseVersion": "1.11.1",
-  "minimumActiveVersion": "1.11.1",
+  "minimumActiveVersion": "1.11.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
     "skills": ["darwin", "linux", "windows-git-bash", "windows-wsl"],

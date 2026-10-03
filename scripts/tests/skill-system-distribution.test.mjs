@@ -14,7 +14,8 @@ const skills = collectDistributionSkills(root, contract);
 
 const packageVersion = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version;
 assert.equal(contract.releaseVersion, packageVersion);
-assert.equal(contract.minimumActiveVersion, packageVersion);
+// A patch release must not raise the floor: the installer refuses to run while an enabled umbrella is below it.
+assert(contract.minimumActiveVersion.split('.')[0] === packageVersion.split('.')[0] && contract.minimumActiveVersion <= packageVersion);
 assert.equal(contract.targets.length, 14);
 assert.equal(new Set(skills.map(skill => skill.name)).size, skills.length);
 assert(skills.some(skill => skill.name === 'artifact-refiner'));

@@ -81,7 +81,7 @@
       }
     ]
   },
-  "minimumActiveVersion": "1.11.1",
+  "minimumActiveVersion": "1.11.0",
   "name": "prometheus-skill-pack",
   "outputs": {
     "claudeMarketplace": ".claude-plugin/marketplace.json",
