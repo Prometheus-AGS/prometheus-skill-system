@@ -4,7 +4,7 @@
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
-  "contractSha256": "37795169325a638201421a6aeed741603699099fd45609bf044fe005eddd4f45",
+  "contractSha256": "400b7f79aa819974e9fd3d5b6932a28ae62a1145c746af508bfdc82b1409aefa",
   "runtimeFiles": [
     {
       "path": "scripts/hook-entry.mjs",
@@ -68,7 +68,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "ea33ae961da1788076b570ffb046e2578fa611c32837cb15109160446b535896",
+      "sha256": "e70a81090c422ffd352a0161b4148a0d34bdf49753dee9253a29f691382c569d",
       "executable": false
     },
     {
@@ -133,7 +133,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "eadd6cf6701eb8bfcc275fe2e967039f5becc06c9881decad237ad2f35c87384",
+      "sha256": "c2ae2d4baa06a271a6907f9948df83d247c27aa39dee1dc459b58d1845a13e30",
       "executable": true
     },
     {
@@ -159,6 +159,11 @@
     {
       "path": "shared/scripts/kbd-next-phase.sh",
       "sha256": "63bed50bb8277577c0e1baca7619edbbd16b8b688a73888009aa209fe8cefc25",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-open.sh",
+      "sha256": "2a672131e43d0476c74414240e276516874c9b71cfb92ae92f510e72e8ee18ae",
       "executable": true
     },
     {
@@ -402,5 +407,5 @@
       "executable": true
     }
   ],
-  "bundleId": "1e46a6a07a2d2e983e3ea53143bf603a7e0d227420ad9eb9d457905ba769739e"
+  "bundleId": "f7da402ca606a4220dc357dc8d1d2c56eecc2847f2de5ac50fc01706eda9ff35"
 }

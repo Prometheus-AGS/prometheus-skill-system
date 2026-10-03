@@ -25,10 +25,10 @@
       "hooks": [
         {
           "id": "sessionstart-kbd-open",
-          "externalTarget": "$HOME/.local/bin/kbd-open",
+          "target": "shared/scripts/kbd-open.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 30000
+          "timeout": 10000
         }
       ]
     },

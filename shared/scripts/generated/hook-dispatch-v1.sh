@@ -35,7 +35,7 @@ case "$HOOK_ID" in
     run_bundle_script 'shared/scripts/kbd-harness-adapter.sh' 'session_start' "$HARNESS"
     ;;
   'sessionstart-kbd-open')
-    bash "$HOME/.local/bin/kbd-open" 2>&1 || true
+    run_bundle_script 'shared/scripts/kbd-open.sh' 2>&1 || true
     ;;
   'sessionstart-detect-project-context')
     run_bundle_script 'shared/scripts/detect-project-context.sh' 2>&1 || true
