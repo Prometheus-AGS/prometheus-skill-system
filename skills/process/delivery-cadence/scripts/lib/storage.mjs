@@ -152,6 +152,18 @@ async function replayActive(file, firstSeq) {
   return { seq: expected - 1, state };
 }
 
+// saveEvent appends before it writes state.json, so a snapshot may trail the log
+// after a crash but can never lead it or diverge from the event at the same seq.
+async function reconcileSnapshot(root, event) {
+  let snapshot;
+  try { snapshot = JSON.parse(await fs.readFile(path.join(root, 'state.json'), 'utf8')); }
+  catch (error) { if (error.code === 'ENOENT') return event.state; throw error; }
+  if (snapshot.eventsSeq > event.seq) throw new Error(`Cadence snapshot sequence ${snapshot.eventsSeq} is ahead of event log ${event.seq}`);
+  if (snapshot.eventsSeq !== event.seq) return event.state;
+  if (digest(snapshot) !== digest(event.state)) throw new Error(`Cadence snapshot diverges from event ${event.seq}`);
+  return snapshot;
+}
+
 export async function loadState(root, { optional = false, recover = false } = {}) {
   const manifest = await archives(root);
   const lastArchive = manifest.segments.at(-1);
@@ -170,7 +182,7 @@ export async function loadState(root, { optional = false, recover = false } = {}
       const replay = await replayActive(path.join(root, 'events.jsonl'), first);
       if (replay.seq !== event.seq || digest(replay.state) !== digest(event.state)) throw new Error('Cadence active replay does not match its final event');
     }
-    return event.state;
+    return reconcileSnapshot(root, event);
   }
   if (lastArchive) {
     const hash = createHash('sha256');
