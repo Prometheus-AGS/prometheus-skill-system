@@ -11,6 +11,10 @@ export async function migrateState(root, state) {
   const directory = path.join(root, 'backups', `v1-${state.eventsSeq}-${randomUUID()}`);
   await fs.mkdir(directory, { recursive: true });
   for (const file of ['events.jsonl', 'state.json']) await fs.copyFile(path.join(root, file), path.join(directory, file));
+  try {
+    await fs.copyFile(path.join(root, 'event-archives.json'), path.join(directory, 'event-archives.json'));
+    await fs.cp(path.join(root, 'archives'), path.join(directory, 'archives'), { recursive: true });
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const previousSeq = state.eventsSeq;
   state.schemaVersion = 2; state.historicalChildren ??= [];
   // Historical iteration objects and receipts are not upgraded into new claims.

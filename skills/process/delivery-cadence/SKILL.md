@@ -4,7 +4,7 @@ description: Operate timed usable deliveries with child-phase recovery, build-an
 license: MIT
 compatibility: Node.js 22 or newer. Build tools belong to the selected project. Optional KBD, Compass, memory and native goal capabilities are detected, never assumed.
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
   tags: "delivery, cadence, kbd, recovery"
 ---
 
@@ -27,6 +27,8 @@ Invoke `node <this-skill>/scripts/cadence.mjs <command> --root <state-directory>
 7. When publication is due, perform the profile's release procedure through its website update and record `publication`. A workflow dispatch alone is not publication.
 
 New state/reports use schema version 2; profiles and public hook events retain version 1. Use explicit `migrate` for existing state, preserving backups and historical receipts. `history` links earlier untracked child evidence without counting it as a new delivery.
+
+The active event journal is bounded and older events are kept as checksummed gzip segments under `archives/`, listed with sequence ranges in `event-archives.json`. The latest state still comes from the committed event; `state.json` is a recovery snapshot. Keep both the manifest and segments when moving or backing up a run. Do not delete or hand-edit them to clear an oversized journal.
 
 A clock tick stops new scope admission, never certifies unfinished code. Finish the committed increment with an honest overrun; a hard budget or operator stop takes precedence. If the harness cannot continue autonomously, leave durable state and a resume instruction; never claim background execution.
 
