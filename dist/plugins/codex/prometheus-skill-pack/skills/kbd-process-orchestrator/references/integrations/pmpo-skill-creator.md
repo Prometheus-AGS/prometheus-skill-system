@@ -84,6 +84,9 @@ proposes two kinds of candidate. Neither creates or edits anything.
   under `~/.prometheus/skill-updates/` when run by hand
   (`propose-skill-update.sh <skill-name>`). The worker writes the same directory
   for `skill-update` candidates so `/pmpo-skill-creator --update` finds them.
+  `kbd-open` does not list this directory: skill-update candidates reach the
+  operator through `pk candidates list --kind skill`, and hand-filed notes are
+  read directly by `/pmpo-skill-creator --update <skill>`.
 
 ---
 
