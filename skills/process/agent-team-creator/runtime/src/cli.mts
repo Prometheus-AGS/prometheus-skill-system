@@ -17,6 +17,7 @@ import {
   refuseUarActivation, uarBindingInstall, uarBindingPreflight, uarBindingStatus,
   uarCapabilities, uarPackageInstall, uarPackagePreflight, uarPackageStatus,
 } from './uar-client.mjs';
+import { publishCard, discoverCards, sendRequest, listIntakeIssues, importIssues, ackIssues } from './registry.mjs';
 import type { ObjectValue, ModelPolicy, Json } from './types.mjs';
 
 function revision(input: ObjectValue): number {
@@ -117,6 +118,23 @@ async function dispatch(command: string, input: ObjectValue): Promise<unknown> {
       const state = await mutateStateAsync(stateFile(input), revision(input), async state => { receipt = await publishMemory(state, withPublishProject(object(input.publication, 'publication'))); });
       return { state, publication: receipt };
     }
+    case 'team-publish': return publishCard({ ...input, team: (input.team ?? readState(stateFile(input)).team) as unknown as Json });
+    case 'team-discover': return { matches: discoverCards(input) };
+    case 'team-request': {
+      let state: unknown = null;
+      const result = sendRequest(input, apply => { state = mutateState(stateFile(input), revision(input), apply); });
+      return { ...result, state };
+    }
+    case 'team-intake': {
+      const before = readState(stateFile(input));
+      const card = before.team.card;
+      if (!card) throw Error(`Team ${before.team.id} has no card; nothing to import`);
+      const issues = listIntakeIssues(card);
+      let imported: number[] = [];
+      const state = mutateState(stateFile(input), revision(input), s => { imported = importIssues(s, issues); });
+      const acked = input.ack === true && imported.length ? ackIssues(card, imported) : [];
+      return { imported, skipped: issues.length - imported.length, acked, state };
+    }
     case 'uar-capabilities': return uarCapabilities(input);
     case 'uar-package-preflight': return uarPackagePreflight(input);
     case 'uar-package-install': return uarPackageInstall(input);
@@ -129,7 +147,7 @@ async function dispatch(command: string, input: ObjectValue): Promise<unknown> {
   }
 }
 
-const commands = ['guide','validate','init','status','team-update','export','install-project','task','complete-kbd','handoff-create','handoff-accept','models-discover','models-select','memory-queue','memory-publish',...uarAuthoringCommands,'uar-capabilities','uar-package-preflight','uar-package-install','uar-package-status','uar-binding-preflight','uar-binding-install','uar-binding-status','uar-activate'];
+const commands = ['guide','validate','init','status','team-update','export','install-project','task','complete-kbd','handoff-create','handoff-accept','models-discover','models-select','memory-queue','memory-publish','team-publish','team-discover','team-request','team-intake',...uarAuthoringCommands,'uar-capabilities','uar-package-preflight','uar-package-install','uar-package-status','uar-binding-preflight','uar-binding-install','uar-binding-status','uar-activate'];
 async function main(): Promise<void> {
   if (Number(process.versions.node.split('.')[0]) < 22) throw Error('Node.js 22 or newer is required');
   const [command, ...args] = process.argv.slice(2);

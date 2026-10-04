@@ -35,9 +35,27 @@ export function relativeFile(file: string): string {
   if (!file || file.includes('\\') || file.startsWith('/') || /[<>:"|?*\u0000-\u001f]/.test(file) || file.split('/').some(p => !p || p === '.' || p === '..' || /[. ]$/.test(p) || /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\.|$)/i.test(p))) throw Error(`Unsafe portable file path: ${file}`);
   return file;
 }
+export function card(value: unknown, teamId: string, roleIds: Set<string>): void {
+  const c = object(value, 'team.card');
+  for (const key of Object.keys(c)) if (!['repo','component','owns','capabilities','intake'].includes(key)) throw Error(`Unknown team.card field ${key}`);
+  text(c.repo, 'team.card.repo'); text(c.component, 'team.card.component');
+  strings(c.owns, 'team.card.owns'); strings(c.capabilities, 'team.card.capabilities');
+  const intake = object(c.intake, 'team.card.intake');
+  for (const key of Object.keys(intake)) if (!['intakeRole','label','rules'].includes(key)) throw Error(`Unknown team.card.intake field ${key}`);
+  const role = id(intake.intakeRole, 'team.card.intake.intakeRole');
+  if (!roleIds.has(role)) throw Error(`team.card.intake.intakeRole ${role} is not a role of this team`);
+  if (intake.label !== `team:${teamId}`) throw Error(`team.card.intake.label must be team:${teamId}`);
+  if (!Array.isArray(intake.rules)) throw Error('team.card.intake.rules must be an array');
+  for (const entry of intake.rules) {
+    const rule = object(entry, 'team.card.intake.rules[]');
+    for (const key of Object.keys(rule)) if (!['when','route'].includes(key)) throw Error(`Unknown intake rule field ${key}`);
+    text(rule.when, 'intake rule when');
+    if (rule.route !== 'handoff' && rule.route !== 'issue') throw Error('intake rule route must be handoff or issue');
+  }
+}
 export function validateTeam(value: unknown): Team {
   const t = object(value, 'team');
-  const allowed = ['schemaVersion','id','outcome','scope','harness','roles','modelPolicy','skillPolicies','native','agentMemory'];
+  const allowed = ['schemaVersion','id','outcome','scope','harness','roles','modelPolicy','skillPolicies','card','native','agentMemory'];
   for (const key of Object.keys(t)) if (!allowed.includes(key)) throw Error(`Unknown team field ${key}; use native.<target>.options or files for harness-specific configuration`);
   if (t.schemaVersion !== 1) throw Error('team.schemaVersion must be 1');
   id(t.id, 'team.id'); text(t.outcome, 'team.outcome');
@@ -69,6 +87,7 @@ export function validateTeam(value: unknown): Team {
     for (const key of Object.keys(m)) if (key !== 'claude') throw Error(`Unknown agentMemory field ${key}`);
     if (m.claude !== undefined && m.claude !== 'local') throw Error("agentMemory.claude must be 'local'");
   }
+  if (t.card !== undefined) card(t.card, t.id as string, ids);
   if (t.modelPolicy !== undefined) policy(t.modelPolicy, 'modelPolicy');
   if (t.skillPolicies !== undefined) for (const [key, v] of Object.entries(object(t.skillPolicies))) policy(v, `skillPolicies.${key}`);
   if (t.native !== undefined) for (const [key, v] of Object.entries(object(t.native))) {

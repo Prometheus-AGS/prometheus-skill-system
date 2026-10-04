@@ -169,6 +169,19 @@ native capabilities explicitly. Use this creator for immutable definition
 maintenance and UAR catalog deployment. Use `$agent-team-manage` for runtime tasks and
 `$agent-team-handoff` when changing owners/harnesses.
 
+## Team cards and cross-team requests
+
+A team may carry an optional `card` (`repo`, `component`, `owns`, `capabilities`,
+`intake {intakeRole, label: team:<id>, rules[{when, route: handoff|issue}]}`);
+`intakeRole` must be one of its roles. Commands (JSON `--input`, see
+[team cards](references/team-cards.md)): `team-publish` writes the card to
+`~/.prometheus/knowledge/shared/teams/` (and ingests it with `pk` when present),
+`team-discover` ranks cards by capability overlap and `owns`-glob matches,
+`team-request` creates an intake task (same repo, no rule forcing `issue`) or a
+`team:<id>` GitHub issue (otherwise; prints the packet and exact `gh` command when
+`gh` is absent or with `dryRun`), and `team-intake` imports open labelled issues as
+intake-role tasks, once each. Commenting on an issue requires an explicit `ack`.
+
 ## Evidence and recovery
 
 Report generated paths, roles and rationale, chosen model policy, native support

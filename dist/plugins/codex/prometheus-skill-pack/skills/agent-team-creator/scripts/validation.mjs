@@ -46,9 +46,39 @@ export function relativeFile(file) {
         throw Error(`Unsafe portable file path: ${file}`);
     return file;
 }
+export function card(value, teamId, roleIds) {
+    const c = object(value, 'team.card');
+    for (const key of Object.keys(c))
+        if (!['repo', 'component', 'owns', 'capabilities', 'intake'].includes(key))
+            throw Error(`Unknown team.card field ${key}`);
+    text(c.repo, 'team.card.repo');
+    text(c.component, 'team.card.component');
+    strings(c.owns, 'team.card.owns');
+    strings(c.capabilities, 'team.card.capabilities');
+    const intake = object(c.intake, 'team.card.intake');
+    for (const key of Object.keys(intake))
+        if (!['intakeRole', 'label', 'rules'].includes(key))
+            throw Error(`Unknown team.card.intake field ${key}`);
+    const role = id(intake.intakeRole, 'team.card.intake.intakeRole');
+    if (!roleIds.has(role))
+        throw Error(`team.card.intake.intakeRole ${role} is not a role of this team`);
+    if (intake.label !== `team:${teamId}`)
+        throw Error(`team.card.intake.label must be team:${teamId}`);
+    if (!Array.isArray(intake.rules))
+        throw Error('team.card.intake.rules must be an array');
+    for (const entry of intake.rules) {
+        const rule = object(entry, 'team.card.intake.rules[]');
+        for (const key of Object.keys(rule))
+            if (!['when', 'route'].includes(key))
+                throw Error(`Unknown intake rule field ${key}`);
+        text(rule.when, 'intake rule when');
+        if (rule.route !== 'handoff' && rule.route !== 'issue')
+            throw Error('intake rule route must be handoff or issue');
+    }
+}
 export function validateTeam(value) {
     const t = object(value, 'team');
-    const allowed = ['schemaVersion', 'id', 'outcome', 'scope', 'harness', 'roles', 'modelPolicy', 'skillPolicies', 'native', 'agentMemory'];
+    const allowed = ['schemaVersion', 'id', 'outcome', 'scope', 'harness', 'roles', 'modelPolicy', 'skillPolicies', 'card', 'native', 'agentMemory'];
     for (const key of Object.keys(t))
         if (!allowed.includes(key))
             throw Error(`Unknown team field ${key}; use native.<target>.options or files for harness-specific configuration`);
@@ -107,6 +137,8 @@ export function validateTeam(value) {
         if (m.claude !== undefined && m.claude !== 'local')
             throw Error("agentMemory.claude must be 'local'");
     }
+    if (t.card !== undefined)
+        card(t.card, t.id, ids);
     if (t.modelPolicy !== undefined)
         policy(t.modelPolicy, 'modelPolicy');
     if (t.skillPolicies !== undefined)
