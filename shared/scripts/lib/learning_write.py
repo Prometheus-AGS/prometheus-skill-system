@@ -16,6 +16,9 @@ built from the resolved identity of the writing agent. It is written to:
   * pk, only when asked (`--pk` or PROMETHEUS_LEARNING_PK=1), as a detached
     `pk ingest --type <Kind> --tag team:/role:/vis:` so the hook never waits on
     the model call.
+  * Cortex, optionally (design §6): when a Cortex MCP server is discoverable, one
+    detached `cortex_remember` call mirrors the lesson. Absent Cortex is the normal
+    case and is completely silent (see `cortex_command`).
 
 Idempotence: the operation id is derived from (method, canonical arguments), so
 writing the same lesson to the same scope twice queues one operation.
@@ -40,6 +43,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -308,6 +312,73 @@ def ingest_pk(text: str, envelope: dict, cwd: Path) -> bool:
         return False
 
 
+# --- optional Cortex mirror (design §6) ----------------------------------------------
+CORTEX_INIT = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}
+
+
+def cortex_command() -> list[str]:
+    """argv of a Cortex MCP stdio server, or [] when Cortex is not available.
+
+    Capability is discovered, never assumed (integration contract): there is no
+    configuration to turn on and no diagnostics when it is missing.
+      1. PROMETHEUS_LEARNING_CORTEX=0 disables the mirror.
+      2. PROMETHEUS_CORTEX_MCP is an explicit server command (shell-split).
+      3. Otherwise the newest installed plugin,
+         ~/.claude/plugins/cache/cortex/cortex/<version>/dist/mcp-server.js, run with `node`.
+    """
+    if os.environ.get("PROMETHEUS_LEARNING_CORTEX") == "0":
+        return []
+    explicit = os.environ.get("PROMETHEUS_CORTEX_MCP", "").strip()
+    if explicit:
+        try:
+            return shlex.split(explicit)
+        except ValueError:
+            return []
+    from shutil import which
+    node = which("node")
+    if not node:
+        return []
+    try:
+        servers = sorted((Path.home() / ".claude" / "plugins" / "cache" / "cortex" / "cortex").glob("*/dist/mcp-server.js"))
+    except OSError:
+        return []
+    return [node, str(servers[-1])] if servers else []
+
+
+def cortex_arguments(text: str, envelope: dict, user_id: str) -> dict:
+    """cortex_remember arguments. Cortex 2.0 stores content, `context` and `projectId`
+    only, so the `team/role` tag travels in `context` (found by keyword recall) and a
+    `global` lesson is saved without a projectId, as Cortex's global memory."""
+    tags = [f"visibility:{envelope['visibility']}", f"kind:{envelope['kind']}", f"h:{envelope['contentHash'][:16]}"]
+    if envelope.get("teamId"):
+        tags.insert(0, f"team/role:{envelope['teamId']}/{envelope['roleId']}")
+    arguments: dict = {"content": text, "context": "prometheus-learning " + " ".join(tags)}
+    if user_id == "@global":
+        arguments["global"] = True
+    else:
+        arguments["projectId"] = user_id
+    return arguments
+
+
+def mirror_cortex(text: str, envelope: dict, user_id: str) -> bool:
+    """Detached `cortex_remember`; True when a Cortex server was started. Never raises,
+    never prints, never waits: any failure means the mirror is simply absent."""
+    argv = cortex_command()
+    if not argv:
+        return False
+    requests = [CORTEX_INIT, {"jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                              "params": {"name": "cortex_remember", "arguments": cortex_arguments(text, envelope, user_id)}}]
+    try:
+        process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL, start_new_session=True)
+        assert process.stdin is not None
+        process.stdin.write(("\n".join(json.dumps(r) for r in requests) + "\n").encode("utf-8"))
+        process.stdin.close()
+        return True
+    except (OSError, AssertionError, ValueError):
+        return False
+
+
 def route_audience(payload: dict, cwd: Path, identity: dict, visibility: str, paths: list[str]) -> list[str]:
     """Path-overlap routing (design §7.1): only role-private lessons that carry
     paths, and only inside an active team. PROMETHEUS_LEARNING_ROUTE=0 disables."""
@@ -407,7 +478,9 @@ def write_lesson(text: str, payload: dict | None = None, *, cwd: Path | None = N
     append_learning_log({"envelope": envelope, "text": text, "scopes": [(o["user_id"], o["agent_id"]) for o in operations]})
     pk_started = ingest_pk(text, envelope, cwd) if (pk or os.environ.get("PROMETHEUS_LEARNING_PK") == "1") else False
     digest = write_digest(envelope, identity, user_scope)
-    return {"written": len(written), "envelope": envelope, "operations": operations, "pk": pk_started, "digest": digest}
+    primary = operations[0] if operations and operations[0].get("operation") else None
+    cortex = mirror_cortex(text, envelope, primary["user_id"]) if primary else False
+    return {"written": len(written), "envelope": envelope, "operations": operations, "pk": pk_started, "digest": digest, "cortex": cortex}
 
 
 def main() -> int:
