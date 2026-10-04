@@ -57,10 +57,14 @@ fi
 
 # Ingest via surreal-memory REST API (available regardless of pk)
 SM_URL="${SURREAL_MEMORY_URL:-http://localhost:23001}"
+# shellcheck source=lib/project-id.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/project-id.sh"
+SM_PROJECT="$(prometheus_project_id)"
 if curl -sf "${SM_URL}/health" -o /dev/null 2>/dev/null; then
   curl -s -X POST "${SM_URL}/api/v1/memory" \
     -H "Content-Type: application/json" \
-    -d "{\"content\": $(jq -Rs '.' "$PATTERNS_FILE"), \"user_id\": \"prometheus-skill-pack\", \"metadata\": {\"source\": \"evaluate-session\", \"phase\": \"${PHASE:-unknown}\", \"change\": \"${CHANGE:-unknown}\"}}" \
+    -d "$(jq -n --rawfile content "$PATTERNS_FILE" --arg user "$SM_PROJECT" --arg phase "${PHASE:-unknown}" --arg change "${CHANGE:-unknown}" \
+          '{content: $content, user_id: $user, agent_id: "@project", metadata: {source: "evaluate-session", phase: $phase, change: $change}}')" \
     -o /dev/null 2>/dev/null || hook_log_error "$LINENO"
 fi
 

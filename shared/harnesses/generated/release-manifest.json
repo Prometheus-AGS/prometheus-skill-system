@@ -118,7 +118,7 @@
     },
     {
       "path": "shared/scripts/enqueue-learning-job.py",
-      "sha256": "02dcc1d2b7747ec95a9884ab3def3b8253796479ecf3f7d643a213b170a38e54",
+      "sha256": "f778a175f179875631eefe9ee7838a987caa6db5528d3d89747fe26205bf1acc",
       "executable": true
     },
     {
@@ -128,7 +128,7 @@
     },
     {
       "path": "shared/scripts/evaluate-session.sh",
-      "sha256": "514099dd7fcb9d71c6c983c39d0b6a101f54a60a0a71a9748efeb95c7517a908",
+      "sha256": "6f80d1aab018b1cc30f35e8f6aad08d4a612b7093429278156e61a1c867b6310",
       "executable": true
     },
     {
@@ -177,6 +177,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/lib/agent_identity.py",
+      "sha256": "3dea8c5591f3f32739cb7efdec4db358071b3d5011bbae12d71cc4181938b261",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/lib/canonical-url.sh",
       "sha256": "98d56ea600c6df1a4a86ece4a8bad04625e0ae13e7f8d708a6946c97bd87b32f",
       "executable": true
@@ -193,12 +198,22 @@
     },
     {
       "path": "shared/scripts/lib/memory-bridge.sh",
-      "sha256": "d26ea6a3c52f164b58674316f425f0b193d82875c90dedf2dac7c74be06f9b70",
+      "sha256": "33d1fd8f8949e144ebc6c1131bf7860425e78b5e9f19578fd4a509bf3d327242",
       "executable": true
     },
     {
       "path": "shared/scripts/lib/path-scope.sh",
       "sha256": "4357046605111484bfca36c82c32b07386c35cff7c28b80038b2444c6ec0470d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/project_id.py",
+      "sha256": "96ea798c240447301f8b9d9a463f9df9028f7a2b7ed79df7cbfa2ed8c78c3581",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/project-id.sh",
+      "sha256": "dcbef3ff4ed8b797183ab90e87175eb77160f97bcba408608f6bc3d9b59a2b63",
       "executable": true
     },
     {
@@ -407,5 +422,5 @@
       "executable": true
     }
   ],
-  "bundleId": "3082565ae9f82e5e65eb3a7a7c20bf3fe221e92fd36a3a6713ce7d88d1a0d79d"
+  "bundleId": "fcd49290a0833931ffa92a5470527e1440e458a88dd0b2217b71fc5facb50b41"
 }

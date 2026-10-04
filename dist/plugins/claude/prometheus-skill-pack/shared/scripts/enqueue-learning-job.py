@@ -10,6 +10,12 @@ import os
 from pathlib import Path
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+try:  # identity is best-effort: a job without it is still a valid job
+    from agent_identity import resolve as resolve_identity  # noqa: E402
+except Exception:  # pragma: no cover - never fail the hook
+    resolve_identity = None
+
 MAX_INPUT_BYTES = 1_048_576
 FINAL_STATES = ("pending", "processing", "completed", "rejected", "retry", "dead-letter")
 
@@ -157,6 +163,16 @@ def main() -> int:
         "payloadDigest": payload_digest,
         "scope": "project",
     }
+    if resolve_identity is not None:
+        try:
+            identity = resolve_identity(payload, project_root, [])
+        except Exception:
+            identity = {}
+        if identity.get("projectId"):
+            job["projectId"] = identity["projectId"]
+        if identity.get("roleId") and identity["roleId"] != "unresolved":
+            job["teamId"] = identity["teamId"]
+            job["roleId"] = identity["roleId"]
     target = pending / filename
     temporary = pending / f".{event_id}.{os.getpid()}.tmp"
     descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)

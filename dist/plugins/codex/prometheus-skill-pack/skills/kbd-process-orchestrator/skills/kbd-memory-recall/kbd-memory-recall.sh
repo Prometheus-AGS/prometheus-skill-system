@@ -49,6 +49,20 @@ elif [[ -f .kbd-orchestrator/current-waypoint.json ]]; then
     .kbd-orchestrator/current-waypoint.json 2>/dev/null || echo unknown)"
 fi
 
+# Canonical project id from the single resolver (design §1). Lifecycle events
+# written before the resolver carry the project NAME, so ranking accepts either.
+project_id="$project"
+_recall_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+for _candidate in "$_recall_lib/../../../../../shared/scripts/lib/project-id.sh" \
+                  "${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}/shared/scripts/lib/project-id.sh"; do
+  if [[ -f "$_candidate" ]]; then
+    # shellcheck source=/dev/null
+    . "$_candidate"
+    project_id="$(prometheus_project_id)"
+    break
+  fi
+done
+
 # Build query text from goals + assessment.
 query=""
 [[ -f "$phase_dir/goals.md"      ]] && query+="$(cat "$phase_dir/goals.md")"
@@ -90,7 +104,7 @@ cleanup_search
 trap - EXIT INT TERM
 
 if ! ranked="$(printf '%s' "$resp" | jq -c \
-  --arg project "$project" --arg query "$phase $query" '
+  --arg project "$project" --arg project_id "$project_id" --arg query "$phase $query" '
   def tokens:
     tostring
     | ascii_downcase
@@ -125,7 +139,7 @@ if ! ranked="$(printf '%s' "$resp" | jq -c \
           phase: ($event.phase // $event.name // "?"),
           kind: ($event.kind // "?"),
           ts: ($event.ts // $entity.updated_at // $entity.created_at // "?"),
-          sameProject: (if ($event.project // "") == $project then 1 else 0 end),
+          sameProject: (if (($event.project // "") == $project) or (($event.project // "") == $project_id) then 1 else 0 end),
           tokenOverlap: ([$candidate_tokens[] | select(. as $token | $query_tokens | index($token))] | length),
           recency: (($event.ts // $entity.updated_at // $entity.created_at // "") | recency_key)
         }
