@@ -14,6 +14,7 @@ import { discoverModels, selectModel } from './models.mjs';
 import { queueMemory, publishMemory } from './memory.mjs';
 import { dispatchUarAuthoring, isUarAuthoringCommand, uarAuthoringCommands } from './uar-package/commands.mjs';
 import { refuseUarActivation, uarBindingInstall, uarBindingPreflight, uarBindingStatus, uarCapabilities, uarPackageInstall, uarPackagePreflight, uarPackageStatus, } from './uar-client.mjs';
+import { publishCard, discoverCards, sendRequest, listIntakeIssues, importIssues, ackIssues } from './registry.mjs';
 function revision(input) {
     const r = input.expectedRevision;
     if (!Number.isSafeInteger(r) || Number(r) < 0)
@@ -121,6 +122,24 @@ async function dispatch(command, input) {
             const state = await mutateStateAsync(stateFile(input), revision(input), async (state) => { receipt = await publishMemory(state, withPublishProject(object(input.publication, 'publication'))); });
             return { state, publication: receipt };
         }
+        case 'team-publish': return publishCard({ ...input, team: (input.team ?? readState(stateFile(input)).team) });
+        case 'team-discover': return { matches: discoverCards(input) };
+        case 'team-request': {
+            let state = null;
+            const result = sendRequest(input, apply => { state = mutateState(stateFile(input), revision(input), apply); });
+            return { ...result, state };
+        }
+        case 'team-intake': {
+            const before = readState(stateFile(input));
+            const card = before.team.card;
+            if (!card)
+                throw Error(`Team ${before.team.id} has no card; nothing to import`);
+            const issues = listIntakeIssues(card);
+            let imported = [];
+            const state = mutateState(stateFile(input), revision(input), s => { imported = importIssues(s, issues); });
+            const acked = input.ack === true && imported.length ? ackIssues(card, imported) : [];
+            return { imported, skipped: issues.length - imported.length, acked, state };
+        }
         case 'uar-capabilities': return uarCapabilities(input);
         case 'uar-package-preflight': return uarPackagePreflight(input);
         case 'uar-package-install': return uarPackageInstall(input);
@@ -132,7 +151,7 @@ async function dispatch(command, input) {
         default: throw Error(`Unknown command: ${command}`);
     }
 }
-const commands = ['guide', 'validate', 'init', 'status', 'team-update', 'export', 'install-project', 'task', 'complete-kbd', 'handoff-create', 'handoff-accept', 'models-discover', 'models-select', 'memory-queue', 'memory-publish', ...uarAuthoringCommands, 'uar-capabilities', 'uar-package-preflight', 'uar-package-install', 'uar-package-status', 'uar-binding-preflight', 'uar-binding-install', 'uar-binding-status', 'uar-activate'];
+const commands = ['guide', 'validate', 'init', 'status', 'team-update', 'export', 'install-project', 'task', 'complete-kbd', 'handoff-create', 'handoff-accept', 'models-discover', 'models-select', 'memory-queue', 'memory-publish', 'team-publish', 'team-discover', 'team-request', 'team-intake', ...uarAuthoringCommands, 'uar-capabilities', 'uar-package-preflight', 'uar-package-install', 'uar-package-status', 'uar-binding-preflight', 'uar-binding-install', 'uar-binding-status', 'uar-activate'];
 async function main() {
     if (Number(process.versions.node.split('.')[0]) < 22)
         throw Error('Node.js 22 or newer is required');

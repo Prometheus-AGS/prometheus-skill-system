@@ -29,6 +29,17 @@ export interface NativeConfig {
   options?: ObjectValue;
   files?: Record<string, string>;
 }
+export interface TeamCardRule {
+  when: string;
+  route: 'handoff' | 'issue';
+}
+export interface TeamCard {
+  repo: string;
+  component: string;
+  owns: string[];
+  capabilities: string[];
+  intake: { intakeRole: string; label: string; rules: TeamCardRule[] };
+}
 export interface Team {
   schemaVersion: 1;
   id: string;
@@ -38,6 +49,7 @@ export interface Team {
   roles: Role[];
   modelPolicy?: ModelPolicy;
   skillPolicies?: Record<string, ModelPolicy>;
+  card?: TeamCard;
   native?: Partial<Record<Target, NativeConfig>>;
   /** Opt-in per-harness agent memory. `claude: 'local'` emits `memory: local` and a per-role MEMORY.md. */
   agentMemory?: { claude?: 'local' };
