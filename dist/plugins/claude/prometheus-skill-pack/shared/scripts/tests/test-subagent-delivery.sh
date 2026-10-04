@@ -210,8 +210,11 @@ check_delivery() { # <harness> -> asserts budgets, leaks, both roles present
 import json, math, sys, glob, os
 path, harness, trace_dir, file_tier = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
 records = [json.loads(l) for l in open(path) if l.strip()]
+timeouts = sum(1 for r in records if r.get("timedOut") and r.get("harness") == harness)
 records = [r for r in records if r.get("event") == "SubagentStart" and r.get("harness") == harness
-           and not str(r.get("agentId") or "").startswith("direct-")]
+           and not r.get("timedOut") and not str(r.get("agentId") or "").startswith("direct-")]
+if timeouts:
+    print(f"  {harness}: {timeouts} SubagentStart recall(s) hit the hook watchdog")
 allowed = lambda role: {f"tlm-fixture/{role}", "tlm-fixture/@team", "@project", "@user", "@global"}
 roles = {r["roleId"] for r in records}
 assert {"api-dev", "ui-dev"} <= roles, f"{harness}: delivery.jsonl has SubagentStart records for {sorted(roles)}"
@@ -294,7 +297,7 @@ EOF
   ( cd "$REPO" && run_timeout "$MODEL_TIMEOUT" codex exec --dangerously-bypass-hook-trust --skip-git-repo-check "$PROMPT" ) \
       > "$S/codex.out" 2> "$S/codex.err" < /dev/null
   echo "  codex output: $(tr '\n' ' ' < "$S/codex.out")"
-  python3 - "$S/codex.out" "$CODEX_HOME/sessions" "$S/codex-rollouts.json" <<'PY' || { tail -40 "$S/codex.err" >&2; fail "Codex subagents / child rollouts"; }
+  python3 - "$S/codex.out" "$CODEX_HOME/sessions" "$S/codex-rollouts.json" <<'PY' || { tail -40 "$S/codex.err" >&2; grep timedOut "$PROMETHEUS_LEARNING_INDEX_DIR/delivery.jsonl" >&2; fail "Codex subagents / child rollouts"; }
 import glob, json, re, sys
 text, sessions, report = open(sys.argv[1]).read(), sys.argv[2], sys.argv[3]
 api = re.search(r"api_dev\s*[=:]\s*(.*)", text); ui = re.search(r"ui_dev\s*[=:]\s*(.*)", text)

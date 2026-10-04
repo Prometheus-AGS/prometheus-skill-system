@@ -19,14 +19,14 @@
 #
 # Absence is the normal case: no team, an unresolved role, no store, no pk and
 # nothing recalled all print NOTHING and exit 0. The recall runs under an
-# internal watchdog (3 s, inside the contract's 5 s timeout) with a 2 s
+# internal watchdog (3.5 s, inside the contract's 5 s timeout) with a 2 s
 # per-request store timeout; a timed-out recall prints nothing. bash 3.2.
 
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 LIB="$HERE/lib"
-WATCHDOG_SECONDS="${PROMETHEUS_SUBAGENTSTART_WATCHDOG:-3}"
+WATCHDOG_SECONDS="${PROMETHEUS_SUBAGENTSTART_WATCHDOG:-3.5}"
 
 command -v python3 >/dev/null 2>&1 || exit 0
 [ -f "$LIB/learning_recall.py" ] || exit 0
@@ -50,7 +50,7 @@ CODEX_TOKENS = 2000
 CHARS_PER_TOKEN = 3.5
 FENCE_TAG = "prometheus-recalled-lessons"
 lr.REQUEST_TIMEOUT_SECONDS = 2.0      # per store request (design §5)
-lr.OVERALL_DEADLINE_SECONDS = 2.5     # all store requests, inside the watchdog
+lr.OVERALL_DEADLINE_SECONDS = 2.8     # all store requests, inside the watchdog
 lr.PK_TIMEOUT_SECONDS = 1.5
 
 try:
@@ -148,5 +148,11 @@ kill "$watchdog" 2>/dev/null
 wait "$watchdog" 2>/dev/null
 if [ "$status" -eq 0 ] && [ -s "$work/out" ]; then
   cat "$work/out"
+elif [ "$status" -ge 128 ]; then
+  # Watchdog fired: deliver nothing, but leave a measurable trace (design §10).
+  index_dir="${PROMETHEUS_LEARNING_INDEX_DIR:-$HOME/.prometheus/learning-index}"
+  mkdir -p "$index_dir" 2>/dev/null && \
+    printf '{"event":"SubagentStart","harness":"%s","timedOut":true,"watchdogSeconds":"%s","ts":"%s"}\n' \
+      "${harness:-unknown}" "$WATCHDOG_SECONDS" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$index_dir/delivery.jsonl" 2>/dev/null
 fi
 exit 0

@@ -363,7 +363,7 @@
     },
     {
       "path": "shared/scripts/subagentstart-learning.sh",
-      "sha256": "80333a28bb8f67d1465d12d1021a42257e164b876c111520affc4b09f78c42b8",
+      "sha256": "ce7bc7958c83507f0b87485f388e81d472183cb674a35e1b8aa2e87473321cc3",
       "executable": true
     },
     {
@@ -452,5 +452,5 @@
       "executable": true
     }
   ],
-  "bundleId": "b878535e0fff488877c9e38e2dc5cf14f3c8245f44e3231a9cc5b426b21f0103"
+  "bundleId": "f1f0a86ed52fec7a82b33a45a6dc213c5adb8bf30277e2a6478722094bd3ec96"
 }
