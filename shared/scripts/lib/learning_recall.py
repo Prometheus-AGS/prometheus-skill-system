@@ -70,6 +70,7 @@ LIB = Path(__file__).resolve().parent
 sys.path.insert(0, str(LIB))
 from agent_identity import find_root, load_teams, active_team, role_ids, resolve as resolve_identity  # noqa: E402
 from project_id import resolve_user_scope  # noqa: E402
+import learning_route  # noqa: E402
 import prompt_gap  # noqa: E402
 
 TRAILER = "<!-- prometheus-envelope "
@@ -508,6 +509,32 @@ def file_candidates(view: dict, text: str, now: float) -> list[dict]:
     return out
 
 
+# --------------------------------------------------------------------------- team digest
+def digest_candidates(view: dict, now: float) -> list[dict]:
+    """The last TEAM_DIGEST_LIMIT lines of the team digest file as `team` scope
+    candidates. Each carries the lesson's content hash, so a recipient who also
+    holds the lesson (own or addressed copy) is delivered it once, in full, and
+    everyone else sees only the one-line digest, never the lesson text."""
+    team_id = view.get("teamId") or ""
+    if not team_id or team_id.startswith("@"):
+        return []
+    out = []
+    records = learning_route.read_digest(view["projectId"], team_id, TEAM_DIGEST_LIMIT)
+    for index, record in enumerate(records):
+        try:
+            text = learning_route.digest_text(record)
+        except (TypeError, ValueError):
+            continue
+        ts = float(record["t"]) if isinstance(record.get("t"), (int, float)) else None
+        candidate = _candidate("team", f"{team_id}/@team", text, {}, [], 0.0, ts, None, now, "digest")
+        candidate["hash"] = str(record["h"])[:16]
+        candidate["author"] = f"{team_id}/{record.get('by')}" if record.get("by") else ""
+        candidate["kind"] = "digest"
+        candidate["order"] = index
+        out.append(candidate)
+    return out
+
+
 # --------------------------------------------------------------------------- merge + render
 SCOPE_ORDER = ("role", "lead", "team", "project", "user", "global")
 
@@ -528,7 +555,7 @@ def merge(candidates: list[dict], budget: int, seen: set[str]) -> list[dict]:
     """Priority order by scope, score order within a scope; stop at the budget."""
     chosen, used = [], 0
     for scope in [s for s in SCOPE_ORDER] + sorted({c["scope"] for c in candidates} - set(SCOPE_ORDER)):
-        group = sorted((c for c in candidates if c["scope"] == scope), key=lambda c: -c["score"])
+        group = sorted((c for c in candidates if c["scope"] == scope), key=lambda c: (-c["score"], -(c.get("ts") or 0.0)))
         for entry in group:
             if entry["hash"] in seen:
                 continue
@@ -592,6 +619,7 @@ def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | 
         source = "pk"
         if not ran or not candidates:
             candidates, source = file_candidates(view, query, now), "file"
+    candidates = candidates + digest_candidates(view, now)
     seen: set[str] = set()
     lessons = merge(candidates, lesson_budget, seen)
     knowledge: list[dict] = []
