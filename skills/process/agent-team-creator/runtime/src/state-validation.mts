@@ -130,6 +130,9 @@ export function validateState(value: unknown): TeamState {
     object(memory.provenance, 'memory.provenance');
     if (!['queued', 'published'].includes(String(memory.status))) throw new Error('Invalid memory status');
     if (memory.status === 'published' && memory.receipt === undefined) throw new Error('Published memory requires a receipt');
+    for (const field of ['projectId', 'roleId', 'kind']) if (memory[field] !== undefined) text(memory[field], `memory.${field}`);
+    if (memory.ts !== undefined) timestamp(memory.ts, 'memory.ts');
+    if (memory.author !== undefined) object(memory.author, 'memory.author');
   }
   for (const event of uniqueIds(raw.events, 'event')) {
     timestamp(event.at, 'event.at');

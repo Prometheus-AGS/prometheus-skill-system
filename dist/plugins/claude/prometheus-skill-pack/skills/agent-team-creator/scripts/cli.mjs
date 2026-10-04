@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { guide } from './guidance.mjs';
 import { validateTeam, object, text, strings, asJson, target } from './validation.mjs';
 import { exportTeam } from './adapters.mjs';
@@ -19,6 +21,59 @@ function revision(input) {
     return r;
 }
 const stateFile = (input) => path.resolve(text(input.state, 'state'));
+const RESOLVER = path.join('shared', 'scripts', 'lib', 'project-id.sh');
+/** CLAUDE_PLUGIN_ROOT, then PLUGIN_ROOT, then repo-relative (flat plugin layout, source tree, then cwd ancestors). */
+function locateProjectIdResolver() {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const candidates = [];
+    for (const name of ['CLAUDE_PLUGIN_ROOT', 'PLUGIN_ROOT']) {
+        const root = process.env[name];
+        if (root && root.trim())
+            candidates.push(path.join(root, RESOLVER));
+    }
+    candidates.push(path.resolve(here, '..', '..', '..', RESOLVER), path.resolve(here, '..', '..', '..', '..', RESOLVER));
+    for (let dir = process.cwd();; dir = path.dirname(dir)) {
+        candidates.push(path.join(dir, RESOLVER));
+        if (path.dirname(dir) === dir)
+            break;
+    }
+    return candidates.find(file => fs.existsSync(file));
+}
+let resolvedProjectId;
+/** Runs project-id.sh --json once per process; undefined when it cannot be located or answers nothing usable. */
+function projectId() {
+    if (resolvedProjectId !== undefined)
+        return resolvedProjectId ?? undefined;
+    resolvedProjectId = null;
+    const resolver = locateProjectIdResolver();
+    if (!resolver)
+        return undefined;
+    try {
+        const out = execFileSync('bash', [resolver, '--json'], { cwd: process.cwd(), encoding: 'utf8', timeout: 10000, stdio: ['ignore', 'pipe', 'ignore'] });
+        const id = object(JSON.parse(out), 'project-id.sh output').projectId;
+        // project:unknown is the resolver's no-answer sentinel; treat it as unresolved so writes fail closed.
+        if (typeof id === 'string' && id.trim() && id !== 'project:unknown')
+            resolvedProjectId = id;
+    }
+    catch {
+        // Leave unresolved: memory.mts fails closed with an explicit project-id error.
+    }
+    return resolvedProjectId ?? undefined;
+}
+function withQueueProject(entry) {
+    const kbd = entry.provenance && typeof entry.provenance === 'object' && !Array.isArray(entry.provenance) ? entry.provenance.kbd : undefined;
+    if (entry.projectId !== undefined || kbd !== undefined)
+        return entry;
+    const id = projectId();
+    return id === undefined ? entry : { ...entry, projectId: id };
+}
+function withPublishProject(publication) {
+    const mapping = publication.scopeMapping && typeof publication.scopeMapping === 'object' && !Array.isArray(publication.scopeMapping) ? publication.scopeMapping : {};
+    if (publication.projectId !== undefined || mapping.userId !== undefined || publication.provider !== 'surreal-memory')
+        return publication;
+    const id = projectId();
+    return id === undefined ? publication : { ...publication, projectId: id };
+}
 async function dispatch(command, input) {
     if (isUarAuthoringCommand(command))
         return dispatchUarAuthoring(command, input);
@@ -60,10 +115,10 @@ async function dispatch(command, input) {
         });
         case 'models-discover': return discoverModels(input);
         case 'models-select': return selectModel(validateTeam(input.team), text(input.roleId, 'roleId'), strings(input.skills ?? [], 'skills'), (input.taskPolicy ?? {}), input.catalog);
-        case 'memory-queue': return mutateState(stateFile(input), revision(input), state => { queueMemory(state, object(input.entry, 'entry')); });
+        case 'memory-queue': return mutateState(stateFile(input), revision(input), state => { queueMemory(state, withQueueProject(object(input.entry, 'entry'))); });
         case 'memory-publish': {
             let receipt = null;
-            const state = await mutateStateAsync(stateFile(input), revision(input), async (state) => { receipt = await publishMemory(state, object(input.publication, 'publication')); });
+            const state = await mutateStateAsync(stateFile(input), revision(input), async (state) => { receipt = await publishMemory(state, withPublishProject(object(input.publication, 'publication'))); });
             return { state, publication: receipt };
         }
         case 'uar-capabilities': return uarCapabilities(input);
