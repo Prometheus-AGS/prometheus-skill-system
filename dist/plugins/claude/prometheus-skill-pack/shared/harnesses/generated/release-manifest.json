@@ -163,7 +163,7 @@
     },
     {
       "path": "shared/scripts/kbd-open.sh",
-      "sha256": "0d89d2e914e045846e1826ab9a4f04d953c82dd7d62aa028b02ac51b3c6c2ddf",
+      "sha256": "d0f1da5f0fb09c1a1cef15155a3618774375ab75bce8436a88789c2335bcdf5c",
       "executable": true
     },
     {
@@ -308,7 +308,7 @@
     },
     {
       "path": "shared/scripts/propose-skill-update.sh",
-      "sha256": "983875db0e948e2220602d16454ff6138ee48bda4818c95822e3c01161347410",
+      "sha256": "5e0c3e03ef34baeca4cc4448e6ac32beb24629e271687440ec8ccaf76512829a",
       "executable": true
     },
     {
@@ -467,5 +467,5 @@
       "executable": true
     }
   ],
-  "bundleId": "7119cf223de991a1b6640df560e6b2593eef30b9b5145300467b151eee2f8da6"
+  "bundleId": "0140dc58de184c0b5b3fcaee8501f64ef9e7939e43770713e98661a9650ac67b"
 }

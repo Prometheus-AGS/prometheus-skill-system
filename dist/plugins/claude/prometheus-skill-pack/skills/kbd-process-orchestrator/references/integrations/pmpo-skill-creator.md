@@ -15,6 +15,7 @@ skill variants, or generate new skills discovered during a phase reflection.
 | KBD Phase                      | Creator Role                                                             | Entry Point                        |
 | ------------------------------ | ------------------------------------------------------------------------ | ---------------------------------- |
 | **Reflect** (meta-improvement) | Reflect surfaces need for new KBD sub-skill or domain adapter            | `/create-skill` or `/extend-skill` |
+| **Reflect / session start** (candidates) | A human accepts a skill candidate the learning worker proposed | The `/pmpo-skill-creator` invocation `pk candidates accept --kind skill` prints |
 | **Plan** (tooling gap)         | Phase plan requires tooling that doesn't exist as a skill                | `/create-skill`                    |
 | **Post-init**                  | `/kbd-init` surfaces that a project needs a custom constraint skill      | `/clone-skill`                     |
 | **Any phase**                  | Validate the kbd-process-orchestrator itself against agentskills.io spec | `/validate-skill`                  |
@@ -58,6 +59,34 @@ Run periodically to ensure the skill remains spec-compliant as it evolves:
 
 ---
 
+## Skill Candidates (learning worker)
+
+The learning worker (pk >= 1.11.0) fingerprints finished sessions and
+proposes two kinds of candidate. Neither creates or edits anything.
+
+| Candidate type | Meaning                                                             | Accept prints                                   |
+| -------------- | ------------------------------------------------------------------- | ----------------------------------------------- |
+| `new-skill`    | A workflow seen in 3+ sessions or 2+ projects that no skill covers  | `/pmpo-skill-creator` with the evidence path    |
+| `skill-update` | A skill users corrected 2+ times after it ran                       | `/pmpo-skill-creator --update <skill>`          |
+
+- `kbd-open` lists pending candidates at session start (`pk candidates list
+  --kind skill`) and prints nothing when pk is absent, older than 1.11.0, or has
+  none pending.
+- `kbd-reflect` presents each pending candidate to the human (step 10). It
+  accepts or rejects **only on an explicit human instruction**:
+  `pk candidates accept --kind skill <id>` (optionally `--update <skill>`) or
+  `pk candidates reject --kind skill <id>`.
+- Accepting moves the candidate to `accepted/` and prints the invocation. The
+  human then runs it; `/pmpo-skill-creator --update` still shows a diff and
+  applies it only on an explicit `y`.
+- `shared/scripts/propose-skill-update.sh` is **not** part of this flow. No hook
+  or script calls it: it is a manual entry point that files a placeholder note
+  under `~/.prometheus/skill-updates/` when run by hand
+  (`propose-skill-update.sh <skill-name>`). The worker writes the same directory
+  for `skill-update` candidates so `/pmpo-skill-creator --update` finds them.
+
+---
+
 ## What KBD Reads Back
 
 After skill creation/extension, KBD:
@@ -75,7 +104,9 @@ phase should explicitly ask:
 
 > "Should any recurring pattern in this phase be codified as a new KBD sub-skill?"
 
-If yes → invoke `pmpo-skill-creator` in extend mode → new sub-skill → validate →
+The answer is the reflection's `## Codify as Skill?` section (operator-only, never
+written back to memory), read next to the worker's pending skill candidates. If
+yes, and the human has accepted a candidate or asked for the skill → invoke `pmpo-skill-creator` in extend mode → new sub-skill → validate →
 commit → document in phase reflection.
 
 ---

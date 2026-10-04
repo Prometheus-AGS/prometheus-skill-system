@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # propose-skill-update.sh
-# Called by evaluate-session.sh when learning patterns match an existing skill name.
+# MANUAL entry point. No hook and no other script calls it (evaluate-session.sh
+# does not); run it by hand when learning-log entries match an installed skill.
+# Automatic proposals come from the learning worker: `pk candidates list --kind
+# skill` (pk >= 1.11.0).
 # Does NOT apply changes — writes a candidate entry for human review via
 # /pmpo-skill-creator --update <skill-name>.
 #
 # Usage: propose-skill-update.sh <skill-name>
-# Exit codes: 0 always (non-blocking; called with || true)
+# Exit codes: 0 always (non-blocking; safe to call with || true)
 
 set -euo pipefail
 

@@ -1,7 +1,7 @@
 ---
 license: MIT
 name: kbd-reflect
-version: '1.1.0'
+version: '1.2.0'
 description: >
   Generate the phase reflection report after all changes in the phase are
   complete. Seeds the next phase's planning inputs. Aggregates artifact-refiner
@@ -135,9 +135,22 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
    Lessons you already marked `[GLOBAL]` / `[USER]` in the reflection promote
    immediately through `memory-writeback.sh`; candidates are the *proposed*
    promotions that still need a human decision.
-10. **If evolver bridge exists**: write execution results back to evolver state
-11. **Advance when authorized** through `/kbd-next-phase`; its helper activates the phase and generates projections
-12. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
+10. **Review skill candidates** — run `pk candidates list --kind skill`
+    (pk >= 1.11.0; skip silently when `pk` or the `candidates` subcommand is
+    absent). Each pending candidate is a `new-skill` (a workflow seen across
+    sessions or projects that no skill covers) or a `skill-update` (a skill users
+    corrected after it ran). Present each with its full id, type, title and
+    evidence count, and note any that answer the reflection's `## Codify as
+    Skill?` section. **Accept or reject only on an explicit human instruction**
+    — `pk candidates accept --kind skill <id>` (add `--update <skill>` to target
+    an installed skill) or `pk candidates reject --kind skill <id> [--reason
+    ...]`. Accept only prints the `/pmpo-skill-creator` invocation and the
+    evidence path; it never creates or edits a skill, and neither do you at this
+    step — the human runs the printed command. An unreviewed candidate stays
+    pending.
+11. **If evolver bridge exists**: write execution results back to evolver state
+12. **Advance when authorized** through `/kbd-next-phase`; its helper activates the phase and generates projections
+13. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
 
 ## Examples
 
