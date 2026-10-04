@@ -203,12 +203,17 @@
     },
     {
       "path": "shared/scripts/lib/learning_recall.py",
-      "sha256": "1894490b8b8fa2b513d510f948cc120e3c20fae8600090028479808bfc78b1db",
+      "sha256": "c5eb720237cc46f8b7a11690ebc4e99ae50997d7a7e20779210d0343ccb19a7d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/learning_route.py",
+      "sha256": "fa95cdc3fce09a1c4f75f4d145bdfd2badfaa18bed314d3392f6ce52a3bd9d9c",
       "executable": true
     },
     {
       "path": "shared/scripts/lib/learning_write.py",
-      "sha256": "948be1fe0b626b5517d41f0eab4f45bce8b00aa0c15f1b93e8c281e01c2207ef",
+      "sha256": "17383bbcaae6a8b28ca6fc842d7dfcd2efabbbfb6d09d27fe48838f8cfa3619d",
       "executable": true
     },
     {
@@ -457,5 +462,5 @@
       "executable": true
     }
   ],
-  "bundleId": "4de438344ff9f664de441a1c72c3ff3e477434d1b6f654b392a66389bb0dae78"
+  "bundleId": "27e286a294e525e72ae1dadffaf1cbb148315b6944f55c1625de322d971d4dee"
 }
