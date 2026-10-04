@@ -129,7 +129,9 @@ test('a cross-repo dry-run prints the exact gh command and the packet, creating 
   const live = f.call('team-request', { target: { teamId: 'web-ui' }, from: { repo: 'acme/platform', team: 'api-core', role: 'lead' },
     title: 'Add dark mode', context: 'Dashboards need it.', capabilities: ['frontend'] }, 0, sb.env);
   assert.equal(live.issueUrl, 'https://github.com/fake/issues/1');
-  assert.match(sb.ghCalls()[0]!, /^issue create --repo acme\/web --title Add dark mode --label team:web-ui --body /);
+  // The label is ensured first (gh issue create --label fails on a missing label), then the issue.
+  assert.match(sb.ghCalls()[0]!, /^label create team:web-ui --repo acme\/web --force /);
+  assert.match(sb.ghCalls()[1]!, /^issue create --repo acme\/web --title Add dark mode --label team:web-ui --body /);
 });
 
 test('without gh a cross-repo request reports the command instead of failing', t => {
@@ -173,7 +175,14 @@ test('real GitHub: create one labelled issue, import it once, close it', {
 }, t => {
   const f = fixture(); t.after(f.close);
   const home = path.join(f.root, 'home'); fs.mkdirSync(home, { recursive: true });
-  const env = { ...process.env, HOME: home };
+  // Team state stays in the scratch HOME, but gh's credentials do not: its config
+  // and the macOS keychain are both found through the real HOME. Resolve the token
+  // once under the real environment and hand it to the child as GH_TOKEN (kept in
+  // memory only, never written).
+  const ghToken = process.env.GH_TOKEN
+    ?? spawnSync('gh', ['auth', 'token'], { encoding: 'utf8' }).stdout?.trim();
+  assert.ok(ghToken, 'real GitHub test needs gh to be logged in (gh auth token returned nothing)');
+  const env = { ...process.env, HOME: home, GH_TOKEN: ghToken };
   const remote = cardTeam('team-test', sandboxRepo!, 'sandbox', ['sandbox'], ['x/']);
   f.call('team-publish', { team: remote, pk: false }, 0, env);
   const created = f.call('team-request', { target: { teamId: 'team-test' }, from: { repo: 'prometheus/elsewhere', team: 'origin', role: 'lead' },
@@ -182,8 +191,13 @@ test('real GitHub: create one labelled issue, import it once, close it', {
   assert.ok(Number.isSafeInteger(number));
   try {
     const state = stateFor(f, env, 'remote', remote);
-    const first = f.call('team-intake', { state, expectedRevision: 0 }, 0, env);
-    assert.ok(first.imported.includes(number));
+    // GitHub's list-by-label lags a just-created issue by a few seconds; poll briefly.
+    let first: Any = { imported: [] };
+    for (let attempt = 0; attempt < 10 && !first.imported.includes(number); attempt++) {
+      if (attempt > 0) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 3000);
+      first = f.call('team-intake', { state, expectedRevision: read(state).revision }, 0, env);
+    }
+    assert.ok(first.imported.includes(number), `issue #${number} was never listed for intake`);
     const second = f.call('team-intake', { state, expectedRevision: read(state).revision }, 0, env);
     assert.equal(second.imported.includes(number), false);
     assert.equal(read(state).tasks.filter((x: Any) => x.id === `issue-${number}`).length, 1);

@@ -210,6 +210,12 @@ export function sendRequest(input, applyHandoff) {
         return { route: 'issue', packet, command, dryRun: true, reason };
     if (!hasCommand('gh'))
         return { route: 'issue', packet, command, dryRun: true, issueUrl: null, reason: `${reason}; gh is not installed, so nothing was created. Run the command above.` };
+    // `gh issue create --label` fails when the label does not exist yet, which is the
+    // case for the first request to any team. `--force` makes this idempotent; a
+    // failure (for example no permission to manage labels) is left to the create
+    // call below to report.
+    run('gh', ['label', 'create', card.intake.label, '--repo', card.repo, '--force',
+        '--description', `Intake for agent team ${target.teamId}`]);
     const created = run(argv[0], argv.slice(1));
     if (!created.ok)
         throw Error(`gh issue create failed: ${created.stderr.trim() || created.stdout.trim()}`);
