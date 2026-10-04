@@ -1028,6 +1028,15 @@ probe plugin on codex-cli 0.158.0, shape the generated file
    the 0.158 binary schema, default 600). The generator rejects values outside
    1–600. An earlier "Codex reads milliseconds" note was a misdiagnosis: the
    failing hook in that probe was the JSON-stdout one.
+3. **Enabling hooks needs `[features].hooks = true`; `codex_hooks` is the
+   deprecated name.** Plugin hooks are non-managed, so the first interactive
+   `codex` session after install shows a **one-time hook-trust prompt**; accept it
+   once. Headless `codex exec` shows no prompt, so vetted automation passes
+   `--dangerously-bypass-hook-trust` (the B5 alpha gate does, in a scratch
+   `CODEX_HOME` only). Subagents need `[features].multi_agent = true`; SubagentStart
+   and SubagentStop then fire through plugin hooks with the bare TOML agent name
+   (`api_dev` for role `api-dev`), and SubagentStart `additionalContext` lands in
+   the child thread as a developer message (codex-cli 0.158.0).
 
 Codex also treats hook stdout that starts with `{` as a structured response, so a
 hook must not open its output with raw JSON.

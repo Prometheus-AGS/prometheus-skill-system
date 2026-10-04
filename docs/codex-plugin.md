@@ -74,7 +74,23 @@ Verified on codex-cli 0.158.0 (2026-10-03):
 
 - **Codex runs only the `command` string and ignores `args`.** Every Codex entry is one string: `node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle <id> --hook <id> --harness codex`. Codex substitutes `${CLAUDE_PLUGIN_ROOT}` and exports both `CLAUDE_PLUGIN_ROOT` and `PLUGIN_ROOT`.
 - **`timeout` is in seconds in both Codex and Claude Code** (Codex default 600). The generator enforces 1–600 seconds. Starting the entry point takes about one second, so contract hooks use at least 10 seconds. An earlier note that Codex reads milliseconds was a misdiagnosis, corrected by change-tlm-004.
-- **Hook stdout that opens with `{` is parsed as a structured response.** Hooks must not begin their output with raw JSON.
+- **Hook stdout that opens with `{` is parsed as a structured response.** Hooks must not begin their output with raw JSON unless they mean it. `subagentstart-learning` is the one that does: it prints `{"hookSpecificOutput":{"hookEventName":"SubagentStart","additionalContext":…}}`, which Codex injects into the **child** thread as a developer message (it never reaches the parent thread).
+
+### Enabling hooks: `[features].hooks` and the one-time trust prompt
+
+Verified on codex-cli 0.158.0 (2026-10-04, phase team-aware-learning-memory-impl, change B5):
+
+- **The feature flag is `[features].hooks`.** The older name `[features].codex_hooks` is deprecated; in the Codex SubagentStart spike a config that set only `codex_hooks` (run without the trust bypass) never fired a hook, while `hooks = true` plus the bypass did. Use:
+
+  ```toml
+  [features]
+  hooks = true
+  multi_agent = true   # needed for subagents, and so for SubagentStart/SubagentStop
+  ```
+
+- **Plugin hooks are non-managed, so Codex asks once before running them.** The first interactive `codex` session after the plugin is installed shows a hook-trust prompt; accept it once and the plugin's hooks run from then on. A project-layer config (`.codex/`) is honoured only for a trusted project (`[projects."<path>"] trust_level = "trusted"`).
+- **Headless automation** (`codex exec`) never shows the prompt; vetted automation passes `--dangerously-bypass-hook-trust` instead. The B5 alpha gate (`shared/scripts/tests/test-subagent-delivery.sh`) uses that flag only inside a fully scratch `CODEX_HOME`.
+- **SubagentStart and SubagentStop fire through plugin hooks** with the bare TOML agent name as `agent_type` (`-` in a role id becomes `_`, e.g. role `api-dev` → agent `api_dev`), plus `agent_id`. `agent_identity.py` maps the name back to the role.
 
 To check firing without touching the machine's real hook runtime, isolate all three of `CODEX_HOME`, `PROMETHEUS_PLUGIN_ROOT` and `HOME`. Then run `codex plugin marketplace add <repo>`, `codex plugin add prometheus-skill-pack@prometheus-skill-pack`, and `codex exec --skip-git-repo-check --dangerously-bypass-hook-trust "ok"`, and count the `hook: SessionStart Completed` lines on stderr.
 

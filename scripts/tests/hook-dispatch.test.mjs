@@ -96,7 +96,7 @@ check('every emitted hook entry has the form its harness runs, with a real execu
       }
     }
   }
-  assert.equal(entries, 63, `expected the full hook matrix, saw ${entries}`);
+  assert.equal(entries, 65, `expected the full hook matrix, saw ${entries}`);
 });
 
 check('both harnesses get the same timeout in seconds for every hook', () => {
