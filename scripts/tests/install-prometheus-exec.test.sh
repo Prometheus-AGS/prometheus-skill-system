@@ -78,3 +78,72 @@ if grep -Fq 'installed and verified' "$TMP_ROOT/sign.out"; then
 fi
 
 echo "PASS: prometheus-exec atomic install, version, signature, hash, rollback, and false-green contract"
+
+# Real-build reproducibility: the certified hash must not depend on the
+# checkout path. Before scripts/build-prometheus-exec.sh existed, the same
+# commit hashed differently in every git worktree and the installer refused it.
+# This builds for real (cargo, minutes on a cold cache), so it is opt-in:
+#   PROMETHEUS_EXEC_TEST_REAL_BUILD=1 bash scripts/tests/install-prometheus-exec.test.sh
+# Builds run strictly one after another (one cargo build at a time).
+if [ "${PROMETHEUS_EXEC_TEST_REAL_BUILD:-0}" != "1" ]; then
+    echo "SKIP: real-build reproducibility (set PROMETHEUS_EXEC_TEST_REAL_BUILD=1)"
+    exit 0
+fi
+
+certified="$(awk -F'"' '/"expectedBuildSha256"/ { print $4; exit }' "$REPO_ROOT/config/prometheus-exec-binary.json")"
+
+primary_hash="$(bash "$REPO_ROOT/scripts/build-prometheus-exec.sh" --print-hash 2>"$TMP_ROOT/primary-build.err")" || {
+    tail -20 "$TMP_ROOT/primary-build.err" >&2
+    echo "FAIL: primary checkout build failed" >&2
+    exit 1
+}
+
+# A second checkout of the working tree at a different path and depth. mktemp
+# lives under /var -> /private/var on macOS, so this also covers a symlinked
+# checkout path. Copy the working tree (not HEAD) so uncommitted changes are
+# what gets tested.
+SECOND="$TMP_ROOT/elsewhere/a different depth/prometheus-skill-pack"
+mkdir -p "$SECOND/crates" "$SECOND/substrate" "$SECOND/scripts" "$SECOND/config"
+copy_tree() {
+    (cd "$1" && tar -cf - --exclude ./target .) | (mkdir -p "$2" && cd "$2" && tar -xpf -)
+}
+copy_tree "$REPO_ROOT/crates/prometheus-exec" "$SECOND/crates/prometheus-exec"
+for dep in "$REPO_ROOT"/substrate/exec-*/; do
+    dep="${dep%/}"
+    copy_tree "$dep" "$SECOND/substrate/$(basename "$dep")"
+done
+copy_tree "$REPO_ROOT/wit" "$SECOND/wit"
+[ -d "$REPO_ROOT/.cargo" ] && copy_tree "$REPO_ROOT/.cargo" "$SECOND/.cargo"
+cp "$REPO_ROOT/scripts/build-prometheus-exec.sh" "$REPO_ROOT/scripts/install-prometheus-exec.sh" "$SECOND/scripts/"
+cp "$REPO_ROOT/config/prometheus-exec-binary.json" "$SECOND/config/"
+
+# Drive the production entry point in the second checkout: it builds, then
+# gates on the committed expectedBuildSha256.
+mkdir -p "$TMP_ROOT/real/bin" "$TMP_ROOT/real/manifests" "$TMP_ROOT/real/backups"
+if ! env PROMETHEUS_EXEC_BIN_DIR="$TMP_ROOT/real/bin" \
+    PROMETHEUS_EXEC_MANIFEST_DIR="$TMP_ROOT/real/manifests" \
+    PROMETHEUS_EXEC_BACKUP_DIR="$TMP_ROOT/real/backups" \
+    PROMETHEUS_EXEC_CODESIGN="$TMP_ROOT/codesign" \
+    PROMETHEUS_EXEC_PLATFORM=Darwin \
+    bash "$SECOND/scripts/install-prometheus-exec.sh" >"$TMP_ROOT/second.out" 2>"$TMP_ROOT/second.err"; then
+    tail -20 "$TMP_ROOT/second.err" >&2
+    echo "FAIL: installer rejected a build from a second checkout path" >&2
+    exit 1
+fi
+grep -Fq 'installed and verified' "$TMP_ROOT/second.out"
+second_hash="$(awk -F'"' '/"buildSha256"/ { print $4; exit }' "$TMP_ROOT/real/manifests/prometheus-exec.json")"
+
+if [ "$primary_hash" != "$second_hash" ]; then
+    echo "FAIL: build hash depends on checkout path: $primary_hash (primary) vs $second_hash (second)" >&2
+    exit 1
+fi
+if [ "$primary_hash" != "$certified" ]; then
+    echo "FAIL: reproducible build $primary_hash does not match certified expectedBuildSha256 $certified" >&2
+    exit 1
+fi
+if strings -a "$SECOND/crates/prometheus-exec/target/release/prometheus-exec" | grep -Fq "a different depth"; then
+    echo "FAIL: second-checkout binary embeds its checkout path" >&2
+    exit 1
+fi
+
+echo "PASS: prometheus-exec builds byte-identically from two checkout paths and matches the certified hash ($certified)"

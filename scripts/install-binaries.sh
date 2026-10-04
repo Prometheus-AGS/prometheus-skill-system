@@ -32,13 +32,27 @@ info()  { echo "  → $*"; }
 ok()    { echo "  ✅ $*"; }
 fail()  { echo "  ❌ $*" >&2; }
 
+# Components whose install failed but did not stop the run. Reported at the end
+# and turned into a non-zero exit, so a partial install is never mistaken for a
+# clean one. A plain string, not an array: `${#arr[@]}` on an empty array is an
+# unbound-variable error under `set -u` in macOS's bash 3.2.
+FAILED_COMPONENTS=""
+
 # prometheus-exec has a stricter evidence-producing installation contract than
 # the legacy installers below: version/hash/signature readback is mandatory and
 # replacement is atomic with rollback evidence.
+#
+# A failure here must not abort the whole installer. It runs first, so under
+# `set -e` a hash mismatch (e.g. any git-worktree build before the path-
+# independent build existed) used to leave every other binary uninstalled.
+# The installer's own rollback keeps the previously installed prometheus-exec.
+PROMETHEUS_EXEC_ARGS=()
 if $DRY_RUN; then
-    bash "${REPO_ROOT}/scripts/install-prometheus-exec.sh" --dry-run
-else
-    bash "${REPO_ROOT}/scripts/install-prometheus-exec.sh"
+    PROMETHEUS_EXEC_ARGS=(--dry-run)
+fi
+if ! bash "${REPO_ROOT}/scripts/install-prometheus-exec.sh" ${PROMETHEUS_EXEC_ARGS[@]+"${PROMETHEUS_EXEC_ARGS[@]}"}; then
+    fail "prometheus-exec install failed — continuing with the remaining binaries"
+    FAILED_COMPONENTS="${FAILED_COMPONENTS} prometheus-exec"
 fi
 
 # install_bin <src> <dst> — copy a freshly built binary into place, then
@@ -609,6 +623,11 @@ else
 fi
 
 echo ""
+if [ -n "${FAILED_COMPONENTS}" ]; then
+    fail "install incomplete; failed components:${FAILED_COMPONENTS}"
+    echo "   Every other binary above was installed to ${BIN_DIR}." >&2
+    exit 1
+fi
 echo "✨ All binaries installed to ${BIN_DIR}"
 echo "   Next: bash scripts/install-mcp-services.sh   # install managed local services"
 echo "   Control-plane extensions are installed by their owning products."

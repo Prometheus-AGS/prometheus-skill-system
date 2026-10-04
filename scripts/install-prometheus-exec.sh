@@ -63,19 +63,18 @@ if [[ ! "$EXPECTED_BUILD_HASH" =~ ^[0-9a-f]{64}$ ]]; then
 fi
 
 if $DRY_RUN; then
-    echo "[dry-run] would build crates/prometheus-exec --release"
+    echo "[dry-run] would build crates/prometheus-exec --release via scripts/build-prometheus-exec.sh"
     echo "[dry-run] would require source sha256:$EXPECTED_BUILD_HASH, then verify, stage, sign, atomically install, and read back $DESTINATION"
     exit 0
 fi
 
 if [ -z "${PROMETHEUS_EXEC_SOURCE_BIN:-}" ]; then
-    # Build from INSIDE the crate directory, not via --manifest-path from the
-    # repo root. rust-toolchain.toml is resolved from the current directory and
-    # is NOT affected by --manifest-path, so building from the root silently
-    # uses the caller's default toolchain instead of the crate's pinned stable.
-    # The binary hash depends on rustc, so that divergence makes the
-    # expectedBuildSha256 gate below fail on a correctly-built binary.
-    ( cd "${REPO_ROOT}/crates/prometheus-exec" && cargo build --release )
+    # build-prometheus-exec.sh makes the release binary independent of the
+    # checkout path (staged workspace + --remap-path-prefix) and builds with
+    # the crate's pinned toolchain. A plain `cargo build --release` embeds the
+    # checkout path, so its hash matches only the checkout that certified it
+    # and every git worktree build fails the expectedBuildSha256 gate below.
+    bash "${REPO_ROOT}/scripts/build-prometheus-exec.sh" >/dev/null
 fi
 [ -f "$SOURCE_BIN" ] || { echo "prometheus-exec build artifact is missing: $SOURCE_BIN" >&2; exit 1; }
 [ -x "$SOURCE_BIN" ] || { echo "prometheus-exec build artifact is not executable: $SOURCE_BIN" >&2; exit 1; }
@@ -86,6 +85,7 @@ verify_version "$SOURCE_BIN" || {
 BUILD_HASH="$(sha256_file "$SOURCE_BIN")"
 if [ "$BUILD_HASH" != "$EXPECTED_BUILD_HASH" ]; then
     echo "prometheus-exec source hash mismatch; expected $EXPECTED_BUILD_HASH, got $BUILD_HASH" >&2
+    echo "if crates/prometheus-exec, substrate/exec-*, wit/ or the toolchain changed on purpose, recertify with: bash scripts/build-prometheus-exec.sh --print-hash" >&2
     exit 1
 fi
 
