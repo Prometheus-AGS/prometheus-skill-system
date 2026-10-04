@@ -54,6 +54,8 @@ installed skill IDs to the same policy shape. Tasks can provide `modelPolicy`.
 Fields: `model`, `tier` (`low`, `medium`, `hard`), `capabilities` (string array),
 `maxInputPerMillion`, `maxOutputPerMillion` (nonnegative USD estimates).
 
+Optional `agentMemory: { "claude": "local" }` opts Claude exports into `memory: local` plus a pack-generated per-role `.claude/agent-memory-local/<role>/MEMORY.md`. Codex exports always use underscore agent names and `memories.generate_memories = false`. See `docs/guide/memory-tiers.md`.
+
 Use `models-select` before invocation; tier/cost/capability intent is not itself
 a native model ID. The exporter translates explicit team/role `model` values
 where supported. Skill/task policy selection must be applied through the native
