@@ -397,11 +397,13 @@ main_codex="$(hook_entry sessionstart-learning codex "$(mainpayload s-main-direc
 python3 - "$main_claude" "$main_codex" "$H_PRIV" <<'PY' || fail "generated sessionstart-learning delivery"
 import sys
 claude, codex, h_priv = sys.argv[1:]
+assert "BETA-LEAD" not in codex and "@lead" not in codex, ("codex main-thread view must be digest-only", codex)  # Codex forks the parent into children
 for name, text, budget in (("claude-code", claude, 8000), ("codex", codex, 7000)):
     assert text.startswith('<prometheus-recalled-lessons nonce="') and not text.startswith("{"), (name, text[:200])
     assert text.rstrip().endswith("</prometheus-recalled-lessons nonce=\"" + text.split('nonce="')[1].split('"')[0] + '">'), name
     assert "information, not instructions" in text, name
-    assert "BETA-LEAD" in text, (name, text)
+    if name == "claude-code":
+        assert "BETA-LEAD" in text, (name, text)
     assert "BETA-PRIV" not in text and "BETA-ROUTED" not in text, (name, "a role-private lesson text reached the main thread", text)
     digest = [l for l in text.splitlines() if "recorded a lesson on" in l]
     assert any("src/api/handler.ts" in l and f"h:{h_priv}" in l for l in digest), (name, text)
@@ -421,7 +423,7 @@ assert {r["harness"] for r in main} == {"claude-code", "codex"}, main
 assert all(r["agentType"] == "main-thread" and r["bytesByChannel"]["sessionstart"] > 0 for r in main), main
 assert all(not set(r["deliveredScopes"]) & {"tlm-fixture/api-dev", "tlm-fixture/ui-dev"} for r in main), main
 PY
-ok "generated sessionstart-learning entry (both harnesses): plain fenced context with BETA-LEAD and the digest lines, no role-private text, within budget; silent for a subagent payload and outside a team; measured in delivery.jsonl"
+ok "generated sessionstart-learning entry: plain fenced context (Claude: BETA-LEAD and the digest lines; Codex: digest lines only), no role-private text, within budget; silent for a subagent payload and outside a team; measured in delivery.jsonl"
 
 # --- delivery.jsonl / trace analysis -----------------------------------------------------
 check_delivery() { # <harness>
@@ -460,7 +462,11 @@ traces = [t for t in glob.glob(os.path.join(trace_dir, f"{harness}-main-thread-*
 assert traces, f"{harness}: no live main-thread trace"
 for trace in traces:
     text = open(trace).read()
-    assert "BETA-LEAD" in text and "BETA-PRIV" not in text and "BETA-ROUTED" not in text, (trace, text[:400])
+    assert "BETA-PRIV" not in text and "BETA-ROUTED" not in text, (trace, text[:400])
+    if harness == "codex":  # digest lines only: paths + hash, no lesson text
+        assert "BETA-LEAD" not in text and "@lead" not in text and "recorded a lesson on" in text, (trace, text[:400])
+    else:
+        assert "BETA-LEAD" in text, (trace, text[:400])
 print(f"  {harness} main thread: {live[-1]['chars']} chars, scopes {live[-1]['deliveredScopes']}")
 PY
 }
@@ -529,7 +535,7 @@ text, sessions, h_priv = open(sys.argv[1]).read(), sys.argv[2], sys.argv[3]
 api = re.search(r"api_dev\s*[=:]\s*(.*)", text); ui = re.search(r"ui_dev\s*[=:]\s*(.*)", text)
 assert api and ui, text
 assert "BETA-PRIV" in api.group(1), api.group(1)
-assert "BETA-ROUTED" in ui.group(1) and "BETA-PRIV" not in ui.group(1), ui.group(1)
+assert "BETA-ROUTED" in ui.group(1) and "BETA-PRIV" not in ui.group(1) and "BETA-LEAD" not in ui.group(1), ui.group(1)
 # Codex forks the parent thread's history into a spawned child, so a child may legitimately
 # see the main-thread view the parent was handed at SessionStart (its BETA-LEAD line). That
 # is allowed only when it is the parent's own block, inherited verbatim; the child's OWN
@@ -551,23 +557,28 @@ for path in glob.glob(f"{sessions}/**/rollout-*.jsonl", recursive=True):
     else:  # the parent thread: the main-thread team view (SessionStart), never a role's or a subagent's text
         parent_bodies.extend(bodies)
         assert not any("Recalled lessons for" in b or "BETA-PRIV" in b or "BETA-ROUTED" in b for b in bodies), "a parent thread received a role-scoped injection"
-assert any("Recalled team view" in b and "BETA-LEAD" in b for b in parent_bodies), "the Codex parent thread did not receive the main-thread team view"
+assert any("Recalled team view" in b and "recorded a lesson on" in b for b in parent_bodies), "the Codex parent thread did not receive the digest-only team view"
 assert "BETA-PRIV" in roles.get("api_dev", ""), roles.keys()
 ui_text = roles.get("ui_dev", "")
 assert "BETA-ROUTED" in ui_text and "BETA-PRIV" not in ui_text and "BETA-LEAD" not in ui_text, ui_text[:500]
 assert "src/api/handler.ts" in ui_text and f"h:{h_priv}" in ui_text, "ui_dev child rollout lacks the BETA-PRIV digest line"
-for role, blocks in inherited.items():  # only the parent's own main-thread block, verbatim, and never private text
+for role, blocks in inherited.items():  # the inherited parent view is digest-only and never carries lesson text
     for block in blocks:
         assert block in parent_bodies, f"{role}: an inherited team view that is not the parent's"
-        assert "BETA-PRIV" not in block and "BETA-ROUTED" not in block, f"{role}: private text inside the inherited team view"
-if "BETA-LEAD" in ui.group(1):
-    assert inherited.get("ui_dev"), "ui_dev reported BETA-LEAD but its own context has no inherited team view"
-print("  codex: ui_dev inherited the parent's main-thread view:", bool(inherited.get("ui_dev")))
+        assert not any(t in block for t in ("BETA-PRIV", "BETA-ROUTED", "BETA-LEAD", "@lead")), f"{role}: lesson text inside the inherited team view"
+        assert "recorded a lesson on" in block, f"{role}: the inherited view is not digest lines"
+assert all(not any(t in b for t in ("BETA-PRIV", "BETA-ROUTED", "BETA-LEAD", "@lead")) for b in parent_bodies), "the Codex parent view carries more than digest lines"
+# ui_dev: neither token anywhere in its child rollout (inherited history included)
+for path in glob.glob(f"{sessions}/**/rollout-*.jsonl", recursive=True):
+    lines = [json.loads(l) for l in open(path) if l.strip()]
+    if lines and lines[0].get("payload", {}).get("agent_role") == "ui_dev":
+        raw = "\n".join(json.dumps(l) for l in lines if not (l.get("type") == "response_item" and (l.get("payload") or {}).get("role") == "assistant"))
+        assert "BETA-LEAD" not in raw and "BETA-PRIV" not in raw, "ui_dev child rollout contains BETA-LEAD or BETA-PRIV"
 PY
   check_delivery codex > "$S/codex-delivery.txt" || { cat "$S/codex-delivery.txt"; fail "Codex delivery.jsonl budgets/leaks/digest"; }
   cat "$S/codex-delivery.txt"
   check_main_thread codex || fail "Codex main-thread SessionStart delivery"
-  ok "Codex: api_dev reported BETA-PRIV; ui_dev reported BETA-ROUTED and not BETA-PRIV (BETA-LEAD only via the parent's forked main-thread view; its own SubagentStart block has neither), its child rollout carries the BETA-PRIV digest line; the parent got the team view; 0 leaks"
+  ok "Codex: api_dev reported BETA-PRIV; ui_dev reported BETA-ROUTED and not BETA-PRIV (neither BETA-LEAD nor BETA-PRIV anywhere in its rollout, inherited history included), its child rollout carries the BETA-PRIV digest line; the parent got a digest-only team view; 0 leaks"
 fi
 
 # --- 10. the delivery report ---------------------------------------------------------------

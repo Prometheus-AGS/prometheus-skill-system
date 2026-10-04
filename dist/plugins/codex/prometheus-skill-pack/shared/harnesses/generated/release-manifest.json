@@ -363,7 +363,7 @@
     },
     {
       "path": "shared/scripts/sessionstart-learning.sh",
-      "sha256": "fe382c416d764b35375b92b36df539ce071f0ca712c21df1119e1b4da7d06bb3",
+      "sha256": "47e4a77bac2a523d2065ee139d313cca95f8861435b895e2b5f9bc489676867a",
       "executable": true
     },
     {
@@ -467,5 +467,5 @@
       "executable": true
     }
   ],
-  "bundleId": "54dd1cf195cb71a8f023e75e93c891b01cf4a57546c8032b72cbc54572102816"
+  "bundleId": "15b09d981754374b9a742f193ead34e8fb19757008c88db950440f0e50ab02d5"
 }
