@@ -4,7 +4,7 @@
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
-  "contractSha256": "499d22ff9ecf407f7506d8ed9a755b1e950fb14f20b5b18d7d7aa0c8951ff9a4",
+  "contractSha256": "30cec478532dad9c67c201bd65f86eb2d1ea318fd295ac1ff8e9372c23a1065c",
   "runtimeFiles": [
     {
       "path": "scripts/hook-entry.mjs",
@@ -68,7 +68,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "503dd7cbdac199ab3f957d148e653494ce17054405676b5581961ee774169fa4",
+      "sha256": "386a726a64840c63897699cb08dfc9f8096eb1fb4445d35d4193b57a771993d2",
       "executable": false
     },
     {
@@ -133,7 +133,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "4e9e2b33207c6081970b7dff87b74f0502cf9b2b16007f3487106fe5e6a692d2",
+      "sha256": "5edba511e9cef969ed8971c62674feff3fa8721c0d707222dfe76535a8e26d9d",
       "executable": true
     },
     {
@@ -213,7 +213,7 @@
     },
     {
       "path": "shared/scripts/lib/learning_write.py",
-      "sha256": "17383bbcaae6a8b28ca6fc842d7dfcd2efabbbfb6d09d27fe48838f8cfa3619d",
+      "sha256": "882c5c70e600bb6b2af590bb8ebbe477b7b408d4cb51e6a31bccf34f18e2f717",
       "executable": true
     },
     {
@@ -362,6 +362,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/sessionstart-learning.sh",
+      "sha256": "fe382c416d764b35375b92b36df539ce071f0ca712c21df1119e1b4da7d06bb3",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/skills-freshness.sh",
       "sha256": "9978307deb1699892083603506b0c49aeacaab95939842f20f1eb080a5fb82db",
       "executable": true
@@ -378,7 +383,7 @@
     },
     {
       "path": "shared/scripts/subagentstop-learning.sh",
-      "sha256": "fae3e439f7cbcce51b868284c01ddf4f572435c6693a91a721ea7b31c96641ed",
+      "sha256": "43dc16d40da5de6fdc09e77ec0e1e7ccecf9e16442c0d6e7c5b767d56bce89c3",
       "executable": true
     },
     {
@@ -462,5 +467,5 @@
       "executable": true
     }
   ],
-  "bundleId": "27e286a294e525e72ae1dadffaf1cbb148315b6944f55c1625de322d971d4dee"
+  "bundleId": "54dd1cf195cb71a8f023e75e93c891b01cf4a57546c8032b72cbc54572102816"
 }

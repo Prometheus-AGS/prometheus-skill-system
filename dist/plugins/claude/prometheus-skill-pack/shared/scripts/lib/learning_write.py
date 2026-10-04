@@ -39,6 +39,7 @@ import datetime
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -56,6 +57,86 @@ KINDS = ("lesson", "gotcha", "decision", "progress", "candidate")
 # format for every writer, so recall parses a single trailer.
 TRAILER = "<!-- prometheus-envelope "
 MAX_PATH_CATEGORIES = 5
+
+
+# --- paths for routing (design §7.1) ------------------------------------------------
+MAX_LESSON_PATHS = 20
+TRANSCRIPT_READ_BYTES = 8 * 1024 * 1024
+WRITE_TOOLS = ("Write", "Edit", "MultiEdit")
+_PATHS_SUFFIX = re.compile(r"\s+\(?paths:\s*([^()]*?)\)?\s*$", re.IGNORECASE)
+
+
+def repo_relative(path: str, root: Path | None) -> str | None:
+    """A repo-relative POSIX path, or None when it points outside the repo."""
+    if not path or "\x00" in path:
+        return None
+    candidate = Path(path)
+    if candidate.is_absolute():
+        if not root:
+            return None
+        try:
+            candidate = candidate.resolve().relative_to(root.resolve())
+        except (ValueError, OSError):
+            return None
+    parts = [part for part in candidate.as_posix().split("/") if part not in ("", ".")]
+    if not parts or ".." in parts:
+        return None
+    return "/".join(parts)
+
+
+def normalise_paths(paths: list[str], root: Path | None, cap: int = MAX_LESSON_PATHS) -> list[str]:
+    result: list[str] = []
+    for raw in paths:
+        path = repo_relative(raw.strip(), root)
+        if path and path not in result:
+            result.append(path)
+        if len(result) >= cap:
+            break
+    return result
+
+
+def split_lesson_paths(text: str, root: Path | None) -> tuple[str, list[str]]:
+    """Split an optional trailing `paths: a, b` (or `(paths: a b)`) off a LESSON line."""
+    match = _PATHS_SUFFIX.search(text)
+    if not match:
+        return text, []
+    declared = [piece for piece in re.split(r"[,\s]+", match.group(1)) if piece]
+    return text[: match.start()].rstrip(), normalise_paths(declared, root)
+
+
+def transcript_written_paths(transcript: str | None, root: Path | None, cap: int = MAX_LESSON_PATHS) -> list[str]:
+    """Files the transcript shows were written or edited (Write, Edit or MultiEdit
+    tool_use `file_path`), repo-relative, in first-write order, at most `cap`."""
+    if not transcript:
+        return []
+    try:
+        with open(transcript, "rb") as handle:
+            data = handle.read(TRANSCRIPT_READ_BYTES)
+    except OSError:
+        return []
+    found: list[str] = []
+
+    def visit(node) -> None:
+        if isinstance(node, dict):
+            if node.get("type") == "tool_use" and node.get("name") in WRITE_TOOLS and isinstance(node.get("input"), dict):
+                value = node["input"].get("file_path")
+                if isinstance(value, str):
+                    found.append(value)
+            for child in node.values():
+                if isinstance(child, (dict, list)):
+                    visit(child)
+        elif isinstance(node, list):
+            for child in node:
+                visit(child)
+
+    for line in data.decode("utf-8", "replace").splitlines():
+        if '"tool_use"' not in line:
+            continue
+        try:
+            visit(json.loads(line))
+        except ValueError:
+            continue
+    return normalise_paths(found, root, cap)
 
 
 def normalise_text(text: str) -> str:
