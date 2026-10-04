@@ -71,3 +71,30 @@ cd skills/process/agent-team-creator/runtime && npm ci && npm run build && npm r
 ## Main-thread view at SessionStart
 
 The `sessionstart-learning` hook hands the main thread of a team project its team view as fenced, untrusted context. On Claude Code that is the `<team>/@lead` scope plus the team digest. On Codex it is the team digest only (author, paths, contentHash; no lesson text): Codex forks the parent thread's history into every spawned agent, so anything injected into the parent is visible to every child role, and lead-scoped text must not reach a role it was not addressed to. The hook prints nothing for subagent sessions, outside a team, or when nothing is recalled.
+
+## Optional Cortex mirror
+
+Cortex is an optional third copy of each lesson, never a requirement and not part of the lookup chain (surreal-memory, then pk, then the file fallback). `learning_write.py` mirrors a lesson after it has queued it; the mirror follows the integration-contract rule that capability is discovered, never assumed.
+
+**Discovery** (in order):
+
+1. `PROMETHEUS_LEARNING_CORTEX=0` disables the mirror.
+2. `PROMETHEUS_CORTEX_MCP` is a Cortex MCP stdio server command, shell-split (used by tests and non-standard installs).
+3. Otherwise the newest installed plugin, `~/.claude/plugins/cache/cortex/cortex/<version>/dist/mcp-server.js`, run with `node`.
+
+When none applies, nothing happens: no warning, no error, no output, exit 0. A server that fails to start is treated the same way.
+
+**What is written.** One detached `cortex_remember` JSON-RPC call (initialize, then `tools/call`) per newly written lesson, for the primary copy only: addressed copies and duplicates are not mirrored. The write never waits for Cortex, so a slow embedding model cannot delay a hook.
+
+| `cortex_remember` argument | Value |
+|---|---|
+| `content` | the lesson text (no envelope trailer) |
+| `context` | `prometheus-learning team/role:<team>/<role> visibility:<v> kind:<k> h:<hash16>` (the `team/role` part only for a team role) |
+| `projectId` | the scope's project id (`@<user>` for user visibility) |
+| `global` | `true`, with no `projectId`, for `global` visibility |
+
+Cortex 2.0 stores only `content`, `context` and `projectId`, so the `team/role` tag lives in `context` and is found by `cortex_recall` as a keyword; recall filters by `projectId`. Cortex never delivers lessons to agents: SubagentStart and SessionStart read the learning store only.
+
+```bash
+/bin/bash shared/scripts/tests/test-cortex-mirror.sh   # stub Cortex server: present, absent, duplicate, global, disabled
+```
