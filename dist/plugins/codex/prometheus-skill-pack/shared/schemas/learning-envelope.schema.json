@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/learning-envelope.schema.json",
+  "title": "Prometheus learning envelope",
+  "description": "Metadata every lesson, gotcha, decision, progress record or candidate carries when the pack writes it to surreal-memory, pk or the Karpathy logs. It lets recall deliver each lesson only to the agents it is directed to. See docs/design/team-aware-learning-memory.md.",
+  "type": "object",
+  "required": ["schemaVersion", "projectId", "visibility", "kind", "author", "contentHash", "ts"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "projectId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Resolved by the single project-id resolver: PROMETHEUS_PROJECT_ID, then .prometheus/project.json projectId, then the runtime-registered project UUID, then project:<sha256(git common dir)>."
+    },
+    "teamId": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,62}$", "description": "agent-team id when the author resolves to a team role." },
+    "roleId": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,62}$", "description": "role id within teamId; the native agent name with any <plugin>: prefix stripped." },
+    "visibility": {
+      "type": "string",
+      "pattern": "^(agent|role:[a-z][a-z0-9-]{0,62}|lead|team|project|user|global)$",
+      "description": "Who may receive the lesson. Default agent (private to the authoring role). role:<r> and lead are addressed deliveries; team, project, user and global are promoted scopes."
+    },
+    "audience": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^(role:[a-z][a-z0-9-]{0,62}|lead)$" },
+      "uniqueItems": true,
+      "description": "Additional addressed recipients. Each produces one stored copy keyed to that recipient."
+    },
+    "kind": { "enum": ["lesson", "gotcha", "decision", "progress", "candidate"] },
+    "stage": { "enum": ["assess", "analyze", "spec", "plan", "execute", "reflect", "session"] },
+    "paths": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Repository-relative paths the lesson concerns; used to route it to the roles that own them."
+    },
+    "author": {
+      "type": "object",
+      "required": ["harness"],
+      "additionalProperties": false,
+      "properties": {
+        "harness": { "enum": ["claude-code", "codex", "opencode", "kimi", "other"] },
+        "agentId": { "type": "string", "description": "harness agent_id when written from a subagent." },
+        "agentType": { "type": "string", "description": "harness agent_type as reported, before normalisation." },
+        "sessionId": { "type": "string" }
+      }
+    },
+    "importance": { "type": "number", "minimum": 0, "maximum": 1 },
+    "contentHash": { "type": "string", "pattern": "^[a-f0-9]{64}$", "description": "sha256 of the normalised lesson text; recall de-duplicates on it." },
+    "ts": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "visibility": { "const": "agent" } }, "required": ["visibility"] },
+      "then": { "required": ["roleId"] }
+    }
+  ]
+}

@@ -13,7 +13,11 @@
 # write; the supervised worker reconciles the caller-supplied operation id with
 # Surreal Memory's durable v2 receipt API outside hook latency.
 
-MEM_PROJECT="${PROMETHEUS_PROJECT_ID:-prometheus-skill-pack}"
+# One resolver for every memory path (design §1): PROMETHEUS_PROJECT_ID >
+# .prometheus/project.json > runtime project UUID > project:<sha256(git common dir)>.
+# shellcheck source=project-id.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/project-id.sh"
+MEM_PROJECT="$(prometheus_project_id)"
 
 _mem_operation_id() { # <method> <canonical-arguments-json>
   printf '%s\0%s' "$1" "$2" | shasum -a 256 | awk '{print $1}'
@@ -56,7 +60,7 @@ mem_create_task_stream() {
 # mem_add_task_step <stream> <description>
 mem_add_task_step() {
   local args stream_args dependency
-  args="$(python3 -c 'import sys,json; print(json.dumps({"stream_name":sys.argv[1],"ordinal":1,"name":sys.argv[2],"description":sys.argv[2],"idempotency_key":sys.argv[2],"agent_id":None,"user_id":None},separators=(",",":"),sort_keys=True))' "$1" "$2" 2>/dev/null)" || args='{}'
+  args="$(python3 -c 'import sys,json; print(json.dumps({"stream_name":sys.argv[1],"ordinal":1,"name":sys.argv[2],"description":sys.argv[2],"idempotency_key":sys.argv[2],"agent_id":"@project","user_id":sys.argv[3]},separators=(",",":"),sort_keys=True))' "$1" "$2" "$MEM_PROJECT" 2>/dev/null)" || args='{}'
   stream_args="$(python3 -c 'import sys,json; print(json.dumps({"name":sys.argv[1]},separators=(",",":"),sort_keys=True))' "$1" 2>/dev/null)" || stream_args='{}'
   dependency="$(_mem_operation_id create_task_stream "$stream_args")"
   _mem_outbox_write add_task_step "$args" "[\"$dependency\"]"
@@ -67,7 +71,7 @@ mem_add_task_step() {
 mem_complete_step() {
   local args step_args dependency
   args="$(python3 -c 'import sys,json; print(json.dumps({"idempotency_key":sys.argv[1],"result":"completed via memory bridge"},separators=(",",":"),sort_keys=True))' "$2" 2>/dev/null)" || args='{}'
-  step_args="$(python3 -c 'import sys,json; print(json.dumps({"stream_name":sys.argv[1],"ordinal":1,"name":sys.argv[2],"description":sys.argv[2],"idempotency_key":sys.argv[2],"agent_id":None,"user_id":None},separators=(",",":"),sort_keys=True))' "$1" "$2" 2>/dev/null)" || step_args='{}'
+  step_args="$(python3 -c 'import sys,json; print(json.dumps({"stream_name":sys.argv[1],"ordinal":1,"name":sys.argv[2],"description":sys.argv[2],"idempotency_key":sys.argv[2],"agent_id":"@project","user_id":sys.argv[3]},separators=(",",":"),sort_keys=True))' "$1" "$2" "$MEM_PROJECT" 2>/dev/null)" || step_args='{}'
   dependency="$(_mem_operation_id add_task_step "$step_args")"
   _mem_outbox_write complete_step "$args" "[\"$dependency\"]"
   return 0
