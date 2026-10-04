@@ -419,10 +419,13 @@ The executing tool MUST read these files and apply constraints when verifying wo
 
 **Default-on when reachable.** When the configured or canonical local
 surreal-memory service passes `GET /health`, KBD mirrors every hook fire through
-the canonical entity REST API and exposes `/kbd-memory-recall` through entity
-search; it cleanly no-ops when the service is unreachable. Built-in hooks:
-`kbd-memory-log` (`*:*`) and
-`auto-memory-recall` (`assess:before`). **Detection contract, what the
+the canonical entity REST API; it cleanly no-ops when the service is
+unreachable. Lessons flow separately: `reflect:after` and the
+`assess|analyze|plan:after` stage write-backs store attributed lessons, and
+`/kbd-memory-recall` writes a lesson-bearing `prior-context.md` at every stage
+start (surreal-memory, then pk, then the learning log). Built-in hooks:
+`kbd-memory-log` (`*:*`), `auto-memory-recall*` (`<stage>:before`),
+`kbd-stage-writeback-*` and `memory-reflection-writeback`. **Detection contract, what the
 integration provides, and the entity schema are in
 [`references/memory-integration.md`](references/memory-integration.md).**
 
@@ -466,7 +469,7 @@ integration provides, and the entity schema are in
 - `/kbd-new-child <name> [goals...]` — Spawn a child phase inside the active top-level phase (implemented in `skills/kbd-new-child/`)
 - `/kbd-next-child [<name>]` — Advance childPointer (implicit) or jump to a named child (implemented in `skills/kbd-next-child/`)
 - `/kbd-child-exit [--enter]` — Exit the active child (handoff-out + roll up + pop path) or, with `--enter`, descend into the selected child so new children nest under it (implemented in `skills/kbd-child-exit/`)
-- `/kbd-memory-recall [<phase>]` — Populate `prior-context.md` from surreal-memory before assess (implemented in `skills/kbd-memory-recall/`)
+- `/kbd-memory-recall [<phase>] [<stage>]` — Populate `prior-context.md` with recalled lessons, pk knowledge, the previous reflection and knowledge gaps (implemented in `skills/kbd-memory-recall/`)
 - `/kbd-inject-agent-rules [--target …] [--refresh] [--dry-run]` — Inject Karpathy + Boris Cherny rule sets into CLAUDE.md / AGENTS.md (implemented in `skills/kbd-inject-agent-rules/`)
 - `/kbd-full-phase <name>` — Run full Assess → Plan → Execute → Reflect cycle
 

@@ -34,6 +34,13 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+# Recall reads and appends learning state under HOME: keep all of it scratch.
+export HOME="$fixture/home" PROMETHEUS_LEARNING_LOG_DIR="$fixture/learning-log"
+export PROMETHEUS_LEARNING_INDEX_DIR="$fixture/learning-index" PROMETHEUS_PROJECT_ID=project-1
+export PROMETHEUS_PROJECT_ID_SKIP_RUNTIME=1
+unset SURREAL_MEMORY_URL CLAUDE_PLUGIN_ROOT PLUGIN_ROOT KBD_PACK_ROOT
+mkdir -p "$HOME"
+
 printf 'empty\n' > "$fixture/mode"
 : > "$fixture/requests.jsonl"
 printf '[]\n' > "$fixture/response.json"
@@ -94,6 +101,9 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self.send_json(200, [])
             return
+        if parsed.path == "/api/v1/memory":
+            self.send_json(200, [])
+            return
         self.send_json(404, {"error": "not found"})
 
     def do_POST(self):
@@ -101,6 +111,22 @@ class Handler(BaseHTTPRequestHandler):
         body = self.rfile.read(length).decode("utf-8")
         self.record(body)
         mode = (root / "mode").read_text(encoding="utf-8").strip()
+        if self.path == "/api/v1/search":
+            if mode == "http_fail":
+                self.send_json(404, {"error": "route unavailable"})
+            elif mode == "invalid":
+                raw = b"not-json"
+                self.send_response(200)
+                self.send_header("content-length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+            elif mode == "match":
+                # Deliberately ignores the scope filter: the client must not
+                # trust the server to keep other roles' records out.
+                self.send_json(200, json.loads((root / "response.json").read_text()))
+            else:
+                self.send_json(200, [])
+            return
         if self.path != "/api/v1/entities":
             self.send_json(404, {"error": "not found"})
         elif mode == "post_fail":
@@ -198,29 +224,20 @@ health_count="$(jq -s '[.[] | select(.method == "GET" and .path == "/health")] |
 printf 'empty\n' > "$fixture/mode"
 pass 'process-lifetime availability cache after real health probe'
 
-# Scenario 3: current strings and a legacy object are flattened and ranked by
-# same project, token overlap, and recency, with stable tie-breakers.
+# Scenario 3: recall uses equality-scoped REST search, parses the envelope
+# trailer and legacy agent-team records, and drops any record outside the
+# caller's view even when the server returns it.
 project="$(new_project ranking project-1)"
 mkdir -p "$project/.kbd-orchestrator/phases/ranking"
 printf '# Goals\nrepair endpoint contract entity search ranking\n' \
   > "$project/.kbd-orchestrator/phases/ranking/goals.md"
-printf '# Assessment\nverify deterministic memory recall\n' \
-  > "$project/.kbd-orchestrator/phases/ranking/assessment.md"
 jq -n '
-  def entity($name; $project; $phase; $label; $ts; $legacy):
-    ({project: $project, phase: $phase, name: $label, kind: "task", ts: $ts}) as $event
-    | {
-        name: $name,
-        entity_type: "kbd_lifecycle_event",
-        observations: (if $legacy then [$event] else [($event | tojson)] end),
-        created_at: $ts,
-        updated_at: $ts
-      };
   [
-    entity("d-other"; "other-project"; "exact-other"; "repair endpoint contract entity search ranking"; "2026-08-29T23:00:00Z"; false),
-    entity("c-unrelated"; "project-1"; "unrelated"; "banana"; "2026-08-29T22:00:00Z"; false),
-    entity("b-exact-old"; "project-1"; "exact-old"; "repair endpoint contract entity search ranking"; "2026-08-28T20:00:00Z"; true),
-    entity("a-exact-new"; "project-1"; "exact-new"; "repair endpoint contract entity search ranking"; "2026-08-29T20:00:00Z"; false)
+    {content: "Project lesson PRJ-OK: repair the endpoint contract first.\n\n<!-- prometheus-envelope {\"schemaVersion\":1,\"kind\":\"lesson\",\"visibility\":\"project\",\"contentHash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"ts\":\"2026-08-29T20:00:00Z\"} -->",
+     user_id: "project-1", agent_id: "@project", categories: ["env:1", "h:aaaaaaaaaaaaaaaa"], created_at: "2026-08-29T20:00:00Z"},
+    {content: ({schemaVersion: 1, kind: "agent-team-memory", id: "memory-x", scope: "team", provenance: {teamId: "t"}, content: "Legacy team record LEGACY-OK"} | tojson),
+     user_id: "project-1", agent_id: "@project", categories: ["agent-team", "team"], created_at: "2026-08-28T20:00:00Z"},
+    {content: "Private PRIVATE-LEAK lesson of another role.", user_id: "project-1", agent_id: "@solo/other-role", categories: [], created_at: "2026-08-29T21:00:00Z"}
   ]
 ' > "$fixture/response.json"
 : > "$fixture/requests.jsonl"
@@ -233,32 +250,32 @@ printf 'match\n' > "$fixture/mode"
 ) 2> "$fixture/ranking.err" || fail 'matching recall exited non-zero'
 digest="$project/.kbd-orchestrator/phases/ranking/prior-context.md"
 [[ -f "$digest" ]] || fail 'matching recall did not create a digest'
-line_new="$(grep -nF '**project-1/exact-new**' "$digest" | cut -d: -f1)"
-line_old="$(grep -nF '**project-1/exact-old**' "$digest" | cut -d: -f1)"
-line_unrelated="$(grep -nF '**project-1/unrelated**' "$digest" | cut -d: -f1)"
-line_other="$(grep -nF '**other-project/exact-other**' "$digest" | cut -d: -f1)"
-[[ -n "$line_new" && -n "$line_old" && -n "$line_unrelated" && -n "$line_other" ]] \
-  || fail 'matching recall omitted an expected candidate'
-[[ "$line_new" -lt "$line_old" && "$line_old" -lt "$line_unrelated" && "$line_unrelated" -lt "$line_other" ]] \
-  || fail 'matching recall order violated project/token/recency precedence'
-jq -e -s 'any(.[]; .method == "GET" and (.path | startswith("/api/v1/entities/search?q=kbd_lifecycle_event")))' \
-  "$fixture/requests.jsonl" >/dev/null || fail 'recall did not use canonical entity search'
-pass 'reachable recall ranking across current and legacy observations'
+assert_contains "$digest" 'Project lesson PRJ-OK' 'envelope-trailer lesson missing'
+assert_contains "$digest" 'Legacy team record LEGACY-OK' 'legacy agent-team record missing'
+assert_not_contains "$digest" 'prometheus-envelope' 'envelope trailer leaked into the digest'
+assert_not_contains "$digest" 'PRIVATE-LEAK' 'a record outside the caller view was used'
+jq -e -s 'any(.[]; .method == "POST" and .path == "/api/v1/search"
+  and (.body | fromjson | .user_id == "project-1" and .agent_id == "@project" and .include_embeddings == false))' \
+  "$fixture/requests.jsonl" >/dev/null || fail 'recall did not use scoped REST search'
+pass 'scoped recall: envelope and legacy records, out-of-view records dropped'
 
-# Scenario 4: restEndpoint discovery reaches search; a reachable empty array is
+# Scenario 4: restEndpoint discovery reaches search; a reachable empty store is
 # never mislabeled as an unavailable service.
 project="$(new_project reachable-empty project-1)"
 jq -n --arg endpoint "$base/mcp/sse" '{restEndpoint: $endpoint}' \
   > "$project/.kbd-orchestrator/memory.config.json"
 printf 'empty\n' > "$fixture/mode"
+: > "$fixture/requests.jsonl"
 (
   cd "$project" || exit 1
   unset UAR_MEMORY_MCP_URL KBD_MEMORY_MCP_URL KBD_AVAILABLE_TOOLS
   /bin/bash "$SKILL_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh" reachable-empty
 ) 2> "$fixture/empty.err" || fail 'reachable-empty recall exited non-zero'
 digest="$project/.kbd-orchestrator/phases/reachable-empty/prior-context.md"
-assert_contains "$digest" '*(no prior matches found)*' 'reachable-empty digest lost its explicit marker'
-assert_not_contains "$digest" 'unreachable' 'reachable-empty digest was mislabeled unavailable'
+assert_contains "$digest" '*(no recalled lessons)*' 'reachable-empty digest lost its explicit marker'
+assert_contains "$digest" 'lessons from surreal-memory' 'reachable-empty digest was mislabeled unavailable'
+jq -e -s 'any(.[]; .path == "/api/v1/search")' "$fixture/requests.jsonl" >/dev/null \
+  || fail 'restEndpoint discovery did not reach search'
 pass 'project restEndpoint discovery and reachable-empty digest'
 
 # Scenario 5: legacy mcpEndpoint discovery remains supported and normalized.
@@ -271,7 +288,7 @@ jq -n --arg endpoint "$base/mcp/http" '{mcpEndpoint: $endpoint}' \
   /bin/bash "$SKILL_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh" legacy-config
 ) 2> "$fixture/legacy.err" || fail 'legacy mcpEndpoint recall exited non-zero'
 digest="$project/.kbd-orchestrator/phases/legacy-config/prior-context.md"
-assert_contains "$digest" '*(no prior matches found)*' 'legacy mcpEndpoint did not reach entity search'
+assert_contains "$digest" 'lessons from surreal-memory' 'legacy mcpEndpoint did not reach search'
 pass 'legacy mcpEndpoint normalization through production recall'
 
 # Scenario 6: the installed canonical local service is an explicit live-system
@@ -286,8 +303,7 @@ if [[ "${KBD_MEMORY_LIVE_PROBE:-0}" == "1" ]]; then
   ) 2> "$fixture/default.err" || fail 'canonical-default recall exited non-zero'
   digest="$project/.kbd-orchestrator/phases/canonical-default/prior-context.md"
   [[ -f "$digest" ]] || fail 'canonical-default recall did not create a digest'
-  assert_not_contains "$digest" 'memory endpoint unreachable' 'canonical local service was not discovered'
-  assert_not_contains "$digest" 'invalid; no prior context' 'canonical local service returned an invalid contract'
+  assert_contains "$digest" 'lessons from surreal-memory' 'canonical local service was not discovered'
   pass 'canonical local service discovery through production recall'
 else
   printf 'skip: canonical local service discovery (set KBD_MEMORY_LIVE_PROBE=1)\n'
@@ -303,9 +319,10 @@ project="$(new_project unreachable project-1)"
   /bin/bash "$SKILL_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh" unreachable
 ) 2> "$fixture/unreachable.err" || fail 'unreachable recall blocked orchestration'
 digest="$project/.kbd-orchestrator/phases/unreachable/prior-context.md"
-assert_contains "$digest" 'memory endpoint unreachable' 'unreachable recall did not write its stub'
+assert_contains "$digest" '## Lessons' 'unreachable recall did not write its digest'
+assert_not_contains "$digest" 'lessons from surreal-memory' 'unreachable store was reported as the lesson source'
 [[ ! -e "$digest.tmp" ]] || fail 'unreachable recall left a temporary digest behind'
-pass 'explicit unreachable service fail-open stub'
+pass 'explicit unreachable service falls back and still writes the digest'
 
 # Scenario 8: a healthy service whose write fails emits exactly one fixed
 # diagnostic and never blocks the hook lifecycle.
@@ -326,8 +343,8 @@ assert_contains "$fixture/write-failure.err" 'kbd-memory-log: mirror write faile
   'write failure diagnostic changed'
 pass 'bounded fail-open lifecycle write diagnostic'
 
-# Scenario 9: an invalid response is distinct from transport failure and is
-# committed atomically as a diagnostic stub.
+# Scenario 9: an invalid search response is not trusted: recall falls back
+# to the next channel and still commits the digest atomically.
 project="$(new_project invalid-response project-1)"
 printf 'invalid\n' > "$fixture/mode"
 (
@@ -337,13 +354,13 @@ printf 'invalid\n' > "$fixture/mode"
   /bin/bash "$SKILL_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh" invalid-response
 ) 2> "$fixture/invalid.err" || fail 'invalid response blocked orchestration'
 digest="$project/.kbd-orchestrator/phases/invalid-response/prior-context.md"
-assert_contains "$digest" 'invalid; no prior context retrieved' 'invalid response did not produce its distinct stub'
-assert_not_contains "$digest" 'memory endpoint unreachable' 'invalid response was mislabeled unreachable'
+assert_contains "$digest" '## Lessons' 'invalid response did not produce a digest'
+assert_not_contains "$digest" 'lessons from surreal-memory' 'invalid response was trusted'
 [[ ! -e "$digest.tmp" ]] || fail 'invalid response left a temporary digest behind'
-pass 'invalid entity-search contract fail-open stub'
+pass 'invalid search contract falls back without trusting the response'
 
-# Scenario 10: a reachable service returning an HTTP route error is distinct
-# from both transport unreachability and an invalid successful response.
+# Scenario 10: a reachable service returning an HTTP route error is treated
+# like an unavailable store: recall falls back and leaves no temporary files.
 project="$(new_project http-error project-1)"
 printf 'http_fail\n' > "$fixture/mode"
 (
@@ -353,13 +370,12 @@ printf 'http_fail\n' > "$fixture/mode"
   /bin/bash "$SKILL_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh" http-error
 ) 2> "$fixture/http-error.err" || fail 'HTTP route error blocked orchestration'
 digest="$project/.kbd-orchestrator/phases/http-error/prior-context.md"
-assert_contains "$digest" 'memory entity-search HTTP error 404' 'HTTP route failure lacked its distinct stub'
-assert_not_contains "$digest" 'memory endpoint unreachable' 'HTTP route failure was mislabeled unreachable'
-if find "$project/.kbd-orchestrator/phases/http-error" \
-  -name '.prior-context-search.*' -print | grep -q .; then
-  fail 'HTTP route failure left a temporary search response behind'
-fi
-pass 'reachable entity-search HTTP failure diagnostic stub'
+assert_contains "$digest" '## Lessons' 'HTTP route failure did not produce a digest'
+assert_not_contains "$digest" 'lessons from surreal-memory' 'HTTP route failure was reported as the lesson source'
+[[ ! -e "$digest.tmp" ]] || fail 'HTTP route failure left a temporary digest behind'
+[[ "$(wc -l < "$PROMETHEUS_LEARNING_INDEX_DIR/delivery.jsonl" | tr -d ' ')" -ge 6 ]] \
+  || fail 'recall runs did not append to the scratch delivery log'
+pass 'reachable search HTTP failure falls back; every run logged delivery'
 
 expected_count=10
 [[ "${KBD_MEMORY_LIVE_PROBE:-0}" == "1" ]] && expected_count=11

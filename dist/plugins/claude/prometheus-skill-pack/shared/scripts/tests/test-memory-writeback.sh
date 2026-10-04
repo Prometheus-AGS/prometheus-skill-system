@@ -13,6 +13,8 @@ TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 ROOT="$TMP/proj"; PHASE="$ROOT/.kbd-orchestrator/phases/p1"
 export HOME="$TMP/home"
 export PROMETHEUS_LEARNING_QUEUE="$TMP/queue"
+export PROMETHEUS_LEARNING_INDEX_DIR="$TMP/index" PROMETHEUS_LEARNING_LOG_DIR="$TMP/log"
+export PROMETHEUS_LEARNING_PK=0 PROMETHEUS_PROJECT_ID=project:writeback-test PROMETHEUS_PROJECT_ID_SKIP_RUNTIME=1
 PENDING="$PROMETHEUS_LEARNING_QUEUE/memory/pending"
 mkdir -p "$PHASE" "$HOME"
 echo '{ "phase": "p1" }' > "$ROOT/.kbd-orchestrator/current-waypoint.json"
@@ -35,15 +37,12 @@ writeback_post() {
 
 echo '{ "phase":"p1" }' > "$PHASE/progress.json"
 writeback_post "$PHASE/reflection.md"
-[ "$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')" = "1" ] \
-  && ok || bad "accepted reflection queues one operation"
-operation="$(find "$PENDING" -type f -name '*.json' -print -quit)"
-jq -e '.arguments.user_id == "global"' "$operation" >/dev/null \
+[ "$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')" = "2" ] \
+  && ok || bad "accepted reflection queues the composed record and the [GLOBAL] lesson"
+find "$PENDING" -type f -name '*.json' -exec jq -e 'select(.arguments.user_id == "@global" and .arguments.agent_id == "@global" and (.arguments.content | startswith("A universal rule")))' {} + >/dev/null \
   && ok || bad "[GLOBAL] corrective action routes globally"
-jq -e '.arguments.content | contains("Deltas:")' "$operation" >/dev/null \
-  && ok || bad "payload includes Delta section"
-jq -e '.arguments.content | contains("Root causes:")' "$operation" >/dev/null \
-  && ok || bad "payload includes Root Cause section"
+find "$PENDING" -type f -name '*.json' -exec jq -e 'select(.arguments.agent_id == "@project" and (.arguments.content | contains("Delta:")) and (.arguments.content | contains("Root Cause:")))' {} + >/dev/null \
+  && ok || bad "project record carries the Delta and Root Cause sections"
 
 echo '{ "phase":"p1", "reflect_gate":"rejected" }' > "$PHASE/progress.json"
 before="$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')"

@@ -23,8 +23,11 @@ Generates `.kbd-orchestrator/phases/<phase-name>/reflection.md` summarizing:
 - Delivered changes (from progress.json and archive)
 - **Artifact quality summary** (from artifact-refiner logs)
 - Technical debt introduced
-- Lessons captured for knowledge base
-- Recommended focus for next phase
+- Which recalled lessons (from `prior-context.md`) recurred or were applied
+- Lessons captured for the knowledge base — one bullet per lesson, `[GLOBAL]` /
+  `[USER]` prefixes for wider scopes; `reflect:after` writes them back through
+  `memory-writeback.sh` (Codify as Skill? is never written back)
+- Next Phase Seed for `/kbd-next-phase`
 
 ## Artifact Quality Summary
 
@@ -109,17 +112,22 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 
 ## How to invoke
 
-1. **Discover project identity**
-2. **Confirm the active phase** — from argument or waypoint
-3. **Read `progress.json`** — incorporate work done by all tools
-4. **Read artifact-refiner logs** — aggregate QA results
-5. **Load all change data** — from `openspec/changes/archive/` if OpenSpec,
+1. **Read prior context and cite lessons** — read
+   `.kbd-orchestrator/phases/<phase>/prior-context.md` (refreshed by the
+   `reflect:before` hook). The reflection's `## Recalled Lessons` section states
+   which recalled lessons **recurred** this phase and which were applied;
+   recurrences belong in Root Cause.
+2. **Discover project identity**
+3. **Confirm the active phase** — from argument or waypoint
+4. **Read `progress.json`** — incorporate work done by all tools
+5. **Read artifact-refiner logs** — aggregate QA results
+6. **Load all change data** — from `openspec/changes/archive/` if OpenSpec,
    or `.kbd-orchestrator/changes/archive/` if native KBD
-6. **Follow the reflect protocol** in `../prompts/reflect.md`
-7. **Write reflection** to `.kbd-orchestrator/phases/<phase>/reflection.md`
-8. **If evolver bridge exists**: write execution results back to evolver state
-9. **Advance when authorized** through `/kbd-next-phase`; its helper activates the phase and generates projections
-10. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
+7. **Follow the reflect protocol** in `../prompts/reflect.md`
+8. **Write reflection** to `.kbd-orchestrator/phases/<phase>/reflection.md`
+9. **If evolver bridge exists**: write execution results back to evolver state
+10. **Advance when authorized** through `/kbd-next-phase`; its helper activates the phase and generates projections
+11. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
 
 ## Examples
 

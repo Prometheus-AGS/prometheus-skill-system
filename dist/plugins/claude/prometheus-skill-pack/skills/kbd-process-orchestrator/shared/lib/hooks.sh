@@ -39,6 +39,25 @@ _kbd_hooks_warn() {
   printf 'hooks: %s\n' "$*" >&2
 }
 
+# Resolve the pack root that ships shared/scripts (memory-writeback.sh,
+# kbd-stage-writeback.sh, the learning libraries). Order: an explicit
+# KBD_PACK_ROOT, the plugin root, the flat installed layout
+# (<root>/skills/kbd-process-orchestrator), then the source tree
+# (<root>/skills/process/kbd-process-orchestrator). Echoes nothing when the
+# orchestrator is installed without the pack's shared tree.
+_kbd_hooks_pack_root() {
+  local candidate
+  for candidate in "${KBD_PACK_ROOT:-}" "${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}" \
+                   "${KBD_ORCHESTRATOR_ROOT:-}/../.." "${KBD_ORCHESTRATOR_ROOT:-}/../../.."; do
+    [[ -n "$candidate" && "$candidate" != "/../.." && "$candidate" != "/../../.." ]] || continue
+    if [[ -f "$candidate/shared/scripts/lib/learning_write.py" ]]; then
+      (cd "$candidate" 2>/dev/null && pwd -P)
+      return 0
+    fi
+  done
+  return 0
+}
+
 # Map a legacy event name to canonical <kind>:<edge>.
 # Echoes the canonical form, or the input unchanged if no mapping applies.
 # Returns 1 for situational events that intentionally don't map (caller keeps original).
@@ -395,6 +414,15 @@ kbd_hooks_fire() {
   if ! command -v jq >/dev/null 2>&1; then
     _kbd_hooks_warn "jq not available; hooks dispatch skipped"
     return 0
+  fi
+
+  # Hook commands locate the pack's shared scripts through KBD_PACK_ROOT.
+  if [[ -z "${KBD_PACK_ROOT:-}" ]]; then
+    local pack_root
+    pack_root="$(_kbd_hooks_pack_root)"
+    if [[ -n "$pack_root" ]]; then
+      export KBD_PACK_ROOT="$pack_root"
+    fi
   fi
 
   local resolved

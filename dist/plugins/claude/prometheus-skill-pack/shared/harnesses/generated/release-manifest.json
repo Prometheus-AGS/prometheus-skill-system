@@ -172,6 +172,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/kbd-stage-writeback.sh",
+      "sha256": "3fe121cd0a25c8963f6531e2dc7169ff5ca344fcdb5f64b740148db7b3eaa9d9",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/kbd-task-completed-gate.sh",
       "sha256": "443df66de08affe7fa37ff6cc984627fe74f481de46d4ff78dca1ee2d7016c1d",
       "executable": true
@@ -194,6 +199,11 @@
     {
       "path": "shared/scripts/lib/kbd-model-resolve.sh",
       "sha256": "41539d8242f7aff0820e873be10a0d4015ce651edf9b5b68990495275d2417dd",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/learning_recall.py",
+      "sha256": "8a76e099280fe8a91afa19133b9fa11462ed80ee9525355b73bb4c4ccbdccbec",
       "executable": true
     },
     {
@@ -258,7 +268,7 @@
     },
     {
       "path": "shared/scripts/memory-writeback.sh",
-      "sha256": "b13f1a424d5fe78b818040e3c4c65df2ef05860822fb0a577c932646930aff7f",
+      "sha256": "19c5ebc7a10f2bd3421530f54269a532babededb68f765fa4e6a18e8369bcb96",
       "executable": true
     },
     {
@@ -437,5 +447,5 @@
       "executable": true
     }
   ],
-  "bundleId": "a62cc4318636060e98f1d651542195a8829d9c18c999d20c2c687f9b3470078d"
+  "bundleId": "0cb8ca0ba296c5f505206c8fed72f496d86baf1b41ce20652f4c3cda2d4119cf"
 }
