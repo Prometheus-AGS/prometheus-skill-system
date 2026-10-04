@@ -83,6 +83,12 @@ export interface MemoryEntry {
   provenance: ObjectValue;
   status: 'queued' | 'published';
   receipt?: Json;
+  /** Learning-envelope inputs; outside the identity digest so ids stay stable. */
+  projectId?: string;
+  ts?: string;
+  kind?: 'lesson' | 'gotcha' | 'decision' | 'progress' | 'candidate';
+  roleId?: string;
+  author?: ObjectValue;
 }
 export interface TeamState {
   schemaVersion: 1;
