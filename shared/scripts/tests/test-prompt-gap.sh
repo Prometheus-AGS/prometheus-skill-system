@@ -9,6 +9,8 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DISPATCH="$HERE/../karpathy-hook-dispatch.sh"
 RESOLVE="$HERE/../lib/prompt_gap.py"
+RECALL="$HERE/../lib/learning_recall.py"
+KBD_OPEN="$HERE/../kbd-open.sh"
 
 command -v jq >/dev/null 2>&1 || { echo "BLOCKED: jq not on PATH" >&2; exit 2; }
 command -v python3 >/dev/null 2>&1 || { echo "BLOCKED: python3 not on PATH" >&2; exit 2; }
@@ -117,6 +119,40 @@ last="$(tail -n 1 "$GAPS")"
 again="$(python3 "$RESOLVE" resolve --topic "wibblesnort daemon flarbnitz retries")"
 [ -z "$again" ] || fail "an already-resolved gap must not resolve twice: $again"
 ok "resolve appends a resolved record once"
+
+# 5b. recall: with every source empty, learning_recall writes `## Knowledge gaps`
+#     listing the project's open gaps; a gap seen once is listed here too.
+ONCE="how do I configure the florbnax scheduler after a crash failure?"
+hook "$ONCE" sess-5 >/dev/null
+recall_md() { python3 "$RECALL" --cwd "$PROJECT" --memory-url none --no-pk --no-log --format markdown --query "$1"; }
+md="$(recall_md "$PROBLEM")"
+printf '%s\n' "$md" | grep -q '^## Knowledge gaps$' || fail "recall lacks a Knowledge gaps section: $md"
+printf '%s\n' "$md" | grep -q 'zorblax.*(seen 2x).*/learn-goal' || fail "recall gap line missing the seen count: $md"
+printf '%s\n' "$md" | grep -q 'florbnax' && fail "recall query on zorblax must not list unrelated gaps: $md"
+all_md="$(recall_md "")"
+printf '%s\n' "$all_md" | grep -q 'florbnax.*(seen 1x)' || fail "empty-query recall should list every open project gap: $all_md"
+printf '%s\n' "$all_md" | grep -q 'wibblesnort' && fail "resolved gap must not be recalled: $all_md"
+json="$(python3 "$RECALL" --cwd "$PROJECT" --memory-url none --no-pk --no-log --query "$PROBLEM")"
+[ "$(printf '%s' "$json" | jq '.knowledgeGaps | length')" = "1" ] || fail "json knowledgeGaps: $json"
+ok "recall writes ## Knowledge gaps from open gaps when all sources are empty"
+
+# 5c. kbd-open lists only gaps seen at least twice (zorblax yes, florbnax no)
+open_out="$(cd "$PROJECT" && /bin/bash "$KBD_OPEN" 2>/dev/null)"
+printf '%s\n' "$open_out" | grep -q '^## Knowledge gaps seen repeatedly$' || fail "kbd-open lacks the repeated-gaps section: $open_out"
+printf '%s\n' "$open_out" | grep -q 'zorblax.*(seen 2x)' || fail "kbd-open should list the twice-seen gap: $open_out"
+printf '%s\n' "$open_out" | grep -q 'florbnax' && fail "kbd-open listed a gap seen only once: $open_out"
+ok "kbd-open shows gaps seen at least twice and hides single sightings"
+
+# 5d. ingest the final explanation with real pk, resolve, and the gap disappears everywhere
+printf 'Zorblax E0432 on quuxify imports means the quuxify import path is unresolved; fix the path.' \
+  | pk ingest --type Lesson --source "learn-goal:test" --tag learn >/dev/null 2>&1 || fail "pk ingest failed"
+res="$(python3 "$RESOLVE" resolve --topic "zorblax compiler quuxify imports" --by feynman-loop --scope project)"
+[ -n "$res" ] || fail "resolve after ingest matched nothing"
+tail -n 1 "$GAPS" | jq -e '.status == "resolved" and .resolvedBy == "feynman-loop"' >/dev/null || fail "resolved record missing"
+recall_md "$PROBLEM" | grep -q 'zorblax' && fail "recall still lists the resolved gap"
+open_after="$(cd "$PROJECT" && /bin/bash "$KBD_OPEN" 2>/dev/null)"
+printf '%s\n' "$open_after" | grep -q 'Knowledge gaps seen repeatedly' && fail "kbd-open still lists the resolved gap: $open_after"
+ok "after ingest and resolve the gap leaves recall and kbd-open"
 
 # 6. no pk on PATH: unchanged behaviour (stderr notice, empty stdout, exit 0)
 NOPK_PATH="$SCRATCH/nopk"; mkdir -p "$NOPK_PATH"

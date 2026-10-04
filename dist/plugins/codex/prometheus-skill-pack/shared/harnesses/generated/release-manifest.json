@@ -163,7 +163,7 @@
     },
     {
       "path": "shared/scripts/kbd-open.sh",
-      "sha256": "2a672131e43d0476c74414240e276516874c9b71cfb92ae92f510e72e8ee18ae",
+      "sha256": "26aab0b2b53ae2c7d34083ce2b63137e837dab1d15f1872dd813198eb76dca21",
       "executable": true
     },
     {
@@ -203,7 +203,7 @@
     },
     {
       "path": "shared/scripts/lib/learning_recall.py",
-      "sha256": "8a76e099280fe8a91afa19133b9fa11462ed80ee9525355b73bb4c4ccbdccbec",
+      "sha256": "1894490b8b8fa2b513d510f948cc120e3c20fae8600090028479808bfc78b1db",
       "executable": true
     },
     {
@@ -233,7 +233,7 @@
     },
     {
       "path": "shared/scripts/lib/prompt_gap.py",
-      "sha256": "c720acd7700784b34eab930e85f2c0129b7f15c77e29649b8e4645b9a82be978",
+      "sha256": "e6acce9539bac7733b9d373c625738e824a6c9e49a36c763ce05691805b6ae07",
       "executable": true
     },
     {
@@ -457,5 +457,5 @@
       "executable": true
     }
   ],
-  "bundleId": "f703ebe084d3b7cc0e67f56d53b2089567691922003d2edcdf51b95f047cc3c4"
+  "bundleId": "4de438344ff9f664de441a1c72c3ff3e477434d1b6f654b392a66389bb0dae78"
 }

@@ -32,6 +32,11 @@ Fallbacks for the lesson channel: surreal-memory REST (2 s per request) ->
 (`~/.prometheus/learning-log/lessons.jsonl`, which learning_write appends).
 A separate pk-knowledge channel (bounded `pk context`) is returned alongside.
 
+Knowledge gaps (design §4): when the lesson and pk channels both come back empty,
+the project's still-open gaps from ~/.prometheus/knowledge-gaps/gaps.jsonl (those
+sharing a keyword with the query, or all of them for an empty query) are returned
+as `knowledgeGaps` and rendered under `## Knowledge gaps` with a /learn-goal hint.
+
 Every call appends `{agentType, bytesByChannel, entriesByScope, ts}` to
 `$PROMETHEUS_LEARNING_INDEX_DIR/delivery.jsonl` (default
 ~/.prometheus/learning-index).
@@ -65,6 +70,7 @@ LIB = Path(__file__).resolve().parent
 sys.path.insert(0, str(LIB))
 from agent_identity import find_root, load_teams, active_team, role_ids, resolve as resolve_identity  # noqa: E402
 from project_id import resolve_user_scope  # noqa: E402
+import prompt_gap  # noqa: E402
 
 TRAILER = "<!-- prometheus-envelope "
 TRAILER_END = " -->"
@@ -548,6 +554,21 @@ def append_delivery(agent_type: str, bytes_by_channel: dict, entries_by_scope: d
         pass
 
 
+MAX_RECALL_GAPS = 5
+
+
+def recall_gaps(project_id: str, query: str) -> list[dict]:
+    """Open knowledge gaps for the project that relate to the query. Never raises."""
+    try:
+        wanted = set(prompt_gap.keywords(query))
+        found = prompt_gap.open_gaps(1, project_id)
+        if wanted:
+            found = [g for g in found if wanted & set(prompt_gap.keywords(g["topic"]))]
+        return [{**g, "line": prompt_gap.gap_line(g)} for g in found[:MAX_RECALL_GAPS]]
+    except Exception:
+        return []
+
+
 def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | None = None, main_thread: bool = False,
            query: str = "", budget: int = DEFAULT_BUDGET, agent_type: str = "", memory_url: str | None = None,
            use_pk: bool = True, pk_budget: int | None = None, log: bool = True,
@@ -577,6 +598,7 @@ def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | 
     if use_pk and pk_budget:
         pk_found, _ = pk_candidates(view, query, cwd, now, pk_budget, False)
         knowledge = merge(pk_found, pk_budget, seen)
+    gaps = [] if (lessons or knowledge) else recall_gaps(view["projectId"], query)
     bytes_by_channel: dict[str, int] = {}
     for entry in lessons + knowledge:
         bytes_by_channel[entry["channel"]] = bytes_by_channel.get(entry["channel"], 0) + len(entry["rendered"].encode("utf-8")) + 1
@@ -591,6 +613,7 @@ def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | 
         "lessons": [{k: v for k, v in e.items() if k != "rendered"} | {"line": e["rendered"]} for e in lessons],
         "knowledge": [{k: v for k, v in e.items() if k != "rendered"} | {"line": e["rendered"]} for e in knowledge],
         "bytesByChannel": bytes_by_channel, "entriesByScope": entries_by_scope,
+        "knowledgeGaps": gaps,
     }
     if log:
         append_delivery(agent_type or "unknown", bytes_by_channel, entries_by_scope)
@@ -605,6 +628,9 @@ def to_markdown(result: dict) -> str:
     if result["knowledge"]:
         lines.append("")
         lines.extend(entry["line"] for entry in result["knowledge"])
+    if result.get("knowledgeGaps"):
+        lines.extend(["## Knowledge gaps", "", "No recalled lessons or knowledge cover these open gaps:"])
+        lines.extend(gap["line"] for gap in result["knowledgeGaps"])
     return "\n".join(lines)
 
 

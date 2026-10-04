@@ -46,6 +46,13 @@ or that shares >= 2 keywords with <subject>, and appends one resolved record per
 match. Prints the resolved topicKeys (one per line); no match prints nothing.
 Exit 0 always, so a closing step never fails a learning flow.
 
+Listing open gaps (recall, kbd-assess/analyze and kbd-open use this):
+  prompt_gap.py list [--min-seen N] [--project ID] [--limit N] [--format json|lines]
+A gap is open when the latest record of its topicKey is `open`; `seen` counts the
+open records since the last resolved record (one per session that hit the gap).
+Lines format: `- <topic> (seen Nx) — `/learn-goal <topic>``. Prints nothing when
+there is nothing to list. Exit 0 always.
+
 Never fails a hook: any error yields the plain hook text (or nothing), exit 0.
 """
 from __future__ import annotations
@@ -256,6 +263,55 @@ def read_records() -> list[dict]:
     return records
 
 
+def open_gaps(min_seen: int = 1, project_id: str | None = None) -> list[dict]:
+    """Open gaps, most-seen first: [{topic, topicKey, seen, ts, projectId?, roleIds}]."""
+    state: dict[str, dict] = {}
+    for record in read_records():
+        key = record.get("topicKey")
+        if not isinstance(key, str):
+            continue
+        if record.get("status") == "resolved":
+            state.pop(key, None)
+        elif record.get("status") == "open":
+            entry = state.setdefault(key, {"topic": str(record.get("topic", "")), "topicKey": key,
+                                           "seen": 0, "roleIds": []})
+            entry["seen"] += 1
+            entry["ts"] = record.get("ts", "")
+            if record.get("projectId"):
+                entry["projectId"] = record["projectId"]
+            role = record.get("roleId")
+            if isinstance(role, str) and role not in entry["roleIds"]:
+                entry["roleIds"].append(role)
+    gaps = [g for g in state.values() if g["topic"] and g["seen"] >= min_seen
+            and (not project_id or g.get("projectId") in (None, project_id))]
+    gaps.sort(key=lambda g: (g["seen"], str(g.get("ts", ""))), reverse=True)
+    return gaps
+
+
+def gap_line(gap: dict) -> str:
+    topic = gap["topic"]
+    return f"- {topic[:120]} (seen {gap['seen']}x) — `/learn-goal {topic[:60]}`"
+
+
+def list_gaps(argv: list[str]) -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="prompt_gap.py list")
+    parser.add_argument("--min-seen", type=int, default=1)
+    parser.add_argument("--project", default=None)
+    parser.add_argument("--limit", type=int, default=5)
+    parser.add_argument("--format", choices=("json", "lines"), default="lines")
+    options = parser.parse_args(argv)
+    gaps = open_gaps(options.min_seen, options.project)[: max(0, options.limit)]
+    if options.format == "json":
+        if gaps:
+            print(json.dumps(gaps, sort_keys=True))
+    else:
+        for gap in gaps:
+            print(gap_line(gap))
+    return 0
+
+
 def resolve_gaps(argv: list[str]) -> int:
     import argparse
 
@@ -295,6 +351,11 @@ def resolve_gaps(argv: list[str]) -> int:
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "list":
+        try:
+            return list_gaps(sys.argv[2:])
+        except (SystemExit, Exception):
+            return 0
     if len(sys.argv) > 1 and sys.argv[1] == "resolve":
         try:
             return resolve_gaps(sys.argv[2:])

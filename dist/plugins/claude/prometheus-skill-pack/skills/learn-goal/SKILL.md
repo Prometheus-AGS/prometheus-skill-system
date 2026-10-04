@@ -1,7 +1,7 @@
 ---
 name: learn-goal
 description: Entry point for the Feynman learning flow. Accepts a learning desire, assembles a grounded corpus (public and/or custom KB), runs an honest feasibility gate with sycophancy-correction, and produces a goal artifact that downstream learn-* skills consume.
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 metadata:
   author: prometheus-skill-pack

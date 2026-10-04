@@ -1,7 +1,7 @@
 ---
 name: feynman-loop
 description: The core Feynman learning cycle for prometheus-skill-pack. Maps Feynman's explain-grade-gap-relearn cycle to the PMPO lifecycle. Supports vertical recursion (child loops on gap concepts), horizontal escalation (novice→peer→skeptic audiences), recursion floor guards, and all three mastery closure criteria.
-version: '1.1.0'
+version: '1.2.0'
 license: MIT
 metadata:
   author: prometheus-skill-pack
