@@ -1017,16 +1017,17 @@ renamed, plus the same hook runtime closure as the Claude package. From PR #54
 (2026-08-10) until this was fixed, the generated Codex package shipped no hooks at
 all and no Prometheus hook fired in Codex. Two Codex behaviours, verified with a
 probe plugin on codex-cli 0.158.0, shape the generated file
-(`COMMAND_STRING_HARNESSES` and `CODEX_MIN_HOOK_TIMEOUT_MS` in
-`scripts/lib/hook-config.js`):
+(`COMMAND_STRING_HARNESSES` in `scripts/lib/hook-config.js`):
 
 1. **Codex ignores `args`.** Exec-form entries (`command: "node"` plus `args`)
    never run, even with an absolute script path. Codex entries are therefore one
    command string, `node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle …`.
    Codex substitutes `${CLAUDE_PLUGIN_ROOT}` and exports both `CLAUDE_PLUGIN_ROOT`
    and `PLUGIN_ROOT`.
-2. **Codex reads `timeout` as milliseconds; Claude Code reads seconds.** Starting
-   `hook-entry.mjs` takes about one second, so Codex timeouts have a 5000 ms floor.
+2. **Both harnesses read `timeout` in seconds** (Claude Code docs; Codex docs and
+   the 0.158 binary schema, default 600). The generator rejects values outside
+   1–600. An earlier "Codex reads milliseconds" note was a misdiagnosis: the
+   failing hook in that probe was the JSON-stdout one.
 
 Codex also treats hook stdout that starts with `{` as a structured response, so a
 hook must not open its output with raw JSON.

@@ -4,7 +4,7 @@
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
-  "contractSha256": "400b7f79aa819974e9fd3d5b6932a28ae62a1145c746af508bfdc82b1409aefa",
+  "contractSha256": "0063076b9542ab66af72d02f03a069426bb5459f79c27a6aafeec28a61c8a57b",
   "runtimeFiles": [
     {
       "path": "scripts/hook-entry.mjs",
@@ -38,7 +38,7 @@
     },
     {
       "path": "scripts/lib/hook-config.js",
-      "sha256": "cd0cc22c739672bfb740b9be312c97004fafc858022da8e20eb5f659fdf9d106",
+      "sha256": "d86958c18cf370d37e1792e490f0d0040ddaa86155c83a03f698ca8d05f79c3c",
       "executable": false
     },
     {
@@ -68,7 +68,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "e70a81090c422ffd352a0161b4148a0d34bdf49753dee9253a29f691382c569d",
+      "sha256": "b89d64bd9f596da045880747314ac08a9b1e70710f567a0646e87cd6211f54b0",
       "executable": false
     },
     {
@@ -407,5 +407,5 @@
       "executable": true
     }
   ],
-  "bundleId": "f7da402ca606a4220dc357dc8d1d2c56eecc2847f2de5ac50fc01706eda9ff35"
+  "bundleId": "3082565ae9f82e5e65eb3a7a7c20bf3fe221e92fd36a3a6713ce7d88d1a0d79d"
 }

@@ -73,7 +73,7 @@ The package ships `hooks/hooks.json`, rendered from `shared/harnesses/hook-contr
 Verified on codex-cli 0.158.0 (2026-10-03):
 
 - **Codex runs only the `command` string and ignores `args`.** Every Codex entry is one string: `node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle <id> --hook <id> --harness codex`. Codex substitutes `${CLAUDE_PLUGIN_ROOT}` and exports both `CLAUDE_PLUGIN_ROOT` and `PLUGIN_ROOT`.
-- **`timeout` is milliseconds in Codex** (seconds in Claude Code). Codex timeouts have a 5000 ms floor, because starting the entry point alone takes about one second.
+- **`timeout` is in seconds in both Codex and Claude Code** (Codex default 600). The generator enforces 1–600 seconds. Starting the entry point takes about one second, so contract hooks use at least 10 seconds. An earlier note that Codex reads milliseconds was a misdiagnosis, corrected by change-tlm-004.
 - **Hook stdout that opens with `{` is parsed as a structured response.** Hooks must not begin their output with raw JSON.
 
 To check firing without touching the machine's real hook runtime, isolate all three of `CODEX_HOME`, `PROMETHEUS_PLUGIN_ROOT` and `HOME`. Then run `codex plugin marketplace add <repo>`, `codex plugin add prometheus-skill-pack@prometheus-skill-pack`, and `codex exec --skip-git-repo-check --dangerously-bypass-hook-trust "ok"`, and count the `hook: SessionStart Completed` lines on stderr.

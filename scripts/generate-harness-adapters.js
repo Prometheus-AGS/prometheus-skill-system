@@ -7,11 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import { probeFilesystemCapabilities } from './lib/capabilities.js';
 import { checkoutConversions, describeCheckoutConversions } from './lib/checkout-bytes.js';
-import {
-  CODEX_MIN_HOOK_TIMEOUT_MS,
-  COMMAND_STRING_HARNESSES,
-  shellOnlyExecutableError,
-} from './lib/hook-config.js';
+import { COMMAND_STRING_HARNESSES, shellOnlyExecutableError } from './lib/hook-config.js';
 import { readIngestOracle } from './lib/payload-manifest.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -110,6 +106,13 @@ function validateContract() {
       // hook behaves the same on every machine and harness.
       if (!hook.target || hook.externalTarget !== undefined) {
         failures.push(`${hook.id}: a bundle-relative target is required`);
+      }
+      // Both harnesses read `timeout` in seconds (Claude Code docs; Codex docs and
+      // 0.158 binary schema: default 600). A value outside 1-600 is almost always
+      // a millisecond figure that slipped in, which silently gives a hook a
+      // timeout of hours.
+      if (hook.timeout !== undefined && !(Number.isInteger(hook.timeout) && hook.timeout >= 1 && hook.timeout <= 600)) {
+        failures.push(`${hook.id}: timeout ${hook.timeout} must be an integer number of seconds from 1 to 600`);
       }
       if (hook.target) {
         const normalized = path.posix.normalize(hook.target);
@@ -312,10 +315,7 @@ function renderHooks(bundleId, harness) {
         const value = COMMAND_STRING_HARNESSES.includes(harness)
           ? { type: 'command', command: [command, ...args].join(' ') }
           : { type: 'command', command, args };
-        if (hook.timeout !== undefined) {
-          value.timeout =
-            harness === 'codex' ? Math.max(hook.timeout, CODEX_MIN_HOOK_TIMEOUT_MS) : hook.timeout;
-        }
+        if (hook.timeout !== undefined) value.timeout = hook.timeout;
         return value;
       }),
     };

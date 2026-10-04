@@ -99,6 +99,33 @@ check('every emitted hook entry has the form its harness runs, with a real execu
   assert.equal(entries, 61, `expected the full hook matrix, saw ${entries}`);
 });
 
+check('both harnesses get the same timeout in seconds for every hook', () => {
+  // Claude Code and Codex both read `timeout` in seconds. A harness-specific
+  // adjustment here once encoded a misdiagnosis (Codex "milliseconds").
+  const byId = file => {
+    const out = {};
+    const config = JSON.parse(fs.readFileSync(path.join(repoRoot, file), 'utf8'));
+    for (const groups of Object.values(config.hooks)) {
+      for (const group of groups) {
+        for (const hook of group.hooks) {
+          const argv = hookArgv(hook);
+          out[argv[argv.indexOf('--hook') + 1]] = hook.timeout;
+        }
+      }
+    }
+    return out;
+  };
+  const claude = byId('hooks/hooks.json');
+  const codex = byId('hooks/codex-hooks.json');
+  for (const [id, timeout] of Object.entries(codex)) {
+    assert.equal(timeout, claude[id], `${id}: codex and claude timeouts differ`);
+  }
+  for (const timeout of [...Object.values(claude), ...Object.values(codex)]) {
+    if (timeout === undefined) continue;
+    assert.ok(Number.isInteger(timeout) && timeout >= 1 && timeout <= 600, `timeout ${timeout} is not 1-600 seconds`);
+  }
+});
+
 check('every emitted hook entry passes the guard today', () => {
   // The guard is only worth having if it runs against the real artifact.
   let entries = 0;

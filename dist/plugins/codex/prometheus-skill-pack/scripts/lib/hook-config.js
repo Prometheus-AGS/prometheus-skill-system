@@ -86,16 +86,3 @@ export function hookArgv(hook) {
     .split(/\s+/)
     .slice(1);
 }
-
-/**
- * Smallest hook timeout emitted for Codex, in milliseconds.
- *
- * Codex reads `timeout` as milliseconds; Claude Code reads the same field as
- * seconds. Starting `hook-entry.mjs` costs about one second on its own, so a
- * contract budget of 1000 -- harmless to Claude Code, where it means sixteen
- * minutes -- made Codex kill `sessionstart-kbd-control` and
- * `precompact-kbd-control` every time (observed 2026-10-03, codex-cli 0.158.0:
- * the hook ran in ~1.1s against a 1000ms limit; every hook with a larger budget
- * completed).
- */
-export const CODEX_MIN_HOOK_TIMEOUT_MS = 5000;
