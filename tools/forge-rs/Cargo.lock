@@ -1689,8 +1689,8 @@ checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
 
 [[package]]
 name = "pk-core"
-version = "1.10.0"
-source = "git+https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git?tag=v1.10.0#1126c3043f8fdd0740e4b0265967c3031da28894"
+version = "1.11.0"
+source = "git+https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git?tag=v1.11.0#4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef"
 dependencies = [
  "chrono",
  "dirs",
@@ -1703,8 +1703,8 @@ dependencies = [
 
 [[package]]
 name = "pk-librarian"
-version = "1.10.0"
-source = "git+https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git?tag=v1.10.0#1126c3043f8fdd0740e4b0265967c3031da28894"
+version = "1.11.0"
+source = "git+https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git?tag=v1.11.0#4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1720,8 +1720,8 @@ dependencies = [
 
 [[package]]
 name = "pk-store"
-version = "1.10.0"
-source = "git+https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git?tag=v1.10.0#1126c3043f8fdd0740e4b0265967c3031da28894"
+version = "1.11.0"
+source = "git+https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git?tag=v1.11.0#4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef"
 dependencies = [
  "anyhow",
  "chrono",

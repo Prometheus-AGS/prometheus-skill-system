@@ -31,7 +31,7 @@ initializing a service or contacting the network:
 
 ```text
 prometheus 1.7.0
-pk 1.10.0
+pk 1.11.0
 pk-cherry 1.7.0
 prometheus-learning-worker 1.7.0
 surreal-memory-server 1.10.0

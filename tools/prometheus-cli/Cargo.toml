@@ -57,9 +57,9 @@ cedar-policy = "4"
 # Prometheus ecosystem (git deps — optional, behind feature flags in consuming crates)
 sycophancy-core = { git = "https://github.com/Know-Me-Tools/sycophancy-correction-skill.git", package = "sycophancy-core" }
 dspy = { git = "https://github.com/GQAdonis/dspy-rs.git" }
-pk-core = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", tag = "v1.10.0" }
-pk-librarian = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", tag = "v1.10.0" }
-pk-store = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", tag = "v1.10.0" }
+pk-core = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", tag = "v1.11.0" }
+pk-librarian = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", tag = "v1.11.0" }
+pk-store = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", tag = "v1.11.0" }
 
 [profile.release]
 strip = true
