@@ -157,6 +157,9 @@ case "$HOOK_ID" in
   'subagent-reflector-dispatch-codex')
     run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/workflow-dispatch.sh' "$EVOLUTION" 'phase_complete' 'reflect' 2>&1 || true
     ;;
+  'subagentstop-learning')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' '--only-team-roles' 'shared/scripts/subagentstop-learning.sh' || true
+    ;;
   'subagent-fallback-checkpoint')
     run_bundle_script 'shared/scripts/subagent-checkpoint-fallback.sh' 2>&1 || true
     ;;

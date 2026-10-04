@@ -391,6 +391,18 @@
       "event": "SubagentStop",
       "hooks": [
         {
+          "id": "subagentstop-learning",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["--only-team-roles", "shared/scripts/subagentstop-learning.sh"],
+          "ignoreFailure": true,
+          "timeout": 5
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "hooks": [
+        {
           "id": "subagent-fallback-checkpoint",
           "target": "shared/scripts/subagent-checkpoint-fallback.sh",
           "stderrToStdout": true,

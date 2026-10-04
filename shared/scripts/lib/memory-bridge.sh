@@ -38,12 +38,19 @@ _mem_outbox_write() { # <method> <arguments-json> [dependencies-json]
 }
 
 # mem_add_memory <content> [user_id]
+# Delegates to learning_write.py: the content gets a learning envelope and the
+# design-table scope keys (project scope here; user_id defaults to the resolved
+# project id). Falls back to a plain outbox write when python3 is unavailable.
 mem_add_memory() {
   local content="$1" user_id="${2:-$MEM_PROJECT}"
+  if command -v python3 >/dev/null 2>&1 && [ -f "$_MEM_BRIDGE_DIR/learning_write.py" ]; then
+    python3 "$_MEM_BRIDGE_DIR/learning_write.py" --text "$content" --visibility project \
+      --user-id "$user_id" >/dev/null 2>&1 && return 0
+  fi
   local args
   args="$(python3 -c '
 import sys, json
-print(json.dumps({"content": sys.argv[1], "user_id": sys.argv[2]}))
+print(json.dumps({"content": sys.argv[1], "user_id": sys.argv[2], "agent_id": "@project"}))
 ' "$content" "$user_id" 2>/dev/null)" || args=""
   if [ -z "$args" ]; then _mem_outbox_write add_memory '{}'; return 0; fi
   _mem_outbox_write add_memory "$args"

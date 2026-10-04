@@ -4,7 +4,7 @@
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
-  "contractSha256": "ee6b7963ee82ad572b2697b560746d4769a5ab91923c5b160e8e785b363cdb15",
+  "contractSha256": "2be9331cbcb51dff7339b37cb9c097690122bbcb994eb06fedcbbfb1e3966e73",
   "runtimeFiles": [
     {
       "path": "scripts/hook-entry.mjs",
@@ -68,7 +68,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "a30530f3523b2033f00355c6d15292244e498bf05e21f7946b698caa2d66ca80",
+      "sha256": "e9744fabc840642d316201dc63e94c9b9449792c6d820d02f9cc75ce1afd4930",
       "executable": false
     },
     {
@@ -133,7 +133,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "28e486d1bf090fea40342213c08ec131790d739862ac88c44ffba98ac1a1ccf3",
+      "sha256": "ef638035b5764cef2853a3a7df0bd4f269e1774ebe7af04523fda632df662cfa",
       "executable": true
     },
     {
@@ -197,8 +197,13 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/lib/learning_write.py",
+      "sha256": "31749d1fe8f838ade44e0143159863280fbe31490096596fc6c5e9030f73403c",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/lib/memory-bridge.sh",
-      "sha256": "33d1fd8f8949e144ebc6c1131bf7860425e78b5e9f19578fd4a509bf3d327242",
+      "sha256": "21759c715f2574420a41e1a5cdede064e12a0c4ee0702876a44e4d245503a7f5",
       "executable": true
     },
     {
@@ -347,6 +352,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/subagentstop-learning.sh",
+      "sha256": "fae3e439f7cbcce51b868284c01ddf4f572435c6693a91a721ea7b31c96641ed",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/surreal-bin.sh",
       "sha256": "03f0d0c9a16e08b504b475083db1e700b095ea5041ab61a8fd6f01c764c12511",
       "executable": false
@@ -427,5 +437,5 @@
       "executable": true
     }
   ],
-  "bundleId": "3d5abd6723e330078870a927ca5cdffd82914efe0c19afdcf6e589d6654f17a2"
+  "bundleId": "3e75b864cab449a6e9fcc6208040d02b000f44b4c3aec818f8c766622519f840"
 }
