@@ -6,11 +6,13 @@
 #
 # Real processes end to end, driving the GENERATED hook entries (design §7):
 #   1. fixture team `tlm-fixture` (api-dev owns src/api/**, ui-dev owns src/ui/**)
-#      in a scratch git repo. Cycle 1 — api-dev's lesson writes through
-#      learning_write.py (the library behind the SubagentStop hook):
-#        BETA-PRIV   paths src/api/handler.ts   only api-dev owns them: stays private
-#        BETA-ROUTED paths src/ui/client.ts     ui-dev owns them: addressed to ui-dev
-#        BETA-LEAD   paths docs/readme.md       nobody owns them: addressed to lead
+#      in a scratch git repo. Cycle 1 — ONE real SubagentStop payload for api-dev
+#      is run through the GENERATED subagentstop-learning entry (behind
+#      team-role-guard); its paths come from the hook, not from a --paths call:
+#        BETA-PRIV   `paths: src/api/handler.ts` suffix   only api-dev owns them: private
+#        BETA-ROUTED no suffix; paths taken from the subagent transcript's Write
+#                    tool_use (src/ui/client.ts)          ui-dev owns them: to ui-dev
+#        BETA-LEAD   `(paths: docs/readme.md)` suffix     nobody owns them: to lead
 #      The real prometheus-learning-worker delivers them to a scratch
 #      surreal-memory-server 1.10 (embedded, local MLX embeddings);
 #   2. routing rules on a second team (5 roles): > 3 owners -> lead only, 2
@@ -24,8 +26,11 @@
 #      then by Claude Code and Codex subagents: api-dev receives BETA-PRIV, ui-dev
 #      receives BETA-ROUTED and only the digest line for BETA-PRIV (never its
 #      text, never BETA-LEAD);
-#   6. the main thread (learning_recall --main-thread) receives BETA-LEAD and the
-#      digest lines, and no role-private text;
+#   6. the main thread receives BETA-LEAD and the digest lines, and no
+#      role-private text: through learning_recall --main-thread and through the
+#      GENERATED sessionstart-learning entry (plain-text fenced context, silent
+#      for a subagent payload and for a repo without a team), and live in both
+#      harnesses;
 #   7. scripts/report-learning-delivery.py prints bytes per agent per channel and
 #      honours --require-reduction;
 #   8. surreal-memory stopped: the digest file still reaches ui-dev and the main
@@ -35,7 +40,8 @@
 # PROMETHEUS_PLUGIN_ROOT, queue, log, index and team-digest directory. Claude Code
 # authenticates only with the real HOME, so the Claude run keeps it, excludes user
 # settings (--setting-sources project,local), and loads a scratch copy of the
-# generated package whose hooks.json carries only the generated SubagentStart group.
+# generated package whose hooks.json carries only the generated SubagentStart and
+# SessionStart-learning groups.
 # The scratch digest, index and queue directories are exported, so nothing is
 # written under the real ~/.prometheus.
 #
@@ -171,17 +177,87 @@ srv=$!
 for _ in $(seq 1 180); do curl -fsS -m 1 "$SURREAL_MEMORY_URL/ready" 2>/dev/null | grep -q '"ledger":true' && break; sleep 1; done
 curl -fsS -m 1 "$SURREAL_MEMORY_URL/ready" 2>/dev/null | grep -q '"ledger":true' || { tail -20 "$S/sm/server.log" >&2; blocked "scratch surreal-memory never became ready"; }
 
+# --- 2b. the generated package, activated in the scratch plugin root -------------
+BUNDLE="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).bundleId)' "$CLAUDE_PKG/shared/harnesses/generated/release-manifest.json")"
+grep -q -- "--bundle $BUNDLE --hook subagentstart-learning" "$CODEX_PKG/hooks/hooks.json" || fail "codex package bundle differs from claude package"
+bash "$CLAUDE_PKG/shared/scripts/bootstrap-hook-runtime.sh" --source-root "$CLAUDE_PKG" --expected-bundle "$BUNDLE" >"$S/bootstrap.log" 2>&1 \
+  || { cat "$S/bootstrap.log" >&2; fail "could not activate the generated bundle in the scratch PROMETHEUS_PLUGIN_ROOT"; }
+hook_entry() { # <hook> <harness> <payload>   -> stdout of the generated entry
+  printf '%s' "$3" | CLAUDE_PLUGIN_ROOT="$CLAUDE_PKG" node "$CLAUDE_PKG/scripts/hook-entry.mjs" \
+    --bundle "$BUNDLE" --hook "$1" --harness "$2"
+}
+hook_direct() { hook_entry subagentstart-learning "$1" "$2"; }   # <harness> <payload>
+
 # --- 3. cycle 1: api-dev's lessons, routing and digest ---------------------------
 T_PRIV="BETA-PRIV is the api-dev handler marker: keep the retry budget for the handler private to api-dev."
 T_ROUTED="BETA-ROUTED is the client contract marker: the ui client must send the idempotency header the handler expects."
 T_LEAD="BETA-LEAD is the lead marker: the readme rewrite waits for the release owner."
-out_priv="$(write_as "$REPO" prometheus-skill-pack:api-dev --text "$T_PRIV" --paths src/api/handler.ts --stage execute)" || fail "learning_write BETA-PRIV"
-out_routed="$(write_as "$REPO" prometheus-skill-pack:api-dev --text "$T_ROUTED" --paths src/ui/client.ts --stage execute)" || fail "learning_write BETA-ROUTED"
-out_lead="$(write_as "$REPO" prometheus-skill-pack:api-dev --text "$T_LEAD" --paths docs/readme.md --stage execute)" || fail "learning_write BETA-LEAD"
-[ "$(scopes_of "$out_priv")" = "tlm-fixture/api-dev" ] || fail "BETA-PRIV must stay private to api-dev, got: $(scopes_of "$out_priv")"
-[ "$(scopes_of "$out_routed")" = "tlm-fixture/api-dev tlm-fixture/ui-dev" ] || fail "BETA-ROUTED must reach ui-dev, got: $(scopes_of "$out_routed")"
-[ "$(scopes_of "$out_lead")" = "tlm-fixture/@lead tlm-fixture/api-dev" ] || fail "BETA-LEAD (no owner) must reach lead, got: $(scopes_of "$out_lead")"
-ok "routing: BETA-PRIV (only api-dev owns the path) stays private, BETA-ROUTED is addressed to ui-dev, BETA-LEAD (no owner) to lead"
+SUBAGENT_TRANSCRIPT="$S/api-dev-transcript.jsonl"
+python3 - "$SUBAGENT_TRANSCRIPT" "$REPO" <<'PY' || fail "build the subagent transcript fixture"
+import json, sys
+path, repo = sys.argv[1:]
+def tool(name, **inp): return {"type": "assistant", "message": {"role": "assistant", "content": [{"type": "tool_use", "id": "t", "name": name, "input": inp}]}}
+rows = [tool("Read", file_path=f"{repo}/src/api/a.ts"),            # reads are not writes
+        tool("Write", file_path=f"{repo}/src/ui/client.ts"),       # absolute, inside the repo
+        tool("Write", file_path="/etc/outside-the-repo.conf"),     # outside the repo: dropped
+        tool("Write", file_path=f"{repo}/src/ui/client.ts"),       # duplicate: once
+        {"type": "user", "message": {"role": "user", "content": "noise"}}]
+open(path, "w").write("\n".join(json.dumps(r) for r in rows) + "\n")
+PY
+T_PRIV_LINE="$T_PRIV paths: src/api/handler.ts"
+T_LEAD_LINE="$T_LEAD (paths: docs/readme.md)"
+STOP_PAYLOAD="$(python3 - "$REPO" "$SUBAGENT_TRANSCRIPT" "$T_PRIV_LINE" "$T_ROUTED" "$T_LEAD_LINE" <<'PY'
+import json, sys
+repo, transcript, priv, routed, lead = sys.argv[1:]
+message = "Done.\nLESSON: " + priv + "\n- LESSON: " + routed + "\nGOTCHA: " + lead + "\nnot a lesson line"
+print(json.dumps({"hook_event_name": "SubagentStop", "agent_type": "prometheus-skill-pack:api-dev", "agent_id": "seed-api-dev",
+                  "session_id": "s-b7", "cwd": repo, "agent_transcript_path": transcript, "last_assistant_message": message}))
+PY
+)"
+stop_out="$(hook_entry subagentstop-learning claude-code "$STOP_PAYLOAD" 2>&1)"; stop_rc=$?
+[ "$stop_rc" -eq 0 ] || fail "subagentstop-learning exited $stop_rc"
+[ -z "$stop_out" ] || fail "subagentstop-learning must stay silent, printed: $stop_out"
+[ -n "$(ls "$PROMETHEUS_LEARNING_QUEUE/pending" 2>/dev/null | grep json)" ] || fail "the SubagentStop hook did not queue its learning job"
+rm -f "$PROMETHEUS_LEARNING_QUEUE"/pending/*.json   # the model-driven extraction job is not under test here
+scopes_of_log() { # <marker> -> sorted agent_ids the logged lesson was written to
+  python3 - "$PROMETHEUS_LEARNING_LOG_DIR/lessons.jsonl" "$1" <<'PY'
+import json, sys
+rows = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+hit = [r for r in rows if sys.argv[2] in r["text"]]
+assert len(hit) == 1, (sys.argv[2], len(hit))
+print(" ".join(sorted(a for _, a in hit[0]["scopes"])))
+PY
+}
+paths_of_log() { # <marker> -> the envelope paths the hook derived
+  python3 - "$PROMETHEUS_LEARNING_LOG_DIR/lessons.jsonl" "$1" <<'PY'
+import json, sys
+rows = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+print(" ".join(next(r for r in rows if sys.argv[2] in r["text"])["envelope"].get("paths", [])))
+PY
+}
+[ "$(paths_of_log BETA-PRIV)" = "src/api/handler.ts" ] || fail "BETA-PRIV paths from the LESSON suffix, got: $(paths_of_log BETA-PRIV)"
+[ "$(paths_of_log BETA-ROUTED)" = "src/ui/client.ts" ] || fail "BETA-ROUTED paths from the transcript Write, got: $(paths_of_log BETA-ROUTED)"
+[ "$(paths_of_log BETA-LEAD)" = "docs/readme.md" ] || fail "BETA-LEAD paths from the (paths: ...) suffix, got: $(paths_of_log BETA-LEAD)"
+[ "$(scopes_of_log BETA-PRIV)" = "tlm-fixture/api-dev" ] || fail "BETA-PRIV must stay private to api-dev, got: $(scopes_of_log BETA-PRIV)"
+[ "$(scopes_of_log BETA-ROUTED)" = "tlm-fixture/api-dev tlm-fixture/ui-dev" ] || fail "BETA-ROUTED must reach ui-dev, got: $(scopes_of_log BETA-ROUTED)"
+[ "$(scopes_of_log BETA-LEAD)" = "tlm-fixture/@lead tlm-fixture/api-dev" ] || fail "BETA-LEAD (no owner) must reach lead, got: $(scopes_of_log BETA-LEAD)"
+python3 - "$ROOT/shared/scripts/lib" "$S" <<'PY' || fail "path derivation limits"
+import json, sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import learning_write as lw
+repo = Path(sys.argv[2]) / "repo"
+rows = [{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "MultiEdit" if i % 2 else "Edit", "input": {"file_path": f"{repo}/src/ui/f{i}.ts"}}]}} for i in range(25)]
+transcript = Path(sys.argv[2]) / "many.jsonl"
+transcript.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+got = lw.transcript_written_paths(str(transcript), repo)
+assert len(got) == 20 and got[0] == "src/ui/f0.ts" and got[-1] == "src/ui/f19.ts", got        # capped at 20, repo-relative
+assert lw.transcript_written_paths(str(Path(sys.argv[2]) / "missing.jsonl"), repo) == []
+assert lw.split_lesson_paths("keep the budget paths: a/b.ts, c/d.ts", repo) == ("keep the budget", ["a/b.ts", "c/d.ts"])
+assert lw.split_lesson_paths("no suffix here", repo) == ("no suffix here", [])
+assert lw.split_lesson_paths("escape (paths: ../../etc/passwd /abs/elsewhere ok/x.ts)", repo) == ("escape", ["ok/x.ts"])
+PY
+ok "cycle 1 through the generated subagentstop entry (silent, rc 0): BETA-PRIV (suffix paths, only api-dev owns them) stays private, BETA-ROUTED (paths from the transcript Write) is addressed to ui-dev, BETA-LEAD (suffix paths, no owner) to lead; paths are repo-relative and capped at 20"
 
 r1="$(write_as "$REPO2" r1 --text "ROUTE-FIVE five roles own the shared path." --paths pkg/shared/x.ts)" || fail "route five"
 r2="$(write_as "$REPO2" r1 --text "ROUTE-PAIR two other roles own the pair path." --paths pkg/pair/x.ts)" || fail "route pair"
@@ -280,14 +356,6 @@ PY
 ok "every stored record validates against the envelope schema with the design-table agent_id; BETA-PRIV exists only under api-dev; the digest mirror (3 lines) holds no lesson text"
 
 # --- 6. the generated entry, run directly (no model) -----------------------------------
-BUNDLE="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).bundleId)' "$CLAUDE_PKG/shared/harnesses/generated/release-manifest.json")"
-grep -q -- "--bundle $BUNDLE --hook subagentstart-learning" "$CODEX_PKG/hooks/hooks.json" || fail "codex package bundle differs from claude package"
-bash "$CLAUDE_PKG/shared/scripts/bootstrap-hook-runtime.sh" --source-root "$CLAUDE_PKG" --expected-bundle "$BUNDLE" >"$S/bootstrap.log" 2>&1 \
-  || { cat "$S/bootstrap.log" >&2; fail "could not activate the generated bundle in the scratch PROMETHEUS_PLUGIN_ROOT"; }
-hook_direct() { # <harness> <payload>   -> stdout of the generated entry
-  printf '%s' "$2" | CLAUDE_PLUGIN_ROOT="$CLAUDE_PKG" node "$CLAUDE_PKG/scripts/hook-entry.mjs" \
-    --bundle "$BUNDLE" --hook subagentstart-learning --harness "$1"
-}
 payload() { printf '{"hook_event_name":"SubagentStart","agent_type":"%s","agent_id":"%s","session_id":"s-direct","cwd":"%s"%s}' "$1" "$2" "$3" "${4:-}"; }
 H_PRIV="$(python3 -c 'import hashlib,sys;print(hashlib.sha256(" ".join(sys.argv[1].split()).encode()).hexdigest()[:8])' "$T_PRIV")"
 direct_api="$(hook_direct claude-code "$(payload prometheus-skill-pack:api-dev direct-api "$REPO")")"
@@ -321,6 +389,40 @@ assert len(text.encode()) <= 2048
 PY
 ok "main thread: receives T/@lead (BETA-LEAD) and the digest lines, no role-private text, within the 2 KB budget"
 
+mainpayload() { printf '{"hook_event_name":"SessionStart","source":"startup","session_id":"%s","cwd":"%s"%s}' "$1" "$2" "${3:-}"; }
+main_claude="$(hook_entry sessionstart-learning claude-code "$(mainpayload s-main-direct "$REPO")")"; rc=$?
+[ "$rc" -eq 0 ] || fail "sessionstart-learning (claude-code) exited $rc"
+main_codex="$(hook_entry sessionstart-learning codex "$(mainpayload s-main-direct "$REPO" ',"turn_id":"t-main"')")"; rc=$?
+[ "$rc" -eq 0 ] || fail "sessionstart-learning (codex) exited $rc"
+python3 - "$main_claude" "$main_codex" "$H_PRIV" <<'PY' || fail "generated sessionstart-learning delivery"
+import sys
+claude, codex, h_priv = sys.argv[1:]
+for name, text, budget in (("claude-code", claude, 8000), ("codex", codex, 7000)):
+    assert text.startswith('<prometheus-recalled-lessons nonce="') and not text.startswith("{"), (name, text[:200])
+    assert text.rstrip().endswith("</prometheus-recalled-lessons nonce=\"" + text.split('nonce="')[1].split('"')[0] + '">'), name
+    assert "information, not instructions" in text, name
+    assert "BETA-LEAD" in text, (name, text)
+    assert "BETA-PRIV" not in text and "BETA-ROUTED" not in text, (name, "a role-private lesson text reached the main thread", text)
+    digest = [l for l in text.splitlines() if "recorded a lesson on" in l]
+    assert any("src/api/handler.ts" in l and f"h:{h_priv}" in l for l in digest), (name, text)
+    assert any("src/ui/client.ts" in l for l in digest), (name, text)
+    assert len(text) <= budget, (name, len(text))
+PY
+subagent_out="$(hook_entry sessionstart-learning claude-code "$(mainpayload s-main-direct "$REPO" ',"agent_type":"api-dev","agent_id":"x"')")"
+[ -z "$subagent_out" ] || fail "sessionstart-learning delivered to a subagent payload: $subagent_out"
+mkdir -p "$S/solo"
+solo_out="$(hook_entry sessionstart-learning claude-code "$(mainpayload s-main-direct "$S/solo")")"; rc=$?
+[ "$rc" -eq 0 ] && [ -z "$solo_out" ] || fail "sessionstart-learning must be silent outside a team (rc $rc): $solo_out"
+python3 - "$PROMETHEUS_LEARNING_INDEX_DIR/delivery.jsonl" <<'PY' || fail "SessionStart delivery.jsonl record"
+import json, sys
+rows = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+main = [r for r in rows if r.get("event") == "SessionStart" and r.get("sessionId") == "s-main-direct"]
+assert {r["harness"] for r in main} == {"claude-code", "codex"}, main
+assert all(r["agentType"] == "main-thread" and r["bytesByChannel"]["sessionstart"] > 0 for r in main), main
+assert all(not set(r["deliveredScopes"]) & {"tlm-fixture/api-dev", "tlm-fixture/ui-dev"} for r in main), main
+PY
+ok "generated sessionstart-learning entry (both harnesses): plain fenced context with BETA-LEAD and the digest lines, no role-private text, within budget; silent for a subagent payload and outside a team; measured in delivery.jsonl"
+
 # --- delivery.jsonl / trace analysis -----------------------------------------------------
 check_delivery() { # <harness>
   python3 - "$PROMETHEUS_LEARNING_INDEX_DIR/delivery.jsonl" "$1" "$PROMETHEUS_LEARNING_DELIVERY_TRACE_DIR" "$H_PRIV" <<'PY'
@@ -346,6 +448,23 @@ for r in records:
 PY
 }
 
+check_main_thread() { # <harness>: the live main thread was handed the team view, nothing private
+  python3 - "$PROMETHEUS_LEARNING_INDEX_DIR/delivery.jsonl" "$1" "$PROMETHEUS_LEARNING_DELIVERY_TRACE_DIR" <<'PY'
+import glob, json, os, sys
+path, harness, trace_dir = sys.argv[1:]
+live = [json.loads(l) for l in open(path) if l.strip()]
+live = [r for r in live if r.get("event") == "SessionStart" and r.get("harness") == harness
+        and not r.get("timedOut") and not str(r.get("sessionId") or "").startswith("s-main-")]
+assert live, f"{harness}: no live SessionStart delivery record (the hook did not fire or delivered nothing)"
+traces = [t for t in glob.glob(os.path.join(trace_dir, f"{harness}-main-thread-*.txt")) if "s-main-" not in os.path.basename(t)]
+assert traces, f"{harness}: no live main-thread trace"
+for trace in traces:
+    text = open(trace).read()
+    assert "BETA-LEAD" in text and "BETA-PRIV" not in text and "BETA-ROUTED" not in text, (trace, text[:400])
+print(f"  {harness} main thread: {live[-1]['chars']} chars, scopes {live[-1]['deliveredScopes']}")
+PY
+}
+
 # --- 8. Claude Code ------------------------------------------------------------------------
 if want claude; then
   CPKG="$S/claude-pkg"
@@ -353,7 +472,9 @@ if want claude; then
   python3 - "$CLAUDE_PKG/hooks/hooks.json" "$CPKG/hooks/hooks.json" <<'PY'
 import json, sys
 hooks = json.load(open(sys.argv[1]))["hooks"]
-json.dump({"hooks": {"SubagentStart": hooks["SubagentStart"]}}, open(sys.argv[2], "w"), indent=2)
+learning = [g for g in hooks["SessionStart"] if '"sessionstart-learning"' in json.dumps(g)]
+assert learning, "generated claude hooks lack the sessionstart-learning group"
+json.dump({"hooks": {"SubagentStart": hooks["SubagentStart"], "SessionStart": learning}}, open(sys.argv[2], "w"), indent=2)
 PY
   AGENTS="$(python3 - "$PROBE_INSTRUCTIONS" <<'PY'
 import json, sys
@@ -375,6 +496,7 @@ assert "BETA-PRIV" in api.group(1), api.group(1)
 assert "BETA-ROUTED" in ui.group(1) and "BETA-PRIV" not in ui.group(1) and "BETA-LEAD" not in ui.group(1), ui.group(1)
 PY
   check_delivery claude-code || fail "Claude Code delivery.jsonl budgets/leaks/digest"
+  check_main_thread claude-code || fail "Claude Code main-thread SessionStart delivery"
   ok "Claude Code: api-dev reported BETA-PRIV; ui-dev reported BETA-ROUTED and not BETA-PRIV, and was handed the digest line for BETA-PRIV; 0 leaks"
 fi
 
@@ -407,8 +529,12 @@ text, sessions, h_priv = open(sys.argv[1]).read(), sys.argv[2], sys.argv[3]
 api = re.search(r"api_dev\s*[=:]\s*(.*)", text); ui = re.search(r"ui_dev\s*[=:]\s*(.*)", text)
 assert api and ui, text
 assert "BETA-PRIV" in api.group(1), api.group(1)
-assert "BETA-ROUTED" in ui.group(1) and "BETA-PRIV" not in ui.group(1) and "BETA-LEAD" not in ui.group(1), ui.group(1)
-roles = {}
+assert "BETA-ROUTED" in ui.group(1) and "BETA-PRIV" not in ui.group(1), ui.group(1)
+# Codex forks the parent thread's history into a spawned child, so a child may legitimately
+# see the main-thread view the parent was handed at SessionStart (its BETA-LEAD line). That
+# is allowed only when it is the parent's own block, inherited verbatim; the child's OWN
+# SubagentStart block (checked below) must still never carry BETA-LEAD or BETA-PRIV.
+roles, inherited, parent_bodies = {}, {}, []
 for path in glob.glob(f"{sessions}/**/rollout-*.jsonl", recursive=True):
     lines = [json.loads(l) for l in open(path) if l.strip()]
     meta = lines[0]["payload"] if lines and lines[0].get("type") == "session_meta" else {}
@@ -420,17 +546,28 @@ for path in glob.glob(f"{sessions}/**/rollout-*.jsonl", recursive=True):
             if "prometheus-recalled-lessons" in body:
                 bodies.append(body)
     if meta.get("agent_role"):
-        roles[meta["agent_role"]] = "\n".join(bodies)
-    else:
-        assert not bodies, "a parent thread received the injection"
+        roles[meta["agent_role"]] = "\n".join(b for b in bodies if "Recalled team view" not in b)
+        inherited[meta["agent_role"]] = [b for b in bodies if "Recalled team view" in b]
+    else:  # the parent thread: the main-thread team view (SessionStart), never a role's or a subagent's text
+        parent_bodies.extend(bodies)
+        assert not any("Recalled lessons for" in b or "BETA-PRIV" in b or "BETA-ROUTED" in b for b in bodies), "a parent thread received a role-scoped injection"
+assert any("Recalled team view" in b and "BETA-LEAD" in b for b in parent_bodies), "the Codex parent thread did not receive the main-thread team view"
 assert "BETA-PRIV" in roles.get("api_dev", ""), roles.keys()
 ui_text = roles.get("ui_dev", "")
 assert "BETA-ROUTED" in ui_text and "BETA-PRIV" not in ui_text and "BETA-LEAD" not in ui_text, ui_text[:500]
 assert "src/api/handler.ts" in ui_text and f"h:{h_priv}" in ui_text, "ui_dev child rollout lacks the BETA-PRIV digest line"
+for role, blocks in inherited.items():  # only the parent's own main-thread block, verbatim, and never private text
+    for block in blocks:
+        assert block in parent_bodies, f"{role}: an inherited team view that is not the parent's"
+        assert "BETA-PRIV" not in block and "BETA-ROUTED" not in block, f"{role}: private text inside the inherited team view"
+if "BETA-LEAD" in ui.group(1):
+    assert inherited.get("ui_dev"), "ui_dev reported BETA-LEAD but its own context has no inherited team view"
+print("  codex: ui_dev inherited the parent's main-thread view:", bool(inherited.get("ui_dev")))
 PY
   check_delivery codex > "$S/codex-delivery.txt" || { cat "$S/codex-delivery.txt"; fail "Codex delivery.jsonl budgets/leaks/digest"; }
   cat "$S/codex-delivery.txt"
-  ok "Codex: api_dev reported BETA-PRIV; ui_dev reported BETA-ROUTED and not BETA-PRIV, its child rollout carries the BETA-PRIV digest line; 0 leaks"
+  check_main_thread codex || fail "Codex main-thread SessionStart delivery"
+  ok "Codex: api_dev reported BETA-PRIV; ui_dev reported BETA-ROUTED and not BETA-PRIV (BETA-LEAD only via the parent's forked main-thread view; its own SubagentStart block has neither), its child rollout carries the BETA-PRIV digest line; the parent got the team view; 0 leaks"
 fi
 
 # --- 10. the delivery report ---------------------------------------------------------------
@@ -463,6 +600,14 @@ text = "\n".join(l["line"] for l in json.load(open(sys.argv[1]))["lessons"])
 assert "BETA-LEAD" in text and "src/api/handler.ts" in text and "src/ui/client.ts" in text, text
 assert "BETA-PRIV" not in text and "BETA-ROUTED" not in text, text
 PY
-ok "surreal-memory stopped: the digest file and the file tier still reach ui-dev and the main thread; role-private text does not"
+main_down_hook="$(hook_entry sessionstart-learning claude-code "$(mainpayload s-main-down "$REPO")")"; rc=$?
+[ "$rc" -eq 0 ] || fail "stopped store: sessionstart-learning exited $rc"
+python3 - "$main_down_hook" <<'PY' || fail "stopped-store sessionstart-learning delivery"
+import sys
+text = sys.argv[1]
+assert "BETA-LEAD" in text and "src/api/handler.ts" in text and "src/ui/client.ts" in text, text
+assert "BETA-PRIV" not in text and "BETA-ROUTED" not in text, text
+PY
+ok "surreal-memory stopped: the digest file and the file tier still reach ui-dev and the main thread (also through the sessionstart hook); role-private text does not"
 
 echo "test-team-awareness: $pass passed (harness: $HARNESS)"
