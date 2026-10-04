@@ -1120,10 +1120,15 @@ launchd-invoked script with `/bin/bash script.sh`, not just `bash script.sh`.
 ### Codex hook evidence and current packaging
 
 The change-cpd-006 codex-cli 0.144.1 hook experiment is historical evidence,
-not the current package contract. The current Codex distribution advertises
-skills and MCP only; its compatibility validator rejects `manifest.hooks`.
-Do not reintroduce that field, claim that installing the current package fires
-hooks, or infer team execution from skill installation. Generated hook files for
+not the current package contract. The Codex manifest advertises skills and MCP
+only; its compatibility validator rejects `manifest.hooks`. Do not reintroduce
+that field. The generated package carries `hooks/hooks.json` by convention, and
+Codex fires it only in a trusted project with `[features].hooks = true` after the
+one-time hook-trust prompt (or `--dangerously-bypass-hook-trust` for vetted
+headless runs). This was verified for SubagentStart in change-tli-b5:
+`shared/scripts/tests/test-subagent-delivery.sh --harness codex` installs the
+generated package and finds the context in each child thread as a developer
+message. Do not infer team execution from skill installation. Generated hook files for
 other installation surfaces remain owned by their existing generators and
 receipt contracts. Neither the old snake_case config experiment nor an old
 plugin invocation authorizes changing the unrestricted Bash/Python policy.
