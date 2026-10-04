@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fixture, team, skillRoot } from './fixture.mjs';
@@ -96,6 +97,88 @@ for (const target of ['uar', 'bossfang', 'codex', 'claude', 'copilot', 'kimi', '
         }
     });
 }
+test('codex export: underscore names matching ^[a-z0-9_]+$ and generate_memories=false', () => {
+    const f = fixture();
+    try {
+        const manifest = { ...team(), roles: ['mobile-specialist', 'security-reviewer'].map(id => ({ id, description: `${id} responsibility`, prompt: 'Report evidence.', skills: [], owns: [`plans/${id}.md`], inputs: [], outputs: [], dependsOn: [] })) };
+        const out = path.join(f.root, 'codex-names');
+        f.call('export', { team: manifest, target: 'codex', out });
+        const files = fs.readdirSync(path.join(out, '.codex/agents')).sort();
+        assert.deepEqual(files, ['mobile_specialist.toml', 'security_reviewer.toml']);
+        for (const file of files) {
+            const agent = parseToml(fs.readFileSync(path.join(out, '.codex/agents', file), 'utf8'));
+            assert.match(String(agent.name), /^[a-z0-9_]+$/);
+            assert.equal(`${agent.name}.toml`, file);
+            assert.equal(agent.memories.generate_memories, false);
+        }
+        // A native override may re-enable generation explicitly; hyphenated native names are normalised.
+        const override = { ...manifest, roles: manifest.roles.map(r => ({ ...r, native: { codex: { name: 'same-name' } } })) };
+        f.call('export', { team: override, target: 'codex', out: path.join(f.root, 'codex-dup') }, 1);
+        const reenabled = { ...manifest, roles: [{ ...manifest.roles[0], native: { codex: { memories: { generate_memories: true } } } }] };
+        const out2 = path.join(f.root, 'codex-reenabled');
+        f.call('export', { team: reenabled, target: 'codex', out: out2 });
+        const a = parseToml(fs.readFileSync(path.join(out2, '.codex/agents/mobile_specialist.toml'), 'utf8'));
+        assert.equal(a.memories.generate_memories, true);
+    }
+    finally {
+        f.close();
+    }
+});
+test('codex doctor in a scratch CODEX_HOME loads the exported agent role (negative control: malformed file warns)', { skip: spawnSync('codex', ['--version']).status !== 0 && 'codex CLI not installed' }, () => {
+    const f = fixture();
+    try {
+        const manifest = { ...team(), roles: [{ id: 'mobile-specialist', description: 'd', prompt: 'p', skills: [], owns: ['plans/m.md'], inputs: [], outputs: [], dependsOn: [] }] };
+        const out = path.join(f.root, 'codex-load');
+        f.call('export', { team: manifest, target: 'codex', out });
+        const home = path.join(f.root, 'codex-home');
+        fs.mkdirSync(home);
+        const roleFile = path.join(out, '.codex/agents/mobile_specialist.toml');
+        fs.writeFileSync(path.join(home, 'config.toml'), `[agents.mobile_specialist]\ndescription = "d"\nconfig_file = ${JSON.stringify(roleFile)}\n`);
+        const warnings = () => {
+            const run = spawnSync('codex', ['doctor', '--json'], { cwd: f.root, encoding: 'utf8', timeout: 60000, env: { ...process.env, CODEX_HOME: home } });
+            const text = run.stdout;
+            assert.ok(text.includes('config.load'), run.stderr);
+            return (text.match(/Ignoring malformed agent role definition[^"]*/g) ?? []);
+        };
+        assert.deepEqual(warnings(), []);
+        fs.appendFileSync(roleFile, 'broken = [\n');
+        assert.equal(warnings().length, 1);
+    }
+    finally {
+        f.close();
+    }
+});
+test('claude export: memory: local is opt-in, validated, and ships a per-role MEMORY.md', () => {
+    const f = fixture();
+    try {
+        const plain = path.join(f.root, 'claude-plain');
+        f.call('export', { team: team(), target: 'claude', out: plain });
+        assert.equal(fs.existsSync(path.join(plain, '.claude/agent-memory-local')), false);
+        assert.doesNotMatch(fs.readFileSync(path.join(plain, '.claude/agents/implementer.md'), 'utf8'), /"memory"/);
+        const optIn = { ...team(), agentMemory: { claude: 'local' } };
+        const out = path.join(f.root, 'claude-local');
+        f.call('export', { team: optIn, target: 'claude', out });
+        for (const role of ['implementer', 'reviewer']) {
+            const content = fs.readFileSync(path.join(out, `.claude/agents/${role}.md`), 'utf8');
+            const front = content.match(/^---\n([\s\S]*?)\n---/);
+            assert.ok(front);
+            assert.equal(parseYaml(front[1]).memory, 'local');
+            const index = fs.readFileSync(path.join(out, `.claude/agent-memory-local/${role}/MEMORY.md`), 'utf8');
+            assert.ok(Buffer.byteLength(index) <= 4096);
+            assert.ok(index.includes(role));
+        }
+        // The flag has no effect on non-Claude targets.
+        const codexOut = path.join(f.root, 'codex-flag');
+        f.call('export', { team: optIn, target: 'codex', out: codexOut });
+        assert.equal(fs.existsSync(path.join(codexOut, '.claude')), false);
+        for (const bad of [{ claude: 'global' }, { codex: 'local' }, 'local', null])
+            f.call('validate', { team: { ...team(), agentMemory: bad } }, 1);
+        f.call('validate', { team: optIn });
+    }
+    finally {
+        f.close();
+    }
+});
 test('export refuses collisions, unsafe paths and overwriting existing proposals', () => {
     const f = fixture();
     try {
