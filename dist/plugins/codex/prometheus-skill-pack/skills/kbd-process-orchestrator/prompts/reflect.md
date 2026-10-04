@@ -128,6 +128,12 @@ Patterns that recurred often enough to become a skill or a skill change, or
 `NONE`. This section is for the operator and is **never** written back to
 memory.
 
+The learning worker also proposes skill candidates on its own
+(`pk candidates list --kind skill`); `kbd-reflect` presents them to the human
+after the reflection is written. Cite a candidate id here only when it matches a
+pattern you saw. Accepting a candidate only prints a `/pmpo-skill-creator`
+invocation — the reflection never creates a skill.
+
 ## Output Format
 
 Write to `.kbd-orchestrator/phases/<phase-name>/reflection.md`:

@@ -1,7 +1,7 @@
 ---
 license: MIT
 name: pmpo-skill-creator
-version: '1.0.0'
+version: '1.0.1'
 description: >
   Use this skill to create, clone, or extend Agent Skills using PMPO orchestration.
   Generates complete, production-ready skills with agentskills.io spec compliance,
@@ -69,7 +69,7 @@ Improves an existing installed skill using accumulated learning patterns from th
 - On `n`, timeout, or any non-`y` response: skill file is unchanged; diff file is preserved for future reference.
 - The diff must be minimal and surgical — it must not rewrite sections unrelated to the learning entries found.
 - If zero learning entries match the skill, exit 0 with message: "No learning patterns found for `<skill-name>` — skill is up to date."
-- `propose-skill-update.sh` (called by `evaluate-session.sh`) only logs candidates; it never invokes `--update` automatically. The `--update` invocation is always human-triggered.
+- `propose-skill-update.sh` (a manual entry point; no hook calls it) only logs candidates; it never invokes `--update` automatically. The `--update` invocation is always human-triggered.
 
 ## What Gets Generated
 
