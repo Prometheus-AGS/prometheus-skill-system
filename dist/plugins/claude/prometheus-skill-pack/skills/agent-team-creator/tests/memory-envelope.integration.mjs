@@ -119,7 +119,7 @@ test('memory-publish stores a schema-valid envelope under the design-table agent
         { scope: 'role:implementer', agentId: 'example/implementer', visibility: 'agent', role: 'implementer' },
         { scope: 'team:example', agentId: 'example/@team', visibility: 'team', role: undefined },
     ];
-    let revision = 1;
+    let revision = 0;
     for (const item of cases) {
         const content = `B3b envelope integration ${randomUUID()}:   keep  review evidence separate.`;
         const queued = f.call('memory-queue', { state: f.state, expectedRevision: revision, entry: { content, scope: item.scope } }, 0, env);
