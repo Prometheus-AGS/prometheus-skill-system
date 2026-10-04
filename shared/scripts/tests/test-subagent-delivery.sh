@@ -382,12 +382,12 @@ curl -fsS -m 1 "$SURREAL_MEMORY_URL/health" >/dev/null 2>&1 && fail "scratch sur
 NOPK_PATH="$(printf '%s' "$PATH" | tr ':' '\n' | grep -v "^$(dirname "$PK_BIN")\$" | paste -sd: -)"
 PATH="$NOPK_PATH" command -v pk >/dev/null 2>&1 && NOPK_PATH="/usr/bin:/bin:/usr/sbin:/sbin:$(dirname "$(command -v node)")"
 t0="$(python3 -c 'import time;print(time.time())')"
-out="$(PATH="$NOPK_PATH" PROMETHEUS_LEARNING_LOG_DIR="$S/empty-log" hook_direct claude-code "$(payload api-dev stopped-api "$REPO")")"; rc=$?
+out="$(PATH="$NOPK_PATH" PROMETHEUS_LEARNING_LOG_DIR="$S/empty-log" PROMETHEUS_TEAM_DIGEST_DIR="$S/empty-digest" hook_direct claude-code "$(payload api-dev stopped-api "$REPO")")"; rc=$?
 elapsed="$(python3 -c 'import sys,time;print(round(time.time()-float(sys.argv[1]),2))' "$t0")"
 [ "$rc" -eq 0 ] || fail "stopped store: hook exited $rc"
 [ -z "$out" ] || fail "stopped store: hook printed: $out"
 python3 -c 'import sys; sys.exit(0 if float(sys.argv[1]) < 5 else 1)' "$elapsed" || fail "stopped store: hook took ${elapsed}s"
-ok "surreal-memory stopped (no pk, no learning log): the generated entry exits 0 with empty stdout in ${elapsed}s"
+ok "surreal-memory stopped (no pk, no learning log, no team digest): the generated entry exits 0 with empty stdout in ${elapsed}s"
 out="$(hook_direct claude-code "$(payload api-dev stopped-fallback "$REPO")")"; rc=$?
 [ "$rc" -eq 0 ] || fail "stopped store with fallbacks: hook exited $rc"
 printf '%s' "$out" | grep -q 'ALPHA-UI' && fail "stopped store fallback leaked ALPHA-UI to api-dev"

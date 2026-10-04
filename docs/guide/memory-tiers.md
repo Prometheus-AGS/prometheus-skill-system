@@ -67,3 +67,7 @@ Claude exports then set `memory: local` in each agent's frontmatter and ship a s
 /bin/bash scripts/tests/test-memory-partition.sh        # partitions a copy of a ~14 KB index in a scratch HOME
 cd skills/process/agent-team-creator/runtime && npm ci && npm run build && npm run build:tests && node --test ../tests/export.integration.mjs
 ```
+
+## Main-thread view at SessionStart
+
+The `sessionstart-learning` hook hands the main thread of a team project its team view as fenced, untrusted context. On Claude Code that is the `<team>/@lead` scope plus the team digest. On Codex it is the team digest only (author, paths, contentHash; no lesson text): Codex forks the parent thread's history into every spawned agent, so anything injected into the parent is visible to every child role, and lead-scoped text must not reach a role it was not addressed to. The hook prints nothing for subagent sessions, outside a team, or when nothing is recalled.

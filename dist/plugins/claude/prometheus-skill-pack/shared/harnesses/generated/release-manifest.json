@@ -4,7 +4,7 @@
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
-  "contractSha256": "499d22ff9ecf407f7506d8ed9a755b1e950fb14f20b5b18d7d7aa0c8951ff9a4",
+  "contractSha256": "30cec478532dad9c67c201bd65f86eb2d1ea318fd295ac1ff8e9372c23a1065c",
   "runtimeFiles": [
     {
       "path": "scripts/hook-entry.mjs",
@@ -68,7 +68,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "503dd7cbdac199ab3f957d148e653494ce17054405676b5581961ee774169fa4",
+      "sha256": "386a726a64840c63897699cb08dfc9f8096eb1fb4445d35d4193b57a771993d2",
       "executable": false
     },
     {
@@ -133,7 +133,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "4e9e2b33207c6081970b7dff87b74f0502cf9b2b16007f3487106fe5e6a692d2",
+      "sha256": "5edba511e9cef969ed8971c62674feff3fa8721c0d707222dfe76535a8e26d9d",
       "executable": true
     },
     {
@@ -203,12 +203,17 @@
     },
     {
       "path": "shared/scripts/lib/learning_recall.py",
-      "sha256": "1894490b8b8fa2b513d510f948cc120e3c20fae8600090028479808bfc78b1db",
+      "sha256": "c5eb720237cc46f8b7a11690ebc4e99ae50997d7a7e20779210d0343ccb19a7d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/learning_route.py",
+      "sha256": "fa95cdc3fce09a1c4f75f4d145bdfd2badfaa18bed314d3392f6ce52a3bd9d9c",
       "executable": true
     },
     {
       "path": "shared/scripts/lib/learning_write.py",
-      "sha256": "948be1fe0b626b5517d41f0eab4f45bce8b00aa0c15f1b93e8c281e01c2207ef",
+      "sha256": "882c5c70e600bb6b2af590bb8ebbe477b7b408d4cb51e6a31bccf34f18e2f717",
       "executable": true
     },
     {
@@ -357,6 +362,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/sessionstart-learning.sh",
+      "sha256": "47e4a77bac2a523d2065ee139d313cca95f8861435b895e2b5f9bc489676867a",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/skills-freshness.sh",
       "sha256": "9978307deb1699892083603506b0c49aeacaab95939842f20f1eb080a5fb82db",
       "executable": true
@@ -373,7 +383,7 @@
     },
     {
       "path": "shared/scripts/subagentstop-learning.sh",
-      "sha256": "fae3e439f7cbcce51b868284c01ddf4f572435c6693a91a721ea7b31c96641ed",
+      "sha256": "43dc16d40da5de6fdc09e77ec0e1e7ccecf9e16442c0d6e7c5b767d56bce89c3",
       "executable": true
     },
     {
@@ -457,5 +467,5 @@
       "executable": true
     }
   ],
-  "bundleId": "4de438344ff9f664de441a1c72c3ff3e477434d1b6f654b392a66389bb0dae78"
+  "bundleId": "15b09d981754374b9a742f193ead34e8fb19757008c88db950440f0e50ab02d5"
 }

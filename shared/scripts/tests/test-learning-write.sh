@@ -120,7 +120,7 @@ ok "a non-team agent writes nothing"
 
 # --- delivery: real worker -> real 1.10 server -> read back -----------------
 mkdir -p "$S/sm"
-( cd "$S/sm" && env SURREAL_MODE=embedded SURREAL_PATH="$S/sm/db" SURREAL_NAMESPACE=b3 SURREAL_DATABASE=gate \
+( cd "$S/sm" && exec env SURREAL_MODE=embedded SURREAL_PATH="$S/sm/db" SURREAL_NAMESPACE=b3 SURREAL_DATABASE=gate \
     API_HOST=127.0.0.1 API_PORT="$PORT" MCP_STDIO=false EMBEDDING_PROVIDER=local LOCAL_EMBEDDING_BACKEND=mlx \
     LOCAL_EMBEDDING_EXECUTOR=/usr/local/bin/surreal-memory-mlx-executor LOCAL_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5 \
     LOCAL_EMBEDDING_MODEL_REVISION=5c38ec7c405ec4b44b94cc5a9bb96e735b38267a LOCAL_EMBEDDING_DIMENSIONS=384 \

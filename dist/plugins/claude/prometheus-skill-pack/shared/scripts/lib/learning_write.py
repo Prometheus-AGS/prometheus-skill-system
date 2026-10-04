@@ -39,6 +39,7 @@ import datetime
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -47,6 +48,7 @@ LIB = Path(__file__).resolve().parent
 sys.path.insert(0, str(LIB))
 from agent_identity import resolve as resolve_identity  # noqa: E402
 from project_id import resolve_user_scope  # noqa: E402
+import learning_route  # noqa: E402
 
 SCHEMA_PATH = LIB.parent.parent / "schemas" / "learning-envelope.schema.json"
 ENQUEUE = LIB.parent / "enqueue-memory-operation.py"
@@ -55,6 +57,86 @@ KINDS = ("lesson", "gotcha", "decision", "progress", "candidate")
 # format for every writer, so recall parses a single trailer.
 TRAILER = "<!-- prometheus-envelope "
 MAX_PATH_CATEGORIES = 5
+
+
+# --- paths for routing (design §7.1) ------------------------------------------------
+MAX_LESSON_PATHS = 20
+TRANSCRIPT_READ_BYTES = 8 * 1024 * 1024
+WRITE_TOOLS = ("Write", "Edit", "MultiEdit")
+_PATHS_SUFFIX = re.compile(r"\s+\(?paths:\s*([^()]*?)\)?\s*$", re.IGNORECASE)
+
+
+def repo_relative(path: str, root: Path | None) -> str | None:
+    """A repo-relative POSIX path, or None when it points outside the repo."""
+    if not path or "\x00" in path:
+        return None
+    candidate = Path(path)
+    if candidate.is_absolute():
+        if not root:
+            return None
+        try:
+            candidate = candidate.resolve().relative_to(root.resolve())
+        except (ValueError, OSError):
+            return None
+    parts = [part for part in candidate.as_posix().split("/") if part not in ("", ".")]
+    if not parts or ".." in parts:
+        return None
+    return "/".join(parts)
+
+
+def normalise_paths(paths: list[str], root: Path | None, cap: int = MAX_LESSON_PATHS) -> list[str]:
+    result: list[str] = []
+    for raw in paths:
+        path = repo_relative(raw.strip(), root)
+        if path and path not in result:
+            result.append(path)
+        if len(result) >= cap:
+            break
+    return result
+
+
+def split_lesson_paths(text: str, root: Path | None) -> tuple[str, list[str]]:
+    """Split an optional trailing `paths: a, b` (or `(paths: a b)`) off a LESSON line."""
+    match = _PATHS_SUFFIX.search(text)
+    if not match:
+        return text, []
+    declared = [piece for piece in re.split(r"[,\s]+", match.group(1)) if piece]
+    return text[: match.start()].rstrip(), normalise_paths(declared, root)
+
+
+def transcript_written_paths(transcript: str | None, root: Path | None, cap: int = MAX_LESSON_PATHS) -> list[str]:
+    """Files the transcript shows were written or edited (Write, Edit or MultiEdit
+    tool_use `file_path`), repo-relative, in first-write order, at most `cap`."""
+    if not transcript:
+        return []
+    try:
+        with open(transcript, "rb") as handle:
+            data = handle.read(TRANSCRIPT_READ_BYTES)
+    except OSError:
+        return []
+    found: list[str] = []
+
+    def visit(node) -> None:
+        if isinstance(node, dict):
+            if node.get("type") == "tool_use" and node.get("name") in WRITE_TOOLS and isinstance(node.get("input"), dict):
+                value = node["input"].get("file_path")
+                if isinstance(value, str):
+                    found.append(value)
+            for child in node.values():
+                if isinstance(child, (dict, list)):
+                    visit(child)
+        elif isinstance(node, list):
+            for child in node:
+                visit(child)
+
+    for line in data.decode("utf-8", "replace").splitlines():
+        if '"tool_use"' not in line:
+            continue
+        try:
+            visit(json.loads(line))
+        except ValueError:
+            continue
+    return normalise_paths(found, root, cap)
 
 
 def normalise_text(text: str) -> str:
@@ -226,6 +308,56 @@ def ingest_pk(text: str, envelope: dict, cwd: Path) -> bool:
         return False
 
 
+def route_audience(payload: dict, cwd: Path, identity: dict, visibility: str, paths: list[str]) -> list[str]:
+    """Path-overlap routing (design §7.1): only role-private lessons that carry
+    paths, and only inside an active team. PROMETHEUS_LEARNING_ROUTE=0 disables."""
+    if visibility != "agent" or not paths or os.environ.get("PROMETHEUS_LEARNING_ROUTE") == "0":
+        return []
+    _, team = learning_route.resolve_team(payload, cwd)
+    return learning_route.route(team, paths, identity["roleId"])
+
+
+def merge_audience(explicit: list[str], routed: list[str]) -> list[str]:
+    merged: list[str] = []
+    for entry in list(explicit) + list(routed):
+        if entry not in merged:
+            merged.append(entry)
+    return merged
+
+
+def write_digest(envelope: dict, identity: dict, user_scope: str) -> dict:
+    """Team digest (design §7.2): one line in the digest file and one mirror
+    memory under `<team>/@team`, for role-private lessons of a team role only.
+    The digest never carries the lesson text."""
+    if envelope["visibility"] != "agent" or not envelope.get("teamId") or os.environ.get("PROMETHEUS_TEAM_DIGEST") == "0":
+        return {"written": False}
+    role, digest = envelope["roleId"], envelope["contentHash"]
+    paths = envelope.get("paths", [])
+    line = learning_route.digest_line(role, paths, digest)
+    file_ok = learning_route.append_digest(learning_route.digest_path(identity["projectId"], envelope["teamId"]), line)
+    text = learning_route.digest_text(line)
+    mirror = build_envelope(text, identity, "progress", "team", [], paths, envelope.get("stage"), None)
+    problems = validate(mirror)
+    operation_id = ""
+    if not problems:
+        uid, aid = scope_keys("team", identity, user_scope)
+        if already_written(uid, aid, mirror["contentHash"]):
+            operation_id = "duplicate"
+        else:
+            categories_ = [c for c in categories(mirror, None) if not c.startswith("h:")]
+            categories_.append(f"h:{digest[:16]}")  # same key as the lesson: recall delivers it once
+            arguments = {
+                "content": f"{text}\n\n{TRAILER}{json.dumps(mirror, sort_keys=True, separators=(',', ':'))} -->",
+                "user_id": uid, "agent_id": aid, "categories": categories_,
+            }
+            if identity.get("sessionId"):
+                arguments["session_id"] = identity["sessionId"]
+            operation_id = enqueue(arguments)
+            if operation_id:
+                remember_written(uid, aid, mirror["contentHash"])
+    return {"written": file_ok, "line": line, "mirror": operation_id, "mirrorErrors": problems}
+
+
 def write_lesson(text: str, payload: dict | None = None, *, cwd: Path | None = None, kind: str = "lesson",
                  visibility: str | None = None, audience: list[str] | None = None, paths: list[str] | None = None,
                  stage: str | None = None, importance: float | None = None, pk: bool = False,
@@ -243,13 +375,14 @@ def write_lesson(text: str, payload: dict | None = None, *, cwd: Path | None = N
         visibility = "agent" if identity["roleId"] != "unresolved" else "project"
     if visibility == "agent" and identity["roleId"] == "unresolved":
         visibility = "project"
-    envelope = build_envelope(text, identity, kind, visibility, audience or [], paths or [], stage, importance)
+    audience = merge_audience(audience or [], route_audience(payload, cwd, identity, visibility, paths or []))
+    envelope = build_envelope(text, identity, kind, visibility, audience, paths or [], stage, importance)
     problems = validate(envelope)
     if problems:
         return {"written": 0, "reason": "invalid envelope", "errors": problems}
     user_scope = resolve_user_scope(cwd)
     stored = f"{text}\n\n{TRAILER}{json.dumps(envelope, sort_keys=True, separators=(',', ':'))} -->"
-    copies = [None] + list(audience or [])
+    copies = [None] + list(audience)
     operations = []
     for recipient in copies:
         uid, aid = scope_keys(visibility, identity, user_scope, recipient)
@@ -273,7 +406,8 @@ def write_lesson(text: str, payload: dict | None = None, *, cwd: Path | None = N
         return {"written": 0, "duplicate": any(o.get("duplicate") for o in operations), "envelope": envelope, "operations": operations}
     append_learning_log({"envelope": envelope, "text": text, "scopes": [(o["user_id"], o["agent_id"]) for o in operations]})
     pk_started = ingest_pk(text, envelope, cwd) if (pk or os.environ.get("PROMETHEUS_LEARNING_PK") == "1") else False
-    return {"written": len(written), "envelope": envelope, "operations": operations, "pk": pk_started}
+    digest = write_digest(envelope, identity, user_scope)
+    return {"written": len(written), "envelope": envelope, "operations": operations, "pk": pk_started, "digest": digest}
 
 
 def main() -> int:
