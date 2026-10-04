@@ -10,8 +10,9 @@ Generate a complete phase reflection report that:
 
 1. Measures goal achievement honestly, including cross-tool contributions
 2. Surfaces technical debt introduced across all executing tools
-3. Captures lessons for the knowledge base
-4. Proposes the focus areas for the next phase
+3. Captures lessons for the knowledge base, attributed and scoped for recall
+4. States which recalled lessons recurred
+5. Seeds the next phase
 
 ## Model Selection
 
@@ -34,6 +35,7 @@ See `references/model-routing.md` for the full routing contract.
 - **Assessment**: `.kbd-orchestrator/phases/<phase>/assessment.md`
 - **Plan**: `.kbd-orchestrator/phases/<phase>/plan.md`
 - **Cross-tool progress**: `.kbd-orchestrator/phases/<phase>/progress.json`
+- **Recalled lessons**: `.kbd-orchestrator/phases/<phase>/prior-context.md`
 - **Archived changes**:
   - If OpenSpec: `openspec/changes/archive/<date>-<id>/` directories
   - If native KBD: `.kbd-orchestrator/changes/archive/<date>-<id>/` directories
@@ -50,21 +52,48 @@ Before running reflect, verify all changes in this phase are complete:
 
 If any changes are `BLOCKED`, note them explicitly and proceed with reflection on what was completed.
 
+## Recalled lessons
+
+Read `.kbd-orchestrator/phases/<phase>/prior-context.md` first (the
+`reflect:before` hook refreshes it). For every recalled lesson, decide whether
+it **recurred** in this phase (the same mistake or pattern showed up again) or
+was **applied** (it prevented a repeat). Recurrence is a root-cause signal:
+name it in Root Cause.
+
 ## Reflection Dimensions
 
-### 1. Goal Achievement
+The report leads with what diverged, not with what succeeded (S-08).
+
+### 1. Delta
+
+What diverged from the plan: unmet or partial goals, dropped or reworked
+changes, regressions, verification gaps. One numbered item per divergence,
+with evidence (progress.json, verification output, file paths).
+
+### 2. Root Cause
+
+For each delta, the cause — not the symptom. Include recalled lessons that
+recurred (cite them from `prior-context.md`).
+
+### 3. Corrective Actions
+
+Concrete actions for the next phase, one per root cause. Prefix an action
+`[GLOBAL]` when it applies to any project, `[USER]` when it is this operator's
+preference; such actions are also stored as lessons in that scope.
+
+### 4. Goal Achievement
 
 For each stated phase goal: **MET | PARTIAL | NOT MET**, with an honest reason. Credit completed work regardless of which tool executed it. Calculate overall completion percentage.
 
-### 2. What Was Delivered
+### 5. What Was Delivered
 
 List all changes that were implemented and archived, noting which tool executed each. Format: `- <change-id>` — (by: )
 
-### 3. Technical Debt Introduced
+### 6. Technical Debt Introduced
 
 List any shortcuts, stubs, TODOs, or known violations deferred from this phase. Be specific — mention file paths where known. Note which tool introduced the debt.
 
-### 4. Architecture Integrity
+### 7. Architecture Integrity
 
 Check against `AGENTS.md` "Never Do" section and `.kbd-orchestrator/constraints.md`:
 
@@ -72,32 +101,32 @@ Check against `AGENTS.md` "Never Do" section and `.kbd-orchestrator/constraints.
 - Are known constraint violations present?
 - What technical patterns were broken?
 
-### 5. Lessons Learned
-
-Concrete, reusable learnings from this phase, especially around multi-tool coordination:
-
-- What worked well between tools?
-- What caused confusion or rework?
-- What should the next phase do differently?
-
-Format as bullet points suitable for adding to a Knowledge Item (KI).
-
-### 6. Cross-Tool Coordination Review (New)
-
-Assess how well the multi-tool workflow functioned:
+### 8. Cross-Tool Coordination Review
 
 - Were typed task transitions and their progress projections recorded reliably?
 - Were there any gaps where state was lost between tools?
 - What handoff notes worked well? What was unclear?
-- Recommendations for improving the cross-tool protocol.
 
-### 7. Next Phase Recommendations
+### 9. Lessons Learned
 
-Based on what was completed and what remains:
+Concrete, reusable learnings, one bullet each, written so that an agent
+reading it out of context can act on it. These bullets are written back to
+memory one lesson per bullet (`reflect:after` → `memory-writeback.sh`):
 
-- What should the next phase focus on?
-- What incomplete work should become high-priority changes in the next phase?
-- What architectural decisions need human review before proceeding?
+- no prefix → project scope (this project's agents recall it)
+- `[GLOBAL] …` → global scope (every project)
+- `[USER] …` → this operator's user scope
+
+### 10. Next Phase Seed
+
+The recommended next phase name (as `phase-<slug>`) and its top 3 priority
+areas. `/kbd-next-phase` seeds the next phase's goals from this section.
+
+### 11. Codify as Skill?
+
+Patterns that recurred often enough to become a skill or a skill change, or
+`NONE`. This section is for the operator and is **never** written back to
+memory.
 
 ## Output Format
 
@@ -110,6 +139,25 @@ Write to `.kbd-orchestrator/phases/<phase-name>/reflection.md`:
 **Date:** <ISO date>
 **Phase completion:** <N>%
 **Changes completed:** <N> / <total>
+
+## Delta
+
+1. <what diverged from the plan, with evidence>
+
+## Root Cause
+
+1. <cause of delta 1; cite any recalled lesson that recurred>
+
+## Corrective Actions
+
+1. <action for root cause 1>
+2. [GLOBAL] <action that applies to any project>
+
+## Recalled Lessons
+
+- Recurred: <lesson cited from prior-context.md> — <where it showed up again>
+- Applied: <lesson> — <what it prevented>
+- (NONE if prior-context.md held no applicable lessons)
 
 ## Goals
 
@@ -135,20 +183,28 @@ Write to `.kbd-orchestrator/phases/<phase-name>/reflection.md`:
 
 - Progress tracking: RELIABLE | GAPS FOUND — <detail>
 - Handoff quality: CLEAR | UNCLEAR — <detail>
-- Recommendations: <what to improve>
 
 ## Lessons Learned
 
-- <lesson>
+- <project lesson>
+- [GLOBAL] <lesson for every project>
+- [USER] <operator preference>
 
-## Next Phase Focus
+## Next Phase Seed
 
-<recommended next phase name and top 3 priority areas>
+`phase-<slug>` — <top 3 priority areas>
+
+## Codify as Skill?
+
+- <recurring pattern worth a skill> | NONE
 
 ## Context for Next Phase
 
 Use this file as prior context for the next `/kbd-assess` invocation.
 ```
+
+Older reflections used `## Next Phase Focus`; the write-back still reads it
+as a fallback, but new reflections use `## Next Phase Seed`.
 
 ## Sycophancy Self-Check (MANDATORY)
 

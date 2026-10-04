@@ -29,11 +29,95 @@
       "id": "auto-memory-recall",
       "event": "assess:before",
       "mode": "augment",
-      "description": "Populate prior-context.md from surreal-memory before each /kbd-assess. Composes with on_failure: ignore so a missing memory endpoint never blocks assess.",
+      "description": "Populate prior-context.md (lessons for the lead view, pk knowledge, previous reflection, knowledge gaps) from the shared recall library before each /kbd-assess. Composes with on_failure: ignore so a missing memory endpoint never blocks assess.",
       "action": {
         "type": "command",
-        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/skills/kbd-memory-recall/kbd-memory-recall.sh\" \"$KBD_HOOK_NAME\"",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/skills/kbd-memory-recall/kbd-memory-recall.sh\" \"$KBD_HOOK_NAME\" assess",
         "timeout": 30,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "auto-memory-recall-analyze",
+      "event": "analyze:before",
+      "mode": "augment",
+      "description": "Refresh prior-context.md for /kbd-analyze from the shared recall library (lead view), so the stage starts from the lessons recorded so far. No-op when stores are absent.",
+      "action": {
+        "type": "command",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/skills/kbd-memory-recall/kbd-memory-recall.sh\" \"$KBD_HOOK_NAME\" analyze",
+        "timeout": 30,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "auto-memory-recall-plan",
+      "event": "plan:before",
+      "mode": "augment",
+      "description": "Refresh prior-context.md for /kbd-plan from the shared recall library (lead view), so the stage starts from the lessons recorded so far. No-op when stores are absent.",
+      "action": {
+        "type": "command",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/skills/kbd-memory-recall/kbd-memory-recall.sh\" \"$KBD_HOOK_NAME\" plan",
+        "timeout": 30,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "auto-memory-recall-execute",
+      "event": "execute:before",
+      "mode": "augment",
+      "description": "Refresh prior-context.md for /kbd-execute from the shared recall library (lead view), so the stage starts from the lessons recorded so far. No-op when stores are absent.",
+      "action": {
+        "type": "command",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/skills/kbd-memory-recall/kbd-memory-recall.sh\" \"$KBD_HOOK_NAME\" execute",
+        "timeout": 30,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "auto-memory-recall-reflect",
+      "event": "reflect:before",
+      "mode": "augment",
+      "description": "Refresh prior-context.md for /kbd-reflect from the shared recall library (lead view), so the stage starts from the lessons recorded so far. No-op when stores are absent.",
+      "action": {
+        "type": "command",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/skills/kbd-memory-recall/kbd-memory-recall.sh\" \"$KBD_HOOK_NAME\" reflect",
+        "timeout": 30,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "kbd-stage-writeback-assess",
+      "event": "assess:after",
+      "mode": "augment",
+      "description": "Write the assess stage handoff summary to memory at visibility lead (agent_id <team>/@lead) through learning_write. No-op when the pack's shared scripts or python3 are absent.",
+      "action": {
+        "type": "command",
+        "command": "for r in \"${KBD_PACK_ROOT:-}\" \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../..\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../..\"; do if [ -n \"$r\" ] && [ -f \"$r/shared/scripts/kbd-stage-writeback.sh\" ]; then bash \"$r/shared/scripts/kbd-stage-writeback.sh\" assess \"$KBD_HOOK_NAME\" </dev/null || true; exit 0; fi; done; exit 0",
+        "timeout": 8,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "kbd-stage-writeback-analyze",
+      "event": "analyze:after",
+      "mode": "augment",
+      "description": "Write the analyze stage handoff summary to memory at visibility lead (agent_id <team>/@lead) through learning_write. No-op when the pack's shared scripts or python3 are absent.",
+      "action": {
+        "type": "command",
+        "command": "for r in \"${KBD_PACK_ROOT:-}\" \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../..\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../..\"; do if [ -n \"$r\" ] && [ -f \"$r/shared/scripts/kbd-stage-writeback.sh\" ]; then bash \"$r/shared/scripts/kbd-stage-writeback.sh\" analyze \"$KBD_HOOK_NAME\" </dev/null || true; exit 0; fi; done; exit 0",
+        "timeout": 8,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "kbd-stage-writeback-plan",
+      "event": "plan:after",
+      "mode": "augment",
+      "description": "Write the plan stage handoff summary to memory at visibility lead (agent_id <team>/@lead) through learning_write. No-op when the pack's shared scripts or python3 are absent.",
+      "action": {
+        "type": "command",
+        "command": "for r in \"${KBD_PACK_ROOT:-}\" \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../..\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../..\"; do if [ -n \"$r\" ] && [ -f \"$r/shared/scripts/kbd-stage-writeback.sh\" ]; then bash \"$r/shared/scripts/kbd-stage-writeback.sh\" plan \"$KBD_HOOK_NAME\" </dev/null || true; exit 0; fi; done; exit 0",
+        "timeout": 8,
         "on_failure": "ignore"
       }
     },
@@ -136,32 +220,20 @@
       "description": "Open a surreal-memory task stream for the phase at execute start (best-effort; outbox-buffered when the endpoint is down).",
       "action": {
         "type": "command",
-        "command": "src=\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../../shared/scripts/lib/memory-bridge.sh\"; [ -f \"$src\" ] && . \"$src\" && mem_create_task_stream \"kbd:${KBD_PROJECT_NAME:-prometheus-skill-pack}:${KBD_HOOK_NAME}\" || true",
+        "command": "for r in \"${KBD_PACK_ROOT:-}\" \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../..\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../..\"; do src=\"$r/shared/scripts/lib/memory-bridge.sh\"; if [ -n \"$r\" ] && [ -f \"$src\" ]; then . \"$src\" && mem_create_task_stream \"kbd:${KBD_PROJECT_NAME:-prometheus-skill-pack}:${KBD_HOOK_NAME}\" || true; exit 0; fi; done; exit 0",
         "timeout": 6,
         "on_failure": "ignore"
       }
     },
     {
       "id": "memory-reflection-writeback",
-      "event": "reflect:end",
+      "event": "reflect:after",
       "mode": "augment",
-      "description": "Persist the accepted phase reflection (Delta + Corrective Actions) to surreal-memory, scoped global vs project. Skips rejected reflections.",
+      "description": "Persist the accepted phase reflection (Delta / Root Cause / Corrective Actions, Lessons Learned, Next Phase Seed) as attributed lessons through learning_write: [GLOBAL]/[USER] lines to global/user scope, the rest to project. Skips rejected reflections. Resolves memory-writeback.sh through the plugin root, then the flat installed layout, then the source tree.",
       "action": {
         "type": "command",
-        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../../shared/scripts/memory-writeback.sh\" </dev/null || true",
+        "command": "for r in \"${KBD_PACK_ROOT:-}\" \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../..\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../..\"; do if [ -n \"$r\" ] && [ -f \"$r/shared/scripts/memory-writeback.sh\" ]; then bash \"$r/shared/scripts/memory-writeback.sh\" </dev/null || true; exit 0; fi; done; exit 0",
         "timeout": 8,
-        "on_failure": "ignore"
-      }
-    },
-    {
-      "id": "pk-ingest-on-reflect",
-      "event": "reflect:end",
-      "mode": "augment",
-      "description": "Ingest the reflection into prometheus-knowledge at reflect time so learnings are available within the session, not only at Stop. No-op when pk is absent.",
-      "action": {
-        "type": "command",
-        "command": "command -v pk >/dev/null 2>&1 && pk ingest >/dev/null 2>&1 || true",
-        "timeout": 10,
         "on_failure": "ignore"
       }
     }
