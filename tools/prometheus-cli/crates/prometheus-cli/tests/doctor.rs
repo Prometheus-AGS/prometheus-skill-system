@@ -243,6 +243,22 @@ fn run_hook_doctor(project: &Path, home: &Path) -> std::process::Output {
 fn first_hook_args_mut(value: &mut serde_json::Value) -> Option<&mut Vec<serde_json::Value>> {
     match value {
         serde_json::Value::Object(object) => {
+            // Generated hooks carry the invocation as one string (Codex ignores
+            // `args`); expand the first one into the structured form, which the
+            // doctor also accepts, so a single argument can be mutated.
+            if let Some(command) = object
+                .get("command")
+                .and_then(serde_json::Value::as_str)
+                .filter(|command| command.starts_with("node ") && !object.contains_key("args"))
+            {
+                let tokens: Vec<serde_json::Value> = command
+                    .split_whitespace()
+                    .skip(1)
+                    .map(|token| serde_json::Value::String(token.to_owned()))
+                    .collect();
+                object.insert("command".into(), serde_json::Value::String("node".into()));
+                object.insert("args".into(), serde_json::Value::Array(tokens));
+            }
             if object.get("command").and_then(serde_json::Value::as_str) == Some("node") {
                 return object
                     .get_mut("args")

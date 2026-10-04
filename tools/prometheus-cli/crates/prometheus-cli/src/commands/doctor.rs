@@ -1660,25 +1660,32 @@ struct HookCommand {
     arguments: Vec<String>,
 }
 
+/// Codex ignores `args`, so generated hooks carry the whole invocation in a
+/// single `command` string (abf0ade). A structured `command` + `args` pair is
+/// still accepted. Generated arguments never contain whitespace.
+fn hook_command(command: &str, args: Option<&serde_json::Value>) -> HookCommand {
+    if let Some(values) = args.and_then(serde_json::Value::as_array) {
+        return HookCommand {
+            executable: command.to_owned(),
+            arguments: values
+                .iter()
+                .filter_map(serde_json::Value::as_str)
+                .map(str::to_owned)
+                .collect(),
+        };
+    }
+    let mut parts = command.split_whitespace().map(str::to_owned);
+    HookCommand {
+        executable: parts.next().unwrap_or_default(),
+        arguments: parts.collect(),
+    }
+}
+
 fn collect_hook_commands(value: &serde_json::Value, commands: &mut Vec<HookCommand>) {
     match value {
         serde_json::Value::Object(object) => {
-            if let Some(executable) = object.get("command").and_then(serde_json::Value::as_str) {
-                let arguments = object
-                    .get("args")
-                    .and_then(serde_json::Value::as_array)
-                    .map(|values| {
-                        values
-                            .iter()
-                            .filter_map(serde_json::Value::as_str)
-                            .map(str::to_owned)
-                            .collect()
-                    })
-                    .unwrap_or_default();
-                commands.push(HookCommand {
-                    executable: executable.to_owned(),
-                    arguments,
-                });
+            if let Some(command) = object.get("command").and_then(serde_json::Value::as_str) {
+                commands.push(hook_command(command, object.get("args")));
             }
             for child in object.values() {
                 collect_hook_commands(child, commands);
