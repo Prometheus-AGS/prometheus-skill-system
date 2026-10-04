@@ -57,13 +57,27 @@ case "$EVENT" in
     prompt="$(json_value '.prompt // .message // .content // .text')"
     [ -n "$prompt" ] || finish
     if command -v pk >/dev/null 2>&1; then
-      if ! RUST_LOG=error pk context "$prompt" \
+      # One pk call. The JSON is rendered into the same text `--format hook`
+      # prints and also feeds knowledge-gap detection (lib/prompt_gap.py).
+      MAX_BYTES="${PROMETHEUS_CONTEXT_MAX_BYTES:-6000}"
+      if ! CONTEXT_JSON="$(RUST_LOG=error pk context "$prompt" \
         --scope project --scope shared --scope global \
         --limit "${PROMETHEUS_CONTEXT_LIMIT:-8}" \
         --max-candidates "${PROMETHEUS_CONTEXT_MAX_CANDIDATES:-128}" \
-        --max-bytes "${PROMETHEUS_CONTEXT_MAX_BYTES:-6000}" \
-        --format hook 2>/dev/null; then
+        --max-bytes "$MAX_BYTES" \
+        --format json 2>/dev/null)"; then
         printf '[prometheus-context] status=partial reason=pk-query-failed\n' >&2
+      elif command -v python3 >/dev/null 2>&1 && [ -f "$SCRIPT_DIR/lib/prompt_gap.py" ]; then
+        printf '%s' "$CONTEXT_JSON" | PROMPT_GAP_PROMPT="$prompt" PROMPT_GAP_PAYLOAD="$INPUT" \
+          PROMPT_GAP_MAX_BYTES="$MAX_BYTES" python3 "$SCRIPT_DIR/lib/prompt_gap.py" 2>/dev/null \
+          || printf '[prometheus-context] status=partial reason=gap-render-failed\n' >&2
+      else
+        # No python3: fall back to pk's own hook rendering (no gap detection).
+        RUST_LOG=error pk context "$prompt" \
+          --scope project --scope shared --scope global \
+          --limit "${PROMETHEUS_CONTEXT_LIMIT:-8}" \
+          --max-candidates "${PROMETHEUS_CONTEXT_MAX_CANDIDATES:-128}" \
+          --max-bytes "$MAX_BYTES" --format hook 2>/dev/null || true
       fi
     else
       printf '[prometheus-context] status=unavailable reason=pk-not-found\n' >&2

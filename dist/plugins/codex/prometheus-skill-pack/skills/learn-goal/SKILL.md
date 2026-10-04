@@ -1,7 +1,7 @@
 ---
 name: learn-goal
 description: Entry point for the Feynman learning flow. Accepts a learning desire, assembles a grounded corpus (public and/or custom KB), runs an honest feasibility gate with sycophancy-correction, and produces a goal artifact that downstream learn-* skills consume.
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 metadata:
   author: prometheus-skill-pack
@@ -164,6 +164,44 @@ GOAL_JSON=$(jq -n \
 
 bash "${SKILL_DIR}/scripts/write-goal.sh" --goal-json "$GOAL_JSON"
 ```
+
+## Closing step — ingest the explanation and resolve the gap
+
+When the goal artifact is written and the learner has produced a final explanation of the subject (or, when the goal is handed to `feynman-loop`, once that loop closes), persist what was learned so the next prompt on this topic is
+answered from the knowledge base instead of triggering another
+`[prometheus-gap]` suggestion (emitted by `karpathy-hook-dispatch.sh`, design
+`docs/design/team-aware-learning-memory.md` §4).
+
+1. Ingest the final explanation as a Lesson. Use project scope by default; use
+   shared scope (with `--yes`) only when the topic is generic and not specific to
+   this project:
+
+   ```bash
+   # project scope (default)
+   printf '%s' "$EXPLANATION_TEXT" | pk ingest --type Lesson --source "learn-goal:${GOAL_ID:-manual}" --tag learn
+   # generic topic -> shared scope
+   printf '%s' "$EXPLANATION_TEXT" | pk ingest --type Lesson --scope shared --yes --source "learn-goal:${GOAL_ID:-manual}" --tag learn
+   ```
+
+2. Mark the matching knowledge gap resolved in
+   `~/.prometheus/knowledge-gaps/gaps.jsonl`:
+
+   ```bash
+   python3 "${CLAUDE_PLUGIN_ROOT:-$PROMETHEUS_PLUGIN_ROOT}/shared/scripts/lib/prompt_gap.py" \
+     resolve --topic "$SUBJECT" --by learn-goal --scope project
+   ```
+
+   This appends one record per matching open gap (same topic key, or at least
+   two shared keywords with the subject):
+
+   ```json
+   {"ts":"<utc>","status":"resolved","topicKey":"<16 hex>","topic":"<gap topic>","resolvedBy":"learn-goal","scope":"project"}
+   ```
+
+   The latest record per `topicKey` wins; an `open` record is any gap whose
+   latest record has `status:"open"`. The step never fails the flow: with no
+   `pk` on PATH, skip step 1 and tell the user the explanation was not persisted;
+   with no matching gap, step 2 prints nothing.
 
 ## Goal artifact schema
 

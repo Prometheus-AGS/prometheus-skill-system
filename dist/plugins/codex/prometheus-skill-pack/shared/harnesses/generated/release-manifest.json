@@ -148,7 +148,7 @@
     },
     {
       "path": "shared/scripts/karpathy-hook-dispatch.sh",
-      "sha256": "163d1358df6536d080f4de73021fc0ac09c372248cb0fac33d9de2e2f2ebdb18",
+      "sha256": "a5cb56917b242922e76a012cd55a0fc0f5f3b661c28e444de1f56f43949a266f",
       "executable": true
     },
     {
@@ -163,7 +163,7 @@
     },
     {
       "path": "shared/scripts/kbd-open.sh",
-      "sha256": "2a672131e43d0476c74414240e276516874c9b71cfb92ae92f510e72e8ee18ae",
+      "sha256": "26aab0b2b53ae2c7d34083ce2b63137e837dab1d15f1872dd813198eb76dca21",
       "executable": true
     },
     {
@@ -203,7 +203,7 @@
     },
     {
       "path": "shared/scripts/lib/learning_recall.py",
-      "sha256": "8a76e099280fe8a91afa19133b9fa11462ed80ee9525355b73bb4c4ccbdccbec",
+      "sha256": "1894490b8b8fa2b513d510f948cc120e3c20fae8600090028479808bfc78b1db",
       "executable": true
     },
     {
@@ -229,6 +229,11 @@
     {
       "path": "shared/scripts/lib/project-id.sh",
       "sha256": "dcbef3ff4ed8b797183ab90e87175eb77160f97bcba408608f6bc3d9b59a2b63",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/prompt_gap.py",
+      "sha256": "e6acce9539bac7733b9d373c625738e824a6c9e49a36c763ce05691805b6ae07",
       "executable": true
     },
     {
@@ -452,5 +457,5 @@
       "executable": true
     }
   ],
-  "bundleId": "f1f0a86ed52fec7a82b33a45a6dc213c5adb8bf30277e2a6478722094bd3ec96"
+  "bundleId": "4de438344ff9f664de441a1c72c3ff3e477434d1b6f654b392a66389bb0dae78"
 }

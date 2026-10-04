@@ -10,7 +10,9 @@
 #                         (surreal-memory, then pk, then the file tier)
 #   ## pk knowledge       bounded `pk context` results for the phase goals
 #   ## Previous reflection  Delta / Root Cause / Corrective Actions / Next Phase Seed
-#   ## Knowledge gaps     unmet goals, technical debt and unresolved findings
+#   ## Knowledge gaps     unmet goals, technical debt, unresolved findings and,
+#                         when recall found nothing, open prompt-time gaps with a
+#                         /learn-goal hint (kbd-assess and kbd-analyze list them)
 # The file stays under KBD_RECALL_BUDGET bytes (default 12000) and every run
 # appends one line to the learning-index delivery log. Always exits 0.
 #
@@ -195,8 +197,12 @@ out += ["", "## pk knowledge", ""]
 out += [e["line"] for e in result["knowledge"]] or ["*(no pk knowledge for this phase)*"]
 out += ["", "## Previous reflection", ""]
 out += [f"From `{previous.parent.name}/reflection.md`:", "", excerpt] if excerpt else ["*(no previous reflection)*"]
+prompt_gaps = [g["line"] for g in result.get("knowledgeGaps", [])]
+if prompt_gaps:
+    prompt_gaps = ["Open knowledge gaps (no recalled lesson or knowledge covers them; offer `/learn-goal <topic>`):"] + prompt_gaps
 out += ["", "## Knowledge gaps", ""]
-out += [gaps] if gaps else ["*(none recorded)*"]
+combined = "\n".join([gaps] * bool(gaps) + prompt_gaps)
+out += [combined] if combined else ["*(none recorded)*"]
 text = cap("\n".join(out) + "\n", budget)
 tmp = digest.with_name(digest.name + ".tmp")
 tmp.write_text(text, encoding="utf-8")

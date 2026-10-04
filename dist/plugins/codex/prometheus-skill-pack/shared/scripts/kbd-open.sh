@@ -99,32 +99,13 @@ for name in names[:limit]:
 PY
 }
 
-# repeated_gaps — unresolved knowledge-gap topics seen at least twice.
+# repeated_gaps — still-open knowledge-gap topics seen in at least two sessions,
+# read through the gap library so the gaps.jsonl record format has one parser.
 repeated_gaps() {
   have_python || return 0
-  python3 - "$GAPS_FILE" <<'PY' 2>/dev/null
-import collections, json, sys
-counts, resolved = collections.Counter(), set()
-try:
-    with open(sys.argv[1]) as handle:
-        for line in handle:
-            try:
-                entry = json.loads(line)
-            except Exception:
-                continue
-            topic = str(entry.get('topic') or '').strip()
-            if not topic:
-                continue
-            if entry.get('resolved'):
-                resolved.add(topic)
-            else:
-                counts[topic] += 1
-except OSError:
-    sys.exit(0)
-for topic, count in counts.most_common(5):
-    if count >= 2 and topic not in resolved:
-        print(f"- {topic[:120]} (seen {count}x) — `/learn-goal {topic[:60]}`")
-PY
+  gap_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)/lib/prompt_gap.py"
+  [ -f "$gap_lib" ] || return 0
+  python3 "$gap_lib" list --min-seen 2 --limit 5 2>/dev/null
 }
 
 KBD_ROOT="$(find_kbd_root 2>/dev/null || true)"
