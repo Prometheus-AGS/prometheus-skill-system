@@ -4,7 +4,7 @@
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
-  "contractSha256": "0063076b9542ab66af72d02f03a069426bb5459f79c27a6aafeec28a61c8a57b",
+  "contractSha256": "ee6b7963ee82ad572b2697b560746d4769a5ab91923c5b160e8e785b363cdb15",
   "runtimeFiles": [
     {
       "path": "scripts/hook-entry.mjs",
@@ -68,7 +68,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "b89d64bd9f596da045880747314ac08a9b1e70710f567a0646e87cd6211f54b0",
+      "sha256": "a30530f3523b2033f00355c6d15292244e498bf05e21f7946b698caa2d66ca80",
       "executable": false
     },
     {
@@ -133,7 +133,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "c2ae2d4baa06a271a6907f9948df83d247c27aa39dee1dc459b58d1845a13e30",
+      "sha256": "28e486d1bf090fea40342213c08ec131790d739862ac88c44ffba98ac1a1ccf3",
       "executable": true
     },
     {
@@ -362,6 +362,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/team-role-guard.sh",
+      "sha256": "65e26ba18952cc5cb4cd215517444e30c08b261895636e7540f42ee948d8304d",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/validate-gitops-write.sh",
       "sha256": "b5dfe39a50753851e76dc427cabfea4071d418385fd6c887c8b04f90790d4257",
       "executable": true
@@ -422,5 +427,5 @@
       "executable": true
     }
   ],
-  "bundleId": "fcd49290a0833931ffa92a5470527e1440e458a88dd0b2217b71fc5facb50b41"
+  "bundleId": "3d5abd6723e330078870a927ca5cdffd82914efe0c19afdcf6e589d6654f17a2"
 }
