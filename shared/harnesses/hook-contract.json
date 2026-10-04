@@ -34,6 +34,22 @@
     },
     {
       "event": "SessionStart",
+      "matcher": "*",
+      "harnesses": ["claude-code", "codex"],
+      "description": "Deliver the main thread's team view (lead scope + team digest) as untrusted context (silent when no team or store)",
+      "groupId": "sessionstart:learning",
+      "hooks": [
+        {
+          "id": "sessionstart-learning",
+          "target": "shared/scripts/sessionstart-learning.sh",
+          "args": ["{harness}"],
+          "ignoreFailure": true,
+          "timeout": 5
+        }
+      ]
+    },
+    {
+      "event": "SessionStart",
       "hooks": [
         {
           "id": "sessionstart-detect-project-context",
