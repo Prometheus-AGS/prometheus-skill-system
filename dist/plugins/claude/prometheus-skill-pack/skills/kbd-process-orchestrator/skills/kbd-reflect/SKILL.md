@@ -1,7 +1,7 @@
 ---
 license: MIT
 name: kbd-reflect
-version: '1.0.0'
+version: '1.1.0'
 description: >
   Generate the phase reflection report after all changes in the phase are
   complete. Seeds the next phase's planning inputs. Aggregates artifact-refiner
@@ -125,9 +125,19 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
    or `.kbd-orchestrator/changes/archive/` if native KBD
 7. **Follow the reflect protocol** in `../prompts/reflect.md`
 8. **Write reflection** to `.kbd-orchestrator/phases/<phase>/reflection.md`
-9. **If evolver bridge exists**: write execution results back to evolver state
-10. **Advance when authorized** through `/kbd-next-phase`; its helper activates the phase and generates projections
-11. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
+9. **Review promotion candidates** — run `pk candidates list --kind promotion`
+   (pk >= 1.11.0; skip silently when `pk` or the `candidates` subcommand is
+   absent) and present each pending candidate to the human with its scope,
+   reasons and evidence count. **Accept or reject only on an explicit human
+   instruction** — `pk candidates accept <id>` or `pk candidates reject <id>
+   [--reason ...]`. Never accept or reject on your own judgement, and never
+   auto-accept to clear the list; an unreviewed candidate stays pending.
+   Lessons you already marked `[GLOBAL]` / `[USER]` in the reflection promote
+   immediately through `memory-writeback.sh`; candidates are the *proposed*
+   promotions that still need a human decision.
+10. **If evolver bridge exists**: write execution results back to evolver state
+11. **Advance when authorized** through `/kbd-next-phase`; its helper activates the phase and generates projections
+12. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
 
 ## Examples
 

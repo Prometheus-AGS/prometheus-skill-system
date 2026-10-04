@@ -5,7 +5,8 @@
 #   1. the active KBD phase, its position reminder and its goals
 #   2. bounded local knowledge for that phase (`pk context`, project + shared +
 #      global scopes, no LLM call)
-#   3. items waiting on a human decision: promotion candidates, new-skill
+#   3. items waiting on a human decision: promotion candidates (`pk candidates
+#      list --kind promotion`, pk >= 1.11.0; absent with an older pk), new-skill
 #      candidates, skill-update candidates, and knowledge gaps seen repeatedly
 #   4. today's learning log, the latest daily pulse, and FSRS cards due
 #
@@ -23,7 +24,6 @@ LOG_FILE="${PROMETHEUS_HOME}/logs/kbd-open.log"
 SNAPSHOT="${PROMETHEUS_HOME}/last-open-snapshot.txt"
 LEARNING_LOG="${PROMETHEUS_HOME}/learning-log"
 SKILL_UPDATES_DIR="${PROMETHEUS_HOME}/skill-updates"
-PROMOTION_DIR="${PROMETHEUS_HOME}/promotion-candidates/pending"
 SKILL_CANDIDATES_DIR="${PROMETHEUS_HOME}/skill-candidates/pending"
 GAPS_FILE="${PROMETHEUS_HOME}/knowledge-gaps/gaps.jsonl"
 PULSE_DIR="${PROMETHEUS_HOME}/pulse"
@@ -76,26 +76,66 @@ list_candidates() {
   have_python || return 0
   python3 - "$1" "$CANDIDATE_LIMIT" <<'PY' 2>/dev/null
 import json, os, sys
+def format_candidate(ident, data, width=12):
+    text = next((str(data[k]).strip() for k in ('lesson', 'title', 'summary', 'name', 'content', 'description')
+                 if isinstance(data, dict) and data.get(k)), '(no summary)')
+    evidence = data.get('evidence') if isinstance(data, dict) else None
+    count = len(evidence) if isinstance(evidence, list) else 0
+    scope = (data.get('proposedScope') or data.get('scope') or data.get('mode') or '') if isinstance(data, dict) else ''
+    extra = ', '.join(part for part in (f"{count} evidence" if count else '', scope) if part)
+    return f"- `{ident[:width]}` {text[:140]}" + (f" ({extra})" if extra else '')
+
 directory, limit = sys.argv[1], int(sys.argv[2])
 try:
     names = [n for n in os.listdir(directory) if n.endswith('.json')]
 except OSError:
     sys.exit(0)
 names.sort(key=lambda n: os.path.getmtime(os.path.join(directory, n)), reverse=True)
-print(f"COUNT {len(names)}")
-for name in names[:limit]:
+records = []
+for name in names:
     try:
         with open(os.path.join(directory, name)) as handle:
-            data = json.load(handle)
+            records.append((name[:-5], json.load(handle)))
     except Exception:
         continue
-    text = next((str(data[k]).strip() for k in ('lesson', 'title', 'summary', 'name', 'description')
+print(f"COUNT {len(names)}")
+for ident, data in records[:limit]:
+    print(format_candidate(ident, data))
+PY
+}
+
+# list_pk_promotion_candidates — pending promotion candidates through the pk CLI
+# (`pk candidates list --kind promotion`, pk >= 1.11.0): one COUNT line, then one
+# line per candidate, newest first. Prints nothing when pk is absent, older than
+# 1.11.0 (no `candidates` subcommand), fails, or has nothing pending.
+list_pk_promotion_candidates() {
+  have_python || return 0
+  command -v pk >/dev/null 2>&1 || return 0
+  raw="$(pk candidates list --kind promotion --state pending --json 2>/dev/null)" || return 0
+  [ -n "$raw" ] || return 0
+  PK_CANDIDATES_JSON="$raw" python3 - "$CANDIDATE_LIMIT" <<'PY' 2>/dev/null
+import json, os, sys
+def format_candidate(ident, data, width=12):
+    text = next((str(data[k]).strip() for k in ('lesson', 'title', 'summary', 'name', 'content', 'description')
                  if isinstance(data, dict) and data.get(k)), '(no summary)')
     evidence = data.get('evidence') if isinstance(data, dict) else None
     count = len(evidence) if isinstance(evidence, list) else 0
-    scope = data.get('proposedScope') or data.get('mode') or ''
+    scope = (data.get('proposedScope') or data.get('scope') or data.get('mode') or '') if isinstance(data, dict) else ''
     extra = ', '.join(part for part in (f"{count} evidence" if count else '', scope) if part)
-    print(f"- `{name[:-5][:12]}` {text[:140]}" + (f" ({extra})" if extra else ''))
+    return f"- `{ident[:width]}` {text[:140]}" + (f" ({extra})" if extra else '')
+
+limit = int(sys.argv[1])
+try:
+    items = json.loads(os.environ.get('PK_CANDIDATES_JSON', ''))
+except Exception:
+    sys.exit(0)
+items = [i for i in items if isinstance(i, dict)] if isinstance(items, list) else []
+if not items:
+    sys.exit(0)
+items.sort(key=lambda i: str(i.get('updatedAt') or i.get('createdAt') or ''), reverse=True)
+print(f"COUNT {len(items)}")
+for data in items[:limit]:
+    print(format_candidate(str(data.get('id') or ''), data, 80))  # full id: `pk candidates accept <id>` needs it
 PY
 }
 
@@ -159,14 +199,12 @@ fi
     fi
   fi
 
-  if [ -d "$PROMOTION_DIR" ]; then
-    LISTING="$(list_candidates "$PROMOTION_DIR")"
-    COUNT="$(printf '%s\n' "$LISTING" | sed -n 's/^COUNT //p')"
-    if [ -n "$COUNT" ] && [ "$COUNT" -gt 0 ]; then
-      printf '## Promotion candidates awaiting review (%s)\n' "$COUNT"
-      printf '%s\n' "$LISTING" | grep -v '^COUNT '
-      printf '\n_Accept or reject only on a human decision: `pk candidates accept|reject <id>`_\n\n'
-    fi
+  LISTING="$(list_pk_promotion_candidates)"
+  COUNT="$(printf '%s\n' "$LISTING" | sed -n 's/^COUNT //p')"
+  if [ -n "$COUNT" ] && [ "$COUNT" -gt 0 ]; then
+    printf '## Promotion candidates awaiting review (%s)\n' "$COUNT"
+    printf '%s\n' "$LISTING" | grep -v '^COUNT '
+    printf '\n_Review with `pk candidates list --kind promotion`; accept or reject only on a human decision: `pk candidates accept|reject <id>`_\n\n'
   fi
 
   if [ -d "$SKILL_CANDIDATES_DIR" ]; then

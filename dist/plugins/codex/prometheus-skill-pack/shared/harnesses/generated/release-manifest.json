@@ -163,7 +163,7 @@
     },
     {
       "path": "shared/scripts/kbd-open.sh",
-      "sha256": "26aab0b2b53ae2c7d34083ce2b63137e837dab1d15f1872dd813198eb76dca21",
+      "sha256": "0d89d2e914e045846e1826ab9a4f04d953c82dd7d62aa028b02ac51b3c6c2ddf",
       "executable": true
     },
     {
@@ -467,5 +467,5 @@
       "executable": true
     }
   ],
-  "bundleId": "cd9e98a405a275e33a5285c17aee42a91a66fde64618ddd838dc3a9b3b7eb1a4"
+  "bundleId": "7119cf223de991a1b6640df560e6b2593eef30b9b5145300467b151eee2f8da6"
 }
