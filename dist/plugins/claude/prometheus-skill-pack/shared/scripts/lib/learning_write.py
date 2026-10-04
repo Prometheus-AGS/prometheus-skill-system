@@ -21,7 +21,7 @@ Idempotence: the operation id is derived from (method, canonical arguments), so
 writing the same lesson to the same scope twice queues one operation.
 
 Stored memory content is the lesson text followed by one trailer line,
-`<!-- learning-envelope: {json} -->`, so recall can show the text and still
+`<!-- prometheus-envelope {json} -->` (the agent-team runtime writes the same), so recall can show the text and still
 read the envelope.
 
 Usage:
@@ -51,12 +51,16 @@ from project_id import resolve_user_scope  # noqa: E402
 SCHEMA_PATH = LIB.parent.parent / "schemas" / "learning-envelope.schema.json"
 ENQUEUE = LIB.parent / "enqueue-memory-operation.py"
 KINDS = ("lesson", "gotcha", "decision", "progress", "candidate")
-TRAILER = "<!-- learning-envelope: "
+# Shared with the agent-team runtime (memory.mts ENVELOPE_TRAILER_PREFIX): one
+# format for every writer, so recall parses a single trailer.
+TRAILER = "<!-- prometheus-envelope "
 MAX_PATH_CATEGORIES = 5
 
 
 def normalise_text(text: str) -> str:
-    return " ".join(text.split())
+    """NFC, trimmed, internal whitespace collapsed — identical to memory.mts."""
+    import unicodedata
+    return " ".join(unicodedata.normalize("NFC", text).split())
 
 
 def content_hash(text: str) -> str:
