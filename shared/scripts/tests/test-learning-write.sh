@@ -67,7 +67,7 @@ op_id = result["operations"][0]["operation"]
 op = json.load(open(glob.glob(f"{queue}/memory/*/{op_id}.json")[0]))
 args = op["arguments"]
 assert (args["user_id"], args["agent_id"]) == (uid, aid), (args["user_id"], args["agent_id"], uid, aid)
-trailer = args["content"].rsplit("<!-- learning-envelope: ", 1)[1].rsplit(" -->", 1)[0]
+trailer = args["content"].rsplit("<!-- prometheus-envelope ", 1)[1].rsplit(" -->", 1)[0]
 envelope = json.loads(trailer)
 jsonschema.Draft202012Validator(json.load(open(schema))).validate(envelope)
 assert "env:1" in args["categories"] and f"h:{envelope['contentHash'][:16]}" in args["categories"], args["categories"]
@@ -134,14 +134,14 @@ for _ in 1 2 3 4 5 6; do
   [ -z "$(ls "$PROMETHEUS_LEARNING_QUEUE"/memory/pending "$PROMETHEUS_LEARNING_QUEUE"/memory/submitting "$PROMETHEUS_LEARNING_QUEUE"/memory/accepted 2>/dev/null | grep json)" ] && break
   sleep 3
 done
-got="$(curl -fsS -m 10 "http://127.0.0.1:$PORT/api/v1/memory/?user_id=project:b3-fixture&agent_id=tlm-fixture/api-dev")"
+got="$(curl -fsS -m 10 "http://127.0.0.1:$PORT/api/v1/memory?user_id=project:b3-fixture&agent_id=tlm-fixture/api-dev")"
 python3 - "$got" "$SCHEMA" <<'PY' || fail "delivered record not found or invalid"
 import json, sys, jsonschema
 records = json.loads(sys.argv[1])
 records = records if isinstance(records, list) else records.get("memories", records.get("results", []))
 hits = [r for r in records if "anchor SubagentStop matchers" in r.get("content", "")]
 assert hits, [r.get("content", "")[:60] for r in records]
-envelope = json.loads(hits[0]["content"].rsplit("<!-- learning-envelope: ", 1)[1].rsplit(" -->", 1)[0])
+envelope = json.loads(hits[0]["content"].rsplit("<!-- prometheus-envelope ", 1)[1].rsplit(" -->", 1)[0])
 jsonschema.Draft202012Validator(json.load(open(sys.argv[2]))).validate(envelope)
 assert envelope["teamId"] == "tlm-fixture" and envelope["roleId"] == "api-dev", envelope
 PY
