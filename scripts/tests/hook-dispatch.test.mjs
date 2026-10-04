@@ -118,7 +118,10 @@ check('both harnesses get the same timeout in seconds for every hook', () => {
   const claude = byId('hooks/hooks.json');
   const codex = byId('hooks/codex-hooks.json');
   for (const [id, timeout] of Object.entries(codex)) {
-    assert.equal(timeout, claude[id], `${id}: codex and claude timeouts differ`);
+    // Codex-only copies of Claude groups (team-role guarded) carry a `-codex`
+    // suffix; they must keep the timeout of the hook they wrap.
+    const counterpart = id in claude ? id : id.replace(/-codex$/, '');
+    assert.equal(timeout, claude[counterpart], `${id}: codex and claude timeouts differ`);
   }
   for (const timeout of [...Object.values(claude), ...Object.values(codex)]) {
     if (timeout === undefined) continue;

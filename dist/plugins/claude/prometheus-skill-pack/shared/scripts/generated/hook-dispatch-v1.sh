@@ -112,6 +112,51 @@ case "$HOOK_ID" in
   'subagent-reflector-dispatch')
     run_bundle_script 'skills/process/iterative-evolver/scripts/workflow-dispatch.sh' "$EVOLUTION" 'phase_complete' 'reflect' 2>&1 || true
     ;;
+  'subagent-assessor-checkpoint-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/state-checkpoint.sh' "$EVOLUTION" 'assess' 'phase_complete' 2>&1 || true
+    ;;
+  'subagent-assessor-dispatch-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/workflow-dispatch.sh' "$EVOLUTION" 'phase_complete' 'assess' 2>&1 || true
+    ;;
+  'subagent-analyst-checkpoint-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/state-checkpoint.sh' "$EVOLUTION" 'analyze' 'phase_complete' 2>&1 || true
+    ;;
+  'subagent-analyst-dispatch-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/workflow-dispatch.sh' "$EVOLUTION" 'phase_complete' 'analyze' 2>&1 || true
+    ;;
+  'subagent-planner-checkpoint-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/state-checkpoint.sh' "$EVOLUTION" 'plan' 'phase_complete' 2>&1 || true
+    ;;
+  'subagent-planner-dispatch-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/workflow-dispatch.sh' "$EVOLUTION" 'phase_complete' 'plan' 2>&1 || true
+    ;;
+  'subagent-executor-karpathy-learning-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'shared/scripts/karpathy-hook-dispatch.sh' 'executor_complete' "$HARNESS"
+    ;;
+  'subagent-executor-validate-state-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/validate-state.sh' 2>&1 || true
+    ;;
+  'subagent-executor-checkpoint-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/state-checkpoint.sh' "$EVOLUTION" 'execute' 'phase_complete' 2>&1 || true
+    ;;
+  'subagent-executor-evaluate-session-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'shared/scripts/evaluate-session.sh' 2>&1 || true
+    ;;
+  'subagent-executor-dispatch-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/workflow-dispatch.sh' "$EVOLUTION" 'phase_complete' 'execute' 2>&1 || true
+    ;;
+  'subagent-reflector-sycophancy-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'shared/scripts/sycophancy-check-reflection.sh' 2>&1
+    ;;
+  'subagent-reflector-log-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/log-reflection.sh' 2>&1 || true
+    ;;
+  'subagent-reflector-checkpoint-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/state-checkpoint.sh' "$EVOLUTION" 'reflect' 'phase_complete' 2>&1 || true
+    ;;
+  'subagent-reflector-dispatch-codex')
+    run_bundle_script 'shared/scripts/team-role-guard.sh' 'skills/process/iterative-evolver/scripts/workflow-dispatch.sh' "$EVOLUTION" 'phase_complete' 'reflect' 2>&1 || true
+    ;;
   'subagent-fallback-checkpoint')
     run_bundle_script 'shared/scripts/subagent-checkpoint-fallback.sh' 2>&1 || true
     ;;
