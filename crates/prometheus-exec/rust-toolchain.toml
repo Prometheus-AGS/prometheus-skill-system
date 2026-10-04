@@ -12,8 +12,11 @@
 # rustup updates it, changing the release binary while the committed hash stays
 # fixed and making a clean install fail despite unchanged source.
 #
-# Changing this channel changes the binary hash. Rebuild and update
+# Changing this channel changes the binary hash. Recertify with
+# `bash scripts/build-prometheus-exec.sh --print-hash` and update
 # expectedBuildSha256 in config/prometheus-exec-binary.json in the same commit.
+# Always certify through that script: a plain `cargo build --release` embeds
+# the checkout path and yields a hash no other checkout or worktree reproduces.
 [toolchain]
 channel = "1.97.1"
 components = ["rustfmt", "clippy"]
