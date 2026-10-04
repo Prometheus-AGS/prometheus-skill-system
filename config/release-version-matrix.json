@@ -22,7 +22,7 @@
   "intentionalExemptions": [
     { "surface": "kbd-runtime", "version": "0.1.0", "reason": "internal protocol crate" },
     { "surface": "surreal-memory library", "version": "0.1.0", "reason": "independently versioned embeddable crate" },
-    { "surface": "prometheus-knowledge submodule", "version": "1.10.0", "reason": "independently released pinned submodule" },
+    { "surface": "prometheus-knowledge submodule", "version": "1.11.0", "reason": "independently released pinned submodule" },
     { "surface": "surreal-memory-server submodule", "version": "1.10.0", "reason": "independently released pinned submodule" },
     { "surface": "prometheus-exec", "version": "1.7.0", "reason": "independently certified binary and API" },
     { "surface": "adjacent marketplace plugins", "version": "owned", "reason": "plugin releases do not cascade with the umbrella" }

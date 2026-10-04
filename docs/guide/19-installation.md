@@ -99,7 +99,7 @@ before loading services:
 
 ```text
 prometheus 1.8.0
-pk 1.10.0
+pk 1.11.0
 pk-cherry 1.8.0
 prometheus-learning-worker 1.8.0
 surreal-memory-server 1.10.0
