@@ -115,7 +115,8 @@
     },
     {
       "event": "SubagentStop",
-      "matcher": "assessor",
+      "matcher": "^iterative-evolver:assessor$",
+      "harnesses": ["claude-code"],
       "hooks": [
         {
           "id": "subagent-assessor-checkpoint",
@@ -135,7 +136,8 @@
     },
     {
       "event": "SubagentStop",
-      "matcher": "analyst",
+      "matcher": "^iterative-evolver:analyst$",
+      "harnesses": ["claude-code"],
       "hooks": [
         {
           "id": "subagent-analyst-checkpoint",
@@ -155,7 +157,8 @@
     },
     {
       "event": "SubagentStop",
-      "matcher": "planner",
+      "matcher": "^iterative-evolver:planner$",
+      "harnesses": ["claude-code"],
       "hooks": [
         {
           "id": "subagent-planner-checkpoint",
@@ -175,7 +178,8 @@
     },
     {
       "event": "SubagentStop",
-      "matcher": "executor",
+      "matcher": "^iterative-evolver:executor$",
+      "harnesses": ["claude-code"],
       "hooks": [
         {
           "id": "subagent-executor-karpathy-learning",
@@ -213,7 +217,8 @@
     },
     {
       "event": "SubagentStop",
-      "matcher": "reflector",
+      "matcher": "^iterative-evolver:reflector$",
+      "harnesses": ["claude-code"],
       "hooks": [
         {
           "id": "subagent-reflector-sycophancy",
@@ -238,6 +243,145 @@
           "id": "subagent-reflector-dispatch",
           "target": "skills/process/iterative-evolver/scripts/workflow-dispatch.sh",
           "args": ["{evolution}", "phase_complete", "reflect"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "^assessor$",
+      "harnesses": ["codex"],
+      "hooks": [
+        {
+          "id": "subagent-assessor-checkpoint-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/state-checkpoint.sh", "{evolution}", "assess", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-assessor-dispatch-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/workflow-dispatch.sh", "{evolution}", "phase_complete", "assess"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "^analyst$",
+      "harnesses": ["codex"],
+      "hooks": [
+        {
+          "id": "subagent-analyst-checkpoint-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/state-checkpoint.sh", "{evolution}", "analyze", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-analyst-dispatch-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/workflow-dispatch.sh", "{evolution}", "phase_complete", "analyze"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "^planner$",
+      "harnesses": ["codex"],
+      "hooks": [
+        {
+          "id": "subagent-planner-checkpoint-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/state-checkpoint.sh", "{evolution}", "plan", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-planner-dispatch-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/workflow-dispatch.sh", "{evolution}", "phase_complete", "plan"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "^executor$",
+      "harnesses": ["codex"],
+      "hooks": [
+        {
+          "id": "subagent-executor-karpathy-learning-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["shared/scripts/karpathy-hook-dispatch.sh", "executor_complete", "{harness}"]
+        },
+        {
+          "id": "subagent-executor-validate-state-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/validate-state.sh"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-executor-checkpoint-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/state-checkpoint.sh", "{evolution}", "execute", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-executor-evaluate-session-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["shared/scripts/evaluate-session.sh"],
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 30
+        },
+        {
+          "id": "subagent-executor-dispatch-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/workflow-dispatch.sh", "{evolution}", "phase_complete", "execute"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "^reflector$",
+      "harnesses": ["codex"],
+      "hooks": [
+        {
+          "id": "subagent-reflector-sycophancy-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["shared/scripts/sycophancy-check-reflection.sh"],
+          "stderrToStdout": true,
+          "timeout": 35
+        },
+        {
+          "id": "subagent-reflector-log-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/log-reflection.sh"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-reflector-checkpoint-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/state-checkpoint.sh", "{evolution}", "reflect", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-reflector-dispatch-codex",
+          "target": "shared/scripts/team-role-guard.sh",
+          "args": ["skills/process/iterative-evolver/scripts/workflow-dispatch.sh", "{evolution}", "phase_complete", "reflect"],
           "stderrToStdout": true,
           "ignoreFailure": true
         }

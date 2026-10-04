@@ -1,0 +1,13 @@
+{
+ "permission_mode": "default",
+ "agent_id": "ad50cd017f2d20e38",
+ "agent_type": "iterative-evolver:planner",
+ "effort": {
+  "level": "medium"
+ },
+ "hook_event_name": "SubagentStop",
+ "stop_hook_active": false,
+ "background_tasks": [],
+ "session_crons": [],
+ "_captured": "claude-code 2.1.289, --plugin-dir skills/process/iterative-evolver, 2026-10-04"
+}
