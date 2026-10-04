@@ -1028,6 +1028,15 @@ probe plugin on codex-cli 0.158.0, shape the generated file
    the 0.158 binary schema, default 600). The generator rejects values outside
    1–600. An earlier "Codex reads milliseconds" note was a misdiagnosis: the
    failing hook in that probe was the JSON-stdout one.
+3. **Enabling hooks needs `[features].hooks = true`; `codex_hooks` is the
+   deprecated name.** Plugin hooks are non-managed, so the first interactive
+   `codex` session after install shows a **one-time hook-trust prompt**; accept it
+   once. Headless `codex exec` shows no prompt, so vetted automation passes
+   `--dangerously-bypass-hook-trust` (the B5 alpha gate does, in a scratch
+   `CODEX_HOME` only). Subagents need `[features].multi_agent = true`; SubagentStart
+   and SubagentStop then fire through plugin hooks with the bare TOML agent name
+   (`api_dev` for role `api-dev`), and SubagentStart `additionalContext` lands in
+   the child thread as a developer message (codex-cli 0.158.0).
 
 Codex also treats hook stdout that starts with `{` as a structured response, so a
 hook must not open its output with raw JSON.
@@ -1111,10 +1120,15 @@ launchd-invoked script with `/bin/bash script.sh`, not just `bash script.sh`.
 ### Codex hook evidence and current packaging
 
 The change-cpd-006 codex-cli 0.144.1 hook experiment is historical evidence,
-not the current package contract. The current Codex distribution advertises
-skills and MCP only; its compatibility validator rejects `manifest.hooks`.
-Do not reintroduce that field, claim that installing the current package fires
-hooks, or infer team execution from skill installation. Generated hook files for
+not the current package contract. The Codex manifest advertises skills and MCP
+only; its compatibility validator rejects `manifest.hooks`. Do not reintroduce
+that field. The generated package carries `hooks/hooks.json` by convention, and
+Codex fires it only in a trusted project with `[features].hooks = true` after the
+one-time hook-trust prompt (or `--dangerously-bypass-hook-trust` for vetted
+headless runs). This was verified for SubagentStart in change-tli-b5:
+`shared/scripts/tests/test-subagent-delivery.sh --harness codex` installs the
+generated package and finds the context in each child thread as a developer
+message. Do not infer team execution from skill installation. Generated hook files for
 other installation surfaces remain owned by their existing generators and
 receipt contracts. Neither the old snake_case config experiment nor an old
 plugin invocation authorizes changing the unrestricted Bash/Python policy.

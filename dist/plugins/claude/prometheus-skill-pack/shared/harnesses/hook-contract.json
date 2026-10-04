@@ -114,6 +114,22 @@
       ]
     },
     {
+      "event": "SubagentStart",
+      "matcher": "*",
+      "harnesses": ["claude-code", "codex"],
+      "description": "Deliver the subagent's own role-scoped lessons as untrusted additionalContext (silent when no team or store)",
+      "groupId": "subagentstart-learning",
+      "hooks": [
+        {
+          "id": "subagentstart-learning",
+          "target": "shared/scripts/subagentstart-learning.sh",
+          "args": ["{harness}"],
+          "ignoreFailure": true,
+          "timeout": 5
+        }
+      ]
+    },
+    {
       "event": "SubagentStop",
       "matcher": "^iterative-evolver:assessor$",
       "harnesses": ["claude-code"],

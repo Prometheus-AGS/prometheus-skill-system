@@ -4,7 +4,7 @@
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
-  "contractSha256": "2be9331cbcb51dff7339b37cb9c097690122bbcb994eb06fedcbbfb1e3966e73",
+  "contractSha256": "499d22ff9ecf407f7506d8ed9a755b1e950fb14f20b5b18d7d7aa0c8951ff9a4",
   "runtimeFiles": [
     {
       "path": "scripts/hook-entry.mjs",
@@ -68,7 +68,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "e9744fabc840642d316201dc63e94c9b9449792c6d820d02f9cc75ce1afd4930",
+      "sha256": "503dd7cbdac199ab3f957d148e653494ce17054405676b5581961ee774169fa4",
       "executable": false
     },
     {
@@ -133,7 +133,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "ef638035b5764cef2853a3a7df0bd4f269e1774ebe7af04523fda632df662cfa",
+      "sha256": "4e9e2b33207c6081970b7dff87b74f0502cf9b2b16007f3487106fe5e6a692d2",
       "executable": true
     },
     {
@@ -362,6 +362,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/subagentstart-learning.sh",
+      "sha256": "ce7bc7958c83507f0b87485f388e81d472183cb674a35e1b8aa2e87473321cc3",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/subagentstop-learning.sh",
       "sha256": "fae3e439f7cbcce51b868284c01ddf4f572435c6693a91a721ea7b31c96641ed",
       "executable": true
@@ -447,5 +452,5 @@
       "executable": true
     }
   ],
-  "bundleId": "0cb8ca0ba296c5f505206c8fed72f496d86baf1b41ce20652f4c3cda2d4119cf"
+  "bundleId": "f1f0a86ed52fec7a82b33a45a6dc213c5adb8bf30277e2a6478722094bd3ec96"
 }

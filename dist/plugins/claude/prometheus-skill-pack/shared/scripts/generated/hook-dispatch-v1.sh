@@ -67,6 +67,9 @@ case "$HOOK_ID" in
   'posttool-memory-writeback')
     run_bundle_script 'shared/scripts/memory-writeback.sh' 2>&1 || true
     ;;
+  'subagentstart-learning')
+    run_bundle_script 'shared/scripts/subagentstart-learning.sh' "$HARNESS" || true
+    ;;
   'subagent-assessor-checkpoint')
     run_bundle_script 'skills/process/iterative-evolver/scripts/state-checkpoint.sh' "$EVOLUTION" 'assess' 'phase_complete' 2>&1 || true
     ;;
