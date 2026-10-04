@@ -14,6 +14,11 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use super::control_transport::ControlTransport;
 
+mod learning_queue;
+mod project_root;
+
+use project_root::{resolve_project_root, ProjectRoot};
+
 #[derive(Debug, Clone, Default)]
 pub struct DoctorOptions {
     pub json: bool,
@@ -112,7 +117,9 @@ pub struct ExecutionPlan {
 }
 
 pub async fn run(options: DoctorOptions) -> Result<()> {
-    if crate::host::is_managed() { return crate::host::doctor(&options); }
+    if crate::host::is_managed() {
+        return crate::host::doctor(&options);
+    }
     if (options.fix || options.refresh) && options.yes && !options.dry_run {
         let preflight_report = build_report(&options).await;
         let execution = execute_safe_actions(&options, &preflight_report)?;
@@ -218,6 +225,11 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
         check_managed_services()
     );
     run_check!("learning.worker", "learning", check_learning_worker());
+    run_check!(
+        "learning.queue",
+        "learning",
+        learning_queue::check_learning_queue().await
+    );
     run_check!("learning.snapshots", "learning", check_prompt_snapshots());
     run_check!("hooks.rotation", "hooks", check_hook_log_rotation());
     run_check!("mcp.config", "mcp", check_managed_mcp());
@@ -697,10 +709,7 @@ fn collect_submodule_heads() -> Vec<ManifestEntry> {
 }
 
 fn collect_prompt_snapshot_pointers(home: &Path) -> Vec<ManifestEntry> {
-    let project_root = std::env::var_os("PROMETHEUS_PROJECT_ROOT")
-        .map(PathBuf::from)
-        .or_else(|| std::env::current_dir().ok())
-        .unwrap_or_else(|| PathBuf::from("."));
+    let project_root = resolve_project_root().path;
     let global = home.join(".prometheus/knowledge");
     [
         (
@@ -1651,25 +1660,32 @@ struct HookCommand {
     arguments: Vec<String>,
 }
 
+/// Codex ignores `args`, so generated hooks carry the whole invocation in a
+/// single `command` string (abf0ade). A structured `command` + `args` pair is
+/// still accepted. Generated arguments never contain whitespace.
+fn hook_command(command: &str, args: Option<&serde_json::Value>) -> HookCommand {
+    if let Some(values) = args.and_then(serde_json::Value::as_array) {
+        return HookCommand {
+            executable: command.to_owned(),
+            arguments: values
+                .iter()
+                .filter_map(serde_json::Value::as_str)
+                .map(str::to_owned)
+                .collect(),
+        };
+    }
+    let mut parts = command.split_whitespace().map(str::to_owned);
+    HookCommand {
+        executable: parts.next().unwrap_or_default(),
+        arguments: parts.collect(),
+    }
+}
+
 fn collect_hook_commands(value: &serde_json::Value, commands: &mut Vec<HookCommand>) {
     match value {
         serde_json::Value::Object(object) => {
-            if let Some(executable) = object.get("command").and_then(serde_json::Value::as_str) {
-                let arguments = object
-                    .get("args")
-                    .and_then(serde_json::Value::as_array)
-                    .map(|values| {
-                        values
-                            .iter()
-                            .filter_map(serde_json::Value::as_str)
-                            .map(str::to_owned)
-                            .collect()
-                    })
-                    .unwrap_or_default();
-                commands.push(HookCommand {
-                    executable: executable.to_owned(),
-                    arguments,
-                });
+            if let Some(command) = object.get("command").and_then(serde_json::Value::as_str) {
+                commands.push(hook_command(command, object.get("args")));
             }
             for child in object.values() {
                 collect_hook_commands(child, commands);
@@ -2359,29 +2375,52 @@ fn check_managed_services() -> CheckResult {
 
 fn check_learning_worker() -> CheckResult {
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
-    let queue = home.join(".prometheus/learning-queue");
-    let count = |relative: &str| -> usize {
-        fs::read_dir(queue.join(relative))
-            .ok()
-            .into_iter()
-            .flatten()
-            .filter_map(|entry| entry.ok())
-            .filter(|entry| entry.path().extension().and_then(|ext| ext.to_str()) == Some("json"))
-            .count()
-    };
-    let pending = count("pending");
-    let processing = count("processing");
-    let completed = count("completed");
-    let rejected = count("rejected");
-    let memory_pending = count("memory/pending");
-    let memory_submitting = count("memory/submitting");
-    let memory_accepted = count("memory/accepted");
-    let memory_completed = count("memory/completed");
-    let memory_rejected = count("memory/rejected");
-    let legacy_retry = count("retry") + count("memory/retry");
-    let legacy_dead = count("dead-letter") + count("memory/dead-letter");
     let worker = home.join(".local/bin/prometheus-learning-worker");
-    let loaded = if cfg!(target_os = "macos") {
+    let loaded = learning_service_loaded();
+    let healthy = worker.is_file() && loaded;
+    CheckResult {
+        id: "learning.worker".into(),
+        group: "learning".into(),
+        label: "Asynchronous learning worker".into(),
+        severity: if healthy {
+            Severity::Green
+        } else {
+            Severity::Red
+        },
+        status: if healthy {
+            CheckStatus::Pass
+        } else {
+            CheckStatus::Fail
+        },
+        summary: format!(
+            "worker {}, service {}",
+            if worker.is_file() {
+                "installed"
+            } else {
+                "missing"
+            },
+            if loaded { "loaded" } else { "unloaded" },
+        ),
+        details: vec![
+            format!("worker binary: {}", worker.display()),
+            "queue backlog is reported separately by learning.queue".into(),
+        ],
+        optional: false,
+        actions: vec![RepairAction {
+            id: "services.install-mcp-services".into(),
+            description: "Install the learning worker and reload its supervised queue service."
+                .into(),
+            safe: true,
+            reversible: true,
+            dry_run_only: false,
+            command_hint: Some("bash scripts/install-mcp-services.sh --restart".into()),
+            reason_blocked: None,
+        }],
+    }
+}
+
+fn learning_service_loaded() -> bool {
+    let status = if cfg!(target_os = "macos") {
         let target = format!(
             "gui/{}/ai.prometheus.learning-worker",
             command_stdout(&["id", "-u"]).unwrap_or_else(|| "0".into())
@@ -2391,50 +2430,14 @@ fn check_learning_worker() -> CheckResult {
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .status()
-            .is_ok_and(|status| status.success())
     } else {
         Command::new("systemctl")
             .args(["--user", "is-enabled", "ai.prometheus.learning-worker.path"])
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .status()
-            .is_ok_and(|status| status.success())
     };
-    let healthy = worker.is_file()
-        && loaded
-        && pending == 0
-        && processing == 0
-        && memory_pending == 0
-        && memory_submitting == 0
-        && memory_accepted == 0
-        && legacy_retry == 0
-        && legacy_dead == 0;
-    CheckResult {
-        id: "learning.worker".into(),
-        group: "learning".into(),
-        label: "Asynchronous learning worker".into(),
-        severity: if healthy { Severity::Green } else { Severity::Red },
-        status: if healthy { CheckStatus::Pass } else { CheckStatus::Fail },
-        summary: format!(
-            "worker {}, service {}, jobs {pending}/{processing}/{completed}/{rejected}, memory {memory_pending}/{memory_submitting}/{memory_accepted}/{memory_completed}/{memory_rejected}, legacy retry/dead {legacy_retry}/{legacy_dead}",
-            if worker.is_file() { "installed" } else { "missing" },
-            if loaded { "loaded" } else { "unloaded" },
-        ),
-        details: vec![
-            format!("queue: {}", queue.display()),
-            "job states: pending/processing/completed/rejected; memory states: pending/submitting/accepted/completed/rejected".into(),
-        ],
-        optional: false,
-        actions: vec![RepairAction {
-            id: "services.install-mcp-services".into(),
-            description: "Install the learning worker and reload its supervised queue service.".into(),
-            safe: true,
-            reversible: true,
-            dry_run_only: false,
-            command_hint: Some("bash scripts/install-mcp-services.sh --restart".into()),
-            reason_blocked: None,
-        }],
-    }
+    status.is_ok_and(|status| status.success())
 }
 
 fn check_hook_log_rotation() -> CheckResult {
@@ -2571,17 +2574,19 @@ fn configured_rotation_dependency(plist: &Path, key: &str, fallbacks: &[&str]) -
 fn is_executable(path: &Path) -> bool {
     #[cfg(unix)]
     use std::os::unix::fs::PermissionsExt;
-    fs::metadata(path)
-        .ok()
-        .is_some_and(|metadata| {
-            if !metadata.is_file() {
-                return false;
-            }
-            #[cfg(unix)]
-            { metadata.permissions().mode() & 0o111 != 0 }
-            #[cfg(not(unix))]
-            { true }
-        })
+    fs::metadata(path).ok().is_some_and(|metadata| {
+        if !metadata.is_file() {
+            return false;
+        }
+        #[cfg(unix)]
+        {
+            metadata.permissions().mode() & 0o111 != 0
+        }
+        #[cfg(not(unix))]
+        {
+            true
+        }
+    })
 }
 
 fn dependency_detail(name: &str, path: Option<&Path>, ready: bool) -> String {
@@ -2595,13 +2600,10 @@ fn dependency_detail(name: &str, path: Option<&Path>, ready: bool) -> String {
 
 fn check_prompt_snapshots() -> CheckResult {
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
-    let project_root = std::env::var_os("PROMETHEUS_PROJECT_ROOT")
-        .map(PathBuf::from)
-        .or_else(|| std::env::current_dir().ok())
-        .unwrap_or_else(|| PathBuf::from("."));
+    let root = resolve_project_root();
     let global = home.join(".prometheus/knowledge");
     let snapshots = [
-        ("project", project_root.join(".prometheus/knowledge")),
+        ("project", root.path.join(".prometheus/knowledge")),
         ("shared", global.join("shared")),
         ("global", global),
     ];
@@ -2632,6 +2634,14 @@ fn check_prompt_snapshots() -> CheckResult {
         }
     }
     let healthy = failures.is_empty();
+    let mut lines = vec![format!(
+        "project root: {} (from {})",
+        root.path.display(),
+        root.source
+    )];
+    if !healthy {
+        lines.extend(worktree_hint(&root, &failures));
+    }
     CheckResult {
         id: "learning.snapshots".into(),
         group: "learning".into(),
@@ -2651,7 +2661,10 @@ fn check_prompt_snapshots() -> CheckResult {
         } else {
             format!("{} prompt snapshot defect(s)", failures.len())
         },
-        details: if healthy { details } else { failures },
+        details: {
+            lines.extend(if healthy { details } else { failures });
+            lines
+        },
         optional: false,
         actions: vec![RepairAction {
             id: "manual.publish-prompt-snapshots".into(),
@@ -2667,6 +2680,24 @@ fn check_prompt_snapshots() -> CheckResult {
             ),
         }],
     }
+}
+
+/// When the project snapshot is missing and the doctor is looking at a linked
+/// worktree, publishing here would create a second, divergent knowledge store.
+fn worktree_hint(root: &ProjectRoot, failures: &[String]) -> Option<String> {
+    let main = root.main_worktree.as_ref()?;
+    if !failures
+        .iter()
+        .any(|failure| failure.starts_with("project:"))
+    {
+        return None;
+    }
+    Some(format!(
+        "{} is a linked worktree of {}; do not run `pk snapshot` here (it would create a divergent project store). Publish in the main worktree, or run doctor with PROMETHEUS_PROJECT_ROOT={}",
+        root.path.display(),
+        main.display(),
+        main.display()
+    ))
 }
 
 fn check_managed_mcp() -> CheckResult {

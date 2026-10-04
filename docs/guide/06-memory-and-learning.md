@@ -33,6 +33,8 @@ Project, shared, and global scope publish independently. Each writer stages and 
 
 `/health` proves process liveness. `/ready` proves whether the durable ledger can ingest operations and reports model/search warm-up separately. Wall-clock time and attempt counters never prove success; receipts and ordered events do.
 
+Queue backlog is judged by age, not by presence. `prometheus doctor` (`learning.queue`) treats a memory record as healthy while it is younger than `PROMETHEUS_LEARNING_STALE_AFTER` (default 6h) and only warns once it is older. A warning is advisory and never fails the run. Restarting services does not clear it; use `prometheus-learning-worker quarantine --older-than 6h [--dry-run]` to move stale records to `memory/stalled`, `prometheus-learning-worker release --all` to return them, or the memory server's `POST /api/v2/operations/{id}/retry` and `/reject` for a single operation.
+
 Canonical documentation:
 
 - [Memory overview](/docs/memory/overview)
