@@ -179,6 +179,44 @@ escalation to `peer` and `skeptic`:
 Horizontal escalation does NOT increase `--depth`. It runs at the same depth as
 the original call.
 
+## Closing step — ingest the explanation and resolve the gap
+
+When the mastery closure criteria are met and the artifact is written, persist what was learned so the next prompt on this topic is
+answered from the knowledge base instead of triggering another
+`[prometheus-gap]` suggestion (emitted by `karpathy-hook-dispatch.sh`, design
+`docs/design/team-aware-learning-memory.md` §4).
+
+1. Ingest the final explanation as a Lesson. Use project scope by default; use
+   shared scope (with `--yes`) only when the topic is generic and not specific to
+   this project:
+
+   ```bash
+   # project scope (default)
+   printf '%s' "$EXPLANATION_TEXT" | pk ingest --type Lesson --source "feynman-loop:${GOAL_ID:-manual}" --tag learn
+   # generic topic -> shared scope
+   printf '%s' "$EXPLANATION_TEXT" | pk ingest --type Lesson --scope shared --yes --source "feynman-loop:${GOAL_ID:-manual}" --tag learn
+   ```
+
+2. Mark the matching knowledge gap resolved in
+   `~/.prometheus/knowledge-gaps/gaps.jsonl`:
+
+   ```bash
+   python3 "${CLAUDE_PLUGIN_ROOT:-$PROMETHEUS_PLUGIN_ROOT}/shared/scripts/lib/prompt_gap.py" \
+     resolve --topic "$CONCEPT_ID" --by feynman-loop --scope project
+   ```
+
+   This appends one record per matching open gap (same topic key, or at least
+   two shared keywords with the subject):
+
+   ```json
+   {"ts":"<utc>","status":"resolved","topicKey":"<16 hex>","topic":"<gap topic>","resolvedBy":"feynman-loop","scope":"project"}
+   ```
+
+   The latest record per `topicKey` wins; an `open` record is any gap whose
+   latest record has `status:"open"`. The step never fails the flow: with no
+   `pk` on PATH, skip step 1 and tell the user the explanation was not persisted;
+   with no matching gap, step 2 prints nothing.
+
 ## Mastery closure criteria
 
 A concept loop closes ONLY when all three criteria are met:
