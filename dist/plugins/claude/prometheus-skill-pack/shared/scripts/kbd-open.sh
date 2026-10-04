@@ -8,8 +8,7 @@
 #   3. items waiting on a human decision: promotion candidates (`pk candidates
 #      list --kind promotion`) and skill candidates, new-skill and skill-update
 #      (`pk candidates list --kind skill`) -- both need pk >= 1.11.0 and are
-#      absent with an older pk -- plus manually filed skill-update notes and
-#      knowledge gaps seen repeatedly
+#      absent with an older pk -- plus knowledge gaps seen repeatedly
 #   4. today's learning log, the latest daily pulse, and FSRS cards due
 #
 # Every section is silent when its source is absent, so the hook stays quiet on
@@ -25,7 +24,6 @@ PROMETHEUS_HOME="${HOME}/.prometheus"
 LOG_FILE="${PROMETHEUS_HOME}/logs/kbd-open.log"
 SNAPSHOT="${PROMETHEUS_HOME}/last-open-snapshot.txt"
 LEARNING_LOG="${PROMETHEUS_HOME}/learning-log"
-SKILL_UPDATES_DIR="${PROMETHEUS_HOME}/skill-updates"
 GAPS_FILE="${PROMETHEUS_HOME}/knowledge-gaps/gaps.jsonl"
 PULSE_DIR="${PROMETHEUS_HOME}/pulse"
 PK_CONTEXT_MAX_BYTES=3000
@@ -181,13 +179,6 @@ fi
     printf '## Skill candidates awaiting review (%s)\n' "$COUNT"
     printf '%s\n' "$LISTING" | grep -v '^COUNT '
     printf '\n_Review with `pk candidates list --kind skill`; accept or reject only on a human decision: `pk candidates accept|reject --kind skill <id>`. Accepting only prints the `/pmpo-skill-creator` invocation; it creates nothing_\n\n'
-  fi
-
-  if [ -d "$SKILL_UPDATES_DIR" ] && [ -n "$(ls -A "$SKILL_UPDATES_DIR" 2>/dev/null)" ]; then
-    COUNT="$(ls -1 "$SKILL_UPDATES_DIR" 2>/dev/null | wc -l | tr -d ' ')"
-    printf '## Pending skill-update candidates (%s)\n' "$COUNT"
-    ls -1t "$SKILL_UPDATES_DIR" 2>/dev/null | head -"$CANDIDATE_LIMIT" | sed 's/^/- /'
-    printf '\n_Review with `/pmpo-skill-creator --update <name>`_\n\n'
   fi
 
   if [ -f "$GAPS_FILE" ]; then

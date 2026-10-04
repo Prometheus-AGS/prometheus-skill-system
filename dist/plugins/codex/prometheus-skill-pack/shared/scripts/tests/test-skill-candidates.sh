@@ -73,6 +73,17 @@ out="$(snapshot "$BASEPATH")"; rc=$?
 [ "$rc" = 0 ] && ! printf '%s' "$out" | grep -q 'Skill candidates' || fail "no pk at all must also be silent and exit 0"
 ok "older or absent pk: no skill section, exit 0"
 
+# --- the retired skill-updates listing stays retired ---------------------------
+# Skill-update candidates reach the operator through pk; kbd-open must not list
+# ~/.prometheus/skill-updates as a second, duplicate section.
+mkdir -p "$HOME/.prometheus/skill-updates"
+printf '# manual note\n' > "$HOME/.prometheus/skill-updates/kbd-plan-20261004.md"
+out="$(snapshot "$S/bin:$BASEPATH")"
+printf '%s' "$out" | grep -q 'Pending skill-update candidates' && fail "kbd-open still lists ~/.prometheus/skill-updates"
+printf '%s' "$out" | grep -q 'kbd-plan-20261004' && fail "kbd-open printed a hand-filed skill-update note"
+rm -rf "$HOME/.prometheus/skill-updates"
+ok "kbd-open no longer lists ~/.prometheus/skill-updates"
+
 # --- 4. reflect template and write-back ---------------------------------------
 grep -q '^### 11. Codify as Skill?' "$REFLECT_PROMPT" || fail "reflect template lost the Codify as Skill? dimension"
 grep -q '^## Codify as Skill?' "$REFLECT_PROMPT" || fail "reflect template lost the Codify as Skill? output section"
