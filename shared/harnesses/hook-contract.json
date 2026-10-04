@@ -13,7 +13,7 @@
           "id": "sessionstart-kbd-control",
           "target": "shared/scripts/kbd-harness-adapter.sh",
           "args": ["session_start", "{harness}"],
-          "timeout": 1000
+          "timeout": 10
         }
       ]
     },
@@ -28,7 +28,7 @@
           "target": "shared/scripts/kbd-open.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 10000
+          "timeout": 10
         }
       ]
     },
@@ -40,21 +40,21 @@
           "target": "shared/scripts/detect-project-context.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 15000
+          "timeout": 15
         },
         {
           "id": "sessionstart-memory-outbox-flush",
           "target": "shared/scripts/memory-outbox-flush.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 10000
+          "timeout": 10
         },
         {
           "id": "sessionstart-pk-health",
           "target": "shared/scripts/pk-health.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 8000
+          "timeout": 10
         }
       ]
     },
@@ -83,33 +83,33 @@
           "target": "shared/scripts/validate-gitops-write.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 10000
+          "timeout": 10
         },
         {
           "id": "posttool-scope-record",
           "target": "shared/scripts/scope-record.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 5000
+          "timeout": 10
         },
         {
           "id": "posttool-write-position-reminder",
           "target": "shared/scripts/write-position-reminder.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 5000
+          "timeout": 10
         },
         {
           "id": "posttool-sycophancy-artifact",
           "target": "shared/scripts/sycophancy-check-artifact.sh",
-          "timeout": 35000
+          "timeout": 35
         },
         {
           "id": "posttool-memory-writeback",
           "target": "shared/scripts/memory-writeback.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 8000
+          "timeout": 10
         }
       ]
     },
@@ -200,7 +200,7 @@
           "target": "shared/scripts/evaluate-session.sh",
           "stderrToStdout": true,
           "ignoreFailure": true,
-          "timeout": 30000
+          "timeout": 30
         },
         {
           "id": "subagent-executor-dispatch",
@@ -219,7 +219,7 @@
           "id": "subagent-reflector-sycophancy",
           "target": "shared/scripts/sycophancy-check-reflection.sh",
           "stderrToStdout": true,
-          "timeout": 35000
+          "timeout": 35
         },
         {
           "id": "subagent-reflector-log",
@@ -273,7 +273,7 @@
         {
           "id": "taskcompleted-kbd-receipt",
           "target": "shared/scripts/kbd-task-completed-gate.sh",
-          "timeout": 1000
+          "timeout": 10
         }
       ]
     },
@@ -287,7 +287,7 @@
           "id": "precompact-kbd-control",
           "target": "shared/scripts/kbd-harness-adapter.sh",
           "args": ["pre_compact", "{harness}"],
-          "timeout": 1000
+          "timeout": 10
         }
       ]
     }
