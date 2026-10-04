@@ -629,3 +629,217 @@ fn control_plane_check_is_silent_when_the_companion_is_absent() {
         "an absent, optional extension must not be reported as a warning: {rendered}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// learning.worker / learning.queue / learning.snapshots (issue #118)
+// ---------------------------------------------------------------------------
+
+fn hours_ago(hours: i64) -> String {
+    (chrono::Utc::now() - chrono::Duration::hours(hours)).to_rfc3339()
+}
+
+fn write_accepted_record(home_dir: &Path, operation_id: &str, queued_at: &str) {
+    let record = format!(
+        r#"{{"operationId":"{operation_id}","state":"accepted","queuedAt":"{queued_at}"}}"#
+    );
+    write_file(
+        &home_dir
+            .join(".prometheus/learning-queue/memory/accepted")
+            .join(format!("{operation_id}.json")),
+        &record,
+    );
+}
+
+fn doctor_json(mut command: Command) -> serde_json::Value {
+    let output = command
+        .args(["doctor", "--json"])
+        .env_remove("PROMETHEUS_PROJECT_ROOT")
+        .env_remove("PROMETHEUS_LEARNING_QUEUE")
+        .env_remove("PROMETHEUS_LEARNING_STALE_AFTER")
+        .output()
+        .expect("run doctor --json");
+    serde_json::from_slice(&output.stdout).unwrap_or_else(|error| {
+        panic!(
+            "doctor --json must emit JSON ({error}); stdout:\n{}",
+            String::from_utf8_lossy(&output.stdout)
+        )
+    })
+}
+
+fn check<'a>(report: &'a serde_json::Value, id: &str) -> &'a serde_json::Value {
+    report["checks"]
+        .as_array()
+        .expect("checks array")
+        .iter()
+        .find(|check| check["id"] == id)
+        .unwrap_or_else(|| panic!("check {id} missing from report: {report}"))
+}
+
+fn joined(value: &serde_json::Value) -> String {
+    value.to_string()
+}
+
+#[test]
+fn learning_queue_passes_for_fresh_accepted_record() {
+    let (project_root, home_dir) = prepared_environment("doctor-queue-fresh");
+    write_accepted_record(&home_dir, "op-fresh-1", &hours_ago(0));
+
+    let report = doctor_json(base_command(&project_root, &home_dir));
+    let queue = check(&report, "learning.queue");
+
+    assert_eq!(
+        queue["status"], "pass",
+        "fresh record must not warn: {queue}"
+    );
+    assert_eq!(
+        queue["optional"], true,
+        "backlog check must be optional: {queue}"
+    );
+    assert!(
+        queue["summary"]
+            .as_str()
+            .unwrap()
+            .contains("1 record(s) in flight"),
+        "fresh record counts as in flight: {queue}"
+    );
+}
+
+#[test]
+fn learning_queue_warns_for_stale_record_without_failing_the_run() {
+    let (project_root, home_dir) = prepared_environment("doctor-queue-stale");
+    write_accepted_record(&home_dir, "op-stale-7h", &hours_ago(7));
+
+    let report = doctor_json(base_command(&project_root, &home_dir));
+    let queue = check(&report, "learning.queue");
+    let text = joined(queue);
+
+    assert_eq!(queue["status"], "warn", "stale record must warn: {queue}");
+    assert_eq!(queue["optional"], true);
+    assert!(
+        text.contains("op-stale-7h"),
+        "details must name the operation id: {queue}"
+    );
+    assert!(text.contains("7h"), "details must show the age: {queue}");
+    assert!(
+        queue["actions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|action| action["command_hint"]
+                .as_str()
+                .is_some_and(|hint| hint.contains("quarantine"))),
+        "actions must offer quarantine: {queue}"
+    );
+    assert!(
+        text.contains("will not clear this"),
+        "must say restarting does not help: {queue}"
+    );
+    let failed_ids: Vec<&str> = report["checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|check| check["status"] == "fail")
+        .filter_map(|check| check["id"].as_str())
+        .collect();
+    assert!(
+        !failed_ids.contains(&"learning.queue"),
+        "queue backlog must never be a failed check: {failed_ids:?}"
+    );
+}
+
+#[test]
+fn learning_worker_fails_with_install_hint_when_binary_missing() {
+    let (project_root, home_dir) = prepared_environment("doctor-worker-missing");
+
+    let report = doctor_json(base_command(&project_root, &home_dir));
+    let worker = check(&report, "learning.worker");
+
+    assert_eq!(
+        worker["status"], "fail",
+        "missing worker binary must fail: {worker}"
+    );
+    assert_eq!(worker["optional"], false);
+    assert!(
+        joined(&worker["actions"]).contains("install-mcp-services.sh --restart"),
+        "worker failure keeps the install hint: {worker}"
+    );
+}
+
+fn git(dir: &Path, args: &[&str]) {
+    let status = Command::new("git")
+        .current_dir(dir)
+        .args(args)
+        .env("GIT_AUTHOR_NAME", "doctor-test")
+        .env("GIT_AUTHOR_EMAIL", "doctor-test@example.invalid")
+        .env("GIT_COMMITTER_NAME", "doctor-test")
+        .env("GIT_COMMITTER_EMAIL", "doctor-test@example.invalid")
+        .env("GIT_CONFIG_GLOBAL", "/dev/null")
+        .env("GIT_CONFIG_SYSTEM", "/dev/null")
+        .status()
+        .expect("run git");
+    assert!(status.success(), "git {args:?} failed in {}", dir.display());
+}
+
+fn publish_snapshot_pointer(knowledge_root: &Path, scope: &str) {
+    let generation = sha256(scope.as_bytes());
+    let snapshot_root = knowledge_root.join(".prompt-snapshots").join(scope);
+    write_file(&snapshot_root.join("current"), &format!("{generation}\n"));
+    write_file(
+        &snapshot_root
+            .join("generations")
+            .join(format!("{generation}.json")),
+        "{}",
+    );
+}
+
+#[test]
+fn snapshots_resolve_main_worktree_from_linked_worktree() {
+    let (_unused_project, home_dir) = prepared_environment("doctor-worktree");
+    let repo_parent = unique_temp_dir("doctor-worktree-repo");
+    let main = repo_parent.join("main");
+    let linked = repo_parent.join("linked");
+    fs::create_dir_all(&main).expect("create main checkout");
+
+    git(&main, &["init", "-q", "-b", "main"]);
+    // project.json is tracked in the real repository, so the linked worktree has it too.
+    write_file(&main.join(".prometheus/project.json"), "{}");
+    git(&main, &["add", ".prometheus/project.json"]);
+    git(&main, &["commit", "-q", "-m", "seed"]);
+    git(
+        &main,
+        &[
+            "worktree",
+            "add",
+            "-q",
+            linked.to_str().unwrap(),
+            "-b",
+            "linked",
+        ],
+    );
+
+    publish_snapshot_pointer(&main.join(".prometheus/knowledge"), "project");
+    let global = home_dir.join(".prometheus/knowledge");
+    publish_snapshot_pointer(&global.join("shared"), "shared");
+    publish_snapshot_pointer(&global, "global");
+
+    let report = doctor_json(base_command(&linked, &home_dir));
+    let snapshots = check(&report, "learning.snapshots");
+    let text = joined(snapshots);
+
+    assert_eq!(
+        snapshots["status"], "pass",
+        "worktree must resolve to main checkout: {snapshots}"
+    );
+    assert!(
+        text.contains("main worktree"),
+        "details must name the root source: {snapshots}"
+    );
+    assert!(
+        text.contains("repo") && text.contains("/main"),
+        "details must show the main-worktree root: {snapshots}"
+    );
+    assert!(
+        !text.contains("/linked/.prometheus"),
+        "must not look for the store inside the linked worktree: {snapshots}"
+    );
+}
