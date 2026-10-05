@@ -859,3 +859,104 @@ fn snapshots_resolve_main_worktree_from_linked_worktree() {
         "must not look for the store inside the linked worktree: {snapshots}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// codex.memories (change-tlh-02): optional guard for Codex memory generation
+// ---------------------------------------------------------------------------
+
+fn codex_memories_report(project_root: &Path, home_dir: &Path) -> serde_json::Value {
+    let mut command = base_command(project_root, home_dir);
+    command.env_remove("CODEX_HOME");
+    doctor_json(command)
+}
+
+fn failed_check_ids(report: &serde_json::Value) -> Vec<String> {
+    report["checks"]
+        .as_array()
+        .expect("checks array")
+        .iter()
+        .filter(|check| check["status"] == "fail")
+        .filter_map(|check| check["id"].as_str().map(str::to_string))
+        .collect()
+}
+
+#[test]
+fn codex_memories_is_skipped_when_codex_is_not_installed() {
+    let (project_root, home_dir) = prepared_environment("doctor-codex-mem-absent");
+
+    let report = codex_memories_report(&project_root, &home_dir);
+    let item = check(&report, "codex.memories");
+
+    assert_eq!(item["status"], "skip", "absent Codex must skip: {item}");
+    assert_eq!(item["severity"], "green", "{item}");
+    assert_eq!(item["optional"], true, "{item}");
+}
+
+#[test]
+fn codex_memories_warns_with_repair_command_for_unset_config() {
+    let (project_root, home_dir) = prepared_environment("doctor-codex-mem-unset");
+    write_file(
+        &home_dir.join(".codex/config.toml"),
+        "# operator config\nmodel = \"gpt-5\"\n",
+    );
+
+    let report = codex_memories_report(&project_root, &home_dir);
+    let item = check(&report, "codex.memories");
+
+    assert_eq!(item["status"], "warn", "unset config must warn: {item}");
+    assert_eq!(item["severity"], "yellow", "{item}");
+    assert_eq!(item["optional"], true, "{item}");
+    assert!(
+        joined(item).contains("bash shared/scripts/codex-memories-config.sh"),
+        "must carry the exact repair command: {item}"
+    );
+    assert!(
+        !failed_check_ids(&report).contains(&"codex.memories".to_string()),
+        "codex.memories must never be a failed check"
+    );
+}
+
+#[test]
+fn codex_memories_warns_when_a_summary_has_regrown() {
+    let (project_root, home_dir) = prepared_environment("doctor-codex-mem-summary");
+    write_file(
+        &home_dir.join(".codex/config.toml"),
+        "[memories]\ngenerate_memories = false\n",
+    );
+    write_file(
+        &home_dir.join(".codex/memories/memory_summary.md"),
+        "stale summary\n",
+    );
+
+    let report = codex_memories_report(&project_root, &home_dir);
+    let item = check(&report, "codex.memories");
+
+    assert_eq!(item["status"], "warn", "regrown summary must warn: {item}");
+    assert!(joined(item).contains("memory_summary.md"), "{item}");
+}
+
+#[test]
+fn codex_memories_passes_once_disabled_and_never_increments_failed() {
+    let (project_root, home_dir) = prepared_environment("doctor-codex-mem-green");
+    write_file(
+        &home_dir.join(".codex/config.toml"),
+        "model = \"gpt-5\"\n\n[memories]\ngenerate_memories = false # managed\n",
+    );
+
+    let before = codex_memories_report(&project_root, &home_dir);
+    let item = check(&before, "codex.memories");
+    assert_eq!(item["status"], "pass", "disabled config must pass: {item}");
+    assert_eq!(item["severity"], "green", "{item}");
+
+    // Flipping the setting back adds a warning but never a failure.
+    write_file(
+        &home_dir.join(".codex/config.toml"),
+        "[memories]\ngenerate_memories = true\n",
+    );
+    let after = codex_memories_report(&project_root, &home_dir);
+    assert_eq!(check(&after, "codex.memories")["status"], "warn");
+    assert_eq!(
+        before["summary"]["failed"], after["summary"]["failed"],
+        "codex.memories must never change the failed count"
+    );
+}

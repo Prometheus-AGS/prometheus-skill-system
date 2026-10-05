@@ -49,6 +49,10 @@ Restarting services will not clear a stale record, because it is waiting on a re
 
 **Snapshot root.** `learning.snapshots` resolves the project root in this order: `PROMETHEUS_PROJECT_ROOT`; the nearest ancestor of the working directory with `.prometheus/project.json`; the main worktree, when the working directory is a linked git worktree (found with `git rev-parse --path-format=absolute --git-common-dir`); the working directory. Because `.prometheus/project.json` is tracked, a linked worktree contains it, so a linked worktree that has no project snapshot of its own defers to the main worktree when that one has one. The check prints the resolved root and where it came from. If the project snapshot is missing in a linked worktree, the check names the main worktree and warns against running `pk snapshot` in the linked one, which would create a divergent store.
 
+## Codex memory check
+
+`codex.memories` is an optional check: it never fails the run. It is Green when `[memories] generate_memories = false` is set in `${CODEX_HOME:-~/.codex}/config.toml` and no `memories/memory_summary.md` exists, and it is skipped (Green) when Codex is not installed. Otherwise it is Yellow and prints the repair command, `bash shared/scripts/codex-memories-config.sh`. That script (also run by both installers) sets the option with a line-level edit, backs up and re-parses the config, restores it on a parse failure, and archives `memory_summary.md` to `memories-archive/`; `MEMORY.md` and `raw_memories.md` are left in place.
+
 ## Allowed health matrix
 
 Run and archive redacted output for:
