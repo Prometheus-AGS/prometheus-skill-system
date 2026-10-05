@@ -17,7 +17,12 @@ BEST_EFFORT=false
 FAILED_COMPONENTS=0
 
 # shellcheck source=lib/install-codex-memories.sh
-source "$REPO_ROOT/scripts/lib/install-codex-memories.sh"
+if [ -f "$REPO_ROOT/scripts/lib/install-codex-memories.sh" ]; then
+    source "$REPO_ROOT/scripts/lib/install-codex-memories.sh"
+else
+    # Never let a missing optional helper abort the install (set -e).
+    install_codex_memories() { echo "  ⚠️  codex memories: helper missing; skipping" >&2; return 0; }
+fi
 
 for arg in "$@"; do
     case "$arg" in
@@ -225,8 +230,6 @@ install_to_kimi_desktop() {
 install_to_codex() {
     if $UNINSTALL; then
         bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --uninstall
-    else
-        install_codex_memories
     fi
 
     # The former WatchPaths agent used a different ownership marker and competed
@@ -292,6 +295,11 @@ else
     # normal install reaches it. (The uninstall branch above calls the same
     # function with --uninstall.)
     install_to_kimi_desktop
+
+    # Codex is installed by the plugin generation above, so install_to_codex() is
+    # reached only on uninstall. Disable Codex memory generation here (guarded:
+    # never aborts the install).
+    install_codex_memories
 fi
 
 # Deterministic local fixture hook. It is deliberately inert unless both variables
