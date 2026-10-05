@@ -45,6 +45,49 @@ function fail(code, message, bundle) {
 }
 
 /**
+ * Why a plugin payload could not activate, in words that name the cause and the remedy.
+ *
+ * The bootstrap child used to inherit stderr, so an incomplete payload surfaced as a raw
+ * Node stack ("Failed with non-blocking status code: node:internal/modules/esm/resolve…")
+ * on every Stop hook of every turn, with no hint that the plugin install was the problem.
+ * This stays inline, with node built-ins only: the entry point must not depend on the
+ * payload files it is diagnosing, or an incomplete payload would break the diagnosis too.
+ */
+function pluginVersion(root) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version ?? '';
+  } catch {
+    return '';
+  }
+}
+
+function describePayloadFailure(root, stderrText) {
+  const where = `${root}${pluginVersion(root) ? ` (version ${pluginVersion(root)})` : ''}`;
+  const missing = /Cannot find module '([^']+)'/.exec(stderrText)?.[1];
+  if (missing || /ERR_MODULE_NOT_FOUND/.test(stderrText)) {
+    return {
+      code: 'PAYLOAD_INCOMPLETE',
+      message:
+        `the plugin payload at ${where} is incomplete: ${missing ? `${path.basename(missing)} (${missing}) is missing` : 'a required module is missing'}. ` +
+        'Update or reinstall the plugin (/plugin), then restart this session.',
+    };
+  }
+  // Prefer the error line itself ("Error: …", "TypeError [ERR_X]: …") over the file:line
+  // locator Node prints above it; fall back to the first line that is not a stack frame.
+  const lines = stderrText.split('\n').map(line => line.trim());
+  const firstLine =
+    lines.find(line => /^\w*Error(?: \[\w+\])?: /.test(line)) ??
+    lines.find(line => line && !/^at /.test(line)) ??
+    'no error output';
+  return {
+    code: 'BOOTSTRAP_FAILED',
+    message:
+      `activating the plugin payload at ${where} failed: ${firstLine.slice(0, 200)}. ` +
+      'Re-run with PROMETHEUS_HOOK_DEBUG=1 for the full output.',
+  };
+}
+
+/**
  * Read `--flag value` pairs.
  *
  * Deliberately strict: exec form delivers a clean argument vector, so anything
@@ -130,17 +173,38 @@ const resolved =
 
 if (!resolved) {
   const bootstrap = path.join(pluginRoot, 'shared/scripts/bootstrap-hook-runtime.sh');
-  if (!pluginRoot || !fs.existsSync(bootstrap)) {
-    fail('NOT_ACTIVATED', 'no activated bundle and no bootstrap payload', args.bundle);
+  if (!pluginRoot) {
+    fail(
+      'NOT_ACTIVATED',
+      'no activated bundle, and the harness provided no plugin root (CLAUDE_PLUGIN_ROOT / PLUGIN_ROOT) to bootstrap from',
+      args.bundle
+    );
   }
-  const install = run('bash', [
-    bootstrap,
-    '--source-root',
-    pluginRoot,
-    '--expected-bundle',
-    args.bundle,
-  ]);
-  if (install.status !== 0) process.exit(install.status ?? NOT_ACTIVATED);
+  if (!fs.existsSync(bootstrap)) {
+    fail(
+      'NOT_ACTIVATED',
+      `no activated bundle, and the plugin root ${pluginRoot} has no bootstrap payload (it may have been removed or is incomplete). ` +
+        'Update or reinstall the plugin (/plugin), then restart this session.',
+      args.bundle
+    );
+  }
+  const install = spawnSync('bash', [bootstrap, '--source-root', pluginRoot, '--expected-bundle', args.bundle], {
+    stdio: ['inherit', 'inherit', 'pipe'],
+    encoding: 'utf8',
+    shell: false,
+  });
+  const childStderr = install.stderr ?? '';
+  const debug = process.env.PROMETHEUS_HOOK_DEBUG === '1';
+  if (install.status !== 0) {
+    if (debug && childStderr) process.stderr.write(childStderr);
+    const cause = describePayloadFailure(pluginRoot, childStderr);
+    process.stderr.write(
+      `${JSON.stringify({ status: 'HOOK_RUNTIME_ERROR', code: cause.code, message: cause.message, bundle: args.bundle })}\n`
+    );
+    process.exit(install.status ?? NOT_ACTIVATED);
+  }
+  // A successful bootstrap's own warnings are still the operator's to see.
+  if (childStderr) process.stderr.write(childStderr);
 }
 
 if (!args.hook) fail('MISSING_HOOK', 'hook id is required', args.bundle);

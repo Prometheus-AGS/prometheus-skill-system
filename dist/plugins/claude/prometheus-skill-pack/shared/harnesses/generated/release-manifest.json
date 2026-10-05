@@ -8,7 +8,7 @@
   "runtimeFiles": [
     {
       "path": "scripts/hook-entry.mjs",
-      "sha256": "2f829e67e51c553810259c7819dc3e613542e089d131f103aeeb53c693633dd9",
+      "sha256": "91e9c0b090dc8361ddfff032c254016e641bc0b6bd723875b1223d5a4855e7cc",
       "executable": false
     },
     {
@@ -477,5 +477,5 @@
       "executable": true
     }
   ],
-  "bundleId": "5042efb86e0e6ed450fae0d91a0bc933427f4b4921ce0c454411fac0070756c4"
+  "bundleId": "0f179f8807d503979aa435da66bfc73a65d4916fcc39c4e541e561fdcecf8c19"
 }
