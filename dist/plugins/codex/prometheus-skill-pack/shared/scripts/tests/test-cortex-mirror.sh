@@ -270,7 +270,7 @@ ok "model cache absent: real case exits 2 (BLOCKED), not 0"
 if [ "${CORTEX_REAL:-}" = "skip" ]; then
   echo "SKIP: real Cortex case (CORTEX_REAL=skip)"
 else
-  REAL_DIR="$(ls -d "$CORTEX_CACHE_ROOT"/*/dist/mcp-server.js 2>/dev/null | sort | tail -1)"
+  REAL_DIR="$(ls -d "$CORTEX_CACHE_ROOT"/*/*/dist/mcp-server.js 2>/dev/null | sort | tail -1)"
   [ -n "$REAL_DIR" ] || blocked "Cortex not installed under $CORTEX_CACHE_ROOT"
   REAL_DIR="$(dirname "$(dirname "$REAL_DIR")")"
   ( real_case "$REAL_DIR" ); rc=$?
