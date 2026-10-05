@@ -193,6 +193,12 @@ function copyHookRuntime(root, hooksSource) {
     path.join(sourceRoot, 'scripts/install-plugin-generation.js'),
     path.join(root, 'scripts/install-plugin-generation.js')
   );
+  // The doctor resolves the plugin source checker from the installed generation, never from the
+  // directory it happens to run in, so the checker ships with the runtime.
+  copy(
+    path.join(sourceRoot, 'scripts/check-plugin-source.js'),
+    path.join(root, 'scripts/check-plugin-source.js')
+  );
   // The whole directory, not a name list: install-plugin-generation.js and hook-entry.mjs import
   // several modules from scripts/lib, and a list drifts the moment either gains a dependency.
   copy(path.join(sourceRoot, 'scripts/lib'), path.join(root, 'scripts/lib'));

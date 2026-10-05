@@ -25,6 +25,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`REPAIR`), and `verify.sh` fails any project whose deny list covers the whole
   directory so the rule cannot return unnoticed.
 
+## [1.11.2] - 2026-10-05
+
+### Added
+
+- `scripts/tests/payload-activation.test.mjs`: copies the built plugin payload to a temp directory, uses an empty `HOME` so activation must bootstrap from nothing, and executes every shipped hook. It fails on the released 1.10.0/1.11.0 payloads (missing `scripts/lib` modules) and runs in `npm run check:distribution`.
+- `prometheus doctor` checks `plugins.source-topology` (fails when a registered marketplace source is missing; warns on a topic-branch or dirty source and when clients disagree; a linked release-line worktree is only noted) and `plugins.native-cache-skew` (advisory: installed plugin vs active generation, and live sessions still on a superseded version). The logic lives in `scripts/lib/plugin-source-topology.js`, with `scripts/check-plugin-source.js` as the entry point.
+- `update-skill-pack.sh` and `refresh-native-plugin-installs.sh` refuse to refresh from a checkout that is a registered plugin source and is on a topic branch, unless `--allow-topic-branch` is passed.
+- Operations page: plugin sources and hook failures.
+- `scripts/check-plugin-source.js` ships in the plugin payload and generation. The doctor runs it only from `PROMETHEUS_SOURCE_ROOT` or the installed generation, never from the current working directory.
+
+### Changed
+
+- `hook-entry.mjs` classifies a failed bootstrap (`PAYLOAD_INCOMPLETE`, `BOOTSTRAP_FAILED`, `NOT_ACTIVATED`) and prints one actionable line instead of a raw Node stack trace. `PROMETHEUS_HOOK_DEBUG=1` keeps the raw output.
+
 ## [1.11.1] - 2026-10-03
 
 ### Fixed

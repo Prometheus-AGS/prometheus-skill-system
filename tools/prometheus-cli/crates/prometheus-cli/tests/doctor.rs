@@ -960,3 +960,137 @@ fn codex_memories_passes_once_disabled_and_never_increments_failed() {
         "codex.memories must never change the failed count"
     );
 }
+
+// ---------------------------------------------------------------------------
+// plugins.source-topology / plugins.native-cache-skew
+//
+// A plugin whose marketplace `directory` source is removed fails every hook of every
+// turn. The classification is the JS authority's; these drive the real binary against
+// fixture HOMEs to prove the wiring: what is registered, what is reported, and that only
+// a missing source fails the run.
+// ---------------------------------------------------------------------------
+
+fn source_root() -> std::path::PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../..")
+        .canonicalize()
+        .expect("repository root")
+}
+
+fn git_in(dir: &Path, args: &[&str]) {
+    let status = Command::new("git")
+        .args(["-c", "user.email=t@t", "-c", "user.name=t"])
+        .args(args)
+        .current_dir(dir)
+        .status()
+        .expect("run git");
+    assert!(status.success(), "git {args:?} failed in {}", dir.display());
+}
+
+fn checkout_on(label: &str, branch: &str) -> std::path::PathBuf {
+    let dir = unique_temp_dir(label);
+    fs::create_dir_all(&dir).expect("checkout dir");
+    git_in(&dir, &["init", "-q", "-b", "main"]);
+    write_file(&dir.join("a.txt"), "a");
+    git_in(&dir, &["add", "."]);
+    git_in(&dir, &["commit", "-q", "-m", "init"]);
+    if branch != "main" {
+        git_in(&dir, &["checkout", "-q", "-b", branch]);
+    }
+    dir
+}
+
+fn register_claude_source(home_dir: &Path, path: &Path) {
+    write_file(
+        &home_dir.join(".claude/plugins/known_marketplaces.json"),
+        &format!(
+            r#"{{"prometheus-skill-pack":{{"source":{{"source":"directory","path":"{}"}},"installLocation":"{}"}}}}"#,
+            path.display(),
+            path.display()
+        ),
+    );
+}
+
+fn plugins_report(home_dir: &Path, project_root: &Path) -> (serde_json::Value, i32) {
+    let output = base_command(project_root, home_dir)
+        .env("PROMETHEUS_SOURCE_ROOT", source_root())
+        .args(["doctor", "--json", "--check", "plugins"])
+        .output()
+        .expect("run doctor --json --check plugins");
+    let report = serde_json::from_slice(&output.stdout).unwrap_or_else(|error| {
+        panic!(
+            "doctor --json must emit JSON ({error}); stdout:\n{}",
+            String::from_utf8_lossy(&output.stdout)
+        )
+    });
+    (report, output.status.code().unwrap_or(-1))
+}
+
+#[test]
+fn plugin_source_never_executes_a_checker_found_in_the_working_directory() {
+    let (project_root, home_dir) = prepared_environment("doctor-plugin-cwd");
+    let marker = project_root.join("cwd-script-ran");
+    write_file(
+        &project_root.join("scripts/check-plugin-source.js"),
+        &format!("require('fs').writeFileSync({:?}, 'ran');", marker.display().to_string()),
+    );
+    let output = base_command(&project_root, &home_dir)
+        .env_remove("PROMETHEUS_SOURCE_ROOT")
+        .args(["doctor", "--json", "--check", "plugins"])
+        .output()
+        .expect("run doctor");
+    assert!(!marker.exists(), "a same-named script in the cwd must never be executed");
+    let report: serde_json::Value = serde_json::from_slice(&output.stdout).expect("doctor JSON");
+    assert_eq!(check(&report, "plugins.source-topology")["status"], "skip");
+}
+
+#[test]
+fn plugin_source_fails_the_run_when_the_registered_source_is_gone() {
+    let (project_root, home_dir) = prepared_environment("doctor-plugin-missing");
+    let gone = unique_temp_dir("doctor-plugin-removed-worktree");
+    // `unique_temp_dir` creates the directory; the source must really be gone.
+    fs::remove_dir_all(&gone).expect("remove the plugin source");
+    register_claude_source(&home_dir, &gone);
+
+    let (report, code) = plugins_report(&home_dir, &project_root);
+    let topology = check(&report, "plugins.source-topology");
+    assert_eq!(topology["status"], "fail", "{topology}");
+    assert!(
+        joined(topology).contains(&gone.display().to_string()),
+        "the finding names the missing path: {topology}"
+    );
+    assert_eq!(code, 1, "a missing source is a failing run");
+}
+
+#[test]
+fn plugin_source_passes_for_a_release_line_checkout() {
+    let (project_root, home_dir) = prepared_environment("doctor-plugin-ok");
+    let checkout = checkout_on("doctor-plugin-main", "main");
+    register_claude_source(&home_dir, &checkout);
+
+    let (report, code) = plugins_report(&home_dir, &project_root);
+    assert_eq!(check(&report, "plugins.source-topology")["status"], "pass");
+    assert_eq!(code, 0);
+}
+
+#[test]
+fn plugin_source_on_a_topic_branch_warns_without_failing_the_run() {
+    let (project_root, home_dir) = prepared_environment("doctor-plugin-topic");
+    let checkout = checkout_on("doctor-plugin-topic-branch", "fix/something");
+    register_claude_source(&home_dir, &checkout);
+
+    let (report, code) = plugins_report(&home_dir, &project_root);
+    let topology = check(&report, "plugins.source-topology");
+    assert_eq!(topology["status"], "warn", "{topology}");
+    assert!(joined(topology).contains("fix/something"));
+    assert_eq!(code, 0, "advisory findings never fail the run");
+}
+
+#[test]
+fn plugin_source_is_skipped_when_no_source_is_registered() {
+    let (project_root, home_dir) = prepared_environment("doctor-plugin-none");
+    let (report, code) = plugins_report(&home_dir, &project_root);
+    assert_eq!(check(&report, "plugins.source-topology")["status"], "skip");
+    assert_eq!(code, 0);
+}
+

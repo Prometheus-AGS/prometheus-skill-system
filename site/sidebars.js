@@ -72,6 +72,7 @@ const sidebars = {
         'operations/generated-reference',
         'operations/doctors-and-mac-certification',
         'operations/logs-recovery-and-failures',
+        'operations/plugin-sources-and-hook-failures',
       ],
     },
   ],

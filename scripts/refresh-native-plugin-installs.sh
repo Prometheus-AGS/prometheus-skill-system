@@ -7,6 +7,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GENERATION=""
 FORCE=false
+ALLOW_TOPIC_BRANCH=false
 CLAUDE_BIN="${PROMETHEUS_CLAUDE_BIN:-claude}"
 CODEX_BIN="${PROMETHEUS_CODEX_BIN:-codex}"
 KIMI_INSTALLER="${PROMETHEUS_KIMI_INSTALLER:-}"
@@ -17,6 +18,7 @@ while [[ $# -gt 0 ]]; do
         --source-root) REPO_ROOT="${2:-}"; shift 2 ;;
         --generation) GENERATION="${2:-}"; shift 2 ;;
         --force) FORCE=true; shift ;;
+        --allow-topic-branch) ALLOW_TOPIC_BRANCH=true; shift ;;
         *) echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
 done
@@ -26,6 +28,14 @@ if [[ -z "$GENERATION" ]]; then
     exit 2
 fi
 KIMI_INSTALLER="${KIMI_INSTALLER:-$REPO_ROOT/scripts/install-kimi-desktop-plugin.sh}"
+
+# Refuse to refresh native installs from a registered plugin source that lives only as
+# long as a topic branch (see scripts/lib/plugin-source-topology.js).
+if [[ -f "$REPO_ROOT/scripts/check-plugin-source.js" ]]; then
+    topology_args=(--enforce "$REPO_ROOT")
+    if $ALLOW_TOPIC_BRANCH; then topology_args+=(--allow-topic-branch); fi
+    node "$REPO_ROOT/scripts/check-plugin-source.js" "${topology_args[@]}" || exit $?
+fi
 
 read -r RELEASE_VERSION MINIMUM_ACTIVE_VERSION < <(node - "$REPO_ROOT/skill-system.json" <<'NODE'
 const fs = require('fs');

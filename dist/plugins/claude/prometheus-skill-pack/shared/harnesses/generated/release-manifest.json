@@ -1,14 +1,19 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.11.1",
+  "sourceVersion": "1.11.2",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
   "contractSha256": "30cec478532dad9c67c201bd65f86eb2d1ea318fd295ac1ff8e9372c23a1065c",
   "runtimeFiles": [
     {
+      "path": "scripts/check-plugin-source.js",
+      "sha256": "d461d9f2312213f8fd8f03de5d345971e78d0bd838f348a46465d6019ba93325",
+      "executable": false
+    },
+    {
       "path": "scripts/hook-entry.mjs",
-      "sha256": "2f829e67e51c553810259c7819dc3e613542e089d131f103aeeb53c693633dd9",
+      "sha256": "4c75fa4a50d3c85247504de32b81b9509df8014b2e023060eb0d2d6c09ed420a",
       "executable": false
     },
     {
@@ -59,6 +64,11 @@
     {
       "path": "scripts/lib/payload-manifest.js",
       "sha256": "90f55b438777148452a199e7222dd53767938927ee04ef200c28728ad3088421",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/plugin-source-topology.js",
+      "sha256": "050263b6ef5b84ffd9cd659cb933c008c78ccfdf9e40e3b7e79419e6c841ab53",
       "executable": false
     },
     {
@@ -477,5 +487,5 @@
       "executable": true
     }
   ],
-  "bundleId": "5042efb86e0e6ed450fae0d91a0bc933427f4b4921ce0c454411fac0070756c4"
+  "bundleId": "5e700547d7d82da64e316fa1cff3f8722add6c0999799d7be71aeae29d663a18"
 }
