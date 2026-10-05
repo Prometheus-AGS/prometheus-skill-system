@@ -35,16 +35,33 @@ function readJson(file) {
   }
 }
 
+/** Distinguishes a file that is simply absent from one that exists but cannot be read or parsed. */
+function readJsonStrict(file) {
+  let text;
+  try {
+    text = fs.readFileSync(file, 'utf8');
+  } catch (error) {
+    return error?.code === 'ENOENT' ? { state: 'absent' } : { state: 'error', error };
+  }
+  try {
+    return { state: 'ok', value: JSON.parse(text) };
+  } catch (error) {
+    return { state: 'error', error };
+  }
+}
+
 /** Every directory source the clients have registered for this pack's marketplace. */
 export function readRegisteredSources({ home = os.homedir() } = {}) {
   const sources = [];
-  const known = readJson(path.join(home, '.claude/plugins/known_marketplaces.json'));
-  const knownEntry = known?.[MARKETPLACE];
+  const knownFile = readJsonStrict(path.join(home, '.claude/plugins/known_marketplaces.json'));
+  if (knownFile.state === 'error') sources.push({ client: 'claude', origin: 'known_marketplaces.json', path: null, unreadable: true });
+  const knownEntry = knownFile.state === 'ok' ? knownFile.value?.[MARKETPLACE] : undefined;
   const knownPath = knownEntry?.source?.source === 'directory' ? knownEntry.source.path : knownEntry?.installLocation;
   if (knownPath) sources.push({ client: 'claude', origin: 'known_marketplaces.json', path: knownPath });
 
-  const settings = readJson(path.join(home, '.claude/settings.json'));
-  const settingsSource = settings?.extraKnownMarketplaces?.[MARKETPLACE]?.source;
+  const settingsFile = readJsonStrict(path.join(home, '.claude/settings.json'));
+  if (settingsFile.state === 'error') sources.push({ client: 'claude', origin: 'settings.json', path: null, unreadable: true });
+  const settingsSource = settingsFile.state === 'ok' ? settingsFile.value?.extraKnownMarketplaces?.[MARKETPLACE]?.source : undefined;
   if (settingsSource?.source === 'directory' && settingsSource.path) {
     sources.push({ client: 'claude', origin: 'settings.json', path: settingsSource.path });
   }
@@ -73,7 +90,17 @@ function tomlString(raw) {
   if (value.startsWith("'")) return /^'([^']*)'/.exec(value)?.[1] ?? null;
   if (!value.startsWith('"')) return null;
   const match = /^"((?:[^"\\]|\\.)*)"/.exec(value);
-  return match ? match[1].replace(/\\(["\\])/g, '$1') : null;
+  if (!match) return null;
+  // TOML basic-string escapes: \b \t \n \f \r \" \\ and \uXXXX / \UXXXXXXXX.
+  const simple = { b: '\b', t: '\t', n: '\n', f: '\f', r: '\r', '"': '"', '\\': '\\' };
+  try {
+    return match[1].replace(/\\(?:([btnfr"\\])|u([0-9a-fA-F]{4})|U([0-9a-fA-F]{8}))/g, (_all, one, u4, u8) => {
+      if (one) return simple[one];
+      return String.fromCodePoint(parseInt(u4 ?? u8, 16));
+    });
+  } catch {
+    return null; // an invalid code point is an unreadable value, not a path
+  }
 }
 
 const KEY = `(?:"${MARKETPLACE}"|'${MARKETPLACE}'|${MARKETPLACE})`;
@@ -149,7 +176,7 @@ export function evaluateSources(entries, { facts = gitFacts } = {}) {
   const unique = [...new Map(readable.map(entry => [`${entry.client}|${path.resolve(entry.path)}`, entry])).values()];
   const findings = [];
   for (const entry of entries.filter(e => !e.path)) {
-    findings.push(finding('REGISTRATION_UNREADABLE', 'warn', null, `the ${entry.client} config (${entry.origin}) refers to the ${MARKETPLACE} marketplace but its source could not be read; its durability cannot be checked.`, { client: entry.client }));
+    findings.push(finding('REGISTRATION_UNREADABLE', 'warn', null, `the ${entry.client} registration file (${entry.origin}) could not be read, or refers to the ${MARKETPLACE} marketplace but its registration could not be read; its durability cannot be checked.`, { client: entry.client }));
   }
   const remedy = 'Point the marketplace at a durable release-line checkout, then restart running sessions.';
   for (const entry of unique) {

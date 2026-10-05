@@ -309,6 +309,40 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert(JSON.parse(report.stdout).topology.findings.some(f => f.code === 'REGISTRATION_UNREADABLE'));
 }
 
+// --- TOML escapes in a Codex path are decoded; Claude registry read failures are reported
+{
+  const real = makeCheckout(path.join(tmp, 'esc-pack'), { branch: 'feat/escaped' });
+  // 'p' as \u0070 and the rest of the name as plain text: valid TOML for the same path.
+  const escaped = real.replace('esc-pack', 'esc-\\u0070ack').replace(/\\(?!u)/g, '\\\\');
+  const home = makeHome({});
+  fs.writeFileSync(path.join(home, '.codex/config.toml'), `[marketplaces.${NAME}]\nsource_type = "local"\nsource = "${escaped}"\n`);
+  assert.deepEqual(readRegisteredSources({ home }).map(s => s.path), [real], 'a \\uXXXX escape decodes to the real path');
+  assert.equal(evaluateSources(readRegisteredSources({ home })).status, 'warn', 'the existing source is not reported missing');
+  assert(!codes(evaluateSources(readRegisteredSources({ home }))).includes('SOURCE_MISSING'));
+  const enforce = spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', home, '--enforce', real], { encoding: 'utf8' });
+  assert.equal(enforce.status, 3, 'the escaped registration is recognised as the registered topic-branch source');
+  // Other escapes: \t, \n, \U, and an invalid code point is unreadable, not a path.
+  const odd = makeHome({});
+  fs.writeFileSync(path.join(odd, '.codex/config.toml'), `[marketplaces.${NAME}]\nsource_type = "local"\nsource = "/tmp/a\\U00000062c\\tx"\n`);
+  assert.equal(readRegisteredSources({ home: odd })[0].path, '/tmp/abc\tx');
+  const bad = makeHome({});
+  fs.writeFileSync(path.join(bad, '.codex/config.toml'), `[marketplaces.${NAME}]\nsource_type = "local"\nsource = "/tmp/\\UFFFFFFFF"\n`);
+  assert.equal(readRegisteredSources({ home: bad })[0].unreadable, true);
+}
+{
+  for (const [file, label] of [['plugins/known_marketplaces.json', 'known_marketplaces.json'], ['settings.json', 'settings.json']]) {
+    const home = makeHome({});
+    fs.writeFileSync(path.join(home, '.claude', file), '{ not json');
+    const result = evaluateSources(readRegisteredSources({ home }));
+    assert.equal(result.status, 'warn', `${label} malformed`);
+    assert(codes(result).includes('REGISTRATION_UNREADABLE'), `${label} failure is reported, not read as "nothing registered"`);
+  }
+  // Absent files are simply "nothing registered".
+  const absent = makeHome({});
+  fs.rmSync(path.join(absent, '.claude/plugins'), { recursive: true, force: true });
+  assert.equal(evaluateSources(readRegisteredSources({ home: absent })).status, 'skip');
+}
+
 // --- untracked files make a source dirty ----------------------------------------------
 {
   const checkout = makeCheckout(path.join(tmp, 'untracked-only'));
