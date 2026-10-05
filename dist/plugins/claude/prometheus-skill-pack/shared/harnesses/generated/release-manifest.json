@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.11.1",
+  "sourceVersion": "1.11.2",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -59,6 +59,11 @@
     {
       "path": "scripts/lib/payload-manifest.js",
       "sha256": "90f55b438777148452a199e7222dd53767938927ee04ef200c28728ad3088421",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/plugin-source-topology.js",
+      "sha256": "2e9c0e498ef1b6b7956038a91771895df5fcc68f0fd07125bea573de32f20ea1",
       "executable": false
     },
     {
@@ -477,5 +482,5 @@
       "executable": true
     }
   ],
-  "bundleId": "0f179f8807d503979aa435da66bfc73a65d4916fcc39c4e541e561fdcecf8c19"
+  "bundleId": "31ba445cdfe3bb6a436c10afab5b326d318f808ff3b6c8caaa4c1d25356065d2"
 }

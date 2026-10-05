@@ -9,14 +9,27 @@ INSTALL_REF_FILE="${HOME}/.prometheus/skill-pack-install-ref"
 PLUGIN_ROOT="${HOME}/.prometheus/plugins/prometheus-skill-pack"
 RUN_DOCTOR_REFRESH=false
 FORCE_REFRESH=false
+ALLOW_TOPIC_BRANCH=false
 
 for arg in "$@"; do
     case "$arg" in
         --force) FORCE_REFRESH=true ;;
         --doctor-refresh) RUN_DOCTOR_REFRESH=true ;;
+        --allow-topic-branch) ALLOW_TOPIC_BRANCH=true ;;
         *) echo "Unknown argument: $arg" >&2; exit 2 ;;
     esac
 done
+
+# A checkout that is a registered plugin source must not live only as long as a topic
+# branch: removing the branch or worktree breaks every hook of the plugin. Older
+# checkouts without the checker are skipped.
+enforce_source_topology() {
+    local checker="$REPO_ROOT/scripts/check-plugin-source.js"
+    [[ -f "$checker" ]] || return 0
+    local extra=()
+    if $ALLOW_TOPIC_BRANCH; then extra+=(--allow-topic-branch); fi
+    node "$checker" --enforce "$REPO_ROOT" ${extra[@]+"${extra[@]}"}
+}
 
 require_clean_source() {
     local stage="$1"
@@ -32,6 +45,7 @@ require_clean_source() {
 echo "Prometheus Skill Pack — Verified Update"
 echo "========================================"
 echo ""
+enforce_source_topology || exit 1
 echo "Step 1: Verifying and updating the source checkout..."
 require_clean_source "before pull"
 if ! git -C "$REPO_ROOT" pull --ff-only; then
@@ -85,6 +99,9 @@ echo "  ✅ active generation: $GENERATION"
 echo ""
 echo "Step 4: Refreshing installed native plugin surfaces..."
 refresh_args=(--source-root "$REPO_ROOT" --generation "$GENERATION")
+if $ALLOW_TOPIC_BRANCH; then
+    refresh_args+=(--allow-topic-branch)
+fi
 if $FORCE_REFRESH; then
     refresh_args+=(--force)
 fi

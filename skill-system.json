@@ -2,7 +2,7 @@
   "$schema": "./schemas/skill-system.schema.json",
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
-  "releaseVersion": "1.11.1",
+  "releaseVersion": "1.11.2",
   "minimumActiveVersion": "1.11.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
