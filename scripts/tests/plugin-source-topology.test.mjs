@@ -343,6 +343,41 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert.equal(evaluateSources(readRegisteredSources({ home: absent })).status, 'skip');
 }
 
+// --- malformed registrations never crash evaluation or hide another client's source ------
+{
+  const gone = path.join(tmp, 'mixed-missing');
+  const run = home =>
+    spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', home, '--json'], { encoding: 'utf8' });
+  for (const badPath of [{}, 5, null, ['x'], true, '', '   ']) {
+    const home = makeHome({});
+    fs.writeFileSync(
+      path.join(home, '.claude/plugins/known_marketplaces.json'),
+      JSON.stringify({ [NAME]: { source: { source: 'directory', path: badPath } } })
+    );
+    fs.writeFileSync(path.join(home, '.codex/config.toml'), `[marketplaces.${NAME}]\nsource_type = "local"\nsource = "${gone}"\n`);
+    assert.doesNotThrow(() => evaluateSources(readRegisteredSources({ home })), `a ${JSON.stringify(badPath)} path does not throw`);
+    const result = evaluateSources(readRegisteredSources({ home }));
+    assert.equal(result.status, 'fail', `${JSON.stringify(badPath)}: the Codex source is still reported missing`);
+    assert(codes(result).includes('SOURCE_MISSING') && codes(result).includes('REGISTRATION_UNREADABLE'));
+    const cli = run(home);
+    assert.equal(cli.status, 1, cli.stderr);
+    JSON.parse(cli.stdout);
+  }
+  // A Codex config that is a directory (or otherwise unreadable) is reported, not ignored.
+  const dirHome = makeHome({});
+  fs.mkdirSync(path.join(dirHome, '.codex/config.toml'));
+  const dirResult = evaluateSources(readRegisteredSources({ home: dirHome }));
+  assert(codes(dirResult).includes('REGISTRATION_UNREADABLE'));
+  assert.equal(dirResult.status, 'warn');
+  // A github-sourced marketplace has no directory to check: nothing registered, not unreadable.
+  const gh = makeHome({});
+  fs.writeFileSync(
+    path.join(gh, '.claude/plugins/known_marketplaces.json'),
+    JSON.stringify({ [NAME]: { source: { source: 'github', repo: 'o/r' } } })
+  );
+  assert.equal(readRegisteredSources({ home: gh }).filter(s => s.client === 'claude').length, 0);
+}
+
 // --- untracked files make a source dirty ----------------------------------------------
 {
   const checkout = makeCheckout(path.join(tmp, 'untracked-only'));

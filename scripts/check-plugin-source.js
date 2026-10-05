@@ -29,7 +29,15 @@ const flag = name => argv.includes(name);
 const value = name => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined);
 const home = value('--home') ?? os.homedir();
 
-const sources = readRegisteredSources({ home });
+// The report must always be valid JSON: a crash here would be read by the doctor as "checker
+// unavailable" and could hide a missing source. Anything unexpected becomes a finding.
+let sources;
+try {
+  sources = readRegisteredSources({ home });
+} catch (error) {
+  sources = [];
+  process.stderr.write(`could not read plugin registrations: ${error?.message ?? error}\n`);
+}
 
 if (value('--enforce')) {
   // Canonical paths: a source registered through a symlink is still the registered source.
@@ -55,7 +63,16 @@ if (value('--enforce')) {
   process.exit(0);
 }
 
-const topology = evaluateSources(sources);
+let topology;
+try {
+  topology = evaluateSources(sources);
+} catch (error) {
+  topology = {
+    status: 'warn',
+    findings: [{ code: 'INSPECTION_FAILED', severity: 'warn', message: `plugin sources could not be inspected: ${error?.message ?? error}` }],
+    sources: [],
+  };
+}
 // The native cache is advisory: an unreadable cache entry must not hide the topology report.
 let skew;
 try {

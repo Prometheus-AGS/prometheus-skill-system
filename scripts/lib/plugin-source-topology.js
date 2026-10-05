@@ -50,36 +50,57 @@ function readJsonStrict(file) {
   }
 }
 
-/** Every directory source the clients have registered for this pack's marketplace. */
+/**
+ * Every directory source the clients have registered for this pack's marketplace.
+ *
+ * Registry files are untrusted input, so validation happens HERE, once: every entry that
+ * leaves this function is either `{ client, origin, path: <non-empty string> }` or
+ * `{ client, origin, path: null, unreadable: true }`. Nothing downstream has to defend
+ * against a malformed registration, and no malformed registration can hide another
+ * client's source.
+ */
 export function readRegisteredSources({ home = os.homedir() } = {}) {
   const sources = [];
+  const unreadable = (client, origin) => sources.push({ client, origin, path: null, unreadable: true });
+  const accept = (client, origin, candidate) => {
+    if (typeof candidate === 'string' && candidate.trim() !== '') sources.push({ client, origin, path: candidate });
+    else unreadable(client, origin);
+  };
+
   const knownFile = readJsonStrict(path.join(home, '.claude/plugins/known_marketplaces.json'));
-  if (knownFile.state === 'error') sources.push({ client: 'claude', origin: 'known_marketplaces.json', path: null, unreadable: true });
-  const knownEntry = knownFile.state === 'ok' ? knownFile.value?.[MARKETPLACE] : undefined;
-  const knownPath = knownEntry?.source?.source === 'directory' ? knownEntry.source.path : knownEntry?.installLocation;
-  if (knownPath) sources.push({ client: 'claude', origin: 'known_marketplaces.json', path: knownPath });
+  if (knownFile.state === 'error') unreadable('claude', 'known_marketplaces.json');
+  if (knownFile.state === 'ok') {
+    const entry = knownFile.value?.[MARKETPLACE];
+    if (entry?.source?.source === 'directory') {
+      // A directory source must carry a usable path; anything else is a malformed registration.
+      accept('claude', 'known_marketplaces.json', entry.source.path);
+    } else if (typeof entry?.installLocation === 'string' && entry.installLocation.trim() !== '' && entry?.source?.source === undefined) {
+      // Older registrations record only where the marketplace was installed.
+      accept('claude', 'known_marketplaces.json', entry.installLocation);
+    }
+    // Any other source type (for example github) has no directory to check: nothing registered.
+  }
 
   const settingsFile = readJsonStrict(path.join(home, '.claude/settings.json'));
-  if (settingsFile.state === 'error') sources.push({ client: 'claude', origin: 'settings.json', path: null, unreadable: true });
-  const settingsSource = settingsFile.state === 'ok' ? settingsFile.value?.extraKnownMarketplaces?.[MARKETPLACE]?.source : undefined;
-  if (settingsSource?.source === 'directory' && settingsSource.path) {
-    sources.push({ client: 'claude', origin: 'settings.json', path: settingsSource.path });
+  if (settingsFile.state === 'error') unreadable('claude', 'settings.json');
+  if (settingsFile.state === 'ok') {
+    const source = settingsFile.value?.extraKnownMarketplaces?.[MARKETPLACE]?.source;
+    if (source?.source === 'directory') accept('claude', 'settings.json', source.path);
   }
 
   let toml = null;
   try {
     toml = fs.readFileSync(path.join(home, '.codex/config.toml'), 'utf8');
-  } catch {
-    // no codex config: nothing registered there
+  } catch (error) {
+    // Only a missing file means "nothing registered"; EACCES, EISDIR and the like do not.
+    if (error?.code !== 'ENOENT') unreadable('codex', 'config.toml');
   }
   if (toml !== null) {
     const registration = readCodexRegistration(toml);
-    if (registration.path) sources.push({ client: 'codex', origin: 'config.toml', path: registration.path });
-    else if (registration.mentioned) {
-      // Never silently ignore a registration we could not read: that would hide both a
-      // missing source and the installer guard.
-      sources.push({ client: 'codex', origin: 'config.toml', path: null, unreadable: true });
-    }
+    if (registration.path) accept('codex', 'config.toml', registration.path);
+    // Never silently ignore a registration we could not read: that would hide both a
+    // missing source and the installer guard.
+    else if (registration.mentioned) unreadable('codex', 'config.toml');
   }
   return sources;
 }
@@ -171,25 +192,37 @@ function finding(code, severity, entry, message, extra = {}) {
  */
 export function evaluateSources(entries, { facts = gitFacts } = {}) {
   if (entries.length === 0) return { status: 'skip', findings: [], sources: [] };
+  const findings = [];
+  const remedy = 'Point the marketplace at a durable release-line checkout, then restart running sessions.';
+
+  for (const entry of entries.filter(e => !e.path)) {
+    findings.push(
+      finding(
+        'REGISTRATION_UNREADABLE',
+        'warn',
+        null,
+        `the ${entry.client} registration (${entry.origin}) could not be read, so its marketplace source cannot be checked.`,
+        { client: entry.client, origin: entry.origin }
+      )
+    );
+  }
+
   // One registry may list the same source twice (known_marketplaces.json and settings.json).
   const readable = entries.filter(entry => entry.path);
   const unique = [...new Map(readable.map(entry => [`${entry.client}|${path.resolve(entry.path)}`, entry])).values()];
-  const findings = [];
-  for (const entry of entries.filter(e => !e.path)) {
-    findings.push(finding('REGISTRATION_UNREADABLE', 'warn', null, `the ${entry.client} registration file (${entry.origin}) could not be read, or refers to the ${MARKETPLACE} marketplace but its registration could not be read; its durability cannot be checked.`, { client: entry.client }));
-  }
-  const remedy = 'Point the marketplace at a durable release-line checkout, then restart running sessions.';
-  for (const entry of unique) {
+
+  // One entry's failure must never hide another's: every entry is inspected on its own.
+  const inspect = entry => {
     if (!fs.existsSync(entry.path)) {
       findings.push(
         finding('SOURCE_MISSING', 'fail', entry, `${entry.client} marketplace source ${entry.path} does not exist; every hook of this plugin fails until it is restored. ${remedy}`)
       );
-      continue;
+      return;
     }
     const git = facts(entry.path);
     if (!git.repo) {
       findings.push(finding('NOT_A_CHECKOUT', 'warn', entry, `${entry.client} marketplace source ${entry.path} is not a git checkout, so its version cannot be verified.`));
-      continue;
+      return;
     }
     if (!isReleaseLineBranch(git.branch)) {
       findings.push(
@@ -202,7 +235,15 @@ export function evaluateSources(entries, { facts = gitFacts } = {}) {
     if (git.linkedWorktree) {
       findings.push(finding('LINKED_WORKTREE', 'info', entry, `${entry.client} marketplace source ${entry.path} is a linked git worktree: removing the worktree removes the plugin source.`));
     }
+  };
+  for (const entry of unique) {
+    try {
+      inspect(entry);
+    } catch (error) {
+      findings.push(finding('INSPECTION_FAILED', 'warn', entry, `${entry.client} marketplace source ${entry.path} could not be inspected: ${error?.message ?? error}`));
+    }
   }
+
   const distinct = [...new Set(readable.map(entry => path.resolve(entry.path)))];
   if (distinct.length > 1) {
     findings.push(
