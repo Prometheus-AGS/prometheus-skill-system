@@ -378,6 +378,26 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert.equal(readRegisteredSources({ home: gh }).filter(s => s.client === 'claude').length, 0);
 }
 
+// --- unsupported Codex spellings are reported, never read as "nothing registered" ----------
+{
+  const spellings = {
+    'inline table under [marketplaces]': `[marketplaces]\n${NAME} = { source_type = "local", source = "/gone" }\n`,
+    'inline table at the root': `marketplaces = { ${NAME} = { source_type = "local", source = "/gone" } }\n`,
+    'array of tables': `[[marketplaces]]\nname = "${NAME}"\nsource = "/gone"\n`,
+  };
+  for (const [label, toml] of Object.entries(spellings)) {
+    const home = makeHome({});
+    fs.writeFileSync(path.join(home, '.codex/config.toml'), toml);
+    const result = evaluateSources(readRegisteredSources({ home }));
+    assert(codes(result).includes('REGISTRATION_UNREADABLE'), `${label} is reported, not silently absent`);
+    assert.equal(result.status, 'warn');
+  }
+  // A comment that merely names the marketplace is not a registration.
+  const commented = makeHome({});
+  fs.writeFileSync(path.join(commented, '.codex/config.toml'), `# marketplaces.${NAME} is configured elsewhere\nmodel = "x"\n`);
+  assert.deepEqual(readRegisteredSources({ home: commented }), []);
+}
+
 // --- untracked files make a source dirty ----------------------------------------------
 {
   const checkout = makeCheckout(path.join(tmp, 'untracked-only'));

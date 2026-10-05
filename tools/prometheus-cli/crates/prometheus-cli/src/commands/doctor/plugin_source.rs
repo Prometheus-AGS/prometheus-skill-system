@@ -174,11 +174,15 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
         skew["installedVersion"].as_str(),
         skew["activeGeneration"].as_str(),
     ) else {
-        return unavailable(
+        // The comparison cannot be made, but anything established independently (live sessions
+        // on superseded versions) is still worth reporting.
+        let mut result = unavailable(
             ID,
             LABEL,
             "the installed plugin version or the active generation version could not be determined",
         );
+        result.details.extend(messages(&skew["findings"]));
+        return result;
     };
     let behind = findings.iter().any(|finding| finding["code"] == "CACHE_BEHIND_GENERATION")
         || installed != active;
@@ -320,6 +324,22 @@ mod tests {
         let result = native_cache_skew_check(&probe("ok", json!([]), equal));
         assert!(matches!(result.status, CheckStatus::Pass));
         assert!(result.summary.contains("matches"));
+    }
+
+    #[test]
+    fn live_sessions_are_still_reported_when_a_version_is_unavailable() {
+        let skew = json!({
+            "installedVersion": "1.11.1",
+            "activeGeneration": null,
+            "findings": [finding("LIVE_SESSIONS_ON_SUPERSEDED", "info", "2 live process(es) (1, 2) still use 1.10.0")],
+        });
+        let result = native_cache_skew_check(&probe("ok", json!([]), skew));
+        assert!(matches!(result.status, CheckStatus::Skip), "no comparison was made");
+        assert!(
+            result.details.iter().any(|line| line.contains("1.10.0")),
+            "the independently established live-session finding is kept: {result:?}"
+        );
+        assert!(!result.summary.contains("matches"));
     }
 
     #[test]

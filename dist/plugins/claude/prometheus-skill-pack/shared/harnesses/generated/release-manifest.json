@@ -63,7 +63,7 @@
     },
     {
       "path": "scripts/lib/plugin-source-topology.js",
-      "sha256": "f307e03707f47e4d8d048a446dca7a0400996ddf7386cbbe9f6c120441d18e57",
+      "sha256": "b17e7cfa1dda98370f34dbddf36272817541a08494aeac26e8985b07dfaedcc8",
       "executable": false
     },
     {
@@ -482,5 +482,5 @@
       "executable": true
     }
   ],
-  "bundleId": "03427deefcc70e209d6ec658807653e5f88e939356424beae215e1ca63f3978b"
+  "bundleId": "d8be31459f9529d54d7b8d59e313649878005746f2be747d8565e82fe527f15d"
 }

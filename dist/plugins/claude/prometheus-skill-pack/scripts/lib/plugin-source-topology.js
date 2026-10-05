@@ -133,7 +133,11 @@ const KEY = `(?:"${MARKETPLACE}"|'${MARKETPLACE}'|${MARKETPLACE})`;
  * registration is reported instead of vanishing.
  */
 function readCodexRegistration(toml) {
-  const mentioned = new RegExp(`marketplaces\\s*\\.\\s*${KEY}`).test(toml);
+  // Presence is detected broadly on purpose: any non-comment line that names the marketplace in a
+  // file that has a `marketplaces` section counts as a registration, so an unsupported spelling
+  // (an inline table under `[marketplaces]`, say) is reported as unreadable, never as absent.
+  const body = toml.split(/\r?\n/).filter(line => !/^\s*#/.test(line)).join('\n');
+  const mentioned = /marketplaces/.test(body) && body.includes(MARKETPLACE);
   const values = {};
   let inTable = false;
   const header = new RegExp(`^\\s*\\[\\s*marketplaces\\s*\\.\\s*${KEY}\\s*\\]\\s*(?:#.*)?$`);
