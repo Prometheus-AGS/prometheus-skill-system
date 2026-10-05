@@ -15,6 +15,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use super::control_transport::ControlTransport;
 
 mod learning_queue;
+mod plugin_source;
 mod project_root;
 
 use project_root::{resolve_project_root, ProjectRoot};
@@ -234,6 +235,18 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
     run_check!("hooks.rotation", "hooks", check_hook_log_rotation());
     run_check!("mcp.config", "mcp", check_managed_mcp());
     run_check!("hooks.lifecycle", "hooks", check_managed_hooks());
+    // One probe of the JS authority feeds both plugin checks; it only runs if one is selected.
+    let plugin_source_probe = std::sync::OnceLock::new();
+    run_check!(
+        "plugins.source-topology",
+        "plugins",
+        plugin_source::source_topology_check(plugin_source_probe.get_or_init(plugin_source::probe))
+    );
+    run_check!(
+        "plugins.native-cache-skew",
+        "plugins",
+        plugin_source::native_cache_skew_check(plugin_source_probe.get_or_init(plugin_source::probe))
+    );
     run_check!(
         "control.kbd-runtime",
         "control",
