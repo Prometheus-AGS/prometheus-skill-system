@@ -35,6 +35,10 @@ Project, shared, and global scope publish independently. Each writer stages and 
 
 Queue backlog is judged by age, not by presence. `prometheus doctor` (`learning.queue`) treats a memory record as healthy while it is younger than `PROMETHEUS_LEARNING_STALE_AFTER` (default 6h) and only warns once it is older. A warning is advisory and never fails the run. Restarting services does not clear it; use `prometheus-learning-worker quarantine --older-than 6h [--dry-run]` to move stale records to `memory/stalled`, `prometheus-learning-worker release --all` to return them, or the memory server's `POST /api/v2/operations/{id}/retry` and `/reject` for a single operation.
 
+## Codex memory generation
+
+Codex injects `${CODEX_HOME:-~/.codex}/memories/memory_summary.md` into every thread, so a regrown summary leaks stale memory into unrelated work. The installers (`install.sh` / `prometheus setup` through `scripts/install-system.js`, and `scripts/install-skills-flat.sh`) run `shared/scripts/codex-memories-config.sh`, which sets `[memories] generate_memories = false` in `config.toml` with a line-level edit (all other lines and comments are preserved, a timestamped `config.toml.bak-<UTC>` is written first, and the original is restored if the result does not parse) and moves an existing `memory_summary.md` to `memories-archive/memory_summary-<UTC>.md`. `MEMORY.md`, `raw_memories.md` and every other file stay in place. The script is idempotent; `--check` prints the state as JSON without writing. A failure only prints a warning: the install always completes, and a machine without Codex is left untouched. `prometheus doctor` (`codex.memories`, optional) is the standing guard.
+
 Canonical documentation:
 
 - [Memory overview](/docs/memory/overview)

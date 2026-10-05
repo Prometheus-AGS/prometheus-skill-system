@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import readline from 'node:readline/promises';
+import { fileURLToPath } from 'node:url';
 
 import { compareVersions, readSkillSystem, targetsById } from './lib/skill-system.js';
 
@@ -92,6 +93,27 @@ function rejectObsoleteNativeUmbrella(contract, targets, home) {
       const row = (JSON.parse(result.stdout).installed ?? []).find(candidate => candidate.pluginId === 'prometheus-skill-pack@prometheus-skill-pack' && candidate.enabled);
       if (row && compareVersions(row.version, contract.minimumActiveVersion) < 0) fail(`enabled Codex umbrella ${row.version} is below minimum ${contract.minimumActiveVersion}`);
     }
+  }
+}
+
+// Disable Codex memory generation (assessment G1b). Never throws: a failure is a
+// warning and the install continues. CODEX_MEMORIES_SCRIPT overrides the script
+// path for fault injection in tests only.
+export function applyCodexMemories({ home = os.homedir() } = {}) {
+  try {
+    const script = process.env.CODEX_MEMORIES_SCRIPT
+      || fileURLToPath(new URL('../shared/scripts/codex-memories-config.sh', import.meta.url));
+    const env = { ...process.env, HOME: home, CODEX_HOME: path.join(home, '.codex') };
+    const result = spawnSync('bash', [script], { encoding: 'utf8', env });
+    if (result.status !== 0) {
+      const detail = (result.stderr || result.error?.message || `exit ${result.status}`).trim();
+      process.stderr.write(`WARNING: codex memories step failed (install continues): ${detail}\n`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    process.stderr.write(`WARNING: codex memories step failed (install continues): ${error.message}\n`);
+    return false;
   }
 }
 
@@ -237,6 +259,10 @@ async function main() {
   const generation = attempt(operation, () => run(process.execPath, installerArgs, { capture: true }));
   if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract));
 
+  if (!args.verify && !args.uninstall && targets.some(target => target.id === 'codex')) {
+    applyCodexMemories({ home: args.home });
+  }
+
   if (failures.length) {
     process.stdout.write(`Best-effort run completed without certification (${failures.length} failure(s)).\n`);
   } else {
@@ -244,7 +270,9 @@ async function main() {
   }
 }
 
-main().catch(error => {
-  process.stderr.write(`install: ${error.message}\n`);
-  process.exitCode = 1;
-});
+if (process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url))) {
+  main().catch(error => {
+    process.stderr.write(`install: ${error.message}\n`);
+    process.exitCode = 1;
+  });
+}

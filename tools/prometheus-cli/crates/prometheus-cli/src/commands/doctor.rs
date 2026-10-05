@@ -253,6 +253,7 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
     );
     run_check!("state.evolver", "state", check_evolver_state());
     run_check!("learning.trace-store", "learning", check_trace_store());
+    run_check!("codex.memories", "codex", check_codex_memories());
 
     let failed = checks
         .iter()
@@ -1208,6 +1209,130 @@ async fn check_judge_gateway() -> CheckResult {
             reversible: true,
             dry_run_only: false,
             command_hint: Some("bash scripts/install-binaries.sh --dry-run".into()),
+            reason_blocked: None,
+        }],
+    }
+}
+
+/// Reads `[memories].generate_memories` from a Codex config.toml with a
+/// line-level scan (no TOML dependency): `Some(bool)` when set to a bare
+/// boolean inside the `[memories]` table, `None` otherwise.
+fn parse_codex_generate_memories(contents: &str) -> Option<bool> {
+    let mut in_memories = false;
+    let mut value = None;
+    for line in contents.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with('[') {
+            let header = trimmed.split('#').next().unwrap_or("").trim();
+            in_memories = header == "[memories]";
+            continue;
+        }
+        if !in_memories {
+            continue;
+        }
+        let Some(rest) = trimmed.strip_prefix("generate_memories") else {
+            continue;
+        };
+        let Some(rest) = rest.trim_start().strip_prefix('=') else {
+            continue;
+        };
+        value = match rest.split('#').next().unwrap_or("").trim() {
+            "true" => Some(true),
+            "false" => Some(false),
+            _ => None,
+        };
+    }
+    value
+}
+
+/// Codex injects `memories/memory_summary.md` into every thread; the installer
+/// sets `[memories] generate_memories = false` and archives the file. This
+/// optional check is the standing guard: Yellow (never a failure) when the
+/// setting is absent or true, or when a summary file has regrown.
+fn check_codex_memories() -> CheckResult {
+    let codex_dir = std::env::var_os("CODEX_HOME")
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            dirs::home_dir()
+                .unwrap_or_else(|| PathBuf::from("/"))
+                .join(".codex")
+        });
+    let id = "codex.memories".to_string();
+    let group = "codex".to_string();
+    let label = "Codex memory generation".to_string();
+
+    if !codex_dir.is_dir() {
+        return CheckResult {
+            id,
+            group,
+            label,
+            severity: Severity::Green,
+            status: CheckStatus::Skip,
+            summary: "Codex is not installed; nothing to check".into(),
+            details: vec![],
+            optional: true,
+            actions: vec![],
+        };
+    }
+
+    let generate = fs::read_to_string(codex_dir.join("config.toml"))
+        .ok()
+        .and_then(|contents| parse_codex_generate_memories(&contents));
+    let summary_path = codex_dir.join("memories").join("memory_summary.md");
+    let summary_present = summary_path.is_file();
+
+    if generate == Some(false) && !summary_present {
+        return CheckResult {
+            id,
+            group,
+            label,
+            severity: Severity::Green,
+            status: CheckStatus::Pass,
+            summary: "generate_memories = false and no memory_summary.md present".into(),
+            details: vec![],
+            optional: true,
+            actions: vec![],
+        };
+    }
+
+    let repair = "bash shared/scripts/codex-memories-config.sh";
+    let mut details = Vec::new();
+    match generate {
+        Some(false) => {}
+        Some(true) => details.push(format!(
+            "{}: [memories] generate_memories is true",
+            codex_dir.join("config.toml").display()
+        )),
+        None => details.push(format!(
+            "{}: [memories] generate_memories is not set",
+            codex_dir.join("config.toml").display()
+        )),
+    }
+    if summary_present {
+        details.push(format!(
+            "{} exists and is injected into every Codex thread",
+            summary_path.display()
+        ));
+    }
+    details.push(format!("Repair: {repair}"));
+
+    CheckResult {
+        id,
+        group,
+        label,
+        severity: Severity::Yellow,
+        status: CheckStatus::Warn,
+        summary: "Codex memory generation is not disabled".into(),
+        details,
+        optional: true,
+        actions: vec![RepairAction {
+            id: "codex.disable-memories".into(),
+            description: "Set generate_memories = false and archive memory_summary.md.".into(),
+            safe: false,
+            reversible: true,
+            dry_run_only: false,
+            command_hint: Some(repair.into()),
             reason_blocked: None,
         }],
     }

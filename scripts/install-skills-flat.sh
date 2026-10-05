@@ -16,6 +16,9 @@ SKILLS_ONLY=false
 BEST_EFFORT=false
 FAILED_COMPONENTS=0
 
+# shellcheck source=lib/install-codex-memories.sh
+source "$REPO_ROOT/scripts/lib/install-codex-memories.sh"
+
 for arg in "$@"; do
     case "$arg" in
         --uninstall) UNINSTALL=true ;;
@@ -222,6 +225,8 @@ install_to_kimi_desktop() {
 install_to_codex() {
     if $UNINSTALL; then
         bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --uninstall
+    else
+        install_codex_memories
     fi
 
     # The former WatchPaths agent used a different ownership marker and competed
