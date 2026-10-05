@@ -155,6 +155,30 @@ npm run format
    - Testing you've performed
    - Any special requirements or dependencies
 
+## Resolving generated-file conflicts on rebase or merge
+
+Hook bundles, harness manifests, and `dist/**` are generated and are never merged by hand.
+When a rebase or merge stops and every conflicted path is generated, run:
+
+```bash
+bash scripts/rebase-regenerate.sh
+```
+
+The helper requires an in-progress rebase or merge. It exits 1 and names the files if any
+conflicted path is not generated (nothing is changed), and exits 2 outside a rebase or merge.
+Otherwise it discards both sides of each generated conflict, runs
+`node scripts/generate-harness-adapters.js` and `node scripts/generate-skill-system-distribution.js`
+(the script `npm run build:codex` runs), then `npm run check:distribution`,
+`npm run validate:harness-adapters`, and `npm run validate:codex`. On success it stages the
+generated paths and prints `git rebase --continue` (or `git commit`); it never continues itself.
+
+The generated-path set comes from the generators (`--list-outputs`) via
+`node scripts/generated-paths.mjs`, which `check:distribution` shares.
+
+Optional: a `.gitattributes` entry such as `dist/** merge=ours` plus a `merge.ours.driver true`
+git config would suppress conflict markers in generated paths. It is described here only and is
+not installed; the helper does not depend on it.
+
 ## Best Practices
 
 ### SKILL.md Content
