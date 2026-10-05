@@ -6,6 +6,6 @@
   "sourcePath": "crates/prometheus-exec/target/release/prometheus-exec",
   "installPath": "~/.local/bin/prometheus-exec",
   "expectedVersion": "prometheus-exec 1.7.0",
-  "expectedBuildSha256": "ca7ea8dec23cf21efffcbd5d86d4df1087714feb0ccd1700f2dfd7d2165aa065",
+  "expectedBuildSha256": "fe2f2c5e66d68f5179609afded64650f5e7cd038787648b617991a324a84c95e",
   "installReceipt": "~/.prometheus/install/manifests/prometheus-exec.json"
 }
