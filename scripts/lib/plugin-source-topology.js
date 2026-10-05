@@ -311,10 +311,14 @@ export function nativeCacheSkew({ home = os.homedir() } = {}) {
     });
   }
   const cacheRoot = path.join(home, '.claude/plugins/cache', MARKETPLACE, MARKETPLACE);
+  // An absent directory is simply empty; any other failure (EACCES, ENOTDIR...) makes the
+  // inspection incomplete and must be said so rather than read as "no live sessions".
+  const unreadableDirs = [];
   const list = dir => {
     try {
       return fs.readdirSync(dir);
-    } catch {
+    } catch (error) {
+      if (error?.code !== 'ENOENT') unreadableDirs.push(`${dir} (${error?.code ?? 'unreadable'})`);
       return [];
     }
   };
@@ -333,6 +337,13 @@ export function nativeCacheSkew({ home = os.homedir() } = {}) {
         });
       }
     }
+  }
+  if (unreadableDirs.length > 0) {
+    findings.push({
+      code: 'SKEW_UNREADABLE',
+      severity: 'info',
+      message: `the native plugin cache could not be fully inspected; could not read: ${unreadableDirs.join(', ')}.`,
+    });
   }
   return { installedVersion, activeGeneration, findings };
 }

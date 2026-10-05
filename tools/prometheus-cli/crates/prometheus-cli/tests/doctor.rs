@@ -1027,6 +1027,24 @@ fn plugins_report(home_dir: &Path, project_root: &Path) -> (serde_json::Value, i
 }
 
 #[test]
+fn plugin_source_never_executes_a_checker_found_in_the_working_directory() {
+    let (project_root, home_dir) = prepared_environment("doctor-plugin-cwd");
+    let marker = project_root.join("cwd-script-ran");
+    write_file(
+        &project_root.join("scripts/check-plugin-source.js"),
+        &format!("require('fs').writeFileSync({:?}, 'ran');", marker.display().to_string()),
+    );
+    let output = base_command(&project_root, &home_dir)
+        .env_remove("PROMETHEUS_SOURCE_ROOT")
+        .args(["doctor", "--json", "--check", "plugins"])
+        .output()
+        .expect("run doctor");
+    assert!(!marker.exists(), "a same-named script in the cwd must never be executed");
+    let report: serde_json::Value = serde_json::from_slice(&output.stdout).expect("doctor JSON");
+    assert_eq!(check(&report, "plugins.source-topology")["status"], "skip");
+}
+
+#[test]
 fn plugin_source_fails_the_run_when_the_registered_source_is_gone() {
     let (project_root, home_dir) = prepared_environment("doctor-plugin-missing");
     let gone = unique_temp_dir("doctor-plugin-removed-worktree");

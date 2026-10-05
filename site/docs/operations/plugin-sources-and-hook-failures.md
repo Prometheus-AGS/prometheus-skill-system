@@ -31,6 +31,8 @@ node scripts/check-plugin-source.js          # human-readable
 prometheus doctor --json --check plugins
 ```
 
+`prometheus doctor` finds the checker through `PROMETHEUS_SOURCE_ROOT` or the installed generation (`~/.prometheus/plugins/prometheus-skill-pack/current/scripts/check-plugin-source.js`). It never runs a script from the current working directory. Without either, the checks are skipped.
+
 - `plugins.source-topology` **fails** when a registered source does not exist. It **warns** on a topic-branch or dirty source and when clients disagree. A linked release-line worktree is informational.
 - `plugins.native-cache-skew` warns when the installed plugin is behind the active generation, and lists live sessions still running a superseded version so they can be restarted. It never fails the run.
 

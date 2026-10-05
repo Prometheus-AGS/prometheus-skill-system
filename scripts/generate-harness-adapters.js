@@ -246,6 +246,7 @@ function releaseIdentity(dispatcher) {
   for (const relative of [
     'scripts/hook-entry.mjs',
     'scripts/install-plugin-generation.js',
+    'scripts/check-plugin-source.js',
     'shared/harnesses/hook-contract.json',
   ]) {
     const bytes = fs.readFileSync(path.join(root, ...relative.split('/')));

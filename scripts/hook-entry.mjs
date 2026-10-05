@@ -193,10 +193,15 @@ if (!resolved) {
     encoding: 'utf8',
     shell: false,
   });
-  const childStderr = install.stderr ?? '';
+  // A child that could not be started has no stderr and a null status; its spawn error
+  // (ENOENT, EACCES...) is the whole story and must not be lost.
+  const spawnFailure = install.error
+    ? `Error: could not start the bootstrap shell (${install.error.code ?? 'spawn error'}: ${install.error.message})`
+    : '';
+  const childStderr = [install.stderr ?? '', spawnFailure].filter(Boolean).join('\n');
   const debug = process.env.PROMETHEUS_HOOK_DEBUG === '1';
-  if (install.status !== 0) {
-    if (debug && childStderr) process.stderr.write(childStderr);
+  if (install.error || install.status !== 0) {
+    if (debug && childStderr) process.stderr.write(`${childStderr}\n`);
     const cause = describePayloadFailure(pluginRoot, childStderr);
     process.stderr.write(
       `${JSON.stringify({ status: 'HOOK_RUNTIME_ERROR', code: cause.code, message: cause.message, bundle: args.bundle })}\n`
@@ -204,7 +209,7 @@ if (!resolved) {
     process.exit(install.status ?? NOT_ACTIVATED);
   }
   // A successful bootstrap's own warnings are still the operator's to see.
-  if (childStderr) process.stderr.write(childStderr);
+  if (install.stderr) process.stderr.write(install.stderr);
 }
 
 if (!args.hook) fail('MISSING_HOOK', 'hook id is required', args.bundle);

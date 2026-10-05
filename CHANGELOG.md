@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `prometheus doctor` checks `plugins.source-topology` (fails when a registered marketplace source is missing; warns on a topic-branch or dirty source and when clients disagree; a linked release-line worktree is only noted) and `plugins.native-cache-skew` (advisory: installed plugin vs active generation, and live sessions still on a superseded version). The logic lives in `scripts/lib/plugin-source-topology.js`, with `scripts/check-plugin-source.js` as the entry point.
 - `update-skill-pack.sh` and `refresh-native-plugin-installs.sh` refuse to refresh from a checkout that is a registered plugin source and is on a topic branch, unless `--allow-topic-branch` is passed.
 - Operations page: plugin sources and hook failures.
+- `scripts/check-plugin-source.js` ships in the plugin payload and generation. The doctor runs it only from `PROMETHEUS_SOURCE_ROOT` or the installed generation, never from the current working directory.
 
 ### Changed
 

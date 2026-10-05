@@ -171,6 +171,23 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert.deepEqual(skew.findings, []);
 }
 
+{
+  // A cache directory that exists but cannot be read is an incomplete inspection, never "no live sessions".
+  const home = makeHome({});
+  const cache = path.join(home, '.claude/plugins/cache', NAME, NAME);
+  fs.mkdirSync(path.join(cache, '1.10.0'), { recursive: true });
+  fs.writeFileSync(
+    path.join(home, '.claude/plugins/installed_plugins.json'),
+    JSON.stringify({ plugins: { [`${NAME}@${NAME}`]: [{ version: '1.11.1', installPath: path.join(cache, '1.11.1') }] } })
+  );
+  fs.writeFileSync(path.join(cache, '1.10.0/.in_use'), 'not a directory');
+  const skew = nativeCacheSkew({ home });
+  const unreadable = skew.findings.find(f => f.code === 'SKEW_UNREADABLE');
+  assert(unreadable, 'a non-ENOENT read failure is reported');
+  assert.match(unreadable.message, /\.in_use/);
+  assert.equal(skew.installedVersion, '1.11.1', 'the registry-derived version is still reported');
+}
+
 // --- CLI contract ---------------------------------------------------------------------
 {
   const topic = makeCheckout(path.join(tmp, 'cli-topic'), { branch: 'feat/x' });

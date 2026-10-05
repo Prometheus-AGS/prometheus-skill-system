@@ -21,15 +21,15 @@ const SCRIPT: &str = "scripts/check-plugin-source.js";
 
 pub struct Probe(Result<Value, String>);
 
-/// Candidate locations for the checker, most specific first, so the doctor works from
-/// any working directory: an explicit source root, the current checkout, then the
-/// installed generation.
+/// Where the checker may come from: an explicitly selected source root
+/// (`PROMETHEUS_SOURCE_ROOT`), then the installed generation. Deliberately NOT the current
+/// working directory: the doctor runs in arbitrary projects, and executing a same-named
+/// script from one of them would run that project's code with the user's privileges.
 fn locate_script(home: &Path) -> Option<PathBuf> {
     let mut candidates: Vec<PathBuf> = Vec::new();
     if let Some(root) = std::env::var_os("PROMETHEUS_SOURCE_ROOT") {
         candidates.push(PathBuf::from(root).join(SCRIPT));
     }
-    candidates.push(PathBuf::from(SCRIPT));
     candidates.push(home.join(".prometheus/plugins/prometheus-skill-pack/current").join(SCRIPT));
     candidates.into_iter().find(|candidate| candidate.is_file())
 }
@@ -37,7 +37,9 @@ fn locate_script(home: &Path) -> Option<PathBuf> {
 pub fn probe() -> Probe {
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
     let Some(script) = locate_script(&home) else {
-        return Probe(Err(format!("{SCRIPT} was not found (checkout or installed generation)")));
+        return Probe(Err(format!(
+            "{SCRIPT} was not found (set PROMETHEUS_SOURCE_ROOT, or install a generation that ships it)"
+        )));
     };
     let output = Command::new("node").arg(&script).arg("--json").arg("--home").arg(&home).output();
     Probe(match output {
@@ -165,11 +167,9 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
     let Some(findings) = skew["findings"].as_array().cloned() else {
         return unavailable(ID, LABEL, "the checker returned a report without native cache findings");
     };
-    // Only claim a comparison that actually happened: both versions present, and no sign
-    // that the cache could not be inspected.
-    if findings.iter().any(|finding| finding["code"] == "SKEW_UNREADABLE") {
-        return unavailable(ID, LABEL, "the native plugin cache could not be inspected");
-    }
+    // An unreadable cache directory makes the inspection incomplete, but it does not erase a
+    // version comparison that was made from the registry files.
+    let unreadable = findings.iter().any(|finding| finding["code"] == "SKEW_UNREADABLE");
     let (Some(installed), Some(active)) = (
         skew["installedVersion"].as_str(),
         skew["activeGeneration"].as_str(),
@@ -186,6 +186,7 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
     };
     let behind = findings.iter().any(|finding| finding["code"] == "CACHE_BEHIND_GENERATION")
         || installed != active;
+    let attention = behind || unreadable;
     let mut details = vec![format!(
         "installed Claude plugin: {installed}; active generation: {active}"
     )];
@@ -194,10 +195,12 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
         id: ID.into(),
         group: "plugins".into(),
         label: LABEL.into(),
-        severity: if behind { Severity::Yellow } else { Severity::Green },
-        status: if behind { CheckStatus::Warn } else { CheckStatus::Pass },
+        severity: if attention { Severity::Yellow } else { Severity::Green },
+        status: if attention { CheckStatus::Warn } else { CheckStatus::Pass },
         summary: if behind {
             "the installed native plugin is behind the active generation".into()
+        } else if unreadable {
+            "the native plugin cache could not be fully inspected; the version comparison is shown below".into()
         } else if findings.is_empty() {
             "the native plugin cache matches the active generation".into()
         } else {
@@ -228,6 +231,20 @@ mod tests {
 
     fn finding(code: &str, severity: &str, message: &str) -> Value {
         json!({ "code": code, "severity": severity, "message": message })
+    }
+
+    #[test]
+    fn an_unreadable_cache_directory_warns_without_losing_the_comparison() {
+        let skew = json!({
+            "installedVersion": "1.11.1",
+            "activeGeneration": "1.11.1",
+            "findings": [finding("SKEW_UNREADABLE", "info", "could not read: /x/.in_use (EACCES)")],
+        });
+        let result = native_cache_skew_check(&probe("ok", json!([]), skew));
+        assert!(matches!(result.status, CheckStatus::Warn), "an incomplete inspection is not a clean pass");
+        assert!(result.details.iter().any(|line| line.contains("installed Claude plugin: 1.11.1; active generation: 1.11.1")));
+        assert!(result.details.iter().any(|line| line.contains("EACCES")));
+        assert!(result.optional, "advisory: it must not fail the run");
     }
 
     #[test]

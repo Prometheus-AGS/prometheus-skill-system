@@ -7,8 +7,13 @@
   "contractSha256": "30cec478532dad9c67c201bd65f86eb2d1ea318fd295ac1ff8e9372c23a1065c",
   "runtimeFiles": [
     {
+      "path": "scripts/check-plugin-source.js",
+      "sha256": "d461d9f2312213f8fd8f03de5d345971e78d0bd838f348a46465d6019ba93325",
+      "executable": false
+    },
+    {
       "path": "scripts/hook-entry.mjs",
-      "sha256": "91e9c0b090dc8361ddfff032c254016e641bc0b6bd723875b1223d5a4855e7cc",
+      "sha256": "4c75fa4a50d3c85247504de32b81b9509df8014b2e023060eb0d2d6c09ed420a",
       "executable": false
     },
     {
@@ -63,7 +68,7 @@
     },
     {
       "path": "scripts/lib/plugin-source-topology.js",
-      "sha256": "8d3ebb2b75a01626ab9a0ededad60495e076792130bcebdcf7ad8171419c1bc4",
+      "sha256": "31577a2e9ba821448863402ddf278eca11c789a43ca4b81c792bbb11dda39de6",
       "executable": false
     },
     {
@@ -482,5 +487,5 @@
       "executable": true
     }
   ],
-  "bundleId": "cfbbbd60fff9b4b0377d30dada3a3ef9b57c121e825677e5f77c48ad8b721801"
+  "bundleId": "1cb4d4ea162f292faf122300ba7e999e9db9493c0fee2d7c3bab5da00f75d1ae"
 }
