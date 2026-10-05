@@ -119,7 +119,12 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
    recurrences belong in Root Cause.
 2. **Discover project identity**
 3. **Confirm the active phase** — from argument or waypoint
-4. **Read `progress.json`** — incorporate work done by all tools
+4. **Reconcile, then read `progress.json`** — run
+   `kbd-apply reconcile <phase>` first. Exit 1 means a task is done in its
+   backend but not in the ledger, so `progress.json` under-counts delivered work:
+   STOP, report the drifted tasks, and give the repair command
+   (`kbd-apply reconcile <phase> --repair`). Only on exit 0 read `progress.json`
+   and incorporate work done by all tools
 5. **Read artifact-refiner logs** — aggregate QA results
 6. **Load all change data** — from `openspec/changes/archive/` if OpenSpec,
    or `.kbd-orchestrator/changes/archive/` if native KBD

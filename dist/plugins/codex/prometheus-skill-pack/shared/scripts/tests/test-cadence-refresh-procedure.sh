@@ -142,4 +142,48 @@ run --mode full >/dev/null 2>"$S/err"; rc=$?
 [ "$(lines)" -eq 1 ] || fail "kickstart ran after a failed install"
 ok "a failed install exits 1 and skips kickstart"
 
+# --- --reconcile-phase: kbd-apply stub on PATH, cadence.mjs tripwire on PATH, files only
+BIN="$S/bin"; mkdir -p "$BIN" "$S/kbd/.kbd-orchestrator"
+printf '{"phase":"phase-wp"}' > "$S/kbd/.kbd-orchestrator/current-waypoint.json"
+cat > "$BIN/kbd-apply" <<'STUB'
+#!/bin/bash
+echo "$PWD $*" >> "$STUBLOG.kbd"
+[ "$1" = "reconcile" ] || exit 9
+if [ -n "${STUB_DRIFT:-}" ]; then
+  echo '{"phase":"'"$2"'","clean":false,"drifted":1,"drift":[{"change":"change-a","task":"1","kind":"ledger-missing","title":"t"}]}'; exit 1
+fi
+echo '{"phase":"'"$2"'","clean":true,"drifted":0,"drift":[]}'; exit 0
+STUB
+for t in cadence.mjs cadence; do
+  printf '#!/bin/bash\necho called >> "%s/tripwire"\nexit 99\n' "$S" > "$BIN/$t"
+done
+chmod +x "$BIN/kbd-apply" "$BIN/cadence.mjs" "$BIN/cadence"
+rrun() { PATH="$BIN:$PATH" /bin/bash "$PROC" --deploy "$DEPLOY" --mode verify --kbd-root "$S/kbd" "$@"; }
+rjson() { python3 -c 'import json,sys; d=json.load(sys.stdin); r=d["reconcile"]; print(r["status"], r.get("phase"), r.get("exitCode"), r.get("drifted"))'; }
+
+: > "$STUBLOG.kbd"; rm -f "$S/tripwire"
+OUT="$(rrun --reconcile-phase auto 2>/dev/null)" || fail "reconcile auto exited $?"
+[ "$(printf '%s' "$OUT" | rjson)" = "clean phase-wp 0 0" ] || fail "clean summary wrong: $(printf '%s' "$OUT" | rjson)"
+grep -q "^$S/kbd reconcile phase-wp --json" "$STUBLOG.kbd" || fail "kbd-apply not run in kbd root with the waypoint phase: $(cat "$STUBLOG.kbd")"
+ok "--reconcile-phase auto reads the waypoint phase and reports a clean reconcile field"
+
+OUT="$(STUB_DRIFT=1 rrun --reconcile-phase phase-explicit 2>/dev/null)"; rc=$?
+[ "$rc" -eq 0 ] || fail "drift must be reported, not enforced (exit $rc)"
+[ "$(printf '%s' "$OUT" | rjson)" = "drift phase-explicit 1 1" ] || fail "drift summary wrong: $(printf '%s' "$OUT" | rjson)"
+printf '%s' "$OUT" | python3 -c 'import json,sys; d=json.load(sys.stdin)["reconcile"]["drift"][0]; assert d["change"]=="change-a" and d["task"]=="1", d' || fail "drift entry missing"
+ok "drift is named in the summary and does not change the exit code"
+
+OUT="$(rrun 2>/dev/null)" || fail "no reconcile flags exited $?"
+[ "$(printf '%s' "$OUT" | rjson | cut -d' ' -f1)" = "skipped" ] || fail "reconcile should be skipped without the flag"
+OUT="$(PATH="$BIN:$PATH" /bin/bash "$PROC" --deploy "$DEPLOY" --mode verify --reconcile-phase auto 2>&1)"; rc=$?
+[ "$rc" -eq 2 ] || fail "--reconcile-phase without --kbd-root exited $rc, expected 2"
+ok "reconcile is opt-in and needs --kbd-root"
+
+[ ! -e "$S/tripwire" ] || fail "the cadence CLI was invoked during reconcile"
+ok "cadence.mjs / cadence on PATH were never called"
+
+SHIM="$ROOT/skills/process/delivery-cadence/examples/refresh-skill-pack-shim.sh"
+grep -q -- '--kbd-root' "$SHIM" && grep -q -- '--reconcile-phase auto' "$SHIM" || fail "shim does not pass --kbd-root and --reconcile-phase auto"
+ok "the shim example passes --kbd-root and --reconcile-phase auto"
+
 echo "all $pass checks passed"
