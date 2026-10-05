@@ -1,3 +1,5 @@
+> **Historical workstation evidence; outside current onboarding.** These July 2026 installed and behavioral results apply only to the recorded baseline and host. Hosted-CI parity text is retained as history and cannot be used as current validation; sync ownership has moved to Companion. Use [the current guide](../guide/00-quick-start.md).
+
 # Cross-Tool Skill and Learning-System Validation
 
 Date: 2026-07-18

@@ -1,0 +1,20 @@
+[ERROR] Error: Unable to build website for locale en.
+    at tryToBuildLocale (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/commands/build/build.js:76:15)
+    at async /Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/commands/build/build.js:34:9
+    at async mapAsyncSequential (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/utils/lib/jsUtils.js:21:24)
+    at async Command.build (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/commands/build/build.js:33:5)
+    at async Promise.all (index 0)
+    at async runCLI (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/commands/cli.js:56:5)
+    at async file:///Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/bin/docusaurus.mjs:44:3 {
+  [cause]: Error: The docs folder does not exist for version "current". A docs folder is expected to be found at docs-catalog.
+      at getVersionMetadataPaths (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/plugin-content-docs/lib/versions/files.js:135:15)
+      at async createVersionMetadata (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/plugin-content-docs/lib/versions/version.js:112:68)
+      at async Promise.all (index 0)
+      at async Object.pluginContentDocs [as plugin] (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/plugin-content-docs/lib/index.js:51:30)
+      at async initializePlugin (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/server/plugins/init.js:91:32)
+      at async Promise.all (index 5)
+      at async initPluginsConfigs (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/server/plugins/init.js:118:22)
+      at async initPlugins (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/server/plugins/init.js:128:39)
+      at async /Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/server/plugins/plugins.js:143:36
+      at async loadSite (/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/lib/server/site.js:164:45)
+}

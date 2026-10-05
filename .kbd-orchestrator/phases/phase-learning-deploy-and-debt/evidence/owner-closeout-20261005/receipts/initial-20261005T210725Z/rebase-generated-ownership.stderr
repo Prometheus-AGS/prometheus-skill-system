@@ -1,0 +1,24 @@
+FAIL - generated-only conflicts resolved, validators pass (rc=1)
+PASS: 217 canonical skills, payload parity, modes, pins, manifests, and marketplaces
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: a payload missing scripts/lib/capabilities.js must not activate
+    at file:///private/tmp/ldd-local-o6r1eblg/tmp/rebase-regenerate-test.RmxThJ/repo/scripts/tests/payload-activation.test.mjs:134:12
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 0,
+  operator: 'notStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.5.0
+rebase-regenerate: FAILED: npm run check:distribution
+FAIL - no unmerged paths remain
+FAIL - prints the git rebase --continue command
+3 check(s) failed

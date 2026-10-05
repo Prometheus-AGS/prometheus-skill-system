@@ -1,3 +1,5 @@
+> **Historical artifact review; outside current onboarding.** This August 2026 static review is limited to its recorded source commits. Its verdict is not installed-runtime, network or current candidate certification. Use [the current guide](../guide/00-quick-start.md).
+
 # KBD Startup Isolation Artifact Review
 
 **Date:** 2026-08-02

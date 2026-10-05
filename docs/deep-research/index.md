@@ -6,6 +6,8 @@ status: specification
 authors: [Prometheus AGS Research Team]
 ---
 
+> **Draft architecture record; outside current onboarding.** This July 2026 master specification contains proposed research, UI, threading and knowledge-format capabilities. It is not evidence that those proposals ship, activate or interoperate in the current pack. Use [the current guide](../guide/00-quick-start.md).
+
 # Prometheus Deep Research Skill — Master Specification
 
 > **Status:** Draft specification for community review  

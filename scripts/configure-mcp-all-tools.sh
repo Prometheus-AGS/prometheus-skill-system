@@ -7,7 +7,7 @@
 # Supported tools:
 #   claude-code   ~/.claude/mcp.json              (JSON, mcpServers)
 #   opencode      ~/.opencode/opencode.json        (JSON, mcp)
-#   codex         ~/.codex/config.toml             (TOML, [mcp_servers.*])
+#   codex         ${CODEX_HOME:-$HOME/.codex}/config.toml (TOML, [mcp_servers.*])
 #   kimi-code     ~/.kimi-code/config.toml         (TOML, [mcp_servers.*])
 #   minimax       ~/.minimax/mcp/mcp.json          (JSON, mcpServers)
 #   cursor        ~/.cursor/mcp.json               (JSON, mcpServers)
@@ -42,6 +42,8 @@ done
 
 [ -f "$PORT_TABLE" ] || { echo "mcp-port-table.json not found at $PORT_TABLE" >&2; exit 1; }
 command -v node >/dev/null 2>&1 || { echo "node is required for JSON manipulation" >&2; exit 1; }
+CODEX_HOME="$(node -e 'const path = require("node:path"); process.stdout.write(path.resolve(process.env.CODEX_HOME || path.join(process.env.HOME, ".codex")));')"
+export CODEX_HOME
 
 RESULTS=()
 SKIPPED=()
@@ -322,8 +324,8 @@ should_run "opencode" && {
 
 # Codex — TOML
 should_run "codex" && {
-    echo "→ codex (~/.codex/config.toml)"
-    merge_toml_mcp "$HOME/.codex/config.toml" "codex"
+    echo "→ codex ($CODEX_HOME/config.toml)"
+    merge_toml_mcp "$CODEX_HOME/config.toml" "codex"
 }
 
 # Kimi Code — TOML

@@ -1,16 +1,10 @@
-# Prometheus Skill Pack — Official Product Documentation
+# Prometheus Skill Pack guide
 
-*Maintained by Travis James, CTO, Prometheus AGS · Licensed MIT*
-
-This is the canonical product documentation for the **prometheus-skill-pack**: a self-improving AI skill execution engine that turns the loop — not the prompt — into your primary unit of work.
-
-Most teams treat an AI coding agent as something you talk to. You type, it responds, you type again. That posture caps out fast. The prometheus-skill-pack is built on a different premise: you design the loop that prompts the agent, the loop remembers what it learned, and the system proposes improvements to its own skills as it discovers better ways to work. The agent executes. You write loops.
-
-That premise is not aspirational. It is implemented across supported AI tools as a four-layer pipeline, three nested loop levels, a Karpathy-pattern knowledge base, a structural anti-sycophancy gate, a Rust toolchain that generates agents, skills, and native tools, and Dynamic Operations that turn eligible generated code into bounded runs with signed evidence.
-
-This documentation explains all of it. Every skill, every tool, every CLI, every script, every hook — documented individually and then collectively, with the architecture diagrams that make the design legible.
-
----
+Use this guide with [the product README](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/README.md) for installation and
+first workflows. Individual pages describe their source contracts and evidence
+boundaries; a documented feature does not imply every host or harness is certified.
+The pack supports standalone work, with optional services and a separately
+installed Companion extension for connected controls.
 
 ## How this documentation is organized
 
@@ -29,9 +23,9 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 
 | # | Page | What it covers |
 |---|------|----------------|
-| 05 | [The MCP Server Substrate](05-mcp-substrate.md) | All eight MCP servers, the canonical port table, and Firecrawl vs. Tavily |
+| 05 | [The MCP Server Substrate](05-mcp-substrate.md) | MCP component roles, configured endpoints and research providers |
 | 06 | [Memory and Karpathy-Pattern Learning](06-memory-and-learning.md) | The three-layer memory architecture, the self-learning engine, and the cross-session write-back sequence |
-| 07 | [Sycophancy Correction](07-sycophancy-correction.md) | The eight patterns (S-01–S-08), modes, strictness, MCP tools, the reflection gate, and how this documentation was checked with it |
+| 07 | [Sycophancy Correction](07-sycophancy-correction.md) | The eight patterns (S-01–S-08), modes, strictness, MCP tools, the reflection gate, and the reflection boundary |
 
 ### The catalog — every skill
 
@@ -50,17 +44,17 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 |---|------|----------------|
 | 13 | [Tools Reference](13-tools-reference.md) | forge-rs, prometheus-cli, prometheus-knowledge, liter-llm, surreal-memory-server, prometheus-rust-auditor, and prometheus-exec |
 | 14 | [The Rust Toolchain & Dynamic Generation](14-rust-toolchain.md) | Why Rust, how the binaries are built, and how the pack generates new skills, CLIs, and MCP servers |
-| 15 | [Hooks & Lifecycle](15-hooks-and-lifecycle.md) | Every hook event and script, progress signaling, scope guards, and the immutable-tests rule |
+| 15 | [Hooks & Lifecycle](15-hooks-and-lifecycle.md) | Lifecycle observations, scoped learning, progress signals and protected-test integrity |
 | 16 | [CLI & Scripts Reference](16-cli-and-scripts.md) | Every installer, validator, and runtime script, plus the npm script surface |
 
 ### Deployment — install, run, update, contribute
 
 | # | Page | What it covers |
 |---|------|----------------|
-| 17 | [Platform Support](17-platform-support.md) | Per-tool support: Claude Code, OpenCode, Codex, Kimi Code, MiniMax, Cursor, Windsurf, Gemini CLI, Roo Code, Amp |
+| 17 | [Platform Support](17-platform-support.md) | Per-tool support: Claude Code, OpenCode, Codex, Kimi Code, MiniMax, Cursor, Windsurf, Gemini CLI, Roo Code, Zed and Cline |
 | 18 | [Plugins & Marketplace](18-plugins-and-marketplace.md) | Claude Code plugins and marketplace, OpenCode plugins, and the distribution model |
 | 19 | [Installation](19-installation.md) | Toolchain install (Rust, Go, Node, Docker), the one-command install, and MCP services |
-| 20 | [Updating](20-updating.md) | Keeping skills, tools, submodules, and MCP services current without breaking anything |
+| 20 | [Updating](20-updating.md) | Keeping skills, tools, submodules, and MCP services current with recovery and evidence boundaries |
 | 21 | [Contributing](21-contributing.md) | The open-source workflow, validation gates, submodules, and importing skills |
 
 ### Closing
@@ -74,8 +68,9 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 
 | # | Page | What it covers |
 |---|---|---|
-| 24 | [Agent teams](24-agent-teams.md) | Create, export, install and adopt teams; preserve native configuration and ownership |
+| 24 | [Agent teams](24-agent-teams.md) | Create and adopt teams; role ownership and task lifecycle; messages, handoffs and cross-project requests; models, reasoning and scoped memory |
 | 25 | [UI/UX routing](25-ui-ux-routing.md) | Context authority, selective skills, portable installation and completed-phase evidence |
+| 26 | [Services, ownership and recovery](26-service-operations.md) | Repositories, optional Companion, memory/model services, installation and recovery |
 
 ### Operational
 
@@ -87,27 +82,7 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 
 ---
 
-## The thirty-second version
 
-If you read nothing else, read this.
-
-```mermaid
-graph LR
-    A[You write a loop] --> B[Loop prompts the agent]
-    B --> C[Agent executes in a sandbox]
-    C --> D[Goal checker — a separate model — evaluates]
-    D -->|Not done| B
-    D -->|Done| E[Session learning written to memory]
-    E --> F[Next loop turn arrives better-informed]
-    E --> G[Skill-update candidates proposed for human review]
-```
-
-A loop that forgets is a very fast way to do the same thing many times. A loop that remembers gets better at the task it was built to do. The prometheus-skill-pack is the infrastructure that makes the second kind of loop viable — and makes it work the same way no matter which AI tool you point at it.
-
-The agents are ready. The substrate is the question. This is the answer to that question.
-
----
-
-## A note on accuracy
-
-This documentation is held to the same standard as the system it describes. Every external claim is cited in the [Glossary & Sources](23-glossary.md). Narrative sections were checked against the `sycophancy-correction` MCP server before publication — the same structural quality gate the skill pack runs on its own reflection output. Where the repository contains a known inconsistency (for example, version drift across an imported skill's manifests), this documentation names it rather than papering over it. A document that only tells you what works is not documentation. It is marketing.
+Design documents, old release receipts and future-work plans are retained as
+history. They are not current installation instructions. Documentation changes
+follow the same implementation-first, final local integration boundary as code.

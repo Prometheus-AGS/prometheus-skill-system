@@ -1,0 +1,30 @@
+{
+  "domains": {
+    "kbd-control": {
+      "adapter": "wired",
+      "privacy": "trusted"
+    },
+    "learner-model": {
+      "adapter": "wired",
+      "privacy": "trusted"
+    },
+    "skill-index": {
+      "adapter": "wired",
+      "privacy": "public"
+    },
+    "surreal-memory": {
+      "adapter": "never-synced",
+      "privacy": "local_only"
+    }
+  },
+  "node_state": "Disabled",
+  "peers": [],
+  "transport": {
+    "attempt": 0,
+    "lastError": null,
+    "nextRetryMs": null,
+    "nodeId": null,
+    "peers": [],
+    "state": "disabled"
+  }
+}

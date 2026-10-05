@@ -1,3 +1,5 @@
+> **Historical integration design; outside current onboarding.** This July 2026 implementation proposal predates the current stage-contract driver and package layout. Its .research format, platform and hosted/testing guidance are not current onboarding requirements. Use [the current guide](guide/00-quick-start.md).
+
 # Prometheus Deep Research Skill — Integration Playbook
 
 **Date:** 2026-07-04  

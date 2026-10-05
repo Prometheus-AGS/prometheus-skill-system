@@ -1,3 +1,5 @@
+> **Skill-router proposal; outside current onboarding.** This revisioned specification proposes deterministic selection, injection and activation ledgers. Its implementation milestones and harness-budget hypotheses are separate from the current catalog and exposed controls. Use [the current guide](../../guide/00-quick-start.md).
+
 # PAGS-SPEC-PSP-IP-002: The Skill Router — Inverting the Instruction Plane
 ### A specification for PSP-owned skill selection, injection, and activation observability across coding-agent harnesses and the Universal Agent Runtime
 *Rev 1.1 (spec for build) — Travis James, Prometheus AGS — supersedes the C1/C2/C3 definitions in PAGS-SPEC-PSP-IP-001 rev 1.1*

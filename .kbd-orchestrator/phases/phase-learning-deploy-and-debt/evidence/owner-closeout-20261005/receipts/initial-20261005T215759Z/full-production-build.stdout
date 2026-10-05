@@ -1,0 +1,5 @@
+[INFO] [en] Creating an optimized production build...
+[webpackbar] ℹ Compiling Client
+[webpackbar] ℹ Compiling Server
+[webpackbar] ✔ Server: Compiled with some errors in 4.64s
+[webpackbar] ✔ Client: Compiled with some errors in 16.96s

@@ -211,9 +211,7 @@ Four tools:
 
 Do not plan around these:
 
-- **`forge template new\|render\|list\|validate\|edit`** — the entire subcommand tree in
-  the README. `forge template --help` → `error: unrecognized subcommand 'template'`. The
-  four files under `tools/forge-rs/templates/meta/` are unreachable dead code.
+- **Template management** — no such subcommand exists in the shipped `Commands` enum. Meta-template files are not an executable scaffolding path.
 - **`optimize` / `generate` / `evolve`** — printed by `forge status` as `[EXPERIMENTAL]`.
   They are hardcoded `println!` strings; no such subcommands exist.
 - **`forge skill add`** — prints "skill registry pull not yet implemented".

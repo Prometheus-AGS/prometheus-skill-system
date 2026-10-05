@@ -1,3 +1,5 @@
+> **Historical UI design plan; outside current onboarding.** The job-scoped HTML prototype plan includes proposed settings and simulated telemetry. It does not prove UAR, models, stores or protocol integration is operational. Use [the current guide](../guide/00-quick-start.md).
+
 # Plan: Deep Research UI Multi-Tenancy Redesign
 
 ## Reference

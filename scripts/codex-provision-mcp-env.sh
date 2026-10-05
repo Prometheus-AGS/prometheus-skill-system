@@ -13,7 +13,8 @@
 
 set -eu
 
-CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+CODEX_HOME="$(python3 -B -c 'import os; print(os.path.abspath(os.environ.get("CODEX_HOME") or os.path.join(os.environ["HOME"], ".codex")), end="")')"
+export CODEX_HOME
 CODEX_CONFIG="$CODEX_HOME/config.toml"
 
 # Env vars the plugin's 7 MCP servers consume (see .mcp.json).

@@ -1,3 +1,5 @@
+> **Archived repair plan; outside current onboarding.** This July 2026 task plan is retained for provenance, not execution. Its test-first sequence, Bash3 service assumptions and live-home repair instructions are superseded by current repository policy and scoped installation contracts. Use [the current guide](../../guide/00-quick-start.md).
+
 # Global Skill System and MCP Substrate Repair Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

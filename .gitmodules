@@ -2,7 +2,7 @@
 	path = skills/imported/artifact-refiner
 	url = https://github.com/GQAdonis/artifact-refiner-skill.git
 
-# Pin policy: advance SHA only after validating sycophancy gate in CI
+# Pin policy: advance SHA only after the applicable local full-integration gate passes
 [submodule "skills/imported/sycophancy-correction"]
 	path = skills/imported/sycophancy-correction
 	url = https://github.com/Know-Me-Tools/sycophancy-correction-skill.git

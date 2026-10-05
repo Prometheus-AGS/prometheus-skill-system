@@ -2,7 +2,7 @@
 name: skill-name
 description: Clear, concise description of what this skill does and when to use it (max 1024 chars)
 license: MIT
-compatibility: Node.js >=18, Claude Code >=1.0.0
+compatibility: Declare the actual runtime, harness and collaborator prerequisites
 metadata:
   author: your-name
   version: '1.0.0'
@@ -23,6 +23,8 @@ Describe the specific scenarios where this skill should be invoked:
 - Scenario 3
 
 ## Instructions
+
+Complete the active phase's production changes before authoring or running tests, checks or reviews. Use actual helper interfaces and preserve source, packaged delivery and acceptance as separate states.
 
 ### Step 1: Title
 

@@ -1,0 +1,504 @@
+{
+  "kind": "full-production-generation-handoff",
+  "recordedAt": "2026-10-05T20:33:07.340695+00:00",
+  "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+  "actualModel": "gpt-6.1-sol",
+  "actualEffort": "high",
+  "plannedEffort": "xhigh; parent explicitly reused actual high for this subset",
+  "sourceGenerationComplete": true,
+  "integrationSupportSourceComplete": true,
+  "canonicalTaskComplete": false,
+  "acceptance": "none; parent consolidated gate pending",
+  "productionPasses": 2,
+  "generatorInvocations": [
+    {
+      "pass": 1,
+      "command": [
+        "npm",
+        "--prefix",
+        "skills/process/agent-team-creator/runtime",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-1.log",
+      "logSha256": "65e2cae9900b0189cc0c788688793590d304ff8727ff04ffef140491f5506420"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-service-manifest.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-2.log",
+      "logSha256": "f2dcc9f06d06e3a1afb349917bc3cc5335372bf94f1da8f022ac7bdc743ec51a"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-harness-adapters.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-3.log",
+      "logSha256": "896211fe84f30efb3fece4aa40137d165e0bdb5a843001f30d00dbf89e802a7c"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-skills-index.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-4.log",
+      "logSha256": "978233b73ea765f1ca54adf6a0575d030886878140b445c42226fd4b1a74264a"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-skill-system-distribution.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-5.log",
+      "logSha256": "e3b3b7dbf14981bd9ef4ae48abea934cae96876a9ad32b90e7cdaeb17014c548"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/docs-sync.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-6.log",
+      "logSha256": "c135e76e4f00cb7153b268bde4340e9777949af65783e5769df04ab79c388d9f"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "site/scripts/generate-skills-catalog.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-7.log",
+      "logSha256": "ab8da942e32af7f130bd0b276a87a1065703eaa3d56d12fa609e044a30fc02e9"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "site/scripts/generate-api-examples.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-8.log",
+      "logSha256": "dadcc2b66f811954bd7226af6b8a3b58f6b9f481b29ea1b37b2e34d74e1565f1"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-commands.js",
+        "--output",
+        "/tmp/ldd-full-generation-wfh2jji8/commands"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-1-9.log",
+      "logSha256": "56fbf559311b7e8bc519039fc186e90421129c914956d776a4e4c222d0873753"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "npm",
+        "--prefix",
+        "skills/process/agent-team-creator/runtime",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-1.log",
+      "logSha256": "65e2cae9900b0189cc0c788688793590d304ff8727ff04ffef140491f5506420"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-service-manifest.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-2.log",
+      "logSha256": "f2dcc9f06d06e3a1afb349917bc3cc5335372bf94f1da8f022ac7bdc743ec51a"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-harness-adapters.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-3.log",
+      "logSha256": "896211fe84f30efb3fece4aa40137d165e0bdb5a843001f30d00dbf89e802a7c"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-skills-index.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-4.log",
+      "logSha256": "a278968a6192631b66e4209ae925f5b328d82020535632482bfff4e292ff0b35"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-skill-system-distribution.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-5.log",
+      "logSha256": "e3b3b7dbf14981bd9ef4ae48abea934cae96876a9ad32b90e7cdaeb17014c548"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/docs-sync.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-6.log",
+      "logSha256": "340cd68121e49224801c3edf3878a651dacf1b974bb7bb5c5670ecbfa3917c27"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "site/scripts/generate-skills-catalog.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-7.log",
+      "logSha256": "ab8da942e32af7f130bd0b276a87a1065703eaa3d56d12fa609e044a30fc02e9"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "site/scripts/generate-api-examples.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-8.log",
+      "logSha256": "dadcc2b66f811954bd7226af6b8a3b58f6b9f481b29ea1b37b2e34d74e1565f1"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-commands.js",
+        "--output",
+        "/tmp/ldd-full-generation-wfh2jji8/commands"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-generation-wfh2jji8/pass-2-9.log",
+      "logSha256": "56fbf559311b7e8bc519039fc186e90421129c914956d776a4e4c222d0873753"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/tmp/ldd-full-generation-wfh2jji8/generation-plan.json",
+      "sha256": "8f60afc99b9eb63a490821ead44a9c33e29ea719eb26053d73f20cee7a2907a1",
+      "bytes": 914
+    },
+    {
+      "path": "/tmp/ldd-full-generation-wfh2jji8/commands.json",
+      "sha256": "64bcd09654220587bc26d47a1d1e31e059c3ee6570277a1423e556146958ef83",
+      "bytes": 6629
+    },
+    {
+      "path": "/tmp/ldd-full-generation-wfh2jji8/full-generated-paths.txt",
+      "sha256": "01669376d4b20d0067f431bcd6979d2fe396814732fbcc15af7932134927d18c",
+      "bytes": 2888
+    },
+    {
+      "path": "/tmp/ldd-full-generation-wfh2jji8/command-paths.txt",
+      "sha256": "b188c5ca46b0d3342596af9bbb1c3b764ea3c364f5d8f5e7e32bf14b774cfc10",
+      "bytes": 3941
+    },
+    {
+      "path": "/tmp/ldd-full-generation-wfh2jji8/full-pass-1.json",
+      "sha256": "33690bd42f46aca2af20ac94a543dde7ffb796a28aae2253ed4975c175a1e598",
+      "bytes": 1461346,
+      "entryCount": 6023,
+      "declarationCount": 54,
+      "materializationSha256": "9cd29ee6a133a8c2e1a3011946561be74eafa858b21cb7ec2a1bb6a913423e16",
+      "posixModes": null,
+      "modeEvidence": "raw observed lstat modes; capability certification/explicit comparison deferred"
+    },
+    {
+      "path": "/tmp/ldd-full-generation-wfh2jji8/full-pass-2.json",
+      "sha256": "33690bd42f46aca2af20ac94a543dde7ffb796a28aae2253ed4975c175a1e598",
+      "bytes": 1461346,
+      "entryCount": 6023,
+      "declarationCount": 54,
+      "materializationSha256": "9cd29ee6a133a8c2e1a3011946561be74eafa858b21cb7ec2a1bb6a913423e16",
+      "posixModes": null,
+      "modeEvidence": "raw observed lstat modes; capability certification/explicit comparison deferred"
+    },
+    {
+      "path": "/tmp/ldd-full-generation-wfh2jji8/commands-pass-1.json",
+      "sha256": "cb3cbf5a2d337e580da638f67d97532b7a5dab40d1baf1d02c673b92517b740c",
+      "bytes": 44383,
+      "entryCount": 198,
+      "declarationCount": 198,
+      "materializationSha256": "c84d95195852da7a96c2a01c3fa46054e192568a5be2b4403016fef7256285de",
+      "posixModes": null,
+      "modeEvidence": "raw observed lstat modes; capability certification/explicit comparison deferred"
+    },
+    {
+      "path": "/tmp/ldd-full-generation-wfh2jji8/commands-pass-2.json",
+      "sha256": "cb3cbf5a2d337e580da638f67d97532b7a5dab40d1baf1d02c673b92517b740c",
+      "bytes": 44383,
+      "entryCount": 198,
+      "declarationCount": 198,
+      "materializationSha256": "c84d95195852da7a96c2a01c3fa46054e192568a5be2b4403016fef7256285de",
+      "posixModes": null,
+      "modeEvidence": "raw observed lstat modes; capability certification/explicit comparison deferred"
+    }
+  ],
+  "snapshotSupport": {
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/generated-materialization-inventory.mjs",
+    "sha256": "3606a3e0f42c918ca8fae83ed5378360b335c32e3c47d9c4dca24d59214fc29e",
+    "purpose": "Caller-declared bounded inventory of every actual file/directory/symlink, raw byte digest and mode; requires explicit same-volume production capability receipt for exact mode comparison; no platform inference or output root duplication",
+    "comparisonNotExecuted": true
+  },
+  "compiledRuntimePaths": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/adapters-codecs.mjs",
+      "sha256": "778e00a26485302ebbd6b21320485ff32527c6f4e21ed405b0438b3e325af731",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/adapters-local.mjs",
+      "sha256": "6c1c3cab5a8b6f41b7ac0859462bd595c4983c204f8135bc6563579e7b112587",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/adapters-services.mjs",
+      "sha256": "117a6bae4337fb6b1ab8dffe32f5462db590d5640caf09dc35bc2626f55ae2c6",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/adapters.mjs",
+      "sha256": "771c2ebc75785c35d1c57fae2656faa4e7087055f668e0cb3f2718cb379ed15d",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/cli.mjs",
+      "sha256": "bd29d33a4e51540041045a478613d6256be868f53a403d3ef9d7900839a7a0cd",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/export-files.mjs",
+      "sha256": "8f193b8cc9190c5ba4b83c4c37eb0757e34438d9920737f5f852e6ce0143a196",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/guidance.mjs",
+      "sha256": "9338adfef21690ee6e260d2dc1c97d7772b28208f97a70745324d7bbe32de756",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/handoff.mjs",
+      "sha256": "1510e7cbcac0e685dd155fca0369fd08d20163b0d8aa104dc846da8e836c14ae",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/memory.mjs",
+      "sha256": "c14150fefc88552882ccdc5721ae8f45885ea934a0a1bbf4f4e9c07f4bc5fad5",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/models-http.mjs",
+      "sha256": "aea304aa515f8468446094ef3c5e140c78cffdbe63d4b54d414e3d1de709dc28",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/models.mjs",
+      "sha256": "8fbb72e7815e4f3e23d535679fae8a2deb73f013dfd40466952acf95d70f7b22",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/project-files.mjs",
+      "sha256": "607a5d9bd8b44ff99286960a3a0137d1f6b385ce0aff6191cebe78349bf5e8d0",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/project-install.mjs",
+      "sha256": "b3a0d61108d3a30f603c6670d913bf5259ed84ed06f5daaf020fe1341f220f91",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/project-instructions.mjs",
+      "sha256": "9d2db7c94387765f702d630efb6cabb0cb6be9fa6dfcffced6941a0805fb57b5",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/registry.mjs",
+      "sha256": "7f121ef9d23486c9dd583972d6d8276d0fec3d1726da85abb1971fc1ab1943d9",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/state-kbd.mjs",
+      "sha256": "d6083c558b54b994553208d4cbcfe221c71a48e7a5edbee03da730e3c6be5aad",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/state-tasks.mjs",
+      "sha256": "3ef330a0f3689da1bd74f8a1998f51877c2e4f0d79d0b1fd23ff3b593504120d",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/state-validation.mjs",
+      "sha256": "ad380bb7a5073a0bdf4c62845d2a9a374d0d8d6e6dc012af7ee861edd79a82e1",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/state.mjs",
+      "sha256": "90ef7e07aae91ef787245d384fdac1c5e99fc676fa40db7d34bc1044257c9928",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/types.mjs",
+      "sha256": "a797bafbb091a2fb00a7ee5aff31badca6c8fc76f1c82eca0bdffb539c44bfb5",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-client.mjs",
+      "sha256": "13f0b36e40e549ef4b304afca5cedb2b3fb10ed87830d896eadf7836c62891b4",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/binding.mjs",
+      "sha256": "4b3c8839da16d7547a36e4f4d5baadc6fe8b5480c42f29b08934325cdd018ca7",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/canonical.mjs",
+      "sha256": "0f05afbd7c9d9e65146924f7de825448871966230659d3598129441bb2bf66fd",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/commands.mjs",
+      "sha256": "990daaef6407273d381fd5d07360b5911e3a4e36c61fcc894100006c903ddc3b",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/compiler.mjs",
+      "sha256": "095bcf71a455f191361cae3d6927dc51d7061d3b86d65b6b7db095fdc158254d",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/graph-validation.mjs",
+      "sha256": "da13627077cb125edcf7e7f96bafd62c7a504d69f445335bd11e0946b3169c05",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/maintenance.mjs",
+      "sha256": "7f698ebe33d8d3f98b31d6ae42d062e3a267c6a4907c7061e7fc638abe5fd827",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/migration.mjs",
+      "sha256": "f3041068290fba7b3eafffa3fd97b67e78781b656bbef7d137376c6095300380",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/package-files.mjs",
+      "sha256": "e6df13fdd969785a1c834ac74f6d031e41cab79b12fe6013ecba2649971a6acd",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/private-authority.mjs",
+      "sha256": "78a28642c28f2b6b0a2b4441849cd4b181643ef9111788b7bf2f7ef23726dee6",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/profile-validation.mjs",
+      "sha256": "02873529735152bc6ee344f3780fb33883d92a85d38a20cd69d5571c4524d44e",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/workspace-questions.mjs",
+      "sha256": "bf504ade7776fc784637f9b0c80ec6188e1120dd4654d08a7f74ad38671e8175",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package/workspace.mjs",
+      "sha256": "4968bf0596ee8c84ec0626fdf18461b6e40daddc1b11af7400f6ae28ae0e257c",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/uar-package.mjs",
+      "sha256": "4ec40be5e4ab5ae8a5b19e92ef4d753504cb98a70e0bb28cb3e6afd5dafc4b07",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/ui-bindings.mjs",
+      "sha256": "0e2cc2e57600bf5b3bcedbf4a7926dff85ef8cf1ded90bd7f36f75b4b2b67159",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/process/agent-team-creator/scripts/validation.mjs",
+      "sha256": "0ec5104849bc0702ae3c58c4347cab40daccb11c1ffa999bc99e56f9583aff06",
+      "mode": "0o755"
+    }
+  ],
+  "materializedCounts": {
+    "distributedSkills": 217,
+    "hookCount": 49,
+    "serviceCount": 11,
+    "siteSourceSkills": 196,
+    "siteCategories": 18,
+    "scratchCommands": 198
+  },
+  "harnessBundleId": "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+  "scratchRoot": "/tmp/ldd-full-generation-wfh2jji8",
+  "ownershipNotes": [
+    "Core paths derive from actual scripts/generated-paths.mjs declarations; additional receipts cover actual service/index/docs/catalog/API generator outputs and tsconfig emission paths.",
+    "Claude commands generated only in explicit scratch directory; no .claude command source tree exists in this candidate.",
+    "SKILLS.md managed index/provenance generated by actual source script; authored other blocks preserved by generator.",
+    "Full direct imports materialized by parent; no Git checkout mutations or import/version changes performed by this worker."
+  ],
+  "remainingFinalParentMemoryPinGraphGap": "Current full contract intentionally retains the pre-certification surreal-memory gitlink 0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6. New memory signed/certified commit and owner merge plus separate exact mini versions.toml SHA approval are pending; parent must apply approved final source identities and regenerate impacted parents before the final remote fresh-clone gate. No invented SHA.",
+  "nextGateOwnership": "Root waits for all integration scenario authoring then runs consolidated local production checks/tests, explicit byte/mode comparison with same-volume capability receipt, source/harness/release checks and final identity gates. No npm check:distribution aggregate invoked.",
+  "commandsNotRun": [
+    "--check",
+    "validators",
+    "tests",
+    "integration comparison gate",
+    "broad typechecks",
+    "Cargo/rustc",
+    "review",
+    "install",
+    "commit/tag/push",
+    "live-home mutations"
+  ],
+  "generationCompilerScope": "Only actual npm runtime build: tsc -p tsconfig.json producing src/**/*.mts into scripts/*.mjs; no test sources or tsconfig.tests compilation."
+}

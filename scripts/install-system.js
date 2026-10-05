@@ -8,6 +8,7 @@ import readline from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 
 import { compareVersions, readSkillSystem, targetsById } from './lib/skill-system.js';
+import { resolveCodexHome } from './lib/store-paths.js';
 
 function fail(message) {
   throw new Error(message);
@@ -43,6 +44,7 @@ function parseArgs(argv) {
   }
   args.sourceRoot = path.resolve(args.sourceRoot);
   args.home = path.resolve(args.home);
+  args.codexHome = resolveCodexHome(args.home);
   if (args.profile && !['skills', 'full'].includes(args.profile)) fail('--profile must be skills or full');
   if (args.verify && args.uninstall) fail('--verify and --uninstall are mutually exclusive');
   if (args.bestEffort && args.verify) fail('--best-effort cannot certify --verify');
@@ -53,6 +55,7 @@ function help() {
   process.stdout.write(`Usage: ./install.sh [options]\n\n` +
     `  --profile skills|full       Installation profile (default: skills)\n` +
     `  --targets detected|all|IDs  Detected clients, all 14, or comma-separated IDs\n` +
+    `  --home PATH                 Fallback home; explicit CODEX_HOME takes precedence\n` +
     `  --non-interactive           Disable prompts\n` +
     `  --yes                       Approve the displayed mutation summary\n` +
     `  --dry-run                   Display exact planned mutations only\n` +
@@ -68,7 +71,10 @@ function commandExists(command) {
 function detectedTargets(contract, home) {
   return contract.targets.filter(target => target.detect.some(probe => {
     if (probe.startsWith('command:')) return commandExists(probe.slice('command:'.length));
-    return fs.existsSync(path.join(home, ...probe.split('/')));
+    const destination = probe === '.codex' || probe.startsWith('.codex/')
+      ? path.join(resolveCodexHome(home), ...probe.split('/').slice(1))
+      : path.join(home, ...probe.split('/'));
+    return fs.existsSync(destination);
   }));
 }
 
@@ -79,7 +85,7 @@ function resolveTargets(contract, selection, home) {
 
 function rejectObsoleteNativeUmbrella(contract, targets, home) {
   const ids = new Set(targets.map(target => target.id));
-  const env = { ...process.env, HOME: home, CODEX_HOME: path.join(home, '.codex') };
+  const env = { ...process.env, HOME: home, CODEX_HOME: resolveCodexHome(home) };
   if (ids.has('claude') && commandExists('claude')) {
     const result = spawnSync('claude', ['plugin', 'list', '--json'], { encoding: 'utf8', env });
     if (result.status === 0) {
@@ -96,23 +102,23 @@ function rejectObsoleteNativeUmbrella(contract, targets, home) {
   }
 }
 
-// Disable Codex memory generation (assessment G1b). Never throws: a failure is a
-// warning and the install continues. CODEX_MEMORIES_SCRIPT overrides the script
-// path for fault injection in tests only.
+// Apply all three Codex memory settings and archive known summaries. The caller
+// handles false through the normal installer failure policy. CODEX_MEMORIES_SCRIPT
+// overrides the script path for fault injection in tests only.
 export function applyCodexMemories({ home = os.homedir() } = {}) {
   try {
     const script = process.env.CODEX_MEMORIES_SCRIPT
       || fileURLToPath(new URL('../shared/scripts/codex-memories-config.sh', import.meta.url));
-    const env = { ...process.env, HOME: home, CODEX_HOME: path.join(home, '.codex') };
-    const result = spawnSync('bash', [script], { encoding: 'utf8', env });
+    const env = { ...process.env, HOME: home, CODEX_HOME: resolveCodexHome(home) };
+    const result = spawnSync('bash', [script, '--create'], { encoding: 'utf8', env });
     if (result.status !== 0) {
       const detail = (result.stderr || result.error?.message || `exit ${result.status}`).trim();
-      process.stderr.write(`WARNING: codex memories step failed (install continues): ${detail}\n`);
+      process.stderr.write(`codex memories policy failed: ${detail}\n`);
       return false;
     }
     return true;
   } catch (error) {
-    process.stderr.write(`WARNING: codex memories step failed (install continues): ${error.message}\n`);
+    process.stderr.write(`codex memories policy failed: ${error.message}\n`);
     return false;
   }
 }
@@ -210,6 +216,10 @@ function configureFull(args, targets, contract) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) return help();
+  // Every descendant, including full-profile shell launchers and doctor, sees
+  // the selected home and the same absolute Codex root before changing cwd.
+  process.env.HOME = args.home;
+  process.env.CODEX_HOME = args.codexHome;
   const contract = readSkillSystem(args.sourceRoot);
   const profile = await chooseProfile(args);
   const platform = platformKind();
@@ -231,6 +241,9 @@ async function main() {
     `  targets: ${targets.map(target => `${target.id}:${target.mode}`).join(', ')}`,
     `  imports: ${args.verify || args.uninstall ? 'none' : imports.join(', ')}`,
     `  plugin root: ${path.join(args.home, '.prometheus/plugins/prometheus-skill-pack')}`,
+    `  Codex root: ${args.codexHome}`,
+    ...(operation === 'install' && targets.some(target => target.id === 'codex')
+      ? ['  Codex memory policy: disable startup/generation/use; archive known v1/v2 summaries'] : []),
     `  certification: ${args.bestEffort ? 'disabled (--best-effort)' : 'required'}`,
   ];
   let approved = true;
@@ -257,11 +270,12 @@ async function main() {
   else if (args.uninstall) installerArgs.push('--uninstall');
   else attempt('submodule initialization', () => initializeImports(args.sourceRoot, contract, profile));
   const generation = attempt(operation, () => run(process.execPath, installerArgs, { capture: true }));
-  if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract));
-
   if (!args.verify && !args.uninstall && targets.some(target => target.id === 'codex')) {
-    applyCodexMemories({ home: args.home });
+    attempt('Codex memory policy', () => {
+      if (!applyCodexMemories({ home: args.home })) fail('could not apply Codex memory policy');
+    });
   }
+  if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract));
 
   if (failures.length) {
     process.stdout.write(`Best-effort run completed without certification (${failures.length} failure(s)).\n`);

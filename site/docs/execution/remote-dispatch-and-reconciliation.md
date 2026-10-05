@@ -47,6 +47,6 @@ The origin verifies the enrolled target signature before storing a peer response
 
 ## Current evidence boundary
 
-Disposable isolated peer fixtures prove two-peer delivery, replay rejection, authorization failures, expiry, response loss, offline resume, restart, mixed outcomes, and slow-transport isolation. They do not prove a production Sovereign transport deployment. That external runtime requirement remains `pending_evidence`, and local health/verification do not wait for it.
+The recorded Exec baseline reports disposable isolated peer fixtures for two-peer delivery, replay rejection, authorization failures, expiry, response loss, offline resume, restart, mixed outcomes, and slow-transport isolation. They do not prove a production Sovereign transport deployment. That external runtime requirement remains `pending_evidence`, and local health/verification do not wait for it.
 
 Next: [Receipts, verification, and certification](./receipts-verification-and-certification.md).

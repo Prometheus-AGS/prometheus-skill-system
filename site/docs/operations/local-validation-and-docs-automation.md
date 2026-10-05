@@ -5,7 +5,7 @@ description: The certification boundary, unrestricted tools, deterministic docs 
 
 # Local validation and documentation automation
 
-Prometheus certifies code on the release Mac. Hosted jobs are not used as a
+Certification runs locally on the development host and records the actual platform. Hosted jobs are not used as a
 development loop or as evidence that runtime, tests, doctors, installers, or
 security checks passed.
 
@@ -50,16 +50,15 @@ The docs-sync workflow may update only managed blocks on the reusable
 doctors, builds, or certification. A local workflow-policy check rejects those
 behaviors and rejects PR validation triggers.
 
-The sync PR is bot-managed, squash-auto-merged, and protected by concurrency
-cancellation. Its merge retriggers sync; a correct generator produces no diff
+The deterministic sync automation has its own constrained branch/concurrency behavior; product PRs remain owner-reviewed and owner-merged. Its merge retriggers sync; a correct generator produces no diff
 on the second run.
 
 ## Local release sequence
 
-1. Run `npm run docs:sync` and confirm a second run is clean.
+1. Finish all phase production before any generation, checks or review. Run `npm run docs:sync` and confirm a second run is clean.
 2. Run the complete local `npm run docs:check` gate.
 3. Run all affected language, installer, plugin, and runtime checks locally.
-4. Run applicable doctors with the documented KBD and Sovereign exclusions.
+4. Run applicable doctors for the selected home and explicitly selected service exclusions.
 5. Archive redacted command results and warning dispositions.
 6. Review `git diff`, commit, and push once.
 

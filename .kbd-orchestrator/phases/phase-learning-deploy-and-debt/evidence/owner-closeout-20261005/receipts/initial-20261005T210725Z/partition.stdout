@@ -1,0 +1,13 @@
+ok - synthetic index is 14505 bytes
+plan: 14505 bytes -> 4022, 51 moved
+ok - dry run is the default and changes nothing
+ok - index is 4022 bytes (<= 4096)
+ok - backup is byte-identical to the original
+kept in index: 21, queued: 51, lost: 0
+ok - every removed line is queued for its address or remains in the index
+ok - re-running queues nothing new (51 operations)
+ok - only the given path (and its backup) was touched
+ranked order: ['project_phase_ranked_fixture_20230101.md', 'project_glob_20230101.md', 'feedback_one.md', 'project_new_20260901.md', 'project_mid_20260301.md']
+ok - ranked: active phase kept, archives moved first, feedback/GLOBAL ahead of older project, rank 2 newest first
+ok - ranked: second run on its own output moves nothing
+PASS: 7 groups

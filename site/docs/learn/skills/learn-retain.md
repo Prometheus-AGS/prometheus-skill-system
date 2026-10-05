@@ -6,35 +6,13 @@ sidebar_label: learn-retain
 
 # /learn-retain
 
-Spaced retrieval using the FSRS-6 scheduler. Surfaces concepts at optimal
-intervals for long-term retention.
+Review due concepts for a named goal using the learner-model's FSRS scheduling:
 
-## How it works
-
-1. The `learner-model` substrate crate tracks FSRS-6 cards per concept
-2. `learn-retain` asks which concepts are due for review
-3. Presents a retrieval prompt (explain it again, solve a transfer problem)
-4. Updates FSRS-6 state based on performance
-
-## Schedule
-
-FSRS-6 calculates the optimal interval between reviews based on:
-
-- Initial memory strength
-- Forgetting curve parameters
-- Historical performance
-
-## Mastery closure gate
-
-`learn-retain` provides the third mastery condition:
-
-> Retention check at ≥ 24h interval after initial mastery claim
-
-The 24h gap ensures the learner isn't passing on short-term working memory.
-
-## Usage
-
+```text
+/learn-retain rust-basics
+/learn-retain rust-basics --concept-id borrow-checker --max-cards 5
 ```
-/learn-retain                     # review all due concepts
-/learn-retain "Rust borrow checker"   # targeted review
-```
+
+The default batch is five cards. The procedure selects due concepts, asks retrieval questions, grades responses and updates review state. Scheduling depends on stored observations; it does not guarantee an optimal interval for every learner.
+
+Mastery requires a successful retention check at least 24 hours after the initial claim. The skill's retention pass threshold is `>= 0.6`; record the timestamp and evidence in the concept artifact. An immediate repeat cannot satisfy the delayed gate.

@@ -6,34 +6,18 @@ sidebar_label: learn-goal
 
 # /learn-goal
 
-Start a learning session. The skill elicits what you want to learn, validates
-feasibility, and routes into the full learning arc.
+Start by describing a subject and why it matters:
 
-## Trigger phrases
-
-- "I want to learn X"
-- "teach me X"
-- "help me understand X"
-- `/learn-goal "I want to master Y"`
-
-## Example
-
-```
-/learn-goal "I want to understand how Rust's borrow checker works"
+```text
+/learn-goal "I want to understand Rust's borrow checker"
 ```
 
-## What happens
+The skill elicits target level (`novice`, `practitioner` or `expert`), weekly time and horizon. It records a goal before routing to survey and curriculum planning. These are planning estimates, not a guarantee of learning outcomes.
 
-1. Elicits the learning goal (what, why, depth)
-2. Runs `learn-survey` to diagnose current knowledge level
-3. Builds a concept DAG via `learn-plan`
-4. Starts `feynman-loop` on the first concept
-5. Tracks progress in the learner model (FSRS-6)
+For a custom corpus, first register it with [learn-kb](/docs/learn/skills/learn-kb), then select the registry name:
 
-## Options
-
+```text
+/learn-goal "Understand our architecture" --kb architecture-docs
 ```
-/learn-goal "topic" --kb local:/path/to/docs    # ground in custom KB
-/learn-goal "topic" --depth deep                # full mastery track
-/learn-goal "topic" --depth overview            # survey-level understanding
-```
+
+The skill does not expose `--depth deep` or `--depth overview`. Give those preferences during elicitation. Subsequent skills use the resulting goal ID and stored corpus, rather than an arbitrary subject string.

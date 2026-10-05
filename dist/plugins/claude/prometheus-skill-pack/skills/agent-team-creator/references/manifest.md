@@ -54,7 +54,7 @@ installed skill IDs to the same policy shape. Tasks can provide `modelPolicy`.
 Fields: `model`, `tier` (`low`, `medium`, `hard`), `capabilities` (string array),
 `maxInputPerMillion`, `maxOutputPerMillion` (nonnegative USD estimates).
 
-Optional `agentMemory: { "claude": "local" }` opts Claude exports into `memory: local` plus a pack-generated per-role `.claude/agent-memory-local/<role>/MEMORY.md`. Codex exports always use underscore agent names and `memories.generate_memories = false`. See `docs/guide/memory-tiers.md`.
+Optional `agentMemory: { "claude": "local" }` opts Claude exports into `memory: local` plus a pack-generated per-role `.claude/agent-memory-local/<role>/MEMORY.md`. Codex defaults use underscore agent names and `memories.generate_memories = false`; explicit native overrides can replace defaults. That export field alone does not disable native consolidation or reading. The full pack’s installed policy separately requires `features.memories`, `memories.generate_memories` and `memories.use_memories` all false, plus absence of both known summaries. See the canonical `docs/guide/memory-tiers.md` and `docs/codex-plugin.md` source guides.
 
 Use `models-select` before invocation; tier/cost/capability intent is not itself
 a native model ID. The exporter translates explicit team/role `model` values
@@ -155,10 +155,21 @@ activate or execute a team.
 
 `runtime/package.json` pins TypeScript 7.0.2 and Node type declarations. Run
 `npm ci --prefix <skill>/runtime` then `npm run build --prefix <skill>/runtime`
-when maintaining source. Runtime consumers need only Node.js 22+ and the copied
-skill files; they do not need npm, TypeScript or the repository checkout. Full
-and mini distribute identical source and emitted `.mjs` files. Each sibling skill
-declares its dependency on this creator companion in its instructions.
+at the completed-production boundary when maintaining source. Consumers run
+the emitted skill files with Node.js 22+ without npm or TypeScript dependencies;
+optional integrations still require their configured services and helper executables.
+
+Full and mini share portable team/schema contracts and selected provider
+provenance. They do not distribute an identical runtime or emitted payload.
+Full alone provides `team-publish`, `team-discover`, `team-request` and
+`team-intake`, plus the full pack’s Python learning hooks, durable writer outbox
+and optional Cortex mirror. Mini uses a reduced file-backed queue and optional
+configured publication with its own project-identity resolution. The memory
+contracts are documented in [models-memory.md](models-memory.md); a matching
+filename or schema does not prove byte, service or execution parity. Rebuild
+changed source and record exact payload provenance at the final local boundary
+before claiming the copied `.mjs` implements it. Each sibling skill declares
+its dependency on this creator companion in its instructions.
 
 The four SKILL.md frontmatters follow the
 [AgentSkills specification](https://agentskills.io/specification): version and

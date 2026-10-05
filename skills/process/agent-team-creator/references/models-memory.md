@@ -36,19 +36,52 @@ Policies resolve team → role → ordered skills → task. Scalars override ear
 
 Eligible models sort by lowest known input+output per-million price, then exact identifier. Unknown prices sort last when no ceiling excludes them. This is deterministic comparison, not a workload cost prediction. Output includes `selected` (null if none), effective `policy`, `appliedLayers`, rejections with reasons, explanation and warnings. Selected stale/unknown price freshness generates an explicit warning that ceilings do not guarantee current rates.
 
+
+## Policy persistence and native limits
+
+`models-select` is read-only. It returns `selected`, effective `policy`,
+`appliedLayers`, `rejected`, `warnings` and source metadata. It does not mutate
+team/task state, discover a worker or configure a native session. The selector
+filters constraints then sorts by known price sum; KBD planning instead chooses
+demonstrated task fit first within user policy, with price/latency as tie-breaks.
+
+Portable policy has only `model`, `tier`, `capabilities`, `maxInputPerMillion` and
+`maxOutputPerMillion`. No portable effort/context/total-budget/fallback field is
+accepted. Native config/assignment records carry those requirements. Skill layers
+come from the explicitly supplied ordered skill list. Empty task capabilities do
+not erase earlier requirements. Unknown required capability or price fails the
+constraint; stale rates only warn and do not certify the current bill.
+
+Persist a reviewed concrete model through a revisioned full `team-update`, or
+record task-specific `modelPolicy` on task creation and pass it to selection and
+an actually supported invocation. Export uses explicit role model, otherwise
+team model; it does not evaluate task/skill policy. Native role overrides can
+replace exported settings, so inspect the artifact and actual worker result.
+There is no automatic fallback. Cross-project coordinators select under their
+own policy and record their actual route; source intent is not authority.
+
+Read the [canonical model/native guide](https://prometheus-ags.github.io/prometheus-skill-system/docs/guide/agent-teams#choose-a-model-for-the-task)
+for current primary sources. Codex/Claude/OpenCode controls differ by installed
+version/provider; Kimi model frontmatter is ignored and DeepSeek static members
+have no verified per-member model override. A successful listing or preserved
+field is not actual inference. Different-family KBD review requires actual
+producer/critic route evidence, beyond an alias comparison or separate context.
+
 ## Memory APIs and persistence
 
-`queueMemory(state, input): MemoryEntry` accepts `{content, scope, provenance?, id?}`. The caller must commit its mutation using the state's lock/revision transaction **before** publication. An omitted ID is a stable content/scope/provenance digest. Repeating identical input returns the existing entry; an ID collision with different content fails. Published entries remain in the outbox.
+`queueMemory(state, input): MemoryEntry` accepts `{content, scope, provenance?, id?, projectId?, kind?, roleId?, author?}`. A project identity is required: explicit `projectId`, matching `provenance.kbd.projectId`, or the CLI project resolver. Supported scopes are existing `role:<id>`/`agent:<id>`, `lead`, `team[:id]` and `project[:id]`; team/project suffixes do not switch away from the current state. User/global publication is not this API's scope surface. The caller must commit its mutation using the state's lock/revision transaction **before** publication. An omitted ID is a stable content/scope/provenance digest. Repeating identical input returns the existing entry; an ID collision with different content fails. Published entries remain in the outbox.
 
 `publishMemory(state, input): Promise<Json>` requires a persisted queued `id`. It mutates the receipt and status in the supplied state; it does not write the file itself. Missing endpoint or remote failure returns `status: "queued"`; the caller must commit that receipt. Repeated publication of a published entry returns its recorded receipt without another request.
 
 The verified surreal-memory REST adapter accepts:
 
 ```json
-{"id":"memory-example","provider":"surreal-memory","url":"http://127.0.0.1:8001/api/v1/memory/","scopeMapping":{"scope":"team:example","agentId":"example-team","userId":"anonymous"},"auth":{"env":"MEMORY_API_KEY"}}
+{"id":"memory-example","provider":"surreal-memory","url":"http://127.0.0.1:8001/api/v1/memory","scopeMapping":{"scope":"team"},"auth":{"env":"MEMORY_API_KEY"}}
 ```
 
-The port is operator configuration. `scopeMapping.scope` must exactly equal the queued logical scope; `agentId` is required, `userId` and `sessionId` optional. The actual request has `content`, `agent_id`, `user_id`, `session_id`, and `categories`. No metadata/idempotency field is invented: content contains an envelope preserving local ID, scope, provenance and original content.
+The port is operator configuration. This example requires a previously queued `memory-example` entry with scope `team` and a resolved project identity. `scopeMapping.scope` must exactly equal the queued logical scope. The stored `agent_id` is derived from scope (`<team>/<role>`, `<team>/@lead`, `<team>/@team` or `@project`); optional `scopeMapping.agentId` describes the author, not the storage recipient. `user_id` defaults to the entry project ID; an explicit `scopeMapping.userId` overrides that transport filter. `sessionId` is optional author/session metadata. The request has `content`, `agent_id`, `user_id`, `session_id`, and `categories`; content is verbatim text plus the shared learning-envelope trailer, not the legacy JSON envelope. No metadata/idempotency request field is invented. Use the canonical no-slash route for the current server; local validation also accepts a trailing slash but does not certify that deployment route.
+
+Mini's corrected source also derives scope keys and sends the learning envelope, while normalizing the canonical no-slash route. Its project identity is explicit or selected-project-marker based; missing identity queues without network I/O, and `scopeMapping.userId` can only confirm it. Full's optional override behavior above remains a separate contract. Mini has no full Python/Cortex/card-intake pipeline. Source completion does not regenerate compiled payloads or prove installed compatibility; see each pack's request reference and actual source.
 
 **Scope limitation:** identity fields are retrieval filters, not an authorization guarantee. The inspected REST constructor defaults the stored scope enum to global. This adapter does not claim private server scope; use an appropriately authorized deployment or explicitly mapped API when enforced isolation is needed.
 

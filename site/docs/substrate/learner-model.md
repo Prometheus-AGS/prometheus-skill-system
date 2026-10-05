@@ -27,7 +27,6 @@ snapshot. The original snapshot is preserved. Certification checks semantic
 continuity, evidence uniqueness, deterministic refolding, and conservative due
 dates before the migrated pointer can become current.
 
-The worker and Sovereign Sync import path both call the same fold after local
-writes or remote Loro updates.
+Local learning uses this deterministic fold. Any connected import adapter is separately owned by Companion and requires its own source/operation evidence.
 
 *Canonical source: [`substrate/learner-model`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/substrate/learner-model).*

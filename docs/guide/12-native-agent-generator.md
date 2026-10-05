@@ -1,6 +1,6 @@
 # 12 · The Agent Creator (`native-agent`)
 
-The skill pack can generate skills, templates, and CLIs. The native-agent generator goes further: it generates a complete, production-ready, standalone AI agent — a Rust binary with an HTTP server, a React 19 chat frontend, multi-provider model routing, an MCP client, and a Supabase-style management CLI — in one command. This is the most ambitious generation capability in the system, and it is what lets the pack produce *deployable products*, not just better code.
+The skill pack can generate skills, templates, and CLIs. The native-agent generator goes further: it generates a standalone AI agent source project — a Rust binary with an HTTP server, a React 19 chat frontend, multi-provider model routing, an MCP client, and a Supabase-style management CLI — in one command. This is the most ambitious generation capability in the system, and it is what lets the pack produce *deployable products*, not just better code.
 
 ## One command
 
@@ -8,8 +8,9 @@ The skill pack can generate skills, templates, and CLIs. The native-agent genera
 /create-native-agent
 → prompts for name, description, provider, port
 → generates a complete Rust workspace + React 19 frontend
-→ validates with cargo check + npm install
-→ ready to run
+→ completes production source
+→ runs local integration at the final boundary
+→ packages and deploys only when authorized
 ```
 
 The default build target is Docker. Pass `target: librefang-wasm` to produce a WASM-ABI skill instead, or `target: both`. The generation flow has two prompt phases — **specify** (interactive Q&A) and **generate** (render + verify); validation is a section inside generate, not a separate phase. The specify phase auto-detects Docker.
@@ -19,7 +20,8 @@ The default build target is Docker. Pass `target: librefang-wasm` to produce a W
 A generated agent is a **service**, not a delegation. Use it when you need:
 
 - **Something other agents can call.** It self-advertises at `GET /.well-known/agent.json`.
-  Another agent adds one `[[mcp_servers]]` entry and yours becomes a tool in its tool list.
+  A2A discovery is separate from MCP tool registration; add an explicit compatible
+  adapter rather than assuming an agent card is an MCP endpoint.
 - **Its own model policy** — `agent.toml` routes through liter-llm and is switchable at
   runtime, independent of whatever harness spawned it.
 - **A user-facing surface** — a React 19 assistant-ui chat served at `GET /*`.
@@ -63,7 +65,9 @@ Docker detection then runs, and only if Docker is present does it ask about
 `enable_docker`, `image_tag`, whether to build now (offered only when Desktop is actually
 running), and whether to `compose up`. A confirmation summary precedes generation.
 
-Verification is automatic:
+The generation prompt describes compiler and dependency checks. Repository policy
+defers them until all phase production is complete; they are setup/compiler feedback,
+not acceptance of the generated service:
 
 ```bash
 cargo check --workspace --manifest-path <output_dir>/Cargo.toml
@@ -122,11 +126,14 @@ my-agent config show / get / set
 my-agent docker detect / build / load / up / down / ps / logs / push / shell
 ```
 
-All model calls route through `liter-llm`, so switching providers or models is a CLI command, not a code change. The skills engine hot-reloads from configured directories, so adding a skill does not require a rebuild.
+The templates configure gateway-backed model calls. Confirm the generated project's
+actual route, authentication and completion before claiming that a switch worked. The skills engine hot-reloads from configured directories, so adding a skill does not require a rebuild.
 
 ## Agent networks
 
-Because every generated agent speaks A2A, multiple agents form a network by pointing at each other's A2A endpoints — and they share the same memory and knowledge substrate.
+The templates expose A2A routes. Explicit configuration and authorization can
+connect agents and selected stores; generation does not automatically establish
+a trusted network or grant another repository's ownership.
 
 ```mermaid
 graph LR
@@ -137,7 +144,10 @@ graph LR
     R --> PK
 ```
 
-A research agent can hand a task to a forge agent over A2A; both read and write the same surreal-memory graph at port 23001 and the same knowledge base at 8942. The substrate that makes a single loop compound is the same substrate that lets a *network* of agents share what they learn. The full protocol specification lives in the skill's `references/protocols.md`.
+The diagram is an illustrative topology. Configure each endpoint, scope and identity
+explicitly, and verify a real request before claiming interoperability. A2A delivery
+does not transfer path ownership or authorize shared memory publication. The skill's
+`references/protocols.md` records the template wire shapes.
 
 ## Build targets and the WASM path
 
@@ -158,7 +168,8 @@ Both get called "agents". They are different artifacts entirely.
 | UI | none | bundled React chat |
 | Ship it | copy a file | Docker image or `.lf-skill.zip` |
 
-**Use a subagent** for bounded delegation inside one session — review, verify, critique.
+**Use a subagent** for scoped delegation inside the harness; keep review and
+verification dormant until the final phase boundary.
 The pack ships six: `kbd-idea-critic`, `kbd-spec-reviewer`, `kbd-goal-evaluator`,
 `kbd-task-verifier`, `rust-auditor`, `gitops-architect`.
 
@@ -167,7 +178,8 @@ its own model policy, or ships to someone else.
 
 ## End to end: `/start-business-build`
 
-The fullest demonstration of composition in the pack — a child skill chaining ideation →
+The following is an illustrative transcript, not a recorded run or deployment.
+The child skill describes ideation →
 specification → planning → generation → packaging → deployment:
 
 ```
@@ -186,8 +198,7 @@ Stage 6: /upload-to-bossfang?                           y  → installed and ver
 ```
 
 The *rejection* is the interesting line: a constraint discovered during implementation is
-captured into the knowledge base rather than discarded. `--dry-run` estimates first —
-`Estimated cost: $4.20 (frontier) + $0.80 (tiered)` / `Estimated wall time: 20m`.
+captured into the knowledge base rather than discarded. Any cost or duration estimate is a plan, not measured inference or delivery evidence.
 
 ## Deployment hardening
 

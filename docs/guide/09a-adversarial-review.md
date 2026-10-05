@@ -242,12 +242,11 @@ bash "$SKILL_DIR/scripts/check-findings-sycophancy.sh" \
   --findings ".../findings.json" --counter-key "adv-review-$CHANGE_ID"
 ```
 
-Two modes:
+Run evidence and review only after all planned phase production is complete. Stage artifacts can be prepared earlier, but an available review command does not authorize early review. Two packet modes:
 
 - **`--mode diff`** — post-implementation, in kbd-execute's QA gate. Reviews a change's
   diff against its acceptance criteria, after `refine-validate` passes and before archive.
-- **`--mode artifact`** — pre-implementation, in assess/analyze/plan. Vets `assessment.md`,
-  `analysis.md`, or `plan.md` before the stage hands off.
+- **`--mode artifact`** — reviews a prepared `assessment.md`, `analysis.md` or `plan.md` artifact at the authorized completed-production boundary.
 
 ## Reading the artifact
 
@@ -274,14 +273,13 @@ A healthy review:
 
 **`unverified-producer-unknown`** means the packet carried no `producer_model`, so the
 guarantee could not be enforced — export `KBD_PRODUCER_MODEL`. **`harness-native`** means
-no gateway was reachable and a same-family subagent reviewed instead: a weaker guarantee,
-stated rather than hidden.
+a native fallback was selected. Record its actual model family. Same-family review remains an independent-QA gap, even with fresh context.
 
 ## Fallback chain
 
-Warn, never silently degrade, never block the pipeline:
+Fallback dispatch and acceptance are separate. Report degradation; an unavailable independent judge leaves certification pending:
 
-1. **REST gateway** — full isolation, true cross-model. Exit 0.
+1. **REST gateway** — packet isolation with the returned route and actual producer/judge evidence. A reachable endpoint or different alias alone does not prove a distinct model family.
 2. **Harness-native subagent** — when no gateway answers (exit 3). Prompt is *exactly* the
    mandate plus the packet, nothing else. Recorded as `harness-native`.
 3. **Skip with warning** (exit 4) — no judge available at all.
@@ -300,10 +298,11 @@ Start here:
 bash scripts/check-model-config.sh
 ```
 
-It prints the resolved gateway, the model per role, the `isolation_mode` a review *would*
-record, and audits for cache drift. **Exit 2 means an installed copy under
-`~/.claude/plugins/cache/...` differs from the repo** — someone edited the wrong file.
-Fix the repo, then `bash scripts/update-skill-pack.sh --force`.
+Run this diagnostic only at the completed-phase boundary. Inspect its actual
+status and source provenance; a drift report does not establish who edited a copy
+or authorize overwriting it. Correct the owned source, preserve local changes and
+update through the verified [installation path](19-installation.md). The reported
+model or `isolation_mode` is configuration evidence until an actual review runs.
 
 | Symptom | Cause | Fix |
 |---|---|---|

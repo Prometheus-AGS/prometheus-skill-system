@@ -1,10 +1,6 @@
 # Update Considerations — Verified Skill-Pack Distribution
 
-> **Status:** implementation complete; activation is performed from the focused
-> clean source commit.
-> **Updated:** 2026-08-09
-> **Audience:** maintainers of the source, immutable-generation installer, and
-> native plugin projections.
+> Historical update incident and design record from 2026-08-09. The versions and observed fixture results below belong to that boundary; they are not current installed or release evidence. Use [Updating](guide/20-updating.md), [generated ownership](generated-output-ownership.md) and [Codex delivery](codex-plugin.md) for current operation. Custom selected Codex roots, logical store receipts and actual owned projections remain separate responsibilities.
 
 ## Incident and root cause
 

@@ -10,8 +10,9 @@ Background deep-research daemon on `127.0.0.1:7891` (crate version 0.1.0, the va
 event stream, and an A2UI registry of eight server-rendered HTMX fragments
 (HTMX 2.0.8 + Alpine.js vendored).
 
-Auto-starts via `com.prometheus.research.plist` launchd service; installed by
-`scripts/install-binaries.sh`.
+When its crate is present, `scripts/install-binaries.sh` conditionally installs the binary and macOS `com.prometheus.research` LaunchAgent. It is outside the generated eleven-label service inventory. Other platform paths need deliberate configuration; see [service operations](/docs/guide/service-operations#conditional-research-job).
+
+The HTTP listener is loopback-only. Job creation/status routes have no general request authentication in this source; stage-event ingestion separately uses `RESEARCH_EVENT_TOKEN`. Loopback binding and an ingest token are different controls. Protect the local host and do not publish this port as an authenticated remote job API.
 
 ## Headless job execution
 

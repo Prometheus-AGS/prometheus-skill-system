@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { resolveCodexHome } from './store-paths.js';
 
 export const MARKETPLACE = 'prometheus-skill-pack';
 const PLUGIN_ID = `${MARKETPLACE}@${MARKETPLACE}`;
@@ -90,7 +91,7 @@ export function readRegisteredSources({ home = os.homedir() } = {}) {
 
   let toml = null;
   try {
-    toml = fs.readFileSync(path.join(home, '.codex/config.toml'), 'utf8');
+    toml = fs.readFileSync(path.join(resolveCodexHome(home), 'config.toml'), 'utf8');
   } catch (error) {
     // Only a missing file means "nothing registered"; EACCES, EISDIR and the like do not.
     if (error?.code !== 'ENOENT') unreadable('codex', 'config.toml');

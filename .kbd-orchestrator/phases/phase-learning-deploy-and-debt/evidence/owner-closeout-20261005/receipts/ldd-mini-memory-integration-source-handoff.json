@@ -1,0 +1,388 @@
+{
+  "status": "source-authored-not-executed",
+  "model": "gpt-6.1-sol",
+  "reasoningEffort": "xhigh",
+  "route": "native Codex inherited implementation worker",
+  "files": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs",
+      "sha256": "9533c1e185797ada138c1009debac91563c79e4ab9b6a05cd2527c443566e5bb",
+      "bytes": 25750,
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/tests/query_cache_production.rs",
+      "sha256": "d94b55f9eb2e4de8441b254a928a8150622ba7360c14d0204f0b83932adbe26f",
+      "bytes": 41110,
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/lib/platform/full-pack.mjs",
+      "sha256": "b6290a8d5bd3b8a96fb3fe7fb42e0ea92b01bea671e428f1ea2edd1b247b3b63",
+      "bytes": 5512,
+      "mode": "0o644"
+    }
+  ],
+  "miniGenerationReceipt": "/tmp/ldd-mini-generation-handoff.json",
+  "miniGenerationReceiptSha256": "72fa4208916e6ff5e48ffa84535cbad67b09c0e736c58d2c8ec561d81e052810",
+  "ownedPathStatus": [
+    {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "selectedChangedTrackedPaths": [
+        ".agents/plugins/marketplace.json",
+        ".claude-plugin/marketplace.json",
+        "dist/plugins/claude/prometheus-skills-mini/.claude-plugin/plugin.json",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/SKILL.md",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/references/manifest.md",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/references/models-memory.md",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/references/native-harnesses.md",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/runtime/src/cli.mts",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/runtime/src/memory.mts",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/runtime/src/types.mts",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/schemas/uar/README.md",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/adapters-codecs.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/adapters-local.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/adapters-services.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/adapters.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/export-files.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/guidance.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/handoff.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/memory.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/models-http.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/models.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/state-kbd.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/state-tasks.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/state-validation.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/state.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/types.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/validation.mjs",
+        "dist/plugins/claude/prometheus-skills-mini/skills/delivery-cadence/examples/refresh-skill-pack-shim.sh",
+        "dist/plugins/claude/prometheus-skills-mini/skills/delivery-cadence/scripts/refresh-skill-pack.sh",
+        "dist/plugins/claude/prometheus-skills-mini/skills/kbd-init/scripts/kbd-init-validate.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/.codex-plugin/plugin.json",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/SKILL.md",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/references/manifest.md",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/references/models-memory.md",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/references/native-harnesses.md",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/runtime/src/cli.mts",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/runtime/src/memory.mts",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/runtime/src/types.mts",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/schemas/uar/README.md",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/adapters-codecs.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/adapters-local.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/adapters-services.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/adapters.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/export-files.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/guidance.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/handoff.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/memory.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/models-http.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/models.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/state-kbd.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/state-tasks.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/state-validation.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/state.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/types.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/validation.mjs",
+        "dist/plugins/codex/prometheus-skills-mini/skills/delivery-cadence/examples/refresh-skill-pack-shim.sh",
+        "dist/plugins/codex/prometheus-skills-mini/skills/delivery-cadence/scripts/refresh-skill-pack.sh",
+        "dist/plugins/codex/prometheus-skills-mini/skills/kbd-init/scripts/kbd-init-validate.mjs",
+        "lib/platform/full-pack.mjs",
+        "skills/agent-team-creator/scripts/cli.mjs",
+        "skills/agent-team-creator/scripts/memory.mjs"
+      ],
+      "newAuthoredPaths": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs"
+      ]
+    },
+    {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "selectedChangedTrackedPaths": [],
+      "newAuthoredPaths": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/tests/query_cache_production.rs"
+      ]
+    }
+  ],
+  "protectedClassification": {
+    "guard": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/verify-protected-tests.mjs",
+    "newFilesProtected": false,
+    "patterns": [
+      "tests/features/*.feature excluding tests/features/drafts",
+      "tests/steps/*.steps.ts",
+      "tests/support/*.ts"
+    ],
+    "method": "static source reading only; protected integrity gate not run"
+  },
+  "miniInvocation": {
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs"
+    ],
+    "requiredEnvironment": [
+      "LDD_MINI_ROOT",
+      "LDD_MINI_SOURCE_ID",
+      "LDD_SCRATCH_ROOT",
+      "LDD_EVIDENCE_DIR",
+      "LDD_MINI_HISTORICAL_BASELINE"
+    ],
+    "historicalBaseline": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/phases/team-aware-learning-memory-impl/evidence/mini-baseline-failures.txt",
+    "boundaries": [
+      "actual generator twice + --check + byte/mode negative controls",
+      "actual generator rejects missing hook and synthetic unsafe MCP content",
+      "real locked managed OpenSpec JS processes with empty PATH, backend unavailable negative control, actual candidate spec validation",
+      "actual skill copy installer ownership/full-pack refusal",
+      "explicit command generation/uninstall target",
+      "packaged project team install/check/adoption/model uncertainty",
+      "packaged absent-service hook/model/memory CLI"
+    ],
+    "historicalDisposition": {
+      "directlyMapped": 16,
+      "supersededAssertions": 2,
+      "unverifiedInternalChangeScopedDetector": 1
+    },
+    "resultsFile": "mini-production-baseline.json",
+    "historicalItems": [
+      {
+        "name": "--check exits non-zero and names the stale output once a packaged file is tampered with",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "distribution",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "--check mode (check: true) reports no drift against output it just wrote and writes nothing new",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "distribution",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "--check mode detects drift when the packaged output differs from a fresh build",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "distribution",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "a hooks.json referencing a file that does not exist fails the build rather than shipping a broken hook",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "source-rejection",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "an .mcp.json containing a literal Tavily API key fails the build",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "source-rejection",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "an .mcp.json containing the source root as a literal path fails the build",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "source-rejection",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "detectBackend scoped to a change resolves openspec only when the openspec CLI is present",
+        "disposition": "exact-legacy-assertion-unverified",
+        "scenario": null,
+        "reason": "Change-scoped internal detector has no equivalent public CLI selector; public backend detection is authored but does not prove this exact historical assertion."
+      },
+      {
+        "name": "generateDistribution writes both plugin packages with the skill payload and manifests",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "distribution",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "hooks.json and every file it references are copied into the Claude package only",
+        "disposition": "superseded-legacy-assertion",
+        "scenario": "distribution",
+        "reason": "The current contract ships real hook closure in both Claude and Codex packages; distribution asserts both. The old Claude-only assertion is retired."
+      },
+      {
+        "name": "marketplace.json files carry a single self-referencing plugin entry with the release version",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "distribution",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "running the generator against a clean fixture, then --check, exits 0 with no drift reported",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "distribution",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "the CLI runs through the current node executable with no shell",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "openspec",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "the CLI runs with an emptied PATH, proving no global install is used",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "openspec",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "the Claude manifest has no hooks field and points skills/mcpServers at relative paths",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "distribution",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "the Codex manifest carries an interface block and no hooks field",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "distribution",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "the OpenSpec CLI is pinned to an exact version and is the only dependency",
+        "disposition": "superseded-legacy-assertion",
+        "scenario": "openspec",
+        "reason": "Root bootstrap OpenSpec is exact, while the supported product also has a separate locked team runtime and an explicit managed CLI selection policy; a whole-product sole-dependency assertion is retired."
+      },
+      {
+        "name": "the default spawner runs the local OpenSpec through its JavaScript entry, with no PATH",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "openspec",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "the pinned OpenSpec CLI runs from its JavaScript entry without a global install",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "openspec",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      },
+      {
+        "name": "validation passes on this repository and reports the totals",
+        "disposition": "current-production-reproduction-authored-pending-gate",
+        "scenario": "openspec",
+        "reason": "Exercises actual process/filesystem entrypoints; no executed acceptance or retroactive historical receipt."
+      }
+    ],
+    "historicalBaselineSha256": "e27d07e8434eef9f04ef5375fe7123093de8b2db5e10431fb4280a54ab7d2157"
+  },
+  "memoryInvocation": {
+    "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+    "argv": [
+      "cargo",
+      "test",
+      "-p",
+      "surreal-memory-server",
+      "--no-default-features",
+      "--features",
+      "server-only,local-embeddings",
+      "--test",
+      "query_cache_production",
+      "--",
+      "--nocapture"
+    ],
+    "requiredEnvironment": [
+      "LDD_SCRATCH_ROOT",
+      "LDD_EVIDENCE_DIR",
+      "LDD_SERVER_BIN",
+      "LDD_SERVER_SOURCE_ID",
+      "LDD_PRIOR_SERVER_BIN",
+      "LDD_PRIOR_SOURCE_ID",
+      "LDD_MLX_EXECUTOR_BIN",
+      "LDD_MODEL_SNAPSHOT"
+    ],
+    "realDatabaseEnvironmentAlternatives": [
+      [
+        "LDD_SURREAL_BIN"
+      ],
+      [
+        "LDD_DOCKER_BIN",
+        "LDD_SURREAL_IMAGE"
+      ]
+    ],
+    "optionalEnvironment": [
+      "LDD_DOCKER_HOST=unix:///explicit-local-socket"
+    ],
+    "approvedAvailableInputs": {
+      "executor": "/usr/local/bin/surreal-memory-mlx-executor",
+      "modelSnapshot": "/Users/gqadonis/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/snapshots/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "docker": "/usr/local/bin/docker",
+      "image": "surrealdb/surrealdb@sha256:681c6c22c287421b5c7d99e0fde79b6e0d32c36c1ddeaab2762a1661cb04cd20",
+      "priorCandidateBinary": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-prior-integration/target/debug/surreal-memory-server",
+      "priorSourceId": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1"
+    },
+    "boundaries": [
+      "separately spawned actual production candidate/prior HTTP servers",
+      "real ephemeral SurrealDB3.3.0 CLI or preprovisioned digest container",
+      "actual pinned model assets copied alone to scratch; no account/config/auth files",
+      "actual MLX and CandleCPU readiness identities/namespaces",
+      "real HTTP normalized reuse/coalescing/failure and write/update/dedup counters",
+      "terminate only verified direct child worker, temporarily rename only scratch model copy, restore and retry",
+      "30 idle +30 eight-writer requests per candidate/cache-disabled/prior control",
+      "observed p50/p95/timeouts/errors/relevance + attempts/reuse snapshots"
+    ],
+    "resultsFile": "query-cache-production.jsonl",
+    "blockedSemantics": "Target emits BLOCKED marker and exits2 after owned guards drop. Cargo may wrap child2 as101; coordinator must map marker to2. No ignored/skip case.",
+    "optionalCoordinatedTeamGate": {
+      "requiredTogetherIfAnyPresent": [
+        "LDD_TEAM_SCENARIO_BIN",
+        "LDD_TEAM_NODE_BIN",
+        "LDD_TEAM_INSTALLED_ROOT",
+        "LDD_TEAM_RUNTIME_BIN",
+        "LDD_TEAM_CONTROL_HOST_BIN",
+        "LDD_TEAM_MODEL_INPUT"
+      ],
+      "scenario": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-team-control-integration.mjs",
+      "argv": [
+        "NODE",
+        "SCRIPT",
+        "--scratch",
+        "OWNED_NEW_EMPTY_SHORT_PATH",
+        "--evidence",
+        "SCRATCH/evidence/team-control.json",
+        "--installed-root",
+        "ACTUAL_FULL_FLAT_PAYLOAD",
+        "--runtime-bin",
+        "ACTUAL_PROMETHEUS",
+        "--model-input",
+        "ACTUAL_MODEL_RECIPE_JSON",
+        "--memory-endpoint",
+        "ACTUAL_CANDIDATE_LOOPBACK_ENDPOINT",
+        "--control-host-bin",
+        "ACTUAL_COMPANION_HEADLESS"
+      ],
+      "timing": "After enabled-cache idle/8-writer measurements, before stopping its actual listener. Real team activity is excluded from benchmark attribution.",
+      "preservation": "Copy explicit scratch evidence tree durably to LDD_EVIDENCE_DIR/team/RUN_ID; process stdout/stderr remain in outer evidence. Do not copy identity keys/request bodies/model configuration.",
+      "blocked": "Partial inputs or missing concrete assets emit BLOCKED; child exit2 propagates BLOCKED after owned process cleanup and evidence preservation. No inputs records not-requested/acceptance:false, not overall team completion.",
+      "limit": "Scratch parent must permit <101-byte control.sock pathname. Scenario has a 20-minute owned process budget."
+    }
+  },
+  "limitations": [
+    "No integration/validation/compiler/check/review gate was run; TypeScript command was the explicitly admitted production generation entry point.",
+    "Unknown-provider runtime case remains unverified source contract; no invented legacy worker/mock prerequisite.",
+    "Installed retained binary is1.10.0 with unknown source and is excluded; root builds exact unchanged0cf8c7e1.10.1 prior control in consolidated batch.",
+    "Current canonical KBD completion, final frozen source identity, acceptance, publication and deployment are root-owned.",
+    "Actual native harness invocation/inference and Windows POSIX-mode capability acceptance remain separate final-boundary scenarios.",
+    "Optional real team dispatch has source authored only; separate team acceptance remains required if coordinator does not supply all six LDD_TEAM_* inputs."
+  ],
+  "updatedAt": "2026-10-05T20:58:31.517922+00:00",
+  "miniGenerationStatus": {
+    "runtimeEmissionExitCode": 0,
+    "distributionFinalPasses": [
+      3,
+      4
+    ],
+    "distributionExitCodes": [
+      0,
+      0
+    ],
+    "snapshotsRecorded": true,
+    "comparisonOrCheckRun": false
+  },
+  "productionCorrection": {
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/lib/platform/full-pack.mjs",
+    "sha256": "b6290a8d5bd3b8a96fb3fe7fb42e0ea92b01bea671e428f1ea2edd1b247b3b63",
+    "trigger": "Run actual doctor --fix copy-skills twice in a clean mini-only home; the first run creates its own shared kbd-process-orchestrator directory.",
+    "before": "Every directory with that shared name was classified as full ownership, so the second copy refused before preserving managed/unrelated files.",
+    "after": "A plain mini directory with a plain bounded owner=prometheus-mini receipt and matching SKILL.md SHA-256 is mini-owned. Missing, malformed, mismatching, linked or generic application receipts remain conflicts; independent CLI/setup/service markers remain conflicts.",
+    "integrationAssertions": "First install and rerun preserving operator edits/unrelated source; malformed/mismatch/missing KBD receipts refuse with no home mutation; independent full setup state refuses with no home mutation. Protected assertions untouched.",
+    "limitation": "An operator-edited shared KBD SKILL.md no longer matches its receipt and remains ambiguous/refused; there is no automatic ownership adoption or full marker exemption.",
+    "knownBeforeGate": true,
+    "acceptance": "source-only; no test executed"
+  }
+}

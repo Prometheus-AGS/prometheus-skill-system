@@ -1,90 +1,37 @@
 # 01 · Introduction
 
-## What the prometheus-skill-pack is
+Prometheus Skill Pack supplies reusable skills, local KBD workflows, team definitions, hook delivery and optional learning/execution services. A workflow records its plan, task ownership and evidence so another session can resume deliberate work.
 
-The prometheus-skill-pack is a self-improving AI skill execution engine. It ships production-grade skills across eight language domains, a four-layer orchestration pipeline, a Karpathy-pattern knowledge-learning loop, a code-generation enrichment engine, a native-agent generator, Dynamic Operations through Prometheus Exec, and Cedar-governed self-optimization. It installs to supported AI tools from one signed generation and runs the same durable state substrate underneath them.
+## What is shared
 
-That is the inventory. The premise is more important than the inventory.
+Skills and local workflow records can be used by supported harnesses. Installed discovery, hook support, model controls and permissions remain harness-specific. A generated definition is not proof of native activation. Team memory is delivered by owner and scope; Codex parent context receives a metadata digest so a fork does not inherit another role's private lesson text.
 
-The premise is that the loop, not the prompt, is your primary unit of work. Boris Cherny — who created Claude Code as a side project, watched it become the tool behind close to 4% of all public GitHub commits, and now runs it at Anthropic — put it plainly in mid-2026: *"I don't prompt Claude anymore. I have loops running. They're the ones that are prompting Claude and figuring out what to do. My job is to write loops."* He was not being provocative. He was reporting state. He manages fleets of agents — hundreds on a normal day, tens of thousands on a big one — and has not written a line of code by hand in months.
+The full pack includes shell/Python helpers and optional native services. Mini supplies a Node-only subset for Windows, macOS and Linux. Companion separately owns connected control and synchronization. All three boundaries are explicit: the packs remain usable without Companion.
 
-What Cherny described is not a feature. It is a design posture. And a posture, unlike a feature, has to be built into infrastructure before a team can adopt it. That infrastructure is what this skill pack is.
+## Work as a loop
 
-## Who it is for
-
-This is built for teams deploying AI agents in production, where capability improvement has to be governed, audited, and reproducible. If you are running an agent unattended against a real codebase, three questions decide whether that is an asset or a liability:
-
-- When the agent learns something on Monday, is that learning available on Wednesday?
-- When the agent reflects on its own work, is anything stopping it from grading its own homework?
-- When you change tools — from Claude Code to OpenCode, from Codex to Kimi — does the agent start over from zero?
-
-The prometheus-skill-pack answers all three with the same word: no. Learning persists. Reflection is gated by a model that did not write the code. The substrate is shared across every tool. Those three properties are the reason the pack exists, and most of this documentation is about how they are implemented.
-
-## The autonomy ladder
-
-Autonomy is not binary. It is a ladder, and most teams are stuck on the same rung.
-
-```
-Level 0 — Manual prompt:    You type. The model responds. You type again.
-Level 1 — Tool use:         The model calls tools. You approve or observe.
-Level 2 — Agentic:          The model chains tool calls across a task. You watch.
-Level 3 — Loop:             The loop prompts the model. The model works. The loop checks.
-Level 4 — Self-improving:   The loop writes to memory. Next time, it knows what it learned.
-```
-
-Most teams in 2026 sit at Level 2. They call it agentic coding and they are impressed that the agent can run tests and fix its own errors. That is a real advance over manual prompting. It is also a ceiling. At Level 2, every session starts from the same baseline; the work is fast but it does not compound.
-
-The prometheus-skill-pack is designed for Level 3 bleeding into Level 4. The difference between Level 2 and Level 3 is structural, not cosmetic. The difference between prompting an agent and running a loop is the difference between throwing a ball and designing a machine that throws balls on a schedule while you do something else. The output can look similar. The architecture is not.
+A useful loop has a trigger, a termination condition and an evidence source. It can plan work, assign ownership, produce an implementation and inspect the result. Learning can improve later context when publication and retrieval succeed; a loop does not automatically improve simply because it repeats.
 
 ```mermaid
-graph TD
-    A[You write a loop definition] --> B[Loop runner triggers on schedule or event]
-    B --> C[Loop prompts the AI agent with current context]
-    C --> D[Agent executes — tools, code, tests, search]
-    D --> E{Goal condition met?}
-    E -->|No| F[Feedback source evaluated]
-    F --> B
-    E -->|Yes| G[Loop terminates or escalates]
-    G --> H[Session summary written to memory]
-    H --> I[Knowledge base enriched for next session]
-    I --> J[Skill-update candidates proposed for human review]
+flowchart LR
+  Goal[User goal] --> Plan[Plan and ownership]
+  Plan --> Work[Complete production]
+  Work --> Gate[Local integration and independent review]
+  Gate --> Evidence[Durable findings and receipts]
+  Evidence --> Next[Resume or revise]
+  Next --> Plan
 ```
 
-A loop has exactly three structural requirements: a **trigger** (when does it fire?), a **termination condition** (how does it know when to stop?), and a **feedback source** (how does it evaluate progress?). Everything else in this system — the skills, the sandboxing, the MCP servers, the memory — exists to make those three components more accurate. That framing is worth holding onto, because it is the lens through which every other page in this guide makes sense.
+Local KBD records workflow authority. Team task/handoff records describe responsibilities but do not grant permissions to another repository. Prometheus Exec adds a separate bounded operation and signed-receipt boundary when execution evidence is required. Knowledge/memory publication remains its own protocol.
 
-## What you get over a bare loop
+## Choose your entry point
 
-Claude Code's native loop primitives — `/loop`, `/goal`, `/schedule`, and the Agent View dashboard — are a genuine advance, and the skill pack builds on them rather than replacing them. But on their own they do not compound. Each run starts from the same baseline, the reflection at session end is evaluated by the same model that produced the work being reflected upon, and none of it crosses tool boundaries.
+- [Quick Start](00-quick-start.md): install skills and begin a workflow.
+- [Metaprompting, PMPO and KBD](02-metaprompting-pmpo-kbd.md): workflow concepts.
+- [Loop Architecture](03-loop-architecture.md): nested loops and stopping conditions.
+- [The Four-Layer Pipeline](04-four-layer-pipeline.md): production roles and responsibilities.
+- [Agent Teams](24-agent-teams.md): native limits, handoffs, memory and model evidence.
+- [Services, ownership and recovery](26-service-operations.md): optional components and platforms.
+- [Dynamic Operations](/docs/execution/overview-and-use-cases): evidenced bounded execution.
 
-Here is the difference, stated as a scorecard.
-
-| Capability | Bare `/loop` | `/loop` + prometheus-skill-pack |
-|---|---|---|
-| Repeating agent execution | Yes | Yes |
-| Goal-conditioned termination | Yes (`/goal`) | Yes (+ `loop-tick.sh` feedback sources) |
-| Worktree isolation | Yes | Yes (and portable across tools) |
-| Cross-session memory | No | Yes (surreal-memory + prometheus-knowledge) |
-| Context priming at loop start | No | Yes (bounded committed `pk context`) |
-| Anti-sycophancy gate on reflection | No | Yes (`sycophancy-correction` MCP) |
-| Cross-tool support | No (Claude Code only) | Yes (ten AI tools) |
-| Self-hosted web extraction | No | Yes (Firecrawl, self-hostable) |
-| Self-updating skills (human-gated) | No | Yes (`pmpo-skill-creator --update`) |
-| Structured phase discipline | No | Yes (KBD: assess → analyze → plan → execute → reflect) |
-| Bounded generated-code operations | No | Yes (Tier P/Tier W + signed receipts and replay) |
-| Periodic background KB enrichment | No | Yes (4-hour nudge agent) |
-| Learning-log → skill-candidate pipeline | No | Yes (`evaluate-session` → `propose-skill-update`) |
-| Progress signals across context windows | No | Yes (`position-reminder.txt` protocol) |
-
-The structural difference is compounding. A bare loop runs at constant capability. A prometheus-skill-pack loop runs at increasing capability: each session writes to memory, each memory enriches the next session's context, each approved skill update makes the next loop turn more accurate. Dynamic Operations adds the missing evidence boundary when a loop generates code that must run with declared authority, durable replay, artifacts, and a signed receipt. Read [Dynamic Operations with Prometheus Exec](/docs/execution/overview-and-use-cases) for that complete path.
-
-## How to read the rest of this guide
-
-The next three pages are the conceptual core. [Metaprompting, PMPO, and KBD](02-metaprompting-pmpo-kbd.md) grounds the methodology — these are Prometheus AGS terms, and using them without definition would make this guide useful only to insiders. [Loop Architecture](03-loop-architecture.md) is the mechanical heart: how the loops nest, terminate, and escalate. [The Four-Layer Pipeline](04-four-layer-pipeline.md) shows how a request flows from an under-specified idea to enriched, implemented code.
-
-After that, the guide becomes a reference. Read the foundations once. Return to the catalog and the engine-room pages when you need a specific skill, tool, or script.
-
----
-
-*Next: [02 · Metaprompting, PMPO, and KBD →](02-metaprompting-pmpo-kbd.md)*
-
-*Sources for external claims on this page are collected in the [Glossary & Sources](23-glossary.md).*
+Component versions and support follow their source manifests and release evidence. Reading this guide, building a binary or registering a service does not certify an installed machine.

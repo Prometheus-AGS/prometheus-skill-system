@@ -22,6 +22,8 @@
 # internal watchdog (3.5 s, inside the contract's 5 s timeout) with a 2 s
 # per-request store timeout; a timed-out recall prints nothing. bash 3.2.
 
+# Direct invocation must suppress bytecode in imports and Python descendants.
+export PYTHONDONTWRITEBYTECODE=1
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"

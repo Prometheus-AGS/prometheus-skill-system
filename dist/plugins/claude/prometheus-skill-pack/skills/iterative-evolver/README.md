@@ -12,7 +12,8 @@ The Iterative Evolver automates the cycle every professional uses (consciously o
 4. **Execute** — Make the improvements
 5. **Reflect** — Did it work? What's different? Do I iterate again?
 
-This cycle works identically whether you're evolving a software codebase, a business strategy, a research agenda, or a content program.
+The phase vocabulary is shared across domains; tools, providers and acceptance
+criteria remain specific to the work.
 
 ## Quick Start
 
@@ -57,7 +58,7 @@ The skill uses **Prometheus Meta-Prompting Orchestration (PMPO)** — a structur
 - **Persists all state to disk** — survives context windows, session resets, and model swaps
 - **Uses domain adapters** — specialized knowledge modules for 8 domains (with a generic fallback)
 - **Separates thinking from doing** — AI reasons; tools execute deterministically
-- **Enforces convergence** — structured constraints prevent infinite iteration
+- **Records convergence criteria** — explicit constraints define when to continue, stop or escalate
 - **Supports human gates** — configurable pause points for review and approval
 
 ## Supported Domains
@@ -99,6 +100,10 @@ skills/                     ← Slash command subskills
 hooks/                      ← Lifecycle hooks
 scripts/                    ← Validation and utility scripts
 ```
+
+Implementation follows the repository's complete-production-first policy. Run
+local integration and independent review after the complete production phase;
+workflow prompts do not authorize early tests or claim provider execution.
 
 ## License
 

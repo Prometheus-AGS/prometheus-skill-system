@@ -1,0 +1,431 @@
+{
+  "id": "ec5ccf20-62e4-435e-914a-9e8a24f82bfb",
+  "index": 2,
+  "status": "implementing",
+  "startedAt": "2026-10-05T18:45:48.174Z",
+  "contractVersion": 3,
+  "phaseId": "phase-learning-deploy-and-debt",
+  "profileRevision": 3,
+  "profile": {
+    "schemaVersion": 1,
+    "name": "learning-deploy-and-debt-final-product",
+    "mode": "kbd",
+    "iterationMinutes": 60,
+    "reviewEvery": 0,
+    "publication": {
+      "mode": "manual",
+      "every": 2
+    },
+    "pipeline": {
+      "workAheadLimit": 1,
+      "maxInFlightReleases": 1,
+      "maxPendingReleases": 1
+    },
+    "budgets": {
+      "maxIterations": null,
+      "maxRunMinutes": null
+    },
+    "checkpoints": [
+      {
+        "id": "build-deploy",
+        "kind": "build",
+        "command": "bash",
+        "args": [
+          "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.prometheus/cadence-learning-deploy-and-debt/procedures/machine-refresh.sh"
+        ],
+        "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main",
+        "required": true,
+        "timeoutMs": 14400000,
+        "outputRoots": [
+          "/Users/gqadonis/.local/bin",
+          "/Users/gqadonis/.prometheus/plugins/prometheus-skill-pack"
+        ]
+      },
+      {
+        "id": "launch-pack-cli",
+        "kind": "run",
+        "purpose": "launch",
+        "command": "/Users/gqadonis/.local/bin/prometheus",
+        "args": [
+          "--version"
+        ],
+        "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main",
+        "required": true,
+        "timeoutMs": 30000
+      },
+      {
+        "id": "operate-installed-contract",
+        "kind": "run",
+        "purpose": "feature",
+        "command": "/Users/gqadonis/.local/bin/prometheus",
+        "args": [
+          "contract",
+          "show",
+          "--json"
+        ],
+        "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main",
+        "required": true,
+        "timeoutMs": 30000
+      },
+      {
+        "id": "operate-final-installed-product",
+        "kind": "run",
+        "purpose": "feature",
+        "command": "/Users/gqadonis/.local/bin/prometheus",
+        "args": [
+          "contract",
+          "show",
+          "--json"
+        ],
+        "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main",
+        "required": true,
+        "timeoutMs": 30000
+      }
+    ],
+    "binding": {
+      "phaseId": "phase-learning-deploy-and-debt",
+      "canonicalRoot": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+      "implementationRoot": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "machineRefresh": "full after iteration 1 and every odd numbered iteration; even iterations operate frozen product without full refresh",
+      "authority": "owner goal message 2026-10-05 explicitly requests full machine build/deployment with all services and skills",
+      "mergePolicy": "owner merges every PR",
+      "protectedEdits": "explicit exact versions.toml and tag approval required",
+      "canonicalCommand": {
+        "command": "python3",
+        "args": [
+          "-B",
+          "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.prometheus/cadence-learning-deploy-and-debt/procedures/canonical-export.py"
+        ],
+        "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack"
+      }
+    },
+    "team": {
+      "maxImplementers": 3,
+      "maxBuildWriters": 1
+    },
+    "optimization": {
+      "mode": "recommend",
+      "minimumSamples": 3,
+      "bounds": {
+        "iterationMinutes": [
+          60,
+          120
+        ],
+        "publicationEvery": [
+          1,
+          3
+        ],
+        "maxImplementers": [
+          1,
+          3
+        ]
+      }
+    }
+  },
+  "scope": {
+    "tasks": [
+      "phase-learning-deploy-and-debt/change-ldd-14-companion-publication-preparation/1",
+      "phase-learning-deploy-and-debt/change-ldd-14-companion-publication-preparation/2",
+      "phase-learning-deploy-and-debt/change-ldd-14-companion-publication-preparation/3",
+      "phase-learning-deploy-and-debt/change-ldd-18-stability-legacy-closure/2",
+      "phase-learning-deploy-and-debt/change-ldd-18-stability-legacy-closure/3",
+      "phase-learning-deploy-and-debt/change-ldd-03-published-memory-pins/1",
+      "phase-learning-deploy-and-debt/change-ldd-03-published-memory-pins/2",
+      "phase-learning-deploy-and-debt/change-ldd-03-published-memory-pins/3",
+      "phase-learning-deploy-and-debt/change-ldd-15-readme-content-renewal/1",
+      "phase-learning-deploy-and-debt/change-ldd-15-readme-content-renewal/2",
+      "phase-learning-deploy-and-debt/change-ldd-17-service-sites-current/1",
+      "phase-learning-deploy-and-debt/change-ldd-17-service-sites-current/2",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/1",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/2",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/3",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/4",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/5",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/6"
+    ],
+    "changes": [
+      "change-ldd-14-companion-publication-preparation",
+      "change-ldd-18-stability-legacy-closure",
+      "change-ldd-03-published-memory-pins",
+      "change-ldd-15-readme-content-renewal",
+      "change-ldd-17-service-sites-current",
+      "change-ldd-12-integration-rollout"
+    ],
+    "phases": [],
+    "outcomes": [
+      "Final full and mini product source is complete for later local certification, user merges and installed rollout"
+    ],
+    "deliveryClass": "unclassified",
+    "owners": [
+      "lead",
+      "source-inventory",
+      "generated-ownership",
+      "hook-implementation"
+    ],
+    "authorityRefs": [
+      "owner-goal-20261005-phase-completion",
+      "phase-plan-revision-17"
+    ]
+  },
+  "featureOperation": {
+    "id": "final-product-operation",
+    "outcome": "Final full and mini product source is complete for later local certification, user merges and installed rollout",
+    "promisedCapability": "Final complete skills, teams, scoped memory and optional services are operated from the approved installed production entrypoints",
+    "procedure": "After all production and local certification, user merges and approved release decisions, install the final compatible source graph and exercise the documented production operations. No test-suite substitutes for operation.",
+    "checkpointId": "operate-final-installed-product",
+    "creationTaskRef": "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/5",
+    "target": {
+      "kind": "real",
+      "description": "Owner-authorized final installed machine after local gates and user merges"
+    },
+    "evidenceLevel": "real-service",
+    "expectedResult": "Installed entrypoints deliver documented final capabilities with exact source and service receipts",
+    "prerequisites": [
+      {
+        "id": "final-local-gates-and-owner-merges",
+        "description": "Complete production, final local integration evidence and user-owned merge/protected release decisions"
+      }
+    ],
+    "isolatedResources": [
+      "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final"
+    ],
+    "externalEffects": [
+      {
+        "description": "Final machine deployment only at approved rollout task",
+        "authorityRef": "owner-goal-20261005-phase-completion"
+      }
+    ],
+    "authorityRefs": [
+      "owner-goal-20261005-phase-completion"
+    ],
+    "limitations": [
+      "No acceptance, approved versions, publication, merge or final deployment is asserted at source admission. Earlier workahead activities and original firstWorkAt remain in its preserved cancelled record; this clock measures newly admitted remaining source and recovery work only."
+    ],
+    "contractVersion": 3
+  },
+  "correction": null,
+  "children": [],
+  "childStack": [],
+  "completionEvents": [],
+  "baselineRefs": [
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "revision": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "fingerprint": "c71941f444615ec05b62f3c6d841222abf46fe397366ec96c338b81dd2c2f1ba"
+    },
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "revision": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0",
+      "fingerprint": "2ffbff70e59e4047edef0ca13121ab0e3c9e08729a896cd730b141f94e82c945",
+      "submoduleRefs": [
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/tools/liter-llm",
+          "name": "tools/liter-llm",
+          "initialized": false,
+          "revision": "12a2fae9675e34b88e9373caa2bca9959f416493",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/tools/prometheus-knowledge",
+          "name": "tools/prometheus-knowledge",
+          "initialized": false,
+          "revision": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/tools/surreal-memory-server",
+          "name": "tools/surreal-memory-server",
+          "initialized": false,
+          "revision": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+          "workingTree": "unobserved"
+        }
+      ]
+    },
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "revision": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+      "fingerprint": "d254b62ca2f3b47bd1effcd19f716aa5e27b18260bdb41c9ce1b4ddfb05b1396",
+      "submoduleRefs": [
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/imported/artifact-refiner",
+          "name": "skills/imported/artifact-refiner",
+          "initialized": false,
+          "revision": "18d000f3e46952418f682159b227dbf71ce61dcb",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/imported/prometheus-entity-management",
+          "name": "skills/imported/prometheus-entity-management",
+          "initialized": false,
+          "revision": "d1588d8c93cc267774d1911e8bd53bd3918a7f12",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/imported/sycophancy-correction",
+          "name": "skills/imported/sycophancy-correction",
+          "initialized": false,
+          "revision": "bc348fffb4b622c142c1082b281dd2f44b74d37b",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/cowork-skills",
+          "name": "tools/cowork-skills",
+          "initialized": false,
+          "revision": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/disk-space-guardian",
+          "name": "tools/disk-space-guardian",
+          "initialized": false,
+          "revision": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/liter-llm",
+          "name": "tools/liter-llm",
+          "initialized": false,
+          "revision": "12a2fae9675e34b88e9373caa2bca9959f416493",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/openai-proxy",
+          "name": "tools/openai-proxy",
+          "initialized": false,
+          "revision": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/prometheus-knowledge",
+          "name": "tools/prometheus-knowledge",
+          "initialized": false,
+          "revision": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/surreal-memory-server",
+          "name": "tools/surreal-memory-server",
+          "initialized": false,
+          "revision": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+          "workingTree": "unobserved"
+        }
+      ]
+    }
+  ],
+  "sourceRefs": [
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "revision": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "fingerprint": "c71941f444615ec05b62f3c6d841222abf46fe397366ec96c338b81dd2c2f1ba"
+    },
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "revision": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0",
+      "fingerprint": "2ffbff70e59e4047edef0ca13121ab0e3c9e08729a896cd730b141f94e82c945",
+      "submoduleRefs": [
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/tools/liter-llm",
+          "name": "tools/liter-llm",
+          "initialized": false,
+          "revision": "12a2fae9675e34b88e9373caa2bca9959f416493",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/tools/prometheus-knowledge",
+          "name": "tools/prometheus-knowledge",
+          "initialized": false,
+          "revision": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/tools/surreal-memory-server",
+          "name": "tools/surreal-memory-server",
+          "initialized": false,
+          "revision": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+          "workingTree": "unobserved"
+        }
+      ]
+    },
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "revision": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+      "fingerprint": "d254b62ca2f3b47bd1effcd19f716aa5e27b18260bdb41c9ce1b4ddfb05b1396",
+      "submoduleRefs": [
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/imported/artifact-refiner",
+          "name": "skills/imported/artifact-refiner",
+          "initialized": false,
+          "revision": "18d000f3e46952418f682159b227dbf71ce61dcb",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/imported/prometheus-entity-management",
+          "name": "skills/imported/prometheus-entity-management",
+          "initialized": false,
+          "revision": "d1588d8c93cc267774d1911e8bd53bd3918a7f12",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/imported/sycophancy-correction",
+          "name": "skills/imported/sycophancy-correction",
+          "initialized": false,
+          "revision": "bc348fffb4b622c142c1082b281dd2f44b74d37b",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/cowork-skills",
+          "name": "tools/cowork-skills",
+          "initialized": false,
+          "revision": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/disk-space-guardian",
+          "name": "tools/disk-space-guardian",
+          "initialized": false,
+          "revision": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/liter-llm",
+          "name": "tools/liter-llm",
+          "initialized": false,
+          "revision": "12a2fae9675e34b88e9373caa2bca9959f416493",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/openai-proxy",
+          "name": "tools/openai-proxy",
+          "initialized": false,
+          "revision": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/prometheus-knowledge",
+          "name": "tools/prometheus-knowledge",
+          "initialized": false,
+          "revision": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+          "workingTree": "unobserved"
+        },
+        {
+          "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/surreal-memory-server",
+          "name": "tools/surreal-memory-server",
+          "initialized": false,
+          "revision": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+          "workingTree": "unobserved"
+        }
+      ]
+    }
+  ],
+  "checkpoints": [],
+  "spans": [],
+  "completion": {
+    "tasks": [],
+    "changes": [],
+    "phases": []
+  },
+  "workReceipts": [],
+  "commandId": "ldd-source-recovery-with-companion"
+}

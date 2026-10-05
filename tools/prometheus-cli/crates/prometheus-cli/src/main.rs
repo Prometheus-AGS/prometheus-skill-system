@@ -452,12 +452,18 @@ enum KbdAction {
     },
     /// Follow new events until interrupted
     Watch,
-    /// Inventory or apply legacy-state migration
+    /// Inventory/apply legacy state, or migrate phase projections without events
     Migrate {
         #[arg(long, conflicts_with = "apply")]
         check: bool,
         #[arg(long)]
         apply: bool,
+        /// Adopt matching unmarked projections or archive originals; no state import
+        #[arg(long, conflicts_with_all = ["check", "apply"])]
+        projections: bool,
+        /// Read-only projection inventory: no startup, recovery, locks or writes
+        #[arg(long, requires = "projections", conflicts_with_all = ["check", "apply"])]
+        dry_run: bool,
     },
     /// Record shadow/canary evidence and enforce promotion thresholds
     Rollout {
@@ -1087,8 +1093,12 @@ async fn run() -> Result<()> {
                     export_git,
                 },
                 KbdAction::Watch => commands::kbd::Action::Watch,
-                KbdAction::Migrate { check, apply } => {
-                    commands::kbd::Action::Migrate { check, apply }
+                KbdAction::Migrate { check, apply, projections, dry_run } => {
+                    if projections {
+                        commands::kbd::Action::MigrateProjections { dry_run }
+                    } else {
+                        commands::kbd::Action::Migrate { check, apply }
+                    }
                 }
                 KbdAction::Rollout { action } => match action {
                     KbdRolloutAction::Status => commands::kbd::Action::RolloutStatus,

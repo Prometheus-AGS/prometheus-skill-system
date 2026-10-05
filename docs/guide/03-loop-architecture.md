@@ -2,7 +2,7 @@
 
 The loop architecture is the mechanical heart of the system. This page is the most important reference in the guide, because nearly every failure mode of loop systems is the same mistake: using a construct from one level to do the job of another and wondering why the system does not compound over time. Get the levels right and the rest follows.
 
-The governing idea is one sentence: **the loop body is harness-specific, but the loop state is harness-agnostic.** The same durable on-disk state runs under Claude Code with Opus 4.8, under OpenCode with GLM-5.2, and under Codex with GPT-5.5. Swap the driver and the cadence; never swap the state.
+The governing idea is that recorded loop state and harness execution have separate contracts. A different harness can recover compatible state when it has the required skills, authority and configuration. Select currently exposed models and controls rather than treating example model names as available routes.
 
 ## The four loop levels
 
@@ -55,7 +55,7 @@ Driven by the `pmpo-outer-loop` skill. This is the level that most directly real
 
 ### The cross-cutting Karpathy learning loop
 
-Orthogonal to L0–L3 and always running: `UserPromptSubmit` calls the canonical dispatcher for bounded committed `pk context`; `Stop` atomically enqueues one metadata-only learning job; the supervised worker performs reflection, receipt reconciliation, and snapshot publication. The sycophancy gate remains part of review, outside the latency-sensitive hook path. This loop is what makes every other loop compound. It is documented in full on the [Memory and Learning](06-memory-and-learning.md) page.
+With the corresponding hooks installed and active: `UserPromptSubmit` calls the canonical dispatcher for bounded committed `pk context`; `Stop` atomically enqueues one metadata-only learning job; the supervised worker performs reflection, receipt reconciliation, and snapshot publication. The sycophancy gate remains part of review, outside the latency-sensitive hook path. This loop is what makes every other loop compound. It is documented in full on the [Memory and Learning](06-memory-and-learning.md) page.
 
 ## The loop definition — `loop.json`
 
@@ -65,15 +65,13 @@ Orthogonal to L0–L3 and always running: `UserPromptSubmit` calls the canonical
 {
   "name": "continuous-quality",
   "goal": {
-    "description": "All failing tests resolved and no HIGH/CRITICAL sycophancy patterns in reflect output",
+    "description": "The approved completed-phase integration receipt is present",
     "measurable_criteria": [
-      "npm test exits 0",
-      "sycophancy reflect score < 0.4"
+      "The receipt names the source revision and real integration result"
     ]
   },
   "feedback_sources": [
-    { "type": "command", "run": "npm test", "interpret": "exit-code" },
-    { "type": "command", "run": "sycophancy-check-reflection.sh", "interpret": "exit-code" }
+    { "type": "file", "path": "integration-receipt.json" }
   ],
   "termination": {
     "max_ticks": 20,
@@ -98,9 +96,11 @@ The required top-level fields are `name`, `goal`, `termination`, and `evolution_
 | `file` | `path` | Checked for existence and parsed |
 | `url` | `fetch` | `curl` with a 10-second max-time; success on HTTP 2xx |
 
+This is an illustrative loop definition, not an acceptance gate: the current file feedback checks existence only, and command feedback executes the configured command. Read receipt contents and source identity before crediting delivery. Feedback must not run tests or review during incomplete phase production. The runner records feedback and outcomes; it does not itself launch an evolver, an elicitation skill or a scheduler. The harness performs any separately authorized next action.
+
 ## The `loop-tick.sh` exit-code contract
 
-`scripts/loop-tick.sh` is the runner that advances one tick. Its exit code is a contract — it is what separates a real loop from a `while true`. The loop does not decide it is done; the feedback sources decide.
+`scripts/loop-tick.sh` is the runner that advances one tick. Its exit code is a contract — it is what separates a real loop from a `while true`. Read the outcome reason: exit 2 also covers the tick ceiling and an already-terminal loop, so it does not by itself prove the goal.
 
 | Exit code | Meaning |
 |---|---|
@@ -111,39 +111,11 @@ The required top-level fields are `name`, `goal`, `termination`, and `evolution_
 
 > **A note on accuracy:** the prose in `docs/loops-architecture-spec.md` describes the contract as "0=continue, 1=escalate, 2=terminate." The script itself adds the `3=error` code. This guide documents the script's actual behavior.
 
-A single tick does the following:
-
-```mermaid
-sequenceDiagram
-    participant Op as Operator / cadence
-    participant Tick as loop-tick.sh
-    participant FS as Feedback sources
-    participant Evolve as /evolve (one cycle)
-    participant Elicit as /pmpo-elicit
-    participant Journal as journal.md + decision-log.md
-
-    Op->>Tick: /loop-tick <name>
-    Tick->>Tick: read loop.json + last journal entry, increment current_tick
-    Tick->>FS: collect feedback sources
-    FS-->>Tick: results (exit codes / counts / file state / HTTP)
-    Tick->>Tick: diff results vs measurable_criteria
-    alt all criteria satisfied
-        Tick->>Journal: append tick, mark terminate
-        Tick-->>Op: exit 2 (terminate)
-    else regression or no-progress ceiling
-        Tick->>Elicit: escalate (continue / replan / stop)
-        Tick-->>Op: exit 1 (escalate)
-    else still working
-        Tick->>Evolve: run one /evolve cycle
-        Evolve-->>Tick: cycle complete
-        Tick->>Journal: append tick + decision row
-        Tick-->>Op: exit 0 (continue)
-    end
-```
+A tick reads the definition and current counters, evaluates declared feedback, then records `continue`, `escalate` or `terminate` with a reason in `loop.json`, the journal and decision log. `--dry-run` skips external feedback and state writes; it must not be reported as goal achievement. The runner does not parse measurable-criteria prose into executable assertions.
 
 ## Feedback, termination, and escalation
 
-**Feedback** is evaluated every tick from the declared sources. The diff against `measurable_criteria` is what determines the next action.
+**Feedback** uses the declared source handlers: exit status for commands, file existence for files and HTTP success for URLs. Criterion prose still needs a trustworthy executable gate.
 
 **Termination** is bounded three ways: `goal_satisfied` (the success path), `max_ticks` (a hard ceiling, default 20, that terminates regardless), and `max_no_progress_ticks` (default 2, a stall detector that escalates rather than spinning).
 
@@ -187,7 +159,7 @@ graph TD
 1. **Loop definition.** The operator writes `loop.json`. What the loop tries to do, what counts as done, and what triggers escalation are human decisions.
 2. **Skill updates.** Candidates are filed automatically but never applied automatically. Auto-applying a skill update is a structural sycophancy risk: the system rewriting its own instructions based on its own evaluation of its own output, with no adversarial review.
 3. **Escalation handling.** When a tick exits `1`, the loop stops and notifies. The operator decides whether to resume, adjust, or abandon.
-4. **Phase boundaries.** The KBD phases are hard-bounded; agents do not cross them autonomously. The position-reminder protocol lets the operator resume from any boundary.
+4. **Phase boundaries.** Canonical transitions preserve stage and task authority. Proceed under the existing authorized plan; ask only when a required decision cannot be resolved within that scope. The position-reminder protocol lets the operator resume from any boundary.
 5. **KB promotion.** Learning becomes knowledge-base-promoted only on operator confirmation. The knowledge base is the substrate for all future loops; a contaminated knowledge base corrupts them.
 
 Everything else — execution within a phase, test fixing, error recovery, context priming, reflection writing, session-summary generation, the periodic nudge — runs autonomously.

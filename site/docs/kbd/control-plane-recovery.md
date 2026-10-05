@@ -6,126 +6,53 @@ sidebar_label: Local Recovery & Refresh
 
 # KBD local recovery and refresh
 
-This recovery makes the signed local runtime the only authority required for
-ordinary KBD work. It also hardens long-running phases against lost position,
-repairs memory and UI-routing contracts, makes registry cleanup recoverable,
-and refreshes every detected harness from one immutable skill generation.
+The signed local runtime owns ordinary KBD lifecycle authority. An optional
+replication service is separate; its availability cannot replace project identity,
+causal revision, claims or task receipts.
 
-## Why the architecture changed
+## Preserve authority and evidence
 
-Putting a continuously running synchronization service in the local command
-path created a false dependency: if the sidecar stopped, agents reported KBD
-as unavailable even though the durable journal and signer were on the same
-machine. The repaired design separates concerns:
-
-```mermaid
-flowchart LR
-  A["Harness or prometheus kbd"] --> B["Signed local KBD runtime"]
-  B --> C["Durable journal + Loro fold"]
-  C --> D["Derived progress and waypoint projections"]
-  C -. "explicit sharing" .-> E["Sovereign Sync sidecar"]
-  B --> F["Non-blocking local memory mirror"]
-```
-
-- Local authority is always usable without a daemon.
-- Sovereign Sync is passive replication enabled only by `--sharing`.
-- Plain full setup stops and disables current and legacy sync identities.
-- Compatibility files are projections; replay may repair them without changing
-  the canonical revision.
-
-## Recovered contracts
-
-### Memory
-
-KBD discovers an explicit memory endpoint first and otherwise probes the
-canonical local service. MCP paths are normalized to the server origin.
-Lifecycle hooks write valid entities with string observations and remain
-non-blocking when memory is unavailable. Recall ranks same-project and
-same-phase events, writes at most five results, and distinguishes a reachable
-service with no match from an unreachable service.
-
-### Position and boundary receipts
-
-Before and after every task, phase, child transition, and ZeeSpec checkpoint,
-the runtime records an idempotent receipt tied to the authoritative revision.
-It derives totals from canonical phase order and task sequence and emits:
-
-```text
-Starting task i out of n: <canonical name>
-Completed task i out of n: <canonical name>
-Position: <canonical path> @ revision <n>
-```
-
-Outstanding obligations are restored at session start and after compaction.
-Missing, duplicated, or out-of-order receipts cannot certify completion.
-Projection repair is allowed; guessed canonical mutation is not. Direct
-OpenSpec completion without KBD apply receipts remains uncertified.
-
-### UI/UX routing
-
-Presentation work resolves an existing route, file, or incumbent surface before
-loading design context. A future path stays a destination, not fabricated
-evidence. Optional capabilities are consulted only when installed; the
-documented installed fallback is used otherwise. Injector refreshes remain
-inside their managed fence and are idempotent.
-
-### Registry maintenance
-
-Missing replica paths are inventoried without mutation. Apply re-evaluates them
-under the exclusive registry lock, preserves existing and multi-replica
-registrations, and writes the original bytes, SHA-256, receipt, and rollback
-instructions before atomic replacement. Runtime journals and checkpoints are
-never deleted by registry pruning.
-
-### Review and build discipline
-
-Hot-path boundary evaluation is deterministic and network-free. Adversarial
-review is reserved for phase completion, ambiguous authority, or a repeated
-violation, and is screened for sycophancy. Implementation is completed before
-tests. Only local full-integration gates count as acceptance evidence. Cargo and
-`rustc` are serialized machine-wide; worktrees use isolated targets and share
-cacheable compilation through `sccache`.
-
-## Refresh this machine
-
-First verify no other Cargo or `rustc` process is active. Build only the native
-components changed by the source update, then install their signed artifacts.
-Generate and deploy the cross-harness payload once:
+1. Honor an operator pause and stop scheduling new work.
+2. Preserve `.prometheus/project.json`, journals, checkpoints and task records.
+3. Read canonical status and audit history before reconciling compatibility files.
+4. Rebuild stale projections from the verified journal instead of editing their
+   revision or inferring authority from file timestamps.
+5. Resume through the canonical operator contract with the expected plan revision.
 
 ```bash
-npm run build:distribution
-npm run validate:harness-adapters
-bash scripts/install-mcp-services.sh --restart
-bash scripts/install-skills-flat.sh
-npm run verify:skills
-npm run validate:codex
-npx tsc -p .opencode/tsconfig.json --noEmit --pretty false
+prometheus kbd --path "/path/to/project" status --json
+prometheus kbd --path "/path/to/project" audit --json
 ```
 
-The installer configures detected Claude Code, Codex, OpenCode, Kimi, MiniMax,
-Cursor, Windsurf, Gemini CLI, Roo Code, Amp, and supported compatibility
-surfaces from one immutable generation. A client that is not installed or has
-no configuration is explicitly skipped. OpenCode loop session JSON is
-machine-local resumable state and is ignored by Git; an empty session may be
-removed without deleting source work.
+See [Identity and authentication](./tokens-and-authentication) and
+[Checkpoints and recovery](./checkpoints-compaction-recovery) for the precise
+ownership and replay boundaries. Read-only inspection does not grant mutation rights.
 
-Verify core services and the installed runtime locally:
+## Refresh the installed pack
 
-```bash
-bash scripts/check-mcp-health.sh
-prometheus doctor --json
-npm run verify:skills
-```
+Finish all phase production work, then run the applicable local integration gates.
+Serialize Cargo/rustc across the machine. Build and sign only the authorized native
+artifacts, and generate the distribution once at the final boundary. Install the
+verified generation through the selected profile and targets; preserve custom
+harness configuration and the previous recoverable generation.
 
-If the learning worker has an accepted queue item, kick or wait for the worker
-and rerun the doctor after the item reaches a terminal receipt. An authenticated
-model endpoint may return HTTP 401 to an unauthenticated doctor probe; the
-doctor confirms the public `/health` endpoint before classifying that response
-as healthy rather than reporting the gateway down.
+Follow [Installation and upgrades](/docs/operations/installation-and-upgrades) for
+the actual installer interface and [Service operations](/docs/guide/service-operations)
+for service owners, platforms, ports and data. An installed binary, loaded service,
+reachable endpoint and successful task are separate evidence.
 
-Do not enable the sidecar merely to make the doctor green. When cross-machine
-replication is actually required, use the explicit sharing profile:
+The skill pack does not build, repair or start Companion's replication daemon.
+There is no pack `--sharing` install contract. Use the retained
+[Companion boundary](/docs/sovereign-sync/overview) when replication is explicitly
+required; ordinary local KBD work remains independent.
 
-```bash
-prometheus setup --full --sharing
-```
+## Memory and hook recovery
+
+Inspect learning queue state and reconcile uncertain submissions by their existing
+operation identity and hash. Never discard records or invent replacement identities
+to make diagnosis green. Restore a complete immutable snapshot from its verified
+manifest or publish a new one from authoritative knowledge records.
+
+Hooks are bounded adapters. They can emit context, queue observations and check
+canonical task completion, but do not intercept Bash, Python, Edit or Write.
+[Hooks and waypoints](./hooks-and-waypoints) describes the task-receipt boundary.

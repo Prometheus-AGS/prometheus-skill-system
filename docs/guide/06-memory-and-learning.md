@@ -1,6 +1,6 @@
 # 06 · Deterministic Memory and Learning
 
-Prometheus 1.7.0 separates fast local publication from durable remote acknowledgement. Stop hooks atomically enqueue work and return. A supervised worker extracts learning, submits stable v2 operation IDs, reconciles exact receipts, and publishes immutable project, shared, and global prompt snapshots.
+The learning pipeline separates fast local publication from durable remote acknowledgement. Stop hooks atomically enqueue work and return. A supervised worker extracts learning, submits stable v2 operation IDs, reconciles exact receipts, and publishes immutable project, shared, and global prompt snapshots.
 
 ## Runtime flow
 
@@ -35,9 +35,15 @@ Project, shared, and global scope publish independently. Each writer stages and 
 
 Queue backlog is judged by age, not by presence. `prometheus doctor` (`learning.queue`) treats a memory record as healthy while it is younger than `PROMETHEUS_LEARNING_STALE_AFTER` (default 6h) and only warns once it is older. A warning is advisory and never fails the run. Restarting services does not clear it; use `prometheus-learning-worker quarantine --older-than 6h [--dry-run]` to move stale records to `memory/stalled`, `prometheus-learning-worker release --all` to return them, or the memory server's `POST /api/v2/operations/{id}/retry` and `/reject` for a single operation.
 
-## Codex memory generation
+## Scoped recall and Codex policy
 
-Codex injects `${CODEX_HOME:-~/.codex}/memories/memory_summary.md` into every thread, so a regrown summary leaks stale memory into unrelated work. The installers (`install.sh` / `prometheus setup` through `scripts/install-system.js`, and `scripts/install-skills-flat.sh`) run `shared/scripts/codex-memories-config.sh`, which sets `[memories] generate_memories = false` in `config.toml` with a line-level edit (all other lines and comments are preserved, a timestamped `config.toml.bak-<UTC>` is written first, and the original is restored if the result does not parse) and moves an existing `memory_summary.md` to `memories-archive/memory_summary-<UTC>.md`. `MEMORY.md`, `raw_memories.md` and every other file stay in place. The script is idempotent; `--check` prints the state as JSON without writing. A failure only prints a warning: the install always completes, and a machine without Codex is left untouched. `prometheus doctor` (`codex.memories`, optional) is the standing guard.
+Team hooks deliver owner-scoped lessons; Codex parent SessionStart assembles only local team digest metadata before any lesson-source merge. Final guards require a digest kind/channel and the selected team digest scope. Role recall and Claude lead recall follow their own audience contracts. See [team memory](24-agent-teams.md#keep-lessons-scoped-to-their-audience) and [memory tiers](memory-tiers.md).
+
+The direct role writer is distinct from the supervised Stop queue: it records the durable primary lesson and may start a bounded optional Cortex mirror. Saturation/unavailable Cortex does not discard the primary record; mirror launch is not remote acknowledgement.
+
+Codex's startup feature gate controls consolidation. The helper sets `features.memories=false`, `memories.generate_memories=false` and `memories.use_memories=false`, overriding the old generation-only policy. It archives only `memories/memory_summary.md` and sibling `memories_v2/memory_summary.md` into distinguishable collision-safe archives. Other memory files and databases remain intact.
+
+The helper validates TOML before replacing it, preserves unrelated text/comments, backs up recoverably and fails explicitly on unsupported target syntax. `--check` is read-only. The full installer calls it at the effective Codex home even for a new config. Doctor checks all three flags and both summary paths, and offers an absolute remediation command only after installed-helper provenance verifies. Profiles, CLI overrides and in-flight sessions can retain different effective configuration; restart into a new session after a reviewed change. This page does not claim a machine fix was applied.
 
 Canonical documentation:
 

@@ -1,116 +1,51 @@
-# Contributing to prometheus-skill-pack
+# Contributing to Prometheus Skill System
 
-Thank you for contributing to the Prometheus Skill Pack — a production-grade collection of AI agent skills for the Claude Code and multi-platform AI ecosystem.
+Use the repository's [agent rules](AGENTS.md) and [canonical operating rules](CLAUDE.md) when preparing a contribution. Complete the production implementation for the active phase before authoring or running tests, checks, formatters or reviews. Acceptance requires local integration evidence through the production entry point and real collaborators.
 
-## Prerequisites
+## Prerequisites and setup
 
-| Tool    | Minimum version |
-| ------- | --------------- |
-| Node.js | 20              |
-| npm     | 10              |
-| Rust    | stable (latest) |
-| Git     | 2.36+           |
-
-## Setup
+The root `package.json` requires Node.js 20.19.0 or later and pins Node 22.23.1 through Volta. Team helpers require Node 22 or later. Use the checked-in lockfile. Rust work follows the relevant workspace toolchain and dependency pins; load `prometheus-rust-workspace` for static guidance before Rust or Cargo work. Native service installation needs Bash 4 or later and has component-specific platform limits.
 
 ```bash
-# Clone with all submodules
-git clone --recurse-submodules https://github.com/Prometheus-AGS/prometheus-skill-pack.git
-cd prometheus-skill-pack
-
-# Install Node dependencies
-npm install
-
-# Install skills to Claude Code (local dev)
-bash scripts/install-skills-flat.sh
-
-# Verify the toolchain
-bash shared/scripts/detect-toolchain.sh
+git clone --recurse-submodules https://github.com/Prometheus-AGS/prometheus-skill-system.git
+cd prometheus-skill-system
+npm ci
 ```
 
-## Creating a Skill
+Dependency setup does not install skills into a user's harness directories or start services. Choose an installation scope deliberately using the [installation guide](docs/guide/19-installation.md). Use an isolated home for installer integration evidence; inherited `CODEX_HOME` takes precedence over a selected `--home` for Codex.
 
-1. **Choose a domain**: `skills/{react,rust,ui-ux,devops,testing,documentation,learn,...}`
+## Creating a skill
 
-2. **Create the skill directory**:
-
-   ```bash
-   mkdir -p skills/<domain>/<skill-name>
-   cp docs/SKILL_TEMPLATE.md skills/<domain>/<skill-name>/SKILL.md
-   ```
-
-3. **Edit the frontmatter** — required fields:
-
-   ```yaml
-   ---
-   name: my-skill-name
-   description: One-line description (1–1024 chars)
-   license: MIT
-   metadata:
-     author: your-name
-     version: '1.0.0'
-     category: <domain>
-     tags: [tag1, tag2]
-   ---
-   ```
-
-4. **Write skill instructions** — keep the main file under 500 lines; move detail to `references/`.
-
-5. **Validate**:
+1. Choose the appropriate `skills/<domain>/<skill-name>` directory and use [the skill template](docs/SKILL_TEMPLATE.md).
+2. Write the frontmatter and instructions against the actual helper interfaces. Keep the main instructions concise and move supporting detail into `references/`.
+3. Make scripts under the skill's `scripts/` directory executable. Preserve protected BDD scenarios.
+4. Finish all planned production changes in the phase before the final validation batch. At that boundary, strict skill validation is required for a new skill:
 
    ```bash
    npm run validate:strict skills/<domain>/<skill-name>
    ```
 
-6. **Test locally**:
-   ```bash
-   npm run install:project
-   # In Claude Code: /reload-plugins, then try /<skill-name>
-   ```
+5. Exercise the real installed or packaged entry point with its actual collaborators. Structural validation, a helper-only result or a legacy unit suite does not prove that a harness can discover and invoke the skill.
 
-## Developing forge-rs
+See [skill authoring](docs/skill-authoring-guide.md), [plugin delivery](docs/guide/18-plugins-and-marketplace.md) and [local validation](site/docs/operations/local-validation-and-docs-automation.md).
 
-The `tools/forge-rs/` directory contains the Rust code enrichment engine.
+## Rust changes
 
-```bash
-cd tools/forge-rs
+`tools/forge-rs/` contains the code enrichment engine. Other tools and substrate crates have their own workspaces and release identities. Read the affected workspace manifests and protected integration scenarios before implementing.
 
-# Build
-cargo build --workspace
+After all phase production is complete, choose the smallest integration target that exercises the changed production path, for example the command shape `cargo test -p <package> --test <integration-target>` within the affected workspace. Select real package and target names from that workspace; this is a command shape, not a ready-made gate. Do not use a workspace-wide unit-inclusive test command as the normal acceptance gate. Run required formatting, lint and broader integration checks only at the applicable final boundary. Only one Cargo/rustc process may build on the machine at a time.
 
-# Run tests
-cargo test --workspace
+## Preparing a pull request
 
-# Check formatting and lints
-cargo fmt --check --all
-cargo clippy --all --all-features -- -D warnings
-```
+- Record the exact local integration commands, environment scope and results after completing production work. Clearly separate source changes, generated artifacts, installed behavior and release acceptance.
+- Run the relevant strict skill, distribution, documentation and protected-test integrity gates locally. Review requirements follow the completed-phase boundary.
+- Preserve credentials, local runtime data and scratch files outside the commit. Review intentional project identity/configuration separately rather than excluding an entire project metadata directory by name.
+- Commit dependency lockfiles when dependencies change. Keep submodule URLs HTTPS and pins deliberate; review every submodule update.
+- Protected BDD changes require the repository owner's SSH-signed canonical approval manifest. Dependency and protected version changes require their applicable owner approval.
+- Push after the applicable local gates pass. GitHub source hosting and review are supported; hosted test workflows and automatic secret-scanning claims are not release evidence. Run any required secret scan locally and record its result.
 
-## PR Checklist
+A passing local gate does not authorize merging or publishing. Follow the repository's local review receipt and owner merge requirements.
 
-Before opening a pull request:
+## Style and questions
 
-- [ ] All native skills validate strict: `npm run validate:strict`
-- [ ] No SSH submodule URLs in `.gitmodules` (use HTTPS)
-- [ ] No hardcoded credentials or API keys anywhere
-- [ ] forge-rs tests pass: `cargo test --workspace` in `tools/forge-rs/`
-- [ ] `package-lock.json` is committed and `npm ci` succeeds cleanly
-- [ ] No files in `.prometheus/` are staged
-- [ ] `SCRATCHPAD.md` is not staged (it is gitignored)
-- [ ] `gitleaks` scan clean (runs automatically in CI)
-
-## Code Style
-
-- Skills: follow `docs/SKILL_TEMPLATE.md`; no Windows-style backslashes in paths
-- Rust: `cargo fmt` enforced; no `unwrap()` in non-test code; `anyhow` for applications, `thiserror` for libraries
-- TypeScript: `prettier` enforced via `npm run check-format`
-
-## Submodule Policy
-
-- All submodule URLs must use HTTPS (never SSH)
-- New submodules must be reviewed and pinned to a specific SHA after initial integration
-- Update the pin comment in `.gitmodules` when advancing a submodule
-
-## Questions
-
-Open a GitHub issue using one of the provided templates or reach out via the Prometheus AGS GitHub organization.
+Follow the existing skill, Rust and JavaScript conventions and the project UI protocol for instructional copy. Use the formatter configured by each workspace at the final boundary. Open a scoped issue in [Prometheus Skill System](https://github.com/Prometheus-AGS/prometheus-skill-system/issues) when a contract or ownership decision needs clarification.

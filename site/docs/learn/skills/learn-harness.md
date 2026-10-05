@@ -6,40 +6,14 @@ sidebar_label: learn-harness
 
 # /learn-harness
 
-Harness detection and capability map. Identifies which UI tier the current
-harness supports and what capabilities are available.
+Map the selected harness and inspect the collaborators needed for a learning session:
 
-## What it detects
-
-| Capability | How detected |
-|-----------|--------------|
-| Surface tier (0/1/2) | MCP tool availability check |
-| AskUserQuestion | Claude Code-specific tool presence |
-| surface-bridge | HTTP health check at 127.0.0.1:7890 |
-| control-plane extension | Integration-contract endpoint discovery |
-| surreal-memory | REST health check |
-| sycophancy-correction | Binary presence check |
-
-## Surface tiers
-
-| Tier | Description |
-|------|-------------|
-| 0 | Plain text / markdown (always works) |
-| 1 | AskUserQuestion (Claude Code) or file-pair UI protocol |
-| 2 | Tier 2 MCP App iframe via surface-bridge |
-
-## Usage
-
-```
-/learn-harness
+```text
+/learn-harness --harness codex --map-only
 ```
 
-Output example:
+Supported selections are `claude-code`, `opencode`, `codex`, `kimi` and `zed`. Without a selection, the procedure uses local detection hints.
 
-```
-Harness: Claude Code
-Surface tier: 1 (AskUserQuestion available)
-control-plane-extension: disabled (optional)
-surreal-memory: running
-sycophancy-correction: binary found
-```
+The surface helper returns `tier0_text`, `tier1_structured` or `tier2_mcp_app`. Process and environment hints are not proof that a tool is exposed, a browser rendered the UI or a service completed a request. Confirm the actual session capabilities before choosing an interaction path. Cursor and Zed detection select the file-pair path; chat remains the fallback.
+
+Binary presence, endpoint reachability, MCP discovery and successful user interaction are separate evidence. Report each observed result and any missing prerequisite. See [Surface Tier Detection](/docs/learn-internals/surface-tier-detection).

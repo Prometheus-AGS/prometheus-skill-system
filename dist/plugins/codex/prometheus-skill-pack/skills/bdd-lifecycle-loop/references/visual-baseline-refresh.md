@@ -1,81 +1,63 @@
-# Visual Baseline Refresh Workflow
+# Visual baseline refresh
 
-Playwright's `--update-snapshots` overwrites baseline images silently.
-That's fine for local exploration but dangerous in CI — someone could
-merge a visual regression and the diff would show only "baseline updated".
+Refresh a baseline when a completed production change intentionally changes the
+rendered UI. Baseline generation records the new expectation; it does not prove
+that the change is correct. Review the before/after images and exercise the real
+UI workflow against its production collaborators before accepting the change.
 
-The refresh workflow adds a paper trail:
+## Local workflow
 
-```
-1. Change lands that alters a rendered element (intentionally or not)
-2. Playwright fails: "expected screenshot mismatch"
-3. Instead of running --update-snapshots locally and committing:
-      a. Open `snapshot-refresh/YYYY-MM-DD-<short-description>` branch
-      b. Run the refresh script (below)
-      c. Push the branch → PR is opened automatically
-      d. PR requires the 'visuals-approved' label to merge
-      e. Merge into main; baseline images travel through code review
-```
+1. Finish the production implementation on the change's isolated worktree and
+   branch. Read the existing protected scenarios as requirements. Do not change
+   expectations simply to make an incomplete or broken implementation pass.
+2. Record the intended visual differences and select the repository's actual
+   integration config, browser project and affected test files. Use its pinned
+   local Playwright installation and isolated test resources.
+3. At the completed implementation boundary, generate the intended baselines,
+   inspect every changed image, and run the same integration scenarios with
+   snapshot updates disabled. Include meaningful navigation and interaction
+   assertions; images alone do not establish functional acceptance.
+4. Record the source identity, local commands, results, environment and changed
+   asset paths/hashes in the review artifact. Preserve paths containing spaces.
+   The refresh operation must not automatically commit, push or merge.
+5. After the applicable local integration gates pass, prepare the candidate
+   commit. Run final protected-test integrity certification from committed Git
+   state. Push and open the review only after all required local gates pass.
+   The repository owner reviews and merges the PR.
 
-## The refresh script
-
-`scripts/refresh-visual-baselines.sh`:
+The following commands illustrate the two distinct operations. Substitute the
+actual repository config, project and scenario paths; these are placeholders,
+not a gate configured by this skill. Run them only after implementation is
+complete and the production UI and collaborating services are available.
 
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-DATE=$(date +%Y-%m-%d)
-DESC="${1:?short-description required, e.g. 'header-nav'}"
-BRANCH="snapshot-refresh/${DATE}-${DESC}"
-
-git switch -c "$BRANCH"
-
-npx playwright test --update-snapshots
-
-# Update the manifest so reviewers can see WHICH images changed
-git status --porcelain "tests/**/*.png" \
-  | awk '{print $2}' \
-  | while IFS= read -r file; do
-      hash=$(sha256sum "$file" | cut -d' ' -f1)
-      printf '%s\t%s\n' "$hash" "$file"
-    done > tests/snapshots/MANIFEST.txt
-
-git add tests/**/*.png tests/snapshots/MANIFEST.txt
-git commit -m "chore(visuals): refresh baselines for ${DESC}"
-git push -u origin "$BRANCH"
+npx playwright test path/to/production-ui.spec.ts --config=path/to/playwright.config.ts --project=chromium --update-snapshots=changed
+npx playwright test path/to/production-ui.spec.ts --config=path/to/playwright.config.ts --project=chromium --update-snapshots=none
 ```
 
-The `MANIFEST.txt` gives reviewers a checksum-per-image so a wholesale
-image swap can't slip through as a small diff.
+Use the flags supported by the repository's pinned Playwright version. Scope
+updates to the intended scenarios; avoid regenerating unrelated assets.
+[Playwright snapshot update documentation](https://playwright.dev/docs/test-snapshots#updating-screenshots)
+describes baseline generation, not authorization to accept a visual change.
 
-## PR requirements
+## Protected scenarios and approval
 
-Configure the PR checks (GitHub branch protection) to require:
+For a change to paths covered by the repository's protected-test policy, obtain
+the canonical SSH-signed approval manifest under the `prometheus-test-change`
+namespace. The final local `scripts/verify-protected-tests.mjs` certification
+compares the committed candidate with its committed base. Inspect the actual
+protection rules: do not assume that every PNG is protected, or that unprotected
+images exempt accompanying protected scenario changes from approval.
 
-1. Green CI (Playwright must pass with the refreshed baselines)
-2. The `visuals-approved` label — added by a human after they've eyeballed
-   the diffs in the PR's "Files changed" tab
-3. A commit message on the merge that lists the affected screens
+A GitHub label is a review annotation unless independently configured enforcement
+says otherwise. It does not replace signed protected-test approval, local
+integration evidence, human visual review, or the owner's merge. Hosted CI
+results are not validation evidence for Prometheus repositories.
 
-Without the label the PR can't merge. Baseline drift becomes visible.
+## Review evidence
 
-## What NOT to do
-
-- **Don't** run `--update-snapshots` on `main` directly. That defeats the
-  paper trail.
-- **Don't** add `git add tests/**/*.png` to a routine "fix CI" commit.
-  Baseline updates deserve their own branch and their own review.
-- **Don't** allow the CI job to auto-merge baseline refreshes. A human
-  must confirm the visual change is intended.
-
-## Prior art
-
-- Chromatic (SaaS) — closest to what this workflow does; per-image
-  approvals with audit log
-- Percy (SaaS) — similar approval model
-- Playwright's own docs — describe `--update-snapshots` but not a review
-  workflow
-
-None of the above are self-hosted; the workflow above is what you build
-when you want the paper trail without adopting a SaaS.
+Record why each expectation changed and show the affected screens. An image
+checksum identifies bytes; it cannot establish that those bytes are desirable.
+Keep unexpected differences visible, fix production defects in coherent batches,
+and rerun the affected final integration gate. Do not delete a failing protected
+scenario or blindly update every baseline to obtain a passing result.

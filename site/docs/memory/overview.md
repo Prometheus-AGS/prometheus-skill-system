@@ -15,7 +15,11 @@ Use it when you need:
 - deterministic recovery after response loss or executor interruption;
 - an auditable event history instead of retry-count inference.
 
-The REST operation ledger is canonical for durable writes. Existing read/search and MCP surfaces remain useful, but new integrations should acknowledge writes through `/api/v2/operations`.
+The REST operation ledger is canonical for durable writes. Existing read/search and MCP surfaces remain useful, but durable v2 integrations acknowledge writes through `/api/v2/operations`.
+The full Python learning writer uses a local queue delivered by the supervised
+worker. Mini has a reduced file tier and an optional scoped `/api/v1/memory`
+publication client; that source contract does not provide the full v2 worker,
+Python or Cortex pipeline. See [Memory tiers](/docs/guide/memory-tiers).
 
 ```mermaid
 stateDiagram-v2

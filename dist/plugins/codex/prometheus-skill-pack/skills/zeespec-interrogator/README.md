@@ -61,7 +61,7 @@ output artifact consumed by callers. See `references/integration-contract.md`.
 
 ## Quick Start
 
-```bash
+```text
 # Standalone ideation gate
 /zeespec-interrogate "prometheus-forge-rs"
 

@@ -5,6 +5,11 @@ description: Evidence-scoped support matrix for local, remote, embedded, and mob
 
 # Platform and evidence status
 
+This page preserves the recorded Exec 1.7.0 platform baseline. Its tables and
+diagram describe that evidence, not acceptance of this candidate or installation
+on the reader's machine. Current source changes require the final local integration
+and installed-artifact gates before any result is advanced.
+
 Readiness is evidence-scoped, not a percentage. Source/build evidence, disposable runtime evidence, installed-host state, remote deployment, mobile size, and physical-device runtime are separate claims.
 
 ```mermaid
@@ -24,7 +29,7 @@ flowchart TB
 
 | Surface | Status | Evidence boundary |
 | --- | --- | --- |
-| Contract schemas, signatures, receipt log, and offline verifier | Completed | Local unit/property/integration and portable bundle fixtures |
+| Contract schemas, signatures, receipt log, and offline verifier | Completed | Recorded portable bundles and runtime integration evidence; unit/property results are not current acceptance |
 | macOS x86_64 Tier P Seatbelt | Runtime-certified on the release Mac | Real Python/Node/Bash, denial, limit, response-loss, restart, and receipt verification runs |
 | Desktop Tier W Cranelift and Pulley | Runtime-certified on the release Mac | Real reference component, capability fences, cross-backend projection, replay, and signed-estate checks |
 | Linux Tier P | Source/cross-build/portable-fixture only | No Linux kernel runtime executed in this release |
@@ -38,7 +43,7 @@ flowchart TB
 
 ## Mobile size status
 
-The mobile code path is real and cross-buildable, but release readiness is blocked by measured size, not hidden behind a green compile. Against the fair baseline that retains the generated FFI dispatcher and execution graph, current iOS and Android deltas exceed 12 MiB. Pulley/no-JIT profile selection remains valid build evidence; it does not erase the size failure or substitute for a physical-device run.
+The mobile code path is real and cross-buildable, but release readiness is blocked by measured size, not hidden behind a green compile. Against the fair baseline that retains the generated FFI dispatcher and execution graph, the recorded iOS and Android deltas exceed 12 MiB. Pulley/no-JIT profile selection remains valid build evidence; it does not erase the size failure or substitute for a physical-device run.
 
 ## Remote status
 
@@ -52,4 +57,4 @@ A platform moves to `completed` only when its named evidence is archived and ind
 - Mobile requires size compliance plus physical iOS and Android runs returning value, ordered events, signed receipts, artifacts, and public-key-only verification.
 - Remote deployment requires isolated production-adapter peers, enrolled identities, delivery/reconciliation evidence, and verified per-peer receipts without touching unrelated installed state.
 
-The deterministic source for current dimensions is [Prometheus Exec evidence status](/docs/operations/generated-reference). Installation evidence is updated only after final binary/signature/service readback; it is never inferred from a successful build.
+The source for recorded dimensions is [Prometheus Exec evidence status](/docs/operations/generated-reference). Installation evidence is updated only after final binary/signature/service readback; it is never inferred from a successful build.

@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T20:21:17.682421+00:00",
+  "phase": "phase-learning-deploy-and-debt",
+  "sourceSubset": "approved mini and memory umbrella release metadata",
+  "approvalReportedByLead": "Owner approved release proposal with stated sequencing exception; root records canonical approval provenance.",
+  "actualModel": "gpt-6.1-sol",
+  "actualReasoning": "xhigh",
+  "actualRoute": "native OpenAI Codex implementation worker /root/source_inventory",
+  "sourceOnly": true,
+  "certificationClaim": false,
+  "canonicalCompletionClaim": false,
+  "files": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/package.json",
+      "beforeSha256": "3d763432fe446a49b7079079a66f6fc61bbb2611a1a93a3eacb5da8ad31cced9",
+      "afterSha256": "817f9c4ea448c8c45873583c7ff9693d2db99746355bb3eb8c556f6ee0244226",
+      "disposition": "approved-umbrella-version-updated",
+      "change": {
+        "fields": [
+          "version"
+        ],
+        "from": "1.11.2",
+        "to": "1.11.3"
+      }
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/package-lock.json",
+      "beforeSha256": "bd72c0ba7ee56c6e567096f13d793e8aa5a4a562617a423389983703942cdac6",
+      "afterSha256": "86b6d40de648e7b29a19879370c87fe7fca2c299e29e53a3f5d555a34164bffa",
+      "disposition": "approved-umbrella-version-updated",
+      "change": {
+        "fields": [
+          "version",
+          "packages[\"\"].version"
+        ],
+        "from": "1.11.2",
+        "to": "1.11.3"
+      }
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/package.json",
+      "beforeSha256": "9d2711b7d9aef37db798fbf35c9844055079dfee1cda1647ad8997b532d1f05e",
+      "afterSha256": "9d2711b7d9aef37db798fbf35c9844055079dfee1cda1647ad8997b532d1f05e",
+      "disposition": "preserved-independent-or-protected-source"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/package-lock.json",
+      "beforeSha256": "91f792c530a05d77e6ce32fe7015ca59ea17f0c3dd79b5f0bd2f1948fe2c7087",
+      "afterSha256": "91f792c530a05d77e6ce32fe7015ca59ea17f0c3dd79b5f0bd2f1948fe2c7087",
+      "disposition": "preserved-independent-or-protected-source"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/versions.toml",
+      "beforeSha256": "93d1695749ccd5349896c52169a9f0a2344f047b332f5471222524d7b92573f2",
+      "afterSha256": "93d1695749ccd5349896c52169a9f0a2344f047b332f5471222524d7b92573f2",
+      "disposition": "preserved-independent-or-protected-source"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/lib/distribution/manifest.mjs",
+      "beforeSha256": "4f21511cd9453b1819ca9721f2f06e196b1b0c6dad08cb5c0b4b817c4464c478",
+      "afterSha256": "4f21511cd9453b1819ca9721f2f06e196b1b0c6dad08cb5c0b4b817c4464c478",
+      "disposition": "preserved-independent-or-protected-source"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/Cargo.toml",
+      "beforeSha256": "d17eaeb45d3069a6c891f59474b1d453c059a25ca86833f7d0d561c5c284af2d",
+      "afterSha256": "9c25e817c81c67ab426f9b70e6ca0b584d7bcd290b67c13ba510e2fce6f1ef49",
+      "disposition": "approved-umbrella-version-updated",
+      "change": {
+        "fields": [
+          "package.version for surreal-memory-server"
+        ],
+        "from": "1.10.1",
+        "to": "1.10.2"
+      }
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/Cargo.lock",
+      "beforeSha256": "bbd86fddc117f981229316b5339bea547d0bbd45eef4939257775e333fec4271",
+      "afterSha256": "0fe768f878c6659649f10d2333074c69429096d092e0422178b292e9d9356a6a",
+      "disposition": "approved-umbrella-version-updated",
+      "change": {
+        "fields": [
+          "surreal-memory-server own local package version"
+        ],
+        "from": "1.10.1",
+        "to": "1.10.2"
+      }
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/crates/surreal-memory/Cargo.toml",
+      "beforeSha256": "f502d7934f0dac70da2b0c3bd8a81b4aa18d15304ce0665cebb0ea6efc70bad7",
+      "afterSha256": "f502d7934f0dac70da2b0c3bd8a81b4aa18d15304ce0665cebb0ea6efc70bad7",
+      "disposition": "preserved-independent-or-protected-source"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/skill-system.json",
+      "beforeSha256": "8993f34cc027f2de58ecb9f8627bd3ecca5662205a313efbb45993fab490e474",
+      "afterSha256": "3cd16fc1ea21120c19ed355515cd80b898a9e50e1326404199525d3d1122b03c",
+      "disposition": "approved-umbrella-version-updated",
+      "change": {
+        "fields": [
+          "releaseVersion"
+        ],
+        "from": "1.11.2",
+        "to": "1.11.3"
+      }
+    }
+  ],
+  "miniAuthoredManifest": {
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/skill-system.json",
+    "releaseField": "releaseVersion",
+    "releaseVersion": "1.11.3",
+    "minimumActiveVersionPreserved": "0.2.0",
+    "schemaVersionPreserved": "prometheus-mini-skill-system-v1",
+    "loader": "lib/distribution/skill-system.mjs readSkillSystem",
+    "generatedConsumers": "lib/distribution/manifest.mjs and marketplace.mjs consume contract.releaseVersion",
+    "manifestYaml": "absent from tracked and discovered authored source; no invented manifest.yaml or skill-package.json"
+  },
+  "miniSiteVersion": {
+    "version": "0.2.0",
+    "disposition": "Independent documentation package preserved in site/package.json and site/package-lock.json; no umbrella-version substitution"
+  },
+  "memoryServerVersion": "1.10.2",
+  "memoryLibraryVersionPreserved": "0.1.0",
+  "preservedPins": {
+    "memoryMempalaceCoreRev": "f8a1b4c86ef28f8f8070142d600e650f187c538d",
+    "memoryRmcpRev": "a64be231527f923e9f84d4dd7bf3c3bd695ee53e",
+    "miniProtectedVersionsToml": "untouched; existing Node, gitlink and container-image selections preserved",
+    "APIProtocolRuntimeVersions": "untouched"
+  },
+  "deferredGeneratedFields": [
+    "Mini generated dist/plugins/{claude,codex}/prometheus-skills-mini manifests and packaged contents remain unchanged until final authorized generation.",
+    "Mini .claude-plugin/marketplace.json and .agents/plugins/marketplace.json plus generated SKILLS.md/catalog output remain unchanged until final authorized generation.",
+    "No Cargo dependency resolution or lock regeneration; manually updated only the own local server version entry."
+  ],
+  "deferredPinFields": [
+    "Final certified memory dependency SHA does not exist as approval evidence yet; exact mini versions.toml tools/surreal-memory-server and corresponding gitlink update remain reserved for explicit owner approval.",
+    "Tag creation, source commit/push and remotely resolvable final graph sealing remain lead/owner actions after required gates and approval sequence."
+  ],
+  "validationPerformed": [],
+  "notRun": [
+    "tests/checks/validators",
+    "Cargo/compiler/build",
+    "generation/formatting",
+    "reviewers",
+    "commit/push/tag",
+    "runtime probes",
+    "real home actions",
+    "docs/content mutation",
+    "original checkout edits"
+  ],
+  "skillsRead": [
+    "prometheus-rust-workspace",
+    "rust-router"
+  ],
+  "remaining": "Root reconciles approval provenance and canonical source completion; final12 performs applicable local generation/integration/certification and later exact-pin approval."
+}

@@ -8,7 +8,7 @@ sidebar_label: Execution Classes
 
 Every skill that carries scripts is assigned an execution class describing what
 it needs at runtime. The classification is **derived by a script, not asserted by
-hand**, and a `--check` mode fails CI when the committed result goes stale.
+hand**, and a `--check` mode reports local source drift. The classifier is a heuristic, not runtime acceptance.
 
 ```bash
 bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh
@@ -19,13 +19,13 @@ bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh --ch
 
 | Class | Name | Needs | Mobile path |
 |---|---|---|---|
-| — | **manifest-only** | Nothing — no `scripts/` | Runs today, unchanged |
+| — | **manifest-only** | Nothing — no `scripts/` | Instructions; declared tools still required |
 | **E0** | Process-bound | `bash`, `python3`, a binary | None on-device; use remote execution |
 | **E1** | Capability-bound | Filesystem and/or clock | Wasm component **with** granted capabilities |
 | **E2** | Pure | Computation only | Wasm component, no capabilities |
-| **R** | Remote | A full desktop environment | Drive a paired desktop over P2P |
+| **R** | Remote | A full desktop environment | Explicit authorized remote executor required |
 
-## Current distribution
+## Historical classification snapshot
 
 | Class | Count |
 |---|---|
@@ -36,9 +36,9 @@ bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh --ch
 | R | 13 |
 | **Total** | **310** |
 
-**249 of 310 skills are already mobile-ready.** A manifest-only skill is
+These historical counts do not certify current skills as mobile-ready. A manifest-only skill is
 instructions a model reads; there is nothing to execute and therefore nothing to
-port. The portability problem is confined to the 61 script-bearing skills.
+port. Instruction-only workflows may still require unavailable tools, data or services. Current counts come from the final generated inventory.
 
 ## E1 was wrong for every member — a lesson
 
@@ -95,6 +95,4 @@ can often drop the dependency and become E2.
 **E0** — no on-device path. Either rewrite as manifest-only, or accept remote
 execution.
 
-**R** — route to a paired desktop. The user needs one internet-connected machine
-acting on their behalf; the phone drives it over the existing sync layer without
-an intermediate server.
+**R** — requires an explicitly authorized remote executor and destination result evidence. A paired sync transport is not itself an executor. See [current portability limits](./overview).

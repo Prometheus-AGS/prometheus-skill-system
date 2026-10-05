@@ -29,7 +29,7 @@ import {
   readSkillSystem,
   targetsById,
 } from './lib/skill-system.js';
-import { POINTER_PATTERN, isWithin } from './lib/store-paths.js';
+import { POINTER_PATTERN, isWithin, resolveCodexHome } from './lib/store-paths.js';
 
 /**
  * Probed filesystem capabilities for this run.
@@ -132,7 +132,7 @@ function fail(message) {
 function parseArgs(argv) {
   const args = {
     sourceRoot: process.cwd(),
-    pluginRoot: path.join(os.homedir(), '.prometheus/plugins/prometheus-skill-pack'),
+    pluginRoot: null,
     home: os.homedir(),
     verify: false,
     rollback: false,
@@ -158,17 +158,22 @@ function parseArgs(argv) {
     else if (value === '--expected-bundle') args.expectedBundle = argv[++index];
     else if (value === '--expected-source-commit') args.expectedSourceCommit = argv[++index];
     else if (value === '--source-root') args.sourceRoot = argv[++index];
-    else if (value === '--plugin-root') args.pluginRoot = argv[++index];
+    else if (value === '--plugin-root') {
+      args.pluginRoot = argv[++index];
+      if (!args.pluginRoot) fail('missing value for --plugin-root');
+    }
     else if (value === '--home') args.home = argv[++index];
     else if (value === '--signing-key') args.signingKey = argv[++index];
     else if (value === '--trust-store') args.trustStore = argv[++index];
     else fail(`unknown argument: ${value}`);
   }
-  for (const key of ['sourceRoot', 'pluginRoot', 'home']) {
+  for (const key of ['sourceRoot', 'home']) {
     if (!args[key])
       fail(`missing value for --${key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`)}`);
     args[key] = path.resolve(args[key]);
   }
+  args.pluginRoot = path.resolve(args.pluginRoot ?? path.join(args.home, '.prometheus/plugins/prometheus-skill-pack'));
+  args.codexHome = resolveCodexHome(args.home);
   args.signingKey = path.resolve(
     args.signingKey ?? path.join(args.home, '.prometheus/plugin-signing/ed25519-private.pem')
   );
@@ -1655,16 +1660,51 @@ function installLinkTarget(targetRoot, skill, pluginRoot) {
   });
 }
 
-function isManagedCopy(destination, target) {
-  if (fs.existsSync(path.join(destination, '.prometheus-generation'))) return true;
-  if (target === '.codex/skills' && fs.existsSync(path.join(destination, '.prometheus-pack')))
-    return true;
+const COPY_OWNERS = new Map();
+const COPY_OWNERSHIP_DIAGNOSTICS = new Set();
+
+function isManagedCopy(destination, target, pluginRoot, trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')) {
+  if (!fs.lstatSync(destination, { throwIfNoEntry: false })?.isDirectory()) return false;
+  const marker = path.join(destination, '.prometheus-generation');
+  const markerStat = fs.lstatSync(marker, { throwIfNoEntry: false });
+  if (markerStat) {
+    try {
+      if (!markerStat.isFile()) fail('generation marker is not a regular file');
+      const generation = fs.readFileSync(marker, 'utf8').trim();
+      if (!/^[a-f0-9]{64}$/.test(generation)) fail('generation marker is malformed');
+      const generationPath = path.join(pluginRoot, 'generations', generation);
+      const key = `${generationPath}\0${trustStorePath}`;
+      if (!COPY_OWNERS.has(key)) {
+        const store = fs.realpathSync(path.join(pluginRoot, 'generations'));
+        const resolved = fs.realpathSync(generationPath);
+        if (!isWithin(store, resolved) || store === resolved) fail('owner generation escapes store');
+        verifyGeneration(generationPath, generation, trustStorePath);
+        COPY_OWNERS.set(key, new Set(collectSkills(path.join(generationPath, 'skills'))
+          .flatMap(skill => [skill.name, `prometheus-${skill.name}`])));
+      }
+      if (!COPY_OWNERS.get(key).has(path.basename(destination))) fail('entry is not a skill of its owner generation');
+      return true;
+    } catch (error) {
+      if (!COPY_OWNERSHIP_DIAGNOSTICS.has(destination)) {
+        COPY_OWNERSHIP_DIAGNOSTICS.add(destination);
+        process.stderr.write(`Preserving unverified copy ${destination}: ${error.message}\n`);
+      }
+      return false;
+    }
+  }
+  if (target === '.codex/skills' &&
+      fs.lstatSync(path.join(destination, '.prometheus-pack'), { throwIfNoEntry: false })?.isFile()) {
+    const source = fs.readFileSync(path.join(destination, '.prometheus-pack'), 'utf8').trim();
+    const relative = source.startsWith('source=') ? source.slice(7) : '';
+    return relative.startsWith('skills/') && path.posix.normalize(relative) === relative &&
+      path.posix.basename(relative) === path.basename(destination);
+  }
   if (target === '.minimax/skills') {
     try {
-      return (
-        JSON.parse(fs.readFileSync(path.join(destination, '_meta.json'), 'utf8')).platform ===
-        'minimax'
-      );
+      const metadataPath = path.join(destination, '_meta.json');
+      if (!fs.lstatSync(metadataPath, { throwIfNoEntry: false })?.isFile()) return false;
+      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      return metadata.platform === 'minimax' && metadata.name === path.basename(destination);
     } catch {
       return false;
     }
@@ -1672,14 +1712,14 @@ function isManagedCopy(destination, target) {
   return false;
 }
 
-function copySkill(source, targetRoot, target, skill, generation, projection) {
+function copySkill(source, targetRoot, target, skill, generation, projection, pluginRoot, trustStorePath) {
   ensureDirectory(targetRoot);
   let destination = path.join(targetRoot, skill.name);
-  if (fs.existsSync(destination) && !isManagedCopy(destination, target)) {
+  if (fs.existsSync(destination) && !isManagedCopy(destination, target, pluginRoot, trustStorePath)) {
     recordCollision(targetRoot, skill, destination);
     destination = path.join(targetRoot, `prometheus-${skill.name}`);
   }
-  if (fs.existsSync(destination) && !isManagedCopy(destination, target)) {
+  if (fs.existsSync(destination) && !isManagedCopy(destination, target, pluginRoot, trustStorePath)) {
     fail(`skill target collision: ${destination}`);
   }
   const temporary = path.join(targetRoot, `.${path.basename(destination)}.${process.pid}.tmp`);
@@ -1716,6 +1756,12 @@ function targetIsCopy(target) {
   return COPY_TARGETS.has(target) || CAPABILITIES.directoryLinkStrategy === 'copy';
 }
 
+function targetRootFor(home, target) {
+  return target === '.codex/skills'
+    ? path.join(resolveCodexHome(home), 'skills')
+    : path.join(home, ...target.split('/'));
+}
+
 function installTargets(
   home,
   pluginRoot,
@@ -1723,7 +1769,8 @@ function installTargets(
   generation,
   skills,
   targets = TARGETS,
-  manifest = null
+  manifest = null,
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
 ) {
   // Copy-mode projections carry executable intent from the signed manifest, so
   // a projection onto a volume without an executable bit records the same
@@ -1731,7 +1778,7 @@ function installTargets(
   const projection = destinationRoot =>
     projectionContext({ generationPath, destinationRoot, manifest });
   for (const target of targets) {
-    const targetRoot = path.join(home, ...target.split('/'));
+    const targetRoot = targetRootFor(home, target);
     for (const skill of skills) {
       if (targetIsCopy(target))
         copySkill(
@@ -1740,14 +1787,16 @@ function installTargets(
           target,
           skill,
           generation,
-          projection
+          projection,
+          pluginRoot,
+          trustStorePath
         );
       else installLinkTarget(targetRoot, skill, pluginRoot);
     }
   }
 }
 
-function targetDestination(targetRoot, target, skill, pluginRoot) {
+function targetDestination(targetRoot, target, skill, pluginRoot, trustStorePath) {
   const primary = path.join(targetRoot, skill.name);
   const existing = fs.lstatSync(primary, { throwIfNoEntry: false });
   if (!existing) return primary;
@@ -1755,15 +1804,16 @@ function targetDestination(targetRoot, target, skill, pluginRoot) {
     const resolved = path.resolve(path.dirname(primary), fs.readlinkSync(primary));
     if (isWithin(pluginRoot, resolved)) return primary;
   }
-  if (isManagedCopy(primary, target)) return primary;
+  if (isManagedCopy(primary, target, pluginRoot, trustStorePath)) return primary;
   return path.join(targetRoot, `prometheus-${skill.name}`);
 }
 
-function verifyTargets(home, pluginRoot, generationPath, generation, skills, targets = TARGETS) {
+function verifyTargets(home, pluginRoot, generationPath, generation, skills, targets = TARGETS,
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')) {
   for (const target of targets) {
-    const targetRoot = path.join(home, ...target.split('/'));
+    const targetRoot = targetRootFor(home, target);
     for (const skill of skills) {
-      const destination = targetDestination(targetRoot, target, skill, pluginRoot);
+      const destination = targetDestination(targetRoot, target, skill, pluginRoot, trustStorePath);
       if (targetIsCopy(target)) {
         const receipt = path.join(destination, '.prometheus-generation');
         const sourceSkill = path.join(generationPath, 'skills', skill.relative, 'SKILL.md');
@@ -1773,13 +1823,15 @@ function verifyTargets(home, pluginRoot, generationPath, generation, skills, tar
           JSON.parse(fs.readFileSync(path.join(destination, '_meta.json'), 'utf8')).platform ===
             'minimax';
         if (
+          !fs.lstatSync(destination, { throwIfNoEntry: false })?.isDirectory() ||
+          !fs.lstatSync(receipt, { throwIfNoEntry: false })?.isFile() ||
           !fs.existsSync(receipt) ||
           fs.readFileSync(receipt, 'utf8').trim() !== generation ||
           !fs.existsSync(targetSkill) ||
           !minimaxMetadataValid ||
           sha256(fs.readFileSync(sourceSkill)) !== sha256(fs.readFileSync(targetSkill))
         ) {
-          fail(`copy target validation failed: ${target}/${skill.name}`);
+          fail(`copy target validation failed: ${destination}`);
         }
       } else {
         const stat = fs.lstatSync(destination, { throwIfNoEntry: false });
@@ -2097,9 +2149,10 @@ function installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath
   verifyHookRuntime(pluginRoot, manifest, trustStorePath);
 }
 
-function uninstall(home, pluginRoot, targets = TARGETS, removePluginRoot = true) {
+function uninstall(home, pluginRoot, targets = TARGETS, removePluginRoot = true,
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')) {
   for (const target of targets) {
-    const targetRoot = path.join(home, ...target.split('/'));
+    const targetRoot = targetRootFor(home, target);
     if (!fs.existsSync(targetRoot)) continue;
     for (const name of fs.readdirSync(targetRoot)) {
       const destination = path.join(targetRoot, name);
@@ -2109,7 +2162,7 @@ function uninstall(home, pluginRoot, targets = TARGETS, removePluginRoot = true)
         isWithin(pluginRoot, path.resolve(targetRoot, fs.readlinkSync(destination)))
       ) {
         fs.unlinkSync(destination);
-      } else if (stat?.isDirectory() && isManagedCopy(destination, target)) {
+      } else if (stat?.isDirectory() && isManagedCopy(destination, target, pluginRoot, trustStorePath)) {
         fs.rmSync(destination, { recursive: true, force: true });
       }
     }
@@ -2126,7 +2179,8 @@ function verifyActive(
   pluginRoot,
   trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json'),
   contract = null,
-  targets = TARGETS
+  targets = TARGETS,
+  home = null
 ) {
   const target = currentTarget(pluginRoot, 'current');
   if (!target) fail('no active plugin generation');
@@ -2149,6 +2203,12 @@ function verifyActive(
   verifyStableDispatchers(pluginRoot, manifest);
   verifyHookRuntime(pluginRoot, manifest, trustStorePath);
   verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets);
+  // Receipts certify portable payload identity. The selected root's actual
+  // projection and per-copy ownership marker must agree as well.
+  if (home !== null) {
+    verifyTargets(home, pluginRoot, resolved, manifest.generation,
+      collectSkills(path.join(resolved, 'skills')), targets, trustStorePath);
+  }
   return manifest;
 }
 
@@ -2170,8 +2230,8 @@ function rollbackLocked(pluginRoot, home, trustStorePath, contract, targets) {
   assertMinimumActiveVersion(manifest.sourceVersion, contract, 'rollback generation');
   const skills = collectSkills(path.join(generationPath, 'skills'));
   validateBundleIndex(pluginRoot, generationPath, manifest, trustStorePath);
-  installTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets, manifest);
-  verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets);
+  installTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets, manifest, trustStorePath);
+  verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets, trustStorePath);
   assertNoCollisions(false);
   installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath);
   setActivationPointer(pluginRoot, 'current', previous, previous);
@@ -2461,7 +2521,8 @@ function install(args) {
         generation,
         skills,
         selectedTargets,
-        manifest
+        manifest,
+        args.trustStore
       );
       verifyTargets(
         args.home,
@@ -2469,7 +2530,8 @@ function install(args) {
         generationPath,
         generation,
         skills,
-        selectedTargets
+        selectedTargets,
+        args.trustStore
       );
       assertNoCollisions(Boolean(args.allowFallback));
       writeTargetReceipts(args.pluginRoot, manifest, signingIdentity, selectedTargets);
@@ -2485,7 +2547,7 @@ function install(args) {
         );
       }
       createStableDispatchers(args.pluginRoot);
-      verifyActive(args.pluginRoot, args.trustStore, contract, selectedTargets);
+      verifyActive(args.pluginRoot, args.trustStore, contract, selectedTargets, args.home);
       return generation;
     });
   } catch (error) {
@@ -2495,13 +2557,16 @@ function install(args) {
 }
 
 function copyTargetReferencesGeneration(home, generation) {
-  for (const target of COPY_TARGETS) {
-    const targetRoot = path.join(home, ...target.split('/'));
+  for (const target of TARGETS.filter(targetIsCopy)) {
+    const targetRoot = targetRootFor(home, target);
     if (!fs.existsSync(targetRoot)) continue;
     for (const name of fs.readdirSync(targetRoot)) {
-      const marker = path.join(targetRoot, name, '.prometheus-generation');
-      if (fs.existsSync(marker) && fs.readFileSync(marker, 'utf8').trim() === generation) {
-        return `${target}/${name}`;
+      const destination = path.join(targetRoot, name);
+      const marker = path.join(destination, '.prometheus-generation');
+      if (fs.lstatSync(destination, { throwIfNoEntry: false })?.isDirectory() &&
+          fs.lstatSync(marker, { throwIfNoEntry: false })?.isFile() &&
+          fs.readFileSync(marker, 'utf8').trim() === generation) {
+        return destination;
       }
     }
   }
@@ -2681,6 +2746,8 @@ if (import.meta.main !== false) main();
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
+  process.env.HOME = args.home;
+  process.env.CODEX_HOME = args.codexHome;
   assertSafeRoot(args.pluginRoot, args.home);
   try {
     // Probe before anything else touches the store. The probe runs in the
@@ -2704,7 +2771,8 @@ function main() {
         args.pluginRoot,
         args.trustStore,
         contract,
-        selectedTargets
+        selectedTargets,
+        args.home
       ).generation;
     else if (args.rollback)
       generation = rollback(args.pluginRoot, args.home, args.trustStore, contract, selectedTargets);
@@ -2713,7 +2781,8 @@ function main() {
         args.home,
         args.pluginRoot,
         selectedTargets,
-        selectedTargets.length === TARGETS.length
+        selectedTargets.length === TARGETS.length,
+        args.trustStore
       );
     } else if (args.pruneObsolete)
       generation = JSON.stringify(pruneObsoleteGenerations(args, contract));

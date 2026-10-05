@@ -1,56 +1,25 @@
-# Scheduled Jobs
+# Scheduled maintenance templates
 
-Prometheus scheduled maintenance jobs. Each job has a macOS launchd plist and a Linux cron snippet.
+These templates describe optional full-pack maintenance jobs. They do not start
+services when read or copied into a skill distribution.
 
-## Jobs
+| Template family | Default schedule | Entry point |
+|---|---|---|
+| `ai.prometheus.mem0-compress.plist`, `mem0-compress.cron` | Sunday at 03:00 | `shared/scripts/mem0-compress.sh` |
+| `ai.prometheus.pk-lint.plist`, `pk-lint.cron` | Saturday at 03:00 | `shared/scripts/pk-lint.sh` |
 
-| Script | Schedule | Purpose |
-|--------|----------|---------|
-| `mem0-compress.sh` | Weekly, Sunday 03:00 | Compress surreal-memory memories for `prometheus-skill-pack` scope |
-| `pk-lint.sh` | Weekly, Saturday 03:00 | Run `pk lint --fix` on all skills |
+Both launchd and cron templates require explicit installation, a retained source
+or payload root, writable log destinations and the tools used by their entry
+point. Replace template placeholders with your selected paths before enabling a
+job. Do not assume an installation at a particular user's home or that a skill
+copy has installed the resident memory/knowledge services.
 
-## macOS installation (launchd)
+These maintenance jobs are separate from the managed user-service profile.
+The full pack's native memory service is not described as Docker-owned by these
+templates. Read [installation](../../../docs/guide/19-installation.md) and
+[deployment modes](../../../docs/deployment-modes.md) for the selected service
+path. Companion is a separately installed optional extension.
 
-For always-on local MCP services on macOS, prefer the repo-level service manager:
-
-```bash
-bash scripts/prometheus-services.sh install
-bash scripts/prometheus-services.sh load
-bash scripts/prometheus-services.sh status
-```
-
-It installs user LaunchAgents for the logged-in user and keeps `pk-cherry`
-(`:8942`) and `forge mcp` (`:8943`) running. `surreal-memory-server` stays
-Docker-managed on `:23001`.
-
-The scheduled maintenance jobs below are separate periodic jobs.
-
-```bash
-# Substitute actual paths
-REPO=$(git -C ~/.claude/skills rev-parse --show-toplevel 2>/dev/null || echo "$HOME/.claude/plugins/prometheus-skill-pack")
-LOG_DIR="$HOME/.prometheus"
-mkdir -p "$LOG_DIR"
-
-# Edit the plist, replace PROMETHEUS_SKILL_PACK_ROOT and PROMETHEUS_LOG_DIR
-sed -e "s|PROMETHEUS_SKILL_PACK_ROOT|${REPO}|g" \
-    -e "s|PROMETHEUS_LOG_DIR|${LOG_DIR}|g" \
-    ai.prometheus.mem0-compress.plist \
-    > ~/Library/LaunchAgents/ai.prometheus.mem0-compress.plist
-
-launchctl load ~/Library/LaunchAgents/ai.prometheus.mem0-compress.plist
-```
-
-## Linux installation (cron)
-
-```bash
-REPO=<path-to-prometheus-skill-pack>
-(crontab -l 2>/dev/null; echo "0 3 * * 0 ${REPO}/shared/scripts/mem0-compress.sh >> ~/.prometheus/mem0-compress-cron.log 2>&1") | crontab -
-(crontab -l 2>/dev/null; echo "0 3 * * 6 ${REPO}/shared/scripts/pk-lint.sh >> ~/.prometheus/pk-lint-cron.log 2>&1") | crontab -
-```
-
-## Manual run
-
-```bash
-bash shared/scripts/mem0-compress.sh
-bash shared/scripts/pk-lint.sh
-```
+After a completed production phase, validate scheduled behavior locally with
+disposable learning, knowledge, home and log roots before enabling a real job.
+Retain recovery receipts and inspect any cleanup or `--fix` behavior first.

@@ -1111,6 +1111,40 @@ installers reject an omitted policy or a missing/empty required tree, while an
 absent install-only tree is valid. This prevents a deleted harness mirror from
 being mistaken for an intentionally unmaterialized destination.
 
+### Codex memory startup policy
+
+For codex-cli 0.158.0 (release commit `064c6b8c737f5b41d171fdda80bd9ef10ad06eb3`),
+the startup pipeline checks `features.memories`, ephemeral mode and root-session
+eligibility. `memories.generate_memories=false` controls eligibility for newly
+created threads; `memories.use_memories=false` controls memory usage instructions.
+Neither alone stops root-session consolidation of retained extraction outputs.
+The persisted installer policy sets all three flags to false. The exact source
+mechanism and limits are documented in
+[`docs/codex-plugin.md`](docs/codex-plugin.md#codex-memory-policy-and-startup-consolidation).
+
+The real installer dispatch calls `codex-memories-config.sh --create`, including
+missing config; it validates TOML before replacement and preserves unrelated
+content. `--check` is read-only. Apply archives only the known v1
+`memories/memory_summary.md` and v2 `memories_v2/memory_summary.md`, keeping
+version-distinguishable collision-safe archives. Other memory files and database
+state remain intact. Doctor requires three false settings and both summaries
+absent; it does not establish effective profile/CLI overrides, job quiescence or
+desktop-engine behavior. A real machine application and session restart/drain
+remain owner-approved operations, separate from source implementation and scratch
+acceptance. Exported agents' generation flag alone is not this startup policy.
+
+Codex installer lifecycle paths select nonempty inherited `CODEX_HOME` before the
+selected `--home`/`HOME` fallback `.codex`; empty is unset. They normalize and
+propagate that absolute root through plugin inspection, memory policy, MCP,
+copy-based skill installation, verification, rollback, uninstall and generation
+reference accounting. `--home` changes the fallback and other platform homes,
+never an explicit Codex root. Store receipts retain portable logical target
+identity; actual selected-root copies and generation markers are checked
+separately. Uninstall preserves unknown or unverified ownership markers and
+unowned entries. Doctor checks this root and emits it in verified repair hints.
+Scratch acceptance must explicitly set all three of `HOME`, `CODEX_HOME` and
+`PROMETHEUS_PLUGIN_ROOT`; inherited real Codex state must remain untouched.
+
 ### Codex does not follow symlinked skill directories
 
 `install-skills-flat.sh` symlinks skills into every platform's skill dir. **Codex silently

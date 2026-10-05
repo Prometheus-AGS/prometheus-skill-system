@@ -1,8 +1,8 @@
 # 12a · The Skill Creator (`pmpo-skill-creator`)
 
 The sibling of the [agent creator](12-native-agent-generator.md). Where that one produces a
-*service*, this one produces a **skill** — a portable, spec-compliant capability that any
-agentskills.io-compatible harness can load.
+*service*, this one produces a **skill** — a portable skill package for compatible harnesses. Distribution and runtime
+activation still require the selected target's actual delivery path.
 
 ## Why not just write a SKILL.md by hand
 
@@ -23,9 +23,10 @@ The creator earns its keep when the skill needs to be more than prose:
   re-validate, up to 3 iterations, with a weighted quality score gating the exit.
 
 That last point is the real difference. A one-shot generator hands you a plausible skill.
-This runs a loop that keeps failing itself until the artifact passes.
+The procedure records iterations and findings. Its structural helper does not
+prove instruction quality, harness activation or production-path acceptance.
 
-## The four entry points
+## Entry points
 
 ```
 /create-skill                          # from scratch
@@ -109,7 +110,8 @@ check groups:
   ✅ SKILL VALID
 ```
 
-Repo-level validation is stricter and is what gates a skill entering this pack:
+At the completed-phase boundary, repository validation supplies stricter structural
+checks; production-path integration and protected BDD approval remain separate:
 
 ```bash
 npm run validate           # all native skills, 0 errors required
@@ -167,9 +169,10 @@ Clone and extend take a source:
 Clone enforces source fidelity — *file maps must account for 100% of source files*, and
 extend is constrained to *never delete, never rename existing files*.
 
-## Self-test
+## Structural inspection at the final boundary
 
-The creator ships a runnable self-check worth stealing for your own skills:
+After all phase production is complete, the following structural inspections can
+support diagnosis. They are not full-integration acceptance evidence:
 
 ```bash
 # Every schema parses

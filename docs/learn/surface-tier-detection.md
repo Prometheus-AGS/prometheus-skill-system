@@ -15,7 +15,7 @@
 | 2 | `tier2_mcp_app` | MCP App iframe or AG-UI → A2UI spec serving | Claude Code + surface-bridge service |
 | 3 | `tier3_full` | Full external browser/desktop panel | Explicit opt-in only |
 
-**Rule:** every skill declares `min_tier: 0` and `preferred_tier: 1`. The probe returns the highest tier reliably available in the current session. Skills silently fall to the highest available tier.
+**Rule:** every skill declares `min_tier: 0` and `preferred_tier: 1`. The probe maps environment signals and a PID check to a tier hint. It does not inspect the session tool list or prove actual rendering. Skills silently fall to the highest available tier.
 
 ---
 
@@ -38,11 +38,11 @@
 - `$KIMI_CODE` or `$KIMI_CODE_VERSION` set → `tier1_structured` (file pair convention)
 
 ### Zed
-- `$ZED_AI_CONTEXT` set → `tier0_text` (Zed has no file-pair or AskUserQuestion convention)
-- Note: Zed AI context is text-only; structured prompt delivery not yet standardized
+- `$ZED_AI_CONTEXT` set → `tier1_structured` (the portable file-pair convention)
+- The source supports a file-pair handshake; actual native rendering or operator response is a separate boundary.
 
 ### Cursor
-- `$CURSOR_AI` set → `tier0_text` (similar to Zed; cursor rules are static markdown)
+- `$CURSOR_AI` set → `tier1_structured` (the portable file-pair convention)
 
 ### Unknown / fallback
 - None of the above signals present → `tier0_text`

@@ -3,21 +3,13 @@
 Reference component for `prometheus:component@0.1.0` — the first real skill
 built against the unified world (`change-msp-006`).
 
-## Status: deterministic fixture, Tier W execution pending
+## Evidence boundary
 
-| Claim | Status |
-|---|---|
-| builds with `cargo component` | **yes** |
-| `wasm-tools validate --features component-model` | **passes** |
-| exports `run` and `describe` from the `skill` world | **yes** |
-| sits where UAR discovery looks (`skill.wasm` beside `SKILL.md`) | **yes** |
-| executed by the UAR host | **yes** (`change-uhe-015`) |
-| executed by `prometheus-exec` Tier W | **pending** (`change-exec-003`) |
-
-UAR's host has instantiated this component and asserted its returned guest
-value. That evidence does not certify a different runtime: `prometheus-exec`
-must independently execute the checked bytes and produce a signed receipt
-before Tier W is described as working.
+This directory supplies source for the checked component. UAR and Prometheus Exec
+are distinct hosts: successful instantiation in one does not certify the other.
+The selected signed generation or exact component pin determines the bytes
+allowed by Tier W. Refer to [the execution evidence page](../../../../../site/docs/execution/platform-and-evidence-status.md)
+for dated host results and open limits; no new runtime result is asserted here.
 
 ## What it ports, and what changed
 
@@ -36,7 +28,7 @@ JSON. Two deliberate differences:
 
 The shell script **stays**. This does not replace it.
 
-## Rebuild
+## Rebuild after the complete production phase
 
 ```bash
 bash build.sh

@@ -612,8 +612,12 @@ def recall_gaps(project_id: str, query: str) -> list[dict]:
 def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | None = None, main_thread: bool = False,
            query: str = "", budget: int = DEFAULT_BUDGET, agent_type: str = "", memory_url: str | None = None,
            use_pk: bool = True, pk_budget: int | None = None, log: bool = True,
-           extra_channels: dict | None = None) -> dict:
-    """Recall lessons (and pk knowledge) for one agent. Never raises on store failure."""
+           extra_channels: dict | None = None, digest_only: bool = False) -> dict:
+    """Recall lessons for one agent, or only local digest metadata for a forked parent.
+
+    Digest-only retrieval never reads lesson stores: filtering after merging is
+    too late, because full lessons can replace their same-hash digest entries.
+    """
     cwd = (cwd or Path.cwd()).resolve()
     identity = resolve_identity(payload or {}, cwd, [])
     view = build_view(identity, cwd, role, main_thread)
@@ -621,25 +625,29 @@ def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | 
     deadline = time.monotonic() + OVERALL_DEADLINE_SECONDS
     base = (memory_url or os.environ.get("SURREAL_MEMORY_URL") or os.environ.get("PROMETHEUS_MEMORY_URL") or DEFAULT_MEMORY_URL).rstrip("/")
     base = re.sub(r"^(https?://[^/]+).*$", r"\1", base)
-    lesson_budget = max(0, budget if pk_budget is None else budget - pk_budget)
-    if (memory_url or "").strip().lower() == "none":  # caller already knows the store is down
-        candidates, reachable = [], False
+    lesson_budget = max(0, budget if digest_only or pk_budget is None else budget - pk_budget)
+    if digest_only:
+        candidates = digest_candidates(view, now)
+        source, reachable = "digest", None  # store reachability was not queried
     else:
-        candidates, reachable = surreal_candidates(base, view, query, now, deadline)
-    source = "surreal-memory"
-    if not reachable:
-        candidates, ran = (pk_candidates(view, query, cwd, now, lesson_budget, True) if use_pk else ([], False))
-        source = "pk"
-        if not ran or not candidates:
-            candidates, source = file_candidates(view, query, now), "file"
-    candidates = candidates + digest_candidates(view, now)
+        if (memory_url or "").strip().lower() == "none":  # caller already knows the store is down
+            candidates, reachable = [], False
+        else:
+            candidates, reachable = surreal_candidates(base, view, query, now, deadline)
+        source = "surreal-memory"
+        if not reachable:
+            candidates, ran = (pk_candidates(view, query, cwd, now, lesson_budget, True) if use_pk else ([], False))
+            source = "pk"
+            if not ran or not candidates:
+                candidates, source = file_candidates(view, query, now), "file"
+        candidates = candidates + digest_candidates(view, now)
     seen: set[str] = set()
     lessons = merge(candidates, lesson_budget, seen)
     knowledge: list[dict] = []
-    if use_pk and pk_budget:
+    if not digest_only and use_pk and pk_budget:
         pk_found, _ = pk_candidates(view, query, cwd, now, pk_budget, False)
         knowledge = merge(pk_found, pk_budget, seen)
-    gaps = [] if (lessons or knowledge) else recall_gaps(view["projectId"], query)
+    gaps = [] if (digest_only or lessons or knowledge) else recall_gaps(view["projectId"], query)
     bytes_by_channel: dict[str, int] = {}
     for entry in lessons + knowledge:
         bytes_by_channel[entry["channel"]] = bytes_by_channel.get(entry["channel"], 0) + len(entry["rendered"].encode("utf-8")) + 1

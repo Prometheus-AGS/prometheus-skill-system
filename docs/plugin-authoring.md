@@ -7,7 +7,7 @@ that decides whether your skill is ever selected — see
 
 ## Two source forms
 
-### 1. Local path (the 11 first-party plugins)
+### 1. Local path (first-party plugins)
 
 ```json
 {
@@ -69,7 +69,7 @@ npm run validate:plugins
 Required: `name` (lowercase kebab-case), `description`, `version` (semver).
 
 The schema is **descriptive, not aspirational** — it was written by running it
-against all 27 manifests in the tree and widening it until every genuinely
+against the manifest forms in the selected source tree and widening it until every genuinely
 working form passed. So several fields accept more than one shape:
 
 | Field | Accepted forms |
@@ -94,13 +94,12 @@ for a genuinely non-default location. See `CLAUDE.md` → *Canonical hooks path*
 
 ## Versioning
 
-Plugin versions in this repo have drifted from the pack version — the pack is at
-`1.7.0` while several plugins remain at `1.5.x`. There is no cascade: bumping the
-pack does not bump its plugins. When releasing, bump `package.json`,
-`.claude-plugin/plugin.json` entries, `site/package.json`, and each plugin's own
-`plugin.json` together, per the publishing checklist in `CLAUDE.md`.
+Pack, plugin slices and component releases have independent identities. Read the approved release matrix and current manifests for the selected versions. Change only the releases authorized by the owner; a package bump does not authorize a cascade through all plugins or component pins.
 
 ## Before you publish
+
+Finish every planned production change in the phase before generation, checks or review. The commands below describe final local structural gates; they do not by themselves prove installed invocation or authorize publishing.
+
 
 ```bash
 npm run validate:plugins       # manifest shape

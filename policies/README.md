@@ -23,13 +23,17 @@ at the Skill Mutation PEP (Policy Enforcement Point).
 | Environment   | Behavior                                                                                              |
 | ------------- | ----------------------------------------------------------------------------------------------------- |
 | `development` | All operations permitted                                                                              |
-| `staging`     | Mutations require `validation_passed`; promotions require `human_approved` + `test_pass_rate >= 0.95` |
+| `staging`     | Mutations require `validation_passed`; promotions require `human_approved` + `test_pass_rate >= 95` + `adversarial_review_passed` |
 | `production`  | All mutations forbidden by default                                                                    |
 
 ## Regulated Verticals
 
 Additional `forbid` policies for healthcare (require `audit_trail_id`) and
 financial (require `dual_approval`) contexts.
+
+These policies apply when the Skill Mutation PEP evaluates a request. They do not
+install a pre-tool mutation guard or restrict the harness's ordinary Bash, Python,
+Edit or Write tools. Policy syntax is not proof of a governed runtime invocation.
 
 ## Customization
 

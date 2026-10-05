@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -9,6 +8,14 @@ import { fileURLToPath } from 'node:url';
 
 import { canonicalBytes } from './lib/canonical-bytes.js';
 import { collectDistributionSkills, readSkillSystem } from './lib/skill-system.js';
+import {
+  assertMaterializedOwnership,
+  assertNoOwnedGitlinks,
+  generatedPaths,
+  gitlinkPaths,
+  normalizeGeneratedPaths,
+  observeMaterialization,
+} from './generated-paths.mjs';
 
 const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
@@ -17,12 +24,12 @@ const contract = readSkillSystem(sourceRoot);
 // The paths this generator owns, as repo-relative paths; directories end in '/'.
 // scripts/generated-paths.mjs asks for them with --list-outputs, so the set of
 // generated paths is derived from this emitter instead of being listed twice.
-const outputPaths = [
+const outputPaths = normalizeGeneratedPaths([
   [contract.outputs.claudePackage, true],
   [contract.outputs.codexPackage, true],
   [contract.outputs.claudeMarketplace, false],
   [contract.outputs.codexMarketplace, false],
-].map(([output, directory]) => (directory ? `${output.replace(/\/+$/, '')}/` : output));
+].map(([output, directory]) => (directory ? `${output.replace(/\/+$/, '')}/` : output)));
 
 if (process.argv.includes('--list-outputs')) {
   process.stdout.write(`${outputPaths.join('\n')}\n`);
@@ -342,27 +349,17 @@ function collect(root, relative = '') {
   return entries;
 }
 
-// check:distribution shares the authoritative generated-path set with
-// scripts/rebase-regenerate.sh (scripts/generated-paths.mjs). Fail if the set
-// the checker verifies and the set the helper would resolve ever diverge.
-function assertSharedGeneratedPaths() {
-  const result = spawnSync(
-    process.execPath,
-    [path.join(sourceRoot, 'scripts/generated-paths.mjs')],
-    { encoding: 'utf8' }
-  );
-  if (result.status !== 0)
-    throw new Error(`scripts/generated-paths.mjs failed: ${result.stderr || result.status}`);
-  const shared = new Set(result.stdout.split('\n').filter(Boolean));
-  for (const output of outputPaths)
-    if (!shared.has(output)) throw new Error(`generated-paths.mjs omits checked output: ${output}`);
-}
-
 const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'prometheus-distribution.'));
 try {
-  materialize(temporary);
+  // The root list is policy only. Observe the actual mutation destinations and
+  // walk the entire staged tree before publishing or checking it. This catches
+  // undeclared writes even when the declared outputs themselves are current.
+  const consumerDeclarations = generatedPaths();
+  const gitlinks = gitlinkPaths(sourceRoot);
+  assertNoOwnedGitlinks(consumerDeclarations, gitlinks);
+  const operations = observeMaterialization(temporary, outputPaths, () => materialize(temporary));
+  assertMaterializedOwnership(temporary, outputPaths, operations, consumerDeclarations, gitlinks);
   if (check) {
-    assertSharedGeneratedPaths();
     for (const output of outputPaths.map(entry => entry.replace(/\/$/, ''))) {
       const expected = fs.lstatSync(path.join(temporary, output)).isDirectory()
         ? collect(path.join(temporary, output))

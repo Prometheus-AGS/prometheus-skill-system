@@ -1,0 +1,118 @@
+{
+  "commandId": "real-signed-phase",
+  "committedRevision": 3,
+  "duplicate": false,
+  "projectionError": null,
+  "state": {
+    "activePath": {
+      "changeId": null,
+      "phaseId": null,
+      "phasePath": [],
+      "stageId": null,
+      "taskId": null
+    },
+    "blockers": {},
+    "checkpoint": null,
+    "claims": {},
+    "commandRevisions": {
+      "0e6b248d-0c69-434a-83b0-43e58a1342ee": 1,
+      "enroll-b": 2,
+      "real-signed-phase": 3
+    },
+    "completion": {
+      "certification": {
+        "blockers": [],
+        "completed": 0,
+        "status": "pending",
+        "summary": null,
+        "total": 0
+      },
+      "evidence": {
+        "blockers": [],
+        "completed": 0,
+        "status": "pending",
+        "summary": null,
+        "total": 0
+      },
+      "implementation": {
+        "blockers": [],
+        "completed": 0,
+        "status": "pending",
+        "summary": null,
+        "total": 0
+      },
+      "publication": {
+        "blockers": [],
+        "completed": 0,
+        "status": "pending",
+        "summary": null,
+        "total": 0
+      }
+    },
+    "conflicts": {},
+    "decisions": {},
+    "devices": {
+      "ed25519:13dce7352caf6fd4a15bb12743fc579ead2890ab70de7aff3d36118f716b96cd": {
+        "deviceId": "b",
+        "enrolledAtRevision": 2,
+        "keyId": "ed25519:13dce7352caf6fd4a15bb12743fc579ead2890ab70de7aff3d36118f716b96cd",
+        "publicKey": "6LwaO8KF485B+m3ScrG5vYY1vCV5NBdm91hGl7HEWtI=",
+        "revokedAtRevision": null,
+        "status": "active"
+      },
+      "ed25519:7eaffa7dcdfd58d8fe4ea2cf2d08afe216509dd20eeadfdfef48553a45ff657e": {
+        "deviceId": "a",
+        "enrolledAtRevision": 1,
+        "keyId": "ed25519:7eaffa7dcdfd58d8fe4ea2cf2d08afe216509dd20eeadfdfef48553a45ff657e",
+        "publicKey": "09o9uyl1/bGToeB5RamzqdvcgRo0f4j/Bj/aFZo5ELc=",
+        "revokedAtRevision": null,
+        "status": "active"
+      }
+    },
+    "exactNextWork": null,
+    "frontier": {
+      "4de4f57f-ced9-4d54-a90a-164b137bb5c8": 3
+    },
+    "lastEventAt": "2026-10-05T22:19:42.732157Z",
+    "lastEventHash": "936382618d406861e12b78c43b06c5211dc3743e8d9e96f0ed9dc4303577058f",
+    "lastEventId": "b8838793-94e8-4548-87d6-b0bd8a7a7304",
+    "lifecycle": "ready",
+    "operatorKeyIds": [
+      "ed25519:7eaffa7dcdfd58d8fe4ea2cf2d08afe216509dd20eeadfdfef48553a45ff657e"
+    ],
+    "phaseDefinitionOrder": [
+      "remote-application"
+    ],
+    "phases": {
+      "remote-application": {
+        "changes": {},
+        "id": "remote-application",
+        "legacyReadOnly": false,
+        "parentPhaseId": null,
+        "slug": "remote-application",
+        "stages": {},
+        "status": "pending",
+        "title": "Real signed remote application"
+      }
+    },
+    "planRevision": 1,
+    "projectId": "4377b624-1bca-4897-96b3-53d4b60f134a",
+    "replicaHeads": {
+      "4de4f57f-ced9-4d54-a90a-164b137bb5c8": {
+        "eventId": "b8838793-94e8-4548-87d6-b0bd8a7a7304",
+        "integrityHash": "936382618d406861e12b78c43b06c5211dc3743e8d9e96f0ed9dc4303577058f",
+        "lamport": 3
+      }
+    },
+    "replicaView": {
+      "activePathStatus": "unknown",
+      "localHead": null,
+      "replicaId": "4de4f57f-ced9-4d54-a90a-164b137bb5c8",
+      "submodules": {}
+    },
+    "revision": 3,
+    "runId": "ldd-connected",
+    "schemaVersion": "2",
+    "submodulePins": {}
+  }
+}

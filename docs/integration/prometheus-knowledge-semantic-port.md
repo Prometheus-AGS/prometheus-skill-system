@@ -1,3 +1,5 @@
+> **Historical source-port report; outside current onboarding.** The port decisions and commit dispositions below are evidence of their recorded source reconciliation. They do not prove current build, installed worker or semantic retrieval acceptance. Use [the current guide](../guide/00-quick-start.md).
+
 # Prometheus Knowledge Semantic-Port Table
 
 Run: `20260823T175006Z`

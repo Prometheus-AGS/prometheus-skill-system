@@ -1,3 +1,5 @@
+> **Historical design comparison; outside current onboarding.** This comparison records critique of UI prototypes. Design judgments and simulated integrations are not current service or device acceptance. Use [the current guide](../guide/00-quick-start.md).
+
 # Fable 5 UI Analysis — What It Did Better
 
 **Date:** 2026-07-04  

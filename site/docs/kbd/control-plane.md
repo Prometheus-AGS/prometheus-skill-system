@@ -23,7 +23,7 @@ flowchart LR
     L --> S["Deterministic KbdStateV2 fold"]
     S --> P["Atomic compatibility projections"]
     P --> F["progress.json / waypoint / position"]
-    L -. "explicit --sharing only" .-> SS["Sovereign Sync sidecar"]
+    L -. "optional extension contract" .-> SS["Companion connected control"]
 ```
 
 The per-project Loro document is authoritative. Replica journals are durable
@@ -36,11 +36,7 @@ readers and older skills, but a direct file edit cannot:
 - enroll a device;
 - satisfy an expected-revision check.
 
-Plain setup and ordinary `--full` setup keep all current and legacy
-Sovereign Sync service identities stopped and disabled. Use `--full --sharing`
-only when another enrolled machine must receive the local journal. A stopped
-sidecar therefore cannot block local status, typed mutations, boundaries,
-memory recall, or certification.
+Local KBD does not require a running sidecar. The pack does not build or install Companion. Connected replication uses its separate package and the [integration contract](./integration-contract); endpoint discovery or absence does not change local workflow ownership.
 
 ## Immutable project identity
 
@@ -142,7 +138,7 @@ lock covers read, fold, identity/idempotency/frontier validation, event
 preparation, append, and journal fsync; the Loro snapshot is fsynced before the
 write is acknowledged.
 
-REST mutation bodies wrap this inner command as
+The optional connected REST contract wraps this inner command as
 `{"command":{…},"signerKeyId":"ed25519:…","signature":"…"}`. The server
 accepts only schema-v2 commands signed by an active enrolled device. The CLI
 and MCP adapters sign through the runtime device identity rather than exposing

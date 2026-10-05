@@ -6,8 +6,9 @@ sidebar_label: Mastery Criterion
 
 # Mastery Criterion
 
-Mastery is an objective measurement, not a feeling. Prometheus uses a 3-condition
-gate that must all be satisfied before a concept is considered mastered.
+The learning procedure requires three evidence conditions before recording mastery.
+Scores depend on the corpus, grader and verification method; they are not an
+independent measurement merely because a number was recorded.
 
 ## The 3 conditions
 
@@ -52,12 +53,9 @@ mastery_new = mastery_old + 0.3 × (score - mastery_old)
 
 Applied at ≥ 5 observations per concept.
 
-## Sycophancy protection
+## Evidence limits
 
-`learn-grade` is on the critical path of the anti-sycophancy gate:
-
-1. Draft grade is produced
-2. Grade routes through sycophancy-correction S-02 check
-3. A grade claiming "no gaps" when gaps exist is **rewritten before delivery**
-
-This is enforced architecturally, not as optional guidance.
+The skill procedure requires sycophancy screening with the available checker or
+its manual fallback. Persistence alone does not enforce that instruction or
+establish a distinct grader. Retain the corpus, grader identity, timestamps and
+transfer verification. See [Anti-Sycophancy](/docs/learn/anti-sycophancy).

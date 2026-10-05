@@ -1,81 +1,39 @@
 # 20 · Updating
 
-An upgrade moves three independently certified repositories plus installed host state. Preserve recovery records and validate locally before pushing any branch.
+Update independently versioned components from approved source commits and preserve recovery records. No umbrella version implies that memory, knowledge, execution and Companion binaries share a version or acceptance state.
 
 ## Safe sequence
 
-1. Record server, knowledge, and root commits plus active/previous plugin generations.
-2. Preserve terminal receipts, operation events, queue records, immutable snapshots, and owner-only logs.
-3. Update and certify the Memory server.
-4. Update and certify knowledge tools and the learning worker.
-5. Update root gitlinks, CLI, Docusaurus, and release metadata.
-6. Build and test all workspaces using internal-SSD Cargo directories.
-7. Generate the excluded doctor/refresh plan; inspect it before any repair.
-8. Install/sign binaries, activate the plugin generation, and reload only allowed services.
-9. Run the full local health and certification matrix.
-10. Push in dependency order. All validation remains local; hosted automation is not release evidence.
+1. Record approved source/gitlink identities, installed artifacts, selected homes and active/previous plugin generation receipts.
+2. Preserve database, knowledge, signed KBD state, private identities, learner store and pending queues with relevant writers stopped.
+3. Complete all production changes, then run the required consolidated local integration gate in isolated state.
+4. Install approved binaries and activate the verified generation. Apply only selected platform service definitions.
+5. Exercise actual installed paths, archive functional evidence and disposition every failure.
+6. Push locally certified source for owner review/merge. Documentation publication must identify that same source.
 
-```mermaid
-flowchart LR
-  Old["Certified active state"] --> Server["Server release"]
-  Server --> Knowledge["Knowledge/worker release"]
-  Knowledge --> Root["Root + docs + gitlinks"]
-  Root --> Local["Local Mac certification"]
-  Local --> PRs["Three release PRs"]
-  PRs --> Pages["Pages deployment smoke"]
-  Old -. preserved rollback .-> Local
-```
+Do not advance a gitlink by guessing a newer upstream commit, rewrite release evidence or erase uncertain queue records to obtain a green status. Protected version/tag changes need owner approval.
 
-## Submodule pins
+## Plugin lifecycle
 
-Do not advance a root gitlink until its dependency commit passes its local gates. After dependency PRs merge, update root gitlinks to the resulting `main` commits and rerun the root/docs certification. Never rewrite published recovery history.
-
-## Plugin upgrade and rollback
+From the matching source checkout:
 
 ```bash
-git pull --ff-only
 ./install.sh --profile skills --targets detected --non-interactive --yes
 ./install.sh --verify --targets detected --non-interactive
-```
-
-Activation keeps `previous`. If installed-host certification fails:
-
-```bash
 node scripts/install-plugin-generation.js --rollback
 node scripts/install-plugin-generation.js --verify
 ```
 
-Do not patch an active generation or a copied target by hand.
+Rollback uses the preserved previous complete generation and restores owned projections. Keep the same effective `CODEX_HOME` or selected home throughout; a successful logical store receipt alone does not verify a custom projection. Minimum-active versions are read from `skill-system.json`. Historical migration scripts target their named legacy layout and are not the normal update path.
 
-The umbrella generation, enabled Claude/Codex umbrella plugins, and target
-receipts must never select a release below `1.8.0`. The historical one-time
-1.7 migration remains available for machines upgrading from older layouts. For that
-migration use `scripts/migrate-skill-system-1.7.0.sh`: it performs a clean
-checkout activation, supported native refresh, rollback-on-refresh-failure,
-Claude prune, receipt-aware generation prune, and writes a migration receipt
-under `~/.prometheus/migrations/`. Unsigned or referenced legacy generations
-are refused rather than deleted.
-
-## Service refresh
+## Services and recovery
 
 ```bash
-bash scripts/install-mcp-services.sh --dry-run --restart --exclude sovereign-sync
-bash scripts/install-mcp-services.sh --restart --exclude sovereign-sync
-bash scripts/check-mcp-health.sh --json --exclude sovereign-sync
+bash scripts/install-mcp-services.sh --dry-run --restart
 ```
 
-On macOS, a complete bootout/bootstrap cycle is required when a LaunchAgent definition changes; kickstart alone does not reload its environment.
+Inspect the actual service selection before applying `--restart`. Native service installation requires Bash 4+. A macOS LaunchAgent definition change needs bootout/bootstrap; restarting an already loaded job alone retains the old definition. Follow [Services, ownership and recovery](26-service-operations.md) and [Installation and upgrades](/docs/operations/installation-and-upgrades).
 
-## Documentation and release gates
+A restore must preserve project/device identity, operation receipts and compatible database/model schemas. Reconcile uncertain remote writes before another publication. Companion is separately installed and upgraded; its absence is normal.
 
-```bash
-npm run docs:check
-```
-
-The gate validates public safety, OpenAPI examples, semantic drift, internal links and sidebars, deterministic generated artifacts, and a production Docusaurus build with broken links treated as errors.
-
-See [Installation and upgrades](/docs/operations/installation-and-upgrades) for the canonical runbook.
-
----
-
-*Previous: [← 19 · Installation](19-installation.md) · Next: [21 · Contributing →](21-contributing.md)*
+Previous: [Installation](19-installation.md) · Next: [Contributing](21-contributing.md).

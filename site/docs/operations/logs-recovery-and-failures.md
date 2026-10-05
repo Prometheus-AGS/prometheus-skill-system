@@ -5,7 +5,9 @@ description: Owner-only logs, rotation, rollback, and evidence-preserving recove
 
 # Logs, recovery, and common failures
 
-Hook and worker logs contain operational metadata and must remain owner-only. The managed log-rotation definition and rendered configuration are part of doctor evidence. Certification proves the service definition is installed, loaded, rotates the configured file, and preserves mode `0600`.
+Hook and worker logs contain operational metadata and must remain owner-only. The managed log-rotation definition and rendered configuration are part of doctor evidence. Installed certification must demonstrate that the service definition is installed
+and loaded, rotates the configured file, and preserves mode `0600`; source presence
+or a prior host's result cannot establish that for the current machine.
 
 ## Recovery order
 

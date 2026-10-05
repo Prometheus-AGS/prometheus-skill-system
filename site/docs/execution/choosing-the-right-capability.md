@@ -101,7 +101,7 @@ To offer the same business behavior in both systems, build two adapters around s
 ## Common combinations
 
 - **Skill + Tier P:** the skill explains a domain transformation; generated Python performs one evidenced run.
-- **Forge + Tier W:** Forge scaffolds a Rust component; Cargo builds it; plugin distribution authorizes it; Tier W executes it.
+- **Rust component + Tier W:** a component adapter wraps domain logic; Cargo builds it; plugin distribution authorizes it; Tier W executes it.
 - **Native agent + Exec:** the native agent owns conversation and scheduling; an explicit adapter submits high-value bounded jobs and stores receipt references.
 - **Toolchain only:** a developer generates and installs a permanent CLI that is operated as normal software.
 - **Exec only:** a caller already has eligible code and needs constrained execution, replay, or verification.

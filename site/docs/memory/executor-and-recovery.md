@@ -50,5 +50,7 @@ After an API or executor restart:
 4. append monotonic events;
 5. commit exactly one logical memory when all parts validate.
 
-Use `scripts/certify-memory-operations.sh --long-memory` to certify health, readiness, response-loss reconciliation, exact replay, hash conflict, terminal receipt retrieval, and SSE resume against a running local server.
+After all production changes are complete, use
+`scripts/certify-memory-operations.sh --long-memory` at the authorized local
+integration boundary to exercise health, readiness, response-loss reconciliation, exact replay, hash conflict, terminal receipt retrieval, and SSE resume against a running local server.
 

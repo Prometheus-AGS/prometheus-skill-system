@@ -41,8 +41,8 @@ const exploreLinks = [
     to: '/docs/learn/overview',
   },
   {
-    title: 'Pair trusted peers',
-    description: 'Understand signed pushes, receipts, allow-lists, and private transport.',
+    title: 'Understand the Companion boundary',
+    description: 'Separate local pack ownership from relocated peer and connected-client features.',
     to: '/docs/sovereign-sync/overview',
   },
   {
@@ -62,7 +62,7 @@ export default function Home() {
         <section className={styles.hero} aria-labelledby="home-title">
           <div className={`container ${styles.heroGrid}`}>
             <div className={styles.heroCopy}>
-              <p className={styles.eyebrow}>Prometheus 1.7.0</p>
+              <p className={styles.eyebrow}>Prometheus Skill System</p>
               <h1 id="home-title">Build AI systems that learn without losing control.</h1>
               <p className={styles.lead}>
                 Create capabilities, run bounded dynamic operations, preserve signed evidence, and
@@ -85,20 +85,20 @@ export default function Home() {
             </div>
 
             <aside className={styles.releaseCard} aria-labelledby="release-card-title">
-              <p className={styles.cardKicker}>Current release</p>
-              <h2 id="release-card-title">One certified source, every supported tool.</h2>
+              <p className={styles.cardKicker}>Delivery boundaries</p>
+              <h2 id="release-card-title">Source, delivery and acceptance stay distinct.</h2>
               <dl className={styles.metrics}>
                 <div>
-                  <dt>145</dt>
-                  <dd>loadable skills</dd>
+                  <dt>Inventory</dt>
+                  <dd>manifest-selected skills</dd>
                 </div>
                 <div>
-                  <dt>14</dt>
-                  <dd>signed targets</dd>
+                  <dt>Projection</dt>
+                  <dd>owned harness delivery</dd>
                 </div>
                 <div>
-                  <dt>6</dt>
-                  <dd>versioned binaries</dd>
+                  <dt>Evidence</dt>
+                  <dd>local integration results</dd>
                 </div>
               </dl>
               <Link

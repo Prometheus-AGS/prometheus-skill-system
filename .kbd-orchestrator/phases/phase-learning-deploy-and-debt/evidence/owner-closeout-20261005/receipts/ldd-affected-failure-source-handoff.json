@@ -1,0 +1,37 @@
+{
+  "status": "coherent-fix-batch-source-only",
+  "at": "2026-10-05T22:23:07.768916+00:00",
+  "model": "gpt-6.1-sol",
+  "reasoningEffort": "xhigh",
+  "route": "native Codex inherited implementation worker",
+  "files": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/tests/query_cache_production.rs",
+      "sha256": "d5af37f0a7b09836d73807285ce51f945cf4c00616af5ca54ed754d1ad617eb0"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs",
+      "sha256": "623daf82054cb2275f063efe4c8e6e435aa71d540ed6ce630791a49101aca73d"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/docs/guide/README.md",
+      "sha256": "c7e420fdfd2126346c1ac0c62f08dcb50e3d26ae9f326bb730090c0b9f6f0355"
+    }
+  ],
+  "fixes": [
+    "SHA2 0.11 digest now encodes each byte with 02x using std iterator; no dependency or cache scenario/metric changes.",
+    "Absent-service mini fixture creates its own .prometheus/project.json marker and passes the real scratch project context to queue/publication. It now asserts project identity persists, while original no-endpoint/queued/uncertain:false assertions remain.",
+    "Guide index excluded production-readiness and deployment-mode root docs use actual repository source URLs; cross-plugin execution doc uses /docs/execution/overview-and-use-cases. Strict broken link guards unchanged."
+  ],
+  "miniHandoffPrerequisite": {
+    "source": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/docs/agent-teams/overview.md",
+    "heading": "Communicate and accept a handoff",
+    "headingLine": 219,
+    "contentExists": true,
+    "content": "Actual section supplies creation/context transfer/destination acceptance/start/completion boundaries and links the source two-role procedure. agent-team-handoff also appears in its skill table at35.",
+    "existingBatchObservation": "Parent evidence records mini production site build exit0 and subsequent topic prerequisite FAIL1 reason new product topic absent: handoff.",
+    "disposition": "No authored topic absence found. Coordinator selection/matching needs to be reconciled to the actual agent-teams overview section without dropping required topic coverage. Exact predicate was not supplied/discovered; no coordinator edits or new checks.",
+    "runtimeAcceptance": "Not inferred from static content or site build."
+  },
+  "executed": "No generation, tests, builds, checks or validators run by worker. Root owns the confirming affected batch."
+}

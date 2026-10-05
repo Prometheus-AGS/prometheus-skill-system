@@ -1,0 +1,102 @@
+{
+  "status": "FAIL",
+  "exitCode": 1,
+  "reason": "AssertionError: actual-selected-root-install: unexpected exit 1",
+  "start": "2026-10-05T22:17:20.678683+00:00",
+  "end": "2026-10-05T22:17:32.846272+00:00",
+  "full": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+  "installSource": "/private/tmp/ldd-local-07t76e9q/install-fixture/candidate",
+  "inputIdentities": {
+    "compiledDoctor": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "4ff2966adc27abe25523643f3b74338838d2ed3dd32cb67575d6089cc8a8c7f7"
+    },
+    "installer": {
+      "path": "/private/tmp/ldd-local-07t76e9q/install-fixture/candidate/scripts/install-system.js",
+      "sha256": "244128a57c6e6677afcca1bda2de8b0f4fbccd25b3cf65f1d0f4dc2cf576ccb0"
+    },
+    "scenario": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-codex-home-integration.sh",
+      "sha256": "4faff825acab45b27628adb7423d82b22a837dc52a0d28707c2f972c42f22629"
+    }
+  },
+  "isolatedRoot": "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l",
+  "cases": [],
+  "commands": [
+    {
+      "label": "compiled-cli-version",
+      "argv": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/prometheus-cli/target/debug/prometheus",
+        "--version"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l",
+      "start": "2026-10-05T22:17:21.476169+00:00",
+      "end": "2026-10-05T22:17:22.191328+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-000.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-000.stderr"
+    },
+    {
+      "label": "node-version",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l/tools/node",
+        "--version"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l",
+      "start": "2026-10-05T22:17:22.191367+00:00",
+      "end": "2026-10-05T22:17:22.217830+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-001.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-001.stderr"
+    },
+    {
+      "label": "bash-version",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l/tools/bash",
+        "--version"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l",
+      "start": "2026-10-05T22:17:22.217874+00:00",
+      "end": "2026-10-05T22:17:22.228222+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-002.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-002.stderr"
+    },
+    {
+      "label": "python-version",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l/tools/python3",
+        "--version"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l",
+      "start": "2026-10-05T22:17:22.228254+00:00",
+      "end": "2026-10-05T22:17:22.239295+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-003.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-003.stderr"
+    },
+    {
+      "label": "actual-selected-root-install",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l/tools/node",
+        "/private/tmp/ldd-local-07t76e9q/install-fixture/candidate/scripts/install-system.js",
+        "--source-root",
+        "/private/tmp/ldd-local-07t76e9q/install-fixture/candidate",
+        "--home",
+        "/private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l/selected home",
+        "--profile",
+        "skills",
+        "--targets",
+        "codex",
+        "--non-interactive",
+        "--yes"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/install-fixture/candidate",
+      "start": "2026-10-05T22:17:22.241526+00:00",
+      "end": "2026-10-05T22:17:32.846164+00:00",
+      "exitCode": 1,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-004.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/home-004.stderr"
+    }
+  ]
+}

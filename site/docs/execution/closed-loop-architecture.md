@@ -68,7 +68,7 @@ Verified outcomes can become immutable evidence for the supervised learning work
 
 ### Forge and installed toolchains answer “what artifact should exist?”
 
-Forge enriches and scaffolds code. Cargo, rustc, cargo-component, Node/npm, Python, and shell tooling build or validate it. Prometheus Exec begins after eligible bytes exist. This keeps code-generation creativity separate from execution authority.
+Forge enriches source context and manages skill assets; template-driven generation and language toolchains create code. Cargo, rustc, cargo-component, Node/npm, Python, and shell tooling build or validate it. Prometheus Exec begins after eligible bytes exist. This keeps code-generation creativity separate from execution authority.
 
 ### Native-agent generation answers “what independent service should exist?”
 
@@ -103,6 +103,7 @@ The return path is what makes the loop compound safely. A model summary alone is
 - bounded dynamic work: Prometheus Exec; and
 - compounding improvement: evidence-scoped review and supervised learning.
 
-The current release metadata remains `1.7.0`.
+Components are independently versioned. Consult their source release metadata and the
+[service inventory](/docs/guide/service-operations); a shared architecture is not a shared release number.
 
 Next: [Generating programs for execution](./generating-programs.md).

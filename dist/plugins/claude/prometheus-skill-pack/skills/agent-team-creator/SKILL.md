@@ -181,14 +181,25 @@ A team may carry an optional `card` (`repo`, `component`, `owns`, `capabilities`
 `team:<id>` GitHub issue (otherwise; prints the packet and exact `gh` command when
 `gh` is absent or with `dryRun`), and `team-intake` imports open labelled issues as
 intake-role tasks, once each. Commenting on an issue requires an explicit `ack`.
+Creating issues, sending messages or writing in another project requires the
+user’s explicit authorization; a routing rule or discovered card supplies no
+such authority. These commands are full-pack extensions, not mini CLI commands.
 
 ## Evidence and recovery
 
 Report generated paths, roles and rationale, chosen model policy, native support
 level, unresolved ownership/configuration and the next authorized action. Never
 report export as live execution. Node 22+ runs the compiled package without a
-root checkout or runtime dependencies. Maintainers rebuild the `.mts` source
-with pinned TypeScript 7.0.2 under `runtime/`; full and mini ship identical bytes.
+root checkout or npm runtime dependencies. Optional integrations still require
+their configured services and helper executables. Maintainers rebuild the `.mts`
+source with pinned TypeScript 7.0.2 under `runtime/` at the completed-production
+boundary. Full and mini share portable team/schema contracts, not an identical
+runtime or emitted payload. Full alone exposes team cards, discovery, requests
+and intake commands. Mini retains a reduced file-backed memory queue with
+optional configured publication; it does not include the full Python learning
+hooks, durable writer outbox or Cortex mirror. Read [models and memory](references/models-memory.md)
+for each pack’s identity and publication contract. Source, rebuilt `.mjs` output
+and installed execution require separate evidence.
 
 The local state is a coordination record for trusted collaborators, not a
 distributed authorization service. See [task and handoff contracts](references/task-handoff.md)

@@ -71,6 +71,5 @@ harness entirely — can resume with one read. That bookkeeping never blocked
 anything, and it is the part that carries its weight.
 
 Lifecycle state remains committed to the event journal and visible through
-[`prometheus kbd status`](./operator-controls) and the
-[REST API](/docs/sovereign-sync/rest-api). Command concurrency is enforced at
+[`prometheus kbd status`](./operator-controls) through the local canonical runtime. Optional connected-client APIs belong to their separately installed owner; the retained sync routes document that relocation. Command concurrency is enforced at
 the journal transaction boundary, not by intercepting shell tools.

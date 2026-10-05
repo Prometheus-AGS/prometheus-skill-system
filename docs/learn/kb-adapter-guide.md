@@ -24,12 +24,11 @@ web search and broader coverage.
 
 ---
 
-## Privacy Guarantee
+## Privacy and endpoint ownership
 
 `content-grounding-kb.sh` enforces a hard boundary:
 
-- It calls only local or self-hosted endpoints (`DIFY_BASE_URL`, `SURREAL_MEMORY_URL`,
-  or local filesystem paths).
+- It routes Dify and Palace requests to configured `DIFY_BASE_URL` and `SURREAL_MEMORY_URL`; these values can name remote hosts. Local file reads do not use the network.
 - It never reads or uses `FIRECRAWL_API_KEY`, `OPENAI_API_KEY`,
   `ANTHROPIC_API_KEY`, or any other external API credential — even if those
   variables are set in the shell.
@@ -62,12 +61,12 @@ export DIFY_BASE_URL="https://dify.internal.example.com/v1"
 
 Prerequisites:
 1. A running surreal-memory server.
-2. `SURREAL_MEMORY_URL` set to the server base URL (e.g. `http://localhost:3000`).
+2. `SURREAL_MEMORY_URL` set to the server base URL (e.g. `http://localhost:23001`).
 3. A palace with ID `<palace-id>` exists and has memories ingested
    (use `mcp__surreal-memory__palace_ingest` to load documents into a palace).
 
 ```bash
-export SURREAL_MEMORY_URL="http://localhost:3000"
+export SURREAL_MEMORY_URL="http://localhost:23001"
 ```
 
 Verify the palace is reachable:
@@ -189,7 +188,5 @@ schema, which does not require `kb_source` or `privacy_mode`). If you need
 downstream consumers to know the merged file includes private sources, add a
 `kb_source` field manually or keep the two corpora separate.
 
-**Important:** the public corpus may contain URLs returned by external APIs.
-Do not send the merged `sources` array back to an external API as input — only
-the merged file's `content_summary` values (already extracted locally) should
-be used as context for local model inference.
+**Important:** selected endpoints and downstream inference require explicit ownership and authorization. The `privacy_mode` field is helper metadata, not a network restriction. The public corpus may contain URLs returned by external APIs.
+Do not send the merged `sources` array back to an external API as input — locally extracted summaries can still contain sensitive content. Use only the explicitly authorized inference destination.

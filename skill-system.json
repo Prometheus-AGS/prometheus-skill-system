@@ -2,7 +2,7 @@
   "$schema": "./schemas/skill-system.schema.json",
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
-  "releaseVersion": "1.11.2",
+  "releaseVersion": "1.11.3",
   "minimumActiveVersion": "1.11.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
@@ -61,7 +61,7 @@
       "id": "prometheus-entity-management",
       "path": "skills/imported/prometheus-entity-management",
       "repository": "https://github.com/Prometheus-AGS/prometheus-entity-management.git",
-      "commit": "d1588d8c93cc267774d1911e8bd53bd3918a7f12",
+      "commit": "071b9e5b06c31f6c7d9d191bdaa4a2e188d1d565",
       "requiredFor": ["full"],
       "distributed": false
     },
@@ -90,7 +90,7 @@
       "id": "openai-proxy",
       "path": "tools/openai-proxy",
       "repository": "https://github.com/GQAdonis/openai-proxy.git",
-      "commit": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
+      "commit": "ad32f5dc1f676dc1b40b01de8a4f043a6ee6928d",
       "requiredFor": ["full"]
     },
     {
@@ -120,17 +120,17 @@
   },
   "marketplace": {
     "plugins": [
-      { "name": "prometheus-ui-ux-skills", "path": "skills/ui-ux", "version": "1.0.0", "category": "frontend" },
-      { "name": "prometheus-react-skills", "path": "skills/react/prometheus-entity-skills", "version": "1.5.0", "category": "frontend" },
-      { "name": "prometheus-process-skills", "path": "skills/process", "version": "1.7.0", "category": "productivity" },
-      { "name": "prometheus-devops-skills", "path": "skills/devops", "version": "1.5.0", "category": "devops" },
-      { "name": "prometheus-testing-skills", "path": "skills/testing", "version": "1.5.0", "category": "testing" },
-      { "name": "learn", "path": "skills/learn", "version": "1.6.0", "category": "productivity" },
-      { "name": "prometheus-librefang-skills", "path": "skills/rust/librefang-wasm-skill", "version": "1.5.0", "category": "productivity" },
-      { "name": "cowork-management", "path": "skills/process/cowork-management", "version": "1.0.0", "category": "productivity" },
-      { "name": "disk-space-guardian", "path": "skills/devops/disk-space-guardian", "version": "1.0.0", "category": "devops" },
-      { "name": "prometheus-research-skills", "path": "skills/research", "version": "1.1.0", "category": "productivity" },
-      { "name": "prometheus-research-server", "path": "substrate/prometheus-research", "version": "1.7.0", "category": "productivity" }
+      { "name": "prometheus-ui-ux-skills", "path": "skills/ui-ux", "version": "1.0.1", "category": "frontend" },
+      { "name": "prometheus-react-skills", "path": "skills/react/prometheus-entity-skills", "version": "1.5.1", "category": "frontend" },
+      { "name": "prometheus-process-skills", "path": "skills/process", "version": "1.7.1", "category": "productivity" },
+      { "name": "prometheus-devops-skills", "path": "skills/devops", "version": "1.5.1", "category": "devops" },
+      { "name": "prometheus-testing-skills", "path": "skills/testing", "version": "1.5.1", "category": "testing" },
+      { "name": "learn", "path": "skills/learn", "version": "1.6.1", "category": "productivity" },
+      { "name": "prometheus-librefang-skills", "path": "skills/rust/librefang-wasm-skill", "version": "1.5.1", "category": "productivity" },
+      { "name": "cowork-management", "path": "skills/process/cowork-management", "version": "1.0.1", "category": "productivity" },
+      { "name": "disk-space-guardian", "path": "skills/devops/disk-space-guardian", "version": "1.0.1", "category": "devops" },
+      { "name": "prometheus-research-skills", "path": "skills/research", "version": "1.1.1", "category": "productivity" },
+      { "name": "prometheus-research-server", "path": "substrate/prometheus-research", "version": "1.7.1", "category": "productivity" }
     ]
   },
   "targets": [

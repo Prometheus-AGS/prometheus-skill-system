@@ -1,0 +1,83 @@
+{
+  "status": "coherent-source-fix-not-executed",
+  "model": "gpt-6.1-sol",
+  "reasoningEffort": "xhigh",
+  "route": "native Codex inherited implementation worker",
+  "at": "2026-10-05T21:50:45.012306+00:00",
+  "files": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/docs/guide/README.md",
+      "sha256": "e78de3fd1258471874e3ce697b26b7f447f10f8fc49fd43b2d93cb54977b9bb5",
+      "bytes": 6285
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/docs/guide/memory-tiers.md",
+      "sha256": "7843d61a2b31dc423ecce89ef4f52bac77eef64eab28e690a27d41e6a378e2ca",
+      "bytes": 12182
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/docs/guide/26-service-operations.md",
+      "sha256": "48c726ef35aad52c4a74879f0f24d235b14346490a00dd430f450f2eec946c5a",
+      "bytes": 13120
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/package.json",
+      "sha256": "07adfb75fc77d16b29d888b62762f6019bfc0e17a199c8c8fd86856aa99aa3a4",
+      "bytes": 1100
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/scripts/generate-skills-catalog.mjs",
+      "sha256": "91a38360cca9ff17ae810aaf35936d570c249c9e015cd39cce044de8dcf4a5f9",
+      "bytes": 8479
+    }
+  ],
+  "fullLinks": {
+    "README": "Excluded root README uses the repository source URL already declared by the site.",
+    "Codex": "Excluded root Codex guide uses repository source URL and the actual heading anchor.",
+    "integration": "Guide instance uses the existing default docs instance route /docs/kbd/integration-contract (site/docs/kbd/integration-contract.md id=integration-contract).",
+    "configuration": "No Docusaurus route configuration or strict throw guards changed."
+  },
+  "miniCatalog": {
+    "source": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/scripts/generate-skills-catalog.mjs",
+    "inputs": [
+      "skills/*/SKILL.md",
+      "skills/prometheus-ui-ux/references/catalog.lock.json"
+    ],
+    "output": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/docs-catalog",
+    "requiredCoordinatorCommand": [
+      "npm",
+      "--prefix",
+      "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site",
+      "run",
+      "generate:catalog"
+    ],
+    "lifecycle": "prebuild and prestart now call generate:catalog; existing build:deploy explicit generation stays unchanged. npm --ignore-scripts bypasses pre/post lifecycle, so a direct Docusaurus gate or ignore-scripts caller must invoke the explicit production generator first.",
+    "runByWorker": false,
+    "catalogFabricated": false
+  },
+  "miniRunner": {
+    "source": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs",
+    "requiredEnvironment": {
+      "LDD_MINI_ROOT": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "LDD_SCRATCH_ROOT": "existing absolute isolated private directory",
+      "LDD_EVIDENCE_DIR": "existing absolute evidence directory",
+      "LDD_MINI_HISTORICAL_BASELINE": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/phases/team-aware-learning-memory-impl/evidence/mini-baseline-failures.txt",
+      "LDD_MINI_SOURCE_ID": "recorded actual commit/tree identity (40 hex) or candidate source-manifest SHA-256 (64 hex), not invented"
+    },
+    "otherPrerequisites": [
+      "Node22+",
+      "POSIX filesystem",
+      "locked mini npm ci assets node_modules/@fission-ai/openspec/package.json",
+      "LDD_MINI_ROOT canonicalizes to the script repository",
+      "scratch root is outside source candidate and real runtime homes"
+    ],
+    "knownMissingFromParent": "LDD_MINI_SOURCE_ID",
+    "coordinatorComparison": "Complete required key contract provided; coordinator path was not supplied yet."
+  },
+  "guidanceSources": [
+    "https://docusaurus.io/docs/markdown-features/links",
+    "https://docusaurus.io/docs/docs-multi-instance",
+    "https://github.com/npm/cli/blob/latest/lib/commands/run.js"
+  ],
+  "execution": "No generation/build/tests/checks/validation/review/commit run. Root owns coherent-batch regeneration and confirming gate."
+}

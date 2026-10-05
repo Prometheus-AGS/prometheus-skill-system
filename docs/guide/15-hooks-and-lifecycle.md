@@ -1,142 +1,71 @@
-# 15 · Hooks & Lifecycle
+# 15 · Hooks & lifecycle
 
-The loops and skills are visible. The hooks are not — and they are where much
-of the system's lifecycle integration lives. Hooks fire when a session starts,
-a prompt is submitted, a tool completes, a subagent stops, or a session ends.
-Context priming, deferred learning enqueue, and local evidence capture use
-hooks. Protected-test integrity is deliberately different: it is checked from
-Git state during final local certification, independent of agent tools.
+Hooks adapt harness events into bounded context, checkpoints and deferred work.
+The source contract is `shared/harnesses/hook-contract.json`; lifecycle capabilities
+are declared in `shared/harnesses/capabilities.json`. The adapter generator emits
+hook configuration and dispatchers from those inputs. Generated hook files are
+release artifacts, not an independent place to change behavior.
 
-Claude Code's installed hook chain is declared in `hooks/hooks.json`.
-Cross-harness lifecycle mappings are declared once in
-`shared/harnesses/capabilities.json` and generate the Claude Code, Codex,
-OpenCode, and Kimi adapters under `shared/harnesses/generated/`.
+## Declared event paths
 
-## The lifecycle at a glance
-
-```mermaid
-sequenceDiagram
-    participant Session
-    participant Prompt as Each prompt
-    participant Tool as Each tool call
-    participant Sub as Each subagent
-    participant Stop as Session end
-
-    Session->>Session: SessionStart — bounded snapshots + KB health
-    Prompt->>Prompt: UserPromptSubmit — immutable bounded context
-    Tool->>Tool: PreToolUse — no Prometheus mutation guard
-    Tool->>Tool: PostToolUse — validate and record local evidence
-    Sub->>Sub: SubagentStop[role] — checkpoint + dispatch (reflector → sycophancy gate)
-    Stop->>Stop: Stop — atomic local enqueue, never forces continuation
-```
-
-## SessionStart
-
-Runs once when a session begins. Sets the stage.
-
-| Order | Script | Purpose |
-|---|---|---|
-| 1 | `detect-project-context.sh` | Resolve project identity and snapshot scope without network work. |
-| 2 | snapshot reader | Load bounded project/shared/global immutable generations. |
-| 3 | `memory-outbox-flush.sh` | Hand local uncertain delivery records to durable reconciliation. |
-| 4 | `pk-health.sh` | Run read-only `pk lint` once per 24h and preserve failure/empty-output status. |
-
-## UserPromptSubmit
-
-The generated adapter receives the prompt event and queues noncritical work in
-the project runtime's `deferred-hooks/` outbox. Prompt and Stop events do not
-perform network-heavy memory or learning work inline.
-
-## PreCompact
-
-`kbd-harness-adapter.sh pre_compact claude-code` records a bounded deferred
-event. Claude's `SessionStart:compact` path and native post-compact events on
-other harnesses render the same canonical re-anchor after compaction.
-
-## PreToolUse — unrestricted agent tools
-
-No KBD or protected-test `PreToolUse` matcher remains. Bash, Python, Write,
-Edit, and MultiEdit stay available for implementation and diagnosis.
-
-### What was removed, and why
-
-The pre-mutation fence (`kbd-harness-adapter.sh pre_mutation`) previously gated
-`Bash`, `Write`, `Edit`, and `MultiEdit` on KBD project identity, control-plane
-reachability, and lifecycle state. It was removed, along with
-`pipeline-enforce.sh`, `scope-guard.sh`, `check-child-scope.sh`,
-`guard-direct-deploy.sh`, and `cedar-skill-gate.sh`.
-
-The fence assumed several agents on several devices contending for one
-repository. A single operator does not have that contention, and the cost was severe: every gate
-failed closed, so a stopped daemon, an uninitialized runtime, or a phase that
-had simply *finished* removed the operator's ability to run `ls`, `git status`,
-or `cargo test` — including the very diagnostics each denial recommended. The
-scope guards compounded it by flagging edits to a submodule or a sibling project
-as out-of-scope, which is ordinary work when a change spans a dependency.
-
-The KBD adapter still runs on `SessionStart`, `UserPromptSubmit`, `Stop`, and
-`PreCompact`. Those events only read state and print the re-anchor block; they
-never intercept a tool call. Phases, `progress.json`, waypoints, and reflections
-are unchanged — they record position, and recording was always the part that
-earned its keep.
-
-Protected-test integrity moves to final local certification. The verifier compares
-the base and candidate commits, independent of mutation method. An intentional
-protected change requires an SSH-signed manifest; without one, work can continue
-but the candidate cannot be certified.
-
-## PostToolUse
-
-Runs after a `Write|Edit|MultiEdit` succeeds. This records and validates local evidence only; durable learning is deferred to Stop enqueue and the worker.
-
-| Order | Script | Purpose |
-|---|---|---|
-| 1 | `validate-state.sh` (evolver) | Validate evolver state after a write |
-| 2 | `validate-gitops-write.sh` (10s) | Confirm written files conform to `TJ-CICD-001` |
-| 3 | `scope-record.sh` | Record approved out-of-scope writes to the waypoint so they are not re-flagged |
-| 4 | `write-position-reminder.sh` | Refresh `.kbd-orchestrator/position-reminder.txt` |
-| 5 | `sycophancy-check-artifact.sh` (35s) | Gate `**/reflection.md` and `**/assessment.md` — exit 2 with Delta/Root-Cause/Corrective-Actions feedback, set `reflect_gate=rejected`; two-rejection soft cap |
-
-## SubagentStop — per-role
-
-Each KBD role has its own matcher. Every role runs a checkpoint and a workflow dispatch; two roles run additional gates.
-
-| Matcher | Scripts (in order) |
+| Event | Source behavior |
 |---|---|
-| `assessor` | `state-checkpoint(assess)` → `workflow-dispatch(assess)` |
-| `analyst` | `state-checkpoint(analyze)` → `workflow-dispatch(analyze)` |
-| `planner` | `state-checkpoint(plan)` → `workflow-dispatch(plan)` |
-| `executor` | `validate-state.sh` → `state-checkpoint(execute)` → **`evaluate-session.sh` (30s)** → `workflow-dispatch(execute)` |
-| `reflector` | **`sycophancy-check-reflection.sh` (35s)** → `log-reflection.sh` → `state-checkpoint(reflect)` → `workflow-dispatch(reflect)` |
-| *(fallback, no matcher)* | `subagent-checkpoint-fallback.sh` |
+| SessionStart | Canonical KBD context, scoped learning delivery, project/snapshot detection, outbox reconciliation and bounded knowledge health. |
+| UserPromptSubmit | Bounded `pk` context and knowledge-gap handling through `karpathy-hook-dispatch.sh`; actual prompt work is not universally network-free. |
+| PostToolUse | Record and inspect successful Write/Edit/MultiEdit results, screen reflection artifacts, and enqueue attributed reflection lessons. |
+| SubagentStart | Deliver the selected role's scoped lesson view when the harness supplies the event and role. |
+| SubagentStop | Role-specific checkpoint/dispatch, attributed lessons, and a compatibility fallback checkpoint. |
+| Stop | Atomically enqueue a learning job and return; no model call or synchronous memory acknowledgement. |
+| PreCompact / post-compact | Preserve a bounded event and re-anchor from the canonical revision. |
+| TaskCompleted | Check consistency with a canonical KBD task's completion receipt; reject inconsistent completion without guarding mutation tools. |
 
-Executor and reflector gates produce local evidence, but they do not acknowledge a memory write. Durable learning is owned by the queue worker, which reconciles the v2 operation receipt before publishing snapshots. The fallback matcher guarantees that even an unrecognized subagent gets a checkpoint — no role falls through silently.
+Claude and Codex have explicit scoped-learning hook entries. Other harnesses use
+supported lifecycle mappings and manual/skill paths; a declared adapter does not
+prove the current harness exposes every native event. Read the selected installed
+configuration and current session capabilities.
 
-## Stop — atomic enqueue by design
+## Role context and learning
 
-The installed Stop path resolves `karpathy-hook-dispatch.sh` through the stable
-plugin directory. `enqueue-learning-job.py` writes a private temporary record,
-fsyncs it, and atomically renames it into `pending`; the hook then exits. It
-does not call a model, Memory, or a service manager. Duplicate Stop events are
-deduplicated by stable record identity. Durable continuity comes from the queue,
-receipts, checkpoints, and immutable snapshots—not from forcing an assistant
-to keep talking.
+Claude's main thread receives the lead view and team digest. Codex's main thread
+receives only local digest metadata because its children can inherit parent context.
+Role-specific SubagentStart delivery is bounded and fenced as untrusted data.
+Missing team, role or store results in a silent advisory path. See
+[Memory tiers](memory-tiers.md) and [Agent Teams](24-agent-teams.md).
 
-## Progress signaling
+Direct learning wrappers and the generated dispatcher export
+`PYTHONDONTWRITEBYTECODE=1` before child commands. The writer also suppresses local
+bytecode and propagates the environment to descendants. Packaged entry points
+matter: suppressing only one helper does not cover a new interpreter process.
+These source changes require final generation and installed-path acceptance.
 
-A lifecycle concern that is not a hook but is mandatory in every orchestration turn: the progress-signal protocol. The first tool call of a KBD/loop turn reads `.kbd-orchestrator/position-reminder.txt` (falling back to `current-waypoint.json` and the phase `progress.json`). Every phase and task then emits start/completion signals with accurate counts read from `progress.json` — never estimated. The `validate-progress-signals.js` script is a merge gate requiring every process skill to declare a `## Progress Signals` section, with a ratchet baseline that can only shrink. This is what keeps long, multi-session work scannable and resumable. The mechanics are also covered in [Loop Architecture](03-loop-architecture.md).
+`memory-writeback.sh` extracts accepted reflection sections and routes them through
+`learning_write.py`, with per-phase and per-scope deduplication. It can enqueue
+memory operations, append the file tier and optionally start bounded pk/Cortex
+work. Do not describe every hook as inference-free or network-free merely because
+the Stop path is local. A queued write or started mirror is not confirmed storage.
 
-## Strictness and degradation
+## Completion and mutation boundaries
 
-`PROMETHEUS_REFLECT_STRICTNESS` (loose / standard / strict / adversarial,
-default strict) sets the sycophancy gate's sensitivity. It governs a *content*
-gate on reflection artifacts, not a tool gate, so it cannot block a command.
+Bash, Python, Write, Edit and MultiEdit remain unrestricted. There is no Prometheus
+PreToolUse mutation fence. A PostToolUse diagnostic cannot undo already-written
+bytes, and a canonical TaskCompleted receipt check does not accept a missing task
+or authorize another role's path.
 
-Memory, summary, and learning work is noncritical and deferred to the local queue.
-No hook can now deny a shell command, and
-`PROMETHEUS_SCOPE_ENFORCE` no longer has an effect — the scope guards it
-configured were removed.
+Protected BDD integrity is evaluated from committed Git state at final local
+certification. Intentional protected changes require the signed approval manifest.
+Complete all phase production before tests, validators, compiler checks and review;
+a declared legacy hook is not permission to run an earlier gate.
 
----
+## Recovery
 
-*Previous: [← 14 · The Rust Toolchain & Dynamic Generation](14-rust-toolchain.md) · Next: [16 · CLI & Scripts Reference →](16-cli-and-scripts.md)*
+Stop and interrupt are different events. Stop never forces continuation. Honor an
+explicit pause before scheduling work and preserve the queued checkpoint/receipt.
+Reconcile uncertain writes with their stable operation identity and hash instead of
+retry-count inference. Keep failed or unknown outcomes explicit.
+
+Hooks, dispatchers, Python descendants and service workers have separate installed
+boundaries. Verify the selected signed generation and actual target projection at
+the final gate, then restart sessions whose hook configuration was loaded earlier.
+See [Service operations](26-service-operations.md) for log and service ownership.
+
+*Previous: [Rust Toolchain](14-rust-toolchain.md) · Next: [CLI & Scripts](16-cli-and-scripts.md)*

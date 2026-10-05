@@ -6,37 +6,25 @@ sidebar_label: Quick Start
 
 # Quick Start
 
-## Install
+## Install skills
+
+From an owner-approved source commit:
 
 ```bash
-git clone https://github.com/Prometheus-AGS/prometheus-skill-system
+git clone https://github.com/Prometheus-AGS/prometheus-skill-system.git
 cd prometheus-skill-system
-./install.sh
+./install.sh --profile skills
 ```
 
-The recommended skills-only profile initializes pinned imports and installs the
-signed `1.8.0` distribution into detected clients. `1.8.0` is the minimum
-supported active umbrella release. Use `./install.sh --profile full` on macOS or
-Linux when you also want locally built binaries, MCP configuration, services,
-and doctors.
+The root installer initializes pinned imports and projects the signed generation to selected detected clients. It prints the mutation plan; preserve the source while registrations refer to it. Release and minimum-active versions come from `skill-system.json`, not a fixed version in this guide.
 
-## Try a skill
+Use Node matching the repository requirements; Node 22 is the configured development line. Full installation on macOS/Linux additionally builds binaries and configures selected services. Native service installation requires Bash 4+. See [Installation](19-installation.md) and [Services, ownership and recovery](26-service-operations.md).
 
-In Claude Code:
+## Start a workflow
 
-```
-/learn-goal "I want to understand Rust lifetimes"
-```
+In a harness that exposes the installed skill, invoke:
 
-## Check sync status
-
-```
-/sync-status
-```
-
-## Start the KBD lifecycle
-
-```
+```text
 /kbd-assess my-project
 /kbd-analyze my-project
 /kbd-plan my-project
@@ -44,7 +32,8 @@ In Claude Code:
 /kbd-reflect my-project
 ```
 
-## Full documentation
+Finish the phase's production work before its consolidated local integration gate. A team can then split disjoint ownership; follow [Agent Teams](24-agent-teams.md) for actual creation and lifecycle requests.
 
-Browse the full product guide from
-[the guide index](README.md).
+Learning is optional: `/learn-goal "I want to understand Rust lifetimes"` begins a learning workflow when its prerequisites are available. Companion sync skills require their separate package; full installation alone does not provide them.
+
+Read [the guide index](README.md) for the full sequence.

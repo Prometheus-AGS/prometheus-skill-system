@@ -1,8 +1,8 @@
 # 10 · Language & Domain Skills
 
-The process skills decide *how the loop runs*. The language and domain skills are what the loop *knows* — the production patterns, idioms, and code templates the enrichment engine injects before an agent writes a line. This page documents all of them, by category. Every native skill here is `v1.0.0` and MIT-licensed unless noted; skills that ship Tera (`.tera`) code-generation templates are marked, because those templates are what forge-rs renders at enrichment time.
+The process skills decide *how the loop runs*. The language and domain skills are what the loop *knows* — the production patterns, idioms, and code templates the enrichment engine injects before an agent writes a line. This page documents all of them, by category. Read each skill's actual frontmatter for its version, license and dependency requirements; skills that ship Tera (`.tera`) code-generation templates are marked, because those templates are what forge-rs renders at enrichment time.
 
-## Rust (10 skills)
+## Rust
 
 The Rust skills encode the patterns behind the entire Prometheus stack — the tools in this repository are themselves built on them.
 
@@ -19,7 +19,7 @@ The Rust skills encode the patterns behind the entire Prometheus stack — the t
 | **prometheus-rust-auditor** | — | Staged autonomous Rust code-quality remediation: Clippy enforcement, formatting, dependency policy, workspace inventory, partition-based invariant audits, CI generation. Also shipped as a standalone tool — see [Tools Reference](13-tools-reference.md). |
 | **workspace-structure** | — | Multi-crate workspace layout: `resolver=2`, workspace-level dependency versions, domain-driven crate separation (`*-core`/`*-store`/`*-librarian`/`*-mcp`/`*-cli`), feature-flag discipline, release profiles. |
 
-## React (2 skills)
+## React
 
 | Skill | Templates | What it encodes |
 |---|---|---|
@@ -57,7 +57,7 @@ The architecture principle is consistent across these: **the server drives, the 
 | **python/pyo3-bridge** | PyO3 0.22 Rust→Python bridging: `#[pyfunction]`/`#[pyclass]`, maturin builds, GIL management, async via pyo3-asyncio. Primary use is the skill-executor calling Rust crates (forge-rs, pk-librarian, surreal-memory) from Python skill servers. |
 | **architecture/clean-architecture** | The CLEAN four-layer model (Domain → Application → Infrastructure → Interface), dependency inversion, and trait/interface boundaries mapped onto Rust crates, Flutter features, React feature slices, and Go packages. |
 
-## Testing (2 skills)
+## Testing
 
 | Skill | What it encodes |
 |---|---|
@@ -69,9 +69,9 @@ use any editing mechanism; final local certification detects protected changes
 from Git state and requires an SSH-signed approval manifest. The full treatment
 is on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page.
 
-## DevOps (4 skills)
+## DevOps
 
-All four conform to the internal standard `TJ-CICD-001 v1.1` and declare `allowed-tools`.
+These skills are authored to conform to the internal standard `TJ-CICD-001 v1.1` and declare `allowed-tools`.
 
 | Skill | What it does |
 |---|---|
@@ -80,7 +80,7 @@ All four conform to the internal standard `TJ-CICD-001 v1.1` and declare `allowe
 | **argocd-multicloud** | Install and manage ArgoCD as a multi-cloud control plane on GKE with AKS/EKS as remote destinations — App-of-Apps root, ApplicationSet fan-out, project isolation, RBAC, Dex OIDC SSO. |
 | **kustomize-overlay** | Generate three-dimensional Kustomize overlays (base/cloud/env) with cloud-specific identity patches (GKE Workload Identity, Azure Workload Identity, EKS IRSA), and validate/repair broken overlay chains. |
 
-`guard-direct-deploy.sh` encodes the same rule — in a GitOps world the cluster state is owned by Git, not by an agent — but it is **no longer wired as a blocking hook**. Direct cluster commands are deliberate operator actions often enough that a hook could not distinguish them from mistakes. The script is still available to run manually or from CI.
+`guard-direct-deploy.sh` encodes the same rule — in a GitOps world the cluster state is owned by Git, not by an agent — but it is **no longer wired as a blocking hook**. Direct cluster commands are deliberate operator actions often enough that a hook could not distinguish them from mistakes. The script is still available for deliberately authorized local use.
 
 ## Document extraction
 
@@ -102,6 +102,8 @@ Each is an install-and-usage guide for the same Flint Realtime Fabric event syst
 | **flint-sdk-swift** | `FrfClient` — SPM, iOS 16+/macOS 13+ |
 | **flint-sdk-kotlin** | `frf-kotlin` — Gradle, Android/JVM via JNI |
 | **flint-sdk-csharp** | `FlintSdk` — NuGet, .NET 8+, gRPC/Connect-RPC |
+
+The tables describe source guidance and templates, not a universal installed runtime or current SDK compatibility certification. Consult current official framework documentation when using or migrating a template. Complete all phase production before tests, checks and review. Hosted test workflow generation is not permitted in this repository; authorized deployment automation must remain separate from local validation.
 
 ## How language skills feed the loop
 

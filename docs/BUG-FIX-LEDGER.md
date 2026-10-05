@@ -1,3 +1,5 @@
+> **Historical bug ledger; outside current onboarding.** The Q2 2026 entries preserve reported fixes and prevention proposals. Old hosted-CI language, removed pipeline guards and historical validation results do not define current policy. Use [the current guide](guide/00-quick-start.md).
+
 # Bug Fix Ledger
 
 Quarterly review of bug fixes shipped in the Prometheus stack.

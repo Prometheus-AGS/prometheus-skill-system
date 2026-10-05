@@ -7,6 +7,7 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use std::fs;
+use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -1227,53 +1228,203 @@ async fn check_judge_gateway() -> CheckResult {
     }
 }
 
-/// Reads `[memories].generate_memories` from a Codex config.toml with a
-/// line-level scan (no TOML dependency): `Some(bool)` when set to a bare
-/// boolean inside the `[memories]` table, `None` otherwise.
-fn parse_codex_generate_memories(contents: &str) -> Option<bool> {
-    let mut in_memories = false;
-    let mut value = None;
-    for line in contents.lines() {
-        let trimmed = line.trim();
-        if trimmed.starts_with('[') {
-            let header = trimmed.split('#').next().unwrap_or("").trim();
-            in_memories = header == "[memories]";
-            continue;
-        }
-        if !in_memories {
-            continue;
-        }
-        let Some(rest) = trimmed.strip_prefix("generate_memories") else {
-            continue;
-        };
-        let Some(rest) = rest.trim_start().strip_prefix('=') else {
-            continue;
-        };
-        value = match rest.split('#').next().unwrap_or("").trim() {
-            "true" => Some(true),
-            "false" => Some(false),
-            _ => None,
-        };
+/// Report typed values from a fully parsed config; absent and invalid differ.
+fn codex_memory_setting(config: &toml::Value, section: &str, key: &str) -> &'static str {
+    let Some(section) = config.get(section) else {
+        return "unset";
+    };
+    let Some(table) = section.as_table() else {
+        return "invalid";
+    };
+    match table.get(key) {
+        None => "unset",
+        Some(toml::Value::Boolean(false)) => "false",
+        Some(toml::Value::Boolean(true)) => "true",
+        Some(_) => "invalid",
     }
-    value
 }
 
-/// Codex injects `memories/memory_summary.md` into every thread; the installer
-/// sets `[memories] generate_memories = false` and archives the file. This
-/// optional check is the standing guard: Yellow (never a failure) when the
-/// setting is absent or true, or when a summary file has regrown.
-fn check_codex_memories() -> CheckResult {
-    let codex_dir = std::env::var_os("CODEX_HOME")
+/// Execute only verifier code compiled into this CLI. Importing a script from
+/// `current` would execute it before its generation had been authenticated.
+fn verified_codex_memory_helper(home: &Path, plugin_root: &Path, codex_home: &Path) -> Result<PathBuf, String> {
+    let sources = serde_json::json!({
+        "install-plugin-generation.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/install-plugin-generation.js")),
+        "lib/capabilities.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/capabilities.js")),
+        "lib/jcs.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/jcs.js")),
+        "lib/key-protection.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/key-protection.js")),
+        "lib/payload-manifest.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/payload-manifest.js")),
+        "lib/skill-system.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/skill-system.js")),
+        "lib/store-paths.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/store-paths.js")),
+    });
+    let home = home.to_str().ok_or_else(|| "installation home is not valid UTF-8".to_string())?;
+    let plugin_root = plugin_root.to_str().ok_or_else(|| "plugin root is not valid UTF-8".to_string())?;
+    let codex_home = codex_home.to_str().ok_or_else(|| "Codex home is not valid UTF-8".to_string())?;
+    let input = serde_json::to_vec(&serde_json::json!({
+        "home": home,
+        "pluginRoot": plugin_root,
+        "codexHome": codex_home,
+        "sources": sources,
+    }))
+    .map_err(|_| "could not prepare installed-generation verification".to_string())?;
+    // Reuse the installer's signed generation/receipt verification without its
+    // CLI entry point or filesystem capability probes. No fixture API is used.
+    let loader = r#"
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+const input = JSON.parse(fs.readFileSync(0, 'utf8'));
+const urls = new Map();
+function moduleUrl(name) {
+  if (urls.has(name)) return urls.get(name);
+  let source = input.sources[name];
+  if (typeof source !== 'string') throw new Error('verifier dependency is not embedded');
+  const imports = name === 'install-plugin-generation.js'
+    ? ['capabilities', 'jcs', 'key-protection', 'payload-manifest', 'skill-system', 'store-paths'].map(stem => [`'./lib/${stem}.js'`, `lib/${stem}.js`])
+    : name === 'lib/payload-manifest.js' ? [["'./jcs.js'", 'lib/jcs.js']] : [];
+  for (const [specifier, dependency] of imports) {
+    if (source.split(specifier).length !== 2) throw new Error('verifier import contract changed');
+    source = source.replace(specifier, JSON.stringify(moduleUrl(dependency)));
+  }
+  if (/from (['"])(\.[^'"]+)\1/.test(source) || /import\s*\(/.test(source))
+    throw new Error('verifier has an unsupported import edge');
+  if (name === 'install-plugin-generation.js') {
+    const guard = 'if (import.meta.main !== false) main();';
+    if (source.split(guard).length !== 2) throw new Error('verifier entry contract changed');
+    source = source.replace(guard, '') + `
+const root = fs.realpathSync(${JSON.stringify(input.pluginRoot)});
+const store = fs.realpathSync(path.join(root, 'generations'));
+if (!isWithin(root, store) || store === root) throw new Error('generation store escapes plugin root');
+const cache = JSON.parse(fs.readFileSync(path.join(${JSON.stringify(input.home)}, '.prometheus/capabilities.json'), 'utf8'));
+const fields = ['symlinkFile', 'symlinkDirectory', 'junction', 'hardlink', 'executableBit', 'posixModes'];
+if (cache.schemaVersion !== 1 || typeof cache.storeRoot !== 'string' || !path.isAbsolute(cache.storeRoot) ||
+    fs.realpathSync(cache.storeRoot) !== store ||
+    cache.installerVersion !== ${JSON.stringify(crypto.createHash('sha256').update(input.sources['install-plugin-generation.js']).digest('hex'))} ||
+    !fields.every(key => typeof cache[key] === 'boolean')) throw new Error('installed capability record is missing or invalid');
+CAPABILITIES = cache;
+const home = path.resolve(${JSON.stringify(input.home)});
+process.env.HOME = home;
+process.env.CODEX_HOME = resolveCodexHome(home, { CODEX_HOME: ${JSON.stringify(input.codexHome)} });
+const manifest = verifyActive(root, path.join(root, 'trust/allowed-signers.json'), null, TARGETS, home);
+const generation = fs.realpathSync(path.join(root, 'generations', manifest.generation));
+if (!isWithin(store, generation) || generation === store) throw new Error('verified generation escapes store');
+const relative = 'shared/scripts/codex-memories-config.sh';
+const owned = manifest.files.filter(entry => entry.path === relative);
+if (owned.length !== 1 || owned[0].type !== 'file' || manifestExecutableLookup(manifest)(relative) !== true)
+  throw new Error('memory helper is not owned as an executable file');
+const ownedPath = path.join(generation, relative);
+if (!fs.lstatSync(ownedPath).isFile()) throw new Error('memory helper is not a regular file');
+const helper = fs.realpathSync(ownedPath);
+if (!isWithin(generation, helper) || !fs.statSync(helper).isFile()) throw new Error('memory helper escapes generation or is missing');
+process.stdout.write(JSON.stringify({ generation, helper }));
+`;
+  }
+  const url = 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
+  urls.set(name, url);
+  return url;
+}
+try { await import(moduleUrl('install-plugin-generation.js')); }
+catch { process.stderr.write('installed generation/helper verification failed'); process.exitCode = 1; }
+"#;
+    let mut child = Command::new("node")
+        .args(["--input-type=module", "--eval", loader])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|_| "Node.js is unavailable for installed-generation verification".to_string())?;
+    let written = child
+        .stdin
+        .take()
+        .ok_or_else(|| "verifier input pipe is unavailable".to_string())
+        .and_then(|mut stdin| stdin.write_all(&input).map_err(|_| "could not send verifier input".to_string()));
+    if let Err(error) = written {
+        let _ = child.kill();
+        let _ = child.wait();
+        return Err(error);
+    }
+    let output = child
+        .wait_with_output()
+        .map_err(|_| "installed-generation verifier did not finish".to_string())?;
+    if !output.status.success() {
+        return Err("installed generation or owned memory helper could not be verified; repair the installation first".into());
+    }
+    let result: serde_json::Value = serde_json::from_slice(&output.stdout)
+        .map_err(|_| "installed-generation verifier returned invalid output".to_string())?;
+    let helper = result["helper"]
+        .as_str()
+        .map(PathBuf::from)
+        .filter(|path| path.is_absolute())
+        .ok_or_else(|| "verified helper path is not absolute".to_string())?;
+    Ok(helper)
+}
+
+fn quote_doctor_shell_path(path: &Path) -> Result<String, String> {
+    let value = path
+        .to_str()
+        .ok_or_else(|| "repair path is not valid UTF-8".to_string())?;
+    if value.chars().any(|character| matches!(character, '\n' | '\r' | '\0')) {
+        return Err("repair path contains unsupported control characters".into());
+    }
+    Ok(format!("'{}'", value.replace('\'', "'\\''")))
+}
+
+fn selected_doctor_home() -> PathBuf {
+    std::env::var_os("HOME")
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)
-        .unwrap_or_else(|| {
-            dirs::home_dir()
-                .unwrap_or_else(|| PathBuf::from("/"))
-                .join(".codex")
-        });
+        .or_else(dirs::home_dir)
+        .unwrap_or_else(|| PathBuf::from("/"))
+}
+
+/// Match path.resolve/abspath without requiring a directory to exist or
+/// changing the meaning of a root selected through a symlink.
+fn normalize_doctor_path(path: &Path) -> Result<PathBuf, String> {
+    let absolute = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        std::env::current_dir()
+            .map_err(|_| "working directory could not be resolved".to_string())?
+            .join(path)
+    };
+    let mut normalized = PathBuf::new();
+    for component in absolute.components() {
+        match component {
+            std::path::Component::CurDir => {}
+            std::path::Component::ParentDir => { normalized.pop(); }
+            _ => normalized.push(component.as_os_str()),
+        }
+    }
+    Ok(normalized)
+}
+
+fn effective_doctor_codex_home(home: &Path) -> Result<PathBuf, String> {
+    let selected = std::env::var_os("CODEX_HOME")
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from)
+        .unwrap_or_else(|| home.join(".codex"));
+    normalize_doctor_path(&selected)
+}
+
+/// Check persisted user policy and known summary files. This cannot establish
+/// effective session overrides or whether previously started jobs have stopped.
+fn check_codex_memories() -> CheckResult {
     let id = "codex.memories".to_string();
     let group = "codex".to_string();
     let label = "Codex memory generation".to_string();
+    let roots = normalize_doctor_path(&selected_doctor_home())
+        .and_then(|home| effective_doctor_codex_home(&home).map(|codex| (home, codex)));
+    let (home, codex_dir) = match roots {
+        Ok(roots) => roots,
+        Err(error) => return CheckResult {
+            id, group, label,
+            severity: Severity::Yellow,
+            status: CheckStatus::Warn,
+            summary: "Effective Codex home could not be resolved".into(),
+            details: vec![error],
+            optional: true,
+            actions: vec![],
+        },
+    };
 
     if !codex_dir.is_dir() {
         return CheckResult {
@@ -1289,64 +1440,111 @@ fn check_codex_memories() -> CheckResult {
         };
     }
 
-    let generate = fs::read_to_string(codex_dir.join("config.toml"))
-        .ok()
-        .and_then(|contents| parse_codex_generate_memories(&contents));
-    let summary_path = codex_dir.join("memories").join("memory_summary.md");
-    let summary_present = summary_path.is_file();
+    let config_path = codex_dir.join("config.toml");
+    let parsed = fs::read_to_string(&config_path)
+        .map_err(|error| format!("could not read configuration: {error}"))
+        .and_then(|contents| {
+            contents
+                .parse::<toml::Value>()
+                .map_err(|_| "invalid TOML configuration".to_string())
+        });
+    let keys = [
+        ("features", "memories"),
+        ("memories", "generate_memories"),
+        ("memories", "use_memories"),
+    ];
+    let settings = keys.map(|(section, key)| {
+        parsed
+            .as_ref()
+            .map(|config| codex_memory_setting(config, section, key))
+            .unwrap_or("invalid")
+    });
+    let summary_paths = [
+        ("v1", codex_dir.join("memories").join("memory_summary.md")),
+        ("v2", codex_dir.join("memories_v2").join("memory_summary.md")),
+    ];
+    let summary_states = summary_paths.each_ref().map(|(_, path)| {
+        match fs::symlink_metadata(path) {
+            Ok(_) => "present",
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => "absent",
+            Err(_) => "unreadable",
+        }
+    });
+    let healthy = settings.iter().all(|state| *state == "false")
+        && summary_states.iter().all(|state| *state == "absent");
+    let mut details = Vec::new();
+    if let Err(error) = &parsed {
+        details.push(format!("{}: {error}", config_path.display()));
+    }
+    for ((section, key), state) in keys.iter().zip(settings) {
+        details.push(format!("{}: {section}.{key}={state}", config_path.display()));
+    }
+    for ((version, path), state) in summary_paths.iter().zip(summary_states) {
+        details.push(format!("{version} summary {}: {state}", path.display()));
+    }
+    details.push(
+        "Static user configuration only; effective profile/CLI overrides and running sessions are not inspected."
+            .into(),
+    );
 
-    if generate == Some(false) && !summary_present {
+    if healthy {
         return CheckResult {
             id,
             group,
             label,
             severity: Severity::Green,
             status: CheckStatus::Pass,
-            summary: "generate_memories = false and no memory_summary.md present".into(),
-            details: vec![],
+            summary: "All three memory settings are false; known v1/v2 summaries are absent".into(),
+            details,
             optional: true,
             actions: vec![],
         };
     }
 
-    let repair = "bash shared/scripts/codex-memories-config.sh";
-    let mut details = Vec::new();
-    match generate {
-        Some(false) => {}
-        Some(true) => details.push(format!(
-            "{}: [memories] generate_memories is true",
-            codex_dir.join("config.toml").display()
-        )),
-        None => details.push(format!(
-            "{}: [memories] generate_memories is not set",
-            codex_dir.join("config.toml").display()
-        )),
-    }
-    if summary_present {
-        details.push(format!(
-            "{} exists and is injected into every Codex thread",
-            summary_path.display()
-        ));
-    }
-    details.push(format!("Repair: {repair}"));
-
+    let plugin_root = std::env::var_os("PROMETHEUS_PLUGIN_ROOT")
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from)
+        .unwrap_or_else(|| home.join(".prometheus/plugins/prometheus-skill-pack"));
+    let repair = normalize_doctor_path(&plugin_root)
+        .and_then(|root| verified_codex_memory_helper(&home, &root, &codex_dir)).and_then(|helper| {
+        Ok(format!(
+            "env CODEX_HOME={} bash {}",
+            quote_doctor_shell_path(&codex_dir)?,
+            quote_doctor_shell_path(&helper)?,
+        ))
+    });
+    let (command_hint, reason_blocked) = match repair {
+        Ok(command) => {
+            details.push(format!("Owner-approved apply: {command}"));
+            (Some(command), Some("Applying policy requires owner approval; doctor only diagnoses.".into()))
+        }
+        Err(reason) => {
+            details.push(format!("Installation remediation required: {reason}"));
+            details.push(format!("Restore a verified plugin installation at {} before applying memory policy.", plugin_root.display()));
+            (None, Some(reason))
+        }
+    };
+    details.push(
+        "After applying policy, restart/drain sessions and inspect effective overrides; generation=false alone does not block startup consolidation."
+            .into(),
+    );
     CheckResult {
         id,
         group,
         label,
         severity: Severity::Yellow,
         status: CheckStatus::Warn,
-        summary: "Codex memory generation is not disabled".into(),
+        summary: "Codex memory policy or known summary disposition is unhealthy".into(),
         details,
         optional: true,
         actions: vec![RepairAction {
             id: "codex.disable-memories".into(),
-            description: "Set generate_memories = false and archive memory_summary.md.".into(),
+            description: "Set features.memories, memories.generate_memories and memories.use_memories to false; archive known v1/v2 summaries.".into(),
             safe: false,
             reversible: true,
             dry_run_only: false,
-            command_hint: Some(repair.into()),
-            reason_blocked: None,
+            command_hint,
+            reason_blocked,
         }],
     }
 }
@@ -1996,8 +2194,11 @@ fn check_harness_adapter_parity() -> CheckResult {
     )
     .unwrap_or_default();
 
-    if let Some(home) = dirs::home_dir() {
-        let plugin_root = home.join(".prometheus/plugins/prometheus-skill-pack");
+    if let Ok(home) = normalize_doctor_path(&selected_doctor_home()) {
+        let plugin_root = std::env::var_os("PROMETHEUS_PLUGIN_ROOT")
+            .filter(|value| !value.is_empty())
+            .map(PathBuf::from)
+            .unwrap_or_else(|| home.join(".prometheus/plugins/prometheus-skill-pack"));
         let generations = fs::canonicalize(plugin_root.join("generations"));
         let active = fs::canonicalize(plugin_root.join("current"));
         match (generations, active) {
@@ -2054,9 +2255,9 @@ fn check_harness_adapter_parity() -> CheckResult {
 
         if source_version.is_empty() {
             failures.push("source plugin version is missing".into());
-        } else {
-            let cache_root = home
-                .join(".codex/plugins/cache/prometheus-skill-pack/prometheus-skill-pack")
+        } else if let Ok(codex_home) = effective_doctor_codex_home(&home) {
+            let cache_root = codex_home
+                .join("plugins/cache/prometheus-skill-pack/prometheus-skill-pack")
                 .join(&source_version);
             validate_codex_hook_graph(
                 &cache_root,
@@ -2067,6 +2268,8 @@ fn check_harness_adapter_parity() -> CheckResult {
                 "Codex native cache",
                 &mut failures,
             );
+        } else {
+            failures.push("effective Codex home could not be resolved".into());
         }
     } else {
         failures.push("home directory cannot be resolved".into());

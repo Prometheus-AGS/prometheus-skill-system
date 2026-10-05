@@ -22,8 +22,10 @@ if [ -z "$in_progress" ]; then
   exit 2
 fi
 
-conflicted="$(git diff --name-only --diff-filter=U)"
-if [ -z "$conflicted" ]; then
+conflict_file="$(mktemp "${TMPDIR:-/tmp}/rebase-generated-conflicts.XXXXXX")" || exit 2
+trap 'rm -f "$conflict_file"' EXIT
+git diff --name-only --diff-filter=U -z > "$conflict_file" || exit 2
+if [ ! -s "$conflict_file" ]; then
   echo "rebase-regenerate: no conflicted paths; continue the $in_progress yourself."
   exit 0
 fi
@@ -33,45 +35,22 @@ generated="$(node scripts/generated-paths.mjs)" || {
   exit 2
 }
 
-is_generated() {
-  local p="$1" g
-  while IFS= read -r g; do
-    [ -n "$g" ] || continue
-    case "$g" in
-      */) case "$p" in "$g"*) return 0 ;; esac ;;
-      *) [ "$p" = "$g" ] && return 0 ;;
-    esac
-  done <<EOF
-$generated
-EOF
-  return 1
-}
-
-others=""
-while IFS= read -r p; do
-  [ -n "$p" ] || continue
-  is_generated "$p" || others="$others$p
-"
-done <<EOF
-$conflicted
-EOF
-if [ -n "$others" ]; then
-  echo "rebase-regenerate: conflicts outside the generated set; resolve these by hand (nothing was changed):" >&2
-  printf '%s' "$others" | sed 's/^/  /' >&2
-  exit 1
-fi
+# Use the production classifier also applied to observed materialized outputs.
+# It reads NUL-delimited Git paths and index/HEAD gitlink modes. Empty or absent
+# submodule directories never turn source gitlinks into generated content.
+node scripts/generated-paths.mjs --classify-conflicts
+classification=$?
+[ "$classification" -eq 0 ] || exit "$classification"
 
 # Every conflicted path is generated: its content is discarded either way, so
 # take any side that exists and let the generators rewrite it.
-while IFS= read -r p; do
+while IFS= read -r -d '' p; do
   [ -n "$p" ] || continue
-  git checkout --theirs -- "$p" 2>/dev/null \
-    || git checkout --ours -- "$p" 2>/dev/null \
-    || git rm -q --cached -- "$p" 2>/dev/null \
+  git --literal-pathspecs checkout --theirs -- "$p" 2>/dev/null \
+    || git --literal-pathspecs checkout --ours -- "$p" 2>/dev/null \
+    || git --literal-pathspecs rm -q --cached -- "$p" 2>/dev/null \
     || true
-done <<EOF
-$conflicted
-EOF
+done < "$conflict_file"
 
 fail() { echo "rebase-regenerate: FAILED: $*" >&2; exit 1; }
 
@@ -80,13 +59,16 @@ node scripts/generate-harness-adapters.js || fail "generate-harness-adapters.js"
 node scripts/generate-skill-system-distribution.js || fail "generate-skill-system-distribution.js"
 
 echo "rebase-regenerate: validating"
-npm run --silent check:distribution || fail "npm run check:distribution"
-npm run --silent validate:harness-adapters || fail "npm run validate:harness-adapters"
-npm run --silent validate:codex || fail "npm run validate:codex"
+# Production validators only. check:distribution also runs legacy isolated
+# suites; rebase resolution is not a substitute for the final integration gate.
+# The distribution checker covers both Claude and Codex materializations and
+# still rejects missing/stale owned payload files and import closure failures.
+node scripts/generate-skill-system-distribution.js --check || fail "distribution/Codex production validation"
+node scripts/check-harness-adapters.js || fail "harness production validation"
 
 while IFS= read -r g; do
   [ -n "$g" ] || continue
-  git add -A -- "$g" || fail "git add $g"
+  git --literal-pathspecs add -A -- "$g" || fail "git add $g"
 done <<EOF
 $generated
 EOF

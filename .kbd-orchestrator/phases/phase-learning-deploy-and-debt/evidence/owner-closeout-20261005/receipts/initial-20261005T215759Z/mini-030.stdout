@@ -1,0 +1,60 @@
+{
+  "selected": {
+    "id": "gpt-6.1-sol",
+    "provider": null,
+    "catalogId": null,
+    "available": true,
+    "tier": null,
+    "capabilities": {},
+    "pricing": {
+      "inputPerMillion": null,
+      "outputPerMillion": null,
+      "currency": "USD",
+      "basis": "maximum-known-context-tier",
+      "sourceUnit": "per-token"
+    },
+    "provenance": {
+      "discovery": null,
+      "catalog": null,
+      "availabilityBasis": "operator-declared",
+      "metadataBasis": "operator-declared-identifier-only"
+    },
+    "freshness": {
+      "fetchedAt": null,
+      "ageDays": null,
+      "stale": null
+    }
+  },
+  "policy": {
+    "model": "gpt-6.1-sol",
+    "capabilities": []
+  },
+  "appliedLayers": [
+    "team",
+    "task"
+  ],
+  "rejected": [],
+  "explanation": "All declared constraints satisfied; ordered by lowest known input+output USD per million, then exact identifier. Unknown costs rank last.",
+  "warnings": [
+    "Selected pricing freshness is unknown. Price ceilings do not guarantee current provider rates.",
+    "Availability is operator-declared; no live discovery was performed for this list."
+  ],
+  "diagnostics": [
+    "Discovery describes configured availability, not a successful inference.",
+    "Strength tiers are operator annotations; unspecified metadata remains unknown."
+  ],
+  "catalogProvenance": {
+    "source": null,
+    "sourceSha256": null,
+    "fetched": null,
+    "libraryVersion": null,
+    "adapter": "liter-llm/catalog-schema-1",
+    "sourceRevision": "c5c6caac617eb931cd5009146a70831422ec236c"
+  },
+  "catalogFreshness": {
+    "fetchedAt": null,
+    "ageDays": null,
+    "stale": null,
+    "maxAgeDays": 30
+  }
+}

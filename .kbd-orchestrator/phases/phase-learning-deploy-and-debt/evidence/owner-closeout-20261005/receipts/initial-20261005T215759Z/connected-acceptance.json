@@ -1,0 +1,15 @@
+{
+  "acceptance": [
+    "14/AC-1"
+  ],
+  "disabledIdentityAbsent": true,
+  "endpointIds": [
+    "3e755a69bfbd413c2ad7076719c147f637e51c2b851e184a74583c2111bbbc9b",
+    "866ca84d7edcca09fc26362dd533a2571c6edece92231c12d131a3324cb3a443"
+  ],
+  "projectId": "4377b624-1bca-4897-96b3-53d4b60f134a",
+  "publication": "pending; not established by this scenario",
+  "remoteApplication": true,
+  "requestId": "d6a17518-2d5f-4a13-b5c0-1626379e40f1",
+  "selectedSocket": "/private/tmp/ldd-local-07t76e9q/companion-connected-z2htsvb4/a/control.sock"
+}

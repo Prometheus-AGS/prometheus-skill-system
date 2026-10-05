@@ -11,18 +11,19 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Resolve once before dispatch. A nonempty inherited root wins over HOME;
+# lexical normalization also works before the selected directory exists.
+CODEX_HOME="$(node -e 'const path = require("node:path"); process.stdout.write(path.resolve(process.env.CODEX_HOME || path.join(process.env.HOME, ".codex")));')"
+export CODEX_HOME
 UNINSTALL=false
 SKILLS_ONLY=false
 BEST_EFFORT=false
 FAILED_COMPONENTS=0
 
-# shellcheck source=lib/install-codex-memories.sh
-if [ -f "$REPO_ROOT/scripts/lib/install-codex-memories.sh" ]; then
-    source "$REPO_ROOT/scripts/lib/install-codex-memories.sh"
-else
-    # Never let a missing optional helper abort the install (set -e).
-    install_codex_memories() { echo "  ⚠️  codex memories: helper missing; skipping" >&2; return 0; }
-fi
+install_codex_memories() {
+    local script="${CODEX_MEMORIES_SCRIPT:-$REPO_ROOT/shared/scripts/codex-memories-config.sh}"
+    bash "$script" --create
+}
 
 for arg in "$@"; do
     case "$arg" in
@@ -296,10 +297,10 @@ else
     # function with --uninstall.)
     install_to_kimi_desktop
 
-    # Codex is installed by the plugin generation above, so install_to_codex() is
-    # reached only on uninstall. Disable Codex memory generation here (guarded:
-    # never aborts the install).
-    install_codex_memories
+    # Apply at the real install entry point, including a new Codex config.
+    # Uninstall does not rewrite user memory policy. Failures follow the same
+    # certification/best-effort policy as other installation components.
+    install_codex_memories || install_failure "Codex memory policy"
 fi
 
 # Deterministic local fixture hook. It is deliberately inert unless both variables

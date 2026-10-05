@@ -1,3 +1,5 @@
+> **Historical installed-host report; outside current onboarding.** This August 2026 report applies to its named commits, workstation and installation. It does not certify current source, another home, every harness or this candidate. Use [the current guide](../guide/00-quick-start.md).
+
 # All-tools rebuild and reinstall — 2026-08-23
 
 ## Scope and source

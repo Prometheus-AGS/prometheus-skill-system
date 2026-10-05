@@ -4,51 +4,28 @@ title: /sync-push Skill
 sidebar_label: /sync-push
 ---
 
-# /sync-push
+# Sync push skill
 
-Create or exactly replay a signed push for a named sync domain. MCP and REST
-use the same service and durable receipt store.
+Companion's `/sync-push` instruction uses an explicit authorized syncable domain
+and MCP `sync-push`. A new request uses the enrolled project signer; ambiguous
+generic domains need an explicit project choice. A sync handoff supplies neither
+another repository's write authority nor native session credentials.
 
-## Trigger phrases
+Before POST, the MCP bridge records exact signed intent and endpoint durably.
+On uncertainty, preserve `intentPath`, request ID/body and host, then resolve
+`sync-push-receipt` before any replay. Do not issue a new ID to settle response
+loss. Local accepted/broadcast state is not remote peer application. Follow
+[the complete recovery contract](/docs/sovereign-sync/signed-pushes-and-receipts).
 
-- "sync my skills"
-- "push to peers"
-- "sync learning progress"
-- "push sync"
+## Ownership and evidence
 
-## Requested domain names
+These routes remain useful after relocation. The current recovered Companion
+source (`docs/installation.md`, `docs/control-api.md`) has no public remote or
+certified release yet. Source inspection is not installed or peer acceptance;
+final source/artifact identities and publication links remain release-owned.
 
-| Domain | Privacy |
-|--------|---------|
-| `skill-index` | Recommended `Public` metadata |
-| `learner-model` | Recommended `Trusted` |
-| `kbd-control:<project-id>` | `Trusted`; signed authoritative Loro updates plus auxiliary presence |
-| `open-spec:<project-id>` | Future project adapter |
-| `surreal-memory` | `Local` — must remain ineligible |
-
-These names are validated against the live default-deny manifest. Unknown and
-`Local` domains are rejected before export.
-
-## Quick push
-
-```bash
-# Submit a pre-signed canonical request through the private Unix transport
-curl --unix-socket "$SOCKET" -s -X POST http://localhost/api/v2/sync/pushes \
-  -H 'Content-Type: application/json' \
-  --data @signed-push.json
-
-# Recover the durable receipt after response loss
-curl --unix-socket "$SOCKET" -s \
-  http://localhost/api/v2/sync/pushes/<push-id>
-```
-
-The receipt's canonical payload hash makes same-ID/same-payload retries exact.
-Reusing the ID with a different payload returns `409`. Per-peer states and
-ordered SSE events distinguish receipt, apply, and rejection; a local
-`accepted` state alone is not remote-apply proof. See
-[Signed pushes and receipts](./signed-pushes-and-receipts) and
-[Exactly what syncs](./data-scope).
-
-## Source
-
-[`skills/learn/sync-push/SKILL.md`](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/skills/learn/sync-push/SKILL.md)
+Use [local KBD](/docs/kbd/control-plane) without the optional extension, and the
+[service operations guide](/docs/guide/service-operations#optional-companion)
+for pack/Companion ownership. The [integration contract](/docs/kbd/integration-contract)
+is a one-way seam. [Relocation history](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/decisions/sovereign-sync-relocated-to-companion.md)
+is a decision record, not a Companion repository URL.

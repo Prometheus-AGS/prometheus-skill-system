@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "revision": 0,
+  "team": {
+    "schemaVersion": 1,
+    "id": "offline",
+    "outcome": "Exercise the packaged project adoption contract",
+    "scope": "project",
+    "harness": "codex",
+    "roles": [
+      {
+        "id": "implementer",
+        "description": "Own implementation",
+        "prompt": "Read the project instructions and preserve evidence.",
+        "skills": [],
+        "owns": [
+          "src/**"
+        ],
+        "inputs": [
+          "Requirements"
+        ],
+        "outputs": [
+          "Source"
+        ],
+        "dependsOn": []
+      }
+    ]
+  },
+  "tasks": [],
+  "handoffs": [],
+  "outbox": [],
+  "events": []
+}

@@ -1,3 +1,5 @@
+> **Research and proposed architecture; outside current onboarding.** The dated Onyx comparison and revised change list are preserved. Proposed workers, thread schedulers, budgets and report passes are not an executable guarantee or current release proof. Use [the current guide](../guide/00-quick-start.md).
+
 # Deep Research: Prometheus Skill Pack vs. Onyx — Gap Analysis and Subagent Architecture Plan
 
 **Date:** 2026-09-07

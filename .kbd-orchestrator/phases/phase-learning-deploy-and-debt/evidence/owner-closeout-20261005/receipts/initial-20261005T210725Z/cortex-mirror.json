@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "exitCode": 2,
+  "status": "BLOCKED",
+  "scratch": "/private/tmp/ldd-local-o6r1eblg/cortex-0gnext1r",
+  "startedUnix": 1791236676.065527,
+  "endedUnix": 1791236676.750895,
+  "results": [
+    {
+      "case": "durable-primary-absent-disabled",
+      "status": "PASS"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "explicit real Cortex package required; no installed/live-home fallback"
+    }
+  ],
+  "isolation": "scratch homes/data/queue/model-cache; readonly actual executable/model inputs; no real-home assertions"
+}

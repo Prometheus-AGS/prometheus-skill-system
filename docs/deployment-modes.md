@@ -1,107 +1,17 @@
-# Deployment Modes
+# Deployment choices
 
-The prometheus-skill-pack operates across four progressive capability tiers. Each tier is a strict superset of the tier below it.
+Choose independent capabilities from the shipped source; these are not progressive superset tiers. A skill definition, configured endpoint, running service and accepted user workflow are different delivery states.
 
-## Capability Matrix
+| Need | Source-owned path | Additional requirement |
+|---|---|---|
+| Skills and local workflows | `./install.sh --profile skills` | Git, compatible Node and a supported harness |
+| Local KBD | `prometheus kbd` | Explicit project identity, signed local runtime |
+| Searchable memory/knowledge | Full native service templates or an existing authorized endpoint | Actual namespace/database/model and endpoint configuration |
+| Multi-model inference | Configured liter-llm or another supported provider | Credentials and demonstrated model route |
+| Learning UI | Learner model plus surface bridge | Supported host surface and installed service |
+| Bounded execution | Prometheus Exec | Supported backend, authorized bytes and separate artifact/service install |
+| Cross-device replication | Optional Companion | Its own source, identity, installation and acceptance evidence |
 
-| Capability | Mode 0 CLI | Mode 1 MCP | Mode 2 Full | Mode 3 P2P |
-|---|:---:|:---:|:---:|:---:|
-| `forge enrich` / `validate` / `reflect` | YES | YES | YES | YES |
-| Skill discovery and slash commands | YES | YES | YES | YES |
-| surreal-memory knowledge graph | NO | YES | YES | YES |
-| Sycophancy correction gate | NO | YES | YES | YES |
-| surface-bridge Tier 2 UI (iframe) | NO | NO | YES | YES |
-| FSRS-6 spaced retrieval (learner-model) | NO | NO | YES | YES |
-| Companion P2P CRDT extension | NO | NO | NO | EXTERNAL |
-| Companion iroh QUIC transport | NO | NO | NO | EXTERNAL |
-| Companion AG-UI SSE endpoint | NO | NO | NO | EXTERNAL |
+The full installer supports `skills` and `full` profiles. Full service templates vary by platform; a Linux-capable binary does not imply a Linux service installer. Native service installation needs Bash 4 or newer. Full skills support Windows through Git Bash/WSL; mini provides a Node-only Windows path with a reduced optional Compose stack.
 
-## Mode Descriptions
-
-### Mode 0 — CLI only
-
-**Requires:** Node.js 20+, Rust stable (for forge-rs)
-
-Install skills and run forge operations locally. No persistent memory, no UI beyond text.
-
-```bash
-bash scripts/install-skills-flat.sh
-forge enrich src/main.rs --language rust
-```
-
-Suitable for offline environments and CI pipelines.
-
----
-
-### Mode 1 — MCP
-
-**Requires:** Mode 0 + surreal-memory MCP + sycophancy-correction MCP
-
-Skills gain access to the surreal-memory knowledge graph and the sycophancy gate. Learning sessions, PMPO reflection, and memory-backed workflows become available.
-
-```bash
-# Start surreal-memory server
-npm run install:daemons
-npm run health
-
-# Verify
-bash shared/scripts/detect-toolchain.sh --json | jq .mcp_servers
-```
-
-The `.mcp.json` file configures both servers; `install-skills-flat.sh` writes platform-specific MCP config files.
-
----
-
-### Mode 2 — Full (surface-bridge + learner-model)
-
-**Requires:** Mode 1 + surface-bridge daemon + learner-model binary
-
-The surface-bridge Axum server (`127.0.0.1:7890`) enables Tier 2 UI rendering in harnesses that support MCP App iframes. The learner-model binary provides CRDT-backed mastery tracking and FSRS-6 scheduling.
-
-```bash
-# Installed automatically by install-skills-flat.sh
-# Manual start:
-surface-bridge &
-curl -s http://127.0.0.1:7890/health | jq .
-```
-
-The learn domain skills (`/feynman-loop`, `/learn-goal`, `/learn-retain`, etc.) operate at full fidelity in Mode 2.
-
----
-
-### Mode 3 — P2P
-
-**Requires:** Mode 2 + a separately installed `prometheus-companion`
-
-The Companion adds iroh QUIC P2P transport for cross-device CRDT
-synchronization. It owns its process, service definition, and sync skills; the
-skill pack discovers its optional endpoint through the open integration
-contract.
-
-```bash
-# Run from the prometheus-companion checkout
-bash scripts/install-companion-service.sh
-bash scripts/install-skill-package.sh
-
-# Confirm that the pack discovered the optional endpoint
-prometheus contract show --json
-```
-
-The Companion documents its AG-UI and P2P endpoints in its own repository.
-
-## Choosing a Mode
-
-| Scenario | Recommended mode |
-|---|---|
-| CI pipeline or offline agent | Mode 0 |
-| Single-user local development | Mode 1 |
-| Active learning and tutoring | Mode 2 |
-| Multi-device or collaborative learning | Mode 3 |
-
-## Checking the current mode
-
-```bash
-bash shared/scripts/detect-toolchain.sh --json | jq '{mode: .deployment_mode, services: .mcp_servers}'
-```
-
-The `deployment_mode` field returns `"cli"`, `"mcp"`, `"full"`, or `"p2p"`.
+Use the [service operations guide](guide/26-service-operations.md) for exact ownership, endpoints and data boundaries and [installation](guide/19-installation.md) for actual entrypoints. The [integration contract](integration-contract.md) keeps Companion optional and separately owned. The pack does not automatically install a sync daemon, and its detector reports observations rather than proving an entire deployment mode usable.

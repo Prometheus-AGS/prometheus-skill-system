@@ -135,7 +135,8 @@ enforcement script.
 }
 ```
 
-Run in CI:
+After the complete production implementation, run locally as part of the
+repository's final integration gate:
 
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/skills/testing/bdd-lifecycle-loop/scripts/flake-budget.sh" \
@@ -148,9 +149,11 @@ Exits non-zero when:
 - Any `@flaky` scenario has been tagged longer than `max_flaky_age_days`
   (unless listed in `grace_scenarios`)
 
-CI failure forces a decision: fix the flake, delete the scenario, or add
-it to `grace_scenarios` with a linked ticket. Silent flake accumulation is
-impossible.
+A failing local gate requires a recorded disposition: fix the production
+cause or propose an approved scenario/grace-budget change with a linked ticket.
+Protected scenarios cannot be deleted or weakened to obtain a pass; their
+changes require the repository's signed approval. Hosted CI is not validation
+evidence for Prometheus repositories.
 
 ### Immutable tests
 

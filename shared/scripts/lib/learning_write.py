@@ -48,11 +48,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Protect local imports in this interpreter and fresh Python descendants alike.
+sys.dont_write_bytecode = True
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+
 LIB = Path(__file__).resolve().parent
 sys.path.insert(0, str(LIB))
 from agent_identity import resolve as resolve_identity  # noqa: E402
 from project_id import resolve_user_scope  # noqa: E402
 import learning_route  # noqa: E402
+import cortex_feed_slots  # noqa: E402
 
 SCHEMA_PATH = LIB.parent.parent / "schemas" / "learning-envelope.schema.json"
 ENQUEUE = LIB.parent / "enqueue-memory-operation.py"
@@ -367,7 +372,8 @@ def _feed_timeout() -> float:
         value = float(os.environ.get("PROMETHEUS_CORTEX_FEED_TIMEOUT", "180"))
     except ValueError:
         return 180.0
-    return value if value > 0 else 180.0
+    import math
+    return value if value > 0 and math.isfinite(value) else 180.0
 
 
 CORTEX_FEED_TIMEOUT = _feed_timeout()
@@ -389,62 +395,134 @@ def cortex_feed() -> int:
     `cortex_remember` reply (id 2) arrives or the timeout expires, and never prints.
     Input on stdin: {"argv": [...], "requests": [...]}.
     """
-    import select
+    import selectors
     import time
+    lease = None
+    process = None
+    selector = selectors.DefaultSelector()
     try:
+        lease = cortex_feed_slots.inherit(int(sys.argv[2]))
         spec = json.loads(sys.stdin.read())
         process = subprocess.Popen(spec["argv"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                   stderr=subprocess.DEVNULL)
-    except (OSError, ValueError, KeyError):
-        return 0
-    try:
+                                   stderr=subprocess.DEVNULL, pass_fds=(lease.descriptor,))
         assert process.stdin is not None and process.stdout is not None
-        process.stdin.write(("\n".join(json.dumps(r) for r in spec["requests"]) + "\n").encode("utf-8"))
-        process.stdin.flush()
+        outgoing = ("\n".join(json.dumps(r) for r in spec["requests"]) + "\n").encode("utf-8")
+        os.set_blocking(process.stdin.fileno(), False)
+        os.set_blocking(process.stdout.fileno(), False)
+        selector.register(process.stdin, selectors.EVENT_WRITE, "write")
+        selector.register(process.stdout, selectors.EVENT_READ, "read")
         deadline, pending = time.monotonic() + CORTEX_FEED_TIMEOUT, b""
-        while time.monotonic() < deadline and process.poll() is None:
-            ready, _, _ = select.select([process.stdout], [], [], 0.5)
-            if not ready:
-                continue
-            chunk = os.read(process.stdout.fileno(), 65536)
-            if not chunk:
-                break
-            pending += chunk
-            lines = pending.split(b"\n")
-            pending = lines.pop()
-            if any(_reply_id(line) == 2 for line in lines):
-                break
-    except (OSError, AssertionError, ValueError):
+        finished = False
+        while not finished and time.monotonic() < deadline and process.poll() is None:
+            for key, _ in selector.select(max(0, min(0.5, deadline - time.monotonic()))):
+                try:
+                    if key.data == "write":
+                        outgoing = outgoing[os.write(process.stdin.fileno(), outgoing):]
+                        if not outgoing:
+                            # Leave stdin open while the asynchronous save runs.
+                            selector.unregister(process.stdin)
+                    else:
+                        chunk = os.read(process.stdout.fileno(), 65536)
+                        if not chunk:
+                            finished = True
+                            break
+                        pending += chunk
+                        lines = pending.split(b"\n")
+                        pending = lines.pop()
+                        finished = any(_reply_id(line) == 2 for line in lines)
+                        if finished:
+                            break
+                except BlockingIOError:
+                    continue
+    except (OSError, AssertionError, ValueError, KeyError, IndexError, TypeError):
         pass
     finally:
+        selector.close()
         try:
-            if process.stdin:
-                process.stdin.close()
-            process.wait(timeout=5)
-        except (OSError, subprocess.TimeoutExpired):
-            process.kill()
+            if process is not None:
+                try:
+                    if process.stdin:
+                        process.stdin.close()
+                except OSError:
+                    pass
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    try:
+                        process.kill()
+                    except ProcessLookupError:
+                        pass
+                    # Capacity is retained until the actual server is reaped.
+                    process.wait()
+                if process.stdout:
+                    process.stdout.close()
+        finally:
+            if lease is not None:
+                lease.close()
     return 0
 
 
-def mirror_cortex(text: str, envelope: dict, user_id: str) -> bool:
-    """Detached `cortex_remember`; True when a Cortex server was started. Never raises,
-    never prints, never waits: any failure means the mirror is simply absent. A detached
-    `--cortex-feed` worker owns the server session so the server outlives this process."""
+def mirror_cortex(text: str, envelope: dict, user_id: str, status: dict | None = None) -> bool:
+    """Return True when a detached feeder accepted input, not when Cortex saved it.
+
+    Optional admission and spawn failures cannot change the primary durable write.
+    The caller never waits for model work; the feeder owns the server lifetime.
+    """
+    limit, diagnostic = cortex_feed_slots.configured_limit()
+    if status is not None:
+        status.update(limit=limit)
+        if diagnostic:
+            status["diagnostic"] = diagnostic
+    if os.environ.get("PROMETHEUS_LEARNING_CORTEX") == "0" or limit == 0:
+        if status is not None:
+            status.update(status="disabled", reason="mirror-disabled" if limit else "feeder-limit-zero")
+        return False
     argv = cortex_command()
     if not argv:
+        if status is not None:
+            explicit = bool(os.environ.get("PROMETHEUS_CORTEX_MCP", "").strip())
+            status.update(status="failed" if explicit else "absent",
+                          reason="invalid-server-command" if explicit else "server-unavailable")
+        return False
+    lease, admission = cortex_feed_slots.acquire()
+    if status is not None:
+        status.update(admission)
+    if lease is None:
         return False
     requests = [CORTEX_INIT, {"jsonrpc": "2.0", "id": 2, "method": "tools/call",
                               "params": {"name": "cortex_remember", "arguments": cortex_arguments(text, envelope, user_id)}}]
+    worker = None
     try:
-        worker = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), CORTEX_FEED_FLAG],
+        worker = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), CORTEX_FEED_FLAG,
+                                   str(lease.descriptor)],
                                   stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
-                                  stderr=subprocess.DEVNULL, start_new_session=True)
+                                  stderr=subprocess.DEVNULL, start_new_session=True,
+                                  pass_fds=(lease.descriptor,))
         assert worker.stdin is not None
         worker.stdin.write(json.dumps({"argv": argv, "requests": requests}).encode("utf-8"))
         worker.stdin.close()
+        if status is not None:
+            status.update(status="accepted", reason="feeder-started")
         return True
     except (OSError, AssertionError, ValueError):
+        if status is not None:
+            status.update(status="failed", reason="feeder-spawn-or-input-failed")
+        if worker is not None:
+            import signal
+            try:
+                os.killpg(worker.pid, signal.SIGKILL)
+            except OSError:
+                pass
+            if worker.stdin:
+                try:
+                    worker.stdin.close()
+                except OSError:
+                    pass
+            worker.wait()
         return False
+    finally:
+        # Inherited descriptions keep the lock after the writer closes it.
+        lease.close()
 
 
 def route_audience(payload: dict, cwd: Path, identity: dict, visibility: str, paths: list[str]) -> list[str]:
@@ -542,13 +620,17 @@ def write_lesson(text: str, payload: dict | None = None, *, cwd: Path | None = N
         operations.append({"user_id": uid, "agent_id": aid, "operation": operation_id})
     written = [o for o in operations if o.get("operation")]
     if not written:
-        return {"written": 0, "duplicate": any(o.get("duplicate") for o in operations), "envelope": envelope, "operations": operations}
+        return {"written": 0, "duplicate": any(o.get("duplicate") for o in operations), "envelope": envelope,
+                "operations": operations, "cortex": False,
+                "cortex_mirror": {"status": "not_attempted", "reason": "no-new-primary-write"}}
     append_learning_log({"envelope": envelope, "text": text, "scopes": [(o["user_id"], o["agent_id"]) for o in operations]})
     pk_started = ingest_pk(text, envelope, cwd) if (pk or os.environ.get("PROMETHEUS_LEARNING_PK") == "1") else False
     digest = write_digest(envelope, identity, user_scope)
     primary = operations[0] if operations and operations[0].get("operation") else None
-    cortex = mirror_cortex(text, envelope, primary["user_id"]) if primary else False
-    return {"written": len(written), "envelope": envelope, "operations": operations, "pk": pk_started, "digest": digest, "cortex": cortex}
+    cortex_status = {"status": "not_attempted", "reason": "no-new-primary-write"}
+    cortex = mirror_cortex(text, envelope, primary["user_id"], cortex_status) if primary else False
+    return {"written": len(written), "envelope": envelope, "operations": operations, "pk": pk_started,
+            "digest": digest, "cortex": cortex, "cortex_mirror": cortex_status}
 
 
 def main() -> int:

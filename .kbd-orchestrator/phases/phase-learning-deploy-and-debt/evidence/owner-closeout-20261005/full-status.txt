@@ -1,0 +1,443 @@
+ M .agents/plugins/marketplace.json
+ M .claude-plugin/marketplace.json
+ M .gitmodules
+ M .opencode/README.md
+ M CLAUDE.md
+ M CONTRIBUTING.md
+ M README.md
+ M SKILLS.md
+ M config/prometheus-exec-component.json
+ M config/release-version-matrix.json
+ M crates/prometheus-exec/README.md
+ M dist/plugins/claude/prometheus-skill-pack/.claude-plugin/plugin.json
+ M dist/plugins/claude/prometheus-skill-pack/config/prometheus-exec-component.json
+ M dist/plugins/claude/prometheus-skill-pack/hooks/hooks.json
+ M dist/plugins/claude/prometheus-skill-pack/package.json
+ M dist/plugins/claude/prometheus-skill-pack/scripts/distribute-delivery-cadence.mjs
+ M dist/plugins/claude/prometheus-skill-pack/scripts/install-plugin-generation.js
+ M dist/plugins/claude/prometheus-skill-pack/scripts/lib/plugin-source-topology.js
+ M dist/plugins/claude/prometheus-skill-pack/scripts/lib/store-paths.js
+ M dist/plugins/claude/prometheus-skill-pack/shared/harnesses/generated/claude-hooks.json
+ M dist/plugins/claude/prometheus-skill-pack/shared/harnesses/generated/release-manifest.json
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/README.md
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/codex-memories-config.sh
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/detect-surface-tier.sh
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/generated/hook-dispatch-v1.sh
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/lib/learning_recall.py
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/lib/learning_write.py
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/scheduled/README.md
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/sessionstart-learning.sh
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/subagentstart-learning.sh
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/subagentstop-learning.sh
+ M dist/plugins/claude/prometheus-skill-pack/shared/scripts/tests/test-cortex-mirror.sh
+ M dist/plugins/claude/prometheus-skill-pack/shared/services.manifest.json
+ M dist/plugins/claude/prometheus-skill-pack/skill-index.json
+ M dist/plugins/claude/prometheus-skill-pack/skill-system.json
+ M dist/plugins/claude/prometheus-skill-pack/skills/agent-team-creator/SKILL.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/agent-team-creator/references/manifest.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/agent-team-creator/references/models-memory.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/agent-team-creator/references/native-harnesses.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/agent-team-creator/schemas/uar/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/bdd-cucumber-js/references/examples/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/bdd-cucumber-rs/references/examples/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/bdd-lifecycle-loop/SKILL.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/bdd-lifecycle-loop/references/visual-baseline-refresh.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/cowork-management/.claude-plugin/plugin.json
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/references/stage-contracts.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/assemble-report.py
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/build-graph.py
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/build-graph.sh
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/detect-contradictions.py
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/detect-contradictions.sh
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/merge-threads.py
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/merge-threads.sh
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/run-research.sh
+ M dist/plugins/claude/prometheus-skill-pack/skills/deep-research/tests/bench/ATTRIBUTION.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/disk-space-guardian/.claude-plugin/plugin.json
+ M dist/plugins/claude/prometheus-skill-pack/skills/entity-graph-optimize/component/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/iterative-evolver/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/references/native-backend.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/references/spec-backend-interface.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-spec/SKILL.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/kbd-spec/SKILL.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/librefang-wasm-skill/.claude-plugin/plugin.json
+ M dist/plugins/claude/prometheus-skill-pack/skills/librefang-wasm-skill/references/example-echo/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/native-agent/SKILL.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/prometheus-entity-skills/.claude-plugin/plugin.json
+ M dist/plugins/claude/prometheus-skill-pack/skills/prometheus-entity-skills/entity-graph-optimize/component/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/zeespec-interrogator/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/zeespec-interrogator/references/dimensions/who.md
+ M dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json
+ M dist/plugins/codex/prometheus-skill-pack/config/prometheus-exec-component.json
+ M dist/plugins/codex/prometheus-skill-pack/hooks/hooks.json
+ M dist/plugins/codex/prometheus-skill-pack/package.json
+ M dist/plugins/codex/prometheus-skill-pack/scripts/distribute-delivery-cadence.mjs
+ M dist/plugins/codex/prometheus-skill-pack/scripts/install-plugin-generation.js
+ M dist/plugins/codex/prometheus-skill-pack/scripts/lib/plugin-source-topology.js
+ M dist/plugins/codex/prometheus-skill-pack/scripts/lib/store-paths.js
+ M dist/plugins/codex/prometheus-skill-pack/shared/harnesses/generated/claude-hooks.json
+ M dist/plugins/codex/prometheus-skill-pack/shared/harnesses/generated/release-manifest.json
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/README.md
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/codex-memories-config.sh
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/detect-surface-tier.sh
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/generated/hook-dispatch-v1.sh
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/lib/learning_recall.py
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/lib/learning_write.py
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/scheduled/README.md
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/sessionstart-learning.sh
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/subagentstart-learning.sh
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/subagentstop-learning.sh
+ M dist/plugins/codex/prometheus-skill-pack/shared/scripts/tests/test-cortex-mirror.sh
+ M dist/plugins/codex/prometheus-skill-pack/shared/services.manifest.json
+ M dist/plugins/codex/prometheus-skill-pack/skill-index.json
+ M dist/plugins/codex/prometheus-skill-pack/skill-system.json
+ M dist/plugins/codex/prometheus-skill-pack/skills/agent-team-creator/SKILL.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/agent-team-creator/references/manifest.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/agent-team-creator/references/models-memory.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/agent-team-creator/references/native-harnesses.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/agent-team-creator/schemas/uar/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/bdd-cucumber-js/references/examples/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/bdd-cucumber-rs/references/examples/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/bdd-lifecycle-loop/SKILL.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/bdd-lifecycle-loop/references/visual-baseline-refresh.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/cowork-management/.claude-plugin/plugin.json
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/references/stage-contracts.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/assemble-report.py
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/build-graph.py
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/build-graph.sh
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/detect-contradictions.py
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/detect-contradictions.sh
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/merge-threads.py
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/merge-threads.sh
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/run-research.sh
+ M dist/plugins/codex/prometheus-skill-pack/skills/deep-research/tests/bench/ATTRIBUTION.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/disk-space-guardian/.claude-plugin/plugin.json
+ M dist/plugins/codex/prometheus-skill-pack/skills/entity-graph-optimize/component/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/iterative-evolver/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/references/native-backend.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/references/spec-backend-interface.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-spec/SKILL.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/kbd-spec/SKILL.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/librefang-wasm-skill/.claude-plugin/plugin.json
+ M dist/plugins/codex/prometheus-skill-pack/skills/librefang-wasm-skill/references/example-echo/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/native-agent/SKILL.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/prometheus-entity-skills/.claude-plugin/plugin.json
+ M dist/plugins/codex/prometheus-skill-pack/skills/prometheus-entity-skills/entity-graph-optimize/component/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/zeespec-interrogator/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/zeespec-interrogator/references/dimensions/who.md
+ M docs/BUG-FIX-LEDGER.md
+ M docs/CONTRIBUTING.md
+ M docs/IMPORTING_SKILLS.md
+ M docs/QUICK_REFERENCE.md
+ M docs/QUICK_START.md
+ M docs/README.md
+ M docs/SKILL_TEMPLATE.md
+ M docs/SUBMODULES.md
+ M docs/UPDATE_CONSIDERATIONS.md
+ M docs/agent-teams.md
+ M docs/articles/OUTLINE-loops-that-lie.md
+ M docs/articles/autonomous-loops-prometheus-skill-pack.md
+ M docs/codex-plugin.md
+ M docs/deep-research-skill-playbook.md
+ M docs/deep-research/README.md
+ M docs/deep-research/deep-research-skill-vs-onyx-report.md
+ M docs/deep-research/fable5-comparison.md
+ M docs/deep-research/index.md
+ M docs/deep-research/plan.md
+ M docs/delivery-cadence-distribution.md
+ M docs/deployment-modes.md
+ M docs/features/goals/compass_artifact_wf-69df91d9-86bb-54f0-86ee-e627b12a4796_text_markdown.md
+ M docs/features/skills/PAGS-SPEC-PSP-IP-002-rev1.1-skill-router.md
+ M docs/features/skills/compass_artifact_wf-59b3b094-72c1-5bec-ba09-c02bb263a218_text_markdown.md
+ M docs/generated/runtime-reference.md
+ M docs/guide/00-quick-start.md
+ M docs/guide/01-introduction.md
+ M docs/guide/02-metaprompting-pmpo-kbd.md
+ M docs/guide/03-loop-architecture.md
+ M docs/guide/04-four-layer-pipeline.md
+ M docs/guide/05-mcp-substrate.md
+ M docs/guide/06-memory-and-learning.md
+ M docs/guide/07-sycophancy-correction.md
+ M docs/guide/08-skills-overview.md
+ M docs/guide/09-process-skills.md
+ M docs/guide/09a-adversarial-review.md
+ M docs/guide/09b-liter-llm.md
+ M docs/guide/10-language-skills.md
+ M docs/guide/10-learn-skills.md
+ M docs/guide/11-artifact-refiner.md
+ M docs/guide/12-native-agent-generator.md
+ M docs/guide/12a-pmpo-skill-creator.md
+ M docs/guide/13-tools-reference.md
+ M docs/guide/14-rust-toolchain.md
+ M docs/guide/14a-forge-rs.md
+ M docs/guide/15-hooks-and-lifecycle.md
+ M docs/guide/16-cli-and-scripts.md
+ M docs/guide/16a-cowork.md
+ M docs/guide/17-platform-support.md
+ M docs/guide/18-plugins-and-marketplace.md
+ M docs/guide/19-installation.md
+ M docs/guide/20-updating.md
+ M docs/guide/21-contributing.md
+ M docs/guide/22-advantages-and-impact.md
+ M docs/guide/22a-self-extending-agents.md
+ M docs/guide/23-glossary.md
+ M docs/guide/24-agent-teams.md
+ M docs/guide/25-ui-ux-routing.md
+ M docs/guide/README.md
+ M docs/guide/memory-tiers.md
+ M docs/integration-contract.md
+ M docs/integration/all-tools-reinstall-20260823.md
+ M docs/integration/prometheus-knowledge-semantic-port.md
+ M docs/learn/crdt-conflict-semantics.md
+ M docs/learn/kb-adapter-guide.md
+ M docs/learn/surface-tier-detection.md
+ M docs/loops-architecture-spec.md
+ M docs/plugin-authoring.md
+ M docs/production-readiness-report.md
+ M docs/psp-instruction-plane-spec-2026-07-28.md
+ M docs/reports/2026-07-18-cross-tool-learning-validation.md
+ M docs/reports/2026-08-02-kbd-startup-isolation-artifact-review.md
+ M docs/research-agent-hardening-evidence.md
+ M docs/research/ui-ux-routing/DELIVERY.md
+ M docs/research/ui-ux-routing/independent-review.md
+ M docs/research/ui-ux-routing/report.md
+ M docs/skill-authoring-guide.md
+ M docs/superpowers/plans/2026-07-17-global-skill-system-repair.md
+ M examples/prometheus-exec/README.md
+ M hooks/codex-hooks.json
+ M hooks/hooks.json
+ M package-lock.json
+ M package.json
+ M policies/README.md
+ M scripts/codex-provision-mcp-env.sh
+ M scripts/configure-mcp-all-tools.sh
+ M scripts/distribute-delivery-cadence.mjs
+ M scripts/generate-harness-adapters.js
+ M scripts/generate-service-manifest.mjs
+ M scripts/generate-skill-system-distribution.js
+ M scripts/generated-paths.mjs
+ M scripts/install-plugin-generation.js
+ M scripts/install-skills-flat.sh
+ M scripts/install-system.js
+ M scripts/lib/plugin-source-topology.js
+ M scripts/lib/store-paths.js
+ M scripts/memory-index-partition.py
+ M scripts/rebase-regenerate.sh
+ M shared/harnesses/generated/claude-hooks.json
+ M shared/harnesses/generated/release-manifest.json
+ M shared/scripts/README.md
+ M shared/scripts/codex-memories-config.sh
+ M shared/scripts/detect-surface-tier.sh
+ M shared/scripts/generated/hook-dispatch-v1.sh
+ M shared/scripts/lib/learning_recall.py
+ M shared/scripts/lib/learning_write.py
+ M shared/scripts/scheduled/README.md
+ M shared/scripts/sessionstart-learning.sh
+ M shared/scripts/subagentstart-learning.sh
+ M shared/scripts/subagentstop-learning.sh
+ M shared/scripts/tests/test-cortex-mirror.sh
+ M shared/services.manifest.json
+ M site/docs/agent-context/harness-support.md
+ M site/docs/agent-context/model-profiles.md
+ M site/docs/agent-context/overview.md
+ M site/docs/agent-context/quick-start.md
+ M site/docs/agent-context/skill-budget.md
+ M site/docs/agent-context/theory-and-sources.md
+ M site/docs/agent-context/use-cases.md
+ M site/docs/execution/architecture-and-tiers.md
+ M site/docs/execution/choosing-the-right-capability.md
+ M site/docs/execution/closed-loop-architecture.md
+ M site/docs/execution/generating-programs.md
+ M site/docs/execution/installation-doctor-and-recovery.md
+ M site/docs/execution/platform-and-evidence-status.md
+ M site/docs/execution/remote-dispatch-and-reconciliation.md
+ M site/docs/kbd/bash-mutation-guard.md
+ M site/docs/kbd/control-plane-recovery.md
+ M site/docs/kbd/control-plane.md
+ M site/docs/kbd/hooks-and-waypoints.md
+ M site/docs/kbd/integration-contract.md
+ M site/docs/kbd/overview.md
+ M site/docs/kbd/quality-gates.md
+ M site/docs/kbd/task-model-assignments.md
+ M site/docs/kbd/tokens-and-authentication.md
+ M site/docs/kbd/troubleshooting.md
+ M site/docs/knowledge-learning/hooks-worker-and-receipts.md
+ M site/docs/knowledge-learning/loro-evidence-and-migration.md
+ M site/docs/knowledge-learning/snapshots-and-context.md
+ M site/docs/learn/anti-sycophancy.md
+ M site/docs/learn/feynman-loop.md
+ M site/docs/learn/kb-adapters.md
+ M site/docs/learn/mastery-criterion.md
+ M site/docs/learn/overview.md
+ M site/docs/learn/skills/learn-about-system.md
+ M site/docs/learn/skills/learn-certify.md
+ M site/docs/learn/skills/learn-goal.md
+ M site/docs/learn/skills/learn-grade.md
+ M site/docs/learn/skills/learn-harness.md
+ M site/docs/learn/skills/learn-kb.md
+ M site/docs/learn/skills/learn-plan.md
+ M site/docs/learn/skills/learn-practice.md
+ M site/docs/learn/skills/learn-retain.md
+ M site/docs/learn/skills/learn-survey.md
+ M site/docs/memory/cortex-mirror.md
+ M site/docs/memory/executor-and-recovery.md
+ M site/docs/memory/operation-api.md
+ M site/docs/memory/overview.md
+ M site/docs/mobile/execution-classes.md
+ M site/docs/mobile/native-ffi.md
+ M site/docs/mobile/overview.md
+ M site/docs/mobile/uar-skill-database.md
+ M site/docs/mobile/wasm-components.md
+ M site/docs/operations/doctors-and-mac-certification.md
+ M site/docs/operations/generated-reference.md
+ M site/docs/operations/installation-and-upgrades.md
+ M site/docs/operations/local-validation-and-docs-automation.md
+ M site/docs/operations/logs-recovery-and-failures.md
+ M site/docs/operations/plugin-sources-and-hook-failures.md
+ M site/docs/plugin-distribution/activation-rollback-uninstall.md
+ M site/docs/plugin-distribution/immutable-generations.md
+ M site/docs/plugin-distribution/signing-index-and-receipts.md
+ M site/docs/plugin-distribution/targets-and-dispatchers.md
+ M site/docs/research/deep-research.md
+ M site/docs/sovereign-sync/ag-ui-sse.md
+ M site/docs/sovereign-sync/architecture.md
+ M site/docs/sovereign-sync/data-scope.md
+ M site/docs/sovereign-sync/installation.md
+ M site/docs/sovereign-sync/mcp-tools.md
+ M site/docs/sovereign-sync/overview.md
+ M site/docs/sovereign-sync/p2p-network.md
+ M site/docs/sovereign-sync/pair-two-machines.md
+ M site/docs/sovereign-sync/privacy-model.md
+ M site/docs/sovereign-sync/rest-api.md
+ M site/docs/sovereign-sync/rust-sdk.md
+ M site/docs/sovereign-sync/signed-pushes-and-receipts.md
+ M site/docs/sovereign-sync/sync-peers-skill.md
+ M site/docs/sovereign-sync/sync-push-skill.md
+ M site/docs/sovereign-sync/sync-status-skill.md
+ M site/docs/sovereign-sync/use-cases.md
+ M site/docs/substrate/index.md
+ M site/docs/substrate/kbd-runtime.md
+ M site/docs/substrate/learner-model.md
+ M site/docs/substrate/prometheus-research.md
+ M site/docs/substrate/sovereign-client.md
+ M site/docs/substrate/storage-provider.md
+ M site/docs/substrate/surface-bridge.md
+ M site/docusaurus.config.js
+ M site/package-lock.json
+ M site/package.json
+ M site/sidebars.js
+ M site/src/pages/index.js
+ M skill-system.json
+ M skills/devops/.claude-plugin/plugin.json
+ M skills/devops/disk-space-guardian/.claude-plugin/plugin.json
+ M skills/imported/README.md
+M  skills/imported/prometheus-entity-management
+ M skills/learn/.claude-plugin/plugin.json
+ M skills/learn/README.md
+ M skills/process/.claude-plugin/plugin.json
+ M skills/process/agent-team-creator/SKILL.md
+ M skills/process/agent-team-creator/references/manifest.md
+ M skills/process/agent-team-creator/references/models-memory.md
+ M skills/process/agent-team-creator/references/native-harnesses.md
+ M skills/process/agent-team-creator/schemas/uar/README.md
+ M skills/process/cowork-management/.claude-plugin/plugin.json
+ M skills/process/iterative-evolver/README.md
+ M skills/process/kbd-process-orchestrator/references/native-backend.md
+ M skills/process/kbd-process-orchestrator/references/spec-backend-interface.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md
+ M skills/process/native-agent/SKILL.md
+ M skills/process/zeespec-interrogator/README.md
+ M skills/process/zeespec-interrogator/references/dimensions/who.md
+ M skills/react/prometheus-entity-skills/.claude-plugin/plugin.json
+ M skills/react/prometheus-entity-skills/entity-graph-optimize/component/README.md
+ M skills/research/.claude-plugin/plugin.json
+ M skills/research/deep-research/references/stage-contracts.md
+ M skills/research/deep-research/scripts/assemble-report.py
+ M skills/research/deep-research/scripts/build-graph.py
+ M skills/research/deep-research/scripts/build-graph.sh
+ M skills/research/deep-research/scripts/detect-contradictions.py
+ M skills/research/deep-research/scripts/detect-contradictions.sh
+ M skills/research/deep-research/scripts/merge-threads.py
+ M skills/research/deep-research/scripts/merge-threads.sh
+ M skills/research/deep-research/scripts/run-research.sh
+ M skills/research/deep-research/tests/bench/ATTRIBUTION.md
+ M skills/rust/librefang-wasm-skill/.claude-plugin/plugin.json
+ M skills/rust/librefang-wasm-skill/references/example-echo/README.md
+ M skills/testing/.claude-plugin/plugin.json
+ M skills/testing/bdd-cucumber-js/references/examples/README.md
+ M skills/testing/bdd-cucumber-rs/references/examples/README.md
+ M skills/testing/bdd-lifecycle-loop/SKILL.md
+ M skills/testing/bdd-lifecycle-loop/references/visual-baseline-refresh.md
+ M skills/ui-ux/.claude-plugin/plugin.json
+ M substrate/exec-contracts/README.md
+ M substrate/exec-core/README.md
+ M substrate/exec-embedded/README.md
+ M substrate/exec-remote/README.md
+ M substrate/exec-service/README.md
+ M substrate/exec-tier-p/README.md
+ M substrate/exec-tier-w/README.md
+ M substrate/kbd-runtime/src/lib.rs
+ M substrate/prometheus-research/.claude-plugin/plugin.json
+ M substrate/skill-ffi/README.md
+ M substrate/surface-bridge/README.md
+ M tools/bench-automation/README.md
+ M tools/forge-rs/README.md
+M  tools/openai-proxy
+ M tools/prometheus-cli/Cargo.lock
+ M tools/prometheus-cli/Cargo.toml
+ M tools/prometheus-cli/README.md
+ M tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs
+ M tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs
+ M tools/prometheus-cli/crates/prometheus-cli/src/main.rs
+?? .kbd-orchestrator/changes/change-ldd-01-hook-bytecode/
+?? .kbd-orchestrator/changes/change-ldd-02-codex-memory-control/
+?? .kbd-orchestrator/changes/change-ldd-03-published-memory-pins/
+?? .kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/
+?? .kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/
+?? .kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/
+?? .kbd-orchestrator/changes/change-ldd-07-custom-codex-home/
+?? .kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/
+?? .kbd-orchestrator/changes/change-ldd-09-partition-footer/
+?? .kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/
+?? .kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/
+?? .kbd-orchestrator/changes/change-ldd-12-integration-rollout/
+?? .kbd-orchestrator/changes/change-ldd-13-source-convergence/
+?? .kbd-orchestrator/changes/change-ldd-14-companion-publication-preparation/
+?? .kbd-orchestrator/changes/change-ldd-15-readme-content-renewal/
+?? .kbd-orchestrator/changes/change-ldd-16-agent-team-handbook/
+?? .kbd-orchestrator/changes/change-ldd-17-service-sites-current/
+?? .kbd-orchestrator/changes/change-ldd-18-stability-legacy-closure/
+?? .kbd-orchestrator/phases/phase-learning-deploy-and-debt/
+?? dist/plugins/claude/prometheus-skill-pack/shared/scripts/lib/cortex_feed_slots.py
+?? dist/plugins/claude/prometheus-skill-pack/shared/scripts/tests/cortex-mirror-integration.py
+?? dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/claim_ids.py
+?? dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/research-root.sh
+?? dist/plugins/claude/prometheus-skill-pack/skills/deep-research/tests/bench/LICENSE
+?? dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/references/templates/acceptance.template.md
+?? dist/plugins/codex/prometheus-skill-pack/shared/scripts/lib/cortex_feed_slots.py
+?? dist/plugins/codex/prometheus-skill-pack/shared/scripts/tests/cortex-mirror-integration.py
+?? dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/claim_ids.py
+?? dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/research-root.sh
+?? dist/plugins/codex/prometheus-skill-pack/skills/deep-research/tests/bench/LICENSE
+?? dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/references/templates/acceptance.template.md
+?? docs/generated-output-ownership.md
+?? docs/guide/26-service-operations.md
+?? docs/maintenance.md
+?? scripts/generated-materialization-inventory.mjs
+?? scripts/tests/certify-generated-materializations.mjs
+?? scripts/tests/certify-initial-protected-candidate.mjs
+?? scripts/tests/certify-remote-install-graph.py
+?? scripts/tests/learning-deploy-and-debt.py
+?? scripts/tests/prepare-learning-deploy-candidate.mjs
+?? scripts/tests/test-codex-home-integration.sh
+?? scripts/tests/test-codex-memory-integration.sh
+?? scripts/tests/test-hook-bytecode-integration.sh
+?? scripts/tests/test-learning-deploy-and-debt.sh
+?? scripts/tests/test-team-control-integration.mjs
+?? shared/scripts/lib/cortex_feed_slots.py
+?? shared/scripts/tests/cortex-mirror-integration.py
+?? site/docs/agent-teams/
+?? skills/process/kbd-process-orchestrator/references/templates/acceptance.template.md
+?? skills/research/deep-research/scripts/claim_ids.py
+?? skills/research/deep-research/scripts/research-root.sh
+?? skills/research/deep-research/tests/bench/LICENSE

@@ -51,7 +51,9 @@ Restarting services will not clear a stale record, because it is waiting on a re
 
 ## Codex memory check
 
-`codex.memories` is an optional check: it never fails the run. It is Green when `[memories] generate_memories = false` is set in `${CODEX_HOME:-~/.codex}/config.toml` and no `memories/memory_summary.md` exists, and it is skipped (Green) when Codex is not installed. Otherwise it is Yellow and prints the repair command, `bash shared/scripts/codex-memories-config.sh`. That script (also run by both installers) sets the option with a line-level edit, backs up and re-parses the config, restores it on a parse failure, and archives `memory_summary.md` to `memories-archive/`; `MEMORY.md` and `raw_memories.md` are left in place.
+`codex.memories` preserves its optional pass/warn/skip semantics. It passes only when `features.memories`, `memories.generate_memories` and `memories.use_memories` are all false and both known summaries (`memories/memory_summary.md`, sibling `memories_v2/memory_summary.md`) are absent. Malformed values/config are unhealthy; absence of an installed Codex preserves the existing skip behavior.
+
+Doctor resolves the effective home and verifies the installed generation, manifest, ownership/containment and capability cache before offering a helper. The action uses a shell-quoted absolute `bash` command with explicit `CODEX_HOME`. Missing runtime/cache/verifier/helper yields installation remediation, never a broken relative executable. This config predicate does not prove CLI/profile overrides or in-flight sessions stopped. See [memory tiers](/docs/guide/memory-tiers#codex-user-configuration-policy).
 
 ## Allowed health matrix
 
@@ -59,12 +61,11 @@ Run and archive redacted output for:
 
 - canonical `prometheus doctor --json` and `npm run doctor` parity;
 - `pk doctor --json`;
-- `codex doctor --json`;
 - `cowork doctor`, `cowork toolchain status`, and `cowork toolchain check`;
 - `scripts/prometheus-services.sh doctor`;
 - `scripts/check-mcp-health.sh --json`;
 - `prometheus learning status --json`;
-- root smoke tests and `pk` health fixtures.
+- the targeted production integration gates required by the affected phase.
 
 ## Deployment topology
 

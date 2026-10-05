@@ -59,7 +59,8 @@ Tier P runs one Python, Node, or Bash program under a supported OS sandbox. Base
 
 The receipt is **attested**: it binds the exact interpreter/toolchain, generated sandbox profile, measured host state, request, outputs, and signer. A different operating system or unavailable sandbox is not silently replaced with direct process execution.
 
-- macOS uses Seatbelt and is the release host with runtime evidence.
+- macOS uses Seatbelt; the recorded Exec baseline names a Mac runtime host.
+  That evidence does not certify the current candidate or another machine.
 - Linux has deterministic bubblewrap/Landlock planning and cross-build evidence, but no release Linux kernel runtime evidence.
 - Windows Tier P is unavailable.
 

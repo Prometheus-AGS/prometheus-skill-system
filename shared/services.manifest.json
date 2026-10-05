@@ -51,7 +51,10 @@
         "--plugin-root",
         "__PROMETHEUS_PLUGIN_ROOT__"
       ],
-      "binding": null,
+      "binding": {
+        "kind": "unix",
+        "value": "__PROMETHEUS_EXEC_SOCKET__"
+      },
       "platforms": {
         "darwin": {
           "source": "shared/launchagents/ai.prometheus.exec.plist",
@@ -93,7 +96,7 @@
       ],
       "binding": {
         "kind": "tcp",
-        "value": 8942
+        "value": 8943
       },
       "platforms": {
         "darwin": {

@@ -1,0 +1,34 @@
+{
+  "domains": {
+    "kbd-control": {
+      "adapter": "wired",
+      "privacy": "trusted"
+    },
+    "learner-model": {
+      "adapter": "wired",
+      "privacy": "trusted"
+    },
+    "skill-index": {
+      "adapter": "wired",
+      "privacy": "public"
+    },
+    "surreal-memory": {
+      "adapter": "never-synced",
+      "privacy": "local_only"
+    }
+  },
+  "node_state": "Ready",
+  "peers": [
+    "3e755a69bfbd413c2ad7076719c147f637e51c2b851e184a74583c2111bbbc9b"
+  ],
+  "transport": {
+    "attempt": 1,
+    "lastError": null,
+    "nextRetryMs": null,
+    "nodeId": "866ca84d7edcca09fc26362dd533a2571c6edece92231c12d131a3324cb3a443",
+    "peers": [
+      "3e755a69bfbd413c2ad7076719c147f637e51c2b851e184a74583c2111bbbc9b"
+    ],
+    "state": "ready"
+  }
+}

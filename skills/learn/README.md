@@ -31,8 +31,14 @@ This installs to all detected platforms (Claude Code, Kimi Code, MiniMax, OpenCo
 
 ## Substrate
 
-The learn domain depends on three substrate components in `substrate/`:
+Learner state is implemented by [learner-model](../../substrate/learner-model/README.md).
+Its current arithmetic uses the recorded FSRS-5 dependency; FSRS-6 terminology in
+older design prose does not select a different scheduler. The
+[surface bridge](../../substrate/surface-bridge/README.md) has a separate service
+and UI-completion boundary. Installing skills is not proof that either runtime
+is started or that a credential has been issued.
 
-- `substrate/learner-model/` — persistent learner profile, mastery graph, FSRS scheduling state
-- `substrate/storage-provider/` — pluggable persistence backend (surreal-memory, local file, remote KB)
-- `substrate/surface-bridge/` — harness capability negotiation used by `ui-surface` and `learn-harness`
+Storage and connected peer controls have their own component ownership; the
+optional [Companion seam](../../docs/integration-contract.md) does not become a
+prerequisite for standalone learning. Read each skill's manifest and references
+for provider, content-grounding and operator-input requirements.

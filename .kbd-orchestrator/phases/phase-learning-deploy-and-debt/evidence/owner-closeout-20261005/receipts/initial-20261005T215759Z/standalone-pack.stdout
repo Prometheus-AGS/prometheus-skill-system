@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "2",
+  "projectId": "faa71885-7f6a-4ad8-8e50-f83090ee946a",
+  "runId": "disabled",
+  "revision": 1,
+  "frontier": {
+    "f04c1422-4460-458a-9faa-81c0e110fb08": 1
+  },
+  "replicaHeads": {
+    "f04c1422-4460-458a-9faa-81c0e110fb08": {
+      "eventId": "24af60e9-109c-4601-b8d6-89319d017bcf",
+      "integrityHash": "e54dfd66b55921f97e4decdc1444bb26f4861c6b10d9574aa30a723150e12710",
+      "lamport": 1
+    }
+  },
+  "lastEventId": "24af60e9-109c-4601-b8d6-89319d017bcf",
+  "lastEventHash": "e54dfd66b55921f97e4decdc1444bb26f4861c6b10d9574aa30a723150e12710",
+  "lastEventAt": "2026-10-05T22:19:45.849500Z",
+  "lifecycle": "ready",
+  "planRevision": 1,
+  "checkpoint": null,
+  "exactNextWork": null,
+  "activePath": {
+    "phasePath": [],
+    "phaseId": null,
+    "stageId": null,
+    "changeId": null,
+    "taskId": null
+  },
+  "phases": {},
+  "completion": {
+    "implementation": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "evidence": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "decisions": {},
+  "blockers": {},
+  "claims": {},
+  "submodulePins": {},
+  "replicaView": {
+    "replicaId": "f04c1422-4460-458a-9faa-81c0e110fb08",
+    "localHead": null,
+    "activePathStatus": "unknown",
+    "submodules": {}
+  },
+  "conflicts": {},
+  "devices": {
+    "ed25519:d7de2510acb109888ae1b8385fee5616d0602824237daf5df1a2782acc580d7e": {
+      "deviceId": "disabled",
+      "keyId": "ed25519:d7de2510acb109888ae1b8385fee5616d0602824237daf5df1a2782acc580d7e",
+      "publicKey": "LfXr/xsHkhvNO0yU5dMWeZLBKtl6W+R9AmstR1CW4Xc=",
+      "status": "active",
+      "enrolledAtRevision": 1,
+      "revokedAtRevision": null
+    }
+  },
+  "operatorKeyIds": [
+    "ed25519:d7de2510acb109888ae1b8385fee5616d0602824237daf5df1a2782acc580d7e"
+  ],
+  "commandRevisions": {
+    "42143b37-993c-4758-a0d2-790903e311ec": 1
+  }
+}

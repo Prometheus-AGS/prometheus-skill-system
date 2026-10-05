@@ -1,111 +1,25 @@
-# 05 · The MCP Server Substrate
+# 05 · MCP connectivity and services
 
-The MCP servers installed by the prometheus-skill-pack are not tools bolted onto the loop. They are the connective tissue that makes the loop coherent across sessions, across tools, and across time. Each runs as a service — the HTTP-based ones as `launchd` agents (macOS) or `systemd --user` units (Linux), the stdio-based ones on-demand through the MCP client — and all are addressable by any AI tool configured to reach them.
+MCP configuration tells a harness how to contact a tool. It does not install a service, prove authentication or execute inference. `scripts/mcp-port-table.json` is the full pack's declared connectivity source; `configure-mcp-all-tools.sh` merges the selected tool configuration.
 
-This shared addressability is the whole reason the architecture is cross-tool. When OpenCode or Codex runs the loop instead of Claude Code, it connects to the *same* surreal-memory server, reads the *same* knowledge-base context, and writes the *same* session summaries. The substrate is shared even when the agent client changes.
+| Component | Declared transport | Shipped default |
+|---|---|---|
+| surreal-memory | SSE/HTTP MCP | `http://localhost:23001/mcp/sse` |
+| prometheus-knowledge | HTTP MCP | `http://localhost:8942/mcp` |
+| Forge | HTTP JSON-RPC | `http://localhost:8943/mcp` |
+| liter-llm | stdio MCP | `liter-llm mcp --transport stdio --config <explicit-config>` |
+| sycophancy-correction | On-demand stdio | Installed binary from the pinned skill package |
+| sequential-thinking | On-demand stdio | Configured npm MCP package |
+| Tavily / Firecrawl | On-demand stdio adapters | Configured package and environment credentials |
 
-## The canonical port table
+These defaults are configuration observations, not a promise that all adapters exist in a session. The liter-llm MCP process needs an explicit config path; a configured gateway alias or successful model listing is not demonstrated inference. Optional hosted web adapters require their own credentials and policies.
 
-`scripts/mcp-port-table.json` is the declared source of truth for MCP connectivity. `configure-mcp-all-tools.sh` merges these entries into each tool's native config.
+## Operations and scope
 
-| Server | Transport | Endpoint / command | Port | Role in the loop |
-|---|---|---|---|---|
-| **surreal-memory** | SSE / HTTP | `http://localhost:23001/mcp/sse` | 23001 | Semantic knowledge graph. Session learning writes here; loop start reads here. The memory substrate. |
-| **prometheus-knowledge** (`pk-cherry`) | SSE / HTTP | `http://localhost:8942/mcp` | 8942 | Karpathy-pattern flat-file knowledge base with immutable snapshots and receipt-backed ingestion. |
-| **forge-rs** | SSE / HTTP | `http://localhost:8943/mcp` | 8943 | Code-enrichment engine. `forge reflect` writes reflection output; `pk ingest` writes session summaries back. |
-| **sovereign-sync** | REST / SSE / stdio MCP | `http://127.0.0.1:7892` or `sovereign-sync --mode mcp` | 7892 | P2P domains plus the authenticated, journal-backed KBD control plane. `/health` is public; every other HTTP route requires the focused project token. |
-| **sycophancy-correction** | stdio | `sycophancy-correction --config skill.toml` | — | Structural quality gate. The reflector hook calls it before any reflection is logged. |
-| **liter-llm** | stdio | `liter-llm mcp --transport stdio` | — | Multi-provider LLM gateway (140+ providers). Per-phase model routing without per-loop key management. |
-| **sequential-thinking** | stdio | `npx -y @modelcontextprotocol/server-sequential-thinking` | — | Structured reasoning for multi-step loop planning. Used during plan to reason through change ordering. |
-| **tavily** | stdio | `npx -y` tavily MCP (env `TAVILY_API_KEY`) | — | Search-first web access inside loops. Ranked, summarized results. |
-| **firecrawl** | stdio | `npx -y firecrawl-mcp` (env `FIRECRAWL_API_URL`, `FIRECRAWL_API_KEY`) | — | Extraction-first web access. Scrape, crawl, map, extract, search, interact. Self-hostable. |
+Follow [Services, ownership and recovery](26-service-operations.md) for source owners, platform templates, database identity, install/start/stop and backups. Native memory defaults to namespace/database `memory/mcp`; mini Compose uses `memory/main_local_384`. A matching port does not merge those stores.
 
-> **A note on accuracy.** Two MCP config sources exist in the repository and they are not byte-identical. `.mcp.json` (the Claude Code plugin manifest) currently lists seven servers and omits firecrawl, and its `tavily`/`sequential-thinking` package names differ from those in `mcp-port-table.json`. The port table is the broader source of truth and includes firecrawl; treat it as canonical and expect `configure-mcp-all-tools.sh` to be the reconciling installer. The stdio servers (sycophancy-correction, liter-llm) have no network port by design.
+Local KBD uses its signed runtime without a sync daemon. Connected control and replication belong to optional Companion through the [integration contract](/docs/kbd/integration-contract); no Sovereign service is declared in the current MCP port table.
 
-## How the servers participate in a single loop turn
+Memory recall, hook enqueueing, worker reconciliation and knowledge snapshots have separate paths. See [Memory and Learning](06-memory-and-learning.md), [team memory](24-agent-teams.md#keep-lessons-scoped-to-their-audience) and [hook lifecycle](15-hooks-and-lifecycle.md). Missing remote services can leave durable work pending; inspect the receipt rather than interpreting exit zero as delivery.
 
-The servers are not consulted ad hoc. They participate at fixed points in the loop, which is what makes their behavior predictable.
-
-```mermaid
-sequenceDiagram
-    participant Hook as UserPromptSubmit hook
-    participant PK as prometheus-knowledge :8942
-    participant Mem as surreal-memory :23001
-    participant Agent as AI agent (L0)
-    participant Think as sequential-thinking
-    participant Web as tavily / firecrawl
-    participant Forge as forge-rs :8943
-    participant Syco as sycophancy-correction
-    participant Sync as sovereign-sync :7892
-
-    Hook->>PK: read bounded committed prompt snapshot
-    Hook->>Mem: POST /api/v1/memory/search
-    PK-->>Agent: ranked KB context
-    Mem-->>Agent: prior session entries
-    Agent->>Think: reason through plan ordering (plan phase)
-    Agent->>Web: discover (tavily) / extract (firecrawl)
-    Agent->>Agent: execute
-    Agent->>Sync: record revision + lifecycle event
-    Agent->>Syco: reflect output → gate
-    Syco-->>Agent: pass / reject with diagnostics
-    Agent->>Forge: forge reflect
-    Forge->>PK: pk ingest — write learning back
-    Forge->>Mem: REST write — session summary
-```
-
-The detail of the memory write-back chain is on the [Memory and Learning](06-memory-and-learning.md) page; the reflection gate is on the [Sycophancy Correction](07-sycophancy-correction.md) page. What matters here is the shape: read at the start, reason and act in the middle, gate and write at the end.
-
-## Firecrawl vs. Tavily — not interchangeable
-
-Both Firecrawl and Tavily give a loop web access, but they solve different parts of the problem, and using them interchangeably produces the wrong tool for each job.
-
-**Tavily is search-first.** It fans out to multiple sources, ranks results, and returns synthesized, LLM-optimized summaries. For loops that need to know *what exists* on a topic — issue research, technology scouting, competitive landscape — Tavily is the right reach. The trade-off is that it returns snippets and summaries, not full page content, and it is hosted-only with no self-host option.
-
-**Firecrawl is extraction-first.** It returns clean Markdown of full web pages and runs the whole Find → Extract → Clean → Use workflow in one API: scrape, crawl, map, structured `extract`, search, and interactive actions (click, scroll, form submission). For loops that need to pull full page content, parse documentation sites, or interact with dynamic UIs, Firecrawl is the correct substrate. Independent 2026 benchmarks put Firecrawl's coverage ahead of Tavily's (roughly 77% vs. 68%), and at high volume it is dramatically cheaper.
-
-The architecture decision is simple: **Tavily for discovery, Firecrawl for extraction.** A loop that needs to find relevant pages and then pull structured data from them uses both in sequence.
-
-```mermaid
-graph LR
-    Q[Loop needs web data] --> D{What does it need?}
-    D -->|What exists on this topic?| T[tavily_search — ranked summaries]
-    D -->|Full content from known pages?| F[firecrawl_scrape / crawl / extract]
-    T -->|found candidate pages| F
-    F --> U[Structured JSON / Markdown into the loop]
-```
-
-### Self-hosting Firecrawl
-
-Firecrawl's engine is AGPL-3.0 and can run as a self-hosted Docker service. For loops operating against internal documentation, private repositories, or air-gapped environments, self-hosting is the only viable option, because web data never transits a third-party service. The AGPL license carries an obligation — modify and redistribute the engine and you must release your changes — and the operational footprint is non-trivial (Postgres, Redis, workers). Tavily has no self-hosted option. Point the firecrawl MCP server at a local instance by setting `FIRECRAWL_API_URL` to the local endpoint rather than the cloud API.
-
-## Bringing the servers up
-
-The HTTP servers run as persistent background services; the stdio servers are invoked on demand by the MCP client.
-
-```bash
-# Build and install all local binaries (forge, pk, pk-cherry, liter-llm, surreal-memory-server, ...)
-bash scripts/check-prerequisites.sh --build-tools
-
-# macOS: render LaunchAgents and start the HTTP MCP services
-bash scripts/install-mcp-services.sh
-bash scripts/prometheus-services.sh load
-bash scripts/prometheus-services.sh status
-
-# Configure all servers into every installed AI tool's native config
-bash scripts/configure-mcp-all-tools.sh
-
-# Health check — launchctl state + HTTP probe for each service
-bash scripts/check-mcp-health.sh
-```
-
-On macOS the `launchd` agents manage `pk-cherry` on `127.0.0.1:8942`, `forge mcp` on `127.0.0.1:8943`, and Sovereign Sync on `127.0.0.1:7892`; on Linux the same installer manages them as `systemd --user` units. surreal-memory runs natively on `127.0.0.1:23001` against a dedicated SurrealDB on `127.0.0.1:28000` (or stays Docker-managed if you choose that runtime). Full installation detail is on the [Installation](19-installation.md) page.
-
-Noncritical learning and memory features degrade gracefully: hooks enqueue
-locally and read the last committed bounded snapshot when remote services are
-unavailable. The KBD adapter queues its event and exits successfully when the
-control plane is unreachable. The journal transaction orders *control-plane
-commands* without gating tool calls. See [Tool guards](/docs/kbd/bash-mutation-guard).
-
----
-
-*Previous: [← 04 · The Four-Layer Pipeline](04-four-layer-pipeline.md) · Next: [06 · Memory and Karpathy-Pattern Learning →](06-memory-and-learning.md)*
+Previous: [The Four-Layer Pipeline](04-four-layer-pipeline.md) · Next: [Memory and Learning](06-memory-and-learning.md).

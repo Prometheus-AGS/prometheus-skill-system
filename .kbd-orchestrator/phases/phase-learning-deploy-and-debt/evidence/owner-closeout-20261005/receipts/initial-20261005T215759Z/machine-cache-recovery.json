@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T22:04:12.304242+00:00",
+  "observation": "single owned prior-memory Cargo PID36577,10 idle sccache wrappers over4minutes,no rustc/compiler process; shared daemon stats responsive, no daemon children",
+  "operation": "supported sccache --stop-server exit0 after verifying no otherCargo/rustc; wrappers restarted daemon automatically",
+  "explicitStartExit": 2,
+  "explicitStartReason": "address already in use after automatic wrapper restart",
+  "confirmedAfter": "stats responsive using existing /Users/gqadonis/.cache/sccache; actual prior-memory compiler log advanced through109+compilations; original owned Cargo continued",
+  "sharedDaemonForciblyKilled": false,
+  "sourceEdits": false,
+  "cacheDeleted": false,
+  "acceptance": false
+}

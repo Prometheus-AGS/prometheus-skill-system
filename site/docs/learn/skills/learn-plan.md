@@ -6,33 +6,13 @@ sidebar_label: learn-plan
 
 # /learn-plan
 
-Builds a concept DAG (directed acyclic graph) and ordered curriculum from the
-learning goal and survey results.
+Build a concept DAG and curriculum from a saved goal, survey and corpus:
 
-## Output
-
-- Concept list with prerequisites
-- Ordered curriculum (dependencies resolved)
-- Estimated time per concept
-- Target mastery criteria per concept
-
-## Example
-
-For "Rust async":
-
-```
-1. Futures trait             (prereq: none)
-2. Poll + Waker              (prereq: Futures)
-3. async/await syntax        (prereq: Poll)
-4. Tokio runtime             (prereq: async/await)
-5. Spawning + join handles   (prereq: Tokio)
-6. Channels + select!        (prereq: spawn)
+```text
+/learn-plan rust-basics
+/learn-plan rust-basics --replan
 ```
 
-## Usage
+The curriculum records concepts, prerequisite ordering, estimated time and target evidence. It uses the configured learner-model and knowledge stores where the procedure requires them. Missing collaborators or input artifacts must be reported rather than replaced with an invented successful plan. A subject string is not a substitute for the goal ID.
 
-```
-/learn-plan "Rust async and await"
-```
-
-Or via the learning arc — `learn-plan` is called automatically after `learn-survey`.
+The sequence is goal → survey → plan → explanation and practice → delayed retention. Estimates and a generated graph remain plans until the learner produces the required evidence.

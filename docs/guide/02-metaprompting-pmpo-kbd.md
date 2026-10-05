@@ -8,7 +8,7 @@ Metaprompting is the practice of designing a *system of prompts* — rather than
 
 The distinction matters at scale. A single well-crafted prompt degrades as tasks grow complex: the model accumulates context drift, conflates phases, and eventually produces output that satisfies the surface request while missing the structural intent. A metaprompting system prevents that by separating the task — what to produce — from the orchestration — when to produce it, who checks it, and what happens when it fails.
 
-This is now a well-established pattern in the research literature. Meta-prompting has been formalized as task-agnostic scaffolding that turns a single model into a "conductor" managing multiple expert instances of itself, and the use of a *separate* model as a critic — to provide structured feedback and act as a judge over outputs — is a standard technique in the self-improving-AI literature. Claude Code's `/goal` command is a direct instance of this: a separate, faster model checks whether the termination condition is met, rather than the model that did the work. The goal-checker is a meta-level prompt governing the primary agent.
+Prometheus applies this as a design principle: give implementation and evaluation distinct responsibilities and record the actual evaluator route. A separate prompt or fresh context can reduce shared history; it does not alone prove a distinct model family or an unbiased judgement.
 
 That separation is the whole point. The model that wrote the code has an obvious structural bias toward believing the code is done. A critic that receives only the artifact and the condition — not the generation history — does not share that bias. Metaprompting is how you build that separation into the system instead of hoping for it.
 
@@ -49,9 +49,9 @@ graph TD
 
 KBD has three mechanisms.
 
-**1 · Knowledge base as session substrate.** Every development session starts with bounded context from immutable project/shared/global snapshots and ends with one atomic metadata-only queue record. The agent never starts from zero. On the way in, the canonical dispatcher calls `pk context`; on the way out, the supervised worker reflects, reconciles receipts, and publishes the next snapshot asynchronously. The knowledge base is not a reference the agent occasionally consults—it is a versioned input with an explicit publication boundary.
+**1 · Knowledge base as session substrate.** Configured knowledge hooks can start sessions with bounded context from immutable project/shared/global snapshots and ends with one atomic metadata-only queue record. Availability, project identity and published snapshots determine what context can be delivered. On the way in, the canonical dispatcher calls `pk context`; on the way out, the supervised worker reflects, reconciles receipts, and publishes the next snapshot asynchronously. The knowledge base is not a reference the agent occasionally consults—it is a versioned input with an explicit publication boundary.
 
-**2 · Phase discipline via KBD skills.** Six KBD phases — assess, analyze, plan, execute, reflect, and (at the strategic layer) evolve — are enforced as hard boundaries. Each phase produces a specific artifact and a clean handoff to the next phase. No cross-phase contamination. The orchestrator that drives this is documented on the [Process & Orchestration Skills](09-process-skills.md) page.
+**2 · Phase discipline via KBD skills.** Six KBD stages — assess, analyze, spec, plan, execute and reflect — are enforced as hard boundaries. Each phase produces a specific artifact and a clean handoff to the next phase. No cross-phase contamination. The orchestrator that drives this is documented on the [Process & Orchestration Skills](09-process-skills.md) page.
 
 **3 · Waypoint continuity.** The `.kbd-orchestrator/position-reminder.txt` protocol ensures that when a context window ends and a new session starts, the agent reads its exact position before doing anything else. The loop does not lose its place. This is the difference between "we ran a bunch of agents at this repository" and "we know exactly what state we left it in."
 
@@ -76,7 +76,7 @@ These are not three competing ideas. They are three levels of the same idea.
 
 - **Metaprompting** is the general principle: orchestrate prompts, isolate the critic, separate task from evaluation.
 - **PMPO** is the specific two-loop architecture that applies metaprompting to development work, with phase discipline as its load-bearing constraint.
-- **KBD** is the inner-loop discipline that keeps knowledge and code aligned across sessions, implemented as the six phase skills plus the memory substrate.
+- **KBD** is the inner-loop discipline that keeps knowledge and code aligned across sessions, implemented as the stage skills plus scoped learning and optional knowledge collaborators.
 
 The relationship is hierarchical. KBD executes a phase. The `iterative-evolver` — PMPO's outer loop made executable — decides which phase to execute next. PMPO is the methodology that governs both. The prometheus-skill-pack implements all three as executable skills, which is what distinguishes it from a collection of scripts. The scripts implement the methodology; the methodology is what makes the loop compound rather than merely repeat.
 
@@ -84,7 +84,7 @@ The relationship is hierarchical. KBD executes a phase. The `iterative-evolver` 
 
 A handful of principles recur throughout the system. They are worth stating directly, because once you see them you will recognize them in every component.
 
-**Critic-context isolation.** The model that evaluates work must not be the model that produced it, and must not see the generation history. This is why `/goal` uses a separate model, why the sycophancy gate receives only the reflection artifact, and why auto-applying skill updates is forbidden.
+**Critic-context isolation.** The model that evaluates work must not be the model that produced it, and must not see the generation history. Record configured route, actual inference and evidence separately; a sycophancy screen is narrower than independent review.
 
 **Phase discipline as an immune system.** Hard boundaries between assess, plan, execute, and reflect prevent the most common failure mode of iterative agents — collapsing into a single pass that performs the *shape* of iteration without its substance.
 
@@ -92,7 +92,7 @@ A handful of principles recur throughout the system. They are worth stating dire
 
 **Human gates at the architecture layer, autonomy at the execution layer.** Agents execute without interruption. Operators approve changes to the system that governs those agents — loop definitions, skill updates, knowledge-base promotions. (The full treatment is in [Loop Architecture](03-loop-architecture.md).)
 
-**Graceful degradation.** Every component that depends on a service checks for it first and continues without it if it is absent. Memory features no-op when surreal-memory is unreachable. The sycophancy gate passes through when its binary is missing. The system never blocks on infrastructure it cannot reach.
+**Explicit degradation.** Optional helpers report absent collaborators and preserve their local fallback where supported. Durable queueing does not imply remote acceptance or retrieval. A missing independent judge leaves review pending; no fallback can manufacture release certification.
 
 **State is harness-agnostic; the loop body is harness-specific.** The durable on-disk state — `.kbd-orchestrator/`, `.evolver/`, `openspec/` — is identical no matter which AI tool is driving. You swap the driver and the cadence, never the state. This is what makes the pack genuinely cross-tool rather than cross-tool in name only.
 

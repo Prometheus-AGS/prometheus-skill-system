@@ -1,0 +1,40 @@
+{
+  "selected": null,
+  "policy": {
+    "model": "gpt-6.1-sol",
+    "capabilities": [],
+    "maxInputPerMillion": 1
+  },
+  "appliedLayers": [
+    "team",
+    "task"
+  ],
+  "rejected": [
+    {
+      "id": "gpt-6.1-sol",
+      "reasons": [
+        "price unknown; cannot satisfy ceiling"
+      ]
+    }
+  ],
+  "explanation": "No declared available model satisfies every constraint.",
+  "warnings": [],
+  "diagnostics": [
+    "Discovery describes configured availability, not a successful inference.",
+    "Strength tiers are operator annotations; unspecified metadata remains unknown."
+  ],
+  "catalogProvenance": {
+    "source": null,
+    "sourceSha256": null,
+    "fetched": null,
+    "libraryVersion": null,
+    "adapter": "liter-llm/catalog-schema-1",
+    "sourceRevision": "c5c6caac617eb931cd5009146a70831422ec236c"
+  },
+  "catalogFreshness": {
+    "fetchedAt": null,
+    "ageDays": null,
+    "stale": null,
+    "maxAgeDays": 30
+  }
+}

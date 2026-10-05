@@ -1,3 +1,5 @@
+> **Recorded research/implementation evidence; outside current onboarding.** Results apply to the named source and execution boundary. Current source, compiled payloads, installed harness use and release certification require their own final local evidence.
+
 # UI/UX routing research and implementation record
 Status: source research and approved architecture. Runtime and platform claims require separately recorded execution evidence.
 

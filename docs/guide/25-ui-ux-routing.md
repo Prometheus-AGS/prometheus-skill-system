@@ -7,7 +7,7 @@ description: Install selective UI guidance, preserve design authority, and colle
 
 Use `prometheus-ui-ux` when work changes rendered UI, interaction, styles, tokens, motion or on-screen copy. Describe the affected application and whether you are creating, redesigning, refining or reviewing it. The router returns context to read and a small set of relevant skills. Backend-only work uses the selected project team without loading UI guidance.
 
-The canonical UI catalog contains **41 entries**. The portable project installer and mini pack carry **40**; full distribution also includes the optional native Impeccable integration. The full pack's generated distribution index currently lists **215 skills** across all domains. These are different inventories: the site catalog currently enumerates 194 source manifests excluding imported submodules, while the distribution index enumerates 215 packaged skills. See the [generated catalog](/docs/catalog/ui-ux) and [distribution index](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/SKILLS.md).
+The canonical UI catalog contains **41 entries**. The portable project installer and mini pack carry **40**; full distribution also includes the optional native Impeccable integration. The source catalog and packaged distribution have different inclusion rules; use their generated current inventories rather than hand-maintained total counts. See the [generated catalog](/docs/catalog/ui-ux) and [distribution index](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/SKILLS.md).
 
 ## Add UI guidance to a project
 

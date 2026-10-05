@@ -93,8 +93,9 @@ ordering rules are enforced by the driver rather than by convention:
 
 - The **verifier completes before the reviewer** runs; review is refused when
   `credibility.json` is missing.
-- The final report is judged by `adversarial-review`, so **the producer never
-  reviews itself**.
+- The driver attempts `adversarial-review` after verification. Missing or refused
+  judges produce an explicit blocked review and partial evidence. Record the
+  actual model route; a configured critic name alone does not prove independence.
 
 ## Source scoring and contradictions
 
@@ -134,6 +135,8 @@ The 10-task G5 benchmark was executed on 2026-09-14, scoring 3 of 10 tasks:
 | 71 (K-12 AI) | 76.1 | 15 | 0.3158 |
 | 87 (AI fashion) | 89.5 | 20 | 0.1250 |
 
-`skills/research/deep-research/scripts/label-claims.py` closes the
-verified-claim-ratio gap. Five tasks (58, 66, 79, 81, 85) remain to be built.
-Skill package version 1.9.0; deep-research skill version 1.1.0.
+These are recorded benchmark results, not acceptance of the current candidate.
+`label-claims.py` records claim classifications; its presence does not prove that
+verification gaps were closed. Keep benchmark follow-up and current skill/package
+versions in their own source records, and run the applicable local integration
+gate only after all phase production is complete.

@@ -1,6 +1,6 @@
 # 04 · The Four-Layer Pipeline
 
-Where the [loop architecture](03-loop-architecture.md) describes how work *repeats*, the four-layer pipeline describes how a single unit of work *flows* — from an under-specified idea to enriched, implemented code. Every piece of work moves through four layers, and each layer feeds the next. The loops drive the pipeline; the pipeline is what the loops are driving.
+Where the [loop architecture](03-loop-architecture.md) describes how work *repeats*, the four-layer pipeline describes how a single unit of work *flows* — from an under-specified idea to enriched, implemented code. These are composable procedures rather than a mandatory installed pipeline for every task. Their prerequisites and actual configured routes determine which layers run. The loops drive the pipeline; the pipeline is what the loops are driving.
 
 ```mermaid
 graph TD
@@ -34,9 +34,9 @@ Layer 2's output is a set of task manifests: concrete, ordered units of work wit
 
 ## Layer 3 — OpenSpec Change Management
 
-Layer 3 turns each task into an auditable change. Every change gets a proposal with GIVEN/WHEN/THEN acceptance criteria, a documentation trail scoped to that change, and a lifecycle managed through the OpenSpec command set: `/opsx-new` creates the change, `/opsx-continue` advances to the next ready artifact, `/opsx-verify` validates, `/opsx-apply` applies the spec deltas, and `/opsx-archive` retires it. In the KBD orchestrator, `/kbd-apply` wraps the OpenSpec apply one task at a time so the loop advances a single artifact per tick.
+Layer 3 turns each task into an auditable change. Every change gets a proposal with GIVEN/WHEN/THEN acceptance criteria, a documentation trail scoped to that change, and a lifecycle managed through the OpenSpec command set: `/opsx-new` creates the change, `/opsx-continue` advances to the next ready artifact, `/opsx-verify` validates, `/opsx-apply` implements selected change tasks, and `/opsx-archive` retires it. In the KBD orchestrator, `/kbd-apply` wraps the OpenSpec apply one task at a time so the loop advances a single artifact per tick.
 
-This is also where `liter-llm` does per-phase model routing: assess, analyze, plan, and reflect run on a frontier model; execute runs on a tiered selection; status runs on a small, cheap model. The expensive reasoning happens only where reasoning is expensive. (See [Tools Reference](13-tools-reference.md) for the routing detail.)
+An explicitly configured liter-llm route can provide phase/model selection. Native harness execution uses the controls that harness actually exposes; a planned tier is not actual inference evidence. The expensive reasoning happens only where reasoning is expensive. (See [Tools Reference](13-tools-reference.md) for the routing detail.)
 
 ## Layer 4 — forge-rs, the enrichment engine
 
@@ -56,7 +56,7 @@ sequenceDiagram
 
     Task->>Forge: forge enrich <task-path>
     Forge->>Forge: detect language from task + files
-    Forge->>Skills: resolve matching skills + templates
+    Forge->>Skills: resolve matching registry skills
     Forge->>Const: load active constitution (standards, denied patterns)
     Forge->>PK: read bounded committed snapshot
     PK-->>Forge: ranked KB context
@@ -65,7 +65,7 @@ sequenceDiagram
     Forge->>Agent: write .forge/enriched/<task-id>.context.md
     Agent->>Agent: implement against enriched context
     Agent->>Forge: forge reflect <iteration-id>
-    Forge->>PK: pk ingest — write session learning back
+    Forge->>PK: record reflection through configured knowledge path
 ```
 
 The four Tera template variables are the seams where knowledge enters:

@@ -1,3 +1,5 @@
+> **Goal-supervisor proposal; outside current onboarding.** This July 2026 imported research/specification proposes a UAR goal supervisor and harness drivers. Native flags, capability matrices and efficacy claims require current source evidence; this document does not establish shipped supervision. Use [the current guide](../../guide/00-quick-start.md).
+
 # Harness-Agnostic Goal Abstraction for the Prometheus Skill Pack (PSP)
 ### Architecture, Functional Specification, Implementation Plan & Strategic Framing
 Prepared for Travis James, Founder/CTO, Prometheus AGS — July 31, 2026

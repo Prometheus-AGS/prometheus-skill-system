@@ -1,0 +1,19 @@
+{
+  "projectCount": 1,
+  "projects": [
+    {
+      "projectId": "4377b624-1bca-4897-96b3-53d4b60f134a",
+      "ready": true,
+      "revision": 2
+    }
+  ],
+  "status": "ready",
+  "transport": {
+    "attempt": 1,
+    "lastError": null,
+    "nextRetryMs": null,
+    "nodeId": "866ca84d7edcca09fc26362dd533a2571c6edece92231c12d131a3324cb3a443",
+    "peers": [],
+    "state": "ready"
+  }
+}

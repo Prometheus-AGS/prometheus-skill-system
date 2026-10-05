@@ -2,6 +2,16 @@
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
+  agentTeamsSidebar: [
+    'agent-teams/overview',
+    { type: 'link', label: 'Create and adopt a team', href: '/docs/guide/agent-teams#install-or-adopt-a-project-team' },
+    { type: 'link', label: 'Roles and task lifecycle', href: '/docs/guide/agent-teams#run-the-revisioned-task-lifecycle' },
+    { type: 'link', label: 'Messages and handoffs', href: '/docs/guide/agent-teams#transfer-context-and-wait-for-acceptance' },
+    { type: 'link', label: 'Cross-project coordination', href: '/docs/guide/agent-teams#route-requests-to-another-project' },
+    { type: 'link', label: 'Models and reasoning', href: '/docs/guide/agent-teams#choose-a-model-for-the-task' },
+    { type: 'link', label: 'Scoped learning', href: '/docs/guide/agent-teams#keep-lessons-scoped-to-their-audience' },
+    { type: 'link', label: 'Services and Companion', href: '/docs/guide/service-operations' },
+  ],
   // guideSidebar moved to sidebars-guide.js — the guide is served from the
   // canonical ../docs/guide via a separate plugin instance (id: 'guide').
 

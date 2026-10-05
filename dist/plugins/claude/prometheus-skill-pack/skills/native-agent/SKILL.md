@@ -3,13 +3,13 @@ license: MIT
 name: native-agent
 version: '1.0.0'
 description: >
-  Generates a complete, production-ready native Rust agent application with a
+  Scaffolds a native Rust agent workspace with a
   Supabase-style management CLI. The generated agent binary embeds an Axum HTTP
   server supporting A2A, AG-UI, and A2UI protocols, a React 19 assistant-ui chat
   frontend, liter-llm provider routing, simple MCP client tool integration, the
-  Prometheus skill pack selection engine, and full Docker support with Docker
-  Desktop auto-detection and image loading. One command scaffolds a runnable,
-  configurable, containerizable multi-protocol agent.
+  Prometheus skill pack selection engine, and optional Docker templates with
+  Desktop detection and image-loading commands. Generated source requires
+  configuration and full integration evidence before release or deployment.
 authors:
   - 'Prometheus AGS'
 allowed-tools: file_system code_interpreter sequential_thinking
@@ -46,8 +46,11 @@ metadata:
 
 # Native Agent Generator
 
-Generates a self-contained, production-ready Rust agent workspace in one command.
-The generated project is a permanent artifact — not a prototype.
+Generates an editable Rust agent workspace from the selected templates.
+The scaffold is source output. A successful generation or compiler check does
+not establish provider inference, protocol interoperability, service readiness,
+container operation, or production acceptance. Complete the phase's production
+implementation before running its local full-integration gate.
 
 ## What Gets Generated
 
@@ -82,7 +85,7 @@ The generated project is a permanent artifact — not a prototype.
 
 ## Generated Agent Features
 
-### 0. Prometheus Service Readiness
+### 0. Choose the service owner before wiring endpoints
 
 Before wiring generated agents to local Prometheus MCP services, detect the host OS:
 
@@ -95,8 +98,18 @@ uname -s
   `pk-cherry` (`:8942`) or `forge mcp` (`:8943`) are not running. These are user
   LaunchAgents for the logged-in user, with explicit `HOME`, `USER`, `PATH`, and
   service environment.
-- Keep `surreal-memory-server` Docker-managed on `:23001`; the LaunchAgent setup
-  must only report that port, not claim ownership of it.
+- The full pack's macOS native memory template is
+  `shared/launchagents/ai.prometheus.surreal-memory-native.plist`. It runs
+  `surreal-memory-server` on loopback `:23001`, connects to native SurrealDB
+  on `:28000`, and selects namespace/database `memory/mcp`. The native service
+  manager owns this service when selected; port `23001` does not imply Docker.
+- The generated agent's optional Compose template can instead include its own
+  `surreal-memory` container and persistent `surreal-data` volume. Its default
+  published port is also `23001`. Choose one owner for that host port, or
+  deliberately configure a different mapping and endpoint. This template does
+  not select the full pack's native `memory/mcp` database or migrate its data.
+  Mini's optional Compose contract separately uses `memory/main_local_384`;
+  a shared port does not establish shared data or service parity.
 - On Linux, keep systemd user service or cron guidance separate. On non-macOS,
   do not recommend LaunchAgents except to say they are unsupported.
 
@@ -152,11 +165,11 @@ my-agent docker shell               # exec into running container
 
 ### 6. Docker Support
 
-The specify phase automatically detects the Docker environment and adapts:
+The specify phase uses Docker detection to select the requested scaffold:
 
 | Detected | Behavior |
 |---|---|
-| Docker CLI + daemon running | Offers Dockerfile + compose + build now |
+| Docker CLI + daemon running | Offers Dockerfile + Compose configuration |
 | Docker Desktop installed (macOS) | Offers `--load` to push image into Desktop image store |
 | Docker Compose v2 available | docker-compose.yml with companion services |
 | Docker not available | Skips Docker files, prints install link |
@@ -173,8 +186,10 @@ The specify phase automatically detects the Docker environment and adapts:
 - `prometheus-knowledge` — Karpathy wiki (if enabled)
 - `liter-llm` — model routing proxy (if enabled)
 
-All services share a `agent-net` bridge network. Named volumes for persistence.
-Healthchecks on all services.
+Enabled services share an `agent-net` bridge network and named volumes.
+The template defines healthchecks for the agent and optional memory service;
+the optional knowledge and liter-llm services use `service_started` dependencies.
+Container start and healthcheck success do not prove a real model or MCP request.
 
 ## Quick Start
 
@@ -185,12 +200,14 @@ Healthchecks on all services.
 cd my-agent
 cp .env.example .env    # add API keys
 
+# After all phase production is complete, build the selected output locally.
+# Build success is not the full-integration acceptance gate.
 # Option A: Native (Rust binary)
 cargo build --release -p agent-cli
 npm --prefix frontend run build
 ./my-agent start                    # http://localhost:8080
 
-# Option B: Docker (automatically built and loaded if Docker Desktop detected)
+# Option B: Docker (explicit build after phase production is complete)
 my-agent docker build               # builds + loads into Docker Desktop
 my-agent docker up -d               # starts agent + configured services
 open http://localhost:8080
@@ -229,8 +246,10 @@ research-agent (:8081) ─── A2A ──→ forge-agent (:8080)
   prometheus-knowledge                forge-rs MCP
 ```
 
-Each agent exposes `/.well-known/agent.json`. To wire two agents together,
-add the other agent's A2A URL as an MCP server in `agent.toml`.
+Each generated agent has an A2A card endpoint at `/.well-known/agent.json`.
+An A2A peer URL is not an MCP server URL. Cross-agent task routing requires
+an A2A client or adapter and a real authorized request across that boundary;
+the diagram is an illustrative topology, not an automatically connected network.
 
 ## Quick Start Commands
 

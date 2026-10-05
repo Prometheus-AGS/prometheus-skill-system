@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T20:19:29.234611+00:00",
+  "phase": "phase-learning-deploy-and-debt",
+  "approvalEvidence": {
+    "source": "direct human message in this chat",
+    "exactText": "I approve the release proposal"
+  },
+  "approvedProposalHashes": {
+    "pin-proposal.md": "356dc927591dc63abe5b47412fd2211ba65c25102953c27cc0a0df83d0d56815",
+    "companion-versions.patch": "03669b60213e42f667864118695e628ecd7f85c4a70a94d50fab4ef0faeeb53b",
+    "plugin-version-proposal.json": "61d431ec71c59c890e006595cd88e09f24f82315a8a7c81d6f026952313afd06"
+  },
+  "approvedScope": [
+    "Exact eleven Companion versions.toml pin additions in companion-versions.patch",
+    "Full and mini1.11.3, surreal-memory1.10.2, Companion0.1.0 candidate releases and stated conditional signed tags",
+    "Exact eleven owned full plugin patch increments",
+    "Stated narrow exception to Immutable Implementation-First and Integration-Only Policy for dependency certification/publication before exact final parent metadata; every functional source implementation precedes gates"
+  ],
+  "retainedConditions": [
+    "Owner merges every PR",
+    "Local gates precede publication; signed tags only after local certification and owner merge",
+    "Owner-selected full dependency remains exact ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+    "No fabricated future dependency SHA",
+    "Separate exact mini versions.toml memory-SHA patch approval when certified dependency commit/merge exists"
+  ],
+  "acceptance": "approval only; no gate/publication/deployment proof"
+}

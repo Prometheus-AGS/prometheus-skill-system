@@ -1,0 +1,17 @@
+{
+  "status": "source-complete-not-executed",
+  "recordedAt": "2026-10-05T21:56:04.272255+00:00",
+  "file": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/learning-deploy-and-debt.py",
+  "sha256": "7b2a0a3c5febb7c23a911b46314140e2aad2d566e024d0a4f4c440667ade23a9",
+  "corrections": [
+    "actual mini source ID derived and supplied",
+    "mini catalog production pre-step",
+    "recursive source graph bytes/modes provenance",
+    "initial committed protected integrity component",
+    "actual research merge/assembler subprocess integration",
+    "affected-case selector with explicit missing-case BLOCKED coverage",
+    "served sites validate every same-host href and fragment, including links outside baseUrl"
+  ],
+  "acceptance": false,
+  "sourceMutationComplete": true
+}

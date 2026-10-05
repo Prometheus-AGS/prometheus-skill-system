@@ -1,0 +1,43 @@
+{
+  "capturedAt": "2026-10-05T22:50:47.732724+00:00",
+  "purpose": "Owner-requested static accounting; not testing or certification",
+  "limitations": [
+    "HEAD diff includes approved phase implementation as well as later corrections; it is not a pre-validation snapshot.",
+    "Earlier aggregate hashes cannot reconstruct omitted per-file bytes.",
+    "Known before/after attribution is in handoff JSON; untouched worktrees retained."
+  ],
+  "repositories": {
+    "full": {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "head": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+      "branch": "codex/learning-deploy-and-debt",
+      "diffSha256": "c8e2b03f82ac99ba885526e3783893265d436e46b52f59f89a840d57d6d5e9c7",
+      "untrackedSources": 33,
+      "publication": "not performed by this closeout"
+    },
+    "mini": {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "head": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0",
+      "branch": "codex/ldd-mini-final",
+      "diffSha256": "ed0c5e050f2c40e3fc40ebc6483489288c434ed0512dadb76dc572375b17c2d2",
+      "untrackedSources": 4,
+      "publication": "not performed by this closeout"
+    },
+    "memory": {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "head": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "branch": "codex/ldd-memory-final",
+      "diffSha256": "246db8c0da4a62671bd628f8df4b65796fd7992582b0cbee2fddec9d793adf17",
+      "untrackedSources": 5,
+      "publication": "not performed by this closeout"
+    },
+    "companion": {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final",
+      "head": "773aa5e33b2217135bc423e526c497cceb0e7058",
+      "branch": "codex/ldd-companion-final",
+      "diffSha256": "5cb996e4ef870875b4254c040441bf96d4ff0b13e8f795c50c8fc2609c6629c1",
+      "untrackedSources": 120,
+      "publication": "not performed by this closeout"
+    }
+  }
+}

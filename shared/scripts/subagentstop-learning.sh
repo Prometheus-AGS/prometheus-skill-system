@@ -16,6 +16,8 @@
 # Silent and exit 0 on every path: a hook must never block the Stop chain.
 # bash 3.2 compatible.
 
+# Direct invocation must suppress bytecode in imports and Python descendants.
+export PYTHONDONTWRITEBYTECODE=1
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 command -v python3 >/dev/null 2>&1 || exit 0

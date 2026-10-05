@@ -4,7 +4,7 @@ These examples demonstrate the boundary between code generation and evidence-pro
 
 ## Prerequisites
 
-- installed `prometheus-exec 1.7.0`;
+- an installed `prometheus-exec` matching the selected release contract;
 - a supported local Tier P backend (the release Mac uses Seatbelt); and
 - an active signed plugin generation for the Tier W example.
 

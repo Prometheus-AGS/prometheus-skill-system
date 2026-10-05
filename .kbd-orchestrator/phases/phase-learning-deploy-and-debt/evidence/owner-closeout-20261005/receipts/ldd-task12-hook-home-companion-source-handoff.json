@@ -1,0 +1,82 @@
+{
+  "status": "source-complete; acceptance pending",
+  "actualModel": "OpenAI gpt-6.1-sol/high native scoped fallback",
+  "files": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-hook-bytecode-integration.sh",
+      "sha256": "8893bcbd426b4cc94dc9f65383738612dd37d881ab3430754d10c20a06601b67",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-codex-memory-integration.sh",
+      "sha256": "e16cc31b1ed52b03ccdb92208cdb48c65003b44d4ac5bb03206eefd8e9959e95",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-codex-home-integration.sh",
+      "sha256": "4faff825acab45b27628adb7423d82b22a837dc52a0d28707c2f972c42f22629",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/tests/test-companion-connected-integration.sh",
+      "sha256": "c779f5dd83749f895753f5111bd79fa21588cba8e961da0bfeb4d019a8af5ac2",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/tests/connected_headless_processes.rs",
+      "sha256": "fcd8a2855c515552d84d6e255dad7a0202fe9a32f66a864946f63be095d78c91",
+      "mode": "0o644"
+    }
+  ],
+  "execution": "No scenarios, helpers, tests, Cargo, compiler, generation, validators, syntax checks or runtime probes executed by this worker.",
+  "protectedClassification": "New shell/Rust integration paths; none matches existing tests/steps/*.steps.ts, tests/support/*.ts or protected tests/features/*.feature patterns. No protected test was changed.",
+  "invocations": [
+    "bash FULL/scripts/tests/test-hook-bytecode-integration.sh --full ABS --evidence ABS --scratch ABS --hook-runtime-bin ABS --legacy-payload ABS",
+    "bash FULL/scripts/tests/test-codex-memory-integration.sh --full ABS --install-source ABS --evidence ABS --scratch ABS --doctor-bin ABS --codex-bin ABS --codex-provider-config ABS [--native-timeout-seconds 300]",
+    "bash FULL/scripts/tests/test-codex-home-integration.sh --full ABS --install-source ABS --evidence ABS --scratch ABS --doctor-bin ABS",
+    "bash COMP/scripts/tests/test-companion-connected-integration.sh --companion ABS --evidence ABS --scratch ABS --headless-bin ABS --sync-bin ABS --prometheus-bin ABS --companion-integration-bin ABS [--timeout-seconds 600]"
+  ],
+  "outputs": {
+    "hook": "hook-bytecode-result.json",
+    "memory": "codex-memory-result.json",
+    "home": "codex-home-result.json",
+    "companion": "companion-connected-result.json; connected-acceptance.json only after actual process assertions"
+  },
+  "mappings": {
+    "01/AC-1,AC-2": "actual packaged shell/compiled hooks + direct wrappers/writer/enqueue; real file learning activity; immutable generation byte/mode comparison and strict verification; actual Cortex feeder separately root-owned",
+    "01/AC-3": "actual archived ba5 packaged historical negative control and strict rejection, plus direct contamination verification control",
+    "02/AC-1": "actual full installer skills profile, lossless helper + archive/backups, malformed and supported TOML cases, built CLI doctor",
+    "02/AC-2,AC-3": "actual Codex0.158 stdio app-server + real loopback Responses provider inference, native-created schemas and persisted thread; eligible historical SQLite fixtures; true feature/gen-use false consumes job and writes summary; actual helper plus two fresh disabled native sessions leave same pending job/output unchanged; bounded by real observed native claim latency",
+    "06/AC-1,AC-2": "compiled doctor actual installed signed generation, quote-safe absolute repair in unrelated cwd, pointer/manifest/helper/cache tamper no unsafe command",
+    "07/AC-1,AC-2": "actual installer selected sibling CODEX_HOME, copy projection, MCP config writer, signed receipts, verify/rollback/prune/uninstall, untouched fallback/unowned/unknown markers, empty variable and explicit --home",
+    "14/AC-1": "actual two headless hosts, production pairing + P2P, real canonical file signer, signed Unix mutation, selected MCP, durable pre-POST outbox, original-host receipt + exact-ID replay, actual remote canonical peer application; duplicate owner rejection, local-only memory rejection, absent-host uncertainty, disabled discovery/identity + shutdown, standalone CLI"
+  },
+  "nativeCodex": {
+    "officialSourceCommit": "064c6b8c737f5b41d171fdda80bd9ef10ad06eb3",
+    "engine": "0.158",
+    "state": "state_5.sqlite",
+    "memoryDatabases": [
+      "memories_1.sqlite",
+      "memories_v2_1.sqlite"
+    ],
+    "job": {
+      "kind": "memory_consolidate_global",
+      "key": "global",
+      "success": "done"
+    },
+    "summaryFormat": "Both version roots use literal v1 first-line format; native success also validates v2 structure.",
+    "providerFixture": "Only model, model_provider, exactly one model_providers table; explicit auth-free loopback HTTP Responses URL (not23001), requires_openai_auth=false; no env_key/auth/headers/user config imported.",
+    "providerExample": "model = \"gpt-6.1-sol\"\nmodel_provider = \"ldd-loopback\"\n[model_providers.ldd-loopback]\nname = \"LDD loopback\"\nbase_url = \"http://127.0.0.1:4000/v1\"\nwire_api = \"responses\"\nrequires_openai_auth = false\n"
+  },
+  "cleanup": "New marked scratch child only; inherited service/auth variables cleared; explicit input binaries read-only; child process groups killed/waited on deadline and signals. Companion uses own file keys, not keychain. No :23001 or real home/auth/cache assertions.",
+  "boundaries": [
+    "No acceptance inferred from source completion.",
+    "Companion publication remains pending and is not asserted by process scenario.",
+    "Desktop Codex engine/effective settings remain unestablished.",
+    "Install-source must be prepared scratch-contained real candidate with no escaping Git pointers.",
+    "No full host-services installation profile is launched; actual full-pack skills installation dispatch is exercised.",
+    "Missing binary/provider/input returns2 BLOCKED; actual startup control inability is BLOCKED with captured jobs/logs; actual product assertions fail1.",
+    "Root owns source commit/tree receipts, isolated provider provisioning, serialized builds and consolidated initial gate.",
+    "Root Cortex prerequisite still unresolved; no stub substituted."
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "workingDirectory": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+  "actualRoute": {
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "plannedEffort": "xhigh",
+    "fallback": "parent explicitly adopted inherited native implementation route"
+  },
+  "sourceProductionComplete": true,
+  "acceptance": "none; no helper/scenario/check execution",
+  "paths": [
+    {
+      "path": "scripts/tests/prepare-learning-deploy-candidate.mjs",
+      "absolutePath": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/prepare-learning-deploy-candidate.mjs",
+      "sha256": "385715bd922cbb1847fc24fe2b5b49d609c38631dd0d890c7d88152a54fa7176",
+      "mode": "755"
+    },
+    {
+      "path": "scripts/tests/test-team-control-integration.mjs",
+      "absolutePath": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-team-control-integration.mjs",
+      "sha256": "98f041afc8cf56c40ea52e93f7d4f22a734a91aeb4845460863de34a25f763f0",
+      "mode": "755"
+    }
+  ],
+  "preparation": {
+    "arguments": [
+      "--scratch ABS_NEW_OR_EMPTY",
+      "--full ABS_CANDIDATE",
+      "--output ABS_UNDER_SCRATCH",
+      "--legacy-output DISTINCT_ABS_UNDER_SCRATCH (optional)"
+    ],
+    "stdout": [
+      "installSource",
+      "legacyPayload",
+      "receipt"
+    ],
+    "sourceGraph": "Actual source HEAD, candidate overlay, initialized actual declared import heads; copied objects, contained scratch local remotes and Git administrative directories. Input index/config/checkout untouched.",
+    "legacyCommit": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+    "legacyPrefix": "dist/plugins/claude/prometheus-skill-pack/",
+    "exclusions": [
+      "gitignored untracked paths",
+      "node_modules",
+      "target",
+      "cache directories",
+      "Git admin directories",
+      "SSH/GPG credentials",
+      "known Codex/Claude/AWS private auth files"
+    ],
+    "limits": "Offline local graph preparation is not final public-remote fresh-clone/installability evidence; no borrowed dependency tree."
+  },
+  "teamScenario": {
+    "arguments": [
+      "--scratch ABS_NEW_OR_EMPTY",
+      "--evidence ABS_UNDER_SCRATCH",
+      "--installed-root ABS_INSTALLED_FULL_FLAT_PAYLOAD",
+      "--runtime-bin ABS_COMPILED_PROMETHEUS",
+      "--model-input ABS_JSON (real configured prerequisite)",
+      "--memory-endpoint http://127.0.0.1:EXPLICIT_NON_23001_PORT (real configured prerequisite)",
+      "--control-host-bin ABS_COMPILED_PROMETHEUS_COMPANION_HEADLESS OR --control-endpoint http://127.0.0.1:EXPLICIT_NON_23001_PORT"
+    ],
+    "exitCodes": {
+      "0": "All recorded actual scenarios passed",
+      "1": "Actual scenario failure",
+      "2": "Missing required real prerequisite / BLOCKED"
+    },
+    "coverage": [
+      "Native signed projection dry-run/adoption/archive preserves original bytes and canonical signed events/frontier",
+      "Two independent native status processes read persisted state",
+      "Installed team CLI writes selected manifest/native exports/task state and handoff across real Git/filesystem boundaries",
+      "Actual configured provider discovery plus selection and real OpenAI-compatible inference",
+      "Actual memory server publication and persisted outbox receipt",
+      "Actual production learning writer and Codex startup digest omit private lesson text",
+      "Actual independent Companion headless Unix host and native signed mutation remote commit receipt; local-fallback receipt rejected; subsequent audit continuity comparison"
+    ],
+    "headlessIsolation": "Selected owned scratch Unix socket/data/device key and installed skills; optional platform service supervisor intentionally unattached, P2P absent configured scratch selection; only own child is terminated/collected. No real launchctl operations.",
+    "modelRecipe": {
+      "discovery": {
+        "kind": "openai",
+        "baseUrl": "https://actual-provider/v1",
+        "auth": {
+          "env": "EXPLICIT_EXISTING_API_KEY",
+          "header": "Authorization",
+          "scheme": "Bearer"
+        }
+      },
+      "taskPolicy": {
+        "model": "EXACT_PROVIDER_MODEL_ID"
+      },
+      "inference": {
+        "url": "https://actual-provider/v1/chat/completions",
+        "auth": {
+          "env": "EXPLICIT_EXISTING_API_KEY",
+          "header": "Authorization",
+          "scheme": "Bearer"
+        },
+        "body": {
+          "messages": [
+            {
+              "role": "user",
+              "content": "Reply briefly with an integration acknowledgment."
+            }
+          ],
+          "max_tokens": 32
+        }
+      }
+    },
+    "modelLimits": "No literal credentials; only explicit auth env references forwarded and cannot override scratch/executable/runtime env. Real provider must support submitted request body. Catalog aliases/tiers required only when actual task policy needs their metadata.",
+    "otherLimits": "Node22+ and supported Unix native/control contract; missing real provider/memory/host yields BLOCKED. Does not replace protected BDD, documentation/site gates, final remote installability, external cross-project messages or historical closure."
+  },
+  "execution": {
+    "commandsRun": [],
+    "owner": "root consolidated local gate only"
+  },
+  "remaining": [
+    "Parent source-freeze signal before requested new two-pass full production regeneration",
+    "Parent compiled native/Companion binaries and configured real provider/memory prerequisites",
+    "Approved final memory commit/owner merge and exact mini SHA graph plus final remote fresh-clone gate",
+    "All consolidated final12 acceptance remains root-owned"
+  ]
+}

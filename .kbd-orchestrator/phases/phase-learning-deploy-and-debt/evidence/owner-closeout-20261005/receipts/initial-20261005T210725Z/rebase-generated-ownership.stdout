@@ -1,0 +1,9 @@
+ok   - outside a rebase exits 2 with a message (rc=2)
+ok   - setup: rebase stopped on conflicts
+ok   - helper did not continue the rebase itself
+ok   - git diff --cached holds only generated paths
+ok   - conflicting edits were discarded in favour of regenerated content
+ok   - setup: second rebase stopped on conflicts
+ok   - source-file conflict exits 1 (rc=1)
+ok   - names the conflicted source file
+ok   - changes nothing (status, index, worktree identical)

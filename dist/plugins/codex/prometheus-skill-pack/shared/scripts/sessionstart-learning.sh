@@ -37,6 +37,8 @@
 # inside the 5 s contract timeout) with a 2 s per-request store timeout; a
 # timed-out recall prints nothing. bash 3.2 compatible.
 
+# Direct invocation must suppress bytecode in imports and Python descendants.
+export PYTHONDONTWRITEBYTECODE=1
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -99,10 +101,12 @@ header = (
 overhead = len(open_tag) + len(header) + len(close_tag) + 3
 
 result = lr.recall(cwd=cwd, payload=payload, main_thread=True, query="", budget=max(0, budget - overhead),
-                   agent_type="main-thread", use_pk=True, pk_budget=None, log=False)
+                   agent_type="main-thread", use_pk=harness != "codex", pk_budget=None, log=False,
+                   digest_only=harness == "codex")
 lessons = result.get("lessons") or []
 if harness == "codex":  # forked into every child: digest lines only, never lesson text
-    lessons = [e for e in lessons if e.get("scope") == "team"]
+    lessons = [e for e in lessons if e.get("scope") == "team" and e.get("kind") == "digest"
+               and e.get("channel") == "digest" and e.get("agentId") == f"{team}/@team"]
 if not lessons:
     sys.exit(0)
 

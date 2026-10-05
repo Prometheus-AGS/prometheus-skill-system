@@ -1,0 +1,9 @@
+Prometheus skill system install plan
+  release: 1.11.3 (minimum active 1.11.0)
+  profile: skills
+  targets: codex:copy
+  imports: skills/imported/artifact-refiner@18d000f3e46952418f682159b227dbf71ce61dcb, skills/imported/sycophancy-correction@bc348fffb4b622c142c1082b281dd2f44b74d37b
+  plugin root: /private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l/selected home/.prometheus/plugins/prometheus-skill-pack
+  Codex root: /private/tmp/ldd-local-07t76e9q/codex-home-48k8tv4l/Codex sibling's root
+  Codex memory policy: disable startup/generation/use; archive known v1/v2 summaries
+  certification: required
