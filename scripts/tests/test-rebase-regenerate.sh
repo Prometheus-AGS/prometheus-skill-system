@@ -70,7 +70,10 @@ grep -q 'git rebase --continue' "$TMP/s1.out"; check $? "prints the git rebase -
 [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; check $? "helper did not continue the rebase itself"
 generated_set="$(node scripts/generated-paths.mjs)"
 stray=""
-for p in $(git diff --cached --name-only); do
+# Submodule gitlinks (mode 160000 on either side) are not content the helper
+# stages; whether a submodule is initialised in the source checkout must not
+# change the verdict.
+for p in $(git diff --cached --raw | awk '$1 != ":160000" && $2 != "160000" { print $NF }'); do
   hit=0
   for g in $generated_set; do
     case "$g" in */) case "$p" in "$g"*) hit=1 ;; esac ;; *) [ "$p" = "$g" ] && hit=1 ;; esac
