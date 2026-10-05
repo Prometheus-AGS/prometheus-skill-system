@@ -1,0 +1,178 @@
+{
+  "projectId": "project:rq-fixture",
+  "role": "api-dev",
+  "queries": {
+    "tuning": [
+      {
+        "id": "T1",
+        "text": "Harden webhook delivery retries with exponential backoff and a dead letter queue, then verify idempotent redelivery in the integration suite before the phase closes."
+      },
+      {
+        "id": "T2",
+        "text": "Reduce flaky integration tests by isolating the scratch database, pinning ports and cleaning temporary directories after each run of the suite."
+      },
+      {
+        "id": "T3",
+        "text": "Plan the schema migration for tenant billing records and gate the rollout behind a feature flag with a rollback checklist for the phase."
+      }
+    ],
+    "heldout": [
+      {
+        "id": "H1",
+        "text": "Add rate limiting to the public API gateway, return retry-after headers and document the limits in the integration guide for the phase.",
+        "mustRecall": "rq-gateway-rate-limit-headers"
+      },
+      {
+        "id": "H2",
+        "text": "Rotate the signing keys used for session tokens and verify in the end to end suite that expired tokens are rejected after the rotation."
+      },
+      {
+        "id": "H3",
+        "text": "Improve startup latency of the worker daemon by caching configuration and deferring optional plugin loading until first use in the phase."
+      }
+    ]
+  },
+  "projectPk": [
+    {
+      "id": "rq-webhook-retry-budget",
+      "title": "Webhook retry budget and dead letter queue",
+      "tags": [
+        "webhooks",
+        "retries"
+      ],
+      "body": "Webhook delivery retries use exponential backoff with a retry budget; exhausted deliveries move to the dead letter queue and redelivery stays idempotent."
+    },
+    {
+      "id": "rq-scratch-db-isolation",
+      "title": "Scratch database isolation for integration runs",
+      "tags": [
+        "testing"
+      ],
+      "body": "Each integration run gets its own scratch database and a pinned port, and the temporary directories are removed in a cleanup trap."
+    },
+    {
+      "id": "rq-billing-migration-flag",
+      "title": "Billing migration behind a feature flag",
+      "tags": [],
+      "body": "Tenant billing schema migrations ship behind a feature flag and keep a rollback checklist next to the migration."
+    },
+    {
+      "id": "rq-gateway-rate-limit-headers",
+      "title": "Gateway rate limit and retry-after headers",
+      "tags": [],
+      "body": "The API gateway enforces per-key rate limits and returns retry-after headers; the limits are listed in the integration guide."
+    },
+    {
+      "id": "rq-session-key-rotation",
+      "title": "Session signing key rotation",
+      "tags": [
+        "security"
+      ],
+      "body": "Session token signing keys rotate on a schedule; tokens signed with a retired key are rejected once the grace window ends."
+    },
+    {
+      "id": "rq-worker-startup-cache",
+      "title": "Worker daemon startup cache",
+      "tags": [],
+      "body": "The worker daemon caches parsed configuration and loads optional plugins lazily to keep startup latency low."
+    },
+    {
+      "id": "rq-api-dev-idempotency",
+      "title": "API role idempotency convention",
+      "tags": [
+        "role:api-dev",
+        "vis:agent"
+      ],
+      "body": "api-dev writes idempotency keys for every retried request and checks them before the handler runs."
+    }
+  ],
+  "foreignPk": [
+    {
+      "id": "knowme-avatar-pipeline",
+      "scope": "shared",
+      "title": "KnowMe avatar rendering pipeline",
+      "tags": [
+        "knowme",
+        "avatars"
+      ],
+      "body": "The KnowMe avatar pipeline renders sprites in the browser and falls back to the default sprite when a render fails."
+    },
+    {
+      "id": "knowme-session-avatars",
+      "scope": "shared",
+      "title": "KnowMe session avatars",
+      "tags": [],
+      "body": "Avatar sessions in KnowMe keep a signed token per browser tab so a refreshed tab reuses the avatar state."
+    },
+    {
+      "id": "knowme-phase-notes",
+      "scope": "shared",
+      "title": "KnowMe phase review notes",
+      "tags": [
+        "knowme"
+      ],
+      "body": "Each KnowMe phase ends with an avatar review; the sprite budget for the phase is listed in the design guide."
+    },
+    {
+      "id": "knowme-test-database",
+      "scope": "shared",
+      "title": "KnowMe avatar test database",
+      "tags": [
+        "knowme",
+        "testing"
+      ],
+      "body": "KnowMe avatar tests share one database between suites and leave sprite files in the temporary directory."
+    },
+    {
+      "id": "actix-middleware-order",
+      "scope": "global",
+      "title": "Actix middleware ordering",
+      "tags": [
+        "actix",
+        "rust"
+      ],
+      "body": "Actix wraps middleware in reverse registration order, so the logger must be registered after the compression wrapper."
+    },
+    {
+      "id": "actix-worker-threads",
+      "scope": "global",
+      "title": "Actix worker thread startup",
+      "tags": [
+        "actix"
+      ],
+      "body": "Actix starts one worker per core; application data is cloned into each worker at startup."
+    },
+    {
+      "id": "actix-tenant-extractor",
+      "scope": "global",
+      "title": "Actix tenant extractor",
+      "tags": [],
+      "body": "A custom Actix extractor resolves the tenant from the host header before the handler runs."
+    }
+  ],
+  "surrealLessons": [
+    {
+      "agent_id": "tlm-fixture/api-dev",
+      "content": "Role lesson: api-dev retries idempotent writes and records the idempotency key before the handler runs."
+    },
+    {
+      "agent_id": "@project",
+      "content": "Project lesson: integration runs use a scratch database and a scratch port so suites never touch shared state."
+    },
+    {
+      "agent_id": "@project",
+      "content": "Project lesson: webhook and gateway changes are verified by the integration suite, never by mocks of the delivery path."
+    },
+    {
+      "user_id": "@global",
+      "agent_id": "@global",
+      "content": "Global feedback: keep each change small, finish the implementation, then run the integration gate once."
+    }
+  ],
+  "foreignMarkers": [
+    "knowme",
+    "avatar",
+    "actix",
+    "legacy billing export"
+  ]
+}
