@@ -118,9 +118,23 @@ Treat `exactNextCommand` as the operator's stated intent — useful context for
 | `progress <change>` | `total complete remaining` |
 | `begin-task <change> <id> <i> <n> <title>` | open a missing `change:before`, then fire `task:before` + position signals |
 | `end-task <change> <id> <i> <n> <title>` | mark done + sync + close `task:after`; the final task also closes `change:after` |
-| `mark-done <change> <id>` | flip one task done (no hooks) |
+| `mark-done <change> <id>` | flip one task done AND sync the ledger (runtime transition + progress.json); no hooks, and it prints that none fired |
+| `reconcile [<phase>] [--repair] [--json]` | compare each change's backend done flags (`tasks.json` / `tasks.md`) with the canonical ledger; one line per drifted task; exit 1 on drift, 0 when clean. `--repair` replays each drifted task through `begin-task`/`end-task` and re-checks |
 | `verify <change>` | backend verify; non-zero exit = fail |
 | `archive <change>` | backend archive |
+
+### Ledger reconciliation
+
+`mark-done` used to flip only the backend flag, so a phase could show every
+`tasks.json` done while the ledger counted 13 of 25. It now syncs the ledger like
+`end-task` (minus hooks), and `reconcile` is the check that proves backend and
+ledger agree. Inputs, all read-only: the phase's change list from
+`prometheus kbd status --json`, each change's backend task file, and the
+`progress.json` projection. Drift kinds: `ledger-missing`, `ledger-pending`
+(backend done, ledger not), `ledger-ahead` (ledger done, backend not; not
+auto-repairable), `unmappable`, `projection` (progress.json disagrees with the
+ledger). Run it before `/kbd-reflect` reads `progress.json`; the delivery-cadence
+refresh procedure runs it every iteration.
 
 ## Backends
 
