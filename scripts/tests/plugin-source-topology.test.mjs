@@ -205,7 +205,7 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
     spawnSync('bash', [path.join(checkout, 'scripts/refresh-native-plugin-installs.sh'), '--source-root', checkout, '--generation', 'g', ...args], { encoding: 'utf8', env });
 
   const blockedUpdate = update();
-  assert.equal(blockedUpdate.status, 1);
+  assert.equal(blockedUpdate.status, 3, 'update-skill-pack.sh propagates the guard exit status');
   assert(/topic branch 'fix\/installer'/.test(blockedUpdate.stderr), blockedUpdate.stderr);
   assert(!blockedUpdate.stdout.includes('Step 1'), 'the guard runs before any update step');
   const blockedRefresh = refresh();
@@ -215,6 +215,39 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   // With the explicit override the guard steps aside (the run then proceeds to its own, later checks).
   assert(!/refusing/.test(update('--allow-topic-branch').stderr), 'the override is honoured by update-skill-pack.sh');
   assert.notEqual(refresh('--allow-topic-branch').status, 3, 'the override is honoured by refresh-native-plugin-installs.sh');
+}
+
+// --- symlinked aliases of a registered source are still the registered source --------
+{
+  const real = makeCheckout(path.join(tmp, 'alias-real'), { branch: 'feat/alias' });
+  const alias = path.join(tmp, 'alias-link');
+  fs.symlinkSync(real, alias);
+  const home = makeHome({ claudeKnown: alias });
+  const run = (...args) =>
+    spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', home, ...args], { encoding: 'utf8' });
+  assert.equal(run('--enforce', real).status, 3, 'registered through a symlink, enforced by its physical path');
+  const home2 = makeHome({ claudeKnown: real });
+  const run2 = (...args) =>
+    spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', home2, ...args], { encoding: 'utf8' });
+  assert.equal(run2('--enforce', alias).status, 3, 'registered by its physical path, enforced through a symlink');
+}
+
+// --- a corrupt native cache never hides the topology report ---------------------------
+{
+  const missing = path.join(tmp, 'gone-again');
+  const home = makeHome({ claudeKnown: missing });
+  const cache = path.join(home, '.claude/plugins/cache/prometheus-skill-pack');
+  fs.mkdirSync(cache, { recursive: true });
+  fs.writeFileSync(path.join(cache, 'prometheus-skill-pack'), 'not a directory');
+  fs.writeFileSync(
+    path.join(home, '.claude/plugins/installed_plugins.json'),
+    JSON.stringify({ plugins: { [`${NAME}@${NAME}`]: [{ version: '1.11.1' }] } })
+  );
+  assert.doesNotThrow(() => nativeCacheSkew({ home }));
+  const run = spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', home, '--json'], { encoding: 'utf8' });
+  assert.equal(run.status, 1, run.stderr);
+  const report = JSON.parse(run.stdout);
+  assert(report.topology.findings.some(f => f.code === 'SOURCE_MISSING'), 'the missing source is still reported');
 }
 
 console.log('PASS: plugin source topology and native cache skew are classified, and the installer guard is precise');

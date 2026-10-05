@@ -156,12 +156,18 @@ export function nativeCacheSkew({ home = os.homedir() } = {}) {
     });
   }
   const cacheRoot = path.join(home, '.claude/plugins/cache', MARKETPLACE, MARKETPLACE);
-  if (installedVersion && fs.existsSync(cacheRoot)) {
-    for (const version of fs.readdirSync(cacheRoot)) {
+  const list = dir => {
+    try {
+      return fs.readdirSync(dir);
+    } catch {
+      return [];
+    }
+  };
+  if (installedVersion) {
+    for (const version of list(cacheRoot)) {
       if (version === installedVersion) continue;
       const inUse = path.join(cacheRoot, version, '.in_use');
-      if (!fs.existsSync(inUse)) continue;
-      const pids = fs.readdirSync(inUse).map(Number).filter(pid => Number.isInteger(pid) && pid > 0 && pidAlive(pid)).sort((a, b) => a - b);
+      const pids = list(inUse).map(Number).filter(pid => Number.isInteger(pid) && pid > 0 && pidAlive(pid)).sort((a, b) => a - b);
       if (pids.length > 0) {
         findings.push({
           code: 'LIVE_SESSIONS_ON_SUPERSEDED',

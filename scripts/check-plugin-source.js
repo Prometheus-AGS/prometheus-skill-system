@@ -12,6 +12,7 @@
  * The logic lives in scripts/lib/plugin-source-topology.js; the Rust doctor and the
  * installer scripts both call this entry point so there is one implementation.
  */
+import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
@@ -31,8 +32,16 @@ const home = value('--home') ?? os.homedir();
 const sources = readRegisteredSources({ home });
 
 if (value('--enforce')) {
-  const target = path.resolve(value('--enforce'));
-  const registered = sources.some(source => path.resolve(source.path) === target);
+  // Canonical paths: a source registered through a symlink is still the registered source.
+  const canonical = p => {
+    try {
+      return fs.realpathSync(p);
+    } catch {
+      return path.resolve(p);
+    }
+  };
+  const target = canonical(value('--enforce'));
+  const registered = sources.some(source => canonical(source.path) === target);
   const facts = gitFacts(target);
   if (registered && facts.repo && !isReleaseLineBranch(facts.branch) && !flag('--allow-topic-branch')) {
     process.stderr.write(
@@ -46,7 +55,17 @@ if (value('--enforce')) {
 }
 
 const topology = evaluateSources(sources);
-const skew = nativeCacheSkew({ home });
+// The native cache is advisory: an unreadable cache entry must not hide the topology report.
+let skew;
+try {
+  skew = nativeCacheSkew({ home });
+} catch (error) {
+  skew = {
+    installedVersion: null,
+    activeGeneration: null,
+    findings: [{ code: 'SKEW_UNREADABLE', severity: 'info', message: `the native plugin cache could not be inspected: ${error.message}` }],
+  };
+}
 if (flag('--json')) {
   process.stdout.write(`${JSON.stringify({ topology, skew }, null, 2)}\n`);
 } else {

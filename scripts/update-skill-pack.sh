@@ -45,7 +45,7 @@ require_clean_source() {
 echo "Prometheus Skill Pack — Verified Update"
 echo "========================================"
 echo ""
-enforce_source_topology || exit 1
+enforce_source_topology || exit $?
 echo "Step 1: Verifying and updating the source checkout..."
 require_clean_source "before pull"
 if ! git -C "$REPO_ROOT" pull --ff-only; then
