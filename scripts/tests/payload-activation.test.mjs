@@ -26,12 +26,15 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 // PAYLOAD_ACTIVATION_SOURCE points the check at another payload (for example a released
 // plugin cache) to prove it reports a known-broken one.
-const payloadSource =
-  process.env.PAYLOAD_ACTIVATION_SOURCE ?? path.join(root, 'dist/plugins/claude/prometheus-skill-pack');
+// Both distributed payloads ship hooks, so both must activate; the override checks one payload.
+const payloadSources = process.env.PAYLOAD_ACTIVATION_SOURCE
+  ? [process.env.PAYLOAD_ACTIVATION_SOURCE]
+  : ['claude', 'codex'].map(client => path.join(root, 'dist/plugins', client, 'prometheus-skill-pack'));
+const payloadSource = payloadSources[0];
 const PER_HOOK_TIMEOUT_MS = Number(process.env.PAYLOAD_ACTIVATION_HOOK_TIMEOUT_MS ?? 90_000);
 const FAILURE_MARKERS = [/ERR_MODULE_NOT_FOUND/, /Cannot find module/, /HOOK_RUNTIME_ERROR/, /NOT_ACTIVATED/];
 
-function makeSandbox(label) {
+function makeSandbox(label, source = payloadSource) {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), `payload-activation-${label}-`));
   const payload = path.join(base, 'cache', 'prometheus-skill-pack');
   const home = path.join(base, 'home');
@@ -39,7 +42,7 @@ function makeSandbox(label) {
   fs.mkdirSync(path.dirname(payload), { recursive: true });
   fs.mkdirSync(home, { recursive: true });
   fs.mkdirSync(project, { recursive: true });
-  fs.cpSync(payloadSource, payload, { recursive: true, verbatimSymlinks: true });
+  fs.cpSync(source, payload, { recursive: true, verbatimSymlinks: true });
   return { base, payload, home, project };
 }
 
@@ -50,9 +53,14 @@ function declaredHooks(payload) {
     for (const entry of entries) {
       for (const hook of entry.hooks ?? []) {
         if (hook.type !== 'command') continue;
-        const args = (hook.args ?? []).map(arg => arg.replaceAll('${CLAUDE_PLUGIN_ROOT}', payload));
-        const name = args.includes('--hook') ? args[args.indexOf('--hook') + 1] : hook.command;
-        hooks.push({ event, name, command: hook.command, args });
+        // Claude declares exec form (command + args); Codex declares one shell command string.
+        const shellForm = !Array.isArray(hook.args);
+        const substitute = text => text.replaceAll('${CLAUDE_PLUGIN_ROOT}', payload);
+        const args = (hook.args ?? []).map(substitute);
+        const command = shellForm ? substitute(hook.command) : hook.command;
+        const words = shellForm ? command.split(/\s+/) : args;
+        const name = words.includes('--hook') ? words[words.indexOf('--hook') + 1] : hook.command;
+        hooks.push({ event, name, command, args, shellForm });
       }
     }
   }
@@ -73,7 +81,8 @@ function activate(sandbox) {
       tool_name: 'Bash',
       tool_input: { command: 'true' },
     });
-    const run = spawnSync(hook.command, hook.args, {
+    const run = spawnSync(hook.command, hook.shellForm ? [] : hook.args, {
+      shell: hook.shellForm,
       cwd: sandbox.project,
       input: payload,
       encoding: 'utf8',
@@ -95,17 +104,17 @@ function activate(sandbox) {
 
 const failures = results => results.filter(r => r.timedOut || r.status !== 0 || r.marker);
 
-// 1. The shipped payload activates from nothing and runs every hook it declares.
-{
-  const sandbox = makeSandbox('shipped');
+// 1. Each shipped payload activates from nothing and runs every hook it declares.
+for (const source of payloadSources) {
+  const sandbox = makeSandbox(path.basename(path.dirname(source)) || 'shipped', source);
   try {
     const results = activate(sandbox);
-    assert(results.length >= 30, `expected the full hook set, ran ${results.length}`);
+    assert(results.length >= 30, `expected the full hook set from ${source}, ran ${results.length}`);
     const bad = failures(results);
     assert.deepEqual(
       bad.map(r => `${r.event}/${r.name}: ${r.timedOut ? 'timed out' : `exit ${r.status}`} ${r.marker ?? ''}`),
       [],
-      `hooks failed to activate from the shipped payload:\n${bad.map(r => r.output.slice(0, 400)).join('\n---\n')}`
+      `hooks failed to activate from the shipped payload ${source}:\n${bad.map(r => r.output.slice(0, 400)).join('\n---\n')}`
     );
   } finally {
     fs.rmSync(sandbox.base, { recursive: true, force: true });

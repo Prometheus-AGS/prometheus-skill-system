@@ -323,11 +323,36 @@ function pidAlive(pid) {
  * keeps working while its bundle is registered; it is reported so it can be restarted.
  */
 export function nativeCacheSkew({ home = os.homedir() } = {}) {
-  const installed = readJson(path.join(home, '.claude/plugins/installed_plugins.json'))?.plugins?.[PLUGIN_ID]?.[0];
-  const installedVersion = installed?.version ?? null;
-  const generation = readJson(path.join(home, '.prometheus/plugins/prometheus-skill-pack/current/skill-system.json'));
-  const activeGeneration = generation?.releaseVersion ?? null;
   const findings = [];
+  // A registry file that is absent means "nothing installed"; one that exists but cannot be read,
+  // parsed or understood means the inspection is incomplete, which must be said.
+  const unreadableDirs = [];
+  const registryVersion = (file, pick, what) => {
+    const read = readJsonStrict(file);
+    if (read.state === 'absent') return null;
+    if (read.state === 'error') {
+      unreadableDirs.push(`${file} (${read.error?.code ?? 'malformed JSON'})`);
+      return null;
+    }
+    const picked = pick(read.value);
+    if (picked === undefined) return null;
+    if (typeof picked === 'string' && picked.length > 0) return picked;
+    unreadableDirs.push(`${file} (unexpected ${what} shape)`);
+    return null;
+  };
+  const installedVersion = registryVersion(
+    path.join(home, '.claude/plugins/installed_plugins.json'),
+    value => {
+      const entries = value?.plugins?.[PLUGIN_ID];
+      return entries === undefined ? undefined : Array.isArray(entries) ? entries[0]?.version : null;
+    },
+    'plugin registry'
+  );
+  const activeGeneration = registryVersion(
+    path.join(home, '.prometheus/plugins/prometheus-skill-pack/current/skill-system.json'),
+    value => (value?.releaseVersion === undefined ? undefined : value.releaseVersion),
+    'generation manifest'
+  );
   if (installedVersion && activeGeneration && installedVersion !== activeGeneration) {
     findings.push({
       code: 'CACHE_BEHIND_GENERATION',
@@ -338,7 +363,6 @@ export function nativeCacheSkew({ home = os.homedir() } = {}) {
   const cacheRoot = path.join(home, '.claude/plugins/cache', MARKETPLACE, MARKETPLACE);
   // An absent directory is simply empty; any other failure (EACCES, ENOTDIR...) makes the
   // inspection incomplete and must be said so rather than read as "no live sessions".
-  const unreadableDirs = [];
   const list = dir => {
     try {
       return fs.readdirSync(dir);

@@ -188,6 +188,22 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert.equal(skew.installedVersion, '1.11.1', 'the registry-derived version is still reported');
 }
 
+{
+  // A malformed or wrongly shaped version registry is an incomplete inspection, not "nothing installed".
+  const bad = makeHome({});
+  fs.mkdirSync(path.join(bad, '.claude/plugins'), { recursive: true });
+  fs.writeFileSync(path.join(bad, '.claude/plugins/installed_plugins.json'), '{ not json');
+  assert(nativeCacheSkew({ home: bad }).findings.some(f => f.code === 'SKEW_UNREADABLE'), 'malformed JSON');
+  const shaped = makeHome({});
+  fs.mkdirSync(path.join(shaped, '.claude/plugins'), { recursive: true });
+  fs.writeFileSync(path.join(shaped, '.claude/plugins/installed_plugins.json'), JSON.stringify({ plugins: { [`${NAME}@${NAME}`]: 'oops' } }));
+  assert(nativeCacheSkew({ home: shaped }).findings.some(f => f.code === 'SKEW_UNREADABLE'), 'wrong shape');
+  const gen = makeHome({});
+  fs.mkdirSync(path.join(gen, '.prometheus/plugins/prometheus-skill-pack/current'), { recursive: true });
+  fs.writeFileSync(path.join(gen, '.prometheus/plugins/prometheus-skill-pack/current/skill-system.json'), '[1');
+  assert(nativeCacheSkew({ home: gen }).findings.some(f => f.code === 'SKEW_UNREADABLE'), 'malformed generation manifest');
+}
+
 // --- CLI contract ---------------------------------------------------------------------
 {
   const topic = makeCheckout(path.join(tmp, 'cli-topic'), { branch: 'feat/x' });
