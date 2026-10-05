@@ -136,4 +136,66 @@ ok "re-running queues nothing new ($OPS1 operations)"
 [ "$(ls "$S/memory" | wc -l | tr -d ' ')" = "2" ] || fail "unexpected files next to the index: $(ls "$S/memory")"
 ok "only the given path (and its backup) was touched"
 
-echo "PASS: $((5)) groups"
+# --- ranked partition: active phase kept, archives first out, newest project first ---
+RK="$S/rank"; mkdir -p "$RK/proj/.kbd-orchestrator" "$RK/memory"
+printf '{"phase":"phase-ranked-fixture"}\n' > "$RK/proj/.kbd-orchestrator/current-waypoint.json"
+python3 - "$RK/memory/MEMORY.md" <<'PY'
+import sys
+pad = " " + "x" * 60
+rows = [
+    "- [archive 1](archive-2025-old-one.md) archived lesson one" + pad,
+    "- [archive 2](archive-2025-old-two.md) archived lesson two" + pad,
+    "- [old project](project_old_20240101.md) oldest dated project" + pad,
+    "- [undated project](project_undated.md) undated project" + pad,
+    "- [mid project](project_mid_20260301.md) mid dated project" + pad,
+    "- [new project](project_new_20260901.md) newest dated project" + pad,
+    "- [GLOBAL pattern](project_glob_20230101.md) GLOBAL lesson from an old date" + pad,
+    "- [feedback one](feedback_one.md) feedback lesson" + pad,
+    "- [active phase](project_phase_ranked_fixture_20230101.md) phase-ranked-fixture work" + pad,
+]
+open(sys.argv[1], "w").write("# Ranked fixture\n\n" + "\n".join(rows) + "\n")
+PY
+cp "$RK/memory/MEMORY.md" "$RK/original.md"
+RKLIMIT=800
+python3 "$PARTITION" "$RK/memory/MEMORY.md" --limit $RKLIMIT --cwd "$RK/proj" > "$RK/plan.json" || fail "ranked dry run failed"
+python3 "$PARTITION" "$RK/memory/MEMORY.md" --limit $RKLIMIT --cwd "$RK/proj" > "$RK/plan2.json" || fail "ranked dry run (2) failed"
+cmp -s "$RK/plan.json" "$RK/plan2.json" || fail "dry-run output is not deterministic"
+cmp -s "$RK/memory/MEMORY.md" "$RK/original.md" || fail "ranked dry run modified the index"
+python3 "$PARTITION" "$RK/memory/MEMORY.md" --limit $RKLIMIT --cwd "$RK/proj" --apply > "$RK/applied.json" || fail "ranked --apply failed"
+python3 - "$RK/plan.json" "$RK/memory/MEMORY.md" "$RKLIMIT" <<'PY' || exit 1
+import json, sys
+plan = json.load(open(sys.argv[1]))
+index = open(sys.argv[2]).read()
+limit = int(sys.argv[3])
+by_line = {r["line"]: r for r in plan["ranks"]}
+# fixture lines: 3,4 archives; 5 old; 6 undated; 7 mid; 8 new; 9 GLOBAL; 10 feedback; 11 active (last)
+assert by_line[11]["rank"] == 0 and by_line[11]["action"] == "keep", by_line[11]
+assert by_line[3]["rank"] == 3 and by_line[3]["action"] == "move", by_line[3]
+assert by_line[4]["rank"] == 3 and by_line[4]["action"] == "move", by_line[4]
+assert by_line[9]["rank"] == 1 and by_line[10]["rank"] == 1, (by_line[9], by_line[10])
+assert by_line[9]["action"] == "keep" and by_line[10]["action"] == "keep"
+assert by_line[8]["rank"] == 2 and by_line[8]["action"] == "keep", by_line[8]
+assert by_line[5]["action"] == "move" and by_line[6]["action"] == "move", "oldest/undated rank-2 must move before newer ones"
+assert len(index.encode()) <= limit, len(index.encode())
+bullets = [l for l in index.splitlines() if l.startswith("- ") and "entries moved" not in l]
+names = [l.split("](")[1].split(")")[0] for l in bullets]
+assert names[0].startswith("project_phase_ranked_fixture"), names
+assert "archive" not in " ".join(names), names
+rank1 = [i for i, n in enumerate(names) if n in ("project_glob_20230101.md", "feedback_one.md")]
+rank2 = [n for n in names if n[-11:-3].isdigit() and n.startswith("project_") and "glob" not in n and "phase" not in n]
+assert rank1 and max(rank1) < min(i for i, n in enumerate(names) if n in rank2), names
+assert rank2 == sorted(rank2, key=lambda n: n[-11:-3], reverse=True), rank2
+assert index.rstrip().splitlines()[-1].startswith("- (") and "entries moved" in index.rstrip().splitlines()[-1]
+print("ranked order: %s" % names)
+PY
+ok "ranked: active phase kept, archives moved first, feedback/GLOBAL ahead of older project, rank 2 newest first"
+RKOPS=$(count_ops)
+cp "$RK/memory/MEMORY.md" "$RK/first-output.md"
+python3 "$PARTITION" "$RK/memory/MEMORY.md" --limit $RKLIMIT --cwd "$RK/proj" --apply > "$RK/again.json" || fail "ranked second apply failed"
+cmp -s "$RK/memory/MEMORY.md" "$RK/first-output.md" || fail "second run changed its own output"
+[ "$(count_ops)" = "$RKOPS" ] || fail "second run on own output queued operations"
+python3 -c "import json,sys; d=json.load(open(sys.argv[1])); assert not d['moved'], d['moved']" "$RK/again.json" || fail "second run moved entries"
+[ "$(wc -c < "$RK/memory/MEMORY.md" | tr -d ' ')" -le $RKLIMIT ] || fail "ranked index exceeds limit"
+ok "ranked: second run on its own output moves nothing"
+
+echo "PASS: $((7)) groups"
