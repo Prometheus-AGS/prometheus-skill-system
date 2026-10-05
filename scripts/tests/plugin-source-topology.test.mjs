@@ -282,6 +282,33 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert.equal(evaluateSources(readRegisteredSources({ home: failHome })).status, 'fail');
 }
 
+// --- an unreadable registration never breaks the installer guard -----------------------
+{
+  const gitRegistration = `[marketplaces.${NAME}]\nsource_type = "git"\nurl = "https://example.test/x.git"\n`;
+  const topic = makeCheckout(path.join(tmp, 'unreadable-topic'), { branch: 'feat/unreadable' });
+  const other = makeCheckout(path.join(tmp, 'unreadable-other'), { branch: 'feat/other' });
+  const enforce = (home, target, ...extra) =>
+    spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', home, '--enforce', target, ...extra], { encoding: 'utf8' });
+
+  // Unreadable Codex registration only: an unregistered checkout is never blocked, and nothing crashes.
+  const onlyUnreadable = makeHome({});
+  fs.writeFileSync(path.join(onlyUnreadable, '.codex/config.toml'), gitRegistration);
+  const unregistered = enforce(onlyUnreadable, other);
+  assert.equal(unregistered.status, 0, unregistered.stderr);
+  assert(!/TypeError|ERR_INVALID_ARG/.test(unregistered.stderr), 'no crash on a null path');
+
+  // The same unreadable registration beside a registered topic-branch source: that source is still refused.
+  const mixed = makeHome({ claudeKnown: topic });
+  fs.writeFileSync(path.join(mixed, '.codex/config.toml'), gitRegistration);
+  assert.equal(enforce(mixed, topic).status, 3, 'the registered topic-branch checkout is still refused');
+  assert.equal(enforce(mixed, other).status, 0, 'an unregistered checkout is still not blocked');
+
+  // The advisory finding survives in the report.
+  const report = spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', mixed, '--json'], { encoding: 'utf8' });
+  assert.equal(report.status, 0, report.stderr);
+  assert(JSON.parse(report.stdout).topology.findings.some(f => f.code === 'REGISTRATION_UNREADABLE'));
+}
+
 // --- untracked files make a source dirty ----------------------------------------------
 {
   const checkout = makeCheckout(path.join(tmp, 'untracked-only'));

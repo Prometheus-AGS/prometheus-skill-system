@@ -165,11 +165,25 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
     let Some(findings) = skew["findings"].as_array().cloned() else {
         return unavailable(ID, LABEL, "the checker returned a report without native cache findings");
     };
-    let behind = findings.iter().any(|finding| finding["code"] == "CACHE_BEHIND_GENERATION");
+    // Only claim a comparison that actually happened: both versions present, and no sign
+    // that the cache could not be inspected.
+    if findings.iter().any(|finding| finding["code"] == "SKEW_UNREADABLE") {
+        return unavailable(ID, LABEL, "the native plugin cache could not be inspected");
+    }
+    let (Some(installed), Some(active)) = (
+        skew["installedVersion"].as_str(),
+        skew["activeGeneration"].as_str(),
+    ) else {
+        return unavailable(
+            ID,
+            LABEL,
+            "the installed plugin version or the active generation version could not be determined",
+        );
+    };
+    let behind = findings.iter().any(|finding| finding["code"] == "CACHE_BEHIND_GENERATION")
+        || installed != active;
     let mut details = vec![format!(
-        "installed Claude plugin: {}; active generation: {}",
-        skew["installedVersion"].as_str().unwrap_or("none"),
-        skew["activeGeneration"].as_str().unwrap_or("none"),
+        "installed Claude plugin: {installed}; active generation: {active}"
     )];
     details.extend(messages(&skew["findings"]));
     CheckResult {
@@ -280,6 +294,32 @@ mod tests {
         let result = native_cache_skew_check(&probe("ok", json!([]), skew));
         assert!(matches!(result.status, CheckStatus::Warn));
         assert!(result.actions.iter().any(|a| a.id == "manual.refresh-native-plugins"));
+    }
+
+    #[test]
+    fn an_uninspectable_or_incomplete_cache_is_skipped_not_reported_as_matching() {
+        let unreadable = json!({
+            "installedVersion": null,
+            "activeGeneration": null,
+            "findings": [finding("SKEW_UNREADABLE", "info", "the native plugin cache could not be inspected: EACCES")],
+        });
+        assert!(matches!(
+            native_cache_skew_check(&probe("ok", json!([]), unreadable)).status,
+            CheckStatus::Skip
+        ));
+        for skew in [
+            json!({ "installedVersion": "1.11.1", "activeGeneration": null, "findings": [] }),
+            json!({ "installedVersion": null, "activeGeneration": "1.11.1", "findings": [] }),
+            json!({ "installedVersion": null, "activeGeneration": null, "findings": [] }),
+        ] {
+            let result = native_cache_skew_check(&probe("ok", json!([]), skew));
+            assert!(matches!(result.status, CheckStatus::Skip), "nothing was compared: {result:?}");
+            assert!(!result.summary.contains("matches"));
+        }
+        let equal = json!({ "installedVersion": "1.11.1", "activeGeneration": "1.11.1", "findings": [] });
+        let result = native_cache_skew_check(&probe("ok", json!([]), equal));
+        assert!(matches!(result.status, CheckStatus::Pass));
+        assert!(result.summary.contains("matches"));
     }
 
     #[test]

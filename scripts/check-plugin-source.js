@@ -41,7 +41,8 @@ if (value('--enforce')) {
     }
   };
   const target = canonical(value('--enforce'));
-  const registered = sources.some(source => canonical(source.path) === target);
+  // An unreadable registration has no path to compare; it stays an advisory finding.
+  const registered = sources.some(source => typeof source.path === 'string' && canonical(source.path) === target);
   const facts = gitFacts(target);
   if (registered && facts.repo && !isReleaseLineBranch(facts.branch) && !flag('--allow-topic-branch')) {
     process.stderr.write(
