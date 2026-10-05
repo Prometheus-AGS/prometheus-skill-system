@@ -140,14 +140,17 @@ function readCodexRegistration(toml) {
   const mentioned = /marketplaces/.test(body) && body.includes(MARKETPLACE);
   const values = {};
   let inTable = false;
+  let atRoot = true; // dotted keys below only count at the document root, before any [table] header
   const header = new RegExp(`^\\s*\\[\\s*marketplaces\\s*\\.\\s*${KEY}\\s*\\]\\s*(?:#.*)?$`);
   const dotted = new RegExp(`^\\s*marketplaces\\s*\\.\\s*${KEY}\\s*\\.\\s*(source_type|source)\\s*=\\s*(.+)$`);
   for (const line of toml.split(/\r?\n/)) {
     if (/^\s*\[/.test(line)) {
       inTable = header.test(line);
+      atRoot = false;
       continue;
     }
-    const direct = dotted.exec(line);
+    // `marketplaces.<name>.source = ...` inside some other [table] defines that table's own key.
+    const direct = atRoot ? dotted.exec(line) : null;
     if (direct) values[direct[1]] = tomlString(direct[2]);
     else if (inTable) {
       const pair = /^\s*(source_type|source)\s*=\s*(.+)$/.exec(line);
@@ -162,22 +165,35 @@ function readCodexRegistration(toml) {
 
 // Read-only on purpose: `git status` refreshes and WRITES the index unless optional locks
 // are off, and the doctor must not modify the checkout it inspects.
-function gitOut(cwd, args) {
+function runGit(cwd, args) {
   const run = spawnSync('git', ['--no-optional-locks', ...args], {
     cwd,
     encoding: 'utf8',
     env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
   });
-  return run.status === 0 ? run.stdout.trim() : null;
+  return { status: run.status, stdout: (run.stdout ?? '').trim(), stderr: (run.stderr ?? '').trim(), error: run.error };
 }
 
-export function gitFacts(dir) {
-  if (gitOut(dir, ['rev-parse', '--git-dir']) === null) return { repo: false };
-  const gitDir = gitOut(dir, ['rev-parse', '--absolute-git-dir']);
-  const common = gitOut(dir, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
-  const branch = gitOut(dir, ['symbolic-ref', '--quiet', '--short', 'HEAD']);
+/**
+ * Facts about a checkout. `run` is injectable for tests. A probe that FAILS throws (the caller
+ * reports INSPECTION_FAILED); it is never read as "clean" or "on a release branch".
+ */
+export function gitFacts(dir, run = runGit) {
+  const inside = run(dir, ['rev-parse', '--git-dir']);
+  if (inside.status !== 0) return { repo: false };
+  const must = (args, what) => {
+    const result = run(dir, args);
+    if (result.status !== 0) throw new Error(`git ${what} failed${result.stderr ? `: ${result.stderr.split('\n')[0]}` : ''}`);
+    return result.stdout;
+  };
+  const gitDir = must(['rev-parse', '--absolute-git-dir'], 'rev-parse --absolute-git-dir');
+  const common = must(['rev-parse', '--path-format=absolute', '--git-common-dir'], 'rev-parse --git-common-dir');
+  // `symbolic-ref --quiet` exits 1 with no output on a detached HEAD (expected); any other failure is an error.
+  const head = run(dir, ['symbolic-ref', '--quiet', '--short', 'HEAD']);
+  if (head.status !== 0 && head.status !== 1) throw new Error(`git symbolic-ref failed${head.stderr ? `: ${head.stderr.split('\n')[0]}` : ''}`);
+  const branch = head.status === 0 ? head.stdout : null;
   // Tracked changes and untracked, non-ignored files both mean the install is not what is committed.
-  const dirty = (gitOut(dir, ['status', '--porcelain']) ?? '') !== '';
+  const dirty = must(['status', '--porcelain'], 'status') !== '';
   return {
     repo: true,
     linkedWorktree: Boolean(gitDir && common && path.resolve(gitDir) !== path.resolve(common)),
@@ -194,6 +210,15 @@ function finding(code, severity, entry, message, extra = {}) {
  * Classify registered sources. `facts` is injectable so callers can supply their own git
  * probe. status: skip (nothing registered) | ok | warn | fail (a source is missing).
  */
+/** Canonical form for comparing sources: symlink aliases of one checkout are one source. */
+export function canonicalPath(p) {
+  try {
+    return fs.realpathSync(p);
+  } catch {
+    return path.resolve(p);
+  }
+}
+
 export function evaluateSources(entries, { facts = gitFacts } = {}) {
   if (entries.length === 0) return { status: 'skip', findings: [], sources: [] };
   const findings = [];
@@ -213,7 +238,7 @@ export function evaluateSources(entries, { facts = gitFacts } = {}) {
 
   // One registry may list the same source twice (known_marketplaces.json and settings.json).
   const readable = entries.filter(entry => entry.path);
-  const unique = [...new Map(readable.map(entry => [`${entry.client}|${path.resolve(entry.path)}`, entry])).values()];
+  const unique = [...new Map(readable.map(entry => [`${entry.client}|${canonicalPath(entry.path)}`, entry])).values()];
 
   // One entry's failure must never hide another's: every entry is inspected on its own.
   const inspect = entry => {
@@ -248,7 +273,7 @@ export function evaluateSources(entries, { facts = gitFacts } = {}) {
     }
   }
 
-  const distinct = [...new Set(readable.map(entry => path.resolve(entry.path)))];
+  const distinct = [...new Set(readable.map(entry => canonicalPath(entry.path)))];
   if (distinct.length > 1) {
     findings.push(
       finding('SOURCES_DISAGREE', 'warn', null, `registered sources disagree: ${readable.map(e => `${e.client}=${e.path}`).join(', ')}. Clients would install different checkouts.`)

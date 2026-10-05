@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   evaluateSources,
+  gitFacts,
   isReleaseLineBranch,
   nativeCacheSkew,
   readRegisteredSources,
@@ -396,6 +397,58 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   const commented = makeHome({});
   fs.writeFileSync(path.join(commented, '.codex/config.toml'), `# marketplaces.${NAME} is configured elsewhere\nmodel = "x"\n`);
   assert.deepEqual(readRegisteredSources({ home: commented }), []);
+}
+
+// --- TOML scoping: dotted keys inside another table are not a root registration ----------
+{
+  const topic = makeCheckout(path.join(tmp, 'scoping-topic'), { branch: 'feat/scoping' });
+  const home = makeHome({});
+  fs.writeFileSync(
+    path.join(home, '.codex/config.toml'),
+    `[other]\nmarketplaces.${NAME}.source_type = "local"\nmarketplaces.${NAME}.source = "${topic}"\n`
+  );
+  assert.equal(readRegisteredSources({ home }).filter(s => s.path).length, 0, 'not a root marketplace registration');
+  const enforce = spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', home, '--enforce', topic], { encoding: 'utf8' });
+  assert.equal(enforce.status, 0, 'an unregistered checkout is not blocked by keys that belong to another table');
+  // The same keys at the document root, before any table, ARE the registration.
+  fs.writeFileSync(
+    path.join(home, '.codex/config.toml'),
+    `marketplaces.${NAME}.source_type = "local"\nmarketplaces.${NAME}.source = "${topic}"\n[other]\nx = 1\n`
+  );
+  assert.deepEqual(readRegisteredSources({ home }).map(s => s.path), [topic]);
+}
+
+// --- git probe failures are never read as clean or release-line -------------------------
+{
+  const checkout = makeCheckout(path.join(tmp, 'git-failures'));
+  const ok = (stdout = '') => ({ status: 0, stdout, stderr: '' });
+  const real = (dir, args) => {
+    const run = spawnSync('git', ['--no-optional-locks', ...args], { cwd: dir, encoding: 'utf8' });
+    return { status: run.status, stdout: (run.stdout ?? '').trim(), stderr: (run.stderr ?? '').trim() };
+  };
+  // A detached HEAD is the expected exit 1 and stays a legitimate source.
+  git(checkout, 'checkout', '-q', '--detach');
+  assert.equal(gitFacts(checkout).branch, null);
+  assert.equal(evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) })).status, 'ok');
+  // Real failures throw, and the evaluator reports them instead of passing.
+  const failing = name => (dir, args) => (args.includes(name) ? { status: 128, stdout: '', stderr: `fatal: ${name} exploded` } : real(dir, args));
+  assert.throws(() => gitFacts(checkout, failing('status')), /git status failed/);
+  assert.throws(() => gitFacts(checkout, failing('symbolic-ref')), /symbolic-ref failed/);
+  const entries = readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) });
+  const result = evaluateSources(entries, { facts: dir => gitFacts(dir, failing('status')) });
+  assert(codes(result).includes('INSPECTION_FAILED'));
+  assert.equal(result.status, 'warn', 'an inspection failure is advisory, never a pass and never a hard failure');
+  void ok;
+}
+
+// --- clients registering aliases of one checkout agree ---------------------------------
+{
+  const real = makeCheckout(path.join(tmp, 'xclient-real'));
+  const alias = path.join(tmp, 'xclient-alias');
+  fs.symlinkSync(real, alias);
+  const result = evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: real, codex: alias }) }));
+  assert(!codes(result).includes('SOURCES_DISAGREE'), 'a symlink alias of the same checkout is not a disagreement');
+  assert.equal(result.status, 'ok', JSON.stringify(result.findings));
 }
 
 // --- untracked files make a source dirty ----------------------------------------------

@@ -17,6 +17,7 @@ import path from 'node:path';
 import os from 'node:os';
 
 import {
+  canonicalPath,
   evaluateSources,
   gitFacts,
   isReleaseLineBranch,
@@ -41,17 +42,18 @@ try {
 
 if (value('--enforce')) {
   // Canonical paths: a source registered through a symlink is still the registered source.
-  const canonical = p => {
-    try {
-      return fs.realpathSync(p);
-    } catch {
-      return path.resolve(p);
-    }
-  };
+  const canonical = canonicalPath;
   const target = canonical(value('--enforce'));
   // An unreadable registration has no path to compare; it stays an advisory finding.
   const registered = sources.some(source => typeof source.path === 'string' && canonical(source.path) === target);
-  const facts = gitFacts(target);
+  let facts;
+  try {
+    facts = gitFacts(target);
+  } catch (error) {
+    // The branch could not be established: stay advisory rather than block an install on a failed probe.
+    process.stderr.write(`could not inspect ${target}: ${error.message}\n`);
+    process.exit(0);
+  }
   if (registered && facts.repo && !isReleaseLineBranch(facts.branch) && !flag('--allow-topic-branch')) {
     process.stderr.write(
       `refusing: ${target} is a registered plugin source but is on topic branch '${facts.branch}'. ` +
