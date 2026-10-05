@@ -360,20 +360,79 @@ def cortex_arguments(text: str, envelope: dict, user_id: str) -> dict:
     return arguments
 
 
+CORTEX_FEED_FLAG = "--cortex-feed"
+CORTEX_FEED_TIMEOUT = float(os.environ.get("PROMETHEUS_CORTEX_FEED_TIMEOUT", "180"))
+
+
+def _reply_id(line: bytes):
+    try:
+        return json.loads(line.decode("utf-8")).get("id")
+    except (ValueError, AttributeError):
+        return None
+
+
+def cortex_feed() -> int:
+    """Hidden detached worker: run one Cortex MCP session, then exit.
+
+    Real Cortex 2.0.3 calls process.exit(0) the moment stdin closes, even while a
+    request (model load + embedding + save) is still in flight, so closing stdin right
+    after writing the requests lost the memory. This worker keeps stdin open until the
+    `cortex_remember` reply (id 2) arrives or the timeout expires, and never prints.
+    Input on stdin: {"argv": [...], "requests": [...]}.
+    """
+    import select
+    import time
+    try:
+        spec = json.loads(sys.stdin.read())
+        process = subprocess.Popen(spec["argv"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.DEVNULL)
+    except (OSError, ValueError, KeyError):
+        return 0
+    try:
+        assert process.stdin is not None and process.stdout is not None
+        process.stdin.write(("\n".join(json.dumps(r) for r in spec["requests"]) + "\n").encode("utf-8"))
+        process.stdin.flush()
+        deadline, pending = time.monotonic() + CORTEX_FEED_TIMEOUT, b""
+        while time.monotonic() < deadline and process.poll() is None:
+            ready, _, _ = select.select([process.stdout], [], [], 0.5)
+            if not ready:
+                continue
+            chunk = os.read(process.stdout.fileno(), 65536)
+            if not chunk:
+                break
+            pending += chunk
+            lines = pending.split(b"\n")
+            pending = lines.pop()
+            if any(_reply_id(line) == 2 for line in lines):
+                break
+    except (OSError, AssertionError, ValueError):
+        pass
+    finally:
+        try:
+            if process.stdin:
+                process.stdin.close()
+            process.wait(timeout=5)
+        except (OSError, subprocess.TimeoutExpired):
+            process.kill()
+    return 0
+
+
 def mirror_cortex(text: str, envelope: dict, user_id: str) -> bool:
     """Detached `cortex_remember`; True when a Cortex server was started. Never raises,
-    never prints, never waits: any failure means the mirror is simply absent."""
+    never prints, never waits: any failure means the mirror is simply absent. A detached
+    `--cortex-feed` worker owns the server session so the server outlives this process."""
     argv = cortex_command()
     if not argv:
         return False
     requests = [CORTEX_INIT, {"jsonrpc": "2.0", "id": 2, "method": "tools/call",
                               "params": {"name": "cortex_remember", "arguments": cortex_arguments(text, envelope, user_id)}}]
     try:
-        process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL, start_new_session=True)
-        assert process.stdin is not None
-        process.stdin.write(("\n".join(json.dumps(r) for r in requests) + "\n").encode("utf-8"))
-        process.stdin.close()
+        worker = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), CORTEX_FEED_FLAG],
+                                  stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.DEVNULL, start_new_session=True)
+        assert worker.stdin is not None
+        worker.stdin.write(json.dumps({"argv": argv, "requests": requests}).encode("utf-8"))
+        worker.stdin.close()
         return True
     except (OSError, AssertionError, ValueError):
         return False
@@ -484,6 +543,8 @@ def write_lesson(text: str, payload: dict | None = None, *, cwd: Path | None = N
 
 
 def main() -> int:
+    if sys.argv[1:2] == [CORTEX_FEED_FLAG]:
+        return cortex_feed()
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--text", required=True)
     parser.add_argument("--kind", default="lesson", choices=KINDS)

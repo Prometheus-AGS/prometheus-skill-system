@@ -25,7 +25,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Memory',
-      items: ['memory/overview', 'memory/operation-api', 'memory/executor-and-recovery'],
+      items: ['memory/overview', 'memory/operation-api', 'memory/executor-and-recovery', 'memory/cortex-mirror'],
     },
   ],
 
