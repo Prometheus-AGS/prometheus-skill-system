@@ -49,20 +49,73 @@ export function readRegisteredSources({ home = os.homedir() } = {}) {
     sources.push({ client: 'claude', origin: 'settings.json', path: settingsSource.path });
   }
 
+  let toml = null;
   try {
-    const toml = fs.readFileSync(path.join(home, '.codex/config.toml'), 'utf8');
-    const block = new RegExp(`\\[marketplaces\\.${MARKETPLACE}\\]([^\\[]*)`).exec(toml)?.[1] ?? '';
-    const local = /source_type\s*=\s*"local"/.test(block);
-    const target = /^\s*source\s*=\s*"([^"]+)"/m.exec(block)?.[1];
-    if (local && target) sources.push({ client: 'codex', origin: 'config.toml', path: target });
+    toml = fs.readFileSync(path.join(home, '.codex/config.toml'), 'utf8');
   } catch {
     // no codex config: nothing registered there
+  }
+  if (toml !== null) {
+    const registration = readCodexRegistration(toml);
+    if (registration.path) sources.push({ client: 'codex', origin: 'config.toml', path: registration.path });
+    else if (registration.mentioned) {
+      // Never silently ignore a registration we could not read: that would hide both a
+      // missing source and the installer guard.
+      sources.push({ client: 'codex', origin: 'config.toml', path: null, unreadable: true });
+    }
   }
   return sources;
 }
 
+/** A TOML string value: "basic" (with the common escapes) or 'literal'. */
+function tomlString(raw) {
+  const value = raw.trim();
+  if (value.startsWith("'")) return /^'([^']*)'/.exec(value)?.[1] ?? null;
+  if (!value.startsWith('"')) return null;
+  const match = /^"((?:[^"\\]|\\.)*)"/.exec(value);
+  return match ? match[1].replace(/\\(["\\])/g, '$1') : null;
+}
+
+const KEY = `(?:"${MARKETPLACE}"|'${MARKETPLACE}'|${MARKETPLACE})`;
+
+/**
+ * Codex's `[marketplaces.<name>]` registration. Accepts the table header with a bare,
+ * double-quoted or single-quoted key, either string form for values, and dotted keys.
+ * `mentioned` is true when the file refers to the marketplace at all, so an unreadable
+ * registration is reported instead of vanishing.
+ */
+function readCodexRegistration(toml) {
+  const mentioned = new RegExp(`marketplaces\\s*\\.\\s*${KEY}`).test(toml);
+  const values = {};
+  let inTable = false;
+  const header = new RegExp(`^\\s*\\[\\s*marketplaces\\s*\\.\\s*${KEY}\\s*\\]\\s*(?:#.*)?$`);
+  const dotted = new RegExp(`^\\s*marketplaces\\s*\\.\\s*${KEY}\\s*\\.\\s*(source_type|source)\\s*=\\s*(.+)$`);
+  for (const line of toml.split(/\r?\n/)) {
+    if (/^\s*\[/.test(line)) {
+      inTable = header.test(line);
+      continue;
+    }
+    const direct = dotted.exec(line);
+    if (direct) values[direct[1]] = tomlString(direct[2]);
+    else if (inTable) {
+      const pair = /^\s*(source_type|source)\s*=\s*(.+)$/.exec(line);
+      if (pair) values[pair[1]] = tomlString(pair[2]);
+    }
+  }
+  return {
+    mentioned,
+    path: values.source_type === 'local' && values.source ? values.source : null,
+  };
+}
+
+// Read-only on purpose: `git status` refreshes and WRITES the index unless optional locks
+// are off, and the doctor must not modify the checkout it inspects.
 function gitOut(cwd, args) {
-  const run = spawnSync('git', args, { cwd, encoding: 'utf8' });
+  const run = spawnSync('git', ['--no-optional-locks', ...args], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
+  });
   return run.status === 0 ? run.stdout.trim() : null;
 }
 
@@ -71,7 +124,8 @@ export function gitFacts(dir) {
   const gitDir = gitOut(dir, ['rev-parse', '--absolute-git-dir']);
   const common = gitOut(dir, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
   const branch = gitOut(dir, ['symbolic-ref', '--quiet', '--short', 'HEAD']);
-  const dirty = (gitOut(dir, ['status', '--porcelain', '--untracked-files=no']) ?? '') !== '';
+  // Tracked changes and untracked, non-ignored files both mean the install is not what is committed.
+  const dirty = (gitOut(dir, ['status', '--porcelain']) ?? '') !== '';
   return {
     repo: true,
     linkedWorktree: Boolean(gitDir && common && path.resolve(gitDir) !== path.resolve(common)),
@@ -91,8 +145,12 @@ function finding(code, severity, entry, message, extra = {}) {
 export function evaluateSources(entries, { facts = gitFacts } = {}) {
   if (entries.length === 0) return { status: 'skip', findings: [], sources: [] };
   // One registry may list the same source twice (known_marketplaces.json and settings.json).
-  const unique = [...new Map(entries.map(entry => [`${entry.client}|${path.resolve(entry.path)}`, entry])).values()];
+  const readable = entries.filter(entry => entry.path);
+  const unique = [...new Map(readable.map(entry => [`${entry.client}|${path.resolve(entry.path)}`, entry])).values()];
   const findings = [];
+  for (const entry of entries.filter(e => !e.path)) {
+    findings.push(finding('REGISTRATION_UNREADABLE', 'warn', null, `the ${entry.client} config (${entry.origin}) refers to the ${MARKETPLACE} marketplace but its source could not be read; its durability cannot be checked.`, { client: entry.client }));
+  }
   const remedy = 'Point the marketplace at a durable release-line checkout, then restart running sessions.';
   for (const entry of unique) {
     if (!fs.existsSync(entry.path)) {
@@ -112,16 +170,16 @@ export function evaluateSources(entries, { facts = gitFacts } = {}) {
       );
     }
     if (git.dirty) {
-      findings.push(finding('SOURCE_DIRTY', 'warn', entry, `${entry.client} marketplace source ${entry.path} has uncommitted changes, so what is installed is not what is committed.`));
+      findings.push(finding('SOURCE_DIRTY', 'warn', entry, `${entry.client} marketplace source ${entry.path} has uncommitted or untracked changes, so what is installed is not what is committed.`));
     }
     if (git.linkedWorktree) {
       findings.push(finding('LINKED_WORKTREE', 'info', entry, `${entry.client} marketplace source ${entry.path} is a linked git worktree: removing the worktree removes the plugin source.`));
     }
   }
-  const distinct = [...new Set(entries.map(entry => path.resolve(entry.path)))];
+  const distinct = [...new Set(readable.map(entry => path.resolve(entry.path)))];
   if (distinct.length > 1) {
     findings.push(
-      finding('SOURCES_DISAGREE', 'warn', null, `registered sources disagree: ${entries.map(e => `${e.client}=${e.path}`).join(', ')}. Clients would install different checkouts.`)
+      finding('SOURCES_DISAGREE', 'warn', null, `registered sources disagree: ${readable.map(e => `${e.client}=${e.path}`).join(', ')}. Clients would install different checkouts.`)
     );
   }
   const status = findings.some(f => f.severity === 'fail') ? 'fail' : findings.some(f => f.severity === 'warn') ? 'warn' : 'ok';

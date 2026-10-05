@@ -97,6 +97,10 @@ pub fn source_topology_check(probe: &Probe) -> CheckResult {
         Err(why) => return unavailable(ID, LABEL, why),
     };
     let topology = &report["topology"];
+    // A report that does not say ok/warn/fail/skip must never read as a pass.
+    if !matches!(topology["status"].as_str(), Some("ok" | "warn" | "fail" | "skip")) {
+        return unavailable(ID, LABEL, "the checker returned a report without a recognised topology status");
+    }
     let details = messages(&topology["findings"]);
     let (status, severity, optional, summary) = match topology["status"].as_str() {
         Some("fail") => (
@@ -118,6 +122,7 @@ pub fn source_topology_check(probe: &Probe) -> CheckResult {
             "no directory marketplace source is registered for this pack",
         ),
         _ => (CheckStatus::Pass, Severity::Green, true, "plugin marketplace sources are durable and agree"),
+        // The status was validated above; `_` is exactly "ok".
     };
     let needs_action = matches!(status, CheckStatus::Fail | CheckStatus::Warn);
     CheckResult {
@@ -157,7 +162,9 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
         Err(why) => return unavailable(ID, LABEL, why),
     };
     let skew = &report["skew"];
-    let findings = skew["findings"].as_array().cloned().unwrap_or_default();
+    let Some(findings) = skew["findings"].as_array().cloned() else {
+        return unavailable(ID, LABEL, "the checker returned a report without native cache findings");
+    };
     let behind = findings.iter().any(|finding| finding["code"] == "CACHE_BEHIND_GENERATION");
     let mut details = vec![format!(
         "installed Claude plugin: {}; active generation: {}",
@@ -273,6 +280,26 @@ mod tests {
         let result = native_cache_skew_check(&probe("ok", json!([]), skew));
         assert!(matches!(result.status, CheckStatus::Warn));
         assert!(result.actions.iter().any(|a| a.id == "manual.refresh-native-plugins"));
+    }
+
+    #[test]
+    fn a_malformed_report_is_skipped_never_passed() {
+        for body in [json!({}), json!({ "topology": {} }), json!({ "topology": { "status": "banana" } }), json!([])] {
+            let p = Probe(Ok(body));
+            assert!(
+                matches!(source_topology_check(&p).status, CheckStatus::Skip),
+                "an unrecognised report must not read as a pass"
+            );
+        }
+        let p = Probe(Ok(json!({ "topology": { "status": "ok", "findings": [] } })));
+        assert!(
+            matches!(native_cache_skew_check(&p).status, CheckStatus::Skip),
+            "a report with no native cache findings array is malformed"
+        );
+        assert!(matches!(
+            source_topology_check(&probe("ok", json!([]), json!({ "findings": [] }))).status,
+            CheckStatus::Pass
+        ));
     }
 
     #[test]

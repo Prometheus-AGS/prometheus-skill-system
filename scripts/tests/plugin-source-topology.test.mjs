@@ -250,4 +250,62 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert(report.topology.findings.some(f => f.code === 'SOURCE_MISSING'), 'the missing source is still reported');
 }
 
+// --- Codex TOML: every accepted spelling is read, and an unreadable one is never ignored
+{
+  const checkout = makeCheckout(path.join(tmp, 'toml-main'));
+  const spellings = {
+    'quoted table key': `[marketplaces."${NAME}"]\nsource_type = "local"\nsource = "${checkout}"\n`,
+    'single-quoted key and literal strings': `[marketplaces.'${NAME}']\nsource_type = 'local'\nsource = '${checkout}'\n`,
+    'spaces around the dots': `[ marketplaces . ${NAME} ]\nsource_type = "local"\nsource = "${checkout}"\n`,
+    'dotted keys at the root': `marketplaces.${NAME}.source_type = "local"\nmarketplaces.${NAME}.source = "${checkout}"\n`,
+    'keys in either order with a comment': `[marketplaces.${NAME}] # pack\nsource = "${checkout}"\nsource_type = "local"\n`,
+  };
+  for (const [label, toml] of Object.entries(spellings)) {
+    const home = makeHome({});
+    fs.writeFileSync(path.join(home, '.codex/config.toml'), `model = "x"\n${toml}\n[tui]\nx = 1\n`);
+    const sources = readRegisteredSources({ home });
+    assert.deepEqual(sources.map(source => source.path), [checkout], `Codex registration read from: ${label}`);
+  }
+  // A registration the reader cannot interpret is reported, never silently dropped.
+  const home = makeHome({});
+  fs.writeFileSync(path.join(home, '.codex/config.toml'), `[marketplaces.${NAME}]\nsource_type = "git"\nurl = "https://example.test/x.git"\n`);
+  const sources = readRegisteredSources({ home });
+  assert.equal(sources.length, 1);
+  assert.equal(sources[0].unreadable, true);
+  const result = evaluateSources(sources);
+  assert(codes(result).includes('REGISTRATION_UNREADABLE'));
+  assert.equal(result.status, 'warn');
+  // And a quoted-key registration of a removed directory still fails the run.
+  const gone = path.join(tmp, 'toml-gone');
+  const failHome = makeHome({});
+  fs.writeFileSync(path.join(failHome, '.codex/config.toml'), `[marketplaces."${NAME}"]\nsource_type = "local"\nsource = "${gone}"\n`);
+  assert.equal(evaluateSources(readRegisteredSources({ home: failHome })).status, 'fail');
+}
+
+// --- untracked files make a source dirty ----------------------------------------------
+{
+  const checkout = makeCheckout(path.join(tmp, 'untracked-only'));
+  fs.writeFileSync(path.join(checkout, 'new-skill.md'), 'untracked');
+  const result = evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) }));
+  assert(codes(result).includes('SOURCE_DIRTY'), 'an untracked, non-ignored file is a dirty source');
+}
+
+// --- the probe never writes the checkout it inspects ----------------------------------
+{
+  const checkout = makeCheckout(path.join(tmp, 'readonly-probe'));
+  // Change a tracked file's stat data without changing its content: a plain `git status`
+  // refreshes and rewrites the index; a read-only probe must leave it byte-identical.
+  const tracked = path.join(checkout, 'a.txt');
+  const later = new Date(Date.now() + 5000);
+  fs.utimesSync(tracked, later, later);
+  const index = path.join(checkout, '.git/index');
+  const before = fs.readFileSync(index);
+  const run = spawnSync(process.execPath, [path.join(root, 'scripts/check-plugin-source.js'), '--home', makeHome({ claudeKnown: checkout }), '--json'], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  assert(Buffer.compare(before, fs.readFileSync(index)) === 0, 'the git index is unchanged by the probe');
+  // Control: the unprotected command really does rewrite it, so the assertion above has teeth.
+  spawnSync('git', ['status', '--porcelain'], { cwd: checkout });
+  assert(Buffer.compare(before, fs.readFileSync(index)) !== 0, 'control: a plain git status refreshes the index');
+}
+
 console.log('PASS: plugin source topology and native cache skew are classified, and the installer guard is precise');
