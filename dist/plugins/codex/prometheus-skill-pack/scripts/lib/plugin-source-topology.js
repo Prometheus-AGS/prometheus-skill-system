@@ -174,31 +174,45 @@ function runGit(cwd, args) {
   return { status: run.status, stdout: (run.stdout ?? '').trim(), stderr: (run.stderr ?? '').trim(), error: run.error };
 }
 
+const firstLine = text => (text ?? '').split('\n')[0];
+
 /**
- * Facts about a checkout. `run` is injectable for tests. A probe that FAILS throws (the caller
- * reports INSPECTION_FAILED); it is never read as "clean" or "on a release branch".
+ * Facts about a checkout. `run` is injectable for tests.
+ *
+ * The BRANCH is the decisive fact (it is what the installer guard acts on), so a probe that
+ * establishes it must succeed or this throws: a failure is never read as "release branch" or
+ * "not a checkout". The auxiliary facts (worktree link, dirtiness) degrade independently into
+ * `partial`, so one failed probe cannot hide an established topic branch. `repo: false` is
+ * returned only when git itself says the directory is not a repository.
  */
 export function gitFacts(dir, run = runGit) {
   const inside = run(dir, ['rev-parse', '--git-dir']);
-  if (inside.status !== 0) return { repo: false };
-  const must = (args, what) => {
-    const result = run(dir, args);
-    if (result.status !== 0) throw new Error(`git ${what} failed${result.stderr ? `: ${result.stderr.split('\n')[0]}` : ''}`);
-    return result.stdout;
-  };
-  const gitDir = must(['rev-parse', '--absolute-git-dir'], 'rev-parse --absolute-git-dir');
-  const common = must(['rev-parse', '--path-format=absolute', '--git-common-dir'], 'rev-parse --git-common-dir');
+  if (inside.error) throw new Error(`git could not be run: ${inside.error.message}`);
+  if (inside.status !== 0) {
+    if (/not a git repository/i.test(inside.stderr)) return { repo: false };
+    throw new Error(`git rev-parse --git-dir failed${inside.stderr ? `: ${firstLine(inside.stderr)}` : ''}`);
+  }
   // `symbolic-ref --quiet` exits 1 with no output on a detached HEAD (expected); any other failure is an error.
   const head = run(dir, ['symbolic-ref', '--quiet', '--short', 'HEAD']);
-  if (head.status !== 0 && head.status !== 1) throw new Error(`git symbolic-ref failed${head.stderr ? `: ${head.stderr.split('\n')[0]}` : ''}`);
+  if (head.status !== 0 && head.status !== 1) throw new Error(`git symbolic-ref failed${head.stderr ? `: ${firstLine(head.stderr)}` : ''}`);
   const branch = head.status === 0 ? head.stdout : null;
+  const partial = [];
+  const probe = (args, what) => {
+    const result = run(dir, args);
+    if (result.status === 0) return result.stdout;
+    partial.push(`git ${what} failed${result.stderr ? `: ${firstLine(result.stderr)}` : ''}`);
+    return null;
+  };
+  const gitDir = probe(['rev-parse', '--absolute-git-dir'], 'rev-parse --absolute-git-dir');
+  const common = probe(['rev-parse', '--path-format=absolute', '--git-common-dir'], 'rev-parse --git-common-dir');
   // Tracked changes and untracked, non-ignored files both mean the install is not what is committed.
-  const dirty = must(['status', '--porcelain'], 'status') !== '';
+  const status = probe(['status', '--porcelain'], 'status');
   return {
     repo: true,
-    linkedWorktree: Boolean(gitDir && common && path.resolve(gitDir) !== path.resolve(common)),
+    linkedWorktree: gitDir && common ? path.resolve(gitDir) !== path.resolve(common) : null,
     branch,
-    dirty,
+    dirty: status === null ? null : status !== '',
+    partial,
   };
 }
 
@@ -242,10 +256,18 @@ export function evaluateSources(entries, { facts = gitFacts } = {}) {
 
   // One entry's failure must never hide another's: every entry is inspected on its own.
   const inspect = entry => {
-    if (!fs.existsSync(entry.path)) {
-      findings.push(
-        finding('SOURCE_MISSING', 'fail', entry, `${entry.client} marketplace source ${entry.path} does not exist; every hook of this plugin fails until it is restored. ${remedy}`)
-      );
+    // Only "it is not there" is a missing source. A path that cannot be examined (EACCES, ELOOP...)
+    // is an inspection failure, which stays advisory: the source may well exist.
+    try {
+      fs.statSync(entry.path);
+    } catch (error) {
+      if (error?.code === 'ENOENT' || error?.code === 'ENOTDIR') {
+        findings.push(
+          finding('SOURCE_MISSING', 'fail', entry, `${entry.client} marketplace source ${entry.path} does not exist; every hook of this plugin fails until it is restored. ${remedy}`)
+        );
+      } else {
+        findings.push(finding('INSPECTION_FAILED', 'warn', entry, `${entry.client} marketplace source ${entry.path} could not be examined (${error?.code ?? error}), so it cannot be checked.`));
+      }
       return;
     }
     const git = facts(entry.path);
@@ -257,6 +279,9 @@ export function evaluateSources(entries, { facts = gitFacts } = {}) {
       findings.push(
         finding('TOPIC_BRANCH', 'warn', entry, `${entry.client} marketplace source ${entry.path} is on topic branch '${git.branch}'; if that branch or worktree is removed, every hook of this plugin fails. ${remedy}`, { branch: git.branch })
       );
+    }
+    if (git.partial?.length) {
+      findings.push(finding('INSPECTION_FAILED', 'warn', entry, `${entry.client} marketplace source ${entry.path} was only partly inspected: ${git.partial.join('; ')}.`));
     }
     if (git.dirty) {
       findings.push(finding('SOURCE_DIRTY', 'warn', entry, `${entry.client} marketplace source ${entry.path} has uncommitted or untracked changes, so what is installed is not what is committed.`));

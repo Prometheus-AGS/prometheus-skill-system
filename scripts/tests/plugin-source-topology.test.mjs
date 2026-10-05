@@ -449,13 +449,39 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert.equal(evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) })).status, 'ok');
   // Real failures throw, and the evaluator reports them instead of passing.
   const failing = name => (dir, args) => (args.includes(name) ? { status: 128, stdout: '', stderr: `fatal: ${name} exploded` } : real(dir, args));
-  assert.throws(() => gitFacts(checkout, failing('status')), /git status failed/);
   assert.throws(() => gitFacts(checkout, failing('symbolic-ref')), /symbolic-ref failed/);
+  // Only git itself saying "not a repository" means not-a-checkout; any other first-probe failure is an error.
+  assert.throws(() => gitFacts(checkout, failing('--git-dir')), /rev-parse --git-dir failed/);
+  const plain = path.join(tmp, 'plain-dir-not-a-repo');
+  fs.mkdirSync(plain, { recursive: true });
+  assert.deepEqual(gitFacts(plain), { repo: false });
+  assert.throws(() => gitFacts(checkout, () => ({ status: null, stdout: '', stderr: '', error: new Error('spawn git ENOENT') })), /git could not be run/);
+  // An auxiliary probe failing must not hide an established topic branch.
+  git(checkout, 'checkout', '-q', '-b', 'feat/partial');
+  const partial = gitFacts(checkout, failing('status'));
+  assert.equal(partial.branch, 'feat/partial');
+  assert.equal(partial.dirty, null);
+  assert(partial.partial.some(m => /git status failed/.test(m)));
   const entries = readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) });
   const result = evaluateSources(entries, { facts: dir => gitFacts(dir, failing('status')) });
   assert(codes(result).includes('INSPECTION_FAILED'));
+  assert(codes(result).includes('TOPIC_BRANCH'), 'the branch established before the failed probe is still reported');
   assert.equal(result.status, 'warn', 'an inspection failure is advisory, never a pass and never a hard failure');
   void ok;
+  // An unexaminable path is advisory, not a missing source.
+  if (process.getuid?.() !== 0) {
+    const locked = path.join(tmp, 'locked-parent');
+    fs.mkdirSync(path.join(locked, 'src'), { recursive: true });
+    fs.chmodSync(locked, 0o000);
+    try {
+      const denied = evaluateSources([{ client: 'claude', origin: 'test', path: path.join(locked, 'src') }]);
+      assert(!codes(denied).includes('SOURCE_MISSING'), 'EACCES is not "missing"');
+      assert(codes(denied).includes('INSPECTION_FAILED'));
+      assert.equal(denied.status, 'warn');
+    } finally {
+      fs.chmodSync(locked, 0o755);
+    }
+  }
 }
 
 // --- clients registering aliases of one checkout agree ---------------------------------
