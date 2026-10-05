@@ -1,6 +1,6 @@
 // Live integration: the packaged CLI queues and publishes through the real
 // surreal-memory REST server, then the stored record is read back over HTTP.
-// No fakes. When the server is unreachable the suite exits 2 (BLOCKED), never 0.
+// No fakes. When the server is unset or unreachable the suite exits 2 (BLOCKED), never 0.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -8,7 +8,13 @@ import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { fixture, skillRoot, team } from './fixture.mjs';
-const base = (process.env.SURREAL_MEMORY_URL ?? 'http://127.0.0.1:23001').replace(/\/+$/, '');
+// No default: the live service must never be the target. Run through tests/run-memory-envelope.sh,
+// which starts a scratch surreal-memory-server and exports its URL.
+if (!process.env.SURREAL_MEMORY_URL) {
+    process.stderr.write('BLOCKED: SURREAL_MEMORY_URL is not set (run tests/run-memory-envelope.sh, which starts a scratch server)\n');
+    process.exit(2);
+}
+const base = process.env.SURREAL_MEMORY_URL.replace(/\/+$/, '');
 try {
     const health = await fetch(`${base}/health`, { signal: AbortSignal.timeout(3000) });
     if (!health.ok)

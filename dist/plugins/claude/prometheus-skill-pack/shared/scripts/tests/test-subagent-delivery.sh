@@ -52,23 +52,20 @@ ROOT="$(cd "$HERE/../../.." && pwd)"
 LW="$ROOT/shared/scripts/lib/learning_write.py"
 CLAUDE_PKG="$ROOT/dist/plugins/claude/prometheus-skill-pack"
 CODEX_PKG="$ROOT/dist/plugins/codex/prometheus-skill-pack"
-SM_BIN="${TLI_SM_BIN:-$(command -v surreal-memory-server || true)}"
+. "$HERE/lib/scratch-surreal.sh"   # before any HOME override (locates the real model cache)
 WORKER_BIN="${TLI_WORKER_BIN:-$(command -v prometheus-learning-worker || true)}"
 PK_BIN="${TLI_PK_BIN:-$(command -v pk || true)}"
-PORT="${TLI_SM_PORT:-23024}"
+PORT="$(scratch_surreal_pick_port)"; SCRATCH_SURREAL_PORT="$PORT"
 REAL_HOME="$HOME"
 MODEL_TIMEOUT="${TLI_MODEL_TIMEOUT:-900}"
 
 blocked() { echo "BLOCKED: $*" >&2; exit 2; }
 version_ok() { "$1" --version 2>/dev/null | grep -Eq '1\.(1[0-9]|[2-9][0-9])\.'; }
-[ -x "$SM_BIN" ] || blocked "surreal-memory-server not found (set TLI_SM_BIN)"
 [ -x "$WORKER_BIN" ] || blocked "prometheus-learning-worker not found (set TLI_WORKER_BIN)"
 [ -x "$PK_BIN" ] || blocked "pk not found (set TLI_PK_BIN or put pk >= 1.10 on PATH)"
-version_ok "$SM_BIN" || blocked "surreal-memory-server < 1.10.0"
 version_ok "$WORKER_BIN" || blocked "prometheus-learning-worker < 1.10.0"
 version_ok "$PK_BIN" || blocked "pk < 1.10.0"
 for tool in python3 node git curl; do command -v "$tool" >/dev/null 2>&1 || blocked "$tool missing"; done
-[ -x /usr/local/bin/surreal-memory-mlx-executor ] || blocked "MLX embedding executor missing"
 want claude && { command -v claude >/dev/null 2>&1 || blocked "claude CLI not on PATH"; }
 want codex && { command -v codex >/dev/null 2>&1 || blocked "codex CLI not on PATH"; }
 want codex && { [ -f "$REAL_HOME/.codex/auth.json" ] || blocked "no Codex login (~/.codex/auth.json absent)"; }
@@ -76,12 +73,10 @@ for pkg in "$CLAUDE_PKG" "$CODEX_PKG"; do
   grep -q 'subagentstart-learning' "$pkg/hooks/hooks.json" 2>/dev/null \
     || blocked "generated package lacks subagentstart-learning: $pkg (run the generators)"
 done
-if curl -fsS -m 1 "http://127.0.0.1:$PORT/health" >/dev/null 2>&1; then blocked "port $PORT is already in use (set TLI_SM_PORT)"; fi
 
 S="$(mktemp -d "${TMPDIR:-/tmp}/tli-b5.XXXXXX")"
 S="$(cd "$S" && pwd -P)"
-srv=""
-cleanup() { [ -n "$srv" ] && kill "$srv" 2>/dev/null; wait 2>/dev/null; if [ -n "${TLI_KEEP:-}" ]; then echo "kept $S" >&2; else rm -rf "$S"; fi; }
+cleanup() { scratch_surreal_stop >/dev/null 2>&1; wait 2>/dev/null; if [ -n "${TLI_KEEP:-}" ]; then echo "kept $S" >&2; else rm -rf "$S"; fi; }
 trap cleanup EXIT
 export HOME="$S/home" CODEX_HOME="$S/codex" PROMETHEUS_PLUGIN_ROOT="$S/plugin-root"
 export PROMETHEUS_LEARNING_QUEUE="$S/queue" PROMETHEUS_LEARNING_LOG_DIR="$S/log" PROMETHEUS_LEARNING_INDEX_DIR="$S/index"
@@ -143,16 +138,7 @@ while IFS= read -r line; do seed api-dev --visibility project --text "$line"; do
 seeded_bytes="$(wc -c < "$S/project-lessons.txt" | tr -d ' ')"
 [ "$seeded_bytes" -ge 30000 ] || fail "only $seeded_bytes bytes of project lessons seeded"
 
-mkdir -p "$S/sm"
-( cd "$S/sm" && exec env SURREAL_MODE=embedded SURREAL_PATH="$S/sm/db" SURREAL_NAMESPACE=b5 SURREAL_DATABASE=gate \
-    API_HOST=127.0.0.1 API_PORT="$PORT" MCP_STDIO=false EMBEDDING_PROVIDER=local LOCAL_EMBEDDING_BACKEND=mlx \
-    LOCAL_EMBEDDING_EXECUTOR=/usr/local/bin/surreal-memory-mlx-executor LOCAL_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5 \
-    LOCAL_EMBEDDING_MODEL_REVISION=5c38ec7c405ec4b44b94cc5a9bb96e735b38267a LOCAL_EMBEDDING_DIMENSIONS=384 \
-    HF_HUB_CACHE="$REAL_HOME/.cache/huggingface/hub" MODEL_CACHE_DIR="$REAL_HOME/.cache/huggingface" \
-    SURREAL_EXECUTOR_STARTUP_MS=300000 RUST_LOG=warn "$SM_BIN" > "$S/sm/server.log" 2>&1 ) &
-srv=$!
-for _ in $(seq 1 180); do curl -fsS -m 1 "$SURREAL_MEMORY_URL/ready" 2>/dev/null | grep -q '"ledger":true' && break; sleep 1; done
-curl -fsS -m 1 "$SURREAL_MEMORY_URL/ready" 2>/dev/null | grep -q '"ledger":true' || { tail -20 "$S/sm/server.log" >&2; blocked "scratch surreal-memory never became ready"; }
+scratch_surreal_start "$S/sm" b5
 for _ in $(seq 1 20); do
   "$WORKER_BIN" --memory-url "$SURREAL_MEMORY_URL" run-once >/dev/null 2>&1
   [ -z "$(ls "$PROMETHEUS_LEARNING_QUEUE"/memory/pending "$PROMETHEUS_LEARNING_QUEUE"/memory/submitting "$PROMETHEUS_LEARNING_QUEUE"/memory/accepted 2>/dev/null | grep json)" ] && break
@@ -377,7 +363,7 @@ PY
 fi
 
 # --- 5. surreal-memory stopped ----------------------------------------------------
-kill "$srv" 2>/dev/null; wait "$srv" 2>/dev/null; srv=""
+scratch_surreal_stop || fail "scratch surreal-memory stop left a process or listener"
 curl -fsS -m 1 "$SURREAL_MEMORY_URL/health" >/dev/null 2>&1 && fail "scratch surreal-memory still answering after stop"
 NOPK_PATH="$(printf '%s' "$PATH" | tr ':' '\n' | grep -v "^$(dirname "$PK_BIN")\$" | paste -sd: -)"
 PATH="$NOPK_PATH" command -v pk >/dev/null 2>&1 && NOPK_PATH="/usr/bin:/bin:/usr/sbin:/sbin:$(dirname "$(command -v node)")"

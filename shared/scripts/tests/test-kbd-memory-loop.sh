@@ -28,30 +28,23 @@ ORCH="$ROOT/skills/process/kbd-process-orchestrator"
 FLAT_ORCH="$ROOT/dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator"
 LW="$ROOT/shared/scripts/lib/learning_write.py"
 LR="$ROOT/shared/scripts/lib/learning_recall.py"
-SM_BIN="${TLI_SM_BIN:-$(command -v surreal-memory-server || true)}"
+. "$HERE/lib/scratch-surreal.sh"   # before any HOME override (locates the real model cache)
 WORKER_BIN="${TLI_WORKER_BIN:-$(command -v prometheus-learning-worker || true)}"
 PK_BIN="${TLI_PK_BIN:-$(command -v pk || true)}"
-PORT="${TLI_SM_PORT:-23022}"
+PORT="$(scratch_surreal_pick_port)"; SCRATCH_SURREAL_PORT="$PORT"
 BUDGET=8000
 
 blocked() { echo "BLOCKED: $*" >&2; exit 2; }
 version_ok() { "$1" --version 2>/dev/null | grep -Eq '1\.(1[0-9]|[2-9][0-9])\.'; }
-[ -x "$SM_BIN" ] || blocked "surreal-memory-server not found (set TLI_SM_BIN)"
 [ -x "$WORKER_BIN" ] || blocked "prometheus-learning-worker not found (set TLI_WORKER_BIN)"
 [ -x "$PK_BIN" ] || blocked "pk not found (set TLI_PK_BIN or put pk >= 1.10 on PATH)"
-version_ok "$SM_BIN" || blocked "surreal-memory-server < 1.10.0"
 version_ok "$WORKER_BIN" || blocked "prometheus-learning-worker < 1.10.0"
 version_ok "$PK_BIN" || blocked "pk < 1.10.0"
 for tool in jq python3 node git curl; do command -v "$tool" >/dev/null 2>&1 || blocked "$tool missing"; done
-[ -x /usr/local/bin/surreal-memory-mlx-executor ] || blocked "MLX embedding executor missing"
 [ -f "$FLAT_ORCH/hooks/hooks.json" ] || blocked "flat installed layout missing (run the distribution generator)"
-if curl -fsS -m 1 "http://127.0.0.1:$PORT/health" >/dev/null 2>&1 && [ -z "${TLI_SM_REUSE:-}" ]; then
-  blocked "port $PORT is already in use (set TLI_SM_PORT)"
-fi
 
 S="$(mktemp -d)"
-srv=""
-cleanup() { [ -n "$srv" ] && kill "$srv" 2>/dev/null; wait 2>/dev/null; if [ -n "${TLI_KEEP:-}" ]; then echo "kept $S" >&2; else rm -rf "$S"; fi; }
+cleanup() { scratch_surreal_stop >/dev/null 2>&1; wait 2>/dev/null; if [ -n "${TLI_KEEP:-}" ]; then echo "kept $S" >&2; else rm -rf "$S"; fi; }
 trap cleanup EXIT
 REAL_USER="$(id -un)"
 export HOME="$S/home" CODEX_HOME="$S/codex" PROMETHEUS_PLUGIN_ROOT="$S/plugin-root"
@@ -192,16 +185,7 @@ printf '%s' '{"agent_type":"prometheus-skill-pack:api-dev","agent_id":"a-api","s
   | python3 "$LW" --payload-stdin --cwd "$REPO" --visibility agent --text "Own api note $OWN_API: api-dev retries idempotent writes." >/dev/null
 
 # --- 3. real scratch surreal-memory + real worker run-once ---------------------
-mkdir -p "$S/sm"
-( cd "$S/sm" && exec env SURREAL_MODE=embedded SURREAL_PATH="$S/sm/db" SURREAL_NAMESPACE=b4 SURREAL_DATABASE=gate \
-    API_HOST=127.0.0.1 API_PORT="$PORT" MCP_STDIO=false EMBEDDING_PROVIDER=local LOCAL_EMBEDDING_BACKEND=mlx \
-    LOCAL_EMBEDDING_EXECUTOR=/usr/local/bin/surreal-memory-mlx-executor LOCAL_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5 \
-    LOCAL_EMBEDDING_MODEL_REVISION=5c38ec7c405ec4b44b94cc5a9bb96e735b38267a LOCAL_EMBEDDING_DIMENSIONS=384 \
-    HF_HUB_CACHE="/Users/$REAL_USER/.cache/huggingface/hub" MODEL_CACHE_DIR="/Users/$REAL_USER/.cache/huggingface" \
-    SURREAL_EXECUTOR_STARTUP_MS=300000 RUST_LOG=warn "$SM_BIN" > "$S/sm/server.log" 2>&1 ) &
-srv=$!
-for _ in $(seq 1 180); do curl -fsS -m 1 "$SURREAL_MEMORY_URL/ready" 2>/dev/null | grep -q '"ledger":true' && break; sleep 1; done
-curl -fsS -m 1 "$SURREAL_MEMORY_URL/ready" 2>/dev/null | grep -q '"ledger":true' || { tail -20 "$S/sm/server.log" >&2; blocked "scratch surreal-memory never became ready"; }
+scratch_surreal_start "$S/sm" b4
 deliver() {
   for _ in 1 2 3 4 5 6 7 8; do
     "$WORKER_BIN" --memory-url "$SURREAL_MEMORY_URL" run-once >/dev/null 2>&1
@@ -305,7 +289,7 @@ grep "${TOKEN}-handoff" "$PC" | grep -q '^- \[lead\]' || fail "the stage summary
 ok "assess:after writes the stage handoff summary at visibility lead and analyze:before recalls it"
 
 # --- 8. pk path: with the store down, the token lesson comes back from pk ------
-kill "$srv" 2>/dev/null; wait "$srv" 2>/dev/null; srv=""
+scratch_surreal_stop || fail "scratch surreal-memory stop left a process or listener"
 curl -fsS -m 1 "$SURREAL_MEMORY_URL/health" >/dev/null 2>&1 && fail "scratch surreal-memory still answering after stop"
 d_before="$(delivery_lines)"
 fire_stage assess before
