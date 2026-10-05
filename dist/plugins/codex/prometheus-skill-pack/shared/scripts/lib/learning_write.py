@@ -361,7 +361,16 @@ def cortex_arguments(text: str, envelope: dict, user_id: str) -> dict:
 
 
 CORTEX_FEED_FLAG = "--cortex-feed"
-CORTEX_FEED_TIMEOUT = float(os.environ.get("PROMETHEUS_CORTEX_FEED_TIMEOUT", "180"))
+def _feed_timeout() -> float:
+    """Seconds the detached Cortex feeder waits; a bad value must never break a write."""
+    try:
+        value = float(os.environ.get("PROMETHEUS_CORTEX_FEED_TIMEOUT", "180"))
+    except ValueError:
+        return 180.0
+    return value if value > 0 else 180.0
+
+
+CORTEX_FEED_TIMEOUT = _feed_timeout()
 
 
 def _reply_id(line: bytes):

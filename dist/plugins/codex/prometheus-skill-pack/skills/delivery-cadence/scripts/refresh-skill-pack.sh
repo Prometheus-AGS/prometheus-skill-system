@@ -115,8 +115,10 @@ if [ "$MODE" = "full" ]; then
   git -C "$DEPLOY" submodule update --init --recursive >&2 || die 1 "git submodule update failed"
 
   if [ "$TEST_MODE" -eq 0 ]; then
+    WAIT_LIMIT="${REFRESH_CARGO_WAIT_SECONDS:-1800}"; WAITED=0
     while pgrep -x cargo >/dev/null 2>&1 || pgrep -x rustc >/dev/null 2>&1; do
-      echo "waiting for running cargo build" >&2; sleep 20
+      [ "$WAITED" -ge "$WAIT_LIMIT" ] && die 1 "a cargo build is still running after ${WAIT_LIMIT}s; refusing to start a competing build"
+      echo "waiting for running cargo build" >&2; sleep 20; WAITED=$((WAITED + 20))
     done
     # Reuse a certified prometheus-exec build when its hash matches the pinned one.
     CERT="${CERT_EXEC:-}"

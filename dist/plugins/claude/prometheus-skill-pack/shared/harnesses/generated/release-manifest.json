@@ -223,7 +223,7 @@
     },
     {
       "path": "shared/scripts/lib/learning_write.py",
-      "sha256": "7c924ff9a2d0c4b5d261d40bcad728e86e588238ffbcddcbb3cdd171747ed148",
+      "sha256": "535451f1c482f69449a5844ca297032c41351b0a1b10d7b1730212d2a5725fe8",
       "executable": true
     },
     {
@@ -477,5 +477,5 @@
       "executable": true
     }
   ],
-  "bundleId": "91898abbaf08576bf28c953c248ecf4ff1c078b2f6c4484c23359b0353f7dad4"
+  "bundleId": "5042efb86e0e6ed450fae0d91a0bc933427f4b4921ce0c454411fac0070756c4"
 }

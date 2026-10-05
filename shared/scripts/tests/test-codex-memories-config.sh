@@ -138,6 +138,19 @@ else
   else ok; fi
 fi
 
+# Regression (phase review): the install path must reach install_codex_memories.
+# The top-level `if $UNINSTALL; then ... else ... fi` block is the install dispatch;
+# the call must sit in its else-arm, not inside install_to_codex (uninstall-only).
+if python3 - "$REPO_ROOT/scripts/install-skills-flat.sh" <<'PY'
+import re, sys
+lines = open(sys.argv[1]).read().split("\n")
+start = next(i for i, l in enumerate(lines) if l == "if $UNINSTALL; then" and i > 200)
+els = next(i for i in range(start, len(lines)) if lines[i] == "else")
+end = next(i for i in range(els, len(lines)) if lines[i] == "fi")
+sys.exit(0 if any(l.strip() == "install_codex_memories" for l in lines[els:end]) else 1)
+PY
+then ok; else bad "installer" "install-skills-flat.sh install path never calls install_codex_memories"; fi
+
 echo "codex-memories-config: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] || exit 1
 exit "$PROBE_RC"
