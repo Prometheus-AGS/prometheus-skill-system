@@ -308,6 +308,15 @@ export function evaluateSources(entries, { facts = gitFacts } = {}) {
   return { status, findings, sources: entries };
 }
 
+/** -1/0/1 for plain MAJOR.MINOR.PATCH versions; null when either is not one (no guessing an order). */
+function compareVersions(a, b) {
+  const parse = v => (/^(\d+)\.(\d+)\.(\d+)$/.exec(v) ?? []).slice(1).map(Number);
+  const [pa, pb] = [parse(a), parse(b)];
+  if (pa.length !== 3 || pb.length !== 3) return null;
+  for (let i = 0; i < 3; i += 1) if (pa[i] !== pb[i]) return pa[i] < pb[i] ? -1 : 1;
+  return 0;
+}
+
 function pidAlive(pid) {
   try {
     process.kill(pid, 0);
@@ -354,11 +363,26 @@ export function nativeCacheSkew({ home = os.homedir() } = {}) {
     'generation manifest'
   );
   if (installedVersion && activeGeneration && installedVersion !== activeGeneration) {
-    findings.push({
-      code: 'CACHE_BEHIND_GENERATION',
-      severity: 'warn',
-      message: `the installed Claude plugin is ${installedVersion} but the active generation is ${activeGeneration}; refresh the native plugin installs.`,
-    });
+    const order = compareVersions(installedVersion, activeGeneration);
+    if (order === null) {
+      findings.push({
+        code: 'CACHE_VERSION_MISMATCH',
+        severity: 'warn',
+        message: `the installed Claude plugin is ${installedVersion} and the active generation is ${activeGeneration}; the versions differ and cannot be ordered.`,
+      });
+    } else if (order < 0) {
+      findings.push({
+        code: 'CACHE_BEHIND_GENERATION',
+        severity: 'warn',
+        message: `the installed Claude plugin is ${installedVersion} but the active generation is ${activeGeneration}; refresh the native plugin installs.`,
+      });
+    } else if (order > 0) {
+      findings.push({
+        code: 'CACHE_AHEAD_OF_GENERATION',
+        severity: 'info',
+        message: `the installed Claude plugin (${installedVersion}) is newer than the active generation (${activeGeneration}); the generation will be updated by the next hook bootstrap.`,
+      });
+    }
   }
   const cacheRoot = path.join(home, '.claude/plugins/cache', MARKETPLACE, MARKETPLACE);
   // An absent directory is simply empty; any other failure (EACCES, ENOTDIR...) makes the

@@ -60,7 +60,7 @@ function declaredHooks(payload) {
         const command = shellForm ? substitute(hook.command) : hook.command;
         const words = shellForm ? command.split(/\s+/) : args;
         const name = words.includes('--hook') ? words[words.indexOf('--hook') + 1] : hook.command;
-        hooks.push({ event, name, command, args, shellForm });
+        hooks.push({ event, name, command, args, shellForm, timeoutMs: Number.isFinite(hook.timeout) ? hook.timeout * 1000 : null });
       }
     }
   }
@@ -86,7 +86,11 @@ function activate(sandbox) {
       cwd: sandbox.project,
       input: payload,
       encoding: 'utf8',
-      timeout: PER_HOOK_TIMEOUT_MS,
+      // The harness kills a hook at its declared timeout, so every warm hook must finish inside it.
+      // The FIRST hook on a clean machine installs the generation (about 30s against a declared 10s);
+      // that cold-start latency is a known, separately tracked gap, so only it gets the generous
+      // default. Hooks declaring no timeout get the default too.
+      timeout: results.length === 0 ? PER_HOOK_TIMEOUT_MS : (hook.timeoutMs ?? PER_HOOK_TIMEOUT_MS),
       env: { ...process.env, HOME: sandbox.home, CLAUDE_PLUGIN_ROOT: sandbox.payload },
     });
     const output = `${run.stdout ?? ''}\n${run.stderr ?? ''}`;

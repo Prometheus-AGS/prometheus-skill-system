@@ -204,6 +204,23 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   assert(nativeCacheSkew({ home: gen }).findings.some(f => f.code === 'SKEW_UNREADABLE'), 'malformed generation manifest');
 }
 
+{
+  // Direction matters: a newer installed plugin is not "behind".
+  const make = (installed, active) => {
+    const h = makeHome({});
+    fs.mkdirSync(path.join(h, '.claude/plugins'), { recursive: true });
+    fs.writeFileSync(path.join(h, '.claude/plugins/installed_plugins.json'), JSON.stringify({ plugins: { [`${NAME}@${NAME}`]: [{ version: installed }] } }));
+    fs.mkdirSync(path.join(h, '.prometheus/plugins/prometheus-skill-pack/current'), { recursive: true });
+    fs.writeFileSync(path.join(h, '.prometheus/plugins/prometheus-skill-pack/current/skill-system.json'), JSON.stringify({ releaseVersion: active }));
+    return nativeCacheSkew({ home: h }).findings.map(f => f.code);
+  };
+  assert.deepEqual(make('1.11.1', '1.11.2'), ['CACHE_BEHIND_GENERATION']);
+  assert.deepEqual(make('1.12.0', '1.11.2'), ['CACHE_AHEAD_OF_GENERATION']);
+  assert.deepEqual(make('1.11.2', '1.11.2'), []);
+  assert.deepEqual(make('1.11.2-rc.1', '1.11.2'), ['CACHE_VERSION_MISMATCH']);
+  assert.deepEqual(make('1.9.0', '1.10.0'), ['CACHE_BEHIND_GENERATION'], 'numeric, not lexical, ordering');
+}
+
 // --- CLI contract ---------------------------------------------------------------------
 {
   const topic = makeCheckout(path.join(tmp, 'cli-topic'), { branch: 'feat/x' });

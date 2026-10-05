@@ -184,8 +184,13 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
         result.details.extend(messages(&skew["findings"]));
         return result;
     };
-    let behind = findings.iter().any(|finding| finding["code"] == "CACHE_BEHIND_GENERATION")
-        || installed != active;
+    // Direction comes from the checker, which orders the versions. A newer installed plugin is
+    // not "behind"; versions that differ without any ordering finding are reported, not passed.
+    let ahead = findings.iter().any(|finding| finding["code"] == "CACHE_AHEAD_OF_GENERATION");
+    let behind = findings
+        .iter()
+        .any(|finding| matches!(finding["code"].as_str(), Some("CACHE_BEHIND_GENERATION" | "CACHE_VERSION_MISMATCH")))
+        || (installed != active && !ahead);
     let attention = behind || unreadable;
     let mut details = vec![format!(
         "installed Claude plugin: {installed}; active generation: {active}"
@@ -201,6 +206,8 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
             "the installed native plugin is behind the active generation".into()
         } else if unreadable {
             "the native plugin cache could not be fully inspected; the version comparison is shown below".into()
+        } else if ahead {
+            "the installed native plugin is newer than the active generation".into()
         } else if findings.is_empty() {
             "the native plugin cache matches the active generation".into()
         } else {
@@ -245,6 +252,19 @@ mod tests {
         assert!(result.details.iter().any(|line| line.contains("installed Claude plugin: 1.11.1; active generation: 1.11.1")));
         assert!(result.details.iter().any(|line| line.contains("EACCES")));
         assert!(result.optional, "advisory: it must not fail the run");
+    }
+
+    #[test]
+    fn a_newer_installed_plugin_is_not_reported_as_behind() {
+        let skew = json!({
+            "installedVersion": "1.12.0",
+            "activeGeneration": "1.11.2",
+            "findings": [finding("CACHE_AHEAD_OF_GENERATION", "info", "newer")],
+        });
+        let result = native_cache_skew_check(&probe("ok", json!([]), skew));
+        assert!(matches!(result.status, CheckStatus::Pass), "newer is not a warning");
+        assert!(result.summary.contains("newer"), "{}", result.summary);
+        assert!(result.actions.is_empty(), "no refresh is suggested for a newer plugin");
     }
 
     #[test]
