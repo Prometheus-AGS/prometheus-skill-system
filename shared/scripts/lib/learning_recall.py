@@ -87,6 +87,13 @@ TOP_SHARED = 3
 SCOPE_LIMIT = 20
 LEAD_ROLE_IDS = ("lead", "team-lead", "tech-lead")
 PK_EXCERPT_CHARS = 600
+# An untagged pk entry that did not come from the current repository's own KB
+# (pk scope "shared" or "global": legacy ingests from other projects) is
+# admitted only when lexical_similarity(query, title + excerpt) reaches this.
+# Set from the 3 tuning queries of shared/scripts/tests/fixtures/recall-quality
+# (smallest 0.01 step above every foreign entry's tuning similarity); the 3
+# held-out queries are asserted by shared/scripts/tests/test-recall-quality.sh.
+PK_UNTAGGED_MIN_SIMILARITY = 0.28
 
 
 # --------------------------------------------------------------------------- text helpers
@@ -398,10 +405,16 @@ def wiki_excerpt(body: str, limit: int = PK_EXCERPT_CHARS) -> str:
     return " ".join(" ".join(picked).split())[:limit]
 
 
-def pk_allowed(tags: list[str] | None, view: dict) -> bool:
-    """Apply the same visibility rules to a pk entry as to a stored memory."""
-    if not tags:
-        return True  # untagged knowledge (docs, legacy ingests) is not role-private
+def pk_allowed(tags: list[str] | None, view: dict, scope: str = "project", query: str = "", text: str = "") -> bool:
+    """Apply the same visibility rules to a pk entry as to a stored memory.
+
+    An untagged entry is admitted when it is the current project's own (pk scope
+    `project`, i.e. the current repository's KB) or when it matches the query
+    lexically; otherwise it is another project's legacy ingest. Topical tags
+    (`actix`, `phase-status`) carry no visibility, so an entry without any
+    vis:/role:/team: tag counts as untagged."""
+    if not any(t.startswith(("vis:", "role:", "team:")) for t in tags or []):
+        return scope == "project" or lexical_similarity(query, text) >= PK_UNTAGGED_MIN_SIMILARITY
     vis = next((t[4:] for t in tags if t.startswith("vis:")), "")
     roles = {t[5:] for t in tags if t.startswith("role:")}
     teams = {t[5:] for t in tags if t.startswith("team:")}
@@ -462,10 +475,10 @@ def pk_candidates(view: dict, text: str, cwd: Path, now: float, budget: int, tag
                 continue
             seen.add(key)
             entry_tags, entry_body, entry_sources = _wiki_entry(entry_id, scope, cwd)
-            if not pk_allowed(entry_tags, view):
-                continue
             body = wiki_excerpt(entry_body) or " ".join(str(result.get("snippet") or "").split())
             title = str(result.get("title") or entry_id)
+            if not pk_allowed(entry_tags, view, scope, text, f"{title} {body}"):
+                continue
             if not body:
                 continue
             semantic = 1.0 - index / max(1, len(results))
