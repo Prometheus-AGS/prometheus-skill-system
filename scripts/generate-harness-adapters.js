@@ -12,6 +12,24 @@ import { readIngestOracle } from './lib/payload-manifest.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
+
+// Every path this generator emits. emit() refuses any path not listed here, so
+// the list scripts/generated-paths.mjs reads with --list-outputs cannot drift
+// from what the generator actually writes.
+const OUTPUT_PATHS = [
+  'shared/scripts/generated/hook-dispatch-v1.sh',
+  'shared/harnesses/generated/release-manifest.json',
+  'hooks/hooks.json',
+  'hooks/codex-hooks.json',
+  'shared/harnesses/generated/claude-hooks.json',
+  'shared/harnesses/generated/kimi-hooks.json',
+  'shared/harnesses/generated/opencode-kbd-control.json',
+];
+
+if (process.argv.includes('--list-outputs')) {
+  process.stdout.write(`${OUTPUT_PATHS.join('\n')}\n`);
+  process.exit(0);
+}
 const contractPath = path.join(root, 'shared/harnesses/hook-contract.json');
 const capabilitiesPath = path.join(root, 'shared/harnesses/capabilities.json');
 const contract = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
@@ -328,6 +346,7 @@ function renderHooks(bundleId, harness) {
 }
 
 function emit(relative, content, mode = 0o644) {
+  if (!OUTPUT_PATHS.includes(relative)) throw new Error(`undeclared generated output: ${relative}`);
   const absolute = path.join(root, ...relative.split('/'));
   const next = typeof content === 'string' ? content : `${JSON.stringify(content, null, 2)}\n`;
   const wantExecutable = (mode & 0o111) !== 0;
