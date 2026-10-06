@@ -14,16 +14,10 @@ PROJECT_ROOT="/path/to/project"
 # 1. Project identity
 jq . "$PROJECT_ROOT/.prometheus/project.json"
 
-# 2. Local daemon health (no token required)
-curl --fail-with-body http://127.0.0.1:7892/health | jq .
-
-# 3. CLI state
+# 2. Local CLI state
 prometheus kbd --path "$PROJECT_ROOT" status --json | jq .
 
-# 4. Service logs on macOS
-tail -n 100 "$HOME/.prometheus/logs/sovereign-sync.stderr.log"
-
-# 5. Full installation diagnosis
+# 3. Installation diagnosis
 prometheus doctor --json | jq .
 ```
 
@@ -63,44 +57,9 @@ prometheus kbd --path "$PROJECT_ROOT" status --json |
 - Suspended lifecycle: audit and resume explicitly.
 - Terminal lifecycle: start a new run/phase.
 
-## Service environment change is ignored on macOS
+## Connected service unavailable
 
-`launchctl kickstart` restarts the process with the already-loaded definition.
-It does not reload edited plist environment variables.
-
-Use the managed installer:
-
-```bash
-bash scripts/install-mcp-services.sh --restart
-```
-
-For a manually customized plist, fully boot it out and bootstrap it again:
-
-```bash
-LABEL="ai.prometheus.sovereign-sync"
-PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
-DOMAIN="gui/$(id -u)"
-
-launchctl bootout "$DOMAIN/$LABEL"
-launchctl bootstrap "$DOMAIN" "$PLIST"
-launchctl enable "$DOMAIN/$LABEL"
-launchctl kickstart -k "$DOMAIN/$LABEL"
-```
-
-## Headless daemon refuses to start
-
-When `PROMETHEUS_HEADLESS_VOTER=1`, an existing mode-`0600` device key is
-required:
-
-```bash
-sovereign-sync --mode init \
-  --config "$HOME/.config/sovereign-sync/config.toml"
-
-chmod 600 "$HOME/.config/sovereign-sync/device-key.json"
-```
-
-Verify the P2P identity file is regular, mode `0600`, and contains a valid group
-secret and durable endpoint key. Pairing tickets replace `operator_id` setup.
+Ordinary local status and mutations do not need a sync daemon. Inspect `prometheus contract show --json` for configured discovery and use the installed Companion release's own service/identity runbook. Pack service installation does not repair it. Do not create new keys or delete journals to clear a health failure.
 
 ## Runtime reports an integrity conflict
 
@@ -111,6 +70,6 @@ prometheus kbd --path "$PROJECT_ROOT" audit --json > kbd-audit.json
 prometheus kbd --path "$PROJECT_ROOT" status --json > kbd-status.json
 ```
 
-Then inspect diagnostics through the authenticated REST endpoint. Divergent
+Then inspect the local runtime diagnostics and, if applicable, the separately owned connected endpoint. Divergent
 offline branches, invalid signatures, and revoked devices are safety failures
 that require audit—not a forceful file repair.

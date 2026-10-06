@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "2",
+  "projectId": "4377b624-1bca-4897-96b3-53d4b60f134a",
+  "runId": "ldd-connected",
+  "revision": 2,
+  "frontier": {
+    "4de4f57f-ced9-4d54-a90a-164b137bb5c8": 2
+  },
+  "replicaHeads": {
+    "4de4f57f-ced9-4d54-a90a-164b137bb5c8": {
+      "eventId": "decb9fb6-9500-4e8d-b38a-45712e6a81b6",
+      "integrityHash": "bd76330cbba5045197c2860678ce4604a549634a51d6c4fc43946e7e463e9d45",
+      "lamport": 2
+    }
+  },
+  "lastEventId": "decb9fb6-9500-4e8d-b38a-45712e6a81b6",
+  "lastEventHash": "bd76330cbba5045197c2860678ce4604a549634a51d6c4fc43946e7e463e9d45",
+  "lastEventAt": "2026-10-05T22:19:39.362760Z",
+  "lifecycle": "ready",
+  "planRevision": 1,
+  "checkpoint": null,
+  "exactNextWork": null,
+  "activePath": {
+    "phasePath": [],
+    "phaseId": null,
+    "stageId": null,
+    "changeId": null,
+    "taskId": null
+  },
+  "phases": {},
+  "completion": {
+    "implementation": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "evidence": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "decisions": {},
+  "blockers": {},
+  "claims": {},
+  "submodulePins": {},
+  "replicaView": {
+    "replicaId": "7bdfbd55-b21d-4e7c-b1c0-e5682c1329a3",
+    "localHead": null,
+    "activePathStatus": "unknown",
+    "submodules": {}
+  },
+  "conflicts": {},
+  "devices": {
+    "ed25519:13dce7352caf6fd4a15bb12743fc579ead2890ab70de7aff3d36118f716b96cd": {
+      "deviceId": "b",
+      "keyId": "ed25519:13dce7352caf6fd4a15bb12743fc579ead2890ab70de7aff3d36118f716b96cd",
+      "publicKey": "6LwaO8KF485B+m3ScrG5vYY1vCV5NBdm91hGl7HEWtI=",
+      "status": "active",
+      "enrolledAtRevision": 2,
+      "revokedAtRevision": null
+    },
+    "ed25519:7eaffa7dcdfd58d8fe4ea2cf2d08afe216509dd20eeadfdfef48553a45ff657e": {
+      "deviceId": "a",
+      "keyId": "ed25519:7eaffa7dcdfd58d8fe4ea2cf2d08afe216509dd20eeadfdfef48553a45ff657e",
+      "publicKey": "09o9uyl1/bGToeB5RamzqdvcgRo0f4j/Bj/aFZo5ELc=",
+      "status": "active",
+      "enrolledAtRevision": 1,
+      "revokedAtRevision": null
+    }
+  },
+  "operatorKeyIds": [
+    "ed25519:7eaffa7dcdfd58d8fe4ea2cf2d08afe216509dd20eeadfdfef48553a45ff657e"
+  ],
+  "commandRevisions": {
+    "0e6b248d-0c69-434a-83b0-43e58a1342ee": 1,
+    "enroll-b": 2
+  }
+}

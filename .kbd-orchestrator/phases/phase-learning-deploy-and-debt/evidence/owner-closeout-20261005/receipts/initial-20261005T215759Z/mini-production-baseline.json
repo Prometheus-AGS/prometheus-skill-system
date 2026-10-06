@@ -1,0 +1,701 @@
+{
+  "schemaVersion": 1,
+  "status": "fail",
+  "sourceRoot": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+  "sourceIdentity": "3be91a006c6eb9e7fa8d624efe072e9300af9da646f28c937ceae1dc48cd4fc6",
+  "releaseVersion": "1.11.3",
+  "nodeVersion": "v26.5.0",
+  "scratchRoot": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ",
+  "authoredContractSha256": "3cd16fc1ea21120c19ed355515cd80b898a9e50e1326404199525d3d1122b03c",
+  "historical": {
+    "path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/phases/team-aware-learning-memory-impl/evidence/mini-baseline-failures.txt",
+    "sha256": "e27d07e8434eef9f04ef5375fe7123093de8b2db5e10431fb4280a54ab7d2157",
+    "observedNames": 19,
+    "reportedLegacyFailureCount": 11,
+    "discrepancy": "19 names versus 11 reported failures; individual legacy receipts remain unavailable",
+    "items": [
+      {
+        "name": "--check exits non-zero and names the stale output once a packaged file is tampered with",
+        "acceptance": "distribution",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "--check mode (check: true) reports no drift against output it just wrote and writes nothing new",
+        "acceptance": "distribution",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "--check mode detects drift when the packaged output differs from a fresh build",
+        "acceptance": "distribution",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "a hooks.json referencing a file that does not exist fails the build rather than shipping a broken hook",
+        "acceptance": "source-rejection",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "an .mcp.json containing a literal Tavily API key fails the build",
+        "acceptance": "source-rejection",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "an .mcp.json containing the source root as a literal path fails the build",
+        "acceptance": "source-rejection",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "detectBackend scoped to a change resolves openspec only when the openspec CLI is present",
+        "acceptance": null,
+        "disposition": "unverified",
+        "reason": "The change-scoped internal detector assertion has no equivalent public CLI selector. Public backend detection is covered; the exact legacy assertion remains unverified."
+      },
+      {
+        "name": "generateDistribution writes both plugin packages with the skill payload and manifests",
+        "acceptance": "distribution",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "hooks.json and every file it references are copied into the Claude package only",
+        "acceptance": null,
+        "disposition": "superseded-legacy-assertion",
+        "reason": "The current contract ships real hook closure in both Claude and Codex packages; distribution asserts both. The old Claude-only assertion is retired."
+      },
+      {
+        "name": "marketplace.json files carry a single self-referencing plugin entry with the release version",
+        "acceptance": "distribution",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "running the generator against a clean fixture, then --check, exits 0 with no drift reported",
+        "acceptance": "distribution",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "the CLI runs through the current node executable with no shell",
+        "acceptance": "openspec",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "the CLI runs with an emptied PATH, proving no global install is used",
+        "acceptance": "openspec",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "the Claude manifest has no hooks field and points skills/mcpServers at relative paths",
+        "acceptance": "distribution",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "the Codex manifest carries an interface block and no hooks field",
+        "acceptance": "distribution",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "the OpenSpec CLI is pinned to an exact version and is the only dependency",
+        "acceptance": null,
+        "disposition": "superseded-legacy-assertion",
+        "reason": "Root bootstrap OpenSpec is exact, while the supported product also has a separate locked team runtime and an explicit managed CLI selection policy; a whole-product sole-dependency assertion is retired."
+      },
+      {
+        "name": "the default spawner runs the local OpenSpec through its JavaScript entry, with no PATH",
+        "acceptance": "openspec",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "the pinned OpenSpec CLI runs from its JavaScript entry without a global install",
+        "acceptance": "openspec",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      },
+      {
+        "name": "validation passes on this repository and reports the totals",
+        "acceptance": "openspec",
+        "disposition": "mapped-current-production-pass",
+        "reason": "Current real generator/package reproduction; not retroactive legacy acceptance."
+      }
+    ]
+  },
+  "acceptance": {
+    "distribution": "pass",
+    "source-rejection": "pass",
+    "openspec": "pass",
+    "installer": "pass",
+    "custom-home": "pass",
+    "team-model": "pass",
+    "absent-service": "fail"
+  },
+  "commands": [
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:18.621Z",
+      "endedAt": "2026-10-05T22:19:20.304Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-001.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-001.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:20.412Z",
+      "endedAt": "2026-10-05T22:19:21.777Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-002.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-002.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs",
+        "--check"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:21.878Z",
+      "endedAt": "2026-10-05T22:19:22.791Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-003.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-003.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/claude/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "--help"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:22.875Z",
+      "endedAt": "2026-10-05T22:19:22.941Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-004.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-004.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "--help"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:22.941Z",
+      "endedAt": "2026-10-05T22:19:23.005Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-005.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-005.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs",
+        "--check"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:23.005Z",
+      "endedAt": "2026-10-05T22:19:24.021Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-006.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-006.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs",
+        "--check"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:24.021Z",
+      "endedAt": "2026-10-05T22:19:25.022Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-007.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-007.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs",
+        "--check"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:25.023Z",
+      "endedAt": "2026-10-05T22:19:26.018Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-008.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-008.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:26.135Z",
+      "endedAt": "2026-10-05T22:19:26.519Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-009.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-009.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:26.617Z",
+      "endedAt": "2026-10-05T22:19:27.021Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-010.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-010.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:27.122Z",
+      "endedAt": "2026-10-05T22:19:27.515Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-011.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-011.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-skill-system-distribution.mjs",
+        "--check"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:27.608Z",
+      "endedAt": "2026-10-05T22:19:28.433Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-012.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-012.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/lib/platform/openspec/cli.mjs",
+        "run",
+        "--project",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+        "--",
+        "--version"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:29.302Z",
+      "endedAt": "2026-10-05T22:19:29.636Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-013.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-013.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/kbd-apply.mjs",
+        "detect"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/openspec-backend-project",
+      "startedAt": "2026-10-05T22:19:29.636Z",
+      "endedAt": "2026-10-05T22:19:29.967Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-014.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-014.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/kbd-apply.mjs",
+        "detect"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/openspec-backend-project",
+      "startedAt": "2026-10-05T22:19:29.967Z",
+      "endedAt": "2026-10-05T22:19:30.061Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-015.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-015.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/spec-validate.mjs"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:30.061Z",
+      "endedAt": "2026-10-05T22:19:30.515Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-016.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-016.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/doctor.mjs",
+        "--fix",
+        "copy-skills"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:30.515Z",
+      "endedAt": "2026-10-05T22:19:31.132Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-017.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-017.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/doctor.mjs",
+        "--fix",
+        "copy-skills"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:31.132Z",
+      "endedAt": "2026-10-05T22:19:31.334Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-018.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-018.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/doctor.mjs",
+        "--fix",
+        "copy-skills"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:31.398Z",
+      "endedAt": "2026-10-05T22:19:31.451Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-019.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-019.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/doctor.mjs",
+        "--fix",
+        "copy-skills"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:31.573Z",
+      "endedAt": "2026-10-05T22:19:31.634Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-020.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-020.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/doctor.mjs",
+        "--fix",
+        "copy-skills"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:31.759Z",
+      "endedAt": "2026-10-05T22:19:31.819Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-021.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-021.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/doctor.mjs",
+        "--fix",
+        "copy-skills"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.078Z",
+      "endedAt": "2026-10-05T22:19:32.160Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-022.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-022.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-commands.mjs",
+        "--output",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/custom codex home/selected commands"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.224Z",
+      "endedAt": "2026-10-05T22:19:32.310Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-023.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-023.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/scripts/generate-commands.mjs",
+        "--output",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/custom codex home/selected commands",
+        "--uninstall"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.310Z",
+      "endedAt": "2026-10-05T22:19:32.381Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-024.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-024.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "install-project",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-f7850f0b-bffc-4413-936c-67ac9a6dc4d7.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.383Z",
+      "endedAt": "2026-10-05T22:19:32.449Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-025.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-025.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "install-project",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-d7a9e6b6-41a2-4a0e-95cb-95266a80a739.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.450Z",
+      "endedAt": "2026-10-05T22:19:32.557Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-026.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-026.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "install-project",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-a8ab7964-149d-40fa-bed1-7f591d9daeb9.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.558Z",
+      "endedAt": "2026-10-05T22:19:32.618Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-027.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-027.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "install-project",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-36733104-981d-4d22-b681-bad9a79d974d.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.618Z",
+      "endedAt": "2026-10-05T22:19:32.677Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-028.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-028.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "install-project",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-84ed90cb-18c5-4bda-a6ae-0d7663cec01d.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.677Z",
+      "endedAt": "2026-10-05T22:19:32.734Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-029.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-029.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "models-select",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-59e15c1b-c2df-4ff7-bd13-1b86bdc3aaef.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.734Z",
+      "endedAt": "2026-10-05T22:19:32.793Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-030.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-030.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "models-select",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-f1344f24-df62-44dd-8b43-cee4cbfaa07d.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.794Z",
+      "endedAt": "2026-10-05T22:19:32.854Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-031.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-031.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/claude/prometheus-skills-mini/scripts/hook-entry.mjs",
+        "--hook",
+        "subagentstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/no-team-project",
+      "startedAt": "2026-10-05T22:19:32.854Z",
+      "endedAt": "2026-10-05T22:19:32.905Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-032.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-032.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "models-discover",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-29602bdf-4b8b-4015-bd8a-46e30bd917dc.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.912Z",
+      "endedAt": "2026-10-05T22:19:32.985Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-033.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-033.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "init",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-3558c9b4-0ec3-4032-9c55-51e2532e9fb6.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:32.986Z",
+      "endedAt": "2026-10-05T22:19:33.060Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-034.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-034.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "memory-queue",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-22f147f9-f4c5-4c3a-9798-97c4f7754684.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:33.060Z",
+      "endedAt": "2026-10-05T22:19:33.147Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-035.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-035.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "memory-publish",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-a8157ee9-d563-4429-9b1c-c2c753ed4baa.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:33.148Z",
+      "endedAt": "2026-10-05T22:19:33.216Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-036.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-036.stderr"
+    },
+    {
+      "executable": "/Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node",
+      "argv": [
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #/dist/plugins/codex/prometheus-skills-mini/skills/agent-team-creator/scripts/cli.mjs",
+        "status",
+        "--input",
+        "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/request-2462c88f-b9fd-412b-b247-0d20c39c710b.json"
+      ],
+      "cwd": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/candidate copy with spaces #",
+      "startedAt": "2026-10-05T22:19:33.216Z",
+      "endedAt": "2026-10-05T22:19:33.273Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-037.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T215759Z/mini-037.stderr"
+    }
+  ],
+  "limitations": [
+    "No live Claude/Codex native invocation or inference was performed.",
+    "Mini doctor all-checks is excluded because its service probes use fixed live endpoints.",
+    "Custom CODEX_HOME is preserved; mini native copies intentionally target .agents/.claude, not the full pack generation lifecycle."
+  ]
+}

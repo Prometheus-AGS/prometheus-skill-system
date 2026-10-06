@@ -44,4 +44,4 @@ async fn exec_run(
 Use the `standalone` feature for desktop Cranelift builds and the `mobile`
 feature (with default features disabled) for Pulley-only iOS/Android builds.
 
-Canonical documentation: [three local deployment forms](/docs/execution/architecture-and-tiers#three-local-deployment-forms) and [platform status](/docs/execution/platform-and-evidence-status).
+Canonical documentation: [three local deployment forms](../../site/docs/execution/architecture-and-tiers.md#three-local-deployment-forms) and [platform status](../../site/docs/execution/platform-and-evidence-status.md).

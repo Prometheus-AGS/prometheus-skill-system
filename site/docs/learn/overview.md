@@ -6,8 +6,10 @@ sidebar_label: Overview
 
 # Learn Domain — Feynman-Spine
 
-The Learn domain implements a complete learning and education capability using the
-**Feynman-Spine** methodology. It spans 12 skills across 4 architectural layers.
+The Learn domain supplies a **Feynman-Spine** learning procedure with goal,
+corpus, explanation, practice and retention artifacts. Skill requests require the
+selected harness and their actual collaborators; source instructions alone do not
+certify learning outcomes or credential issuance.
 
 ## The learning arc
 
@@ -16,10 +18,10 @@ The Learn domain implements a complete learning and education capability using t
 /learn-survey     → diagnostic placement + recursion floor
 /learn-plan       → concept DAG + curriculum builder
 /feynman-loop     → core Feynman PMPO loop (explain, gap-find, re-study)
-/learn-grade      → sycophancy-corrected external grading
+/learn-grade      → corpus-grounded grading with disclosed screening
 /learn-retain     → FSRS-6 spaced retrieval
 /learn-practice   → deliberate practice track
-/learn-certify    → OB 3.0 / W3C VC certification
+/learn-certify    → local self-issued credential procedure
 ```
 
 ## Support skills
@@ -37,5 +39,5 @@ distributed by `prometheus-companion`, which owns cross-machine replication.
 ## Core invariants
 
 - **Self-reported fluency NEVER closes a Feynman loop** — all 3 mastery conditions must hold
-- **Pedagogical sycophancy is blocked architecturally** — `learn-grade` routes through sycophancy-correction
-- **KB content is NEVER forwarded to external APIs** — privacy guarantee at all layers
+- **Grading needs evidence** — sycophancy screening is a bounded diagnostic and does not guarantee correctness or an independent model
+- **KB destinations are explicit** — local reads stay local, while configured Dify/Palace and downstream inference destinations require separate ownership and authorization

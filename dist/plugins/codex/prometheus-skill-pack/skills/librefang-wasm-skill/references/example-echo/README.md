@@ -1,9 +1,11 @@
 # Echo Skill — LibreFang WASM Example
 
 The canonical example for the `librefang-wasm-skill` skill. ~80 lines of
-Rust, zero capabilities, demonstrates the full Guest ABI.
+Rust source demonstrating the LibreFang Guest ABI. This is a separate ABI from
+the Prometheus Exec component world; packaging it does not establish Tier W
+compatibility.
 
-## Build
+## Build after the complete production phase
 
 ```bash
 rustup target add wasm32-unknown-unknown   # if not already
@@ -29,7 +31,7 @@ cp README.md dist/
 (cd dist && zip ../echo-skill.zip echo.wasm skill.toml README.md)
 ```
 
-## Install into LibreFang
+## Install into a separately configured LibreFang host
 
 ```bash
 # Assumes `librefang start` is running on :4545
@@ -50,3 +52,8 @@ curl http://localhost:4545/skills/echo | jq
 #   input: { "message": "hello" }
 # Response: { "echoed": { "message": "hello" } }
 ```
+
+These instructions assume the selected LibreFang host implements the shown
+installation API. No host is started or installed by this example README.
+Validate the actual guest/host invocation locally at the final phase boundary;
+ABI inspection and a produced Wasm file are not an execution receipt.

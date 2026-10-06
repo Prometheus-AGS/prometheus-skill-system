@@ -1,0 +1,240 @@
+[
+  {
+    "handoff": "projection-migration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/substrate/kbd-runtime/src/lib.rs",
+    "handoffSha256": "7526697b3557c662fd8d417f6aa20942cee52ee4b52b9ddd5dbc2fcb9cb93d50",
+    "currentSha256": "7526697b3557c662fd8d417f6aa20942cee52ee4b52b9ddd5dbc2fcb9cb93d50",
+    "sameBytes": true
+  },
+  {
+    "handoff": "projection-migration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+    "handoffSha256": "651bf75640447a33df55fb7dbeb693b21cec6136097310d9a99777e5a974ca3c",
+    "currentSha256": "651bf75640447a33df55fb7dbeb693b21cec6136097310d9a99777e5a974ca3c",
+    "sameBytes": true
+  },
+  {
+    "handoff": "projection-migration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+    "handoffSha256": "124d5d0445b38e2a991d9f99a463be157172d9dc9494233a5b844bf1d79e7aa4",
+    "currentSha256": "124d5d0445b38e2a991d9f99a463be157172d9dc9494233a5b844bf1d79e7aa4",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/Cargo.toml",
+    "handoffSha256": "534775b5de313980fd88a9c317b8ab6e44841a19ed3377a8eaf3c788f0abc123",
+    "currentSha256": "4a19c26e55c83a7b89f2b0c9c2fe68903b205a203ebd7057f2905e4b8c926d43",
+    "sameBytes": false
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/README.md",
+    "handoffSha256": "3d19a422730c5f0fc6c539b83eba11e77b6f077a0b39bc0b6833a4a410296618",
+    "currentSha256": "3d19a422730c5f0fc6c539b83eba11e77b6f077a0b39bc0b6833a4a410296618",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/identity.rs",
+    "handoffSha256": "753d414a044bd6f96304f7a9e2fa53b88c11db41166ac459c715923bd8a99786",
+    "currentSha256": "753d414a044bd6f96304f7a9e2fa53b88c11db41166ac459c715923bd8a99786",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/paths.rs",
+    "handoffSha256": "80dc206021d05a5b9d8c470e24309fcf9352324dd61ab74a71e1c178b735a549",
+    "currentSha256": "80dc206021d05a5b9d8c470e24309fcf9352324dd61ab74a71e1c178b735a549",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/node.rs",
+    "handoffSha256": "df3b946558bd2be47a242283eee75819abca2b5f38763afc5d360f9d03097499",
+    "currentSha256": "df3b946558bd2be47a242283eee75819abca2b5f38763afc5d360f9d03097499",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/lib.rs",
+    "handoffSha256": "2e757e727cfdc4bcb6416f8ab7749e5b37c40492c3ee5b92745a120858baac0a",
+    "currentSha256": "2e757e727cfdc4bcb6416f8ab7749e5b37c40492c3ee5b92745a120858baac0a",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/bin/prometheus-companion-headless.rs",
+    "handoffSha256": "150910fd334f7672f9f60dbf7f9f6955040cd9b38ade8344d2c3c4585b9b1221",
+    "currentSha256": "150910fd334f7672f9f60dbf7f9f6955040cd9b38ade8344d2c3c4585b9b1221",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/Cargo.toml",
+    "handoffSha256": "fa280914f90c7ba43fa9a7863d61649a63f3adcd30ceecd700719bbbdaa7bfcb",
+    "currentSha256": "fa280914f90c7ba43fa9a7863d61649a63f3adcd30ceecd700719bbbdaa7bfcb",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+    "handoffSha256": "7852f83a1b4b1b9ac89d022a0237697efe444beec933f81bce01156024348374",
+    "currentSha256": "7852f83a1b4b1b9ac89d022a0237697efe444beec933f81bce01156024348374",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+    "handoffSha256": "e8111332e1104712e38da03c85698598ea3b15891b4f8e26f3daa565bbef9f6a",
+    "currentSha256": "e8111332e1104712e38da03c85698598ea3b15891b4f8e26f3daa565bbef9f6a",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/p2p.rs",
+    "handoffSha256": "eed7dc9306e8cf4b87f6152484c0eadc670ab49714e317f2f20c5801cfc735fa",
+    "currentSha256": "eed7dc9306e8cf4b87f6152484c0eadc670ab49714e317f2f20c5801cfc735fa",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+    "handoffSha256": "702711cf0a8b66b7f8e7d9cf89383e4881c2e4939092e9184052f85efddd6c9d",
+    "currentSha256": "702711cf0a8b66b7f8e7d9cf89383e4881c2e4939092e9184052f85efddd6c9d",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+    "handoffSha256": "43937d2b90575c281b757bdf1fb3acab4d5e62abbd3a899c0ac78e817d4c9830",
+    "currentSha256": "43937d2b90575c281b757bdf1fb3acab4d5e62abbd3a899c0ac78e817d4c9830",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/src-tauri/src/lib.rs",
+    "handoffSha256": "8240b813f3ca2c86d32234b37c01a4cf8e0f9e015de0ce0486ae1e2cded15200",
+    "currentSha256": "8240b813f3ca2c86d32234b37c01a4cf8e0f9e015de0ce0486ae1e2cded15200",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.sh",
+    "handoffSha256": "ae6a2c682f7e3f331e436d6dff3f201a52be19ebfcd0ded3969ee33eb08e8a7b",
+    "currentSha256": "ae6a2c682f7e3f331e436d6dff3f201a52be19ebfcd0ded3969ee33eb08e8a7b",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs",
+    "handoffSha256": "41459486715c82663b2461244b314d83f52d1f5d53ef510a08286debbbc02a52",
+    "currentSha256": "41459486715c82663b2461244b314d83f52d1f5d53ef510a08286debbbc02a52",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+    "handoffSha256": "e3bda3075015a0d71474a2dded2e5db9f6ac8c92638b30364b75045afe2da2a5",
+    "currentSha256": "e3bda3075015a0d71474a2dded2e5db9f6ac8c92638b30364b75045afe2da2a5",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/render-companion-plist.mjs",
+    "handoffSha256": "a789d116c62070ce086c9e2a3e957fcb6eb8a1ec2575ba73eb9e214aa2f3e0a1",
+    "currentSha256": "a789d116c62070ce086c9e2a3e957fcb6eb8a1ec2575ba73eb9e214aa2f3e0a1",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/shared/launchd/ai.prometheus.companion.plist.tmpl",
+    "handoffSha256": "0d45727c812e66ccb60013220d989406457bf2a5ef7b4deea3eb8f3479b21945",
+    "currentSha256": "0d45727c812e66ccb60013220d989406457bf2a5ef7b4deea3eb8f3479b21945",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+    "handoffSha256": "3fb313f38029a9aa6fa94aa65f48d628b4a008075501c31dd065d0bbc8b5e6ac",
+    "currentSha256": "3fb313f38029a9aa6fa94aa65f48d628b4a008075501c31dd065d0bbc8b5e6ac",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+    "handoffSha256": "7b2dd203ec58f04dc57a1404b5b181e696f5a2283d17cf6fcd9eae4070f0bbd5",
+    "currentSha256": "7b2dd203ec58f04dc57a1404b5b181e696f5a2283d17cf6fcd9eae4070f0bbd5",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/maintenance.md",
+    "handoffSha256": "9ff06a7f256f32353d74364dbf58d061b9a0cfc0682c0e9be0215a30dc97d281",
+    "currentSha256": "9ff06a7f256f32353d74364dbf58d061b9a0cfc0682c0e9be0215a30dc97d281",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/00-architecture-and-implementation-plan.md",
+    "handoffSha256": "2c147834853fbadd0a2d9af6d600d15bc38e2919d3ad27f7b69fbba8b7af4157",
+    "currentSha256": "2c147834853fbadd0a2d9af6d600d15bc38e2919d3ad27f7b69fbba8b7af4157",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/ui/README.md",
+    "handoffSha256": "149f664e7eb2d7afabdd3dda04402b65b807f630eedccc4d179b03ddebede5cf",
+    "currentSha256": "149f664e7eb2d7afabdd3dda04402b65b807f630eedccc4d179b03ddebede5cf",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/README.md",
+    "handoffSha256": "17e0852443871dae578563dc3b2901fcc33c921ab2342dcf9af212cdfa7b7de2",
+    "currentSha256": "17e0852443871dae578563dc3b2901fcc33c921ab2342dcf9af212cdfa7b7de2",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/README.md",
+    "handoffSha256": "9b575911ea9e864bdbe459c7c531fc7f48c439c42a1cf1344ea2bef5dbefaf07",
+    "currentSha256": "9b575911ea9e864bdbe459c7c531fc7f48c439c42a1cf1344ea2bef5dbefaf07",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/kbd-mobile/README.md",
+    "handoffSha256": "9a47e762531aac67a84cba63be577cf393365bba7908ff44c5d6cbe1e6f06e13",
+    "currentSha256": "9a47e762531aac67a84cba63be577cf393365bba7908ff44c5d6cbe1e6f06e13",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/iroh-docs-adapter/README.md",
+    "handoffSha256": "871ab62f25e0289800b075e3435fd5820163db1739e7d50876eb6ad3c629ef8c",
+    "currentSha256": "871ab62f25e0289800b075e3435fd5820163db1739e7d50876eb6ad3c629ef8c",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/skills/sync-status/SKILL.md",
+    "handoffSha256": "3b0eb869a5fcc8049bbbef6e04d9e1f6e238fe2f6047b3cfd64d48617389d1ed",
+    "currentSha256": "3b0eb869a5fcc8049bbbef6e04d9e1f6e238fe2f6047b3cfd64d48617389d1ed",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/skills/sync-peers/SKILL.md",
+    "handoffSha256": "960388ca43a23c01f088428814050b5a5cb8c633f230751be2015384f93ecae4",
+    "currentSha256": "960388ca43a23c01f088428814050b5a5cb8c633f230751be2015384f93ecae4",
+    "sameBytes": true
+  },
+  {
+    "handoff": "companion-integration-source-handoff.json",
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/skills/sync-push/SKILL.md",
+    "handoffSha256": "8546a1638e3a75d58b9516f66aa5d093b3691afce2562e5d7f7e8f4587319b5d",
+    "currentSha256": "8546a1638e3a75d58b9516f66aa5d093b3691afce2562e5d7f7e8f4587319b5d",
+    "sameBytes": true
+  }
+]

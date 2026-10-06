@@ -72,7 +72,7 @@ Persist the last processed ID only after applying the event. Reconnect with that
 
 Dependencies identify prerequisite operation receipts. An accepted operation with unfinished dependencies becomes `blocked` and lists them in `blocked_by`. It resumes when prerequisites commit. A rejected dependency prevents silent success and remains visible in the receipt history.
 
-## Tested use cases
+## Integration scenarios
 
 - Same ID and same hash: exact receipt replay without duplicate memory.
 - Same ID and different hash: `409`, preserving the original request.

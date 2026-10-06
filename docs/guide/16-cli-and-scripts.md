@@ -18,7 +18,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 
 ## The npm script surface
 
-`package.json` (v1.8.0, ES module) is the most common entry point.
+`package.json` (ES module) is the most common entry point.
 
 | Command | What it does |
 |---|---|
@@ -42,7 +42,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | Script | Purpose |
 |---|---|
 | `install-plugin-generation.js` | Stage, hash, verify, activate, roll back, or uninstall an immutable 14-target generation. `[--verify] [--rollback] [--uninstall]` |
-| `install-prometheus-exec.sh` | Build/select, version-check, stage, sign, atomically install, and hash-readback `prometheus-exec 1.7.0`. Builds from inside the crate dir so `rust-toolchain.toml` is honored. `[--dry-run]` |
+| `install-prometheus-exec.sh` | Build/select, version-check, stage, sign, atomically install, and hash-readback `prometheus-exec` at its approved artifact-manifest version. Builds from inside the crate dir so `rust-toolchain.toml` is honored. `[--dry-run]` |
 | `install-prometheus-exec-service.sh` | Render and optionally load the private macOS execution LaunchAgent (`ai.prometheus.exec`, socket daemon). Called automatically by `install-mcp-services.sh`. `[--dry-run] [--no-load]` |
 | `install-platforms.ts` | Multi-platform symlink installer for Claude Code, OpenCode, Cursor, Codex, etc. `[--platform] [--scope] [--uninstall] [--list]` |
 | `install.js` | Copy skills to user or project scope |
@@ -137,7 +137,7 @@ Git states and validates SSH-signed approval manifests. It does not intercept
 Bash, Python, Edit, or Write. `scope-guard.sh`,
 `pipeline-enforce.sh`, `cedar-skill-gate.sh`, `guard-direct-deploy.sh`, and
 `check-child-scope.sh` were unwired from `PreToolUse` — see
-[Hooks & Lifecycle](15-hooks-and-lifecycle.md#what-was-removed-and-why). The
+[Hooks & Lifecycle](15-hooks-and-lifecycle.md#completion-and-mutation-boundaries). The
 scripts remain on disk and can still be invoked directly during local work.
 
 **PostToolUse companions** — `scope-record.sh`, `validate-gitops-write.sh`, `sycophancy-check-artifact.sh`.

@@ -1,8 +1,8 @@
 ---
 name: prometheus-skill-pack
-version: 1.11.2
+version: 1.11.3
 skill_count: 217
-commit: fb118e568bb5d513aaf94b0491fc74a925e32fb8
+commit: ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61
 type: collection
 license: MIT
 description: >
@@ -29,132 +29,33 @@ A comprehensive, enterprise-grade skill collection generated from `skill-system.
 
 ## Platform Quick Start
 
-### Claude Code (CLI / Desktop)
+Use the [installation guide](docs/guide/19-installation.md) for the current target list, native service prerequisites and ownership rules. A skills-only installation copies or projects skill payloads; service installation and harness discovery are separate steps.
 
 ```bash
-# Install globally — skills available as /kbd-init, /evolve, /gitops-bootstrap, etc.
 ./install.sh --profile skills --targets claude
-
-# Or via npm
-npm run install:user
-
-# Verify
-npm run doctor
-```
-
-### Kimi Code CLI
-
-```bash
-# Install skills and configure MCP servers (surreal-memory, sycophancy-correction)
 ./install.sh --profile skills --targets kimi-code
-
-# Skills load from ~/.kimi-code/skills/ automatically
-# Use: kimi --skills-dir ~/.kimi-code/skills
-```
-
-### MiniMax / Mavis CLI
-
-```bash
-# Install skills (copies + _meta.json) and register MCP servers
 ./install.sh --profile skills --targets minimax
-
-# Skills appear in ~/.minimax/skills/ with _meta.json metadata
-# MCP: surreal-memory registered in ~/.minimax/mcp/mcp.json
-```
-
-### OpenCode
-
-```bash
-# Full install including plugin registration
-npm run install:platforms -- --platform opencode
-
-# Or via flat installer
 ./install.sh --profile skills --targets opencode
-```
-
-### Codex CLI
-
-```bash
 ./install.sh --profile skills --targets codex
-# Skills install to ~/.codex/skills/
-# MCP config already present at .codex/config.toml
 ```
 
-### Cursor / Windsurf / Other Platforms
-
-```bash
-./install.sh --profile skills --targets windsurf
-# Skills symlinked to platform skill directories automatically
-```
+Select the target you actually use. Codex uses a nonempty inherited `CODEX_HOME` first, otherwise the selected home plus `.codex`, and receives owned copies. MiniMax also uses copies; other manifest targets use their declared projection mode. An installed directory does not prove slash-command discovery, hooks or a live model route.
 
 ## Prerequisites
 
-### Required
+The root package requires Node.js 20.19.0 or later; use Node 22 or later for team helpers. Git and the selected harness are required for source-based installation. Rust-dependent skills additionally need their declared Rust toolchain and targets. The full native-service profile needs Bash 4 or later and component-specific macOS/Linux support.
 
-- Node.js >= 18
-- Git
-
-### For Rust/Cargo Skills
-
-```bash
-# Check Rust toolchain
-rustup show
-
-# Install if missing
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup target add wasm32-unknown-unknown
-```
-
-### For surreal-memory (Distributed State)
-
-```bash
-# Check if running (all platforms)
-curl -s http://localhost:23001/health
-
-# Start via Docker (recommended)
-cd tools/surreal-memory-server && docker compose up -d
-
-# Or check if binary is available
-which surreal-memory-server
-```
-
-### Full prerequisite check
-
-```bash
-npm run doctor
-# or
-bash scripts/check-prerequisites.sh --install
-```
-
-## Detecting surreal-memory on Any Platform
-
-surreal-memory is a REST + SSE MCP server. On any platform:
-
-```bash
-# Health check
-curl -s http://localhost:23001/health | jq .
-
-# MCP SSE endpoint (for MCP clients)
-# SSE: http://localhost:23001/mcp/sse
-# REST write: POST http://localhost:23001/api/v1/memory
-
-# From scripts — detect and degrade gracefully
-if curl -sf http://localhost:23001/health >/dev/null 2>&1; then
-    echo "surreal-memory: available"
-else
-    echo "surreal-memory: not reachable — memory features disabled"
-fi
-```
+Use [service operations](docs/guide/26-service-operations.md) for independently configured optional services. Native surreal-memory uses the `memory/mcp` namespace/database. A successful health response proves reachability only; it does not certify scoped publication or retrieval. When the learning store is absent, the full learning writer retains its durable queue and learning log.
 
 ## Toolchain Initialization
 
-All platforms can use the shared toolchain detector:
+The source detector reports local prerequisites:
 
 ```bash
 bash shared/scripts/detect-toolchain.sh
 ```
 
-This checks: Node, Rust/Cargo, Go, Docker, surreal-memory, and all Prometheus binaries.
+Detection is a diagnostic, not permission to install or start everything it finds. Run phase checks only after the complete production batch, following the [local validation policy](site/docs/operations/local-validation-and-docs-automation.md).
 
 ## Skills Index
 
@@ -499,24 +400,11 @@ Prerequisites for meta-operation:
 
 ## Memory Architecture
 
-All process skills integrate with surreal-memory for cross-session state:
+The full pack's learning writer records scoped lessons locally and queues publication to surreal-memory. Team hooks deliver the role's selected scope; Codex SessionStart delivers only the team digest so forks do not receive private lesson text. Project, user and global sharing is explicit. Optional Cortex mirroring is bounded and distinct from durable learning publication.
 
-- **Knowledge graph**: entities, relations, semantic search
-- **Scoped memory**: session insights, lessons learned
-- **TaskStreams**: multi-step task progress tracking
-- **Mindmaps**: ideation and planning structures
-
-Memory degrades gracefully when surreal-memory is unavailable — all skills function without it.
+See [memory tiers](docs/guide/memory-tiers.md), [team-aware learning design](docs/design/team-aware-learning-memory.md) and [agent teams](docs/guide/24-agent-teams.md) for ownership, visibility and delivery limits. Individual skills may require services for particular operations; a local fallback does not provide every remote capability.
 
 ## Validation
 
-```bash
-# Validate all skills
-npm run validate
+After completing all planned production changes in the phase, run the applicable local strict skill and integration gates. The generated index above is refreshed at the final generation boundary; its count and provenance describe that generated artifact. Validation, doctor diagnostics and a catalog listing each have narrower meaning than installed harness or release acceptance.
 
-# Strict validation (required for new skills)
-npm run validate:strict
-
-# Full system health check
-npm run doctor
-```

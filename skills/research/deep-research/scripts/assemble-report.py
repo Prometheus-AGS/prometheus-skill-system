@@ -30,12 +30,31 @@ citemap = read_json(os.path.join(pkg, "citation-map.json"), {}) or {}
 # Claim id -> label. graph.json carries either `claims` or legacy `nodes`.
 claims = {c["id"]: c for c in (graph.get("claims") or graph.get("nodes") or []) if c.get("id")}
 
-# Claim id -> global citation number, resolved from the merge's map. The merge is
-# the single numbering authority; nothing here assigns a number.
+# Source id/URL -> global number. The merge is the only numbering authority;
+# malformed or conflicting mappings cannot silently produce a finished draft.
 number_of = {}
-for row in (citemap.get("citations") or []):
-    if row.get("entity_id"):
-        number_of[row["entity_id"]] = row.get("citation_number")
+document_of = {}
+rows = citemap.get("citations") or []
+if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+    die("citation-map.json citations must be an array of records")
+for row in rows:
+    n = row.get("citation_number")
+    if type(n) is not int or n < 1:
+        die("citation-map.json has an invalid citation_number")
+    identity = row.get("url") or row.get("entity_id")
+    if not isinstance(identity, str) or not identity:
+        die("citation-map.json has a citation without a source identity")
+    if n in document_of and document_of[n] != identity:
+        die(f"citation number {n} names more than one document")
+    document_of[n] = identity
+    for source in (row.get("entity_id"), row.get("url")):
+        if not source:
+            continue
+        if not isinstance(source, str):
+            die("citation-map.json has a malformed source identity")
+        if source in number_of and number_of[source] != n:
+            die(f"source {source} has conflicting global citation numbers")
+        number_of[source] = n
 
 MARKER = re.compile(r"\[(claim-[A-Za-z0-9]+)\]")
 
@@ -141,19 +160,35 @@ if post_edit:
             )
         sys.stderr.write(f"assemble-report: editor removed {len(removed)} claim(s), all logged\n")
 
-# --- emit ---
-os.makedirs(report, exist_ok=True)
+# Resolve the graph's source union, plus the legacy single-source shape.
+# Every cited source must map; retaining a raw marker while exiting zero would
+# make a missing mapping look like a completed assembly. Sort and deduplicate
+# global numbers, including aliases naming the same document.
+numbers_by_claim = {}
+for cid in sorted(cited_all):
+    claim = claims[cid]
+    sources = claim.get("sources", [])
+    if not isinstance(sources, list):
+        die(f"claim {cid} has a malformed sources union")
+    sources = list(sources)
+    if claim.get("source_id"):
+        sources.append(claim["source_id"])
+    if not sources:
+        die(f"claim {cid} has no source to resolve in citation-map.json")
+    numbers = set()
+    for source in sources:
+        if not isinstance(source, str) or source not in number_of:
+            die(f"claim {cid} source {source!r} has no global citation mapping")
+        numbers.add(number_of[source])
+    numbers_by_claim[cid] = sorted(numbers)
 
-# Resolve each marker to its global citation number. Unresolvable ids keep the
-# id visible rather than silently vanishing.
 def resolve(m):
-    cid = m.group(1)
-    src = (claims.get(cid) or {}).get("source_id")
-    n = number_of.get(src) if src else None
-    return f"[{n}]" if n else f"[{cid}]"
+    return "".join(f"[{n}]" for n in numbers_by_claim[m.group(1)])
 
 draft = MARKER.sub(resolve, draft_body)
 
+# --- emit only after every invariant and mapping passes ---
+os.makedirs(report, exist_ok=True)
 with open(os.path.join(report, "draft.md"), "w", encoding="utf-8") as fh:
     fh.write(draft)
 

@@ -1,10 +1,10 @@
 # 08 · Skills Overview
 
-A skill is a self-contained, portable unit of capability: a `SKILL.md` manifest with YAML frontmatter, optionally accompanied by `scripts/`, `references/`, and `assets/`. The generated full distribution index currently lists 215 skills. The UI/UX routing catalog contributes 41 entries, with a 40-entry portable subset shared with mini; its native Impeccable integration is full-only. Use the generated catalogs for current inventories and the [UI/UX guide](25-ui-ux-routing.md) for selective loading. This page explains the model: how skills are structured, how they are discovered, the standard they conform to, and where to find each category.
+A skill is a self-contained, portable unit of capability: a `SKILL.md` manifest with YAML frontmatter, optionally accompanied by `scripts/`, `references/`, and `assets/`. The generated distribution index records the inventory selected by `skill-system.json`. The UI/UX routing catalog contributes 41 entries, with a 40-entry portable subset shared with mini; its native Impeccable integration is full-only. Use the generated catalogs for current inventories and the [UI/UX guide](25-ui-ux-routing.md) for selective loading. This page explains the model: how skills are structured, how they are discovered, the standard they conform to, and where to find each category.
 
 ## The skills model
 
-Every skill follows the same shape, which is what makes them portable across ten AI tools.
+Every skill follows the same shape, which is what makes them deliverable to the manifest-selected AI tools.
 
 ```
 skills/<category>/<skill-name>/
@@ -51,37 +51,13 @@ In Claude Code, the flat installer turns each skill into a slash command (`/kbd-
 
 ## The AgentSkills.io standard
 
-Every native skill conforms strictly to the [AgentSkills.io specification](https://agentskills.io/specification). That conformance is what makes a skill portable to any platform that reads the standard — not just Claude Code, but Kimi, MiniMax, OpenCode, Codex, Cursor, Windsurf, Gemini CLI, Roo Code, and Amp. The repository's validator (`scripts/validate-skills.js`) enforces the spec: frontmatter schema, the name pattern `^[a-z0-9]+(-[a-z0-9]+)*$`, name/directory consistency, forward-slash paths only, script executability, and — in strict mode — the presence of `license`, `version`, and `metadata.tags`. The validation gates are documented on the [Contributing](21-contributing.md) page.
+Native skills are authored against the [AgentSkills.io specification](https://agentskills.io/specification). That conformance is what makes a skill portable to any platform that reads the standard — not just Claude Code, but Kimi, MiniMax, OpenCode, Codex, Cursor, Windsurf, Gemini CLI, Roo Code, and Amp. The repository's validator (`scripts/validate-skills.js`) enforces the spec: frontmatter schema, the name pattern `^[a-z0-9]+(-[a-z0-9]+)*$`, name/directory consistency, forward-slash paths only, script executability, and — in strict mode — the presence of `license`, `version`, and `metadata.tags`. The validation gates are documented on the [Contributing](21-contributing.md) page.
 
 ## The full category index
 
-> Counts below are hand-maintained and have drifted before (Process was listed as 9 when
-> it was 15). The authoritative, generated breakdown is the **Skills Index** in
-> [`SKILLS.md`](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/SKILLS.md)
-> — regenerate it with `npm run generate:skills-index`, and verify with
-> `npm run check:skills-index`. The site's own catalog is generated at build time.
+Use the generated **Skills Index** in [`SKILLS.md`](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/SKILLS.md) and the site catalog for the complete categories and counts. They are regenerated from actual source at the completed-phase boundary. Hand-maintained counts are omitted here to avoid competing inventories.
 
-| Category | Count | Skills | Documented in |
-|---|---|---|---|
-| **Process** | 15 | adversarial-review, cowork-management, ideation-mindmap, iterative-evolver, kbd-evolve, kbd-goal, kbd-goal-check, kbd-process-orchestrator, liter-llm-bridge, native-agent, pmpo-elicit, pmpo-evolver, pmpo-outer-loop, pmpo-skill-creator, zeespec-interrogator | [09 · Process Skills](09-process-skills.md) |
-| **Rust** | 10 | actor-model, async-patterns, axum-patterns, error-handling, karpathy-tokenizer, librefang-wasm-skill, mcp-server, performance, prometheus-rust-auditor, workspace-structure | [10 · Language & Domain Skills](10-language-skills.md) |
-| **React** | 2 | react-vite-stack, prometheus-entity-skills (8 sub-skills) | [10](10-language-skills.md) |
-| **Flutter** | 1 | flutter-rust-ffi | [10](10-language-skills.md) |
-| **Tauri** | 1 | tauri-react-vite | [10](10-language-skills.md) |
-| **HTMX** | 1 | htmx-alpine-lit | [10](10-language-skills.md) |
-| **TypeScript** | 1 | typescript-base-patterns | [10](10-language-skills.md) |
-| **Go** | 1 | go-base-patterns | [10](10-language-skills.md) |
-| **Python** | 1 | pyo3-bridge | [10](10-language-skills.md) |
-| **Architecture** | 1 | clean-architecture | [10](10-language-skills.md) |
-| **Testing** | 5 | bdd-cucumber-js, bdd-cucumber-rs, bdd-lifecycle-loop, bdd-testing, bdd-video-proof | [10](10-language-skills.md) |
-| **DevOps** | 5 | argocd-multicloud, disk-space-guardian, gitops-bootstrap, gitops-transform, kustomize-overlay | [10](10-language-skills.md) |
-| **Document extraction** | 1 | kreuzberg | [10](10-language-skills.md) |
-| **Learn** | 15 | feynman-loop, learn-about-system, learn-certify, learn-goal, learn-grade, learn-harness, learn-kb, learn-plan, learn-practice, learn-retain, learn-survey, sync-peers, sync-push, sync-status, ui-surface | [Learn overview](/docs/learn/overview) |
-| **Research** | 1 | deep-research (10 sub-skills) | [10](10-language-skills.md) |
-| **Documentation** | 1 | llm-wiki | [10](10-language-skills.md) |
-| **Flint** | 6 | flint-sdk-csharp, -dart, -go, -kotlin, -swift, -ts | [10](10-language-skills.md) |
-| **UI/UX routing catalog** | 41 | Context, Pro Max, craft, taste, platform and review guidance; 40 portable entries | [25 · UI/UX routing](25-ui-ux-routing.md) |
-| **Imported (submodules)** | 2 | artifact-refiner, sycophancy-correction | [11](11-artifact-refiner.md), [07](07-sycophancy-correction.md) |
+The guide covers [process skills](09-process-skills.md), [language and domain guidance](10-language-skills.md), [learning](10-learn-skills.md), [artifact refinement](11-artifact-refiner.md) and [UI/UX routing](25-ui-ux-routing.md). Former sync skills are outside the current pack's service ownership.
 
 ## Native, imported, and forge-rs skills
 
@@ -93,7 +69,7 @@ There are three kinds of skill in the repository, and the distinction matters fo
 
 **forge-rs skills** carry `.tera` templates under `templates/`. forge-rs scans `skills/<language>/<skill-name>/templates/*.tera`, and each skill's `skill.toml` declares which templates it ships. The four template variables (`task_description`, `task_id`, `constitution_summary`, `karpathy_focus`) are filled at enrichment time. This is how a skill contributes not just guidance but actual code scaffolding — covered on the [Rust Toolchain](14-rust-toolchain.md) page.
 
-The pack also generates new skills on demand. `pmpo-skill-creator` produces production-ready skills via the PMPO loop in four modes (create, clone, extend, update), and the meta-template system in forge-rs scaffolds new skills and templates from the command line. Both are documented in the pages ahead.
+The pack also generates new skills on demand. `pmpo-skill-creator` produces production-ready skills via the PMPO loop in four modes (create, clone, extend, update), while Forge enriches tasks with registry skills and constitution context. Forge has no template-management CLI subcommand. Both are documented in the pages ahead.
 
 ---
 

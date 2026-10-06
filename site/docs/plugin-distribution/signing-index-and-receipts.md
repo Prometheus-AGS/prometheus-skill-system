@@ -6,8 +6,7 @@ description: Manifest trust, shared skill selection, transactional activation, a
 # Signing, indexes, and receipts
 
 Each plugin generation is a signed, immutable transaction containing the
-payload and every search-index projection. Activation changes one pointer, so a
-host cannot run one generation while agents or mobile clients search another.
+payload and every search-index projection. Activation switches the store pointer after its staged verification. Actual target copies and separately configured clients need their own projection and loaded-artifact evidence. A running client can retain older state.
 
 ```mermaid
 flowchart LR
@@ -40,8 +39,7 @@ inventory, and index receipts before activation.
 
 The generation carries byte-identical host, generated-agent, and mobile index
 projections. The shared Rust `skill-index` crate verifies the index SHA-256 and
-provides deterministic ranking. Sovereign host search and mobile FFI call that
-same selector. A parity receipt prevents a target-specific index from drifting
+provides deterministic ranking. Local index consumers can use that selector. The mobile FFI accepts caller-provided `index_json`; it does not independently authenticate generation signatures. Connected-client host search belongs to its relocated owner. A parity receipt prevents a target-specific index from drifting
 silently.
 
 ## Target receipts and collisions
@@ -62,6 +60,6 @@ updates `previous`, and atomically switches `current`. Stable dispatchers and
 the stable index resolve through `current`. Rollback selects `previous`,
 reprojects copy targets, verifies all receipts, and then swaps the pointers.
 
-Use `node scripts/install-plugin-generation.js --verify` for a read-only check.
+Use `node scripts/install-plugin-generation.js --verify` for a read-only check after phase production. A nonempty inherited `CODEX_HOME` is normalized and wins over `--home` for the selected Codex projection. Logical signed receipts remain in the plugin store; verification also inspects the actual selected root and ownership markers.
 Tampering with payload, manifest, signature, trust store, index, receipt, or
 pointer is a hard failure.

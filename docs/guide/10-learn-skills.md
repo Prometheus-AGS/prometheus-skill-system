@@ -1,6 +1,6 @@
 # 10 · Learn Domain Skills
 
-The learn domain is a four-layer adaptive learning engine built into the skill pack. **Layer A** is the substrate — three Rust crates (`storage-provider`, `learner-model`, `surface-bridge`) that handle durable storage, FSRS-6 spaced retrieval, and surface-tier rendering. **Layer B** is `ui-surface`, the cross-harness rendering primitive that detects which UI tier is available and routes accordingly. **Layer C** is the twelve operator skills that drive the full learning arc — from goal definition through credentialing. **Layer D** is the KB adapter system: four adapter types (`dify:`, `palace:`, `local:`, `web:`) that wire external knowledge into every grading and planning operation.
+The learn domain is a four-layer adaptive learning engine built into the skill pack. **Layer A** is the substrate — three Rust crates (`storage-provider`, `learner-model`, `surface-bridge`) that handle durable storage, FSRS-6 spaced retrieval, and surface-tier rendering. **Layer B** is `ui-surface`, the cross-harness rendering primitive that detects which UI tier is available and routes accordingly. **Layer C** is the twelve operator skills that drive the full learning arc — from goal definition through credentialing. **Layer D** is the KB adapter system: three grounding-helper adapter types (`dify:`, `palace:`, `local:`) that wire external knowledge into every grading and planning operation.
 
 The architecture is intentional: skills in Layer C never embed storage or UI logic directly. They delegate down — to the substrate crates for persistence, to `ui-surface` for rendering, and to `content-grounding-kb.sh` for retrieval — which is why the same skill works identically in a text terminal and in a GUI harness.
 
@@ -37,11 +37,11 @@ graph TD
 
 ## ui-surface
 
-**Purpose.** Cross-harness rendering primitive. Detects which surface tier is available at runtime and routes UI intents to the correct rendering path, ensuring every learn skill displays output appropriately regardless of the host tool.
+**Purpose.** Cross-harness rendering primitive. Detects which surface tier is available at runtime and routes UI intents to the correct rendering path, with text fallback when richer delivery is unavailable; actual host rendering still needs evidence.
 
 **Invocation.** `/ui-surface` (auto-triggered by learn skills; rarely called directly).
 
-**Key behavior.** Three tiers: Tier 0 emits plain Markdown text (works everywhere). Tier 1 uses `AskUserQuestion` for interactive prompts and writes artefact files for rich content. Tier 2 connects to the `surface-bridge` MCP App (Axum server on `127.0.0.1:7890`), which exposes `/mcp/detect-surface-tier`, `/mcp/render-ui-intent`, and `/mcp/collect-response`. The bridge is started automatically when the substrate crate is built and running.
+**Key behavior.** Three tiers: Tier 0 emits plain Markdown text (works everywhere). Tier 1 uses `AskUserQuestion` for interactive prompts and writes artefact files for rich content. Tier 2 connects to the `surface-bridge` MCP App (Axum server on `127.0.0.1:7890`), which exposes `/mcp/detect-surface-tier`, `/mcp/render-ui-intent`, and `/mcp/collect-response`. Building the crate does not start the bridge; use its separate service installation and lifecycle. Environment and PID signals are hints, not rendered UI acceptance.
 
 **State & outputs.** Tier detection is cached per session. The surface-bridge process writes to `~/.prometheus/learn/surface-state.json`.
 
@@ -196,16 +196,11 @@ After loading the corpus, it drives a self-teaching Feynman loop with the corpus
 
 ## KB Adapter Guide
 
-Learn skills retrieve grounding content through `content-grounding-kb.sh`. The script accepts any registered adapter and returns ranked chunks. Four adapter types are supported:
+`shared/scripts/content-grounding-kb.sh` accepts `dify:`, `palace:` and `local:` bindings (or normalization of an existing corpus). It invokes the selected adapter; it does not implement an automatic Dify → Palace → filesystem → web waterfall. `web:` is not a supported prefix of this helper.
 
-| Adapter | Syntax | Backend | Requires |
-|---|---|---|---|
-| Dify KB | `dify:<kb-name>` | Dify knowledge base via MCP | `DIFY_API_KEY` env var |
-| Palace RAG | `palace:<collection>` | surreal-memory palace; local, fully offline | surreal-memory running on `:23001` |
-| Local files | `local:<path>` | Filesystem markdown files; never leaves the machine | Read permission on `<path>` |
-| Live web | `web:<url>` | Firecrawl fetch at query time | Internet + Firecrawl API key |
+Local files are read without network calls. Dify and Palace requests go to the configured `DIFY_BASE_URL` and `SURREAL_MEMORY_URL`, which may be remote. The helper ignores unrelated model/web API credentials and emits `privacy_mode: true`; that metadata does not restrict those configured endpoints or prove caller/network privacy. Review endpoint ownership and publication authorization before using sensitive content.
 
-**Privacy guarantee.** `content-grounding-kb.sh` never forwards KB content to external APIs. If `DIFY_API_KEY`, `FIRECRAWL_API_KEY`, or other external keys are set in the environment while a `local:` or `palace:` adapter is active, the script emits a privacy warning and confirms that no content left the local machine.
+See the canonical [KB adapter guide](/docs/learn-internals/kb-adapter-guide) for the actual output and request contract.
 
 **Adding a KB.**
 
@@ -213,7 +208,6 @@ Learn skills retrieve grounding content through `content-grounding-kb.sh`. The s
 /learn-kb add palace:prometheus-concepts
 /learn-kb add "local:$HOME/notes/physics"
 /learn-kb add dify:team-knowledge-base
-/learn-kb add web:https://docs.example.com
 ```
 
 **Using with learn-goal.** Pass `--kb <adapter>` to wire the adapter into all downstream skills for a goal:
@@ -254,14 +248,7 @@ The Feynman loop closes a concept only when **all three** of the following condi
 
 ## Content Grounding Priority Chain
 
-When a learn skill needs grounding content (for research, grading, or planning), `content-grounding-kb.sh` queries sources in this order, stopping at the first that returns sufficient chunks:
-
-1. **Dify KB** (if a `dify:` adapter is bound to the goal and `DIFY_API_KEY` is set)
-2. **Palace RAG** via surreal-memory (if a `palace:` adapter is bound, or if surreal-memory is running and has relevant content)
-3. **MCP filesystem** (if a `local:` adapter is bound, or as a fallback for files in the project)
-4. **Firecrawl web** (if a `web:` adapter is bound, or as the last resort)
-
-The chain degrades gracefully: if surreal-memory is not running, the palace step is skipped without error. If Firecrawl is not configured, the web step emits a warning and the skill proceeds with whatever content was found upstream. The grading skill always reports which sources it used so the operator can audit the evidence chain.
+A bound adapter selects the helper route explicitly. Public web grounding belongs to the separate `content-grounding.sh` flow and its declared prerequisites. Adapter failure, partial content and an empty result must remain visible; do not infer successful grounding from a health check or privacy metadata. Do not send a merged private corpus to external inference without explicit authorization.
 
 ---
 

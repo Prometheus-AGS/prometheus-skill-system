@@ -4,97 +4,35 @@ title: Pair Two Machines
 sidebar_label: Pair Two Machines
 ---
 
-# Pair Two Machines
+# Pairing two selected hosts
 
-Pairing transfers one opaque ticket from an existing peer to a joining peer.
-The ticket contains protocol version, the random 256-bit group secret, the
-exporting endpoint ID, and its signing-key fingerprint. Treat the complete ticket
-as a secret: do not paste it into logs, issue trackers, shell history, or release
-evidence.
+Choose the configuration and identity on each device; retain separate private
+signing keys. Network membership and KBD project/replica enrollment are separate.
+From the selected Companion binary, A exports with
+`sovereign-sync --config /absolute/config.toml --mode pair-export`.
+Transfer its secret ticket privately to B; B imports with `--mode pair-import`
+and `--ticket <private-ticket>`, then exports its updated ticket back to A for
+import. This round trip keeps the group secret shared.
 
-## Identity map
+Import replaces the selected identity's group secret and updates its allowlist;
+back up existing membership first. Ticket arguments may appear in shell history
+or process listings. Never put tickets in shared logs, issues or transcripts.
 
-| Identity | Shared? | Persistence | Purpose |
-|---|---:|---:|---|
-| 256-bit group secret | Yes, only within the paired group | Stored in each mode-`0600` P2P identity file | Derives the private gossip topic |
-| iroh endpoint secret/key | No | Atomically persisted across restarts | Gives one peer a stable endpoint ID |
-| Endpoint allow-list binding | Each peer enrolls the other | Persisted with P2P identity | Binds endpoint ID to signing-key fingerprint |
-| KBD project ID | Only for replicas of one project | Repository manifest + runtime registry | Names one KBD authority |
-| KBD device key | No | Credential store or mode-`0600` file | Signs KBD commands/events |
+Add each authorized endpoint ID to the other configuration's `[peers] bootstrap`
+list, then restart the one selected host to read identity/config changes.
+mDNS supplies addresses for known IDs. The source provides a pairing URI payload,
+not a shipped QR screen, short-code flow or group UI. Neither pairing nor
+connectivity proves an authorized signed push was applied at the destination.
 
-The removed `operator_id` is not a pairing credential. New groups use a random
-secret and explicit enrollment, so a guessable name cannot join a topic.
+## Ownership and evidence
 
-## 1. Initialize stable identities
+These routes remain useful after relocation. The current recovered Companion
+source (`docs/installation.md`, `docs/control-api.md`) has no public remote or
+certified release yet. Source inspection is not installed or peer acceptance;
+final source/artifact identities and publication links remain release-owned.
 
-Run on both machines with their own config:
-
-```bash
-sovereign-sync --mode init
-```
-
-The output reports the P2P identity path and endpoint ID, never the group secret.
-The identity file must be regular, atomically written, and mode `0600`.
-
-## 2. Export on the existing peer
-
-On Machine A:
-
-```bash
-PAIR_TICKET="$(sovereign-sync --mode pair-export)"
-```
-
-Transfer `PAIR_TICKET` through an authenticated confidential channel. Do not use
-`set -x`, command tracing, CI variables, or chat transcripts.
-
-## 3. Import on the joining peer
-
-On Machine B:
-
-```bash
-sovereign-sync --mode pair-import --ticket "$PAIR_TICKET"
-```
-
-Import validates the ticket protocol, 32-byte group secret, endpoint ID, and
-fingerprint binding before persisting the group and allow-list entry. The command
-prints only the paired endpoint and fingerprint.
-
-Export Machine B’s ticket and import it on Machine A so both sides have explicit
-allow-list bindings:
-
-```bash
-# Machine B
-PAIR_TICKET_B="$(sovereign-sync --mode pair-export)"
-
-# Machine A, after confidential transfer
-sovereign-sync --mode pair-import --ticket "$PAIR_TICKET_B"
-```
-
-## 4. Start isolated peers and verify
-
-The default local API is a Unix socket; it does not open port 7892:
-
-```bash
-SOCKET_PATH="$HOME/.prometheus/run/sovereign-sync.sock"
-sovereign-sync --mode daemon --socket "$SOCKET_PATH"
-curl --unix-socket "$SOCKET_PATH" \
-  http://localhost/health
-```
-
-Use the actual socket path reported by your installation on macOS. Loopback TCP
-is opt-in with `--tcp` and requires a bearer token loaded from a mode-`0600` file.
-
-Create a signed v2 push, then poll its durable receipt or resume the event stream.
-A local `broadcast` state alone is not peer application evidence. Certification
-requires a per-peer `received`, `applied`, or `rejected` receipt and proves the
-same terminal receipt survives restart.
-
-## Rejection behavior
-
-Inbound frames fail closed when the endpoint is unknown, the group secret/topic
-does not match, the endpoint and signing key disagree, the request is stale, or a
-request ID is replayed. The full ticket and group secret are never logged.
-
-To remove a peer, delete its endpoint-to-signing-key binding through the supported
-identity-management path and restart the isolated peer. Creating a new group
-secret is a group rotation, not an `operator_id` rename.
+Use [local KBD](/docs/kbd/control-plane) without the optional extension, and the
+[service operations guide](/docs/guide/service-operations#optional-companion)
+for pack/Companion ownership. The [integration contract](/docs/kbd/integration-contract)
+is a one-way seam. [Relocation history](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/decisions/sovereign-sync-relocated-to-companion.md)
+is a decision record, not a Companion repository URL.

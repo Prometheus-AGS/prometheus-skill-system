@@ -1,0 +1,60 @@
+{
+  "scope": "Owner-authorized final documentation edits; no execution/build/rendered validation",
+  "files": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/site/sidebars.js",
+      "sha256": "e3fa40b77fda9eb427412a01b84bdaf1e2f75e6e29ae925f3d6ed4b6767b0cd4",
+      "bytes": 7118
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/site/docusaurus.config.js",
+      "sha256": "5eb2138d201209bc21607633053e6297db9f4d2fb0e6bd74ec0676c7161fc619",
+      "bytes": 8361
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/docs/guide/README.md",
+      "sha256": "23cec655ff1658e1295bd94f13438e62d17b893307e5ef9ccceeb68c448031de",
+      "bytes": 6624
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/docs/guide/24-agent-teams.md",
+      "sha256": "9edcaecb24596b28af8d583b05c2fa1569cb01ea8e8d1844807da894d1574c4d",
+      "bytes": 42242
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/site/docs/agent-teams/overview.md",
+      "sha256": "f548a401c53cc27ec5fddce20cc31149304a4516e1f00c6110175d48e376465d",
+      "bytes": 5813
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/docs/guide/26-service-operations.md",
+      "sha256": "dc2546de590aa65317edc3f6c304343ac4bdd8a8395ad6729477dd6fa34255dc",
+      "bytes": 14971
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/docusaurus.config.js",
+      "sha256": "73425bfb99b8cb0acfbc02e4bcfc37cf53fc8498ba19e0108e9e69f648c73e9b",
+      "bytes": 3693
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/docs/agent-teams.md",
+      "sha256": "85d45d996ec9aa163f7c419735bf30d202cfc1cbddc8adfdf4dc4785413a02ce",
+      "bytes": 42567
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/docs/agent-teams/overview.md",
+      "sha256": "4c85b42cc6fb7e0cad30ed96923056c0021946b11abd8c306ecc3bc2ba8b7cd2",
+      "bytes": 18010
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/docs/services/docker-services.md",
+      "sha256": "f69a5cb375e100c1fe36a3915d8ac4faefa51637e5822de454a4ec85ef5fa786",
+      "bytes": 10157
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/docs/service-operations.md",
+      "sha256": "dc8ff69a1dfc7b6be21eb4ccff857f77d7531733b2019b362d42ab5de1394889",
+      "bytes": 2081
+    }
+  ]
+}

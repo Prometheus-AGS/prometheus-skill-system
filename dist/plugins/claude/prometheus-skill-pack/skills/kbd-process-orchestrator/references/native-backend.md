@@ -23,6 +23,16 @@ that drove OpenSpec users out of the KBD loop.
 
 ## tasks.json is the source of truth
 
+Behavioral acceptance in `verification.md` uses the populated
+[`acceptance.template.md`](templates/acceptance.template.md) contract. It names
+the production entry point, actual collaborating components and boundary,
+observable result, negative control, scratch resources and exact final local
+gate. Task completion records production progress; structural/backend checks do
+not establish behavioral acceptance. Complete all parent-phase production before
+test authoring/execution; run one consolidated final full integration boundary.
+Missing services/tools/approvals and exit 2 mean BLOCKED. This authoring contract
+does not change the task schema, stable IDs or SpecBackend operation semantics.
+
 Schema: `references/schemas/change-tasks.schema.json`.
 
 ```json

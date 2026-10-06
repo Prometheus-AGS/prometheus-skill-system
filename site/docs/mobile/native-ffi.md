@@ -6,174 +6,30 @@ sidebar_label: Native FFI
 
 # Native Mobile FFI
 
-`substrate/skill-ffi` exposes the skill registry to iOS and Android as a native
-library, for apps that embed the runtime rather than talking to a server.
+`substrate/skill-ffi` is the pack's embedding boundary. Native linking, catalog lookup, bounded execution and a usable phone workflow need separate evidence.
 
-## Verified builds
-
-Unlike the [Wasm path](./wasm-components), this one is executed and asserted —
-both targets build and eleven round-trip tests check **returned values**, not
-merely that linking succeeded.
-
-| Target | Artifact | Size |
-|---|---|---|
-| `aarch64-apple-ios` | dylib | 16,408 B |
-| `aarch64-linux-android` | `.so` | 454,856 B |
-
-```bash
-bash substrate/skill-ffi/build-mobile.sh
-```
-
-The Android build additionally requires `aarch64-linux-android-clang` from the
-NDK on `PATH`.
-
-## Public API
-
-From `substrate/skill-ffi/src/api.rs`:
+## Current source surface
 
 ```rust
-/// Execute a skill by id with a JSON input payload.
 pub fn run_skill(skill_id: String, input: String) -> Result<String, SkillError>;
-
-/// Metadata for one skill.
 pub fn describe_skill(skill_id: String) -> Result<SkillDescriptor, SkillError>;
-
-/// Everything the embedded registry knows about.
 pub fn list_skills() -> Result<Vec<SkillDescriptor>, SkillError>;
-
-/// Skills from the signed generation's canonical search index.
-pub fn list_indexed_skills() -> Result<Vec<IndexedSkillDescriptor>, SkillError>;
-
-/// Deterministically ranked results from the shared selector.
-pub fn search_indexed_skills(query: String, limit: u32)
-    -> Result<Vec<IndexedSkillDescriptor>, SkillError>;
-
-/// The `prometheus:component` world version this build targets.
+pub fn list_indexed_skills(index_json: String) -> Result<Vec<SkillDescriptor>, SkillError>;
+pub fn search_indexed_skills(index_json: String, query: String, limit: u32)
+    -> Result<Vec<SkillDescriptor>, SkillError>;
 pub fn world_version() -> String;
 ```
 
-`world_version()` exists so a host can detect a mismatch between the library it
-linked and the WIT world it expects — a version skew that would otherwise surface
-as confusing runtime failures.
+`run_skill` validates input and returns `Unsupported`: no generic skill host is bound. `list_skills` also returns `Unsupported`; it does not enumerate a working runtime. `describe_skill` constructs a descriptor and is not execution proof.
 
-## Crate configuration
+Indexed APIs parse the exact index JSON supplied by the host and reuse `prometheus-skill-index` ranking. The caller must verify generation/index provenance before exposing it; parsing a JSON string does not verify its signature. Returned descriptors contain `id`, `exports` and `capabilities`.
 
-```toml
-[lib]
-crate-type = ["cdylib", "staticlib", "rlib"]
+The separate `exec_*` async surface delegates to the configured embedded Prometheus Exec adapter. It has its own request, authorization, event, artifact and receipt contract. It does not make `run_skill` a universal executor or accept private key bytes from UI callers.
 
-[dependencies]
-flutter_rust_bridge = "=2.12.0"
-```
+## Consumer and evidence boundary
 
-Three crate types because three consumers need different things: `cdylib` for
-Android's `.so`, `staticlib` for iOS static linking, `rlib` so Rust tests can
-exercise the same code without going through FFI.
+The crate pins `flutter_rust_bridge` and declares native library outputs in its Cargo manifest. Generated bindings must agree with that pin. Swift/Kotlin bindings shown in older pages were illustrative, not shipped wrappers.
 
-The `=2.12.0` is an **exact** pin, not a caret range — matching the version
-already in production in the consuming app.
+Historical cross-build sizes and host round trips are not current physical-device acceptance. Mobile execution still needs an actual consumer, supported profile, size evidence and real device operation. See [execution platforms](/docs/execution/platform-and-evidence-status) and [components](./wasm-components).
 
-## Choosing a binding pattern — how this was decided
-
-Worth recording, because the reasoning generalises past this repo.
-
-The original decision compared **uniffi vs cbindgen** on maintenance cost, and
-chose uniffi. Adversarial review returned **CRITICAL**: the stated consumer is
-Flutter, and neither option was what Flutter uses.
-
-One command settled it:
-
-```bash
-grep -rn 'flutter_rust_bridge' know-me-system/**/pubspec.yaml
-# flutter_rust_bridge: 2.12.0   ← already in production
-```
-
-**A third pattern, in neither column of the comparison, already shipping in the
-consuming app.** Adopting it cost nothing; either alternative would have imposed
-a migration on a working system.
-
-:::tip Best practice
-Before comparing binding generators — or any integration library — grep the
-consuming project's manifests. The incumbent is frequently in neither column, and
-"what they already use" beats "what scores best in the abstract" whenever it is
-adequate.
-:::
-
-### When to use which
-
-| Consumer | Pattern |
-|---|---|
-| Flutter app (KnowMe) | `flutter_rust_bridge` — the incumbent |
-| Swift / Kotlin, no Flutter | `uniffi` |
-| C interop required | `cbindgen` |
-
-## Integration examples
-
-### Flutter / Dart
-
-```dart
-import 'package:my_app/src/rust/api.dart';
-
-final skills = await listSkills();
-for (final s in skills) {
-  print('${s.skillId}: ${s.title}');
-}
-
-final result = await runSkill(
-  skillId: 'some-skill',
-  input: jsonEncode({'query': 'example'}),
-);
-```
-
-### Swift
-
-```swift
-let version = world_version()
-guard version == expectedWorldVersion else {
-    throw SkillError.worldVersionMismatch(found: version)
-}
-
-let skills = try list_skills()
-```
-
-Check `world_version()` at startup. A silent mismatch produces failures that look
-like logic bugs.
-
-## Testing guidance
-
-Eleven tests assert on returned values, including canonical-index list/search
-parity. That distinction matters:
-
-```rust
-// WEAK — passes if the function returns garbage
-#[test]
-fn it_links() {
-    let _ = list_skills();
-}
-
-// STRONG — asserts on what came back
-#[test]
-fn list_skills_returns_the_registered_set() {
-    let skills = list_skills().expect("list");
-    assert!(!skills.is_empty(), "an empty registry means discovery failed");
-    assert!(skills.iter().all(|s| !s.skill_id.is_empty()));
-}
-```
-
-A `.so` that links but returns empty results passes a build check and fails a
-round trip. **Test the artifact, not the build.**
-
-## Best practices
-
-1. **Pin the bridge version exactly** (`=2.12.0`). FFI codegen and runtime must
-   agree; a caret range lets them drift apart between builds.
-2. **Call `world_version()` on startup** and fail loudly on mismatch.
-3. **Keep the FFI surface deliberate.** Every exported symbol is a compatibility
-   obligation across two toolchains; index APIs exist because they reuse the
-   verified host selector instead of duplicating mobile ranking logic.
-4. **Pass JSON across the boundary, not rich types.** It keeps the generated
-   bindings trivial and the versioning story simple.
-5. **Verify the generation signature and index hash before exposing search.**
-   Host, generated-agent, and mobile projections must identify the same index.
-6. **Run the round-trip tests on every target you ship**, not just the host you
-   develop on.
+The mobile KBD-sync surface moved to Companion; the retained empty compatibility feature is not an implementation. Source: [skill-ffi API](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/substrate/skill-ffi/src/api.rs).

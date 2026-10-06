@@ -1,0 +1,20 @@
+{
+  "project": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/project with spaces",
+  "activeTeam": "alpha",
+  "manifest": ".agent-team/alpha/team.json",
+  "nativeDefinitions": [
+    ".codex/agents/implementer.toml"
+  ],
+  "changed": [],
+  "clean": true,
+  "dryRun": false,
+  "check": true,
+  "fingerprints": [],
+  "diagnostics": [
+    "Source-verified serialization only; installed native validation and live execution are unverified.",
+    "Standalone agent files are supported. A Codex plugin agents manifest field is not verified; no such field is emitted.",
+    "Codex agent names use underscores (role-id becomes role_id) and set memories.generate_memories=false so subagent threads do not write the user-level memory summary.",
+    "Role overrides are preserved without native schema certification. Skill IDs refer to separately installed skills; prompt mentions do not install or authorize them."
+  ],
+  "recovery": null
+}

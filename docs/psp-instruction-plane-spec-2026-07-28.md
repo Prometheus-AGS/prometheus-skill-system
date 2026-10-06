@@ -1,3 +1,5 @@
+> **Dated implementation and design record; outside current onboarding.** This July 2026 instruction-plane specification includes recorded convergence results and unresolved activation/rollout requirements. Those results and counts apply only to its named boundary; hosted nightly proposals are not current acceptance policy. Use [the current guide](guide/00-quick-start.md).
+
 # Prometheus Skill Pack — Instruction-Plane Improvement Specification
 
 **Document ID:** PAGS-SPEC-PSP-IP-001

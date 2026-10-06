@@ -6,33 +6,12 @@ sidebar_label: learn-about-system
 
 # /learn-about-system
 
-Prometheus stack meta-learning. Apply the Feynman-Spine method to understand
-the Prometheus stack itself.
+Study Prometheus's own source and workflow through the learning procedure:
 
-## Trigger phrases
-
-- "how does the kbd lifecycle work?"
-- "explain the optional Companion control plane to me"
-- "teach me about the learn domain"
-- `/learn-about-system --area kbd`
-
-## Available areas
-
-| Area | Description |
-|------|-------------|
-| `kbd` | KBD lifecycle (assess → analyze → plan → execute → reflect) |
-| `skills` | How skills are structured, discovered, and invoked |
-| `harness` | Harness detection and surface tier system |
-| `substrate` | Rust crates (learner-model, surface-bridge, prometheus-research) |
-| `pmpo` | PMPO meta-prompting orchestration philosophy |
-| `learn` | The Learn domain itself |
-
-## Example
-
-```
+```text
 /learn-about-system --area kbd
 ```
 
-This runs the Feynman loop on the KBD lifecycle using the Prometheus source
-as the KB adapter — the canonical description in CLAUDE.md and the skill files
-become the grounding content.
+Supported `--area` values are `kbd`, `skills` and `harness`. KBD covers assess → analyze → spec → plan → execute → reflect; skills covers discovery and invocation; harness covers capability and surface mapping. Other topics can be ordinary learning goals, but are not additional accepted area values.
+
+Ground explanations in the current canonical rules and source. A generated lesson does not certify an installed service or harness feature.

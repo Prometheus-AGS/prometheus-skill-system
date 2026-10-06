@@ -23,7 +23,6 @@ _check_tier2() {
     pid=$(cat "$pid_file" 2>/dev/null || echo "")
     if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
       if [ "${CLAUDE_MCP_APP_CAPABLE:-0}" = "1" ]; then
-        echo "tier2_mcp_app"
         return 0
       fi
     fi

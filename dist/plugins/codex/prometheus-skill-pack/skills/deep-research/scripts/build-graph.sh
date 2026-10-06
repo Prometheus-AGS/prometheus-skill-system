@@ -19,8 +19,8 @@
 # --critical FILE: one claim text per line to mark `critical: true` (stage 09
 # may only promote a claim that is already critical here).
 #
-# The claim-id function is duplicated verbatim in detect-contradictions.sh;
-# tests/scoring-graph.sh asserts the two agree. bash 3.2 compatible (C-05).
+# claim_ids.py supplies the same address to graph, contradictions and merge.
+# bash 3.2 compatible (C-05).
 set -euo pipefail
 
 REGISTRY=""; CRED=""; CONTRA=""; PKG_ID=""; CRITICAL=""; OUT=""

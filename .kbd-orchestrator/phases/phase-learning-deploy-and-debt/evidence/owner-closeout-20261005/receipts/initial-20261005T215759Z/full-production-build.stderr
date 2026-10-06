@@ -1,0 +1,9 @@
+[ERROR] Client bundle compiled with errors therefore further build is impossible.
+Error: MDX compilation failed for file "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/docs/guide/README.md"
+Cause: Markdown link with URL `../production-readiness-report.md` in source file "../docs/guide/README.md" (78:3) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+To ignore this error, use the `siteConfig.markdown.hooks.onBrokenMarkdownLinks` option, or apply the `pathname://` protocol to the broken link URLs.
+Details:
+Error: Markdown link with URL `../production-readiness-report.md` in source file "../docs/guide/README.md" (78:3) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+To ignore this error, use the `siteConfig.markdown.hooks.onBrokenMarkdownLinks` option, or apply the `pathname://` protocol to the broken link URLs.

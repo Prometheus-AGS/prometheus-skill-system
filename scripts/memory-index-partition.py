@@ -17,7 +17,8 @@ Deterministic rules:
   3. A bullet line carrying `team:<id>`, `team:*` or `[team]` is REMOVED and
      written with visibility `team`.
   4. Every other bullet is RANKED, then kept in priority order while the byte
-     budget lasts (budget = limit minus the footer line). Ranks:
+     budget lasts, including the exact footer emitted for the resulting running
+     count. No footer is reserved when none will be emitted. Ranks:
        0  a `project` entry whose slug or title matches the active phase
           (`phase` in .kbd-orchestrator/current-waypoint.json, else the
           `Position:` line of position-reminder.txt, read under --cwd; with no
@@ -184,8 +185,9 @@ def plan(source: str, limit: int, phase: str = "") -> dict:
             moved.append({"line": number, "visibility": f"role:{role}", "role": role, "reason": "role marker", "text": lesson_text(line)})
         elif kind == "team":
             moved.append({"line": number, "visibility": "team", "role": None, "reason": "team marker", "text": lesson_text(line)})
-    removed_numbers = {m["line"] for m in moved}
-    # Pass 2: rank the remaining bullets and fill the budget in priority order.
+    # Pass 2: rank the remaining bullets and retain the longest priority prefix
+    # whose actual serialized output fits. Begin with every bullet kept: an
+    # unnecessary footer must not force removal from an already fitting index.
     ranks: dict[int, int] = {}
     dates: dict[int, int] = {}
     for number, line, kind, _ in entries:
@@ -193,37 +195,62 @@ def plan(source: str, limit: int, phase: str = "") -> dict:
             ranks[number], dates[number] = rank_of(line, phase)
     order = sorted(ranks, key=lambda n: (ranks[n], -dates[n] if ranks[n] == 2 else 0, n))
     text_of = {n: l for n, l, _, _ in entries}
-    structure = [l for _, l, k, _ in entries if k == "structure"]
-    structure_bytes = size(structure)
-    # The footer is reserved up front (upper bound on the digits of the running total).
-    reserve = len((footer(prior_moved + len(entries)) + "\n").encode("utf-8"))
-    used = 0
-    overflow = False
-    kept_bullets: list[int] = []
-    decision: dict[int, str] = {}
-    for number in order:
-        cost = len((text_of[number] + "\n").encode("utf-8"))
-        if not overflow and structure_bytes + used + cost + reserve <= limit:
-            kept_bullets.append(number)
-            used += cost
-            decision[number] = "keep"
-        else:
-            overflow = True
-            decision[number] = "move"
-            moved.append({"line": number, "visibility": "project", "role": None, "reason": "over budget", "text": lesson_text(text_of[number])})
-    moved.sort(key=lambda m: m["line"])
     # Assemble: structure before the first bullet, ranked bullets, remaining structure, footer.
     first_bullet = min((n for n, _, k, _ in entries if k in ("bullet", "role", "team")), default=len(entries) + 1)
-    kept: list[str] = [l for n, l, k, _ in entries if k == "structure" and n < first_bullet]
-    kept += [text_of[n] for n in kept_bullets]
-    kept += [l for n, l, k, _ in entries if k == "structure" and n > first_bullet]
+    before = [l for n, l, k, _ in entries if k == "structure" and n < first_bullet]
+    after_structure = [l for n, l, k, _ in entries if k == "structure" and n > first_bullet]
+    while after_structure and not after_structure[-1].strip():
+        after_structure.pop()
+    # When no bullets remain, trailing blanks from the leading structure are
+    # trimmed too. With a kept bullet, those same blanks are internal and count.
+    structure_only = before + after_structure
+    while structure_only and not structure_only[-1].strip():
+        structure_only.pop()
+    structure_bytes = size(structure_only)
+    structure_with_bullets_bytes = size(before + after_structure)
+    prefix_bytes = [0]
+    for number in order:
+        prefix_bytes.append(prefix_bytes[-1] + size([text_of[number]]))
+    forced_moved = len(moved)
+    footer_count = sum(kind == "footer" for _, _, kind, _ in entries)
+
+    def emitted_footer(keep_count: int) -> str | None:
+        newly_moved = forced_moved + len(order) - keep_count
+        if newly_moved:
+            return footer(prior_moved + newly_moved)
+        if footer_count > 1:
+            return footer(prior_moved)
+        return prior_footer
+
+    def emitted_bytes(keep_count: int) -> int:
+        content_bytes = structure_with_bullets_bytes if keep_count else structure_bytes
+        footer_line = emitted_footer(keep_count)
+        total = content_bytes + prefix_bytes[keep_count]
+        if footer_line is not None:
+            total += size([footer_line])
+        # The serialized index always has its final newline, even when empty.
+        return total or 1
+
+    keep_count = len(order)
+    while keep_count and emitted_bytes(keep_count) > limit:
+        keep_count -= 1
+    kept_bullets = order[:keep_count]
+    decision = {number: "keep" if index < keep_count else "move"
+                for index, number in enumerate(order)}
+    for number in order[keep_count:]:
+        moved.append({"line": number, "visibility": "project", "role": None, "reason": "over budget", "text": lesson_text(text_of[number])})
+    moved.sort(key=lambda m: m["line"])
+    kept = before + [text_of[n] for n in kept_bullets] + after_structure
     while kept and not kept[-1].strip():
         kept.pop()
-    if moved:
-        kept.append(footer(prior_moved + len(moved)))
-    elif prior_footer is not None:
-        kept.append(prior_footer)
-    after = size(kept)
+    footer_line = emitted_footer(keep_count)
+    if footer_line is not None:
+        kept.append(footer_line)
+    index = "\n".join(kept) + "\n"
+    after = len(index.encode("utf-8"))
+    overflow_reason = None
+    if after > limit:
+        overflow_reason = "structure" if structure_bytes > limit else "structure_and_required_footer"
     line_report = []
     for number, line, kind, _ in entries:
         if kind == "structure":
@@ -236,7 +263,9 @@ def plan(source: str, limit: int, phase: str = "") -> dict:
             line_report.append({"line": number, "rank": ranks[number], "action": decision[number]})
     return {"limit": limit, "phase": phase, "bytes_before": len(source.encode("utf-8")), "bytes_after": after,
             "within_limit": after <= limit, "kept_lines": len(kept), "moved": moved, "ranks": line_report,
-            "index": "\n".join(kept) + "\n"}
+            "structure_bytes": structure_bytes, "footer_bytes": size([footer_line]) if footer_line is not None else 0,
+            "prior_moved": prior_moved, "cumulative_moved": prior_moved + len(moved),
+            "overflow_reason": overflow_reason, "index": index}
 
 
 def load_writer():
@@ -250,8 +279,14 @@ def load_writer():
 
 
 def apply(path: Path, result: dict, cwd: Path, user_id: str | None) -> dict:
-    write_lesson = load_writer()
+    if not result["within_limit"]:
+        raise RuntimeError("structure and required footer exceed the limit; index untouched")
+    encoded_index = result["index"].encode("utf-8")
+    original = path.read_bytes()
+    if not result["moved"] and original == encoded_index:
+        return {"queued": [], "unchanged": True}
     queued = []
+    write_lesson = load_writer() if result["moved"] else None
     for item in result["moved"]:
         outcome = write_lesson(item["text"], {}, cwd=cwd, kind="lesson", visibility=item["visibility"],
                                user_id=user_id)
@@ -262,11 +297,11 @@ def apply(path: Path, result: dict, cwd: Path, user_id: str | None) -> dict:
             raise RuntimeError(f"lesson for line {item['line']} was not queued ({outcome.get('reason')}); index untouched")
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     backup = path.with_name(f"{path.name}.bak-{stamp}")
-    backup.write_bytes(path.read_bytes())
+    backup.write_bytes(original)
     handle, temp = tempfile.mkstemp(prefix=f".{path.name}.", dir=str(path.parent))
     try:
-        with os.fdopen(handle, "w", encoding="utf-8") as stream:
-            stream.write(result["index"])
+        with os.fdopen(handle, "wb") as stream:
+            stream.write(encoded_index)
         os.replace(temp, path)
     except BaseException:
         if os.path.exists(temp):
@@ -291,7 +326,7 @@ def main() -> int:
         print("error: --limit below 512 bytes cannot hold a useful index", file=sys.stderr)
         return 1
     try:
-        source = path.read_text(encoding="utf-8")
+        source = path.read_bytes().decode("utf-8")
     except (OSError, UnicodeDecodeError) as error:
         print(f"error: cannot read {path}: {error}", file=sys.stderr)
         return 1
@@ -300,7 +335,8 @@ def main() -> int:
     report = {"path": str(path), "applied": False, **{k: v for k, v in result.items() if k != "index"}}
     if not result["within_limit"]:
         print(json.dumps(report, indent=2))
-        print("error: structure lines alone exceed the limit; index untouched", file=sys.stderr)
+        detail = "structure lines alone" if result["overflow_reason"] == "structure" else "structure lines and required footer"
+        print(f"error: {detail} exceed the limit; index untouched", file=sys.stderr)
         return 1
     if options.apply:
         cwd = Path(options.cwd) if options.cwd else Path.cwd()

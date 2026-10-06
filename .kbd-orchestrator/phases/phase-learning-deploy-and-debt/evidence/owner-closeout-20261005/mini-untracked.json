@@ -1,0 +1,30 @@
+[
+  {
+    "path": "docs/distribution.md",
+    "sha256": "1c725170f567ddb54fca08b38b79b4eaa330cb96b0ed2b62b05aa328e852b654",
+    "mode": "0o644",
+    "bytes": 3965,
+    "symlink": false
+  },
+  {
+    "path": "docs/maintenance.md",
+    "sha256": "ac353f7d9cebae41d1429c4af33ce21cef188d6b3ff8e75fc8370dce3fab1e2b",
+    "mode": "0o644",
+    "bytes": 18357,
+    "symlink": false
+  },
+  {
+    "path": "docs/service-operations.md",
+    "sha256": "dc8ff69a1dfc7b6be21eb4ccff857f77d7531733b2019b362d42ab5de1394889",
+    "mode": "0o644",
+    "bytes": 2081,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/learning-deploy-integration.test.mjs",
+    "sha256": "623daf82054cb2275f063efe4c8e6e435aa71d540ed6ce630791a49101aca73d",
+    "mode": "0o644",
+    "bytes": 26111,
+    "symlink": false
+  }
+]

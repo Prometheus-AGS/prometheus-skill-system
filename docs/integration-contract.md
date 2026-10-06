@@ -9,7 +9,7 @@ Companion, and third parties on equal terms.
 
 `prometheus-skill-pack` is an open-source **skill collection**. It ships skills,
 hooks, a CLI, and the services those skills need, and it is complete on its own:
-every skill works with nothing else installed.
+the core pack does not require an extension. Individual skills still have their declared runtime, service and harness prerequisites.
 
 Extensions add capability the pack does not provide — cross-machine sync, a
 supervisor that guarantees services are running, remote control planes, paid
@@ -130,8 +130,7 @@ Two properties are guaranteed:
 
 **C-01 obligation, effective from this contract.** The plists and units are now
 generator inputs. Any change that edits, adds, or deletes one of them must
-regenerate `shared/services.manifest.json` and run `--check` **in the same
-change**. This is recorded in `.kbd-orchestrator/constraints.md`.
+be included in the final phase generation batch for `shared/services.manifest.json` and its local drift check after all production changes are complete. This is recorded in `.kbd-orchestrator/constraints.md`.
 
 **Adoption, not relocation.** A supervisor reads the manifest and manages the
 services where they already run, through the platform supervisor
@@ -186,8 +185,7 @@ the discovery surfaces; it does not install extensions.
 - Every seam above is stable for the life of contract major version 1.
 - No pack command requires an extension, warns about its absence, or changes
   behaviour when one is missing.
-- The pack certifies fully with no extension installed
-  (`scripts/certify-without-companion.sh`).
+- Extension-free certification uses the applicable local production-entry integration gate. The presence of `scripts/certify-without-companion.sh` is a gate implementation, not evidence that a current release passed it.
 
 ## What the pack does not guarantee
 

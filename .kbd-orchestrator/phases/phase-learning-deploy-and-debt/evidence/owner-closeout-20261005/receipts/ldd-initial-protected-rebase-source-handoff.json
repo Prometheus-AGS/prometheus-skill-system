@@ -1,0 +1,68 @@
+{
+  "sourceProductionComplete": true,
+  "acceptance": "none; source helper and validators unexecuted",
+  "actualModel": "gpt-6.1-sol",
+  "actualEffort": "high",
+  "paths": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/certify-initial-protected-candidate.mjs",
+      "sha256": "9eb150bcf4b989610e6e57839f69d8417de9740e49a285bd0854a41a9d015356",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/rebase-regenerate.sh",
+      "sha256": "014bc8bde4e1c3038172814b1fe93ceecf4dc530a67e530f5983055f3e799cc5",
+      "mode": "0o755"
+    }
+  ],
+  "provisionedNestedClones": [
+    {
+      "path": "skills/imported/artifact-refiner/shared/sycophancy-correction",
+      "commit": "bc348fffb4b622c142c1082b281dd2f44b74d37b",
+      "source": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/skills/imported/sycophancy-correction"
+    },
+    {
+      "path": "skills/imported/artifact-refiner/tools/rust-mcp-filesystem",
+      "commit": "ef808b7d0ccf7f56c4e8d125091d8d0115725a60",
+      "source": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/skills/imported/artifact-refiner/tools/rust-mcp-filesystem"
+    }
+  ],
+  "provisioningCommands": "Each: actual Git clone --no-hardlinks --dissociate --no-checkout, checkout --detach exact existing pin, remote set-url origin existing declared HTTPS; six operations exit0. Original parent/index/config/pins unchanged.",
+  "helperArguments": [
+    "--full ABS_SELECTED_FULL",
+    "--mini ABS_SELECTED_MINI",
+    "--surreal ABS_SELECTED_MEMORY",
+    "--companion ABS_SELECTED_COMPANION",
+    "--prepared-full ABS_BENEATH_COORDINATOR_SCRATCH",
+    "--scratch ABS_EXISTING_COORDINATOR_PARENT",
+    "--evidence ABS_PERSISTENT_DIRECTORY_OUTSIDE_SCRATCH"
+  ],
+  "helperBehavior": "Fresh private child under parent, independent copies of objects/no alternates, actual source overlays plus prepared full selected gitlink index, private evidence commit and tree hashes. Baselines derive actual source HEAD; full must equalba5c4516fd72e60c21ab3bb1d09a63105aeb3c61. Actual full verify-protected-tests script invokes explicit base/candidate per private repo. Persistent input inventories, verifier stdout/stderr/status and candidate/tree/input hashes written before only fresh child cleanup. No signing credential import or source index/config/commit mutation. No unsigned protected-change approval bypass.",
+  "exitCodes": {
+    "0": "production verifier passed each actual committed private candidate",
+    "1": "protected integrity failure or implementation error",
+    "2": "required preparation prerequisite unavailable"
+  },
+  "evidenceFiles": [
+    "initial-protected-candidate.json",
+    "full-input.json",
+    "mini-input.json",
+    "surreal-input.json",
+    "companion-input.json",
+    "protected-<name>.stdout",
+    "protected-<name>.stderr"
+  ],
+  "rebaseRepair": "Replace check:distribution legacy aggregate with actual generate-skill-system-distribution.js --check and check-harness-adapters.js; distribution covers Claude/Codex; installer missing required import still rejects directly, protected specs unchanged.",
+  "nextProductionBatch": [
+    "npm --prefix skills/process/agent-team-creator/runtime run build",
+    "node scripts/generate-service-manifest.mjs",
+    "node scripts/generate-harness-adapters.js",
+    "node scripts/generate-skills-index.js",
+    "node scripts/generate-skill-system-distribution.js",
+    "node scripts/docs-sync.mjs",
+    "node site/scripts/generate-skills-catalog.mjs",
+    "node site/scripts/generate-api-examples.mjs",
+    "node scripts/generate-commands.js --output ABS_NEW_SCRATCH/commands"
+  ],
+  "nextExecution": "Two production passes authorized by root after this final helper source freeze; raw inventories only, comparisons/checks/tests root-owned."
+}

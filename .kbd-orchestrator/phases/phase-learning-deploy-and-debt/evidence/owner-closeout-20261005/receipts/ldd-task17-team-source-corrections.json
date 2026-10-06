@@ -1,0 +1,108 @@
+{
+  "kind": "task17-six-team-author-source-corrections",
+  "sourceBatchComplete": true,
+  "task17Complete": false,
+  "paths": [
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/SKILL.md",
+      "sha256": "059e57896d89fbaca5678064fb59563b861b25947cd44a1809551524b1e52730",
+      "disposition": "corrected-author-source-task17",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "notes": "New authoring draft.2 selected by receipt; draft.1 migration preserved. Portable contracts distinguished from actual full-only cards/discovery/intake and reduced mini memory/runtime. Source/emitted/installed proof separated. Full-only export default override and memory-disable policy limits are explicit where applicable.",
+      "acceptance": "none; deferred final12"
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/manifest.md",
+      "sha256": "216b545cd1062fb11378706e6ef931f56484baa67de7cd953ec389eddcaed48c",
+      "disposition": "corrected-author-source-task17",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "notes": "New authoring draft.2 selected by receipt; draft.1 migration preserved. Portable contracts distinguished from actual full-only cards/discovery/intake and reduced mini memory/runtime. Source/emitted/installed proof separated. Full-only export default override and memory-disable policy limits are explicit where applicable.",
+      "acceptance": "none; deferred final12"
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/native-harnesses.md",
+      "sha256": "5bb45cdaa2778958d609991401a2ba52dce7adac55fb200f46b86b101cf7bbb3",
+      "disposition": "corrected-author-source-task17",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "notes": "New authoring draft.2 selected by receipt; draft.1 migration preserved. Portable contracts distinguished from actual full-only cards/discovery/intake and reduced mini memory/runtime. Source/emitted/installed proof separated. Full-only export default override and memory-disable policy limits are explicit where applicable.",
+      "acceptance": "none; deferred final12"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/SKILL.md",
+      "sha256": "9b003e8568badeedbbe6c13576044cac9822dd874a61eda30146b68ed853fa6c",
+      "disposition": "corrected-author-source-task17",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "notes": "New authoring draft.2 selected by receipt; draft.1 migration preserved. Portable contracts distinguished from actual full-only cards/discovery/intake and reduced mini memory/runtime. Source/emitted/installed proof separated. Full-only export default override and memory-disable policy limits are explicit where applicable.",
+      "acceptance": "none; deferred final12"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/manifest.md",
+      "sha256": "2371a1efa06e9ad29e96ca0e4356f569b0533d95895a916506254d4e55914baa",
+      "disposition": "corrected-author-source-task17",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "notes": "New authoring draft.2 selected by receipt; draft.1 migration preserved. Portable contracts distinguished from actual full-only cards/discovery/intake and reduced mini memory/runtime. Source/emitted/installed proof separated. Full-only export default override and memory-disable policy limits are explicit where applicable.",
+      "acceptance": "none; deferred final12"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/native-harnesses.md",
+      "sha256": "5bb45cdaa2778958d609991401a2ba52dce7adac55fb200f46b86b101cf7bbb3",
+      "disposition": "corrected-author-source-task17",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "notes": "New authoring draft.2 selected by receipt; draft.1 migration preserved. Portable contracts distinguished from actual full-only cards/discovery/intake and reduced mini memory/runtime. Source/emitted/installed proof separated. Full-only export default override and memory-disable policy limits are explicit where applicable.",
+      "acceptance": "none; deferred final12"
+    }
+  ],
+  "providerIdentity": "d8896d743cd945d40f918ff8ca397909f6c1fe22; existing receipt unchanged",
+  "legacyBoundary": "Existing draft.1 reader/migration rows preserved. No schema/provider pin/runtime mutation.",
+  "remaining": [
+    "Final03 release values and Companion source/publication links owned by root",
+    "Final12 compiled output generation and full-integration/native acceptance",
+    "Mapped-http remote authorization/idempotency and uncertain legacy publication reconciliation remain unverified"
+  ],
+  "notExecuted": [
+    "tests",
+    "checks",
+    "compiler",
+    "reviewer",
+    "generation",
+    "commits",
+    "runtime probes",
+    "real-home changes"
+  ]
+}

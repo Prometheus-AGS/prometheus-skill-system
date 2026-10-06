@@ -1,3 +1,5 @@
+> **Superseded skill-router draft; outside current onboarding.** This rev1.0 imported draft is retained as design history; rev1.1 is the later proposal, and neither draft is evidence of installed activation or task-outcome improvement. Use [the current guide](../../guide/00-quick-start.md).
+
 # PAGS-SPEC-PSP-IP-002: The Skill Router — Inverting the Instruction Plane
 ### A specification for PSP-owned skill selection, injection, and activation observability across coding-agent harnesses and the Universal Agent Runtime
 *Rev 1.0 (spec for build) — Travis James, Prometheus AGS — supersedes the C1/C2/C3 definitions in PAGS-SPEC-PSP-IP-001 rev 1.1*

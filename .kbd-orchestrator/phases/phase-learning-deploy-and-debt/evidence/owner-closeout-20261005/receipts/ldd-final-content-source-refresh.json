@@ -1,0 +1,79 @@
+{
+  "kind": "final-content-source-refresh",
+  "recordedAt": "2026-10-05T19:33:23.720225+00:00",
+  "actualModel": "gpt-6.1-sol",
+  "actualReasoningEffort": "high",
+  "sourceOnly": true,
+  "mechanicalOnly": true,
+  "counts": {
+    "editorialRowsReferenced": 219,
+    "operationsRowsReferenced": 20,
+    "maintenanceRowsReferenced": 3,
+    "uniqueExistingReaderRowsAffected": 222,
+    "candidateHashesChanged": 23,
+    "candidateHashHistoryRecordsAdded": 23,
+    "hostedSourceDispositionRecords": 4,
+    "hostedDispositionExistingInventoryRows": 0,
+    "hostedDispositionOutsideReaderInventory": 4,
+    "inventoryRowsAdded": 0,
+    "inventoryRowsRemoved": 0,
+    "unmappedHandoffRows": 0,
+    "sourceIdentityDeltasBeyondHandoff": 0
+  },
+  "inventoryRecords": 8519,
+  "artifacts": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/content-inventory.json",
+      "beforeSha256": "c351ca596db122915777cf4e6d3879212c4eb7e4e2cd9f979354fb86bc086c17",
+      "sha256": "b4348813d99a0326728c136622d5682f1b5fb5bc6fd1fb7b26b460879b6e4d39",
+      "bytes": 10323479
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/content-disposition.md",
+      "beforeSha256": "235d135d3bed19e426454b5e49bdb1d6585dce4d0a659aeb4c059061e919f447",
+      "sha256": "95bd47948b29809263500b2032d1697e88b2251f9932f2660a9519d4ea4b2a02",
+      "bytes": 17507
+    }
+  ],
+  "inputEvidence": [
+    {
+      "path": "/tmp/ldd-task17-2-page-dispositions.json",
+      "sha256": "9f1eff034a9f7563e14b43ce2551f1780566b6468f8504b4638fb20a172b6ef4"
+    },
+    {
+      "path": "/tmp/ldd-task17-2-source-handoff.json",
+      "sha256": "960a3147f5dc9136cd58d15784f3e78e59fbc5045af37472e3d8b2cfec447856"
+    },
+    {
+      "path": "/tmp/ldd-task18-3-source-handoff.json",
+      "sha256": "ab7d8bed5a638e73fe33de0b01fec8f7f2101a17ad05c90fb18a4602649ac679"
+    },
+    {
+      "path": "/tmp/ldd-hosted-workflow-source-disposition.json",
+      "sha256": "07b6502b9c011e376c6842041c15a1d07f2045b7dc396a2866d6159740963d25"
+    }
+  ],
+  "missingRows": [],
+  "sourceIdentityDeltas": [],
+  "hostedInventoryMatches": [],
+  "hostedOutsideInventory": [
+    "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/.github/workflows/ci.yml",
+    "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/.github/workflows/image.yml",
+    "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/.github/workflows/docs.yml",
+    "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/docs/container-publication.md"
+  ],
+  "maintenanceReady": false,
+  "releaseApprovalClaim": false,
+  "acceptanceClaim": false,
+  "remaining": "Lead-owned exact approved release/source/platform/artifact graph and real publication links; all final12 compilation/generation/integration/review/installed evidence remain pending.",
+  "notExecuted": [
+    "validator/test",
+    "generator/compiler/build",
+    "runtime/probes",
+    "reviewer",
+    "product source edits",
+    "canonical MAIN edits",
+    "hosted workflow execution",
+    "release approval/publication"
+  ]
+}

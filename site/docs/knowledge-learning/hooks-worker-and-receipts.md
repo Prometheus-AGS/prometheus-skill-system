@@ -49,3 +49,9 @@ pk doctor --json
 
 Both commands diagnose only. They do not create snapshots, mutate queue records, or submit memory operations.
 
+This page describes the full pack's Stop-job and supervised-worker path. Other
+learning hooks can perform bounded lookup or launch optional mirror work; they are
+not all equivalent to Stop enqueue. Role lesson publication and visibility follow
+[Memory tiers](/docs/guide/memory-tiers). Mini's file-tier runtime and optional v1
+REST publication are reduced contracts, not this Python/v2-worker pipeline.
+

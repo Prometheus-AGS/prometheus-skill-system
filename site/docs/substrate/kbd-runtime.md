@@ -46,7 +46,7 @@ The crate is not normally called directly by an operator. Use:
 prometheus kbd --path "/path/to/project" status --json
 ```
 
-or the Sovereign Sync REST/MCP surfaces.
+for local authority. Optional connected REST/MCP belongs to separately installed Companion.
 
 Detailed runbooks:
 

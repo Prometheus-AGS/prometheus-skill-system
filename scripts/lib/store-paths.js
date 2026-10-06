@@ -32,6 +32,12 @@
  */
 
 import path from 'node:path';
+import os from 'node:os';
+
+/** Explicit CODEX_HOME wins; --home/HOME changes only the fallback. */
+export function resolveCodexHome(home = os.homedir(), env = process.env) {
+  return path.resolve(env.CODEX_HOME || path.join(home, '.codex'));
+}
 
 /** `generations/<sha256>` -- the only shape an activation pointer may hold. */
 export const POINTER_PATTERN = /^generations\/[a-f0-9]{64}$/;

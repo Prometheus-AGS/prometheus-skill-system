@@ -125,10 +125,20 @@ function plistKeepAlive(body) {
 /** Port or socket a program binds, read from its own arguments. */
 function bindingFromArgs(args) {
   if (!args) return null;
-  for (const a of args) {
-    const port = a.match(/(?:--port[= ]|:)(\d{2,5})\b/);
-    if (port) return { kind: 'tcp', value: Number.parseInt(port[1], 10) };
-    if (a.includes('.sock')) return { kind: 'unix', value: a };
+  for (let index = 0; index < args.length; index += 1) {
+    // Only the program's explicit listening arguments declare a binding.
+    // A downstream URL such as --pk-mcp-url is never the service's listener.
+    const option = args[index].match(/^(--port|--bind|--socket)(?:=(.*))?$/);
+    if (!option) continue;
+    const value = option[2] ?? args[index + 1];
+    if (typeof value !== 'string' || !value || value.startsWith('--')) continue;
+    if (option[1] === '--socket') return { kind: 'unix', value };
+    const match = option[1] === '--port'
+      ? value.match(/^(\d{1,5})$/)
+      : value.match(/^(?:\[[^\]]+\]|[^:/\s]+):(\d{1,5})$/);
+    if (!match) continue;
+    const port = Number.parseInt(match[1], 10);
+    if (port <= 65535) return { kind: 'tcp', value: port };
   }
   return null;
 }

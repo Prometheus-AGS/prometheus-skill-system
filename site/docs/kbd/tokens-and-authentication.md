@@ -17,32 +17,17 @@ and authorization. They are not interchangeable:
 | Sovereign group secret | Derives the private iroh gossip group | Mode-`0600` P2P identity; transferred only in pairing tickets |
 | Ed25519 device key | Signs KBD events, remote commands, claims, and sync envelopes | OS credential store or protected device-key file |
 
-The obsolete KBD bearer-token protocol has been removed. Sovereign Sync uses a
-mode-`0600` Unix-domain socket by default and verifies that the client belongs
-to the same operating-system user. Explicit loopback TCP mode requires a token
-from a mode-`0600` file; the service exposes no unauthenticated TCP constructor.
-Every KBD mutation POST must additionally carry a schema-v2
-`SignedCommandEnvelope` from an active enrolled device.
+Local KBD signs through its runtime identity without a synchronization daemon. Connected transport, peer pairing and any REST authentication belong to the installed Companion release; do not infer them from an old pack port or bearer-token example.
 
 ## Device signing keys
 
-Ordinary local setup provisions the runtime device identity used by
-`prometheus kbd`; it does not require a running synchronization daemon. The
-following initialization command is for a machine that is explicitly being
-enrolled for sharing.
-
-Initialize the device key through Sovereign Sync:
-
-```bash
-sovereign-sync --mode init \
-  --config "$HOME/.config/sovereign-sync/config.toml"
-```
+The first intended typed local mutation provisions/initializes canonical state through the runtime's legacy-aware path. Read-only status does not silently initialize. Use the actual local CLI and preserve an existing project/device identity; Companion enrollment is separate.
 
 Interactive canonical runtimes use the supported OS credential store. A
 headless installation may use a host-protected file:
 
 ```bash
-export PROMETHEUS_DEVICE_KEY_FILE="$HOME/.config/sovereign-sync/device-key.json"
+export PROMETHEUS_DEVICE_KEY_FILE="/absolute/private/device-key.json"
 chmod 600 "$PROMETHEUS_DEVICE_KEY_FILE"
 ```
 
@@ -60,7 +45,7 @@ KBD command requests contain:
 - an Ed25519 signature over canonical command bytes plus that key ID.
 
 Unsigned, schema-v1, tampered, unknown-device, and revoked-device command
-requests fail closed. Use `prometheus kbd` or `sovereign-client` to construct
+requests fail closed. Use `prometheus kbd` or the approved connected client to construct
 the signature; do not hand-roll canonicalization in shell scripts.
 
 Only the operator-signed genesis event may bootstrap its own signing key. The
@@ -73,9 +58,9 @@ enrolls it. The Loro authority accepts only signed schema-v2 events. Unsigned
 schema-v1 history is handled solely by the explicit, backed-up legacy journal
 migration path and cannot enter through peer imports.
 
-## Register projects served by Sovereign Sync
+## Register local projects
 
-The daemon serves every project in its platform registry. A checkout is
+The local runtime resolves projects through its platform registry. A checkout is
 registerable only when it already declares `.prometheus/project.json`:
 
 ```bash
@@ -138,8 +123,7 @@ reports zero removals and creates no additional backup.
 Rollback restores registry membership; it does not reconstruct a deleted
 checkout and must never remove the retained runtime tree.
 
-1. If sharing is enabled, stop `sovereign-sync` so it cannot reopen or rewrite
-   the registry. With the default local-only profile it is already disabled.
+1. If sharing is enabled, stop the separately installed connected writer using its own runbook so it cannot reopen or rewrite the registry.
 2. Read `receipt.json` and compare the live registry SHA-256 with
    `plannedRegistrySha256`. A match proves that operation's atomic replacement
    completed. If the live hash matches `backupSha256`, the pre-change bytes are
@@ -150,7 +134,7 @@ checkout and must never remove the retained runtime tree.
 4. Follow the operation's `ROLLBACK.md`: acquire the exclusive `registry.lock`,
    restore the exact backup bytes through an atomic same-directory replacement,
    fsync the registry directory, and then release the lock.
-5. Restart `sovereign-sync` only if sharing was enabled, then verify machine
+5. Restart the separately owned writer only if it was previously running, then verify machine
    registration and local project authority:
 
    ```bash
@@ -163,11 +147,4 @@ Keep the backup and receipt as audit evidence after recovery.
 
 ## Network boundary
 
-The HTTP server must remain loopback-only while non-KBD routes have no request
-authentication. Binding it to a non-loopback address requires a separate,
-reviewed transport-authentication design. Thin clients should connect through
-an authenticated host integration that forwards device-signed KBD commands;
-the device signature is not a substitute for securing an exposed HTTP server.
-
-The group secret controls gossip topic membership but is not a credential for
-the REST API and is not a device signing key.
+Do not expose a connected service by guessing its authentication behavior. Follow the installed Companion contract for transport authentication, peer enrollment and signed commands. A content scope or device signature alone does not secure every route. Group secrets, device keys and gateway credentials are different authorities and must remain separate.

@@ -1,0 +1,22 @@
+== 1. the happy path assembles ==
+  ok   - a conforming report assembles
+  ok   - draft.md is written
+  ok   - every claim id resolved to a global citation number
+  ok   - the number used is the one citation-map.json assigned (1)
+== 2. a section may cite only what it was assigned ==
+  ok   - claim-set drift is caught (names s02)
+== 3. a cited id must resolve to a real claim ==
+  ok   - missing reference is caught (names claim-zzzz9999)
+== 4. labels bound how strongly a claim may be written ==
+  ok   - an inferred claim written as confirmed is caught (names claim-bbbb2222)
+  ok   - the same wording over a verified claim is allowed
+== 5. the editor may remove, never introduce ==
+  ok   - pass 1 recorded 3 cited claims (the new one is genuinely uncited)
+  ok   - the editor ADDING a claim is caught (names claim-dddd4444)
+  ok   - an unlogged removal is caught (names claim-cccc3333)
+  ok   - a logged removal is allowed
+== 6. no section may exceed the 3000-word cap ==
+  ok   - the schema caps word_budget at 3000
+  ok   - no fixture section exceeds the cap
+
+report-assembly: 14 passed, 0 failed

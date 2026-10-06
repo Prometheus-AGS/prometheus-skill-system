@@ -3,7 +3,7 @@ id: quality-gates
 title: Quality Gates
 ---
 
-# Per-Change Quality Gates
+# Quality Gates at the Completed Phase Boundary
 
 ## Implementation before evidence
 
@@ -35,20 +35,10 @@ evaluation is deterministic, local, and network-free; adversarial review is
 bounded to phase completion, ambiguous authority, or a repeated violation, and
 its output is screened for sycophancy before it can certify work.
 
-When a change reaches `implementation_status: COMPLETE`, two gates run
-before archive:
+Complete every planned production change in the active phase before authoring or running tests, formatters, validators or reviews. A task or change boundary does not independently authorize those operations. Static inspection remains available during implementation; compiler feedback is reserved for an observed blocking compiler error, with the narrowest required check.
 
-1. **refine-validate** (artifact-refiner) — deterministic checklist: schema,
-   file integrity, constraint satisfaction. Cheap; runs first.
-2. **adversarial-review** — an isolated, cross-model LLM judge with a
-   mandate to find problems, reviewing the diff against its acceptance
-   criteria. The judge never shares the implementing session's context, and
-   never resolves to the model that produced the work. The same gate vets
-   `assessment.md`, `analysis.md`, and `plan.md` before each stage hands off.
+At the final local boundary, run the applicable deterministic checks and real integration gate, then independent review with an actual distinct-model route. A fresh context or different alias alone does not demonstrate a distinct model family. Record unresolved review or collaborator limits rather than fabricating certification. Batch fixes and rerun the smallest confirming integration command before the applicable final gate.
 
-CRITICAL findings block certification in `progress.json`; WARNING findings
-are logged and carried into handoffs. Skip heuristics: fewer than 3 files, or
-docs-only (deploy-sensitive changes force the gates regardless).
+Protected BDD scenarios remain unchanged unless the owner supplies the required SSH-signed canonical approval. Documentation-only scope does not waive implementation-first timing, source integrity or local evidence requirements. Implementation, evidence, certification and publication remain separate completion dimensions.
 
-*Canonical sources: [`adversarial-review`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/skills/process/adversarial-review) and
-[`integrations/adversarial-review.md`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/skills/process/kbd-process-orchestrator/references/integrations).*
+See [local validation](/docs/operations/local-validation-and-docs-automation) and [task model assignments](/docs/kbd/task-model-assignments).

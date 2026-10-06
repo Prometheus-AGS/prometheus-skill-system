@@ -1,0 +1,62 @@
+{
+  "kind": "task17-narrow-source-corrections",
+  "taskComplete": false,
+  "acceptance": "none; final phase integration deferred",
+  "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+  "paths": [
+    {
+      "path": "package.json",
+      "sha256": "3ef1098b0f1d68e2b1e030e2d10984f4696bb0ab41adcc7afd9263fb3d02e958",
+      "sourceChange": "setup:sharing now emits an explicit retirement/optional Companion-registration diagnostic and exits 1 without running the installer."
+    },
+    {
+      "path": "scripts/distribute-delivery-cadence.mjs",
+      "sha256": "5d62fe08c6b73501ebd3c6cb6c69350147f6d70ccb468c3dfcba9e0e9c00d0bc",
+      "sourceChange": "Uses existing resolveCodexHome for the Codex target. Nonempty inherited CODEX_HOME wins; selected --home changes fallback only. Existing Kimi/XDG isolated-home semantics, receipt ownership, copy preflight and backups are preserved. Help explains scratch-root requirements."
+    },
+    {
+      "path": "shared/scripts/detect-surface-tier.sh",
+      "sha256": "ca0af9f593d6387ef84b81dc6edd5785451f4965773edc67a6974f6ebc73d50c",
+      "sourceChange": "Tier2 predicate returns status silently; the final mode dispatch remains the sole stdout producer."
+    },
+    {
+      "path": ".gitmodules",
+      "sha256": "e5f455cddc2c5c8c54fde00fcc6a2d36edfc8170eb0eff7716e8567b3d340c7d",
+      "sourceChange": "Pin-policy comment requires the applicable local full-integration gate; source gitlinks unchanged."
+    },
+    {
+      "path": "skills/process/native-agent/SKILL.md",
+      "sha256": "bd68886b4ce0c026290aa1d18f88277677764ae80afebc5a9bc195010c3a7d4a",
+      "sourceChange": "Describes editable generated source and deferred full-integration acceptance, native memory/mcp ownership versus optional generated Compose port/volume ownership, actual template healthcheck limits, and A2A/MCP distinction."
+    }
+  ],
+  "staticEvidence": [
+    "scripts/lib/store-paths.js",
+    "scripts/install-system.js",
+    "shared/launchagents/ai.prometheus.surreal-memory-native.plist",
+    "skills/process/native-agent/templates/docker/docker-compose.yml.tera",
+    "skills/process/native-agent/templates/docker/docker_commands.rs.tera"
+  ],
+  "documentationSources": [
+    "https://github.com/openai/codex/blob/main/codex-rs/utils/home-dir/src/lib.rs",
+    "https://github.com/docker/docs/blob/main/content/get-started/docker-concepts/running-containers/publishing-ports.md"
+  ],
+  "remaining": [
+    "Root-owned docs/delivery-cadence-distribution.md Codex target/--home copy update after corrected source handoff",
+    "Final release03 values and actual Companion publication cross-links",
+    "Final12 local integration/generation/review boundary"
+  ],
+  "notExecuted": [
+    "tests",
+    "test authoring",
+    "checks",
+    "compiler",
+    "lint",
+    "generation",
+    "reviewer",
+    "commits",
+    "installs",
+    "runtime probes",
+    "live-home changes"
+  ]
+}

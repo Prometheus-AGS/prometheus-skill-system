@@ -1,3 +1,5 @@
+> **Historical article; outside current onboarding.** The June 2026 narrative and authorship record are preserved. Native harness commands, automatic loop composition and service ownership described below may differ from current source; this article is not an installation or execution guide. Use [the current guide](../guide/00-quick-start.md).
+
 # Stop Prompting. Start Designing Loops.
 ## How the prometheus-skill-pack turns Claude Code's `/loop` construct — and every other AI coding agent — into a self-improving autonomous system
 

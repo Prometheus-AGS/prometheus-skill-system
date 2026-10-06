@@ -78,7 +78,17 @@ Never guess. Emit to plain response text — no tool call needed.
 5. **ZeeSpec gate** — apply the coverage gate above.
 6. **Resolve backend** — `kbd-apply detect` semantics.
 7. **Write change specs** — native-kbd files or `/opsx:new` per change, with a
-   declared `scope:` and explicit task list each.
+   declared `scope:` and explicit task list each. Apply
+   `references/templates/acceptance.template.md` for every specified behavior:
+   copy its populated contract into native `verification.md`, or the OpenSpec
+   scenario/verification artifacts, linking stable task IDs. Name the shipped
+   production entry point, real collaborators and boundaries, observable result,
+   negative control, isolation roots, prerequisites and exact final local gate.
+   These are requirements, not a claim that tests have run. Complete the entire
+   parent phase production implementation before test authoring/execution or
+   implementation review; the consolidated integration batch runs at its final
+   boundary. Helper-only, unit, structural or mocked checks cannot establish
+   acceptance. Missing services/tools/approvals are BLOCKED; exit 2 never passes.
 8. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
    `/adversarial-review --mode artifact spec` on the change set (see orchestrator
    `references/integrations/adversarial-review.md`). CRITICAL findings → revise

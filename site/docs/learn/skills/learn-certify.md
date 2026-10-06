@@ -6,35 +6,18 @@ sidebar_label: learn-certify
 
 # /learn-certify
 
-Certification skill using Open Badges 3.0 (OB 3.0) and W3C Verifiable Credentials
-(W3C VC) standards.
+Prepare a local, self-issued Open Badges / Verifiable Credential JSON-LD record from learning evidence. Choose exactly one mode:
 
-## What it does
-
-When all three mastery conditions are met for a concept or skill cluster,
-`learn-certify` generates a tamper-evident credential:
-
-- **Open Badge 3.0** — JSON-LD credential with assertion, criteria, and evidence
-- **W3C VC** — cryptographically signed credential using DID
-
-## The credential includes
-
-- Concept or skill achieved
-- Date of mastery closure
-- Mastery scores (grade, transfer, retention)
-- Issuer DID (Prometheus operator)
-- Learner DID (holder)
-
-## Privacy
-
-Credentials are generated and stored locally by default. Export is opt-in.
-No credential content is forwarded to external services unless the learner
-explicitly exports to a credential wallet.
-
-## Usage
-
+```text
+/learn-certify rust-basics --checkpoint borrow-checker
+/learn-certify rust-basics --final
+/learn-certify rust-basics --final --issuer https://issuer.example/credentials
 ```
-/learn-certify "Rust async and await"    # certify a completed learning arc
-/learn-certify --export wallet           # export to W3C VC wallet
-/learn-certify --list                    # show earned credentials
-```
+
+Checkpoint mode checks the concept's explanation, transfer and retention artifacts, records certification through `learner-model`, and writes a checkpoint credential. Final mode additionally requires all concepts certified, two distinct practice sessions per concept, retention breadth and the capstone when the curriculum requires one. Missing state, artifacts or a failed gate prevents issuance under the skill procedure. An anomalous mastery trajectory adds an integrity note rather than blocking issuance.
+
+Records live beneath `${PROMETHEUS_LEARN_HOME:-~/.prometheus/learn}/goals/<goal-id>/`: checkpoint files under `checkpoints/`, and the final record at `credential.json`.
+
+This is a skill procedure, not a standalone cryptographic issuer or wallet client. Learner and issuer are the same identity; the skill does not generate a DID document. A populated JSON-LD file alone does not prove a valid signature, independent verification or educational accreditation. If `did.txt` is absent, the procedure uses a noted fallback identity. Inspect evidence and identity before sharing.
+
+`--issuer` records a forwarding request and tells the user to POST the file. It does not send HTTP or export to a wallet. External publication requires authorization and a separate, verified issuer workflow.

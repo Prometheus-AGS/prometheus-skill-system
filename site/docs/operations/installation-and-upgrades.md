@@ -1,109 +1,113 @@
 ---
 title: Installation and upgrades
-description: Local-first build, signing, service installation, skill discovery, and safe upgrade order.
+description: Install independently versioned components and preserve services and data during updates.
 ---
 
 # Installation and upgrades
 
-Prometheus 1.7.0 is installed and certified locally before release branches are
-pushed. Use an internal SSD for Rust caches:
+Keep the approved source commit, dependency pins and artifact manifest together.
+Skills, CLI, memory, knowledge and execution packages have independent versions.
+Compare each installed binary with its own manifest entry; no shared version
+string describes every component.
+
+The [service operations guide](/docs/guide/service-operations) lists ownership,
+platform templates, interfaces, data locations and recovery boundaries.
+
+## Select the installation
+
+The full skill installer supports a skills-only path and a full path:
 
 ```bash
-export CARGO_HOME=/path/to/cargo-home
-export CARGO_TARGET_DIR=/path/on/internal-ssd/prometheus-target
-```
-
-Complete the production implementation first. Then build only the affected
-server, knowledge/worker, and root CLI components in dependency order. Do not
-start a Rust command while another Cargo or `rustc` process is active on the
-machine. Use separate target directories per workspace/worktree and `sccache`
-for shared reusable compilation. Install and sign these binaries:
-
-- `surreal-memory-server`
-- `pk`
-- `pk-cherry`
-- `prometheus-learning-worker`
-- `prometheus`
-- `prometheus-exec`
-
-Every installed release binary must report the same product version without
-initializing a service or contacting the network:
-
-```text
-prometheus 1.7.0
-pk 1.11.0
-pk-cherry 1.7.0
-prometheus-learning-worker 1.7.0
-surreal-memory-server 1.10.0
-prometheus-exec 1.7.0
-```
-
-Use `--version` for all six binaries; `surreal-memory-server -V` is an
-equivalent short form. Treat a missing flag, different version, stderr output,
-or runtime initialization as an installation failure.
-
-The execution binary has its own strict atomic installer and service dry-run:
-
-```bash
-bash scripts/install-prometheus-exec.sh --dry-run
-bash scripts/install-prometheus-exec.sh
-bash scripts/install-prometheus-exec-service.sh --dry-run
-```
-
-`scripts/install-mcp-services.sh` also installs and starts `ai.prometheus.exec`
-by delegating to the same service installer, so the identity, version, hash, and
-signature checks run either way. Exclude it with `--exclude exec`.
-
-Do not load the service until its binary version, signature, installed hash, identity path, socket path, plugin root, and LaunchAgent plan match the reviewed configuration. Continue with [Execution installation, doctor, and recovery](/docs/execution/installation-doctor-and-recovery).
-
-The root installer is strict by default: any requested build, copy, service, or
-post-install verification failure makes the command fail. Use `--skills-only`
-to install only skill payloads, or `--best-effort` for an explicitly
-non-certifying development run:
-
-```bash
-bash scripts/install-skills-flat.sh
 bash scripts/install-skills-flat.sh --skills-only
-bash scripts/install-skills-flat.sh --best-effort
+bash scripts/install-skills-flat.sh
 ```
 
-Install the immutable plugin generation after binaries, followed by the
-learning-worker and hook-log-rotation user services. The service installer
-accepts repeatable exclusions:
+`--best-effort` is a development option whose partial outcome needs inspection;
+it is not certification. Building learner/bridge binaries does not start their
+services. From the same checkout, install binaries and inspect the service plan:
 
 ```bash
+bash scripts/install-binaries.sh
 bash scripts/install-mcp-services.sh --dry-run
 bash scripts/install-mcp-services.sh
 ```
 
-Always inspect the dry-run plan first. Excluded services are not rendered, installed, restarted, or rewritten.
+Use Bash 4 or newer for the native service installer. macOS `/bin/bash` 3.2
+does not support its associative arrays. Platform support follows the actual
+templates: the execution service and liter-llm API currently have macOS
+templates, even where their binaries may also run elsewhere.
 
-KBD uses its signed local runtime directly. Cross-machine replication is an
-optional extension installed by `prometheus-companion`; this repository's
-installers do not build or manage it. See
-[KBD control-plane recovery](/docs/kbd/control-plane-recovery) for the rationale
-and post-repair refresh sequence.
+Select services with repeatable `--exclude <service>`; other options include
+`--restart`, `--unload`, `--learning-recovery` and `--render-only <directory>`.
+Inspect the exact selections before modifying a machine. An existing reused
+listener retains its own provenance and data.
 
-Success means every requested artifact was byte-verified (and executability was
-verified for binaries), the active signed plugin generation passed trust and
-receipt verification, and each requested service passed its post-install check.
-An empty or skipped check is not success.
+Execution has a separate atomic binary installer and service plan:
 
-## Skills discovery
+```bash
+bash scripts/install-prometheus-exec.sh --dry-run
+bash scripts/install-prometheus-exec-service.sh --dry-run
+```
 
-Repository skills live under `.agents/skills/`; Codex discovery uses `.codex/skills/` and the user catalog. Use the repository sync utility to add missing project skills without replacing installed system skills. Confirm discovery from the target harness after syncing.
+Artifact verification and service registration are separate from functional
+execution. The general service installer can warn about an execution-service
+failure and continue, so its exit status alone does not prove every service
+usable. See [execution recovery](/docs/execution/installation-doctor-and-recovery).
 
-## Upgrade order
+## Harness and source ownership
 
-1. Back up active/previous generation pointers, receipts, snapshots, and queue state.
-2. Complete the coherent implementation without per-edit test loops.
-3. Build and install only affected native components, serialized machine-wide.
-4. Activate and verify one immutable plugin generation for detected harnesses.
-5. Reload the pack's managed user services.
-6. Run the smallest applicable local full-integration gate.
-7. Run doctors and certify receipts, queues, snapshots, logs, rollback, and stale-path absence.
-8. Push only after final local certification.
+Install for the selected harness and home. Codex's effective home is a nonempty
+`CODEX_HOME`, otherwise the selected user's `.codex` directory. Preserve that
+selection through doctor, removal and rollback. Compatibility copies and native
+plugins have different ownership receipts; unrelated user skills remain theirs.
 
-Push only after local certification. Hosted automation may synchronize
-deterministic documentation and package/deploy Pages; it never confirms runtime,
-installer, doctor, test, lint, or certification state.
+Keep the clean source while marketplace/service registrations refer to it.
+Never edit installed plugin generations or caches. Change source, regenerate
+at the completed production boundary and activate through the verified
+installer. Hook Python suppresses bytecode writes into immutable payloads.
+
+Codex memory configuration disables the feature and both generation/use flags.
+Doctor checks the actual selected home's configuration and known summary paths.
+The historical generation-only setting did not stop startup consolidation.
+
+## Upgrade sequence
+
+1. Record source/artifact identities, service definitions, selected homes and
+   plugin generation receipts.
+2. Back up signed KBD state, database, knowledge library, learner store,
+   identities and pending queues, with relevant writers stopped.
+3. Finish production and complete the required local integration gate using
+   isolated test homes/data before deploying.
+4. Install approved artifacts and the verified plugin generation, then apply
+   selected service definitions.
+5. Exercise installed production paths and record functional evidence; an
+   open port or version string is insufficient.
+6. Recover through preserved artifact/generation receipts and compatible data
+   backups. Retain failed-attempt evidence and reconcile uncertain writes.
+
+Serialize Cargo/rustc machine-wide. Check active processes first, keep each
+workspace/worktree's own target directory and use `sccache` for reuse. Do not
+share `CARGO_TARGET_DIR` across worktrees to bypass contention.
+
+KBD is local by default. Companion owns optional connected control through its
+separate recovered source repository and [integration contract](/docs/kbd/integration-contract).
+Its absence is normal. The current source has no public remote or certified
+release; pack installation never builds or installs it.
+
+For an explicitly selected Companion installation, follow its separate
+[installation and ownership](/docs/sovereign-sync/installation) procedure.
+Choose one headless, windowed or standalone socket owner, preserve the enrolled
+key and selected socket/config/data overrides, and register clients against that
+same endpoint. Pack service adoption requires an explicit manifest path.
+Companion's Claude skill registration and macOS service replacement have their
+own private ownership receipts/backups; neither takes over unrelated entries.
+
+Preserve its durable pre-POST MCP intent outbox and matching push receipts during
+upgrades. Resolve an uncertain result on the original host before authorized
+replay; replacing the ID or recreating a key is not recovery. See
+[signed pushes](/docs/sovereign-sync/signed-pushes-and-receipts).
+
+Push only after applicable local gates pass. The owner merges PRs and approves
+protected versions and tags. Hosted automation may synchronize deterministic
+documentation or deploy Pages; it never substitutes for local tests, doctors
+or certification.

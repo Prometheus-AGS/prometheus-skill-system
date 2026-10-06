@@ -39,7 +39,7 @@ Do not force one lane through the other. A service is not a bounded operation, a
 | Tool | What it creates or checks | Prometheus Exec handoff |
 | --- | --- | --- |
 | Ordinary agent code generation | Scripts, modules, configuration, and glue | Submit eligible final bytes after inspection |
-| `forge enrich` and templates | Task-specific context, scaffolds, skills, and source templates | Use the resulting Python/Node/Bash file or compile a Prometheus component |
+| `forge enrich` and source templates | Task-specific context and separately selected source templates | Use the resulting Python/Node/Bash file or compile a Prometheus component |
 | `prometheus generate` | Forge-style generated project content | Choose Tier P, Tier W, or normal deployment based on artifact type |
 | Python | Script source | Tier P `--runtime python3` |
 | Node/npm | JavaScript source and packages | Tier P `--runtime node`; bundled ambient dependencies are not automatically granted |

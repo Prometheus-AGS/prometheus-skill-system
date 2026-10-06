@@ -1,0 +1,9 @@
+{
+  "status": "fixture source correction complete; execution pending",
+  "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-hook-bytecode-integration.sh",
+  "sha256": "b06d2f785ba06841912a7e5d1912536cea4a296977f2efaa9b1670052edcbe46",
+  "observed": "initial-20261005T210725Z hook-028.stderr: second distinct signed store correctly preserved217 foreign copies in shared Codex target root",
+  "correction": "Separate private context-claude/context-codex/context-legacy HOME,CODEX_HOME,CLAUDE_CONFIG_DIR,XDG_CONFIG_HOME,XDG_DATA_HOME; actual installer --home matches each context HOME; explicit shared project/learning roots retained.",
+  "boundaries": "No production ownership guard, positive assertion or negative assertion changed. No tests/checks/generation/Cargo executed.",
+  "acceptance": "pending"
+}

@@ -1,0 +1,4 @@
+  File "<stdin>", line 232
+    desktopEngine='unestablished; no desktop session or real settings inspected')))
+                                                                                  ^
+SyntaxError: unmatched ')'

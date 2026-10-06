@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 1,
+  "stage": "initial",
+  "startedAt": "2026-10-05T21:07:25.353605+00:00",
+  "endedAt": "2026-10-05T21:45:01.539961+00:00",
+  "exitCode": 1,
+  "source": {
+    "full": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "head": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+      "trackedDiffSha256": "71e5b96f606385a83071a62e3c0e39e34ac642e9223a87321c4af50f973aafc3",
+      "sourceBytesAndModesSha256": "7c350aadbce2d9e2e57009c8f681e118b228effacfea2229d94ab633acd86366",
+      "sourceEntryCount": 11012
+    },
+    "mini": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "head": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0",
+      "trackedDiffSha256": "496f42a0d70944127651d30f168f9acca11358efe5235ea35c5019653dd3a766",
+      "sourceBytesAndModesSha256": "ecd49d6312b9b857fb2ef819066fa412aa091be36176a09d1deae5b526463b70",
+      "sourceEntryCount": 4558
+    },
+    "surreal": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "head": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "trackedDiffSha256": "246db8c0da4a62671bd628f8df4b65796fd7992582b0cbee2fddec9d793adf17",
+      "sourceBytesAndModesSha256": "3c1e5ec5d8b32fc8f689aeaa564454d4c66fa9ac53ba54a85197ae635835a99d",
+      "sourceEntryCount": 746
+    },
+    "companion": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final",
+      "head": "773aa5e33b2217135bc423e526c497cceb0e7058",
+      "trackedDiffSha256": "5cb996e4ef870875b4254c040441bf96d4ff0b13e8f795c50c8fc2609c6629c1",
+      "sourceBytesAndModesSha256": "001fcea6b61a48018bc239230f52fa910321a878e3053f14eb71f1059d1a9352",
+      "sourceEntryCount": 268
+    }
+  },
+  "finalSource": {
+    "full": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "head": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+      "trackedDiffSha256": "71e5b96f606385a83071a62e3c0e39e34ac642e9223a87321c4af50f973aafc3",
+      "sourceBytesAndModesSha256": "7c350aadbce2d9e2e57009c8f681e118b228effacfea2229d94ab633acd86366",
+      "sourceEntryCount": 11012
+    },
+    "mini": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "head": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0",
+      "trackedDiffSha256": "496f42a0d70944127651d30f168f9acca11358efe5235ea35c5019653dd3a766",
+      "sourceBytesAndModesSha256": "ecd49d6312b9b857fb2ef819066fa412aa091be36176a09d1deae5b526463b70",
+      "sourceEntryCount": 4558
+    },
+    "surreal": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "head": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "trackedDiffSha256": "246db8c0da4a62671bd628f8df4b65796fd7992582b0cbee2fddec9d793adf17",
+      "sourceBytesAndModesSha256": "3c1e5ec5d8b32fc8f689aeaa564454d4c66fa9ac53ba54a85197ae635835a99d",
+      "sourceEntryCount": 746
+    },
+    "companion": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final",
+      "head": "773aa5e33b2217135bc423e526c497cceb0e7058",
+      "trackedDiffSha256": "5cb996e4ef870875b4254c040441bf96d4ff0b13e8f795c50c8fc2609c6629c1",
+      "sourceBytesAndModesSha256": "001fcea6b61a48018bc239230f52fa910321a878e3053f14eb71f1059d1a9352",
+      "sourceEntryCount": 268
+    }
+  },
+  "records": [
+    {
+      "name": "build-native-cli",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "cargo",
+        "build",
+        "--locked",
+        "-p",
+        "prometheus-cli",
+        "--bin",
+        "prometheus"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/prometheus-cli",
+      "startedAt": "2026-10-05T21:07:30.815577+00:00",
+      "endedAt": "2026-10-05T21:19:01.819993+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/build-native-cli.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/build-native-cli.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "build-hook-runtime",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "prometheus-hook"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/crates/prometheus-hook",
+      "startedAt": "2026-10-05T21:19:01.943014+00:00",
+      "endedAt": "2026-10-05T21:19:12.783490+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/build-hook-runtime.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/build-hook-runtime.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "build-memory-candidate",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "cargo",
+        "build",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "server-only,local-embeddings",
+        "--bin",
+        "surreal-memory-server"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "startedAt": "2026-10-05T21:19:12.895794+00:00",
+      "endedAt": "2026-10-05T21:35:04.392541+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/build-memory-candidate.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/build-memory-candidate.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "build-memory-prior",
+      "exitCode": -2,
+      "status": "FAIL",
+      "argv": [
+        "cargo",
+        "build",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "server-only,local-embeddings",
+        "--bin",
+        "surreal-memory-server"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-prior-integration",
+      "startedAt": "2026-10-05T21:35:04.514062+00:00",
+      "endedAt": "2026-10-05T21:39:08.468839+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/build-memory-prior.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/build-memory-prior.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "build-companion-hosts",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "reason": "another Cargo/rustc process owns the machine"
+    },
+    {
+      "name": "build-cache-integration",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "reason": "another Cargo/rustc process owns the machine"
+    },
+    {
+      "name": "build-companion-integration",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "reason": "another Cargo/rustc process owns the machine"
+    },
+    {
+      "name": "full-distribution",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "node",
+        "scripts/generate-skill-system-distribution.js",
+        "--check"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "startedAt": "2026-10-05T21:39:08.696114+00:00",
+      "endedAt": "2026-10-05T21:39:13.427217+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-distribution.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-distribution.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "full-harnesses",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "node",
+        "scripts/check-harness-adapters.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "startedAt": "2026-10-05T21:39:13.427489+00:00",
+      "endedAt": "2026-10-05T21:39:13.717110+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-harnesses.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-harnesses.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "full-release-version",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "node",
+        "scripts/check-release-version-matrix.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "startedAt": "2026-10-05T21:39:13.717303+00:00",
+      "endedAt": "2026-10-05T21:39:13.793894+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-release-version.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-release-version.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "full-workflow-policy",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "node",
+        "scripts/check-workflow-policy.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "startedAt": "2026-10-05T21:39:13.794087+00:00",
+      "endedAt": "2026-10-05T21:39:13.871720+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-workflow-policy.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-workflow-policy.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "full-docs-sync",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "node",
+        "scripts/docs-sync.mjs",
+        "--check"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "startedAt": "2026-10-05T21:39:13.871900+00:00",
+      "endedAt": "2026-10-05T21:39:14.005506+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-docs-sync.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-docs-sync.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "mini-distribution",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "node",
+        "scripts/generate-skill-system-distribution.mjs",
+        "--check"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "startedAt": "2026-10-05T21:39:14.005695+00:00",
+      "endedAt": "2026-10-05T21:39:15.752748+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/mini-distribution.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/mini-distribution.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "prepare-install-source",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "argv": [
+        "node",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/prepare-learning-deploy-candidate.mjs",
+        "--full",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+        "--scratch",
+        "/private/tmp/ldd-local-o6r1eblg/install-fixture",
+        "--output",
+        "/private/tmp/ldd-local-o6r1eblg/install-fixture/candidate",
+        "--legacy-output",
+        "/private/tmp/ldd-local-o6r1eblg/install-fixture/legacy"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "startedAt": "2026-10-05T21:39:15.753286+00:00",
+      "endedAt": "2026-10-05T21:39:41.513943+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/prepare-install-source.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/prepare-install-source.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "hook-bytecode",
+      "exitCode": 1,
+      "status": "FAIL",
+      "argv": [
+        "bash",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-hook-bytecode-integration.sh",
+        "--full",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+        "--scratch",
+        "/private/tmp/ldd-local-o6r1eblg",
+        "--evidence",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z",
+        "--hook-runtime-bin",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/crates/prometheus-hook/target/debug/prometheus-hook",
+        "--legacy-payload",
+        "/private/tmp/ldd-local-o6r1eblg/install-fixture/legacy"
+      ],
+      "cwd": "/private/tmp/ldd-local-o6r1eblg",
+      "startedAt": "2026-10-05T21:39:41.514763+00:00",
+      "endedAt": "2026-10-05T21:41:07.603292+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-bytecode.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-bytecode.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "installer-prerequisites",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "reason": "scratch-contained actual installer source preparation failed"
+    },
+    {
+      "name": "partition",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "bash",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-memory-partition.sh"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "startedAt": "2026-10-05T21:41:07.603986+00:00",
+      "endedAt": "2026-10-05T21:41:14.242847+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/partition.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/partition.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "rebase-generated-ownership",
+      "exitCode": 1,
+      "status": "FAIL",
+      "argv": [
+        "bash",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-rebase-regenerate.sh"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "startedAt": "2026-10-05T21:41:14.243113+00:00",
+      "endedAt": "2026-10-05T21:44:35.961113+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/rebase-generated-ownership.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/rebase-generated-ownership.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "real-cortex",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "argv": [
+        "bash",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/shared/scripts/tests/test-cortex-mirror.sh",
+        "--full",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+        "--scratch",
+        "/private/tmp/ldd-local-o6r1eblg",
+        "--evidence",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z"
+      ],
+      "cwd": "/private/tmp/ldd-local-o6r1eblg",
+      "startedAt": "2026-10-05T21:44:35.961979+00:00",
+      "endedAt": "2026-10-05T21:44:36.782670+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/real-cortex.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/real-cortex.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "mini-production",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "argv": [
+        "node",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs"
+      ],
+      "cwd": "/private/tmp/ldd-local-o6r1eblg",
+      "startedAt": "2026-10-05T21:44:36.783728+00:00",
+      "endedAt": "2026-10-05T21:44:36.860695+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/mini-production.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/mini-production.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "cache-prerequisites",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "reason": "explicit existing absolute input missing: priorMemoryBinary"
+    },
+    {
+      "name": "companion-prerequisites",
+      "exitCode": 2,
+      "status": "BLOCKED",
+      "reason": "explicit existing absolute input missing: companionHeadlessBinary"
+    },
+    {
+      "name": "full-production-build",
+      "exitCode": 1,
+      "status": "FAIL",
+      "argv": [
+        "node",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/site/node_modules/@docusaurus/core/bin/docusaurus.mjs",
+        "build",
+        "--out-dir",
+        "/private/tmp/ldd-local-o6r1eblg/full-site"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/site",
+      "startedAt": "2026-10-05T21:44:36.862439+00:00",
+      "endedAt": "2026-10-05T21:44:55.284845+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-production-build.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/full-production-build.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "mini-production-build",
+      "exitCode": 1,
+      "status": "FAIL",
+      "argv": [
+        "node",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site/node_modules/@docusaurus/core/bin/docusaurus.mjs",
+        "build",
+        "--out-dir",
+        "/private/tmp/ldd-local-o6r1eblg/mini-site"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/site",
+      "startedAt": "2026-10-05T21:44:55.286640+00:00",
+      "endedAt": "2026-10-05T21:44:56.871246+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/mini-production-build.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/mini-production-build.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "generated-byte-mode-certification",
+      "exitCode": 0,
+      "status": "PASS",
+      "argv": [
+        "node",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/certify-generated-materializations.mjs",
+        "--manifest",
+        "/private/tmp/ldd-approved-integration-inputs/materializations.json",
+        "--scratch",
+        "/private/tmp/ldd-local-o6r1eblg",
+        "--evidence",
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z"
+      ],
+      "cwd": "/private/tmp/ldd-local-o6r1eblg",
+      "startedAt": "2026-10-05T21:44:56.872066+00:00",
+      "endedAt": "2026-10-05T21:44:58.072292+00:00",
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/generated-byte-mode-certification.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/generated-byte-mode-certification.stderr",
+      "scratch": "/private/tmp/ldd-local-o6r1eblg"
+    },
+    {
+      "name": "final-parent-remote-install-graph",
+      "status": "PENDING",
+      "reason": "owner-approved dependency certification/merge precedes final exact parent pin approval and fresh-clone certification"
+    }
+  ],
+  "scratch": "/private/tmp/ldd-local-o6r1eblg",
+  "acceptanceScope": "actual candidate initial integration only",
+  "publication": false,
+  "deployment": false,
+  "scratchCleanup": "owned runtime files removed after cases"
+}

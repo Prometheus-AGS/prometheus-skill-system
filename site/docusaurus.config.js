@@ -4,7 +4,7 @@
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Prometheus Skill Pack',
-  tagline: 'KnowMe-aligned AI skills, P2P sync, and the Feynman learning engine',
+  tagline: 'Reusable AI skills, local workflows, and durable learning',
   favicon: 'img/favicon.ico',
 
   // Parameterized for GitHub Pages (donor pattern): defaults target the
@@ -131,6 +131,8 @@ const config = {
             label: 'Core',
             items: [
               { type: 'doc', docId: 'ui-ux-routing', docsPluginId: 'guide', label: 'UI/UX routing' },
+              { type: 'docSidebar', sidebarId: 'agentTeamsSidebar', label: 'Agent Teams' },
+              { type: 'doc', docId: 'service-operations', docsPluginId: 'guide', label: 'Service Operations' },
               {
                 type: 'docSidebar',
                 sidebarId: 'agentContextSidebar',
@@ -167,11 +169,11 @@ const config = {
           {
             type: 'dropdown',
             position: 'left',
-            label: 'Platforms',
+            label: 'Extensions and portability',
             items: [
-              { type: 'docSidebar', sidebarId: 'sovereignSidebar', label: 'Sovereign Sync' },
-              { type: 'docSidebar', sidebarId: 'mobileSidebar', label: 'Mobile' },
-              { type: 'docSidebar', sidebarId: 'substrateSidebar', label: 'Substrate' },
+              { type: 'docSidebar', sidebarId: 'sovereignSidebar', label: 'Companion boundary' },
+              { type: 'docSidebar', sidebarId: 'mobileSidebar', label: 'Mobile limits' },
+              { type: 'docSidebar', sidebarId: 'substrateSidebar', label: 'Local crates' },
               { type: 'docSidebar', sidebarId: 'kbdSidebar', label: 'KBD' },
             ],
           },
@@ -209,6 +211,8 @@ const config = {
                 to: '/docs/knowledge-learning/snapshots-and-context',
               },
               { label: 'Operations', to: '/docs/operations/installation-and-upgrades' },
+              { label: 'Agent Teams', to: '/docs/agent-teams/overview' },
+              { label: 'Service Operations', to: '/docs/guide/service-operations' },
             ],
           },
           {
@@ -220,11 +224,11 @@ const config = {
             ],
           },
           {
-            title: 'Platforms',
+            title: 'Extensions',
             items: [
-              { label: 'Sovereign Sync', to: '/docs/sovereign-sync/overview' },
-              { label: 'Mobile', to: '/docs/mobile/overview' },
-              { label: 'Substrate', to: '/docs/substrate/' },
+              { label: 'Companion boundary', to: '/docs/sovereign-sync/overview' },
+              { label: 'Mobile limits', to: '/docs/mobile/overview' },
+              { label: 'Local crates', to: '/docs/substrate/' },
             ],
           },
           {

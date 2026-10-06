@@ -139,8 +139,8 @@ than specific, likely threats. High-probability attacks may go undefended.
 or indefinitely blocked deployments.
 
 **Good answer example**: "Travis James signs off on all infrastructure changes.
-No changes to production Kubernetes without a GitHub Actions gate with passing
-tests. No production deployments on Fridays."
+No changes to production Kubernetes without recorded local integration evidence
+and explicit operator approval. No production deployments on Fridays."
 
 **Implicit implication**: Changes will reach production through informal approval.
 Unauthorized deployments may not be detected. Post-incident review will be unable

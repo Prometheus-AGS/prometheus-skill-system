@@ -37,8 +37,9 @@ applies these conservative invariants:
 - repetitions and lapse counters never fall below their prior values;
 - identical evidence sets produce identical mastery and scheduling state.
 
-These properties are tested for commutativity, associativity, idempotency, and
-permutation independence.
+The evidence-fold contract targets commutativity, associativity, idempotency and
+permutation independence. Acceptance of a source update requires the applicable
+local integration gate; an existing property test is not current release proof.
 
 ## Legacy snapshot migration
 
@@ -62,8 +63,10 @@ backups. The original snapshot is never deleted.
 
 - **Two-device study:** both devices record offline observations; importing
   either update first yields the same final model.
-- **Lost response:** a client may retry the evidence write without increasing
-  review counters twice because the evidence ID is stable.
+- **Repeated import:** importing the same retained observations with their original
+  IDs does not duplicate evidence. The `add_observation` and `review_concept` RPC
+  paths mint new IDs on each call; blindly repeating those calls after response
+  loss can create distinct observations and is not an idempotent replay contract.
 - **Conservative reminders:** a merge cannot postpone an already-earlier review
   or reduce the evidence history.
 - **Migration audit:** an operator can compare the normalized document with the

@@ -94,6 +94,9 @@ pub enum Action {
         check: bool,
         apply: bool,
     },
+    MigrateProjections {
+        dry_run: bool,
+    },
     RolloutStatus,
     RolloutObserve {
         observation_id: String,
@@ -128,6 +131,15 @@ pub enum Action {
 
 pub async fn run(path: &str, action: Action) -> Result<()> {
     let action = match action {
+        Action::MigrateProjections { dry_run } => {
+            // Projection migration must bypass canonical startup, the control
+            // client, legacy journal import and checkpoint/recovery effects.
+            let root = find_manifest_project_root(Path::new(path))?;
+            let runtime = Runtime::open_projection_migration(&root)?;
+            let report = runtime.migrate_phase_projections(dry_run)?;
+            println!("{}", serde_json::to_string_pretty(&report)?);
+            return Ok(());
+        }
         Action::Projects {
             json,
             prune_missing,
@@ -712,9 +724,10 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             Ok(())
         }
         Action::Projects { .. }
+        | Action::MigrateProjections { .. }
         | Action::Register { .. }
         | Action::Replicas { .. }
-        | Action::Adopt { .. } => unreachable!("registry actions return before project open"),
+        | Action::Adopt { .. } => unreachable!("early actions return before project open"),
     }
 }
 

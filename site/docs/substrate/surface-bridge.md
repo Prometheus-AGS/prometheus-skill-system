@@ -10,7 +10,6 @@ learn-domain skills: `/health`, `/mcp/detect-surface-tier`,
 `/mcp/render-ui-intent`, and `/mcp/collect-response`.
 
 Skills never render UI directly — they emit a `UiIntent` and the bridge
-resolves the harness's capability tier. Installed as a macOS launchd service
-by `install-skills-flat.sh`.
+resolves the harness's capability tier. Skill installation builds the binary; `install-mcp-services.sh` renders and starts the supported macOS/Linux service template. See [service operations](/docs/guide/service-operations).
 
 *Canonical source: [`substrate/surface-bridge`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/substrate/surface-bridge) (crate README).*

@@ -1,0 +1,22 @@
+ M .github/workflows/docs.yml
+ D .github/workflows/image.yml
+ M Cargo.lock
+ M Cargo.toml
+ M crates/surreal-memory/src/embeddings/candle.rs
+ M crates/surreal-memory/src/embeddings/cohere.rs
+ M crates/surreal-memory/src/embeddings/mod.rs
+ M crates/surreal-memory/src/embeddings/openai.rs
+ M crates/surreal-memory/src/palace/embedding.rs
+ M crates/surreal-memory/src/storage/surreal.rs
+ M executors/mlx/Sources/SurrealMemoryMLXExecutor/main.swift
+ M executors/mlx/Sources/SurrealMemoryMLXExecutorCore/Protocol.swift
+ M openapi/surreal-memory-v2.openapi.json
+ M src/executor.rs
+M  src/lib.rs
+M  src/main.rs
+ M src/operations.rs
+?? docs/container-publication.md
+?? docs/query-embedding-cache.md
+?? skills/
+?? src/hook.rs
+?? tests/query_cache_production.rs

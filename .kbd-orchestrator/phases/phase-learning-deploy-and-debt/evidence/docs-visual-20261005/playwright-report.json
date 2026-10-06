@@ -1,0 +1,559 @@
+[
+  {
+    "site": "full",
+    "route": "docs/agent-teams/overview",
+    "url": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview",
+    "headings": [
+      "Agent teams",
+      "Start at your level​",
+      "Procedures and request examples​",
+      "Communicate and transfer context​",
+      "Select and record an actual model route​"
+    ],
+    "internalLinks": [
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview#start-at-your-level",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview#procedures-and-request-examples",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview#communicate-and-transfer-context",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview#select-and-record-an-actual-model-route",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview#start-at-your-level",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview#procedures-and-request-examples",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview#communicate-and-transfer-context",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/agent-teams/overview#select-and-record-an-actual-model-route",
+        "exists": true
+      }
+    ],
+    "layout": {
+      "width": 390,
+      "scrollWidth": 390,
+      "missingImages": []
+    }
+  },
+  {
+    "site": "full",
+    "route": "docs/guide/agent-teams",
+    "url": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams",
+    "headings": [
+      "Agent teams",
+      "Find your responsibility​",
+      "From an outcome to a proposal​",
+      "Export is a review boundary​",
+      "UAR draft.2 file-backed teams​",
+      "Install or adopt a project team​",
+      "Choose roles and keep one writer per path​",
+      "Run the revisioned task lifecycle​",
+      "Example: a bounded dispatch​",
+      "UAR direct coordinator acceptance​",
+      "Preserve canonical identity and recover deliberately​",
+      "Check native discovery before dispatch​",
+      "Communicate within the team​",
+      "Transfer context and wait for acceptance​",
+      "Route requests to another project​",
+      "Keep lessons scoped to their audience​",
+      "Choose a model for the task​",
+      "Inspect effective policy before binding​",
+      "Reasoning and native harness limits​",
+      "Budget, fallback and independent review​",
+      "Persist canonical task assignments and actual routes​"
+    ],
+    "internalLinks": [
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#find-your-responsibility",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#from-an-outcome-to-a-proposal",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#install-or-adopt-a-project-team",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#run-the-revisioned-task-lifecycle",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#choose-roles-and-keep-one-writer-per-path",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#communicate-within-the-team",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#choose-roles-and-keep-one-writer-per-path",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#preserve-canonical-identity-and-recover-deliberately",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#route-requests-to-another-project",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#check-native-discovery-before-dispatch",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#choose-a-model-for-the-task",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#from-an-outcome-to-a-proposal",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#export-is-a-review-boundary",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#uar-draft2-file-backed-teams",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#install-or-adopt-a-project-team",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#choose-roles-and-keep-one-writer-per-path",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#run-the-revisioned-task-lifecycle",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#example-a-bounded-dispatch",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#uar-direct-coordinator-acceptance",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#preserve-canonical-identity-and-recover-deliberately",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#check-native-discovery-before-dispatch",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#communicate-within-the-team",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#transfer-context-and-wait-for-acceptance",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#route-requests-to-another-project",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#keep-lessons-scoped-to-their-audience",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#choose-a-model-for-the-task",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#inspect-effective-policy-before-binding",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#reasoning-and-native-harness-limits",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#budget-fallback-and-independent-review",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#persist-canonical-task-assignments-and-actual-routes",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#find-your-responsibility",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#from-an-outcome-to-a-proposal",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#export-is-a-review-boundary",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#uar-draft2-file-backed-teams",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#install-or-adopt-a-project-team",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#choose-roles-and-keep-one-writer-per-path",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#run-the-revisioned-task-lifecycle",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#example-a-bounded-dispatch",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#uar-direct-coordinator-acceptance",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#preserve-canonical-identity-and-recover-deliberately",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#check-native-discovery-before-dispatch",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#communicate-within-the-team",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#transfer-context-and-wait-for-acceptance",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#route-requests-to-another-project",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#keep-lessons-scoped-to-their-audience",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#choose-a-model-for-the-task",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#inspect-effective-policy-before-binding",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#reasoning-and-native-harness-limits",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#budget-fallback-and-independent-review",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/agent-teams#persist-canonical-task-assignments-and-actual-routes",
+        "exists": true
+      }
+    ],
+    "layout": {
+      "width": 390,
+      "scrollWidth": 390,
+      "missingImages": []
+    }
+  },
+  {
+    "site": "full",
+    "route": "docs/guide/service-operations",
+    "url": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations",
+    "headings": [
+      "Services, ownership and recovery",
+      "Choose services for team work​",
+      "Source ownership​",
+      "Full service templates​",
+      "Conditional research job​",
+      "Installation and operation​",
+      "Data and credentials​",
+      "Optional Companion​",
+      "Update evidence​"
+    ],
+    "internalLinks": [
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#choose-services-for-team-work",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#source-ownership",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#full-service-templates",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#conditional-research-job",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#installation-and-operation",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#data-and-credentials",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#optional-companion",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#update-evidence",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#choose-services-for-team-work",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#source-ownership",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#full-service-templates",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#conditional-research-job",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#installation-and-operation",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#data-and-credentials",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#optional-companion",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4317/prometheus-skill-system/docs/guide/service-operations#update-evidence",
+        "exists": true
+      }
+    ],
+    "layout": {
+      "width": 390,
+      "scrollWidth": 390,
+      "missingImages": []
+    }
+  },
+  {
+    "site": "full",
+    "errors": [],
+    "mobileMenuVisible": true
+  },
+  {
+    "site": "mini",
+    "route": "docs/agent-teams/overview",
+    "url": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview",
+    "headings": [
+      "Agent teams",
+      "Work at the right level​",
+      "Choose the right skill​",
+      "Try guided selection​",
+      "Install the project team​",
+      "Native targets differ​",
+      "Assign and start bounded work​",
+      "Model policy budget and native controls​",
+      "Communicate and accept a handoff​",
+      "Scoped memory and delivery limits​",
+      "Troubleshooting and ownership​"
+    ],
+    "internalLinks": [
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#work-at-the-right-level",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#choose-the-right-skill",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#try-guided-selection",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#install-the-project-team",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#native-targets-differ",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#assign-and-start-bounded-work",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#model-policy-budget-and-native-controls",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#communicate-and-accept-a-handoff",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#scoped-memory-and-delivery-limits",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#troubleshooting-and-ownership",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#work-at-the-right-level",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#choose-the-right-skill",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#try-guided-selection",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#install-the-project-team",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#native-targets-differ",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#assign-and-start-bounded-work",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#model-policy-budget-and-native-controls",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#communicate-and-accept-a-handoff",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#scoped-memory-and-delivery-limits",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/agent-teams/overview#troubleshooting-and-ownership",
+        "exists": true
+      }
+    ],
+    "layout": {
+      "width": 390,
+      "scrollWidth": 390,
+      "missingImages": []
+    }
+  },
+  {
+    "site": "mini",
+    "route": "docs/services/docker-services",
+    "url": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services",
+    "headings": [
+      "Services and recovery",
+      "Select a service owner​",
+      "Shipped Compose configuration​",
+      "Lifecycle​",
+      "Failure and recovery​",
+      "Optional Companion connection​",
+      "Related guides​"
+    ],
+    "internalLinks": [
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#select-a-service-owner",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#shipped-compose-configuration",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#lifecycle",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#failure-and-recovery",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#optional-companion-connection",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#related-guides",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#select-a-service-owner",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#shipped-compose-configuration",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#lifecycle",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#failure-and-recovery",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#optional-companion-connection",
+        "exists": true
+      },
+      {
+        "href": "http://127.0.0.1:4318/prometheus-skills-mini/docs/services/docker-services#related-guides",
+        "exists": true
+      }
+    ],
+    "layout": {
+      "width": 390,
+      "scrollWidth": 390,
+      "missingImages": []
+    }
+  },
+  {
+    "site": "mini",
+    "errors": [],
+    "mobileMenuVisible": true
+  }
+]

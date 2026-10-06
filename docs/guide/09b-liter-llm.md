@@ -4,9 +4,10 @@
 vendored Rust workspace at `tools/liter-llm`, installed as a single binary at
 `~/.local/bin/liter-llm`.
 
-Everything on this page was verified against the installed binary and its source. Where
-earlier documentation in this repository described commands that do not exist, that is
-called out explicitly — those errors caused real, silent failures.
+This reference preserves the gateway contract recorded on 2026-07-30. The pinned
+`tools/liter-llm` source and configured installation own the current CLI, schemas
+and model inventory. This page is not fresh installed-runtime evidence; verify
+changed gateway source at the final local integration boundary.
 
 ## It is a server, not a completion CLI
 
@@ -61,8 +62,8 @@ Options:
 
 ### Routes
 
-The proxy exposes 25 routes. Every `/v1/*` route sits behind an **unconditional Bearer
-check**.
+The recorded proxy contract places `/v1/*` routes behind Bearer authentication.
+Health routes remain separate; configured reachability is not an authorized completion.
 
 | Group | Routes |
 |---|---|
@@ -80,7 +81,9 @@ check**.
 | Health (unauthenticated) | `/health`, `/healthz`, `/readyz`, `/health/liveness`, `/health/readiness` |
 | Spec | `/openapi.json` |
 
-Because it is OpenAI-shaped, any OpenAI SDK works against it by setting the base URL.
+OpenAI-compatible clients can target the configured base URL and credentials.
+Check the specific route and payload supported by both client and gateway; an
+OpenAI-shaped API is not a guarantee of every SDK feature.
 
 ## `liter-llm mcp` — the MCP tool server
 
@@ -157,8 +160,8 @@ timeout_secs = 60                        # optional
 fallbacks = ["kbd-critic"]               # optional, tried in order
 ```
 
-`fallbacks` is worth knowing: it gives a role automatic resilience without any caller-side
-retry logic.
+`fallbacks` declares alternate routes. Record the actual provider/model returned;
+a fallback does not preserve distinct-model review or budget limits automatically.
 
 ### A minimal working config
 
@@ -214,7 +217,7 @@ bash scripts/check-model-config.sh
 
 ## Providers
 
-The registry (`tools/liter-llm/schemas/providers.json`) carries **143 providers**. Model
+The pinned registry (`tools/liter-llm/schemas/providers.json`) owns available providers. Model
 references are `prefix/model-id`:
 
 ```toml
@@ -262,18 +265,17 @@ There is **no** `liter-llm config`, `doctor`, or `validate` subcommand. The only
 validate a config is to start the server and watch it fail — which is exactly what
 `verify` automates.
 
-## Relationship to openai-proxy
+## Relationship to a subscription proxy
 
-Two different things that both speak OpenAI:
+A separately operated subscription proxy may expose an OpenAI-compatible endpoint
+and use locally owned session credentials. The pack does not make those credentials
+portable authority or guarantee a fixed model list. Configure an authorized
+`base_url` explicitly and confirm the actual selected model and reasoning controls.
 
-- **`openai-proxy`** (`:8181`) — bridges OpenAI-compatible clients to a ChatGPT
-  subscription via `~/.codex/auth.json`. Needs **no inbound key**. Serves `gpt-5.6-sol`,
-  `gpt-5.5`, `gpt-5.4-mini`, and others.
-- **`liter-llm api`** (`:4000` by default) — the multi-provider gateway. **Requires** a
-  Bearer token on every `/v1/*` route.
-
-They compose: a `[[models]]` entry can point at `openai-proxy` as just another
-OpenAI-compatible `base_url`, which is what the default config does.
+`liter-llm api` is the multi-provider gateway and authenticates its `/v1/*` routes.
+The pack's native API service template is macOS-only; binary support on another
+platform does not provide that service definition. See
+[Service operations](26-service-operations.md) for owners and install paths.
 
 ## See also
 

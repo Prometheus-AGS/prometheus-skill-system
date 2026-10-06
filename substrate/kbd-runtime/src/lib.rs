@@ -1303,6 +1303,60 @@ pub struct MigrationSummary {
     pub backup_manifest: Option<PathBuf>,
 }
 
+/// Local projection bookkeeping, never a canonical event or acceptance receipt.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectionMigrationReport {
+    pub schema_version: String,
+    pub project_id: String,
+    pub run_id: String,
+    pub canonical_revision: u64,
+    pub canonical_frontier: CausalFrontier,
+    pub last_event_hash: Option<String>,
+    pub dry_run: bool,
+    pub projections: Vec<ProjectionMigrationFile>,
+    pub receipt_paths: Vec<PathBuf>,
+    pub pending_transactions: Vec<ProjectionMigrationFile>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectionMigrationFile {
+    pub phase_id: Option<String>,
+    pub path: PathBuf,
+    pub disposition: String,
+    pub original_sha256: Option<String>,
+    pub canonical_sha256: Option<String>,
+    pub archive_path: Option<PathBuf>,
+    pub archive_sha256: Option<String>,
+    pub receipt_path: Option<PathBuf>,
+}
+
+#[cfg(unix)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct ProjectionMigrationReceipt {
+    schema_version: String,
+    project_id: String,
+    run_id: String,
+    canonical_revision: u64,
+    canonical_frontier: CausalFrontier,
+    last_event_hash: Option<String>,
+    source_path: PathBuf,
+    phase_id: Option<String>,
+    disposition: String,
+    original_sha256: String,
+    canonical_sha256: Option<String>,
+    archive_sha256: String,
+    archive_path: PathBuf,
+    displaced_path: PathBuf,
+    #[serde(default)]
+    displaced_sha256: Option<String>,
+    canonical_temp: Option<String>,
+    state: String,
+    created_at: DateTime<Utc>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct MigrationPhaseReconciliation {
@@ -3250,6 +3304,56 @@ impl Runtime {
             key_storage: KeyStorage::PlatformCredentialStore,
             read_only: registration.read_only,
         })
+    }
+
+    /// Open only existing identity/registration for projection-only migration.
+    ///
+    /// Unlike general snapshot startup, this must not call registry.lookup_path:
+    /// its load path can create a registry and lock even when the caller only
+    /// wants an inventory. Missing or malformed identities fail without writes.
+    pub fn open_projection_migration(project_root: impl AsRef<Path>) -> Result<Self> {
+        #[cfg(not(unix))]
+        {
+            let _ = project_root;
+            return Err(RuntimeError::InvalidState(
+                "projection migration requires anchored no-follow filesystem support on this platform".into(),
+            ));
+        }
+        #[cfg(unix)]
+        {
+            let project_root = fs::canonicalize(project_root.as_ref())?;
+            let project = ProjectionDirectory::open(&project_root)?;
+            let manifest = projection_manifest(&project)?;
+            let registry = registry::ProjectRegistry::open();
+            let directory = ProjectionDirectory::open(registry.root())?;
+            let bytes = directory.read("registry.json")?.ok_or_else(|| {
+                RuntimeError::InvalidState("existing registry.json is required; no registry is initialized".into())
+            })?;
+            let document: registry::RegistryDocument = serde_json::from_slice(&bytes)?;
+            if document.schema_version != registry::REGISTRY_SCHEMA_VERSION {
+                return Err(RuntimeError::InvalidState("unsupported existing registry schema".into()));
+            }
+            let path = project_root.to_str().ok_or_else(|| {
+                RuntimeError::InvalidState("registered project path must be UTF-8".into())
+            })?;
+            let registration = document.replicas.get(path).ok_or_else(|| {
+                RuntimeError::InvalidState("project is not registered; no identity or replica is created".into())
+            })?;
+            if registration.project_id != manifest.project_id
+                || Uuid::parse_str(&registration.replica_id).is_err()
+            {
+                return Err(RuntimeError::InvalidState("existing project/replica registration does not match its identity".into()));
+            }
+            let _existing_authority = directory.directory(
+                &PathBuf::from("projects").join(&manifest.project_id), false,
+            )?;
+            Ok(Self {
+                root: registry.root().join("projects").join(&manifest.project_id),
+                project_root, replica_id: registration.replica_id.clone(),
+                key_storage: KeyStorage::PlatformCredentialStore,
+                read_only: registration.read_only,
+            })
+        }
     }
 
     /// Open a canonical runtime beneath an explicit application-data root.
@@ -5605,6 +5709,211 @@ impl Runtime {
         Ok(true)
     }
 
+    /// Adopt or archive existing phase projections without importing state.
+    ///
+    /// Dry-run does not open/create locks, initialize an identity, recover a
+    /// journal, read/write checkpoints, reconcile Loro, or write any directory.
+    /// Apply requires an already initialized canonical replica and its existing
+    /// locks. Unregistered phase files are archived with no invented replacement.
+    pub fn migrate_phase_projections(&self, dry_run: bool) -> Result<ProjectionMigrationReport> {
+        #[cfg(not(unix))]
+        {
+            let _ = dry_run;
+            return Err(RuntimeError::InvalidState(
+                "projection migration requires anchored no-follow filesystem support on this platform"
+                    .into(),
+            ));
+        }
+        #[cfg(unix)]
+        {
+            if self.key_storage != KeyStorage::PlatformCredentialStore {
+                return Err(RuntimeError::InvalidState(
+                    "projection migration requires an existing registered canonical identity".into(),
+                ));
+            }
+            let project = ProjectionDirectory::open(&self.project_root)?;
+            let registry_root = self.root.parent().and_then(Path::parent)
+                .ok_or_else(|| RuntimeError::InvalidState("invalid canonical runtime root".into()))?;
+            let registry = ProjectionDirectory::open(registry_root)?;
+            let authority = registry.directory(self.root.strip_prefix(registry_root)
+                .map_err(|_| RuntimeError::InvalidState("authority escapes registry root".into()))?, false)?;
+            // Do not use open_canonical/events/replay: their normal startup and
+            // project-document reader can create locks or reconcile authority.
+            let _replica_lock = if dry_run {
+                None
+            } else {
+                self.ensure_writable_replica()?;
+                let relative = self.journal_root().strip_prefix(&self.root)
+                    .map_err(|_| RuntimeError::InvalidState("replica path escapes runtime root".into()))?
+                    .to_path_buf();
+                let journal = authority.directory(&relative, false)?;
+                let lock = journal.file("runtime.lock", true)?.ok_or_else(|| {
+                    RuntimeError::InvalidState("existing replica runtime.lock is required; initialize separately".into())
+                })?;
+                FileExt::lock_exclusive(&lock)?;
+                Some(lock)
+            };
+            let _document_lock = if !dry_run {
+                let lock = authority.file("project.loro.lock", false)?.ok_or_else(|| {
+                    RuntimeError::InvalidState("existing project.loro.lock is required; initialize separately, no migration startup recovery is performed".into())
+                })?;
+                FileExt::lock_shared(&lock)?;
+                Some(lock)
+            } else {
+                None
+            };
+            let state = self.projection_migration_authority(&authority)?;
+            let updated_at = state.last_event_at.ok_or(RuntimeError::NotInitialized)?;
+            let mut canonical = BTreeMap::new();
+            for phase in state.phases.values() {
+                // Slugs are path components, never arbitrary filesystem paths.
+                projection_component(std::ffi::OsStr::new(&phase.slug))?;
+                let path = phase_projection_directory(
+                    &self.project_root.join(".kbd-orchestrator"), &state, phase,
+                )?.join("progress.json");
+                let relative = path.strip_prefix(&self.project_root)
+                    .map_err(|_| RuntimeError::InvalidState("phase projection escapes project root".into()))?
+                    .to_path_buf();
+                projection_relative_path(&relative)?;
+                projection_source_path(&relative)?;
+                if canonical.insert(relative, (phase.id.clone(), phase_progress_projection(&state, phase, updated_at))).is_some() {
+                    return Err(RuntimeError::InvalidState("canonical phases share a projection path".into()));
+                }
+            }
+            let kbd = project.directory(Path::new(".kbd-orchestrator"), false)?;
+            let phases = kbd.directory(Path::new("phases"), false)?;
+            let (receipt_paths, pending_transactions) =
+                recover_projection_transactions(&project, &kbd, &state, &canonical, dry_run)?;
+            let mut existing = BTreeMap::new();
+            phases.progress_files(&mut existing)?;
+            let mut report = ProjectionMigrationReport {
+                schema_version: "1".into(), project_id: state.project_id.clone(),
+                run_id: state.run_id.clone(), canonical_revision: state.revision,
+                canonical_frontier: state.frontier.clone(), last_event_hash: state.last_event_hash.clone(),
+                dry_run, projections: Vec::new(), receipt_paths, pending_transactions,
+            };
+            let mut plans = Vec::new();
+            for (relative, (phase_id, expected)) in &canonical {
+                let path = self.project_root.join(relative);
+                let original = existing.remove(&path);
+                let bytes = projection_json_bytes(expected)?;
+                let mut row = ProjectionMigrationFile {
+                    phase_id: Some(phase_id.clone()), path,
+                    disposition: "missing".into(), original_sha256: original.as_deref().map(projection_sha256),
+                    canonical_sha256: Some(projection_sha256(&bytes)), archive_path: None,
+                    archive_sha256: None, receipt_path: None,
+                };
+                if let Some(original) = original {
+                    let value = serde_json::from_slice::<serde_json::Value>(&original).ok();
+                    if value.as_ref().and_then(|v| v.get("generatedBy")).and_then(|v| v.as_str()) == Some("kbd-runtime") {
+                        row.disposition = "already-owned".into();
+                    } else {
+                        row.disposition = if value.as_ref().is_some_and(|v| projection_content(v) == projection_content(expected)) {
+                            "adopt"
+                        } else { "archive" }.into();
+                        plans.push((report.projections.len(), relative.clone(), original, Some(bytes)));
+                    }
+                }
+                report.projections.push(row);
+            }
+            for (path, bytes) in existing {
+                let relative = path.strip_prefix(&self.project_root)
+                    .map_err(|_| RuntimeError::InvalidState("unknown phase escapes project root".into()))?
+                    .to_path_buf();
+                projection_source_path(&relative)?;
+                let runtime_owned = serde_json::from_slice::<serde_json::Value>(&bytes).ok()
+                    .as_ref().and_then(|value| value.get("generatedBy"))
+                    .and_then(|value| value.as_str()) == Some("kbd-runtime");
+                if !runtime_owned {
+                    plans.push((report.projections.len(), relative, bytes.clone(), None));
+                }
+                report.projections.push(ProjectionMigrationFile {
+                    phase_id: None, path, disposition: if runtime_owned {
+                        "already-owned-unregistered".into()
+                    } else { "unknown-phase-archive".into() },
+                    original_sha256: Some(projection_sha256(&bytes)), canonical_sha256: None,
+                    archive_path: None, archive_sha256: None, receipt_path: None,
+                });
+            }
+            if dry_run { return Ok(report); }
+            for (index, relative, original, bytes) in plans {
+                install_projection_transaction(&project, &kbd, &state, &relative, &original, bytes.as_deref(), &mut report.projections[index])?;
+                if let Some(receipt) = &report.projections[index].receipt_path {
+                    report.receipt_paths.push(receipt.clone());
+                }
+            }
+            Ok(report)
+        }
+    }
+
+    #[cfg(unix)]
+    fn projection_migration_authority(&self, authority: &ProjectionDirectory) -> Result<RuntimeState> {
+        let manifest = projection_manifest(&ProjectionDirectory::open(&self.project_root)?)?;
+        let mut events = Vec::new();
+        if let Some(bytes) = authority.read("project.loro")? {
+            let doc = loro::LoroDoc::from_snapshot(&bytes).or_else(|_| {
+                let doc = loro::LoroDoc::new();
+                doc.import(&bytes)?;
+                Ok::<_, loro::LoroError>(doc)
+            }).map_err(|error| RuntimeError::InvalidState(format!("project.loro: {error}")))?;
+            let map = serde_json::to_value(doc.get_map("events").get_deep_value())?;
+            let map = map.as_object().ok_or_else(|| RuntimeError::InvalidState("project.loro events must be an object".into()))?;
+            for value in map.values() {
+                let text = value.as_str().ok_or_else(|| RuntimeError::InvalidState("project.loro event map contains a non-string value".into()))?;
+                events.push(serde_json::from_str::<Event>(text)?);
+            }
+        }
+        let journal_events = {
+            let relative = self.journal_root().strip_prefix(&self.root)
+                .map_err(|_| RuntimeError::InvalidState("replica path escapes runtime root".into()))?.to_path_buf();
+            let journal = authority.optional_directory(&relative)?;
+            let mut sources = Vec::new();
+            if let Some(journal) = journal {
+                if let Some(archives) = journal.optional_directory(Path::new("archives"))? {
+                    for name in archives.names()? {
+                        if Path::new(&name).extension().is_some_and(|ext| ext == "jsonl") {
+                            if let Some(bytes) = archives.read(&name)? { sources.push(bytes); }
+                        }
+                    }
+                }
+                if let Some(bytes) = journal.read("events.jsonl")? { sources.push(bytes); }
+            }
+            let mut journal_events = Vec::new();
+            for bytes in sources {
+                for line in BufReader::new(bytes.as_slice()).lines() {
+                    let line = line?;
+                    if !line.trim().is_empty() { journal_events.push(serde_json::from_str::<Event>(&line)?); }
+                }
+            }
+            journal_events
+        };
+        if events.is_empty() {
+            events = journal_events;
+        } else {
+            // Startup reconciliation is deliberately excluded. A local journal
+            // tail absent from/different to Loro needs ordinary recovery before
+            // this operation, never a silent import or stale-state projection.
+            let document_events = events.iter().map(|event| (event.event_id.as_str(), event))
+                .collect::<BTreeMap<_, _>>();
+            for event in &journal_events {
+                let Some(document_event) = document_events.get(event.event_id.as_str()) else {
+                    return Err(RuntimeError::InvalidState("replica journal is ahead of project.loro; recover separately before projection migration".into()));
+                };
+                if serde_json::to_value(event)? != serde_json::to_value(document_event)? {
+                    return Err(RuntimeError::InvalidState("replica journal and project.loro disagree; originals preserved".into()));
+                }
+            }
+        }
+        // This fold validates causal chains and signer authority; no checkpoint
+        // or Loro persistence call is involved, including on the journal fallback.
+        let state = project_document::fold_project_events(&events)?;
+        if state.revision == 0 { return Err(RuntimeError::NotInitialized); }
+        if state.project_id != manifest.project_id {
+            return Err(RuntimeError::ProjectMismatch { supplied: state.project_id, current: manifest.project_id });
+        }
+        Ok(state)
+    }
+
     pub fn migrate_legacy_ledgers(&self, apply: bool) -> Result<MigrationSummary> {
         if apply {
             self.ensure_writable_replica()?;
@@ -6911,6 +7220,479 @@ fn normalize_progress(
             "publication": {"status":"NOT_TRACKED","summary":null,"blockers":[]}
         }),
     );
+    Ok(())
+}
+
+#[cfg(unix)]
+fn projection_sha256(bytes: &[u8]) -> String {
+    format!("{:x}", Sha256::digest(bytes))
+}
+
+#[cfg(unix)]
+fn projection_manifest(project: &ProjectionDirectory) -> Result<ProjectManifest> {
+    let identity = project.directory(Path::new(".prometheus"), false)?;
+    let bytes = identity.read("project.json")?.ok_or(RuntimeError::NotInitialized)?;
+    let manifest: ProjectManifest = serde_json::from_slice(&bytes)?;
+    if manifest.schema_version != "1" || Uuid::parse_str(&manifest.project_id).is_err()
+        || !manifest.repository_fingerprint.starts_with("sha256:")
+    {
+        return Err(RuntimeError::InvalidState("invalid existing project identity".into()));
+    }
+    Ok(manifest)
+}
+
+#[cfg(unix)]
+fn projection_json_bytes(value: &serde_json::Value) -> Result<Vec<u8>> {
+    let mut bytes = serde_json::to_vec_pretty(value)?;
+    bytes.push(b'\n');
+    Ok(bytes)
+}
+
+#[cfg(unix)]
+fn projection_content(value: &serde_json::Value) -> serde_json::Value {
+    let mut content = value.clone();
+    if let Some(object) = content.as_object_mut() {
+        // These six fields describe ownership, projection revision and writer
+        // timestamps. Ignore ONLY these top-level metadata fields when adopting.
+        // Schema, phase identity, frontier, counters, completion and unknown
+        // fields are compared exactly; no historical work is merged/imported.
+        for key in ["generatedBy", "projectionContractVersion", "sourceRevision",
+                    "derivedRevision", "last_updated", "last_updated_by"] {
+            object.remove(key);
+        }
+    }
+    content
+}
+
+#[cfg(unix)]
+fn projection_component(name: &std::ffi::OsStr) -> Result<std::ffi::CString> {
+    use std::os::unix::ffi::OsStrExt;
+    if name.as_bytes().contains(&b'/') {
+        return Err(RuntimeError::InvalidState("projection path component contains a separator".into()));
+    }
+    let mut components = Path::new(name).components();
+    if !matches!(components.next(), Some(std::path::Component::Normal(_)))
+        || components.next().is_some()
+    {
+        return Err(RuntimeError::InvalidState("projection paths require single normal components".into()));
+    }
+    std::ffi::CString::new(name.as_bytes())
+        .map_err(|_| RuntimeError::InvalidState("projection path contains NUL".into()))
+}
+
+#[cfg(unix)]
+fn projection_relative_path(path: &Path) -> Result<()> {
+    if path.as_os_str().is_empty() || path.is_absolute() {
+        return Err(RuntimeError::InvalidState("projection path must be relative".into()));
+    }
+    for component in path.components() {
+        match component {
+            std::path::Component::Normal(name) => { projection_component(name)?; }
+            _ => return Err(RuntimeError::InvalidState("projection path escapes its root".into())),
+        }
+    }
+    Ok(())
+}
+
+#[cfg(unix)]
+fn projection_source_path(path: &Path) -> Result<()> {
+    projection_relative_path(path)?;
+    let names = path.iter().collect::<Vec<_>>();
+    if names.len() < 4 || names[0] != ".kbd-orchestrator" || names[1] != "phases"
+        || names.last().copied() != Some(std::ffi::OsStr::new("progress.json"))
+        || (names.len() - 4) % 2 != 0
+    {
+        return Err(RuntimeError::InvalidState("unrecognized phase projection path".into()));
+    }
+    for pair in names[3..names.len()-1].chunks(2) {
+        if pair[0] != "children" {
+            return Err(RuntimeError::InvalidState("projection path is outside phase/children inventory".into()));
+        }
+    }
+    Ok(())
+}
+
+/// All content operations are relative to directory descriptors opened with
+/// O_NOFOLLOW. A symlink swap cannot redirect a read, archive or replacement
+/// outside the selected project tree. Paths are retained for diagnostics only.
+#[cfg(unix)]
+struct ProjectionDirectory {
+    file: File,
+    path: PathBuf,
+}
+
+#[cfg(unix)]
+impl ProjectionDirectory {
+    fn open(path: &Path) -> Result<Self> {
+        let file = OpenOptions::new().read(true)
+            .custom_flags(libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC)
+            .open(path)?;
+        Ok(Self { file, path: path.to_path_buf() })
+    }
+
+    fn directory(&self, relative: &Path, create: bool) -> Result<Self> {
+        use std::os::fd::{AsRawFd, FromRawFd};
+        let mut current = Self { file: self.file.try_clone()?, path: self.path.clone() };
+        for component in relative.components() {
+            let std::path::Component::Normal(name) = component else {
+                return Err(RuntimeError::InvalidState("directory path escapes migration root".into()));
+            };
+            let name_c = projection_component(name)?;
+            // SAFETY: the directory fd remains live and the CString is NUL
+            // terminated. openat returns an owned descriptor or -1.
+            let mut fd = unsafe { libc::openat(current.file.as_raw_fd(), name_c.as_ptr(),
+                libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC) };
+            if fd < 0 && create && std::io::Error::last_os_error().kind() == std::io::ErrorKind::NotFound {
+                // SAFETY: same live directory descriptor and valid component.
+                let made = unsafe { libc::mkdirat(current.file.as_raw_fd(), name_c.as_ptr(), 0o700) };
+                if made < 0 && std::io::Error::last_os_error().kind() != std::io::ErrorKind::AlreadyExists {
+                    return Err(std::io::Error::last_os_error().into());
+                }
+                current.file.sync_all()?;
+                // SAFETY: as above; O_NOFOLLOW rejects a raced symlink.
+                fd = unsafe { libc::openat(current.file.as_raw_fd(), name_c.as_ptr(),
+                    libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC) };
+            }
+            if fd < 0 { return Err(std::io::Error::last_os_error().into()); }
+            // SAFETY: this successful openat descriptor is transferred once.
+            let file = unsafe { File::from_raw_fd(fd) };
+            current = Self { file, path: current.path.join(name) };
+        }
+        Ok(current)
+    }
+
+    fn optional_directory(&self, relative: &Path) -> Result<Option<Self>> {
+        match self.directory(relative, false) {
+            Ok(directory) => Ok(Some(directory)),
+            Err(RuntimeError::Io(error)) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
+
+    fn create_directory(&self, name: &str) -> Result<Self> {
+        use std::os::fd::AsRawFd;
+        let name_c = projection_component(std::ffi::OsStr::new(name))?;
+        // SAFETY: live parent descriptor and valid single component. A collision
+        // fails instead of opening another transaction's directory.
+        if unsafe { libc::mkdirat(self.file.as_raw_fd(), name_c.as_ptr(), 0o700) } < 0 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+        self.file.sync_all()?;
+        self.directory(Path::new(name), false)
+    }
+
+    fn file(&self, name: impl AsRef<std::ffi::OsStr>, writable: bool) -> Result<Option<File>> {
+        use std::os::fd::{AsRawFd, FromRawFd};
+        let name = projection_component(name.as_ref())?;
+        let access = if writable { libc::O_RDWR } else { libc::O_RDONLY };
+        // SAFETY: live directory fd and valid single component. NONBLOCK avoids
+        // hanging on a raced FIFO; metadata below requires a regular file.
+        let fd = unsafe { libc::openat(self.file.as_raw_fd(), name.as_ptr(),
+            access | libc::O_NOFOLLOW | libc::O_CLOEXEC | libc::O_NONBLOCK) };
+        if fd < 0 {
+            let error = std::io::Error::last_os_error();
+            if error.kind() == std::io::ErrorKind::NotFound { return Ok(None); }
+            return Err(error.into());
+        }
+        // SAFETY: successful openat transfers ownership once.
+        let file = unsafe { File::from_raw_fd(fd) };
+        if !file.metadata()?.is_file() {
+            return Err(RuntimeError::InvalidState("migration files must be regular and non-symlink".into()));
+        }
+        Ok(Some(file))
+    }
+
+    fn read(&self, name: impl AsRef<std::ffi::OsStr>) -> Result<Option<Vec<u8>>> {
+        use std::io::Read;
+        let Some(mut file) = self.file(name, false)? else { return Ok(None); };
+        let mut bytes = Vec::new();
+        file.read_to_end(&mut bytes)?;
+        Ok(Some(bytes))
+    }
+
+    fn names(&self) -> Result<Vec<std::ffi::OsString>> {
+        // Only names come from enumeration. Every subsequent content operation
+        // uses the retained directory fd, never a potentially swapped path.
+        let mut names = fs::read_dir(&self.path)?
+            .map(|entry| entry.map(|entry| entry.file_name()))
+            .collect::<std::io::Result<Vec<_>>>()?;
+        names.sort();
+        Ok(names)
+    }
+
+    fn progress_files(&self, files: &mut BTreeMap<PathBuf, Vec<u8>>) -> Result<()> {
+        for name in self.names()? {
+            if name == "archives" { continue; }
+            match self.directory(Path::new(&name), false) {
+                Ok(child) => child.phase_progress_files(files, 0)?,
+                Err(RuntimeError::Io(error)) if error.raw_os_error() == Some(libc::ENOTDIR) => {
+                    // A regular non-progress file is irrelevant; a symlink
+                    // must fail explicitly rather than silently hide a tree.
+                    if fs::symlink_metadata(self.path.join(&name))?.file_type().is_symlink() {
+                        return Err(RuntimeError::InvalidState(format!("symlink in projection tree: {}", self.path.join(name).display())));
+                    }
+                }
+                Err(error) => return Err(error),
+            }
+        }
+        Ok(())
+    }
+
+    fn phase_progress_files(&self, files: &mut BTreeMap<PathBuf, Vec<u8>>, depth: usize) -> Result<()> {
+        if depth > 128 || files.len() >= 10_000 {
+            return Err(RuntimeError::InvalidState("projection inventory exceeds safe hierarchy bounds".into()));
+        }
+        if let Some(bytes) = self.read("progress.json")? {
+            files.insert(self.path.join("progress.json"), bytes);
+        }
+        if let Some(children) = self.optional_directory(Path::new("children"))? {
+            for name in children.names()? {
+                if name == "archives" { continue; }
+                children.directory(Path::new(&name), false)?.phase_progress_files(files, depth + 1)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn write_new(&self, name: &str, bytes: &[u8]) -> Result<()> {
+        use std::os::fd::{AsRawFd, FromRawFd};
+        let name = projection_component(std::ffi::OsStr::new(name))?;
+        // SAFETY: live fd and valid component. O_EXCL never truncates data.
+        let fd = unsafe { libc::openat(self.file.as_raw_fd(), name.as_ptr(),
+            libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL | libc::O_NOFOLLOW | libc::O_CLOEXEC, 0o600) };
+        if fd < 0 { return Err(std::io::Error::last_os_error().into()); }
+        // SAFETY: successful descriptor is transferred once.
+        let mut file = unsafe { File::from_raw_fd(fd) };
+        file.write_all(bytes)?;
+        file.sync_all()?;
+        self.file.sync_all()?;
+        Ok(())
+    }
+
+    fn rename_to(&self, name: &str, destination: &Self, target: &str) -> Result<()> {
+        use std::os::fd::AsRawFd;
+        let name = projection_component(std::ffi::OsStr::new(name))?;
+        let target = projection_component(std::ffi::OsStr::new(target))?;
+        // SAFETY: both directory fds and CStrings stay live for renameat.
+        if unsafe { libc::renameat(self.file.as_raw_fd(), name.as_ptr(),
+            destination.file.as_raw_fd(), target.as_ptr()) } < 0 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+        destination.file.sync_all()?;
+        // Persist the archive destination BEFORE persisting removal of the live
+        // source name. The original inode remains durably reachable on a crash.
+        self.file.sync_all()?;
+        Ok(())
+    }
+
+    fn link_to(&self, name: &str, destination: &Self, target: &str) -> Result<()> {
+        use std::os::fd::AsRawFd;
+        let name = projection_component(std::ffi::OsStr::new(name))?;
+        let target = projection_component(std::ffi::OsStr::new(target))?;
+        // SAFETY: both live directory fds and valid components; linkat with
+        // flags=0 never follows a symlink or overwrites an existing destination.
+        if unsafe { libc::linkat(self.file.as_raw_fd(), name.as_ptr(),
+            destination.file.as_raw_fd(), target.as_ptr(), 0) } < 0 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+        destination.file.sync_all()?;
+        Ok(())
+    }
+
+    fn remove_owned_temp(&self, name: &str) -> Result<()> {
+        use std::os::fd::AsRawFd;
+        let name = projection_component(std::ffi::OsStr::new(name))?;
+        // SAFETY: only an exclusively created transaction temporary component
+        // is passed here; unlinkat does not follow the leaf.
+        if unsafe { libc::unlinkat(self.file.as_raw_fd(), name.as_ptr(), 0) } < 0 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+        self.file.sync_all()?;
+        Ok(())
+    }
+
+    fn receipt(&self, receipt: &ProjectionMigrationReceipt) -> Result<()> {
+        // Reject a foreign symlink/special file before replacing our receipt.
+        let _ = self.read("receipt.json")?;
+        let temporary = format!(".receipt-{}.tmp", Uuid::new_v4());
+        self.write_new(&temporary, &projection_json_bytes(&serde_json::to_value(receipt)?)?)?;
+        self.rename_to(&temporary, self, "receipt.json")
+    }
+}
+
+#[cfg(unix)]
+fn recover_projection_transactions(
+    project: &ProjectionDirectory, kbd: &ProjectionDirectory, state: &RuntimeState,
+    canonical: &BTreeMap<PathBuf, (String, serde_json::Value)>,
+    dry_run: bool,
+) -> Result<(Vec<PathBuf>, Vec<ProjectionMigrationFile>)> {
+    let Some(archives) = kbd.optional_directory(Path::new("archives/projection-migration"))? else { return Ok((Vec::new(), Vec::new())); };
+    let mut receipts = Vec::new();
+    let mut pending = Vec::new();
+    for name in archives.names()? {
+        let text = name.to_str().ok_or_else(|| RuntimeError::InvalidState("invalid projection transaction name".into()))?;
+        Uuid::parse_str(text).map_err(|_| RuntimeError::InvalidState("invalid projection transaction identity".into()))?;
+        let transaction = archives.directory(Path::new(&name), false)?;
+        let Some(bytes) = transaction.read("receipt.json")? else {
+            // An interrupted preparation has not moved a source. Leave every
+            // byte for audit; a new transaction can safely prepare again.
+            continue;
+        };
+        let mut receipt: ProjectionMigrationReceipt = serde_json::from_slice(&bytes)?;
+        projection_source_path(&receipt.source_path)?;
+        let relative = PathBuf::from(".kbd-orchestrator/archives/projection-migration").join(&name);
+        if receipt.schema_version != "1" || receipt.project_id != state.project_id
+            || receipt.phase_id.is_some() != receipt.canonical_sha256.is_some()
+            || receipt.archive_path != relative.join("original.json")
+            || receipt.displaced_path != relative.join("displaced.json")
+            || !matches!(receipt.disposition.as_str(), "adopt" | "archive" | "unknown-phase-archived")
+            || !matches!(receipt.state.as_str(), "prepared" | "captured" | "installed" | "archived"
+                | "restored" | "conflict-restored" | "not-installed-current-file-preserved")
+        {
+            return Err(RuntimeError::InvalidState(format!("unrecognized projection transaction preserved at {}", transaction.path.display())));
+        }
+        if let Some(temporary) = &receipt.canonical_temp {
+            let identity = temporary.strip_prefix(".projection-")
+                .and_then(|name| name.strip_suffix(".tmp"));
+            if identity.and_then(|identity| Uuid::parse_str(identity).ok()).is_none() {
+                return Err(RuntimeError::InvalidState("unrecognized projection transaction temporary; originals preserved".into()));
+            }
+        }
+        receipts.push(transaction.path.join("receipt.json"));
+        let original = transaction.read("original.json")?.ok_or_else(|| RuntimeError::InvalidState("projection transaction has no durable original".into()))?;
+        if projection_sha256(&original) != receipt.original_sha256
+            || receipt.archive_sha256 != receipt.original_sha256
+        {
+            return Err(RuntimeError::InvalidState("projection transaction archive hash mismatch".into()));
+        }
+        if !matches!(receipt.state.as_str(), "prepared" | "captured") { continue; }
+        if receipt.canonical_revision > state.revision
+            || receipt.phase_id.as_ref().is_some_and(|id|
+                canonical.get(&receipt.source_path).map_or(true, |(expected, _)| expected != id))
+        {
+            return Err(RuntimeError::InvalidState("pending projection transaction has ambiguous canonical identity; originals preserved".into()));
+        }
+        let parent = project.directory(receipt.source_path.parent().ok_or(RuntimeError::NotInitialized)?, false)?;
+        let current = parent.read("progress.json")?;
+        let displaced = transaction.read("displaced.json")?;
+        if let Some(displaced) = displaced.as_deref() {
+            let hash = projection_sha256(displaced);
+            if receipt.displaced_sha256.as_ref().is_some_and(|expected| expected != &hash) {
+                return Err(RuntimeError::InvalidState("displaced projection archive hash mismatch".into()));
+            }
+            receipt.displaced_sha256 = Some(hash);
+        }
+        if receipt.canonical_sha256.is_some()
+            && current.as_deref().map(projection_sha256).as_ref() == receipt.canonical_sha256.as_ref()
+        {
+            receipt.state = "installed".into();
+        } else if receipt.phase_id.is_none() && displaced.is_some() && current.is_none()
+            && receipt.displaced_sha256.as_ref() == Some(&receipt.original_sha256)
+        {
+            // Unknown phases have no canonical replacement. The durable moved
+            // source is the complete authorized archive-only transaction.
+            receipt.state = "archived".into();
+        } else if current.is_none() {
+            // Restore the actual moved bytes first. A later fresh plan uses the
+            // current authority, never the old transaction's desired revision.
+            if !dry_run {
+                transaction.link_to(if displaced.is_some() { "displaced.json" } else { "original.json" }, &parent, "progress.json")?;
+            }
+            receipt.state = "restored".into();
+        } else {
+            // A current writer's bytes take precedence; keep the transaction as
+            // provenance and let the new plan inspect those bytes explicitly.
+            receipt.state = "not-installed-current-file-preserved".into();
+        }
+        if let Some(temporary) = &receipt.canonical_temp {
+            if let Some(bytes) = parent.read(temporary)? {
+                if Some(projection_sha256(&bytes)).as_ref() != receipt.canonical_sha256.as_ref() {
+                    return Err(RuntimeError::InvalidState("transaction temporary changed; actual bytes preserved".into()));
+                }
+                if !dry_run { parent.remove_owned_temp(temporary)?; }
+            }
+        }
+        pending.push(ProjectionMigrationFile {
+            phase_id: receipt.phase_id.clone(), path: project.path.join(&receipt.source_path),
+            disposition: match receipt.state.as_str() {
+                "installed" => "recover-finalize-install",
+                "archived" => "recover-finalize-archive",
+                "restored" => "restore-then-replan",
+                _ => "preserve-current-and-replan",
+            }.into(),
+            original_sha256: Some(receipt.original_sha256.clone()),
+            canonical_sha256: receipt.canonical_sha256.clone(),
+            archive_path: Some(project.path.join(&receipt.archive_path)),
+            archive_sha256: Some(receipt.archive_sha256.clone()),
+            receipt_path: Some(transaction.path.join("receipt.json")),
+        });
+        if !dry_run { transaction.receipt(&receipt)?; }
+    }
+    Ok((receipts, pending))
+}
+
+#[cfg(unix)]
+fn install_projection_transaction(
+    project: &ProjectionDirectory, kbd: &ProjectionDirectory, state: &RuntimeState,
+    relative: &Path, original: &[u8], canonical: Option<&[u8]>, row: &mut ProjectionMigrationFile,
+) -> Result<()> {
+    let archives = kbd.directory(Path::new("archives/projection-migration"), true)?;
+    let identity = Uuid::new_v4().to_string();
+    let transaction = archives.create_directory(&identity)?;
+    let archive_relative = PathBuf::from(".kbd-orchestrator/archives/projection-migration").join(&identity);
+    let temporary = canonical.map(|_| format!(".projection-{}.tmp", Uuid::new_v4()));
+    transaction.write_new("original.json", original)?;
+    let mut receipt = ProjectionMigrationReceipt {
+        schema_version: "1".into(), project_id: state.project_id.clone(), run_id: state.run_id.clone(),
+        canonical_revision: state.revision, canonical_frontier: state.frontier.clone(),
+        last_event_hash: state.last_event_hash.clone(), source_path: relative.to_path_buf(),
+        phase_id: row.phase_id.clone(),
+        disposition: if canonical.is_some() { row.disposition.clone() } else { "unknown-phase-archived".into() },
+        original_sha256: projection_sha256(original),
+        canonical_sha256: canonical.map(projection_sha256), archive_sha256: projection_sha256(original),
+        archive_path: archive_relative.join("original.json"),
+        displaced_path: archive_relative.join("displaced.json"), displaced_sha256: None,
+        canonical_temp: temporary.clone(),
+        state: "prepared".into(), created_at: Utc::now(),
+    };
+    // The original and receipt are durable BEFORE the live file can move.
+    transaction.receipt(&receipt)?;
+    let parent = project.directory(relative.parent().ok_or(RuntimeError::NotInitialized)?, false)?;
+    if let (Some(canonical), Some(temporary)) = (canonical, temporary.as_deref()) {
+        parent.write_new(temporary, canonical)?;
+    }
+    if transaction.read("displaced.json")?.is_some() {
+        return Err(RuntimeError::InvalidState("projection transaction destination already exists; originals preserved".into()));
+    }
+    parent.rename_to("progress.json", &transaction, "displaced.json")?;
+    let displaced = transaction.read("displaced.json")?.ok_or_else(|| RuntimeError::InvalidState("moved projection is missing".into()))?;
+    receipt.displaced_sha256 = Some(projection_sha256(&displaced));
+    receipt.state = "captured".into();
+    transaction.receipt(&receipt)?;
+    if receipt.displaced_sha256.as_ref() != Some(&receipt.original_sha256) {
+        // Moving into a private archive captures a concurrent writer's exact
+        // bytes too. Restore without overwriting any newly created source.
+        transaction.link_to("displaced.json", &parent, "progress.json")?;
+        receipt.state = "conflict-restored".into();
+        transaction.receipt(&receipt)?;
+        return Err(RuntimeError::InvalidState(format!("projection changed during migration; actual bytes restored, originals retained at {}", transaction.path.display())));
+    }
+    // Hard-link installation is atomic and refuses to overwrite a file that a
+    // non-cooperating writer created in the gap. Retry recovers from the receipt.
+    if let Some(temporary) = temporary {
+        parent.link_to(&temporary, &parent, "progress.json")?;
+        parent.remove_owned_temp(&temporary)?;
+        receipt.state = "installed".into();
+    } else {
+        receipt.state = "archived".into();
+        row.disposition = "unknown-phase-archived".into();
+    }
+    transaction.receipt(&receipt)?;
+    // The copied original is the stable archive payload. The moved inode also
+    // remains in the receipt: a pre-existing writer may still hold it open.
+    row.archive_path = Some(project.path.join(&receipt.archive_path));
+    row.archive_sha256 = Some(receipt.archive_sha256);
+    row.receipt_path = Some(transaction.path.join("receipt.json"));
     Ok(())
 }
 

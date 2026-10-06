@@ -1,3 +1,5 @@
+> **Editorial draft; outside current onboarding.** This outline preserves publication research and proposed narrative. Platform, model and distribution claims are dated research, not current product contracts or authorization to publish. Use [the current guide](../guide/00-quick-start.md).
+
 # Series Outline — "Loops That Lie"
 
 **Status:** DRAFT OUTLINE for review. Not the articles.

@@ -1,3 +1,5 @@
+> **Historical research integration evidence; outside current onboarding.** These September 2026 driver, daemon and package results retain their original scope and unresolved installed-driver defect. Prior test counts, generated hashes and host state do not certify current source or delivery. Use [the current guide](guide/00-quick-start.md).
+
 # research-agent-hardening — integration evidence
 
 Local evidence for phase `research-agent-hardening` (change-rah-011). Every

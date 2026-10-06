@@ -1,0 +1,506 @@
+{
+  "kind": "task15-2-readme-content-source-handoff",
+  "actualModel": "gpt-6.1-sol",
+  "reasoningEffort": "high",
+  "canonicalBeginRevision": 2339,
+  "taskComplete": false,
+  "status": "README and per-page content source disposition batch complete; final release/publish/acceptance pending",
+  "acceptance": "none; complete-phase final12 only",
+  "sourceIdentity": {
+    "full": {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "head": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+      "workingTree": "candidate edits included",
+      "declaredPackageVersion": "1.11.2"
+    },
+    "mini": {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "head": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0",
+      "workingTree": "candidate edits included",
+      "declaredPackageVersion": "1.11.2"
+    }
+  },
+  "ownerSelectedFullSourcePin": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "changedPaths": [
+    {
+      "pack": "mini",
+      "path": "README.md",
+      "sha256": "baa56eb73fedb39b1f74f4f2b21bf6377bfb4d3d9c497afc11007aa7c8d102e5"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/schemas/uar/README.md",
+      "sha256": "9450245098a38321517eafda9843d2e5b4fb32816474cbc5567d02181118bdde"
+    },
+    {
+      "pack": "full",
+      "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/content-inventory.json",
+      "sha256": "c351ca596db122915777cf4e6d3879212c4eb7e4e2cd9f979354fb86bc086c17"
+    },
+    {
+      "pack": "full",
+      "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/content-disposition.md",
+      "sha256": "235d135d3bed19e426454b5e49bdb1d6585dce4d0a659aeb4c059061e919f447"
+    }
+  ],
+  "readmeFamilyDisposition": [
+    {
+      "pack": "full",
+      "path": ".opencode/README.md",
+      "decision": "rewrite",
+      "sha256": "f15e52222efcb9e1a715bb2888fe8b444eac7de7b4432cb50b518e519fd05158",
+      "sourceBehavior": "Rewrote \"Full-pack OpenCode adapter\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "README.md",
+      "decision": "rewrite",
+      "sha256": "ebd60c5ebd8a59133c97760f6299f73318a2f7a858befcf24f66eaa28779fe7f",
+      "sourceBehavior": "Rewrote \"Prometheus Skill Pack\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "crates/prometheus-exec/README.md",
+      "decision": "rewrite",
+      "sha256": "d1a71ceda28744599d54f91fe1647a2aabafc98cb0a0f0111320bd36000ff31a",
+      "sourceBehavior": "Rewrote \"prometheus-exec\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "docs/README.md",
+      "decision": "rewrite",
+      "sha256": "87e7d82437ce946b00ba3b1523af956470fe3384d4aa77dc857cac37b07cf4b6",
+      "sourceBehavior": "Rewrote \"Documentation\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "docs/deep-research/README.md",
+      "decision": "rewrite",
+      "sha256": "a2650797187a0c8b18cd48a9bf18475e8b02a10bcc3eeb8de8203b6e0155e0c2",
+      "sourceBehavior": "Rewrote \"Native research client\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/README.md",
+      "decision": "rewrite",
+      "sha256": "b00c396b07304d9945522d372a9ef9d4d76f768b12921cb53899036930b4df3b",
+      "sourceBehavior": "Rewrote \"Prometheus Skill Pack guide\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "examples/prometheus-exec/README.md",
+      "decision": "rewrite",
+      "sha256": "891f7861572b128d04688388f7140f06366be6f626850f04e5193bab8b2119de",
+      "sourceBehavior": "Rewrote \"Prometheus Exec runnable examples\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "policies/README.md",
+      "decision": "rewrite",
+      "sha256": "37cb502d4b7533841ce24f168756cbefe259dc29cd30275f9371069450804859",
+      "sourceBehavior": "Rewrote \"Cedar Policies\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "shared/scripts/README.md",
+      "decision": "rewrite",
+      "sha256": "60b6b4b86c8c65e5e1205b9c6203d078e032d682ebba330387e38a948e86ebaf",
+      "sourceBehavior": "Rewrote \"Shared scripts\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "shared/scripts/scheduled/README.md",
+      "decision": "rewrite",
+      "sha256": "098a3118d2faf898b2a02158848d4306f82b11c7630e5553062d06acc361a8d5",
+      "sourceBehavior": "Rewrote \"Scheduled maintenance templates\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "skills/imported/README.md",
+      "decision": "rewrite",
+      "sha256": "e776d41647391e3d93365f109e38e8f46fdc22c38e7f938cce9344c7ed1eb951",
+      "sourceBehavior": "Rewrote \"Imported skills\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "skills/learn/README.md",
+      "decision": "rewrite",
+      "sha256": "df876ae7bc10151790e836a2868aeaf5682bbaafd94ba10d904084418d3a6802",
+      "sourceBehavior": "Rewrote \"learn \u2014 Feynman-Spine Learning Domain\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/schemas/uar/README.md",
+      "decision": "rewrite",
+      "sha256": "9450245098a38321517eafda9843d2e5b4fb32816474cbc5567d02181118bdde",
+      "sourceBehavior": "Rewrote \"UAR collaboration schema snapshots\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/delivery-cadence/examples/README.md",
+      "decision": "keep",
+      "sha256": "97b553749e2a5bcea97360054489abb47a9ebe890bf2638ad2997e3cbdbce20b",
+      "sourceBehavior": "Editable admission example deliberately lacks an entry point; it does not authorize operation execution."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/iterative-evolver/README.md",
+      "decision": "rewrite",
+      "sha256": "215de3546a5a5154b0cd0fe90162b3c5073637c4cc60d930a05258f254bfda7f",
+      "sourceBehavior": "Rewrote \"Iterative Evolver\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/kbd-process-orchestrator/shared/openspec/README.md",
+      "decision": "keep",
+      "sha256": "6df6f87f1ba10ada664d8e33b562d1aaa8ebf806a8fd4c191c86cadbc340f23b",
+      "sourceBehavior": "Managed CLI source declares refresh/run, explicit pin/offline/disabled outcomes, scoped backups and exit contracts."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/prometheus-context-bootstrap/references/rules-src/project/README.md",
+      "decision": "keep",
+      "sha256": "db4f97afda72483a3131311c0611b3a46fc3e33ee61ea816decad17abba6a767",
+      "sourceBehavior": "Explains authored path-scoped rule source, rather than generated target edits."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/zeespec-interrogator/README.md",
+      "decision": "rewrite",
+      "sha256": "548cebb9565e7e868262826d0cdb4a56b4b185f26415b3f3bcda50afdd1dd5b9",
+      "sourceBehavior": "Rewrote \"ZeeSpec Interrogator\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "skills/react/prometheus-entity-skills/entity-graph-optimize/component/README.md",
+      "decision": "rewrite",
+      "sha256": "65cc31222b2b2fad254fc05e5c964c53d0c9d6a83b9cfc425be1d101646c1d22",
+      "sourceBehavior": "Rewrote \"`entity-graph-optimize` as a WASM component\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "skills/rust/librefang-wasm-skill/references/example-echo/README.md",
+      "decision": "rewrite",
+      "sha256": "0bdeda1823dcdf912518ce971c4367fd365003aa8d95a25fb7d3fd1ae7f6733f",
+      "sourceBehavior": "Qualify the actual 'Echo Skill \u2014 LibreFang WASM Example' source/host prerequisites and distinguish an API/manifest/build from live execution acceptance."
+    },
+    {
+      "pack": "full",
+      "path": "skills/testing/bdd-cucumber-js/references/examples/README.md",
+      "decision": "rewrite",
+      "sha256": "fd3bba58cbb8edbcfcc2b74c0df1003c7b436a092547624a6b70955eb80bf2fd",
+      "sourceBehavior": "Rewrote \"JavaScript BDD example source\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "skills/testing/bdd-cucumber-rs/references/examples/README.md",
+      "decision": "rewrite",
+      "sha256": "e46c20775c479b40699438bc5293d67e7a674f201005a8a6e499387fb37efc6e",
+      "sourceBehavior": "Rewrote \"Rust BDD example source\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/exec-contracts/README.md",
+      "decision": "rewrite",
+      "sha256": "12c0cfb59b1a50406cefd4bfa41c6411c981cdc692b2bc5853900b4b3ae14b20",
+      "sourceBehavior": "Rewrote \"`prometheus-exec-contracts`\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/exec-core/README.md",
+      "decision": "rewrite",
+      "sha256": "23b99383697f8c0d0aecc76de1ff9bc851a7611bc080166c6ed369fad75a14c4",
+      "sourceBehavior": "Rewrote \"`prometheus-exec-core`\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/exec-embedded/README.md",
+      "decision": "rewrite",
+      "sha256": "8445271815c382bb87fb089585a87c47d71e4f3948829aa16531777a600a4868",
+      "sourceBehavior": "Rewrote \"`prometheus-exec-embedded`\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/exec-remote/README.md",
+      "decision": "rewrite",
+      "sha256": "d4c0b2479a3c5387e6d093d21b3f8c65a8f8329808d7314e73d76440d63e9eed",
+      "sourceBehavior": "Rewrote \"`prometheus-exec-remote`\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/exec-service/README.md",
+      "decision": "rewrite",
+      "sha256": "6ef065b14d32341bd1d6aaeabd606acd25423eae9cf1fff5ce97b348c839eff1",
+      "sourceBehavior": "Rewrote \"`prometheus-exec-service`\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/exec-tier-p/README.md",
+      "decision": "rewrite",
+      "sha256": "e969aa733d938d408aff395d7dc04042f38a7f396515463aa6ec660625e0f4dd",
+      "sourceBehavior": "Rewrote \"`prometheus-exec-tier-p`\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/exec-tier-w/README.md",
+      "decision": "rewrite",
+      "sha256": "e7d662181051037f8fb5754be11e3b6bfa0d20ee4751b21b91830cac2814186a",
+      "sourceBehavior": "Rewrote \"`prometheus-exec-tier-w`\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/learner-model/README.md",
+      "decision": "keep",
+      "sha256": "b5bf9e1656cc50674d819740c7c76dd93233a7ecace7a902eed4cb2bef1bd4f7",
+      "sourceBehavior": "Distinguishes recorded FSRS-5 scheduler dependency from older FSRS-6 terminology and real RPC target from generic unit evidence."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/skill-ffi/README.md",
+      "decision": "rewrite",
+      "sha256": "5c022196cc23589ce5fb4013bb48a977121c57f90a61b3a4261ac83fd2dc4db6",
+      "sourceBehavior": "Rewrote \"`skill-ffi` \u2014 the mobile FFI boundary\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "substrate/surface-bridge/README.md",
+      "decision": "rewrite",
+      "sha256": "efee611a34b00015411d0b37217bc3b9d72cb549ae6430c40a7708729aa4c939",
+      "sourceBehavior": "Rewrote \"surface-bridge\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "tools/bench-automation/README.md",
+      "decision": "rewrite",
+      "sha256": "f2b7f2204974da8fe4feee4ffee65736566f0506b654580fac1e0286efc0d6e5",
+      "sourceBehavior": "Rewrote \"Research benchmark tooling\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "tools/forge-rs/README.md",
+      "decision": "rewrite",
+      "sha256": "d9cccf18f9ce7074efbdf6278c12c3de2a47ffd5e6a500f309198876e0aec2a8",
+      "sourceBehavior": "Rewrote \"forge-rs\" using declared source behavior and explicit installation/evidence boundaries; no runtime or acceptance claim."
+    },
+    {
+      "pack": "full",
+      "path": "tools/prometheus-cli/README.md",
+      "decision": "rewrite",
+      "sha256": "50d9995df51b0d9ce7e4c4c9848505e70de08fd53a5710633c19c98328fcffdf",
+      "sourceBehavior": "Qualify the actual 'Prometheus CLI in The Boss' source/host prerequisites and distinguish an API/manifest/build from live execution acceptance."
+    },
+    {
+      "pack": "mini",
+      "path": "README.md",
+      "decision": "rewrite",
+      "sha256": "baa56eb73fedb39b1f74f4f2b21bf6377bfb4d3d9c497afc11007aa7c8d102e5",
+      "sourceBehavior": "Current entry point: Node doctor and receipt-preserving copy fix; separate payload registration, first KBD workflow, teams/models, optional scoped publication, Compose/Companion, recovery and local contribution boundaries."
+    },
+    {
+      "pack": "mini",
+      "path": "docker/README.md",
+      "decision": "keep",
+      "sha256": "dd68418fb76336dde527c09493eb9acce6edbe94f08fc5ffe7ad590739d6896d",
+      "sourceBehavior": "Read source operations against current compose and service runner: three containers, loopback ports, optional external endpoints, volume retention, prebuilt images and migration/export boundary."
+    },
+    {
+      "pack": "mini",
+      "path": "lib/platform/openspec/README.md",
+      "decision": "keep",
+      "sha256": "6df6f87f1ba10ada664d8e33b562d1aaa8ebf806a8fd4c191c86cadbc340f23b",
+      "sourceBehavior": "Retain actual managed CLI contract: pinned baseline, explicit latest discovery, offline/migration/pending outcomes, shared deadline, locks and generated-integration ownership; Node22 mini minimum still applies."
+    },
+    {
+      "pack": "mini",
+      "path": "rules/src/project/README.md",
+      "decision": "keep",
+      "sha256": "db4f97afda72483a3131311c0611b3a46fc3e33ee61ea816decad17abba6a767",
+      "sourceBehavior": "Retain rules-authoring path-scoped reference instructions; this README is not rendered into project rules."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/schemas/uar/README.md",
+      "decision": "rewrite",
+      "sha256": "9450245098a38321517eafda9843d2e5b4fb32816474cbc5567d02181118bdde",
+      "sourceBehavior": "Aligned full/mini UAR schema-family explanation and actual consumer-receipt authority; removed stale separately duplicated provider commit. Provider schemas and receipt bytes preserved."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/delivery-cadence/examples/README.md",
+      "decision": "keep",
+      "sha256": "97b553749e2a5bcea97360054489abb47a9ebe890bf2638ad2997e3cbdbce20b",
+      "sourceBehavior": "Retain examples as editable declarations, intentionally absent operation entry point, and non-authorizing evidence; no live project changes promised."
+    }
+  ],
+  "inventoryRecords": 8519,
+  "docSiteEditorialRows": 219,
+  "remainingSourceRows": [],
+  "requiredFinalPinDeltas": [
+    "Retain selected full ba5 source until owner approves a superseding full pin; no version/tag edits by worker.",
+    "Mini ce893 source has dirty production edits requiring final approved source identity, runtime compilation and generated payloads at final12.",
+    "Final03 approves package/component/image/schema graph; README reads manifest authorities rather than inventing a new release number.",
+    "Companion source is recovered but unpublished/no real remote; add only verified actual publication/install references or retain explicit unpublished state.",
+    "Refresh candidate source fingerprints after admitted final source edits and owner-approved pins; source hashing is not acceptance."
+  ],
+  "notExecuted": [
+    "tests",
+    "test authoring",
+    "checks/validators",
+    "compiler",
+    "generation",
+    "build",
+    "formatter",
+    "reviewer",
+    "runtime probes",
+    "installer",
+    "commits",
+    "publication",
+    "live-home mutation"
+  ],
+  "originalMiniReadmeProvenance": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0:README.md; no duplicate archive retained",
+  "remainingSourceConflicts": [],
+  "sourceBatchComplete": true,
+  "sourceDispositionComplete": true,
+  "task16AuthoredRows": 10,
+  "task16ReferenceInputRows": 21,
+  "resolvedTask17SourceConflicts": [
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/SKILL.md",
+      "disposition": "corrected-author-source-task17",
+      "sha256": "059e57896d89fbaca5678064fb59563b861b25947cd44a1809551524b1e52730",
+      "acceptance": "none; final12 pending"
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/manifest.md",
+      "disposition": "corrected-author-source-task17",
+      "sha256": "216b545cd1062fb11378706e6ef931f56484baa67de7cd953ec389eddcaed48c",
+      "acceptance": "none; final12 pending"
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/native-harnesses.md",
+      "disposition": "corrected-author-source-task17",
+      "sha256": "5bb45cdaa2778958d609991401a2ba52dce7adac55fb200f46b86b101cf7bbb3",
+      "acceptance": "none; final12 pending"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/SKILL.md",
+      "disposition": "corrected-author-source-task17",
+      "sha256": "9b003e8568badeedbbe6c13576044cac9822dd874a61eda30146b68ed853fa6c",
+      "acceptance": "none; final12 pending"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/manifest.md",
+      "disposition": "corrected-author-source-task17",
+      "sha256": "2371a1efa06e9ad29e96ca0e4356f569b0533d95895a916506254d4e55914baa",
+      "acceptance": "none; final12 pending"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/native-harnesses.md",
+      "disposition": "corrected-author-source-task17",
+      "sha256": "5bb45cdaa2778958d609991401a2ba52dce7adac55fb200f46b86b101cf7bbb3",
+      "acceptance": "none; final12 pending"
+    }
+  ],
+  "sourceAdvancedSincePriorCandidate": [
+    {
+      "pack": "full",
+      "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/pin-proposal.md",
+      "priorCandidateSha256": "523a6b2616f79d849ce62ef31b96540d99477fd2b7da257500a54052ebd0d47e",
+      "candidateSha256": "356dc927591dc63abe5b47412fd2211ba65c25102953c27cc0a0df83d0d56815"
+    },
+    {
+      "pack": "full",
+      "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/plan.md",
+      "priorCandidateSha256": "400ab04352892fc0a93238cc634cd493f58ffda2baebca3ee26d9e7fbb5d5fd2",
+      "candidateSha256": "94c6d8b4fb0d60ed4df14fbef167e3a73ed2480a02e0e49170fd7d3f1292af5c"
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/SKILL.md",
+      "priorCandidateSha256": "e53eed4aeac952539a3f103edef383a4494693384d4f23f6d51e29ec8da7dd6f",
+      "candidateSha256": "059e57896d89fbaca5678064fb59563b861b25947cd44a1809551524b1e52730"
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/manifest.md",
+      "priorCandidateSha256": "6e3c8a4c21ba80ba0f9efc9a5fbfddf0e83ef16802da283d7cbfbc2a2e9bdd9c",
+      "candidateSha256": "216b545cd1062fb11378706e6ef931f56484baa67de7cd953ec389eddcaed48c"
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/native-harnesses.md",
+      "priorCandidateSha256": "95a3bf751875b379e0fe7494835669677cf584cf2d0f88e78601f4d8a6a01eee",
+      "candidateSha256": "5bb45cdaa2778958d609991401a2ba52dce7adac55fb200f46b86b101cf7bbb3"
+    },
+    {
+      "pack": "mini",
+      "path": "rules/src/constitution.md",
+      "priorCandidateSha256": "f83b4b1033a4e43035e20ff20eeaabf3f506cf9197c84123a6bc80e1dc58978d",
+      "candidateSha256": "1ac7cc9b734dea4521b4b2a55a6508f3684a004b7249e83b37eb2e053eb26ebc"
+    },
+    {
+      "pack": "mini",
+      "path": "rules/src/project/docker-services.md",
+      "priorCandidateSha256": "6014348b19e8037593f4a90f9eadc47447dd8107ddcf3432de8b97248a41ef0b",
+      "candidateSha256": "b364b613226ade0ba1291b1dba418c2de01453ab1d93b9a2a75fa34b183bf074"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/SKILL.md",
+      "priorCandidateSha256": "51e865fe12509c18179aa951b59d0e28135cc3b92f615ee730ef18ae151d483c",
+      "candidateSha256": "9b003e8568badeedbbe6c13576044cac9822dd874a61eda30146b68ed853fa6c"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/manifest.md",
+      "priorCandidateSha256": "be7ac9e3b60626d60afa3883c32c0937d2e9dd0b4de9df4e6438d19e86ef1014",
+      "candidateSha256": "2371a1efa06e9ad29e96ca0e4356f569b0533d95895a916506254d4e55914baa"
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/native-harnesses.md",
+      "priorCandidateSha256": "95a3bf751875b379e0fe7494835669677cf584cf2d0f88e78601f4d8a6a01eee",
+      "candidateSha256": "5bb45cdaa2778958d609991401a2ba52dce7adac55fb200f46b86b101cf7bbb3"
+    }
+  ],
+  "ownerHandoffEvidence": [
+    {
+      "path": "/tmp/ldd-task17-2-page-dispositions.json",
+      "sha256": "d4d7cffb5ebc625eb600940df1904e4c9ae9d2f5dcfadd79f6817c967d8b4a01"
+    },
+    {
+      "path": "/tmp/ldd-task17-2-source-handoff.json",
+      "sha256": "e681fb43ffc38f2440932843ea75e87a0d6d7ebc1b3810b170e877cb7942516e"
+    },
+    {
+      "path": "/tmp/ldd-task17-source-corrections.json",
+      "sha256": "e668b7b51f84589789932a9345ba5638c92a7bca12a7eb5c1fbf3c0b79e7b01b"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/maintenance-readiness.md",
+      "sha256": "05426df2f90735378485f80697f2a451ef47022d563a020b1b5b2bebf9d18121"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/team-memory-source-subsets.json",
+      "sha256": "0d4e6982bc8fb70988e61f618bfed82afbe7d6490ce64970c34eeeba0b249f0d"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/projection-migration-source-handoff.json",
+      "sha256": "d2679cbde3e462f2be258b4182ae72b169415e851b5b3045db6ee8264516858b"
+    },
+    {
+      "path": "/tmp/ldd-task16-source-handoff.json",
+      "sha256": "617388dd6450657e4c88ad291620cf3e0dd927155c647c376006ba5e14f96b07"
+    },
+    {
+      "path": "/tmp/ldd-task17-team-source-corrections.json",
+      "sha256": "9bfccae2816eda45b231c0f38d7d4be429a480b972e2eaaacbbe01dec0419b8f"
+    }
+  ]
+}

@@ -1,12 +1,14 @@
 # 11 · The Artifact Refiner
 
-Most of the skill pack is about generating code. The artifact-refiner is about *improving any artifact until it converges* — a logo, a React component, an A2UI spec, a blog post, an image prompt, a meta-prompt — using the same PMPO loop discipline that governs everything else. It is an imported submodule, it is one of the largest skills in the system, and it earns its own chapter.
+Most of the skill pack is about generating code. The artifact-refiner is about *refining an artifact against recorded constraints* — a logo, a React component, an A2UI spec, a blog post, an image prompt, a meta-prompt — using the same PMPO loop discipline that governs everything else. It is an imported submodule, it is one of the largest skills in the system, and it earns its own chapter.
 
 ## What it is
 
 The artifact-refiner is a PMPO-driven, artifact-centric refinement engine. Three properties define it: **state is persisted to disk, never held in the conversation**; it is **tool-augmented**, running real code in a sandbox to actually render and evaluate what it produces; and it is **constraint-driven**, refining against explicit constraints with severity levels until convergence rules are met, bounded by a `max_iterations = 5` guard.
 
-It is authored by Travis James, licensed MIT, and vendored as a git submodule at version **1.4.1** (consistent across `SKILL.md` and `.claude-plugin/plugin.json`). Upstream: [`GQAdonis/artifact-refiner-skill`](https://github.com/GQAdonis/artifact-refiner-skill).
+It is imported as a Git submodule; the checked gitlink and upstream source own its
+version and license. This chapter describes the imported design, not a fresh
+installation or runtime certification of every listed child skill. Upstream: [`GQAdonis/artifact-refiner-skill`](https://github.com/GQAdonis/artifact-refiner-skill).
 
 The thesis, from its own theory document:
 
@@ -70,8 +72,8 @@ The refiner bundles sixteen skills/commands. The ones marked ⌘ are quick-start
 
 ## The five subagents
 
-The architecture's most important property is enforced at the **permission layer**, not by
-instruction: of the five agents, exactly one can write.
+The imported definitions declare separate roles and tool lists. Of those five
+definitions, the executor is the designated production writer:
 
 | Agent | Tools | Role |
 |---|---|---|
@@ -81,9 +83,10 @@ instruction: of the five agents, exactly one can write.
 | `pmpo-reflector` | `Read, Grep, Glob` | evaluate against constraints; decide convergence |
 | `artifact-validator` | `Read, Grep, Glob, Bash` | schema, file integrity, completeness |
 
-The specifier, planner, and reflector are *structurally incapable* of mutating state. That
-is what "separation of cognition and computation" means here — a critic that cannot edit
-the thing it is critiquing cannot quietly fix and then approve it.
+The harness must actually enforce the advertised tool lists. A Markdown definition
+alone does not prove a permission boundary or independent review. Under this pack's
+policy, review and validation roles stay dormant until every planned production
+change in the phase is complete.
 
 The planner enforces a fixed dependency order:
 
@@ -222,7 +225,9 @@ works.
 
 ## Where it fits in the system
 
-The artifact-refiner is the per-change QA layer of the KBD orchestrator (Layer 3 in the orchestrator's three-level model) and the QA delegate of the evolver. When the orchestrator executes a change that produces a UI component or a brand asset, it can hand that artifact to the refiner, which renders it in a sandbox, scores it against constraints, and iterates to convergence — instead of trusting that the first generation was good enough. Combined with `scaffold-react-vite`, it spans the full distance from a refined component to a buildable, deployable project. That end-to-end reach — refine the artifact, then scaffold the application around it — is why it is one of the most-used skills in real workflows.
+The artifact-refiner provides production refinement and, at the final completed-phase
+boundary, can supply artifact review for KBD or the evolver. When the orchestrator executes a change that produces a UI component or a brand asset, it can hand the artifact and constraints to the production refiner. Final rendered
+evidence, scoring and review follow the completed-phase boundary. Combined with `scaffold-react-vite`, it spans the full distance from a refined component to a buildable, deployable project. That end-to-end reach — refine the artifact, then scaffold the application around it — is why the generation, build, render and deployment boundaries must each be evidenced.
 
 ```mermaid
 graph TD

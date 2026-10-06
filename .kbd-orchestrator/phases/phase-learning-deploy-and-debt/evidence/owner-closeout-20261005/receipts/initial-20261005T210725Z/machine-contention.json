@@ -1,0 +1,16 @@
+{
+  "recordedAt": "2026-10-05T21:39:08.438640+00:00",
+  "status": "BLOCKED",
+  "ownCargoPid": 58648,
+  "ownProcessGroup": 58648,
+  "ownCommand": "17695 58648 /Users/gqadonis/.rustup/toolchains/1.99.0-aarch64-apple-darwin/bin/cargo build --locked --no-default-features --features server-only,local-embeddings --bin surreal-memory-server",
+  "competingCargo": "59866 91175 03:59 /Users/gqadonis/.rustup/toolchains/nightly-2026-07-18-aarch64-apple-darwin/bin/cargo build --release --locked --no-default-features --features server-full --bin uar-sidecar --target aarch64-apple-darwin --jobs 3",
+  "action": "SIGINT only owned isolated build process group",
+  "completedBuilds": [
+    "native-cli",
+    "hook-runtime",
+    "memory-candidate"
+  ],
+  "acceptance": false,
+  "next": "Wait for competing build, then batch source/gate fixes and rerun only affected components"
+}

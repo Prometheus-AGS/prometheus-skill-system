@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { resolveCodexHome } from './lib/store-paths.js';
 
 const OWNER = 'prometheus-delivery-cadence';
 const RECEIPT = '.cadence-install.json';
@@ -42,7 +43,7 @@ function targetRoots(args) {
   const kimi = !args.isolated && process.env.KIMI_CODE_HOME || path.join(args.home, '.kimi-code');
   const config = !args.isolated && process.env.XDG_CONFIG_HOME || path.join(args.home, '.config');
   const roots = {
-    codex: path.join(args.home, '.codex/skills'),
+    codex: path.join(resolveCodexHome(args.home), 'skills'),
     claude: path.join(args.home, '.claude/skills'),
     'kimi-code': path.resolve(kimi, 'skills'),
     minimax: path.join(args.home, '.minimax/skills'),
@@ -166,6 +167,7 @@ function main() {
   const args = options(process.argv.slice(2));
   if (args.help) {
     console.log('node scripts/distribute-delivery-cadence.mjs [--targets all|codex,claude,kimi-code,minimax,zed,opencode] [--home DIR] [--source-root DIR] [--dry-run] [--adopt-identical]');
+    console.log('Codex: nonempty CODEX_HOME takes precedence; --home changes the .codex fallback. For scratch destinations, set CODEX_HOME explicitly or unset it before using --home.');
     return;
   }
   const contractPath = path.join(args.sourceRoot, 'skill-system.json');

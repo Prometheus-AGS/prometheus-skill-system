@@ -26,13 +26,14 @@
 # bash 3.2 compatible (constraint C-05): no mapfile, no declare -A, no ${var,,}.
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 SKILL_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 # RESEARCH_HOOK_DIR lets a test substitute stub hooks; production uses the skill's hooks/.
 HOOK_DIR="${RESEARCH_HOOK_DIR:-$SKILL_DIR/hooks}"
-REPO_ROOT="$(cd "$SKILL_DIR/../../.." && pwd)"
-SLUG_LIB="$REPO_ROOT/shared/scripts/lib/slug.sh"
-[ -f "$SLUG_LIB" ] && . "$SLUG_LIB"
+. "$SCRIPT_DIR/research-root.sh"
+REPO_ROOT="$(research_pack_root "$SCRIPT_DIR")" || REPO_ROOT=""
+SLUG_LIB="${REPO_ROOT:+$REPO_ROOT/shared/scripts/lib/slug.sh}"
+[ -n "$SLUG_LIB" ] && [ -f "$SLUG_LIB" ] && . "$SLUG_LIB"
 
 log()  { echo "[deep-research] $*" >&2; }
 now()  { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
@@ -69,7 +70,7 @@ if [ "$CHECK_TOOLS" -eq 1 ]; then
   if [ -z "${TAVILY_API_KEY:-}${FIRECRAWL_API_KEY:-}" ]; then report search "NONE (stage 02 will be blocked)"; fi
   command -v python3 >/dev/null 2>&1 && report python3 present || { report python3 absent; }
   command -v jq >/dev/null 2>&1 && report jq present || { report jq "absent (required)"; rc=1; }
-  GW=""; if [ -f "$REPO_ROOT/shared/scripts/lib/kbd-model-resolve.sh" ]; then . "$REPO_ROOT/shared/scripts/lib/kbd-model-resolve.sh" 2>/dev/null || true; GW="$(kbd_resolve_gateway 2>/dev/null || true)"; fi
+  GW=""; if [ -n "$REPO_ROOT" ] && [ -f "$REPO_ROOT/shared/scripts/lib/kbd-model-resolve.sh" ]; then . "$REPO_ROOT/shared/scripts/lib/kbd-model-resolve.sh"; GW="$(kbd_resolve_gateway 2>/dev/null || true)"; fi
   [ -n "$GW" ] && report gateway "$GW" || report gateway "unreachable (judge and semantic stages degrade to blocked)"
   SM="${SURREAL_MEMORY_URL:-http://127.0.0.1:8090}"; if curl -s --max-time 3 --noproxy '*' "$SM/health" >/dev/null 2>&1; then report surreal-memory "$SM"; else report surreal-memory "absent (stages 04 and 07 degrade to on-disk only)"; fi
   [ -n "${RESEARCH_STAGE_RUNNER:-}" ] && report runner "$RESEARCH_STAGE_RUNNER" || report runner "none (checkpoint mode)"
@@ -310,7 +311,7 @@ planned_stages() {
 #                                 instead of the installed one (the contract test points it
 #                                 at a copy whose dispatch-judge.sh is a CLI-faithful stub).
 ADV_DIR=""
-for _cand in "${RESEARCH_ADV_DIR:-}" "$REPO_ROOT/skills/process/adversarial-review" "${CLAUDE_PLUGIN_ROOT:-}/skills/process/adversarial-review"; do
+for _cand in "${RESEARCH_ADV_DIR:-}" "$SKILL_DIR/../adversarial-review" "${REPO_ROOT:+$REPO_ROOT/skills/process/adversarial-review}" "${REPO_ROOT:+$REPO_ROOT/skills/adversarial-review}"; do
   [ -n "$_cand" ] && [ -f "$_cand/scripts/build-review-packet.sh" ] && { ADV_DIR="$_cand"; break; }
 done
 # The producer identity travels with the run so the judge!=producer check is

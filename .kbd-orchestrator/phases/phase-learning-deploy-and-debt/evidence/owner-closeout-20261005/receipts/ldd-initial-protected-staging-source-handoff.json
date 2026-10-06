@@ -1,0 +1,9 @@
+{
+  "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/certify-initial-protected-candidate.mjs",
+  "sha256": "8ebc794f96f3bb3c9cd0d6bf22c0dfe1bc1ea39e5f7a90332843c2f4fff7bebc",
+  "sourceComplete": true,
+  "checksRun": [],
+  "fix": "Separate unique existing index paths (git add -u) from admitted new source paths (git add without force); persist all failed preparation stdout/stderr before child cleanup.",
+  "diagnosisLimit": "All100failed paths exist in baseline/index; no earlier duplicate or missing path. Exact original Git error unavailable because its stderr was not retained. Staging correction unexecuted.",
+  "otherUnresolved": "Codex-home source provenance still rejects declared/index entity071b versus old parent HEAD gitlink; no provenance weakening or materialization scope expansion."
+}

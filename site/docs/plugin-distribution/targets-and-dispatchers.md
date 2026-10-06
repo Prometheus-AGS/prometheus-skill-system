@@ -5,7 +5,7 @@ description: The 14-target matrix, copy targets, symlink targets, and hook routi
 
 # Targets and stable dispatchers
 
-One generation is projected into 14 supported skill locations:
+The manifest declares fourteen logical skill targets. Codex resolves a nonempty inherited `CODEX_HOME` first, otherwise the selected `--home` or process home plus `.codex`; its row below describes the logical target, not a promise that a custom root lives under the default home. Paths are normalized consistently across installation, verification, rollback and uninstall:
 
 | Target | Mode |
 | --- | --- |
@@ -37,6 +37,8 @@ scripts and helpers through `current`, including hook dispatch, project
 detection, memory outbox flush, learning enqueue, `pk` health, and the skill
 index. Host configuration points to these stable paths, so activation and
 rollback do not require rewriting hook registrations.
+
+Signed store receipts and actual selected projection checks are distinct. A syntactically valid generation marker alone does not make an unrelated directory managed. Ownership must bind to a known verified generation or applicable prior ownership receipt. Unknown, malformed and unmanaged entries are preserved with diagnostics.
 
 Verification rejects missing or unsigned receipts, wrong modes or hashes, index
 parity drift, a dispatcher that resolves outside `generations/`, or a target

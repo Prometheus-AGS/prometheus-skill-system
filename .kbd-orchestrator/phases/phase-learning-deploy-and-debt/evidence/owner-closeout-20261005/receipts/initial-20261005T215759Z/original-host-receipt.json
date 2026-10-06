@@ -1,0 +1,37 @@
+{
+  "endpoint": "/private/tmp/ldd-local-07t76e9q/companion-connected-z2htsvb4/a/control.sock",
+  "httpStatus": 200,
+  "requestId": "d6a17518-2d5f-4a13-b5c0-1626379e40f1",
+  "response": {
+    "canonicalPayloadHash": "6fe0f0405085913bf87ea10b386393a468c57affcc92eb46a3a8b8a81ff01fb0",
+    "createdAtMs": 1791238782922,
+    "domain": "kbd-control:4377b624-1bca-4897-96b3-53d4b60f134a",
+    "events": [
+      {
+        "event": "accepted",
+        "localState": "accepted",
+        "sequence": 1,
+        "timestampMs": 1791238782922
+      },
+      {
+        "event": "prepared",
+        "localState": "prepared",
+        "sequence": 2,
+        "timestampMs": 1791238782957
+      },
+      {
+        "detail": "snapshotBytes=13023",
+        "event": "broadcast",
+        "localState": "broadcast",
+        "sequence": 3,
+        "timestampMs": 1791238782968
+      }
+    ],
+    "localState": "broadcast",
+    "perPeer": {},
+    "pushId": "d6a17518-2d5f-4a13-b5c0-1626379e40f1",
+    "schemaVersion": "1.7",
+    "targets": [],
+    "updatedAtMs": 1791238782968
+  }
+}

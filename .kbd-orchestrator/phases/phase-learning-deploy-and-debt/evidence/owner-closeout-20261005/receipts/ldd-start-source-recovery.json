@@ -1,0 +1,111 @@
+{
+  "phaseId": "phase-learning-deploy-and-debt",
+  "scope": {
+    "tasks": [
+      "phase-learning-deploy-and-debt/change-ldd-14-companion-publication-preparation/1",
+      "phase-learning-deploy-and-debt/change-ldd-14-companion-publication-preparation/2",
+      "phase-learning-deploy-and-debt/change-ldd-14-companion-publication-preparation/3",
+      "phase-learning-deploy-and-debt/change-ldd-18-stability-legacy-closure/2",
+      "phase-learning-deploy-and-debt/change-ldd-18-stability-legacy-closure/3",
+      "phase-learning-deploy-and-debt/change-ldd-03-published-memory-pins/1",
+      "phase-learning-deploy-and-debt/change-ldd-03-published-memory-pins/2",
+      "phase-learning-deploy-and-debt/change-ldd-03-published-memory-pins/3",
+      "phase-learning-deploy-and-debt/change-ldd-15-readme-content-renewal/1",
+      "phase-learning-deploy-and-debt/change-ldd-15-readme-content-renewal/2",
+      "phase-learning-deploy-and-debt/change-ldd-17-service-sites-current/1",
+      "phase-learning-deploy-and-debt/change-ldd-17-service-sites-current/2",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/1",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/2",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/3",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/4",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/5",
+      "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/6"
+    ],
+    "changes": [
+      "change-ldd-14-companion-publication-preparation",
+      "change-ldd-18-stability-legacy-closure",
+      "change-ldd-03-published-memory-pins",
+      "change-ldd-15-readme-content-renewal",
+      "change-ldd-17-service-sites-current",
+      "change-ldd-12-integration-rollout"
+    ],
+    "phases": [],
+    "outcomes": [
+      "Final full and mini product source is complete for later local certification, user merges and installed rollout"
+    ],
+    "owners": [
+      "lead",
+      "source-inventory",
+      "generated-ownership",
+      "hook-implementation"
+    ],
+    "authorityRefs": [
+      "owner-goal-20261005-phase-completion",
+      "phase-plan-revision-17"
+    ]
+  },
+  "featureOperation": {
+    "id": "final-product-operation",
+    "outcome": "Final full and mini product source is complete for later local certification, user merges and installed rollout",
+    "promisedCapability": "Final complete skills, teams, scoped memory and optional services are operated from the approved installed production entrypoints",
+    "procedure": "After all production and local certification, user merges and approved release decisions, install the final compatible source graph and exercise the documented production operations. No test-suite substitutes for operation.",
+    "checkpointId": "operate-final-installed-product",
+    "creationTaskRef": "phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/5",
+    "target": {
+      "kind": "real",
+      "description": "Owner-authorized final installed machine after local gates and user merges"
+    },
+    "evidenceLevel": "real-service",
+    "expectedResult": "Installed entrypoints deliver documented final capabilities with exact source and service receipts",
+    "prerequisites": [
+      {
+        "id": "final-local-gates-and-owner-merges",
+        "description": "Complete production, final local integration evidence and user-owned merge/protected release decisions"
+      }
+    ],
+    "isolatedResources": [
+      "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final"
+    ],
+    "externalEffects": [
+      {
+        "description": "Final machine deployment only at approved rollout task",
+        "authorityRef": "owner-goal-20261005-phase-completion"
+      }
+    ],
+    "authorityRefs": [
+      "owner-goal-20261005-phase-completion"
+    ],
+    "limitations": [
+      "No acceptance, approved versions, publication, merge or final deployment is asserted at source admission. Earlier workahead activities and original firstWorkAt remain in its preserved cancelled record; this clock measures newly admitted remaining source and recovery work only."
+    ]
+  },
+  "sourceRefs": [
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt"
+    },
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final"
+    },
+    {
+      "repository": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "operate-final-installed-product",
+      "kind": "run",
+      "purpose": "feature",
+      "command": "/Users/gqadonis/.local/bin/prometheus",
+      "args": [
+        "contract",
+        "show",
+        "--json"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main",
+      "required": true,
+      "timeoutMs": 30000
+    }
+  ]
+}

@@ -1,0 +1,264 @@
+{
+  "kind": "approved-full-production-metadata-handoff",
+  "sourceBatchComplete": true,
+  "acceptance": "none; final change12 owns generation and local integration",
+  "approvalProvenance": "Parent reports owner chat: I approve the release proposal, including stated metadata-sequencing exception; root records canonical approval.",
+  "actualModel": "gpt-6.1-sol",
+  "actualEffort": "high",
+  "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+  "umbrella": {
+    "from": "1.11.2",
+    "to": "1.11.3"
+  },
+  "pluginProposal": {
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/plugin-version-proposal.json",
+    "sha256": "61d431ec71c59c890e006595cd88e09f24f82315a8a7c81d6f026952313afd06",
+    "approvedPlugins": [
+      {
+        "name": "prometheus-ui-ux-skills",
+        "path": "skills/ui-ux",
+        "from": "1.0.0",
+        "proposed": "1.0.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "prometheus-react-skills",
+        "path": "skills/react/prometheus-entity-skills",
+        "from": "1.5.0",
+        "proposed": "1.5.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "prometheus-process-skills",
+        "path": "skills/process",
+        "from": "1.7.0",
+        "proposed": "1.7.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "prometheus-devops-skills",
+        "path": "skills/devops",
+        "from": "1.5.0",
+        "proposed": "1.5.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "prometheus-testing-skills",
+        "path": "skills/testing",
+        "from": "1.5.0",
+        "proposed": "1.5.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "learn",
+        "path": "skills/learn",
+        "from": "1.6.0",
+        "proposed": "1.6.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "prometheus-librefang-skills",
+        "path": "skills/rust/librefang-wasm-skill",
+        "from": "1.5.0",
+        "proposed": "1.5.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "cowork-management",
+        "path": "skills/process/cowork-management",
+        "from": "1.0.0",
+        "proposed": "1.0.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "disk-space-guardian",
+        "path": "skills/devops/disk-space-guardian",
+        "from": "1.0.0",
+        "proposed": "1.0.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "prometheus-research-skills",
+        "path": "skills/research",
+        "from": "1.1.0",
+        "proposed": "1.1.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      },
+      {
+        "name": "prometheus-research-server",
+        "path": "substrate/prometheus-research",
+        "from": "1.7.0",
+        "proposed": "1.7.1",
+        "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+      }
+    ]
+  },
+  "changedPaths": [
+    {
+      "path": "package.json",
+      "beforeSha256": "3ef1098b0f1d68e2b1e030e2d10984f4696bb0ab41adcc7afd9263fb3d02e958",
+      "sha256": "e711976fe5f700fa1ee1807b034760d355501d96a122106bdc3c2b4499e32980",
+      "beforeBytes": 9435,
+      "bytes": 9435
+    },
+    {
+      "path": "site/package.json",
+      "beforeSha256": "5567d97ea3cc34bc3d0c3f188d6a17f3c3689a972d2fc59a99ecb4f855ca47e2",
+      "sha256": "29219adcb8a1a2771213c366bfbcca6eeb6f3922318abff1fe916883ca799d4d",
+      "beforeBytes": 2788,
+      "bytes": 2788
+    },
+    {
+      "path": "package-lock.json",
+      "beforeSha256": "ae79740ba84b68a32c7c3ab8414155af6dcc6c58493ff45c14b812b4632321c8",
+      "sha256": "7e6427c4f21640cee65cf756f3764cf7660e831ccb6b637a5c710012c7fee325",
+      "beforeBytes": 111409,
+      "bytes": 111409
+    },
+    {
+      "path": "site/package-lock.json",
+      "beforeSha256": "46aaf2df2f7a168388b8368b1f19ccfa0bdcd170ba7d7ebb78ed18448ff74565",
+      "sha256": "a22394f4f4c90e384f3e8b2a1386fba97822daedfc688d93a0b33f64cc7ffc87",
+      "beforeBytes": 774726,
+      "bytes": 774726
+    },
+    {
+      "path": "skill-system.json",
+      "beforeSha256": "666931547ac71b785f1461396fc1e991e728235ad4483bc0697139b3d9457806",
+      "sha256": "7aea9c9a0d780fb86039f8f34035a9bc83a1b1d252013d965af8bd5309899f8a",
+      "beforeBytes": 7888,
+      "bytes": 7888
+    },
+    {
+      "path": "config/prometheus-exec-component.json",
+      "beforeSha256": "65c661094746ae4fbba882a36f49fcbfd81a19709cda250634b351cd51205e36",
+      "sha256": "146dcbd1a884ef31148d13c87892646ad9b5c77c5b97dfcd2ec9e26c538085fa",
+      "beforeBytes": 1645,
+      "bytes": 1645
+    },
+    {
+      "path": "tools/prometheus-cli/Cargo.toml",
+      "beforeSha256": "2f387aa84215dcdd9860608781ddf6009a3066222d6ef6dd5f30893768c4bc1b",
+      "sha256": "a9cc6611413d8d289b0a9488ec17affd9892735449c964b4982ddcdc338a5d5c",
+      "beforeBytes": 2086,
+      "bytes": 2086
+    },
+    {
+      "path": "tools/prometheus-cli/Cargo.lock",
+      "beforeSha256": "3d3772103c1c568ac593ca98fd63ecb130bb0270b773b0f664491a06e51bb4a1",
+      "sha256": "2b5222fba2278c5037fc268bf89ec6e50b3f6e99c161095f289ed3b0b7053c36",
+      "beforeBytes": 254087,
+      "bytes": 254087
+    },
+    {
+      "path": "skills/ui-ux/.claude-plugin/plugin.json",
+      "beforeSha256": "334adab7131b4f5a55a43dfd3c034067ebb241f0bc4a2361059958f4588d59f7",
+      "sha256": "9e6013118384a81f4106c03c22e6d3d7b196306239bab40dcedebf75ff74387a",
+      "beforeBytes": 1369,
+      "bytes": 1369
+    },
+    {
+      "path": "skills/react/prometheus-entity-skills/.claude-plugin/plugin.json",
+      "beforeSha256": "fc04a6c09f0c867e0926f845db9532b6edc99eb7b42f0033d5fd208e8d49c26e",
+      "sha256": "8d8a682206b28f7ba224bd24e2d539752e9d9274798b142d0a4925485d216e3c",
+      "beforeBytes": 821,
+      "bytes": 821
+    },
+    {
+      "path": "skills/process/.claude-plugin/plugin.json",
+      "beforeSha256": "30ebec1c18d3ce1f5de8eeb4e2092745c14ce08e41fcdef35a0309dff97d10a1",
+      "sha256": "78fb8e53c0f1dd1a7e8dda071c4ffa39611627130bf28a0f3a81170938cc424b",
+      "beforeBytes": 982,
+      "bytes": 982
+    },
+    {
+      "path": "skills/devops/.claude-plugin/plugin.json",
+      "beforeSha256": "09c0fd1a3bb7c6057e0078326b44aa6dd8dd3331817cd1dd076c12581ca8e1cb",
+      "sha256": "ed22bfde43b0c7f1a92d865a419d644012001283135d0a0f54f1b2ec1454c1aa",
+      "beforeBytes": 499,
+      "bytes": 499
+    },
+    {
+      "path": "skills/testing/.claude-plugin/plugin.json",
+      "beforeSha256": "85f6cf5e2c88a3dc0c2867539aebce10b1eca96455d8d8595692524ebd8836f4",
+      "sha256": "b7f9fef311180d4bb6cfc324e7b55bee893c10b51f9925486dc19858890d2242",
+      "beforeBytes": 385,
+      "bytes": 385
+    },
+    {
+      "path": "skills/learn/.claude-plugin/plugin.json",
+      "beforeSha256": "f4641c1500798635f686820405b90c57fd6f5fdc022238926e5959b61064db27",
+      "sha256": "92ab594730391350d80294c3870cd355b35e2fbb82e5a916ec345a831a6dd2d4",
+      "beforeBytes": 601,
+      "bytes": 601
+    },
+    {
+      "path": "skills/rust/librefang-wasm-skill/.claude-plugin/plugin.json",
+      "beforeSha256": "de21aa9ca3b8c6ced46349274ae55564ce97126b885a879597d2a53261ae4259",
+      "sha256": "dfc0f2dd3b98d2a3a5c3a060f31ebd9e921dbbb45bf1cf9aedb375622cd42136",
+      "beforeBytes": 589,
+      "bytes": 589
+    },
+    {
+      "path": "skills/process/cowork-management/.claude-plugin/plugin.json",
+      "beforeSha256": "9b3f56d99cde29ffae66ea4984f11cddd5900891db3c35897da6d12505cd2116",
+      "sha256": "564da557b9eb68b878b5a1bed3f783ad5ebec744ec22cc61b1ff0a664b981248",
+      "beforeBytes": 266,
+      "bytes": 266
+    },
+    {
+      "path": "skills/devops/disk-space-guardian/.claude-plugin/plugin.json",
+      "beforeSha256": "c5d96c3ebf1a483d0f05e023ab7567e4295869d67c31a812967768c293862552",
+      "sha256": "216ef86e84419b8e05a4340e87c1c2b50c0a42dff800c783c16d397b0e38b3fb",
+      "beforeBytes": 250,
+      "bytes": 250
+    },
+    {
+      "path": "skills/research/.claude-plugin/plugin.json",
+      "beforeSha256": "f04e94c6bf104b3ced02b96a66a7a9c5258f0d475c4fa4ed132b2801133194ed",
+      "sha256": "4e8063da32c1871a6082c69069c94fef082b80150e04f2cfcef35450f8446482",
+      "beforeBytes": 315,
+      "bytes": 315
+    },
+    {
+      "path": "substrate/prometheus-research/.claude-plugin/plugin.json",
+      "beforeSha256": "0412b2e0d9ff71bfcd7088157d1fe0aef559ae5d0ffdc81c3b099d21f59b64b9",
+      "sha256": "0b81f0934fca9fc3923cc2af29bf8e383c0878d4ede5b10561e277118ce747ca",
+      "beforeBytes": 269,
+      "bytes": 269
+    },
+    {
+      "path": "config/release-version-matrix.json",
+      "beforeSha256": "ee2d9d8ab7991e2994cd83f4578c989b41db2d754a769b5332b26325c2efe33b",
+      "sha256": "4c4c1fd7fa89a6cdefdbafa63d21958b22dedc5cd1da630ab5ddcc717483818b",
+      "beforeBytes": 2635,
+      "bytes": 6856
+    }
+  ],
+  "changedPathCount": 20,
+  "sourceMatrix": {
+    "ownedExpectationCount": 36,
+    "changes": "Literal JSON quotes, escaped version dots, whitespace-tolerant name/path/version matching, root and empty-package npm lock coverage, all four inherited CLI workspace lock versions, all eleven marketplace and plugin source declarations. Existing checker source and generated coverage remain unchanged."
+  },
+  "preserved": [
+    "skill-system imports/gitlinks and minimumActiveVersion 1.11.0",
+    "all independent binary/API/protocol/vendor/import/dependency versions",
+    "all npm dependency resolutions and Cargo external package lock entries",
+    "component hash/capabilities/profiles",
+    "other-owner source edits"
+  ],
+  "checksRun": [],
+  "generationRun": false,
+  "remainingDeferredGeneratedDeltas": [
+    "Umbrella root plugin manifests (.claude-plugin/plugin.json and .codex-plugin/plugin.json), both generated marketplaces, Claude/Codex distribution bundles and payload manifests, inventories/install/release metadata derived from skill-system.json",
+    "shared/harnesses/generated/release-manifest.json and other owned harness adapter projections",
+    "Generated copies of all 11 owned plugin manifests and config/prometheus-exec-component.json",
+    "Any generated site catalogs/package-version projections required by final12 production generators"
+  ],
+  "remainingOwners": [
+    "Root final import/gitlink freeze and canonical approval provenance",
+    "Final12 regeneration, release-matrix check and consolidated real local integration/certification",
+    "Root approved commit/tag/publication sequence after final local gates"
+  ],
+  "limits": "No versions.toml, tags, imports, gitlinks, documentation, canonical phase state, generated outputs, real homes, source checkers, tests or runtime paths edited. Static source bookkeeping only."
+}

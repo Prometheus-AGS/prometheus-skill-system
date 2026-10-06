@@ -4,7 +4,7 @@
 
 Files under `criteria/` and `queries/` are derived from
 **[deep_research_bench](https://github.com/Ayanami0730/deep_research_bench)**,
-pinned at upstream commit **`469cce54`** (`469cce54ea7f`, 2026-05-11).
+pinned at upstream commit **`469cce54ea7f6a63c163d3d9fec879cf289ec484`** (2026-05-11).
 
 | File here | Upstream path at `469cce54` | Relationship |
 |---|---|---|
@@ -12,17 +12,21 @@ pinned at upstream commit **`469cce54`** (`469cce54ea7f`, 2026-05-11).
 | `criteria/subset-10-criteria.jsonl` | `data/criteria_data/criteria.jsonl` | the 10 matching rows, content unmodified |
 | `criteria/score_prompt_en.py` | `prompt/score_prompt_en.py` | verbatim copy |
 
-## Licence
+## Licence and source provenance
 
-deep_research_bench is licensed **Apache-2.0**. That licence permits
-redistribution of the work and of derivative works provided the recipient
-receives a copy of the licence, modified files carry notices stating they were
-changed, and existing attribution notices are preserved. This file is that
-notice. Subsetting — selecting whole rows — is the only modification; no
-upstream file's content was altered.
+The upstream repository supplies Apache-2.0 in `LICENSE`. An exact copy from
+the pinned commit is included beside this file as [LICENSE](LICENSE). Its Git
+blob is `261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64`. There is no root `NOTICE`
+file in that pinned tree; this attribution records the local subsetting.
 
-Full licence text:
-<https://github.com/Ayanami0730/deep_research_bench/blob/469cce54/LICENSE>
+The query and criteria files select whole upstream rows and serialize them as
+JSONL; their decoded objects match the ten upstream rows. The English scoring
+prompt has the exact upstream bytes. The complete source pin and blob identities
+are recorded in the phase source-provenance artifact
+`evidence/benchmark-upstream-source.json`. Source correspondence does not establish
+a successful benchmark run, score comparability or product acceptance.
+
+Upstream source: [pinned licence](https://github.com/Ayanami0730/deep_research_bench/blob/469cce54ea7f6a63c163d3d9fec879cf289ec484/LICENSE).
 
 ## Why the criteria are adopted rather than written
 
@@ -61,7 +65,6 @@ the producer. A same-family judge shares the producer's blind spots; that is a
 failure, not a fallback, and `score-race.sh` refuses to score when the two match.
 
 **FACT metrics** (effective citations, citation accuracy) and the
-**verified-claim ratio** are built here, not adopted. The upstream benchmark
-does not compute them, and the verified-claim ratio is the metric this pack can
-report because it carries per-claim labels — something Onyx structurally cannot
-report at all.
+**verified-claim ratio** are built here, not adopted. This pack computes them from its own report and claim artifacts. Their definitions
+and evidence are separate from the adopted RACE rubric; no comparison with an
+unmeasured implementation is implied.

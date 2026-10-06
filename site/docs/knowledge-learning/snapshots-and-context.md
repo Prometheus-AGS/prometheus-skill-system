@@ -39,5 +39,8 @@ Readers validate the generation name, manifest, content hash, scope, and size bu
 
 Prompt assembly uses a fixed total budget and per-scope limits. Selection is deterministic: scope precedence, stable relevance ordering, then stable record identity. Oversized records are summarized or omitted with evidence; the runtime does not dump the complete knowledge base into a prompt.
 
-This design gives concurrent hooks and workers a stable view while a new snapshot is being published, and keeps project facts from leaking into shared or global scope.
+This design gives concurrent hooks and workers a stable view while a new snapshot is being published, with scope-bounded readers. Publication into shared or global scope still requires
+explicit ownership and authorization; a snapshot boundary alone is not a blanket
+privacy guarantee. Role-specific lesson delivery follows
+[Memory tiers](/docs/guide/memory-tiers), including Codex's digest-only main-thread view.
 

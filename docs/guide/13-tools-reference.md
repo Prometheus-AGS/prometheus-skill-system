@@ -1,6 +1,6 @@
 # 13 · Tools Reference
 
-Underneath the skills sit six Rust projects in `tools/`. Three are git submodules with independent lifecycles (`surreal-memory-server`, `prometheus-knowledge`, `liter-llm`); three are in-tree (`forge-rs`, `prometheus-cli`, `prometheus-rust-auditor`). This page documents each one in full — its purpose, its workspace layout, its CLI surface, and its MCP/REST endpoints. These are the binaries the skills shell out to and the MCP servers the loops talk to.
+The tools layer combines independent gitlink dependencies and in-tree Rust projects. The service guide also covers optional provider proxies, learner/bridge binaries and execution. This page documents each one in full — its purpose, its workspace layout, its CLI surface, and its MCP/REST endpoints. These are the binaries the skills shell out to and the MCP servers the loops talk to.
 
 ```mermaid
 C4Container
@@ -40,13 +40,9 @@ forge status                                     # show forge environment health
 forge mcp [--port 8943] [--bind 127.0.0.1]      # start the MCP server (loopback-only by default)
 forge skill list | add <name> | sync            # manage skills
 forge constitution <lang>                        # show/edit the language constitution
-forge template new skill <lang> <name>           # scaffold a new skill
-forge template new template <skill-path> <name>  # add a template to an existing skill
-forge template render <tmpl> [--var k=v]         # render a template
-forge template list [--language] | validate <skill-path> | edit <tmpl>
 ```
 
-**MCP server.** Default port **8943**, JSON-RPC 2.0 over `POST /mcp` plus a `GET /events` SSE stream, binding **`127.0.0.1:8943`** (loopback-only by default; pass `--bind 0.0.0.0` to expose on all interfaces, which prints a security warning). All requests to `/mcp` require a **Bearer token** — set `FORGE_MCP_TOKEN` in the environment; if unset, a token is auto-generated and printed to stderr on startup. The `/health` endpoint is unauthenticated. Tools: `forge_enrich {task_path}`, `forge_reflect {iteration_id}`, `forge_drift {language}`, `forge_validate {content, language}`.
+**MCP server.** Default port **8943**, JSON-RPC 2.0 over `POST /mcp` with no Forge SSE stream, binding **`127.0.0.1:8943`** (loopback-only by default; pass `--bind 0.0.0.0` to expose on all interfaces, which prints a security warning). All requests to `/mcp` require a **Bearer token** — set `FORGE_MCP_TOKEN` in the environment; if unset, a token is auto-generated and printed to stderr on startup. The `/health` endpoint is unauthenticated. Tools: `forge_enrich {task_path}`, `forge_reflect {iteration_id}`, `forge_drift {language}`, `forge_validate {content, language}`.
 
 **Security.** `task_path` in `forge_enrich` is canonicalized via `std::fs::canonicalize()` and verified with `starts_with()` to be inside the working directory before any file read — path traversal is rejected with a 400 error. No API keys or credentials are stored in source code; `TAVILY_API_KEY` and `FIRECRAWL_API_KEY` must be provided as environment variables.
 
@@ -162,7 +158,7 @@ The proxy defaults to port **4000** with a 600-second request timeout and a 10 M
 
 **MCP & REST.** Canonical MCP URL in the skill pack is **`http://localhost:23001/mcp/sse`**. MCP tool families cover the knowledge graph, Graph-RAG, scoped memory, TaskStreams, TaskSteps, Mindmaps, and optional Memory Palace. Durable writes use `POST /api/v2/operations`; reconciliation uses `GET /api/v2/operations/{operation_id}` and resumable `/events?after=` SSE. `/health` reports liveness and `/ready` reports ledger/model capabilities. Existing v1 read/search resources remain available for compatibility. See the canonical [Operation API](/docs/memory/operation-api).
 
-**Build.** `cargo build --release` builds the canonical native service (embedded SurrealDB client + local Candle embeddings); `--features palace` and `--features cuda|metal` add optional capabilities. The managed local service binds **23001** and uses the dedicated SurrealDB instance on **28000**. Containers are optional development packaging, not an installation requirement. Environment defaults: `SURREAL_MEMORY_URL`, `SURREAL_MEMORY_NAMESPACE` (`prometheus`), `SURREAL_MEMORY_DATABASE` (`skillpack`).
+**Build.** `cargo build --release` builds the canonical native service (embedded SurrealDB client + local Candle embeddings); `--features palace` and `--features cuda|metal` add optional capabilities. The managed local service binds **23001** and uses the dedicated SurrealDB instance on **28000**. Containers are optional development packaging, not an installation requirement. Environment defaults: `SURREAL_MEMORY_URL`, `SURREAL_MEMORY_NAMESPACE`, `SURREAL_MEMORY_DATABASE` (native templates select `memory/mcp`).
 
 ---
 

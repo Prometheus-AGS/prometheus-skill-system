@@ -9,7 +9,7 @@ failure this phase exists to prevent.
 Pattern: **`flutter_rust_bridge` 2.12.0**, per
 [`docs/decisions/mobile-ffi-pattern.md`](../../docs/decisions/mobile-ffi-pattern.md).
 
-## Status: Prometheus Exec is live; legacy `run_skill` remains unbound
+## Recorded implementation evidence and release limits
 
 | Claim | Status |
 |---|---|
@@ -27,7 +27,7 @@ That is the truthful answer while UAR's Wasm runtime is a stub
 ran when nothing did. One test asserts exactly this, so a future change cannot
 quietly make it fake success.
 
-The Prometheus Exec surface is separately live. Trusted Rust host code installs
+The Prometheus Exec API is a separate source surface. Trusted Rust host code installs
 one `EmbeddedExecutionApi`; plain async `exec_run`, `exec_status`,
 `exec_events`, `exec_receipt`, `exec_artifact`, and `exec_verify` functions in
 `api.rs` are available to Flutter Rust Bridge. They return concrete values and
@@ -35,18 +35,12 @@ signed receipts, use the embedding app's existing Tokio runtime, and never
 accept private signing keys. The same `EmbeddedExecutionAdapter` methods are
 usable as thin Tauri commands.
 
-The mobile KBD surface is implemented by `kbd-mobile` and exposes:
+Connected mobile KBD and peer-sync controls belong to the separately installed
+Companion extension. Their presence in older pack documentation does not make
+them a standalone pack prerequisite. See [the extension contract](../../docs/integration-contract.md)
+and the selected Companion source and acceptance evidence.
 
-- restricted capability discovery;
-- host-key preparation and attachment for signed commands;
-- commit of prepared signed events into the local Loro authority;
-- sovereign-sync-compatible delta preparation, host signing, and import.
-
-The wire envelope and topic derivation are byte-compatible with
-`sovereign-sync`. Secure device keys stay with the host application. Git,
-adoption, submodule scanning, and audit-ref writes are absent by design.
-
-## Falsifiers from the decision — both tested
+## Historical decision evidence
 
 The pattern decision was recorded **provisional** pending two checks, to be run
 *before* writing bindings rather than after:
@@ -57,11 +51,12 @@ The pattern decision was recorded **provisional** pending two checks, to be run
 | **assumption — does it express `run(string) -> Result<String, E>`?** | **Passed.** `run_skill` has exactly that signature with a structured error, and compiles for both targets. |
 | **3 — what does adding one function cost?** | **Passed, and it is 0.** `change-uhe-003` added `list_skills` and counted the glue: 0 FFI attributes, 0 `extern "C"`, 0 Cargo.toml, 0 build-script, 0 Dart. The 21 lines in `api.rs` are 9 doc comments, 3 inline comments, 1 blank, and 8 lines of ordinary function body. Threshold was >~20; actual 0. |
 
-**All three falsifiers are closed and the decision stands on measurement.**
+These are the recorded results from that decision, not a new certification of
+the current candidate.
 `flutter_rust_bridge` generates from the plain signature, so the marginal cost of
 a new function is the function.
 
-Canonical execution status and deployment boundaries are documented in [Execution architecture](/docs/execution/architecture-and-tiers) and [Platform and evidence status](/docs/execution/platform-and-evidence-status).
+Canonical execution status and deployment boundaries are documented in [Execution architecture](../../site/docs/execution/architecture-and-tiers.md) and [Platform and evidence status](../../site/docs/execution/platform-and-evidence-status.md).
 
 ## Build
 
@@ -70,7 +65,6 @@ bash generate-frb.sh          # deterministic Rust bridge regeneration
 bash generate-frb.sh --check  # fail on checked-in dispatcher drift
 bash build-mobile.sh all      # ios + android
 bash build-mobile.sh ios
-RUSTUP_TOOLCHAIN=stable cargo test
 ```
 
 Two environment facts the script encodes, both of which cost time to discover:
@@ -96,3 +90,7 @@ Two environment facts the script encodes, both of which cost time to discover:
 - **No implicit catalog-ID dispatch in `run_skill`.** Callers use the explicit
   content-addressed `exec_run` contract until catalog resolution is bound to a
   trusted host generation.
+
+Current acceptance runs after the complete production phase through the real
+embedding entry point and collaborators. Generated glue and cross-builds do not
+replace physical-device or retained-size acceptance.

@@ -1,0 +1,131 @@
+{
+  "exitCode": 0,
+  "results": [
+    {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "name": "two-production-materializations",
+      "exitCode": 0,
+      "diagnosis": "two materializations have identical actual bytes and modes",
+      "capability": {
+        "schemaVersion": 1,
+        "storeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93",
+        "probeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93/.capability-probe-30217-971eed5f9131",
+        "symlinkFile": true,
+        "symlinkDirectory": true,
+        "junction": true,
+        "hardlink": true,
+        "executableBit": true,
+        "posixModes": true,
+        "directoryLinkStrategy": "symlink",
+        "fileLinkStrategy": "symlink",
+        "unsupported": {}
+      },
+      "currentDigest": "8ea2a7530e7ce9abdf63cba38e2d48dcdc627de85e69aca4520c5f4173dea5b4"
+    },
+    {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "name": "frozen-current-materialization",
+      "exitCode": 0,
+      "diagnosis": "two materializations have identical actual bytes and modes",
+      "capability": {
+        "schemaVersion": 1,
+        "storeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93",
+        "probeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93/.capability-probe-30217-971eed5f9131",
+        "symlinkFile": true,
+        "symlinkDirectory": true,
+        "junction": true,
+        "hardlink": true,
+        "executableBit": true,
+        "posixModes": true,
+        "directoryLinkStrategy": "symlink",
+        "fileLinkStrategy": "symlink",
+        "unsupported": {}
+      },
+      "currentDigest": "8ea2a7530e7ce9abdf63cba38e2d48dcdc627de85e69aca4520c5f4173dea5b4"
+    },
+    {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "name": "two-production-materializations",
+      "exitCode": 0,
+      "diagnosis": "two materializations have identical actual bytes and modes",
+      "capability": {
+        "schemaVersion": 1,
+        "storeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93",
+        "probeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93/.capability-probe-30217-971eed5f9131",
+        "symlinkFile": true,
+        "symlinkDirectory": true,
+        "junction": true,
+        "hardlink": true,
+        "executableBit": true,
+        "posixModes": true,
+        "directoryLinkStrategy": "symlink",
+        "fileLinkStrategy": "symlink",
+        "unsupported": {}
+      },
+      "currentDigest": "842f87a02c49b66e6b13b9e99fbb7f107f6dedd95b3e518cc3671c925eeadc2d"
+    },
+    {
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "name": "frozen-current-materialization",
+      "exitCode": 0,
+      "diagnosis": "two materializations have identical actual bytes and modes",
+      "capability": {
+        "schemaVersion": 1,
+        "storeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93",
+        "probeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93/.capability-probe-30217-971eed5f9131",
+        "symlinkFile": true,
+        "symlinkDirectory": true,
+        "junction": true,
+        "hardlink": true,
+        "executableBit": true,
+        "posixModes": true,
+        "directoryLinkStrategy": "symlink",
+        "fileLinkStrategy": "symlink",
+        "unsupported": {}
+      },
+      "currentDigest": "842f87a02c49b66e6b13b9e99fbb7f107f6dedd95b3e518cc3671c925eeadc2d"
+    },
+    {
+      "root": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/ldd-full-final-generation-gdldwg0d/commands",
+      "name": "two-production-materializations",
+      "exitCode": 0,
+      "diagnosis": "two materializations have identical actual bytes and modes",
+      "capability": {
+        "schemaVersion": 1,
+        "storeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93",
+        "probeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93/.capability-probe-30217-971eed5f9131",
+        "symlinkFile": true,
+        "symlinkDirectory": true,
+        "junction": true,
+        "hardlink": true,
+        "executableBit": true,
+        "posixModes": true,
+        "directoryLinkStrategy": "symlink",
+        "fileLinkStrategy": "symlink",
+        "unsupported": {}
+      },
+      "currentDigest": "c84d95195852da7a96c2a01c3fa46054e192568a5be2b4403016fef7256285de"
+    },
+    {
+      "root": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/ldd-full-final-generation-gdldwg0d/commands",
+      "name": "frozen-current-materialization",
+      "exitCode": 0,
+      "diagnosis": "two materializations have identical actual bytes and modes",
+      "capability": {
+        "schemaVersion": 1,
+        "storeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93",
+        "probeRoot": "/private/tmp/ldd-local-o6r1eblg/materialization-volume-JCyK93/.capability-probe-30217-971eed5f9131",
+        "symlinkFile": true,
+        "symlinkDirectory": true,
+        "junction": true,
+        "hardlink": true,
+        "executableBit": true,
+        "posixModes": true,
+        "directoryLinkStrategy": "symlink",
+        "fileLinkStrategy": "symlink",
+        "unsupported": {}
+      },
+      "currentDigest": "c84d95195852da7a96c2a01c3fa46054e192568a5be2b4403016fef7256285de"
+    }
+  ]
+}

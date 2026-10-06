@@ -7,7 +7,7 @@ sidebar_label: Integration Contract
 # Integration Contract
 
 The skill pack is an open-source **skill collection**, and it is complete on its
-own: every skill works with nothing else installed. Extensions add capability
+own for its declared local workflows. Individual skills still require their own tools, data and configured services. Extensions add capability
 the pack does not provide — cross-machine sync, a supervisor that guarantees
 services are running, a remote control plane — and they live in their own
 repositories.
@@ -66,7 +66,7 @@ refused, and the failure names both versions.
 ## Regenerating the service manifest
 
 The plists and units are generator inputs. Any change that edits one of them
-must regenerate the manifest in the same change (constraint C-01):
+must regenerate the manifest after all phase production is complete, at the consolidated local boundary (constraint C-01):
 
 ```bash
 npm run generate:services-manifest

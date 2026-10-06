@@ -17,67 +17,67 @@
         "category": "frontend",
         "name": "prometheus-ui-ux-skills",
         "path": "skills/ui-ux",
-        "version": "1.0.0"
+        "version": "1.0.1"
       },
       {
         "category": "frontend",
         "name": "prometheus-react-skills",
         "path": "skills/react/prometheus-entity-skills",
-        "version": "1.5.0"
+        "version": "1.5.1"
       },
       {
         "category": "productivity",
         "name": "prometheus-process-skills",
         "path": "skills/process",
-        "version": "1.7.0"
+        "version": "1.7.1"
       },
       {
         "category": "devops",
         "name": "prometheus-devops-skills",
         "path": "skills/devops",
-        "version": "1.5.0"
+        "version": "1.5.1"
       },
       {
         "category": "testing",
         "name": "prometheus-testing-skills",
         "path": "skills/testing",
-        "version": "1.5.0"
+        "version": "1.5.1"
       },
       {
         "category": "productivity",
         "name": "learn",
         "path": "skills/learn",
-        "version": "1.6.0"
+        "version": "1.6.1"
       },
       {
         "category": "productivity",
         "name": "prometheus-librefang-skills",
         "path": "skills/rust/librefang-wasm-skill",
-        "version": "1.5.0"
+        "version": "1.5.1"
       },
       {
         "category": "productivity",
         "name": "cowork-management",
         "path": "skills/process/cowork-management",
-        "version": "1.0.0"
+        "version": "1.0.1"
       },
       {
         "category": "devops",
         "name": "disk-space-guardian",
         "path": "skills/devops/disk-space-guardian",
-        "version": "1.0.0"
+        "version": "1.0.1"
       },
       {
         "category": "productivity",
         "name": "prometheus-research-skills",
         "path": "skills/research",
-        "version": "1.1.0"
+        "version": "1.1.1"
       },
       {
         "category": "productivity",
         "name": "prometheus-research-server",
         "path": "substrate/prometheus-research",
-        "version": "1.7.0"
+        "version": "1.7.1"
       }
     ]
   },
@@ -112,7 +112,7 @@
       "description": "Install signed skills only; do not build binaries, configure MCP, or install services."
     }
   },
-  "releaseVersion": "1.11.2",
+  "releaseVersion": "1.11.3",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "schemaVersion": "prometheus-skill-system-v1",
   "targets": [

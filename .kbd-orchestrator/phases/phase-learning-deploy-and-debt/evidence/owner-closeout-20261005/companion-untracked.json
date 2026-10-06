@@ -1,0 +1,842 @@
+[
+  {
+    "path": "Cargo.lock",
+    "sha256": "059b2d6ddca30258e5ed58a8b4e2310f0a1f4164bcd5b3d1ddc90dc5e879ccdc",
+    "mode": "0o644",
+    "bytes": 220302,
+    "symlink": false
+  },
+  {
+    "path": "Cargo.toml",
+    "sha256": "4a19c26e55c83a7b89f2b0c9c2fe68903b205a203ebd7057f2905e4b8c926d43",
+    "mode": "0o644",
+    "bytes": 4005,
+    "symlink": false
+  },
+  {
+    "path": "LICENSE",
+    "sha256": "b164a95706dd6b691be8419873b721f5ac5ee38db381ebda1759ea8b0f71091d",
+    "mode": "0o644",
+    "bytes": 1069,
+    "symlink": false
+  },
+  {
+    "path": "crates/iroh-docs-adapter/Cargo.toml",
+    "sha256": "df1dab736c677341fa184d8049aa1878b746fec6a963e682a2c4eaf5034de39b",
+    "mode": "0o644",
+    "bytes": 1389,
+    "symlink": false
+  },
+  {
+    "path": "crates/iroh-docs-adapter/README.md",
+    "sha256": "871ab62f25e0289800b075e3435fd5820163db1739e7d50876eb6ad3c629ef8c",
+    "mode": "0o644",
+    "bytes": 1889,
+    "symlink": false
+  },
+  {
+    "path": "crates/iroh-docs-adapter/src/lib.rs",
+    "sha256": "553ce9e41bed7a6014496d8101b6c3149e49e91ac01e8b3f25846a1d7e8a0bc4",
+    "mode": "0o644",
+    "bytes": 22126,
+    "symlink": false
+  },
+  {
+    "path": "crates/kbd-mobile/Cargo.toml",
+    "sha256": "ff88df355822b39bd4fcd55ccd3c0d8575436417019e35b116f107b85512547b",
+    "mode": "0o644",
+    "bytes": 934,
+    "symlink": false
+  },
+  {
+    "path": "crates/kbd-mobile/README.md",
+    "sha256": "9a47e762531aac67a84cba63be577cf393365bba7908ff44c5d6cbe1e6f06e13",
+    "mode": "0o644",
+    "bytes": 1795,
+    "symlink": false
+  },
+  {
+    "path": "crates/kbd-mobile/src/lib.rs",
+    "sha256": "1f4a69d284524515f8b1420738f51310dd250d2fb1c3cef05785cf731c2a46a9",
+    "mode": "0o644",
+    "bytes": 26110,
+    "symlink": false
+  },
+  {
+    "path": "crates/kbd-mobile/tests/wire_compat.rs",
+    "sha256": "45abf1bfe20859b2f4b2d88541f00744169de89f2b49495e664d37d738617cad",
+    "mode": "0o644",
+    "bytes": 2453,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/Cargo.toml",
+    "sha256": "335b669b4e5a77429dcbe0f367b160c72bc7ef2cfa8e336636a1a99b2c2baad8",
+    "mode": "0o644",
+    "bytes": 2376,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/bin/prometheus-companion-headless.rs",
+    "sha256": "150910fd334f7672f9f60dbf7f9f6955040cd9b38ade8344d2c3c4585b9b1221",
+    "mode": "0o644",
+    "bytes": 2568,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/health.rs",
+    "sha256": "bfc505c05ce4920264b2e2d264b141f32ae44532f891fd410824831527e9d4cb",
+    "mode": "0o644",
+    "bytes": 17647,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/identity.rs",
+    "sha256": "753d414a044bd6f96304f7a9e2fa53b88c11db41166ac459c715923bd8a99786",
+    "mode": "0o644",
+    "bytes": 9141,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/lib.rs",
+    "sha256": "2e757e727cfdc4bcb6416f8ab7749e5b37c40492c3ee5b92745a120858baac0a",
+    "mode": "0o644",
+    "bytes": 3854,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/node.rs",
+    "sha256": "df3b946558bd2be47a242283eee75819abca2b5f38763afc5d360f9d03097499",
+    "mode": "0o644",
+    "bytes": 7582,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/pairing.rs",
+    "sha256": "e9387134c8d078e66908fb4fdf5ae5df31e15001391badeffa94446f60a9639b",
+    "mode": "0o644",
+    "bytes": 6210,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/paths.rs",
+    "sha256": "80dc206021d05a5b9d8c470e24309fcf9352324dd61ab74a71e1c178b735a549",
+    "mode": "0o644",
+    "bytes": 5035,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/services.rs",
+    "sha256": "aea11d71be4de78eea371e71aaea114c912b062792a2c4cf0c1cda611b2f26fb",
+    "mode": "0o644",
+    "bytes": 9034,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/src/supervisor.rs",
+    "sha256": "ff76e02c12beb995d8440ad11a9c32565d41e7b25da9a8c65ccc0b1bb88ab5d6",
+    "mode": "0o644",
+    "bytes": 29356,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/tests/connected_headless_processes.rs",
+    "sha256": "fcd8a2855c515552d84d6e255dad7a0202fe9a32f66a864946f63be095d78c91",
+    "mode": "0o644",
+    "bytes": 23775,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/tests/continuity.rs",
+    "sha256": "75299c8f5511b67e266e850692af98a5f34e0a8596f68f26ea4a26fff0a43217",
+    "mode": "0o644",
+    "bytes": 14479,
+    "symlink": false
+  },
+  {
+    "path": "crates/prometheus-substrate/tests/supervision.rs",
+    "sha256": "c3b5705ac9dc87f7ce3f5e8cbbfb01a080f5308d754b886e02ba186e82a5341b",
+    "mode": "0o644",
+    "bytes": 16667,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-client/Cargo.toml",
+    "sha256": "1123350227366c592b4064ad555287bb8208241613cdfb5e7bc5d52684db9229",
+    "mode": "0o644",
+    "bytes": 504,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-client/README.md",
+    "sha256": "9b575911ea9e864bdbe459c7c531fc7f48c439c42a1cf1344ea2bef5dbefaf07",
+    "mode": "0o644",
+    "bytes": 1772,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-client/src/client.rs",
+    "sha256": "43937d2b90575c281b757bdf1fb3acab4d5e62abbd3a899c0ac78e817d4c9830",
+    "mode": "0o644",
+    "bytes": 10981,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-client/src/error.rs",
+    "sha256": "a337acc1c08e129412c266e35cb79d6b91bf5a748f8695d8adcc8b66f326b568",
+    "mode": "0o644",
+    "bytes": 427,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-client/src/lib.rs",
+    "sha256": "0ff1d04e22b8d05d2833a44b5a9cc9099f5c4b7ec3baf6ca265d405030366d09",
+    "mode": "0o644",
+    "bytes": 347,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-client/src/types.rs",
+    "sha256": "0488f096b7159255c3d2781c70a740f99c58fe5ebacbda9c6c35a3f922096e4e",
+    "mode": "0o644",
+    "bytes": 1457,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/Cargo.toml",
+    "sha256": "fa280914f90c7ba43fa9a7863d61649a63f3adcd30ceecd700719bbbdaa7bfcb",
+    "mode": "0o644",
+    "bytes": 2629,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/README.md",
+    "sha256": "17e0852443871dae578563dc3b2901fcc33c921ab2342dcf9af212cdfa7b7de2",
+    "mode": "0o644",
+    "bytes": 1862,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/ag_ui.rs",
+    "sha256": "bd9aa5ef32d11deb6d501c3ef1c680907e6ff3f4848b7fdd8c6e59e99d84801b",
+    "mode": "0o644",
+    "bytes": 10178,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/config.rs",
+    "sha256": "7852f83a1b4b1b9ac89d022a0237697efe444beec933f81bce01156024348374",
+    "mode": "0o644",
+    "bytes": 5666,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/crdt.rs",
+    "sha256": "37b765070edbadc914bf08091bb5f309b4b465a61f7630b04d7c0299343be6f3",
+    "mode": "0o644",
+    "bytes": 2027,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/domains.rs",
+    "sha256": "c721df40b29f0292a76cdf09c6550251d8f23f17d41fa5957f8615e112049d59",
+    "mode": "0o644",
+    "bytes": 13807,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/error.rs",
+    "sha256": "2e4e766f7cd48f1fdc2ef2b65a5457b6483ac70ead50c4d7535e99f52f969fe0",
+    "mode": "0o644",
+    "bytes": 413,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/health_check.rs",
+    "sha256": "bf36c5262afff17a54924dc7231f3e6fd5d522d50b5dd0aa51a38779827ca15d",
+    "mode": "0o644",
+    "bytes": 20987,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/kbd_control.rs",
+    "sha256": "7fafbbec1ff65060ffd24da080f8d53e3a36648e180f3f114c92a2f0546cbb79",
+    "mode": "0o644",
+    "bytes": 35302,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/kbd_sync.rs",
+    "sha256": "126e6feaa7e53f96b7a3866bff7e2a87bfdda0a0aa839a164681746ac8276b95",
+    "mode": "0o644",
+    "bytes": 6399,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/lib.rs",
+    "sha256": "576594c59ef7b0707ffcb4cfb157231f164df42125da58c4d56b78ba8ba5398b",
+    "mode": "0o644",
+    "bytes": 275,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/main.rs",
+    "sha256": "e8111332e1104712e38da03c85698598ea3b15891b4f8e26f3daa565bbef9f6a",
+    "mode": "0o644",
+    "bytes": 15989,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/mcp_client_pool.rs",
+    "sha256": "182d80d5de44780990c96aae7ba3d6826f2aa6c303a7a9e8a097cac5a7c0c5fe",
+    "mode": "0o644",
+    "bytes": 14094,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/mcp_server.rs",
+    "sha256": "702711cf0a8b66b7f8e7d9cf89383e4881c2e4939092e9184052f85efddd6c9d",
+    "mode": "0o644",
+    "bytes": 31126,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/p2p.rs",
+    "sha256": "eed7dc9306e8cf4b87f6152484c0eadc670ab49714e317f2f20c5801cfc735fa",
+    "mode": "0o644",
+    "bytes": 50605,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/rest_api.rs",
+    "sha256": "13a29277f7d9cf6822ac994c1414870246b557062aea9d8de3f7cd6dc0d05258",
+    "mode": "0o644",
+    "bytes": 140500,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/src/store.rs",
+    "sha256": "62dc76ecb423c6f16b1c6d6228bfb5fd33a96fd4b6159a144e883c3dea55ae80",
+    "mode": "0o644",
+    "bytes": 3936,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/tests/cli_socket_contract.rs",
+    "sha256": "a9ab4ac323a07c2d44a245b559f5b0475b3848f1141f09c921db19e96414dc0e",
+    "mode": "0o644",
+    "bytes": 10301,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/tests/discovery.rs",
+    "sha256": "04ae9b6c8d450bd4c853b7a71042424a4fd8367f0e2bdbc1b2df255b871772d5",
+    "mode": "0o644",
+    "bytes": 8904,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/tests/domain_sync.rs",
+    "sha256": "77c77952cb721fc35fc8e68b63a9c50489b603da6ae24b353b079f8c0bc8d7af",
+    "mode": "0o644",
+    "bytes": 14892,
+    "symlink": false
+  },
+  {
+    "path": "crates/sovereign-sync/tests/integration_tests.rs",
+    "sha256": "56e39fb1adfd9ec41b6c9a99d13f34bd42a6542f775b74fef7745d7a3bf05c87",
+    "mode": "0o644",
+    "bytes": 37206,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/01-branding-guide.md",
+    "sha256": "3fadb5c647ff767a66ae7286ca66245f404996b6bc55466da36148442d587471",
+    "mode": "0o664",
+    "bytes": 10471,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/companion-appicon-dark.svg",
+    "sha256": "51879b4b42fcc10a3dbd7bb35f419b96f981b7c32d731c72b468f8f9aacc1a15",
+    "mode": "0o664",
+    "bytes": 437,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/companion-appicon-light.svg",
+    "sha256": "f60e15e730695b1361dc77ecb2305b2cae1f9f9bf193f27cb485180d27099f9a",
+    "mode": "0o664",
+    "bytes": 403,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/companion-lockup-dark.svg",
+    "sha256": "d597fcbae93788de0c457e036c2501015459c8bb05184ab706fb35c55b802e36",
+    "mode": "0o664",
+    "bytes": 642,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/companion-lockup-light.svg",
+    "sha256": "7ce5115e2d64b80113ed2706f9a7349e16b658d89797b59066c03cbd042109b1",
+    "mode": "0o664",
+    "bytes": 642,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/companion-mark-indigo-dark.svg",
+    "sha256": "9057396af821e0541174918c60e1f3644bdb38486392ba636ab41cd1e7965504",
+    "mode": "0o664",
+    "bytes": 295,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/companion-mark-indigo.svg",
+    "sha256": "cabfc26f4449aceaeddab545fbfae20b27690f2d1d5af14a57cadbdff76d1ef3",
+    "mode": "0o664",
+    "bytes": 295,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/companion-mark-mono-dark.svg",
+    "sha256": "2c6dc46c8af8f9074353f95c73c000be9ebf1156021f375f3d81a731518cc987",
+    "mode": "0o664",
+    "bytes": 295,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/companion-mark-mono-white.svg",
+    "sha256": "b9091bf2041ac2914b3329b9eaea2c69555d317fd796b062844dad1d21c1b649",
+    "mode": "0o664",
+    "bytes": 295,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/favicon.svg",
+    "sha256": "86f6b0a8832ee2493954ec8650194dcabc492b26bc9ad5fab6f773afb17d02f0",
+    "mode": "0o664",
+    "bytes": 348,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-degraded-dark.svg",
+    "sha256": "b34b9d8c806c753d9db3a107982c17f4dd127e4bf1612ea543b07e58c505ba20",
+    "mode": "0o664",
+    "bytes": 340,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-degraded-light.svg",
+    "sha256": "ebd24525e96f9bedc015d019ada6e9c331c1c51962d1baa3f565fe3d4b66b62e",
+    "mode": "0o664",
+    "bytes": 340,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-degraded-template.svg",
+    "sha256": "1199fc46031af2b3b840ba3e7fd707872d341b3cee2961764226008df96ed647",
+    "mode": "0o664",
+    "bytes": 340,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-down-dark.svg",
+    "sha256": "9621ea721b52d4d4cf00b76332e3bd110e53b5495830af8d0d7dc5cd467c88ce",
+    "mode": "0o664",
+    "bytes": 536,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-down-light.svg",
+    "sha256": "cc847bdbdba634b3fedc15bbb4d0d8e0ad8d0ca20e9137035acdc20479197db7",
+    "mode": "0o664",
+    "bytes": 536,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-down-template.svg",
+    "sha256": "273f8bdc86d6d8f2175c11acb52676bf58a5221e818640deb81474b17994c5c8",
+    "mode": "0o664",
+    "bytes": 536,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-init-dark.svg",
+    "sha256": "e7940f11f46bac4789a04b3fb3111463272023b8b473eb37970e357a1ce5aa69",
+    "mode": "0o664",
+    "bytes": 299,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-init-light.svg",
+    "sha256": "b7b0c2fc16670797a7a314f1de0cd72fe242a55f99f98b403e50212cf97fbb2a",
+    "mode": "0o664",
+    "bytes": 299,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-init-template.svg",
+    "sha256": "ace2dda2895508bef43312e6c97b1960ed05b521c334d7f852dfaa5e728d96e6",
+    "mode": "0o664",
+    "bytes": 299,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-paused-dark.svg",
+    "sha256": "0b180dfcea86c9662edc7ba352a3af9d8125a65e828f93ebc38ddda0a814879a",
+    "mode": "0o664",
+    "bytes": 301,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-paused-light.svg",
+    "sha256": "d08487fa45467a49f02bfd68dcf77cd242a5ffd3cf1177cd37977098865affb7",
+    "mode": "0o664",
+    "bytes": 301,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-paused-template.svg",
+    "sha256": "b86dd9a75d1b858e64b78f6dffcf66409be5f0ddc3840d53225c5578e75cf2af",
+    "mode": "0o664",
+    "bytes": 301,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-up-dark.svg",
+    "sha256": "2d295231502d968fd909b74e8be7125eefc9f93f19aa67a9608970c25cb078d8",
+    "mode": "0o664",
+    "bytes": 282,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-up-light.svg",
+    "sha256": "0e841b34d6850dc14de6fde361083c5e095efed8faf9b1da0d24abfedbbca339",
+    "mode": "0o664",
+    "bytes": 282,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/assets/tray-up-template.svg",
+    "sha256": "b32748b9c336ac42f8c76ab460d1b2d1b9455015afdcf929749f505bf1a79072",
+    "mode": "0o664",
+    "bytes": 282,
+    "symlink": false
+  },
+  {
+    "path": "docs/brand/rules-patch.md",
+    "sha256": "897ca0d4f003e9e8bd0b00939062fd27cdedc81024465755b8db64ab03fbc686",
+    "mode": "0o664",
+    "bytes": 3059,
+    "symlink": false
+  },
+  {
+    "path": "docs/control-api.md",
+    "sha256": "7b2dd203ec58f04dc57a1404b5b181e696f5a2283d17cf6fcd9eae4070f0bbd5",
+    "mode": "0o644",
+    "bytes": 6128,
+    "symlink": false
+  },
+  {
+    "path": "docs/decisions/versions-pins-proposal.md",
+    "sha256": "2ff712c25b7f8a5bc34ecb3697080e26ec48d95dcf73a69edbf9150eab159cbd",
+    "mode": "0o644",
+    "bytes": 4845,
+    "symlink": false
+  },
+  {
+    "path": "docs/installation.md",
+    "sha256": "3fb313f38029a9aa6fa94aa65f48d628b4a008075501c31dd065d0bbc8b5e6ac",
+    "mode": "0o644",
+    "bytes": 8325,
+    "symlink": false
+  },
+  {
+    "path": "docs/maintenance.md",
+    "sha256": "9ff06a7f256f32353d74364dbf58d061b9a0cfc0682c0e9be0215a30dc97d281",
+    "mode": "0o644",
+    "bytes": 7648,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/00-BUILD-PLAN.md",
+    "sha256": "a76eb2b9319a40d0027da2d5f5c47e5bdc3accc23e3a9685b39fb745f392bb33",
+    "mode": "0o664",
+    "bytes": 5970,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/10-a2ui-component-spec.md",
+    "sha256": "152f051dae0ce9da176cfa79eb59cf1228bd4fdf56e68f3b998c63805a715758",
+    "mode": "0o664",
+    "bytes": 7691,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/11-react-surfaces-spec.md",
+    "sha256": "3e4dd6bbcc4f3cb420aadcad941de789d29ac760af8cc337af246003c40f3046",
+    "mode": "0o664",
+    "bytes": 7014,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/20-agui-agent-spec.md",
+    "sha256": "3b72e1ea71850535c746961cce62cd6474a273040ddcedda101514415a0feac8",
+    "mode": "0o664",
+    "bytes": 7681,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/30-task-resolution-spec.md",
+    "sha256": "f0118b9acdbd87ecbf42182868c482cee235415e729d3c40010349d0a3489ac0",
+    "mode": "0o664",
+    "bytes": 10165,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/40-adversarial-review-config.md",
+    "sha256": "9710e74bce6cdea8f022ab0da492ab58c54917b29b26574c24c61727b0281e85",
+    "mode": "0o664",
+    "bytes": 4532,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/50-skills-manifest.md",
+    "sha256": "6b973bc68563f76ba48bf7cc96a5acc11ffd7a1665bad3fdffbc31b0f47a7412",
+    "mode": "0o664",
+    "bytes": 7218,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/60-acceptance-tests.md",
+    "sha256": "c56088e487d04159c5e3a654ac724255c73402929b05238c5006381d9b40fe1b",
+    "mode": "0o664",
+    "bytes": 7144,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/README.md",
+    "sha256": "149f664e7eb2d7afabdd3dda04402b65b807f630eedccc4d179b03ddebede5cf",
+    "mode": "0o664",
+    "bytes": 4484,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/prompts/00-orientation.md",
+    "sha256": "c4c646620fe8922aa47710e9c2e3ca5ff61bf72da6e830a1082ad4d9e336ee47",
+    "mode": "0o664",
+    "bytes": 1849,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/prompts/01-a2ui-catalog.md",
+    "sha256": "5751fd46791240cbd008c73b1092f051fa5c75ae3b9c3a4cd2a693286fa1d8b3",
+    "mode": "0o664",
+    "bytes": 3088,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/prompts/02-react-surfaces.md",
+    "sha256": "d332f43f0c9d1d20e6e9854bf961a2c6ba5c3a00e05ec09f8aea348b0109bb76",
+    "mode": "0o664",
+    "bytes": 3118,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/prompts/03-agui-gateway.md",
+    "sha256": "b07a82023ba8f9c26fc3e1a230fa19b186fb363cebf8afd347ab4620b53ba139",
+    "mode": "0o664",
+    "bytes": 3786,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/prompts/04-task-resolver.md",
+    "sha256": "182c2a40cef729760f8ab700a8d3015bb003129e4b8be0638699edcfd3063bdb",
+    "mode": "0o664",
+    "bytes": 4360,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/prompts/05-settings-review.md",
+    "sha256": "e4a8cc20677eb5b7bea6f3c6cb4c06b388d4a62ffcdfedcafb89a9be6319b54c",
+    "mode": "0o664",
+    "bytes": 4109,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/prompts/06-verification.md",
+    "sha256": "5892603d6724a19b787d4acd29e524032a60d0898cd0e3acf8638afed4c308a4",
+    "mode": "0o664",
+    "bytes": 2373,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/prompts/harness-notes.md",
+    "sha256": "d1357749a61467cfadab974875db6e21c16d31cbc30f6cfd6273ec8d9c24c717",
+    "mode": "0o664",
+    "bytes": 3195,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/reference/agui-stream.example.jsonl",
+    "sha256": "14722a442f8ad297b445fe97d78870d80d13918ed64aaf8c12e15f004386510e",
+    "mode": "0o664",
+    "bytes": 4575,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/reference/capability-manifest.example.json",
+    "sha256": "2bccfd29e1d528aecb39c799557cfba261e4850dcfa0e59537c4e628d4baaaf3",
+    "mode": "0o664",
+    "bytes": 6301,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/reference/resolution.ambiguous.example.json",
+    "sha256": "b9ae1bc741adc5818d6676c6b4d8b91d91747b4bd58f6ebcf652a1ab570eef06",
+    "mode": "0o664",
+    "bytes": 2106,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/schemas/a2ui-catalog.schema.json",
+    "sha256": "a5ac236a1ffb049d471f3be26f1d44adefce9a72fa71a066e36f11478de86dc7",
+    "mode": "0o664",
+    "bytes": 3800,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/schemas/agui-event.schema.json",
+    "sha256": "9a4b68342b4511b5d4b63c608d621be760cdfab9fc9e0f4f2b1eb054e864643c",
+    "mode": "0o664",
+    "bytes": 5476,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/schemas/capability-manifest.schema.json",
+    "sha256": "7ae7bf10811b2d365d8249b6faa9b7c2137f922485e208a2de86db456a0578bb",
+    "mode": "0o664",
+    "bytes": 5286,
+    "symlink": false
+  },
+  {
+    "path": "docs/ui/schemas/resolution-trace.schema.json",
+    "sha256": "cfbfe7f62562a48d492f8e63a12464863cafa3b33583283c975c2b445cb7399e",
+    "mode": "0o664",
+    "bytes": 5590,
+    "symlink": false
+  },
+  {
+    "path": "scripts/install-companion-service.sh",
+    "sha256": "e3bda3075015a0d71474a2dded2e5db9f6ac8c92638b30364b75045afe2da2a5",
+    "mode": "0o755",
+    "bytes": 4649,
+    "symlink": false
+  },
+  {
+    "path": "scripts/install-skill-package.mjs",
+    "sha256": "41459486715c82663b2461244b314d83f52d1f5d53ef510a08286debbbc02a52",
+    "mode": "0o644",
+    "bytes": 14596,
+    "symlink": false
+  },
+  {
+    "path": "scripts/install-skill-package.sh",
+    "sha256": "ae6a2c682f7e3f331e436d6dff3f201a52be19ebfcd0ded3969ee33eb08e8a7b",
+    "mode": "0o755",
+    "bytes": 314,
+    "symlink": false
+  },
+  {
+    "path": "scripts/render-companion-plist.mjs",
+    "sha256": "a789d116c62070ce086c9e2a3e957fcb6eb8a1ec2575ba73eb9e214aa2f3e0a1",
+    "mode": "0o644",
+    "bytes": 1965,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/test-companion-connected-integration.sh",
+    "sha256": "c779f5dd83749f895753f5111bd79fa21588cba8e961da0bfeb4d019a8af5ac2",
+    "mode": "0o755",
+    "bytes": 6100,
+    "symlink": false
+  },
+  {
+    "path": "shared/launchd/ai.prometheus.companion.plist.tmpl",
+    "sha256": "0d45727c812e66ccb60013220d989406457bf2a5ef7b4deea3eb8f3479b21945",
+    "mode": "0o644",
+    "bytes": 2654,
+    "symlink": false
+  },
+  {
+    "path": "skill-package.json",
+    "sha256": "c71249cfd7a988a89ff52ef947737b4175759fb51ee847fc84d8a6585c135422",
+    "mode": "0o644",
+    "bytes": 807,
+    "symlink": false
+  },
+  {
+    "path": "skills/sync-peers/SKILL.md",
+    "sha256": "960388ca43a23c01f088428814050b5a5cb8c633f230751be2015384f93ecae4",
+    "mode": "0o644",
+    "bytes": 3001,
+    "symlink": false
+  },
+  {
+    "path": "skills/sync-push/SKILL.md",
+    "sha256": "8546a1638e3a75d58b9516f66aa5d093b3691afce2562e5d7f7e8f4587319b5d",
+    "mode": "0o644",
+    "bytes": 3352,
+    "symlink": false
+  },
+  {
+    "path": "skills/sync-status/SKILL.md",
+    "sha256": "3b0eb869a5fcc8049bbbef6e04d9e1f6e238fe2f6047b3cfd64d48617389d1ed",
+    "mode": "0o644",
+    "bytes": 2527,
+    "symlink": false
+  },
+  {
+    "path": "src-tauri/icons/tray/degraded.png",
+    "sha256": "672ecd594b017fd933b2d8d2117a6ac32e41a24c40a625901a481ba7696c4e2e",
+    "mode": "0o644",
+    "bytes": 496,
+    "symlink": false
+  },
+  {
+    "path": "src-tauri/icons/tray/down.png",
+    "sha256": "0c865ef48b12d6939ae445a3390d2e95fcd0686ce18b753ef922823faf0a92bd",
+    "mode": "0o644",
+    "bytes": 663,
+    "symlink": false
+  },
+  {
+    "path": "src-tauri/icons/tray/init.png",
+    "sha256": "2a55d04a8dc3fa97fe6aac8a0ad79ce66e025faa5e521911a4cb3c2b0113380a",
+    "mode": "0o644",
+    "bytes": 450,
+    "symlink": false
+  },
+  {
+    "path": "src-tauri/icons/tray/paused.png",
+    "sha256": "285c24c207639cab46875d9fb43997b7a568dd0af220d8c0e49a48732920cae6",
+    "mode": "0o644",
+    "bytes": 463,
+    "symlink": false
+  },
+  {
+    "path": "src-tauri/icons/tray/up.png",
+    "sha256": "2a55d04a8dc3fa97fe6aac8a0ad79ce66e025faa5e521911a4cb3c2b0113380a",
+    "mode": "0o644",
+    "bytes": 450,
+    "symlink": false
+  },
+  {
+    "path": "src-tauri/src/tray.rs",
+    "sha256": "511a246b9c8fd742454b7b1b0102cec463166a8d262445c6749a17349508afd2",
+    "mode": "0o644",
+    "bytes": 6962,
+    "symlink": false
+  }
+]

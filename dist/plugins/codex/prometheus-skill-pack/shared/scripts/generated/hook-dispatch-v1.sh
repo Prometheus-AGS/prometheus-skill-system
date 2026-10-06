@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Hook generations are immutable; Python descendants must not create bytecode.
+export PYTHONDONTWRITEBYTECODE=1
 set -euo pipefail
 
 HOOK_ID=""

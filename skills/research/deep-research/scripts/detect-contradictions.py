@@ -9,23 +9,14 @@ a file runs immediately. Same convention as score-sources.py beside
 verify-sources.sh.
 """
 
-import hashlib, itertools, json, os, re, subprocess, sys
+import itertools, json, os, re, subprocess, sys
+from claim_ids import claim_id, normalise
 
 def load(path):
     if not path or not os.path.exists(path):
         return None
     with open(path, encoding="utf-8") as f:
         return json.load(f)
-
-# --- claim id: identical in build-graph.sh -----------------------------------
-def normalise(text):
-    t = text.lower().strip()
-    t = re.sub(r"\s+", " ", t)
-    return t.rstrip(" .;:,!")
-
-def claim_id(scope, text):
-    return "claim-" + hashlib.sha256(f"{scope}:{normalise(text)}".encode("utf-8")).hexdigest()[:16]
-# -----------------------------------------------------------------------------
 
 scope = os.environ["PKG_ID"]
 cred = load(os.environ.get("CRED")) or {}

@@ -4,7 +4,10 @@ title: Skills in the UAR Database
 sidebar_label: UAR Skill Database
 ---
 
-# Skills in the UAR Database
+# Historical UAR skill database findings
+
+> Historical consumer investigation: the findings, provider results and local examples below belong to the recorded UAR work, not current pack/mobile release acceptance. UAR owns its database and installation APIs. This page preserves the design/debugging evidence; use [current pack portability limits](./overview) and the consumer's approved source for onboarding.
+
 
 The Universal Agent Runtime keeps a skill database that the admin UI, the REST
 API, and embedded hosts all read. This page documents how pack skills get there,
@@ -199,7 +202,7 @@ let loaded = service.registry().read().await.len();
 assert!(loaded >= 1, "the load path never ran; this test proved nothing");
 ```
 
-## Reproducing
+## Historical reproduction commands
 
 ```bash
 cd universal-agent-runtime

@@ -1,3 +1,5 @@
+> **Historical loop construction design; outside current onboarding.** The earlier harness/model examples, file authority and automatic evolver dispatch described here are superseded by current canonical KBD authority and the bounded tick-helper contract. Use [the current guide](guide/00-quick-start.md).
+
 # Loops Architecture & Construction Spec
 
 **Driving the kbd orchestrator + OpenSpec across Claude Code (`/loop` + Opus 4.8), OpenCode (GLM‑5.2), and Codex (GPT‑5.5)**

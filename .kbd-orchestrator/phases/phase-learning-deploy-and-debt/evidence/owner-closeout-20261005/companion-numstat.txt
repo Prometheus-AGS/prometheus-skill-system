@@ -1,0 +1,6 @@
+3	0	.gitignore
+85	4	README.md
+836	113	docs/00-architecture-and-implementation-plan.md
+20	14	src-tauri/Cargo.toml
+46	0	src-tauri/src/lib.rs
+11	0	versions.toml

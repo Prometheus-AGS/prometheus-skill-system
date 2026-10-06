@@ -1,3 +1,5 @@
+> **Recorded research/implementation evidence; outside current onboarding.** Results apply to the named source and execution boundary. Current source, compiled payloads, installed harness use and release certification require their own final local evidence.
+
 # Independent routing review — completed correction confirmation
 
 Date: 2026-09-26. Reviewer: catalog subagent, independent of the routing and project-installation implementation author. Verdict: **PASS for the three previously blocking routing findings**, after one batched correction and one confirmation cycle. This is a bounded routing review, not certification of the complete release.

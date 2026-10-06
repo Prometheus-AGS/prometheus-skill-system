@@ -1,6 +1,6 @@
 # 18 · Plugins and Immutable Distribution
 
-Prometheus 1.8.0 distributes one certified source tree as harness-native plugins and as a verified 14-target AgentSkills generation. The generation is content-addressed; host paths never point at a mutable staging directory or a hardcoded release version.
+The full pack distributes one source tree as harness-native plugins and as a verified 14-target AgentSkills generation. The generation is content-addressed; host paths never point at a mutable staging directory or a hardcoded release version.
 
 ## Packaging model
 
@@ -24,8 +24,7 @@ Only marketplace manifests live at the repository root. Self-contained native
 packages are generated at `dist/plugins/claude/prometheus-skill-pack` and
 `dist/plugins/codex/prometheus-skill-pack`; every skill is materialized as
 `skills/<skill-name>/` with its scripts, references, templates, assets, and file
-modes intact. Claude auto-discovers its supported hook file. Codex intentionally
-omits hooks and uses the validated interface/default-prompt schema.
+modes intact. Claude auto-discovers its supported hook file. Codex uses its generated native manifest and hook adapter contracts; inspect the packaged entrypoint and installed harness capability rather than assuming that a manifest alone activates hooks.
 
 The root `skill-system.json` is the machine-readable authority for release and
 minimum-active versions, imports and SHAs, inventory exclusions, profiles,

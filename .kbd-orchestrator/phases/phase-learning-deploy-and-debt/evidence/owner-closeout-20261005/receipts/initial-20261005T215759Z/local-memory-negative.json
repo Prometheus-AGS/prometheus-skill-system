@@ -1,0 +1,21 @@
+{
+  "endpoint": "/private/tmp/ldd-local-07t76e9q/companion-connected-z2htsvb4/a/control.sock",
+  "httpStatus": 403,
+  "intentPath": "/private/tmp/ldd-local-07t76e9q/companion-connected-z2htsvb4/a/data/prometheus/companion/mcp-push-outbox/af86e38a-df0d-4a13-b814-88a04a2e9cc6.json",
+  "requestId": "af86e38a-df0d-4a13-b814-88a04a2e9cc6",
+  "response": {
+    "error": {
+      "code": "push_preparation_failed",
+      "message": "{\"domain\":\"surreal-memory\",\"error\":\"domain is not syncable (unregistered family or PrivacyClass::Local)\"}",
+      "pushId": "af86e38a-df0d-4a13-b814-88a04a2e9cc6"
+    }
+  },
+  "signedRequest": {
+    "domain": "surreal-memory",
+    "issuedAtMs": 1791238783412,
+    "requestId": "af86e38a-df0d-4a13-b814-88a04a2e9cc6",
+    "schemaVersion": "1.7",
+    "signature": "EYCxPCwTuuJEgQZVJbTZ1y9fa67nf9Dui8ppCypHYFLnm9fZ8jwGkoLwjGItgMy4NPSjvseBV3qIbK8RIkFQDw==",
+    "signerKeyId": "ed25519:7eaffa7dcdfd58d8fe4ea2cf2d08afe216509dd20eeadfdfef48553a45ff657e"
+  }
+}

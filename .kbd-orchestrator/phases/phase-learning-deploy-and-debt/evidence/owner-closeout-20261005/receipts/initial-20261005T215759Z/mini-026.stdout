@@ -1,0 +1,52 @@
+{
+  "project": "/private/tmp/ldd-local-07t76e9q/mini-production-ZQsiBJ/project with spaces",
+  "activeTeam": "alpha",
+  "manifest": ".agent-team/alpha/team.json",
+  "nativeDefinitions": [
+    ".codex/agents/implementer.toml"
+  ],
+  "changed": [
+    ".codex/agents/implementer.toml",
+    ".agent-team/alpha/team.json",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".agent-team/project-routing.json"
+  ],
+  "clean": false,
+  "dryRun": false,
+  "check": false,
+  "fingerprints": [
+    {
+      "file": ".codex/agents/implementer.toml",
+      "before": null,
+      "after": "3551ac716df849ee9297f23f48c7f0467c4c4ca11162bd9e9fcdfcac88ada6d0"
+    },
+    {
+      "file": ".agent-team/alpha/team.json",
+      "before": null,
+      "after": "e658151e7ca913337f63b4f49022fa6e85f797e004795b2bd5c3f7a8b4ea4f83"
+    },
+    {
+      "file": "AGENTS.md",
+      "before": "34cceee3c5ec3779c612fba124ecf8a52ad766f2a993249c68920a167bfb2cfe",
+      "after": "f2615d8399745ca7c1706a75e39590c1dbecac447a9329bc65bb6d5a8b4cd475"
+    },
+    {
+      "file": "CLAUDE.md",
+      "before": null,
+      "after": "cabf269ade3f0881c356a4589dd314b45af779852313c13c4a554fba557f2f77"
+    },
+    {
+      "file": ".agent-team/project-routing.json",
+      "before": null,
+      "after": "9bcf6dd52e5f7791df1d7ba049664d954d6a4e10bfcdcbe719db8dc26bc577b8"
+    }
+  ],
+  "diagnostics": [
+    "Source-verified serialization only; installed native validation and live execution are unverified.",
+    "Standalone agent files are supported. A Codex plugin agents manifest field is not verified; no such field is emitted.",
+    "Codex agent names use underscores (role-id becomes role_id) and set memories.generate_memories=false so subagent threads do not write the user-level memory summary.",
+    "Role overrides are preserved without native schema certification. Skill IDs refer to separately installed skills; prompt mentions do not install or authorize them."
+  ],
+  "recovery": ".agent-team/recovery/9b28177015976ab2d1b52052.json"
+}

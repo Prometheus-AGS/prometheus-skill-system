@@ -1,0 +1,16 @@
+{
+  "endpoint": "/private/tmp/ldd-local-07t76e9q/companion-connected-z2htsvb4/a/control.sock",
+  "error": "HTTP request failed: error sending request for url (http://localhost/api/v2/sync/pushes)",
+  "hint": "retain this exact request and endpoint; query sync-push-receipt before any replay; do not create another push to resolve uncertainty",
+  "intentPath": "/private/tmp/ldd-local-07t76e9q/companion-connected-z2htsvb4/a/data/prometheus/companion/mcp-push-outbox/79dbe140-4b93-4fbd-9443-8f1c75b6d392.json",
+  "requestId": "79dbe140-4b93-4fbd-9443-8f1c75b6d392",
+  "signedRequest": {
+    "domain": "kbd-control:4377b624-1bca-4897-96b3-53d4b60f134a",
+    "issuedAtMs": 1791238784501,
+    "requestId": "79dbe140-4b93-4fbd-9443-8f1c75b6d392",
+    "schemaVersion": "1.7",
+    "signature": "y7+9Lq7+ZLJe/2UMBj6DfOnfIEcio0O4QX0h4Y4WyS4riYE+/ln7uDekg8CVy5ZgR4KPPDmD0GLp3HU1SB3aDg==",
+    "signerKeyId": "ed25519:7eaffa7dcdfd58d8fe4ea2cf2d08afe216509dd20eeadfdfef48553a45ff657e"
+  },
+  "status": "uncertain"
+}

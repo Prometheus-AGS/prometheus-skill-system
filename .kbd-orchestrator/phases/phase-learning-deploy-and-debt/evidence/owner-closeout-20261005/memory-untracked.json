@@ -1,0 +1,37 @@
+[
+  {
+    "path": "docs/container-publication.md",
+    "sha256": "df68fe01a9a9c0181128311f05e0151e97c0e646d36b985df4a74027aa0afbea",
+    "mode": "0o644",
+    "bytes": 2235,
+    "symlink": false
+  },
+  {
+    "path": "docs/query-embedding-cache.md",
+    "sha256": "8d83ad1789f767ba376e385c0a798574cfab2caf1a921072834a62d6b036f8b0",
+    "mode": "0o644",
+    "bytes": 7161,
+    "symlink": false
+  },
+  {
+    "path": "skills/surreal-memory/SKILL.md",
+    "sha256": "81328d5a69c2b9ee86e8aa3817e4370ea53a33d8acffa234de6a53662d9c4f6d",
+    "mode": "0o644",
+    "bytes": 4618,
+    "symlink": false
+  },
+  {
+    "path": "src/hook.rs",
+    "sha256": "7971f85d49376eb18b229119da055c2fd9046315c4092efc58236b16dd6e6bda",
+    "mode": "0o644",
+    "bytes": 11802,
+    "symlink": false
+  },
+  {
+    "path": "tests/query_cache_production.rs",
+    "sha256": "d5af37f0a7b09836d73807285ce51f945cf4c00616af5ca54ed754d1ad617eb0",
+    "mode": "0o644",
+    "bytes": 41144,
+    "symlink": false
+  }
+]

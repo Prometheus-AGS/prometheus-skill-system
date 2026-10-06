@@ -1,0 +1,436 @@
+{
+  "kind": "full-correction-frozen-source-production-generation-handoff",
+  "recordedAt": "2026-10-05T21:56:54.985732+00:00",
+  "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+  "scratchRoot": "/tmp/ldd-full-correction-generation-lqz30p03",
+  "rootPointer": "/tmp/ldd-full-correction-generation-root.txt",
+  "actualModel": "gpt-6.1-sol",
+  "actualEffort": "high",
+  "plannedEffort": "xhigh; parent explicitly reused high",
+  "sourceGenerationComplete": true,
+  "canonicalTaskComplete": false,
+  "acceptance": "none; root consolidated gate pending",
+  "productionPasses": 2,
+  "generatorInvocations": [
+    {
+      "pass": 1,
+      "command": [
+        "npm",
+        "--prefix",
+        "skills/process/agent-team-creator/runtime",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-1.log",
+      "logSha256": "2bb27bafbae0139e12a63aa6ad893d5ca51cb5146e201a09a565cadf7a538826"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-service-manifest.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-2.log",
+      "logSha256": "f2dcc9f06d06e3a1afb349917bc3cc5335372bf94f1da8f022ac7bdc743ec51a"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-harness-adapters.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-3.log",
+      "logSha256": "896211fe84f30efb3fece4aa40137d165e0bdb5a843001f30d00dbf89e802a7c"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-skills-index.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-4.log",
+      "logSha256": "a278968a6192631b66e4209ae925f5b328d82020535632482bfff4e292ff0b35"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-skill-system-distribution.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-5.log",
+      "logSha256": "e3b3b7dbf14981bd9ef4ae48abea934cae96876a9ad32b90e7cdaeb17014c548"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/docs-sync.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-6.log",
+      "logSha256": "340cd68121e49224801c3edf3878a651dacf1b974bb7bb5c5670ecbfa3917c27"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "site/scripts/generate-skills-catalog.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-7.log",
+      "logSha256": "ab8da942e32af7f130bd0b276a87a1065703eaa3d56d12fa609e044a30fc02e9"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "site/scripts/generate-api-examples.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-8.log",
+      "logSha256": "dadcc2b66f811954bd7226af6b8a3b58f6b9f481b29ea1b37b2e34d74e1565f1"
+    },
+    {
+      "pass": 1,
+      "command": [
+        "node",
+        "scripts/generate-commands.js",
+        "--output",
+        "/tmp/ldd-full-correction-generation-lqz30p03/commands"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-9.log",
+      "logSha256": "89cb85869e6a857f5ada0682c3abd06fa89b0049ab5b29a78c0a45d6225b6d5e"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "npm",
+        "--prefix",
+        "skills/process/agent-team-creator/runtime",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-1.log",
+      "logSha256": "65e2cae9900b0189cc0c788688793590d304ff8727ff04ffef140491f5506420"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-service-manifest.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-2.log",
+      "logSha256": "f2dcc9f06d06e3a1afb349917bc3cc5335372bf94f1da8f022ac7bdc743ec51a"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-harness-adapters.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-3.log",
+      "logSha256": "896211fe84f30efb3fece4aa40137d165e0bdb5a843001f30d00dbf89e802a7c"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-skills-index.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-4.log",
+      "logSha256": "a278968a6192631b66e4209ae925f5b328d82020535632482bfff4e292ff0b35"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-skill-system-distribution.js"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-5.log",
+      "logSha256": "e3b3b7dbf14981bd9ef4ae48abea934cae96876a9ad32b90e7cdaeb17014c548"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/docs-sync.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-6.log",
+      "logSha256": "340cd68121e49224801c3edf3878a651dacf1b974bb7bb5c5670ecbfa3917c27"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "site/scripts/generate-skills-catalog.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-7.log",
+      "logSha256": "ab8da942e32af7f130bd0b276a87a1065703eaa3d56d12fa609e044a30fc02e9"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "site/scripts/generate-api-examples.mjs"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-8.log",
+      "logSha256": "dadcc2b66f811954bd7226af6b8a3b58f6b9f481b29ea1b37b2e34d74e1565f1"
+    },
+    {
+      "pass": 2,
+      "command": [
+        "node",
+        "scripts/generate-commands.js",
+        "--output",
+        "/tmp/ldd-full-correction-generation-lqz30p03/commands"
+      ],
+      "cwd": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "exitCode": 0,
+      "log": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-9.log",
+      "logSha256": "89cb85869e6a857f5ada0682c3abd06fa89b0049ab5b29a78c0a45d6225b6d5e"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/generation-plan.json",
+      "sha256": "f81bea84eabca7e221f2352e248f050edce9c484d0f309bdecce95c408a9da5f",
+      "bytes": 936
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/commands.json",
+      "sha256": "65d5cbbec82355d9341ef393086afad211f82ed759d50dabcd7dbda42ce5feeb",
+      "bytes": 6849
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/full-generated-paths.txt",
+      "sha256": "01669376d4b20d0067f431bcd6979d2fe396814732fbcc15af7932134927d18c",
+      "bytes": 2888
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/command-paths.txt",
+      "sha256": "b188c5ca46b0d3342596af9bbb1c3b764ea3c364f5d8f5e7e32bf14b774cfc10",
+      "bytes": 3941
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/full-pass-1.json",
+      "sha256": "5c1a37c30562741d753751890d792f1ede457b8970cc2fd304fa7c3490c4d57d",
+      "bytes": 1461881,
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "entryCount": 6025,
+      "declarationCount": 54,
+      "materializationSha256": "842f87a02c49b66e6b13b9e99fbb7f107f6dedd95b3e518cc3671c925eeadc2d",
+      "posixModes": null,
+      "modeEvidence": "raw lstat modes; root certification/comparison deferred"
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/full-pass-2.json",
+      "sha256": "5c1a37c30562741d753751890d792f1ede457b8970cc2fd304fa7c3490c4d57d",
+      "bytes": 1461881,
+      "root": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "entryCount": 6025,
+      "declarationCount": 54,
+      "materializationSha256": "842f87a02c49b66e6b13b9e99fbb7f107f6dedd95b3e518cc3671c925eeadc2d",
+      "posixModes": null,
+      "modeEvidence": "raw lstat modes; root certification/comparison deferred"
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/commands-pass-1.json",
+      "sha256": "80f09fefb1f5b08500df185651b1bd33e6fb5acf1b2dd8815e4a4409f815c51a",
+      "bytes": 44394,
+      "root": "/private/tmp/ldd-full-correction-generation-lqz30p03/commands",
+      "entryCount": 198,
+      "declarationCount": 198,
+      "materializationSha256": "c84d95195852da7a96c2a01c3fa46054e192568a5be2b4403016fef7256285de",
+      "posixModes": null,
+      "modeEvidence": "raw lstat modes; root certification/comparison deferred"
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/commands-pass-2.json",
+      "sha256": "80f09fefb1f5b08500df185651b1bd33e6fb5acf1b2dd8815e4a4409f815c51a",
+      "bytes": 44394,
+      "root": "/private/tmp/ldd-full-correction-generation-lqz30p03/commands",
+      "entryCount": 198,
+      "declarationCount": 198,
+      "materializationSha256": "c84d95195852da7a96c2a01c3fa46054e192568a5be2b4403016fef7256285de",
+      "posixModes": null,
+      "modeEvidence": "raw lstat modes; root certification/comparison deferred"
+    }
+  ],
+  "sourceFreezeHandoffs": [
+    {
+      "path": "/tmp/ldd-root-integration-correction-handoff.json",
+      "sha256": "5e9e85ec5398ffa227533fa07785798b77faa7fa040e7eb9a252c783a13dd2eb"
+    },
+    {
+      "path": "/tmp/ldd-initial-protected-rebase-source-handoff.json",
+      "sha256": "cf671a4c5141f92f08c65ccb3ef49284a8883add461ebbf7097541a122102051"
+    },
+    {
+      "path": "/tmp/ldd-task12-hook-home-companion-source-handoff.json",
+      "sha256": "eaabc25fb61f4aa59cb9de4b18a54737daa8afd490d609e4a354109e50d048a6"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/commands-capture-1.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/commands-capture-2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/full-capture-1.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/full-capture-2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-1.log",
+      "sha256": "2bb27bafbae0139e12a63aa6ad893d5ca51cb5146e201a09a565cadf7a538826",
+      "bytes": 278
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-2.log",
+      "sha256": "f2dcc9f06d06e3a1afb349917bc3cc5335372bf94f1da8f022ac7bdc743ec51a",
+      "bytes": 70
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-3.log",
+      "sha256": "896211fe84f30efb3fece4aa40137d165e0bdb5a843001f30d00dbf89e802a7c",
+      "bytes": 123
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-4.log",
+      "sha256": "a278968a6192631b66e4209ae925f5b328d82020535632482bfff4e292ff0b35",
+      "bytes": 30
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-5.log",
+      "sha256": "e3b3b7dbf14981bd9ef4ae48abea934cae96876a9ad32b90e7cdaeb17014c548",
+      "bytes": 43
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-6.log",
+      "sha256": "340cd68121e49224801c3edf3878a651dacf1b974bb7bb5c5670ecbfa3917c27",
+      "bytes": 29
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-7.log",
+      "sha256": "ab8da942e32af7f130bd0b276a87a1065703eaa3d56d12fa609e044a30fc02e9",
+      "bytes": 75
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-8.log",
+      "sha256": "dadcc2b66f811954bd7226af6b8a3b58f6b9f481b29ea1b37b2e34d74e1565f1",
+      "bytes": 45
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-1-9.log",
+      "sha256": "89cb85869e6a857f5ada0682c3abd06fa89b0049ab5b29a78c0a45d6225b6d5e",
+      "bytes": 104
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-1.log",
+      "sha256": "65e2cae9900b0189cc0c788688793590d304ff8727ff04ffef140491f5506420",
+      "bytes": 69
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-2.log",
+      "sha256": "f2dcc9f06d06e3a1afb349917bc3cc5335372bf94f1da8f022ac7bdc743ec51a",
+      "bytes": 70
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-3.log",
+      "sha256": "896211fe84f30efb3fece4aa40137d165e0bdb5a843001f30d00dbf89e802a7c",
+      "bytes": 123
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-4.log",
+      "sha256": "a278968a6192631b66e4209ae925f5b328d82020535632482bfff4e292ff0b35",
+      "bytes": 30
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-5.log",
+      "sha256": "e3b3b7dbf14981bd9ef4ae48abea934cae96876a9ad32b90e7cdaeb17014c548",
+      "bytes": 43
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-6.log",
+      "sha256": "340cd68121e49224801c3edf3878a651dacf1b974bb7bb5c5670ecbfa3917c27",
+      "bytes": 29
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-7.log",
+      "sha256": "ab8da942e32af7f130bd0b276a87a1065703eaa3d56d12fa609e044a30fc02e9",
+      "bytes": 75
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-8.log",
+      "sha256": "dadcc2b66f811954bd7226af6b8a3b58f6b9f481b29ea1b37b2e34d74e1565f1",
+      "bytes": 45
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-lqz30p03/pass-2-9.log",
+      "sha256": "89cb85869e6a857f5ada0682c3abd06fa89b0049ab5b29a78c0a45d6225b6d5e",
+      "bytes": 104
+    }
+  ],
+  "declarationProvenance": "Unchanged prior full-generated-paths.txt54 and command-paths.txt198 reused; actual production ownership/tsconfig emission declarations, no second ownership catalog.",
+  "comparisonExecuted": false,
+  "modeCapabilityProbeExecuted": false,
+  "generationCompilerScope": "Actual locked runtime npm run build, tsc -p tsconfig.json emits .mts source into .mjs; no tests or broad typecheck.",
+  "scratchEnvironment": "All HOME/CODEX_HOME/CLAUDE_CONFIG_DIR/XDG/TMPDIR/npm caches selected inside new private scratch; command generation explicit --output.",
+  "provisioning": "Exactly two pre-existing nested artifact gitlink pins materialized using independent objects before this generation; original parent index/pins/config untouched.",
+  "sourceSupportHandoff": "/tmp/ldd-initial-protected-rebase-source-handoff.json",
+  "commandsNotRun": [
+    "--check",
+    "validator",
+    "test",
+    "comparison",
+    "mode capability probe",
+    "Cargo/rustc",
+    "review",
+    "install",
+    "commit/tag/push",
+    "live-home mutation"
+  ],
+  "remainingFinalParentMemoryPinGraphGap": "Current parent memory0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6 remains initial graph. Final signed/certified memory commit/owner merge, separately approved exact mini SHA and impacted parent regeneration/final remote fresh-clone remain root-owned; no invented SHA."
+}

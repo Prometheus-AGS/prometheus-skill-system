@@ -4,52 +4,33 @@ title: P2P Network
 sidebar_label: Network
 ---
 
-# P2P Network
+# Optional peer supervision
 
-Sovereign Sync uses iroh QUIC and iroh-gossip. Transport encryption is necessary
-but not the authorization boundary: a frame must also arrive on the secret-derived
-group topic and pass the endpoint/signing-key allow-list, freshness, replay, target,
-and domain checks.
+The selected configuration can set `[node] p2p_enabled = false`. Local authority
+starts before optional transport. Status reports `disabled`, `initializing`,
+`bootstrapping`, `ready`, `degraded`, `failed` or `stopping`, plus retry attempt,
+last error, next retry and peer IDs. Ready does not prove peer application.
 
-```mermaid
-flowchart LR
-  Secret["Random 256-bit group secret"] --> Topic["BLAKE3 topic"]
-  Identity["Persistent iroh secret key"] --> Endpoint["Stable endpoint ID"]
-  Ticket["Pairing ticket"] --> Secret
-  Ticket --> Allow["Endpoint ↔ signing-key allow-list"]
-  Endpoint --> QUIC["Encrypted QUIC / relay path"]
-  Topic --> Gossip["iroh-gossip"]
-  Allow --> Verify["Authenticated frame verification"]
-  QUIC --> Verify
-  Gossip --> Verify
-  Verify --> Domain["Default-deny domain adapter"]
-```
+Each supervisor retry uses the selected identity, bootstrap endpoint IDs and
+discovery settings. mDNS defaults on and locates changing addresses for known
+IDs; it does not enroll unknown peers. DHT defaults off. Enabling
+`[discovery] dht = true` publishes a signed endpoint/relay/address record to the
+public DHT. iroh relay behavior is separate; disabling DHT does not promise no
+relay traffic. Endpoint authentication uses Ed25519 over iroh QUIC/TLS, not an
+additional Noise handshake. Network pairing never grants project mutation.
 
-## Discovery and relay behavior
+Use [pairing](/docs/sovereign-sync/pair-two-machines) and inspect the
+[receipt evidence](/docs/sovereign-sync/signed-pushes-and-receipts) separately.
 
-The current endpoint preset may use N0 discovery and relays when direct UDP
-paths are unavailable. Corporate firewalls, VPNs, captive networks, and offline
-LANs require deployment-specific validation. A relay can forward encrypted
-traffic but does not learn the group secret or satisfy application authorization.
+## Ownership and evidence
 
-## Bootstrap
+These routes remain useful after relocation. The current recovered Companion
+source (`docs/installation.md`, `docs/control-api.md`) has no public remote or
+certified release yet. Source inspection is not installed or peer acceptance;
+final source/artifact identities and publication links remain release-owned.
 
-`peers.bootstrap` contains stable iroh endpoint IDs for already enrolled peers.
-It does not accept IP addresses, HTTP URLs, project IDs, or pairing tickets.
-Bootstrap provides reachability; `pair-import` provides the secret and allow-list
-binding. Both are required for an authenticated group connection.
-
-## Failure diagnosis
-
-| Symptom | Check |
-|---|---|
-| Local API unavailable | Unix socket path, owner, mode `0600`, and same-user peer credentials |
-| TCP returns `401` | Explicit `--tcp` token file exists, is mode `0600`, and bearer token matches |
-| Endpoint changes after restart | P2P identity path is stable, regular, mode `0600`, and writable atomically |
-| Peer reachable but frames rejected | Both sides imported tickets and endpoint/fingerprint bindings match |
-| Push remains `broadcast` | Inspect per-peer receipts; reachability is not application evidence |
-| `stale_request` or replay rejection | Correct clocks and submit a new request ID; do not reuse a signed stale frame |
-
-Never log complete pairing tickets, group secrets, bearer tokens, or private
-identity files. Release evidence records redacted paths, fingerprints, endpoint
-IDs, and receipt state only.
+Use [local KBD](/docs/kbd/control-plane) without the optional extension, and the
+[service operations guide](/docs/guide/service-operations#optional-companion)
+for pack/Companion ownership. The [integration contract](/docs/kbd/integration-contract)
+is a one-way seam. [Relocation history](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/decisions/sovereign-sync-relocated-to-companion.md)
+is a decision record, not a Companion repository URL.

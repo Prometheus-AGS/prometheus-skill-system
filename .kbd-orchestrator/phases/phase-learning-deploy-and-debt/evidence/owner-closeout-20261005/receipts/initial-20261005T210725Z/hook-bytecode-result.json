@@ -1,0 +1,527 @@
+{
+  "status": "FAIL",
+  "exitCode": 1,
+  "reason": "AssertionError: codex-actual-generation-install: unexpected exit 1",
+  "start": "2026-10-05T21:39:41.607616+00:00",
+  "end": "2026-10-05T21:41:04.964104+00:00",
+  "full": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+  "inputIdentities": {
+    "compiledRuntime": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/crates/prometheus-hook/target/debug/prometheus-hook",
+      "sha256": "cd99b85e2a903b371349cdbb343a9da51d95bfef363286374558316fbf0f4999"
+    },
+    "scenario": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-hook-bytecode-integration.sh",
+      "sha256": "8893bcbd426b4cc94dc9f65383738612dd37d881ab3430754d10c20a06601b67"
+    }
+  },
+  "isolatedRoot": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj",
+  "cases": [],
+  "commands": [
+    {
+      "label": "compiled-runtime-version",
+      "argv": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/crates/prometheus-hook/target/debug/prometheus-hook",
+        "--version"
+      ],
+      "start": "2026-10-05T21:39:41.615672+00:00",
+      "end": "2026-10-05T21:39:41.921761+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-000.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-000.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    },
+    {
+      "label": "node-version",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/node",
+        "--version"
+      ],
+      "start": "2026-10-05T21:39:41.921827+00:00",
+      "end": "2026-10-05T21:39:41.954779+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-001.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-001.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    },
+    {
+      "label": "bash-version",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/bash",
+        "--version"
+      ],
+      "start": "2026-10-05T21:39:41.954841+00:00",
+      "end": "2026-10-05T21:39:41.965986+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-002.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-002.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    },
+    {
+      "label": "python-version",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/python3",
+        "--version"
+      ],
+      "start": "2026-10-05T21:39:41.966028+00:00",
+      "end": "2026-10-05T21:39:41.978732+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-003.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-003.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    },
+    {
+      "label": "claude-actual-generation-install",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/install-plugin-generation.js",
+        "--source-root",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude",
+        "--home",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/home",
+        "--plugin-root",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude",
+        "--targets",
+        "codex"
+      ],
+      "start": "2026-10-05T21:39:42.726603+00:00",
+      "end": "2026-10-05T21:40:07.980773+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-004.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-004.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    },
+    {
+      "label": "claude-shell-unset-subagentstop-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "subagentstop-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:08.147666+00:00",
+      "end": "2026-10-05T21:40:09.012635+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-005.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-005.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-shell-unset-sessionstart-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "sessionstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:09.012790+00:00",
+      "end": "2026-10-05T21:40:11.485557+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-006.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-006.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-shell-unset-subagentstart-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "subagentstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:11.485645+00:00",
+      "end": "2026-10-05T21:40:13.961317+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-007.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-007.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-shell-0-subagentstop-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "subagentstop-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:13.961399+00:00",
+      "end": "2026-10-05T21:40:14.700201+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-008.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-008.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-shell-0-sessionstart-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "sessionstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:14.700357+00:00",
+      "end": "2026-10-05T21:40:17.166273+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-009.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-009.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-shell-0-subagentstart-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "subagentstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:17.166350+00:00",
+      "end": "2026-10-05T21:40:19.624413+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-010.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-010.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-compiled-unset-subagentstop-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "subagentstop-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:19.626174+00:00",
+      "end": "2026-10-05T21:40:20.329159+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-011.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-011.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-compiled-unset-sessionstart-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "sessionstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:20.329340+00:00",
+      "end": "2026-10-05T21:40:22.527244+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-012.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-012.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-compiled-unset-subagentstart-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "subagentstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:22.527343+00:00",
+      "end": "2026-10-05T21:40:24.737205+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-013.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-013.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-compiled-0-subagentstop-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "subagentstop-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:24.737304+00:00",
+      "end": "2026-10-05T21:40:25.211701+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-014.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-014.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-compiled-0-sessionstart-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "sessionstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:25.211868+00:00",
+      "end": "2026-10-05T21:40:27.444857+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-015.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-015.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-compiled-0-subagentstart-learning",
+      "argv": [
+        "node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/hook-entry.mjs",
+        "--bundle",
+        "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7",
+        "--hook",
+        "subagentstart-learning",
+        "--harness",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:27.444934+00:00",
+      "end": "2026-10-05T21:40:29.641484+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-016.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-016.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-direct-subagentstop-learning",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/bash",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/subagentstop-learning.sh",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:29.641592+00:00",
+      "end": "2026-10-05T21:40:29.991389+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-017.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-017.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-direct-subagentstart-learning",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/bash",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/subagentstart-learning.sh",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:29.991465+00:00",
+      "end": "2026-10-05T21:40:32.143328+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-018.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-018.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-direct-sessionstart",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/bash",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/sessionstart-learning.sh",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:32.143416+00:00",
+      "end": "2026-10-05T21:40:34.270594+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-019.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-019.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-direct-writer",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/python3",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/lib/learning_write.py",
+        "--text",
+        "direct writer claudeunset",
+        "--cwd",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project",
+        "--payload-stdin",
+        "--visibility",
+        "agent"
+      ],
+      "start": "2026-10-05T21:40:34.270672+00:00",
+      "end": "2026-10-05T21:40:34.478567+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-020.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-020.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-direct-subagentstop-learning",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/bash",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/subagentstop-learning.sh",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:34.478687+00:00",
+      "end": "2026-10-05T21:40:34.668942+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-021.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-021.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-direct-subagentstart-learning",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/bash",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/subagentstart-learning.sh",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:34.669026+00:00",
+      "end": "2026-10-05T21:40:36.785322+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-022.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-022.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-direct-sessionstart",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/bash",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/sessionstart-learning.sh",
+        "claude-code"
+      ],
+      "start": "2026-10-05T21:40:36.785403+00:00",
+      "end": "2026-10-05T21:40:38.903471+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-023.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-023.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-direct-writer",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/python3",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/lib/learning_write.py",
+        "--text",
+        "direct writer claude0",
+        "--cwd",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project",
+        "--payload-stdin",
+        "--visibility",
+        "agent"
+      ],
+      "start": "2026-10-05T21:40:38.903559+00:00",
+      "end": "2026-10-05T21:40:39.100791+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-024.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-024.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/project"
+    },
+    {
+      "label": "claude-actual-verification-after-hooks",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/install-plugin-generation.js",
+        "--source-root",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude",
+        "--home",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/home",
+        "--plugin-root",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude",
+        "--targets",
+        "codex",
+        "--verify"
+      ],
+      "start": "2026-10-05T21:40:39.465990+00:00",
+      "end": "2026-10-05T21:40:40.087089+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-025.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-025.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    },
+    {
+      "label": "claude-actual-bytecode-contamination",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/python3",
+        "-c",
+        "import os,sys; os.environ.pop(\"PYTHONDONTWRITEBYTECODE\",None); sys.dont_write_bytecode=False; sys.path.insert(0,sys.argv[1]); import agent_identity",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc/shared/scripts/lib"
+      ],
+      "start": "2026-10-05T21:40:40.087148+00:00",
+      "end": "2026-10-05T21:40:40.142328+00:00",
+      "exitCode": 0,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-026.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-026.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    },
+    {
+      "label": "claude-contamination-rejected",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude/scripts/install-plugin-generation.js",
+        "--source-root",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-claude",
+        "--home",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/home",
+        "--plugin-root",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-claude",
+        "--targets",
+        "codex",
+        "--verify"
+      ],
+      "start": "2026-10-05T21:40:40.284245+00:00",
+      "end": "2026-10-05T21:40:40.375044+00:00",
+      "exitCode": 1,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-027.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-027.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    },
+    {
+      "label": "codex-actual-generation-install",
+      "argv": [
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/tools/node",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-codex/scripts/install-plugin-generation.js",
+        "--source-root",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/payload-codex",
+        "--home",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/home",
+        "--plugin-root",
+        "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex",
+        "--targets",
+        "codex"
+      ],
+      "start": "2026-10-05T21:40:41.522808+00:00",
+      "end": "2026-10-05T21:41:04.963953+00:00",
+      "exitCode": 1,
+      "stdout": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-028.stdout",
+      "stderr": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/hook-028.stderr",
+      "cwd": "/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj"
+    }
+  ]
+}

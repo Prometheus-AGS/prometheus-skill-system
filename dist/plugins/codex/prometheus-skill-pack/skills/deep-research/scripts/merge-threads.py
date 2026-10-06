@@ -8,7 +8,8 @@ program blocked past 90s inline and ran in under a second from a file).
 Same convention as score-sources.py beside verify-sources.sh.
 """
 
-import hashlib, json, os, subprocess, sys
+import hashlib, json, os, re, subprocess, sys
+from claim_ids import claim_id
 
 pkg, lib = sys.argv[1], sys.argv[2]
 threads_dir = os.path.join(pkg, "threads")
@@ -22,6 +23,19 @@ def read_json(path, default=None):
         return default
     with open(path, "r", encoding="utf-8") as fh:
         return json.load(fh)
+
+checkpoint = read_json(os.path.join(pkg, "checkpoint.json"), {})
+if not isinstance(checkpoint, dict):
+    die_critical("checkpoint.json must be an object")
+scope = checkpoint.get("package_id") or os.path.basename(os.path.abspath(pkg))
+if not isinstance(scope, str) or not scope:
+    die_critical("package_id is missing or invalid")
+
+def thread_array(tid, name):
+    records = read_json(os.path.join(threads_dir, tid, name), [])
+    if not isinstance(records, list) or any(not isinstance(r, dict) for r in records):
+        die_critical(f"thread {tid}: {name} must be an array of records")
+    return records
 
 # --- canonical URL -----------------------------------------------------------
 # Shell out to the shared library rather than reimplementing the rule here.
@@ -46,6 +60,9 @@ tids = sorted(
     d for d in os.listdir(threads_dir)
     if os.path.isdir(os.path.join(threads_dir, d))
 )
+for tid in tids:
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", tid):
+        die_critical(f"unsafe thread id {tid!r}")
 
 # --- pass 1: sources, unioned by canonical URL -------------------------------
 # Insertion order is thread order, which is sorted, so numbering is stable.
@@ -54,12 +71,20 @@ local_to_canon = {}   # (tid, local_source_id) -> canon
 
 for tid in tids:
     tdir = os.path.join(threads_dir, tid)
-    for s in read_json(os.path.join(tdir, "sources.json"), []) or []:
+    for s in thread_array(tid, "sources.json"):
         url = s.get("url")
-        if not url:
+        local_id = s.get("id")
+        if not isinstance(url, str) or not url:
             die_critical(f"thread {tid} has a source with no url")
+        if not isinstance(local_id, str) or not local_id:
+            die_critical(f"thread {tid} has a source with no local id")
         canon = canonical(url)
-        local_to_canon[(tid, s.get("id"))] = canon
+        if not canon:
+            die_critical(f"thread {tid}: source {local_id} has an empty canonical URL")
+        key = (tid, local_id)
+        if key in local_to_canon and local_to_canon[key] != canon:
+            die_critical(f"thread {tid}: source id {local_id} names different documents")
+        local_to_canon[key] = canon
         rec = sources.get(canon)
         if rec is None:
             sources[canon] = {
@@ -81,6 +106,8 @@ for tid in tids:
                 rec["title"] = s.get("title") or ""
 
 ordered_canons = list(sources.keys())
+citation_map = {canon: n for n, canon in enumerate(ordered_canons, 1)}
+dossiers = {}
 
 # --- the no-search rule ------------------------------------------------------
 # A dossier may only cite sources its own thread fetched. A citation to anything
@@ -88,16 +115,25 @@ ordered_canons = list(sources.keys())
 # searched, or a worker that sub-dispatched. Both are CRITICAL.
 for tid in tids:
     tdir = os.path.join(threads_dir, tid)
-    own = set()
-    for s in read_json(os.path.join(tdir, "sources.json"), []) or []:
-        if s.get("url"):
-            own.add(canonical(s["url"]))
+    own = {canon for (thread, _), canon in local_to_canon.items() if thread == tid}
 
     dossier_path = os.path.join(tdir, "dossier.md")
     if not os.path.isfile(dossier_path):
         continue
     with open(dossier_path, "r", encoding="utf-8") as fh:
         dossier = fh.read()
+
+    # The actual worker contract cites [src:<local-id>], not just bare URLs.
+    # Resolve only through THIS thread's source list. Preserve original worker
+    # artifacts for provenance/reapplication; emit a separately numbered copy.
+    def resolve_marker(match):
+        local_id = match.group(1)
+        canon = local_to_canon.get((tid, local_id))
+        if canon is None:
+            die_critical(f"thread {tid}: dossier.md cites [src:{local_id}], absent from its sources.json (no-search rule)")
+        return f"[{citation_map[canon]}]"
+
+    dossiers[tid] = re.sub(r"\[src:([^\]\r\n]*)\]", resolve_marker, dossier)
 
     # Inline citations in a dossier are bare URLs; find them without a regex
     # dialect argument by scanning tokens.
@@ -121,11 +157,20 @@ for tid in tids:
 claims = {}
 for tid in tids:
     tdir = os.path.join(threads_dir, tid)
-    for c in read_json(os.path.join(tdir, "claims.json"), []) or []:
+    for c in thread_array(tid, "claims.json"):
         cid = c.get("id")
         if not cid:
             die_critical(f"thread {tid} has a claim with no id")
-        canon = local_to_canon.get((tid, c.get("source_id")))
+        text = c.get("text")
+        if not isinstance(text, str) or not text.strip():
+            die_critical(f"thread {tid}: claim {cid} has no text")
+        expected = claim_id(scope, text)
+        if cid != expected:
+            die_critical(f"thread {tid}: claim {cid} does not match package-scoped content address {expected}")
+        local_id = c.get("source_id")
+        if not isinstance(local_id, str):
+            die_critical(f"thread {tid}: claim {cid} has no local source id")
+        canon = local_to_canon.get((tid, local_id))
         if canon is None:
             die_critical(
                 f"thread {tid}: claim {cid} cites source_id {c.get('source_id')!r}, "
@@ -157,10 +202,6 @@ for rec in claims.values():
 # across runs. Each thread's local marker for a URL resolves to the same global
 # number, which is the property `citation_utils.py::collapse_citations` has and
 # the reason it cannot drift: no model is involved.
-citation_map = {}
-for i, canon in enumerate(ordered_canons, start=1):
-    citation_map[canon] = i
-
 local_markers = []
 for (tid, local_id), canon in sorted(local_to_canon.items(), key=lambda kv: (kv[0][0], str(kv[0][1]))):
     local_markers.append({
@@ -170,15 +211,11 @@ for (tid, local_id), canon in sorted(local_to_canon.items(), key=lambda kv: (kv[
         "citation_number": citation_map[canon],
     })
 
-# --- emit, in the EXISTING stage shapes --------------------------------------
+# --- prepare the EXISTING stage shapes before touching outputs ---------------
 # Stage numbers and validators do not change; only how these files are produced.
+outputs = {}
 def write_json(rel, obj):
-    path = os.path.join(pkg, rel)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(obj, fh, indent=2, sort_keys=False, ensure_ascii=False)
-        fh.write("\n")
-    return path
+    outputs[rel] = json.dumps(obj, indent=2, sort_keys=False, ensure_ascii=False) + "\n"
 
 # stage 02
 write_json("sources/url-list.json", {
@@ -206,7 +243,7 @@ write_json("sources/registry.json", {
 # stage 03 — chunks copied into the flat package shape the validator expects
 # (url/chunk_id/text). Numbering follows source order then chunk order.
 n = 0
-seen_chunks = set()
+seen_chunks = {}
 for canon in ordered_canons:
     for tid in sources[canon]["threads"]:
         cdir = os.path.join(threads_dir, tid, "chunks")
@@ -218,10 +255,14 @@ for canon in ordered_canons:
             chunk = read_json(os.path.join(cdir, name))
             if not chunk or canonical(chunk.get("url", "")) != canon:
                 continue
+            if not isinstance(chunk.get("chunk_id"), str) or not isinstance(chunk.get("text"), str):
+                die_critical(f"thread {tid}: chunk {name} lacks string chunk_id/text")
             key = (canon, chunk.get("chunk_id"))
             if key in seen_chunks:
+                if seen_chunks[key] != chunk["text"]:
+                    die_critical(f"thread {tid}: chunk {name} conflicts with the same document/chunk id")
                 continue
-            seen_chunks.add(key)
+            seen_chunks[key] = chunk["text"]
             n += 1
             write_json(f"sources/chunk-{n}.json", {
                 "url": canon,
@@ -237,12 +278,43 @@ write_json("citation-map.json", {
         for c in ordered_canons
     ],
     "local_markers": local_markers,
+    "dossiers": [{"thread_id": tid, "path": f"merged-dossiers/{tid}.md"} for tid in sorted(dossiers)],
 })
 
 write_json("claims.json", {
     "schema_version": "1.0.0",
     "claims": [claims[k] for k in sorted(claims.keys())],
 })
+
+for tid, text in dossiers.items():
+    outputs[f"merged-dossiers/{tid}.md"] = text
+
+# A smaller rerun must not leave old chunks visible to the unchanged stage03
+# validator. Remove only this merge's numeric chunk names and previously
+# declared dossier copies, after all input contracts have passed.
+sources_dir = os.path.join(pkg, "sources")
+previous = read_json(os.path.join(pkg, "citation-map.json"), {}) or {}
+if not isinstance(previous, dict):
+    die_critical("previous citation-map.json must be an object")
+previous_dossiers = previous.get("dossiers", [])
+if not isinstance(previous_dossiers, list) or any(not isinstance(row, dict) or not isinstance(row.get("path"), str) for row in previous_dossiers):
+    die_critical("previous citation-map.json has malformed dossier ownership")
+if os.path.isdir(sources_dir):
+    for name in sorted(os.listdir(sources_dir)):
+        relative = f"sources/{name}"
+        if re.fullmatch(r"chunk-[0-9]+\.json", name) and relative not in outputs:
+            os.remove(os.path.join(pkg, relative))
+for row in previous_dossiers:
+    relative = row.get("path", "")
+    if re.fullmatch(r"merged-dossiers/[^/\\]+\.md", relative) and relative not in outputs:
+        path = os.path.join(pkg, relative)
+        if os.path.isfile(path):
+            os.remove(path)
+for relative, text in outputs.items():
+    path = os.path.join(pkg, relative)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
 
 sys.stderr.write(
     f"merge-threads: {len(tids)} threads -> {len(ordered_canons)} sources, "

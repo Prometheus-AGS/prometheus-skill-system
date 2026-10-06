@@ -1,6 +1,6 @@
 {
   "name": "prometheus-ui-ux-skills",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pinned UI guidance and shared portable routing with declared full-only engine capabilities.",
   "skills": [
     "./design-taste-frontend",

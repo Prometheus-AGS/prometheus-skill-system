@@ -1,0 +1,43 @@
+▶ mini packaged production boundaries for the frozen candidate
+  ✔ real generator is idempotent and detects byte/executable drift in packaged files (7398.737333ms)
+  ✔ actual generator refuses missing hook closure and unsafe MCP payloads without replacing outputs (2412.639833ms)
+  ✔ actual managed OpenSpec JavaScript process runs from locked scratch cache with no global PATH (2081.385833ms)
+  ✔ actual skill-copy installer preserves edited/unrelated files and refuses full-pack coexistence (1707.802125ms)
+  ✔ actual command install/uninstall uses explicit scratch output and retains unrelated commands (158.43575ms)
+  ✔ packaged team adoption preserves selection/config and explicit model uncertainty (472.212875ms)
+  ✖ packaged hooks and model/memory CLI degrade with no optional services (419.206833ms)
+✖ mini packaged production boundaries for the frozen candidate (18661.464541ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18664.639041
+
+✖ failing tests:
+
+test at ../../../Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs:159:13
+✖ packaged hooks and model/memory CLI degrade with no optional services (419.206833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'missing_project_id'
+  - 'no memory endpoint configured'
+  
+      at file:///Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs:347:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs:159:39)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async scenario (file:///Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs:159:5)
+      at async TestContext.<anonymous> (file:///Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/scripts/tests/learning-deploy-integration.test.mjs:330:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'missing_project_id',
+    expected: 'no memory endpoint configured',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

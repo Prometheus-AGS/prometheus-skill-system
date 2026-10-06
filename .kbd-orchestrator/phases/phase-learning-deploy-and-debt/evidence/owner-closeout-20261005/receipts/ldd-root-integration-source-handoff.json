@@ -1,0 +1,50 @@
+{
+  "status": "authored-not-executed",
+  "recordedAt": "2026-10-05T21:01:53.848254+00:00",
+  "files": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/test-learning-deploy-and-debt.sh",
+      "sha256": "140c72f3bd4224fd19b9187e640722fcf882536264907efdebc6aa9a82750f63",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/learning-deploy-and-debt.py",
+      "sha256": "73e40c2034bad39ec9bf9f65f19220ba67ae710a8d6656bbff0a0e142614338e",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/certify-generated-materializations.mjs",
+      "sha256": "44485fd2e47bb121d8f3998106dd87c1e112e0a019560db0168fda1633c93290",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/scripts/tests/certify-remote-install-graph.py",
+      "sha256": "5b1fb58bb17fa4549206ceffeecff69d173ef85eee33bfd598c0965a86465c68",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/shared/scripts/tests/test-cortex-mirror.sh",
+      "sha256": "d7c04a4b4c037578e0373a4217428b475ef4338cc97f5e981aee3ef2b6e37c1a",
+      "mode": "0o755"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/shared/scripts/tests/cortex-mirror-integration.py",
+      "sha256": "15c93e46453e09d4d60f78c59b6971fbae92a20d2ad45df6def80093070ba551",
+      "mode": "0o755"
+    }
+  ],
+  "acceptance": false,
+  "missingPrerequisite": "real Cortex2.0.3 package input requested from owner",
+  "knownConstraints": [
+    "initial candidate gate is not final remote graph",
+    "explicit scratch homes/services and one machine Cargo process",
+    "no unit/mock gate aliases",
+    "final remote graph needs actual approved published commit manifest and optional explicit source-read token"
+  ],
+  "prerequisiteCorrection": "Explicit existing OrbStack Unix socket passed to actual Docker dependency; no real Docker config/auth files in test homes.",
+  "staticPrerequisiteCorrections": [
+    "Short private /tmp root respects Unix socket length",
+    "Only declared observed mini hash/mode fields are compared in canonical declaration order",
+    "Explicit OrbStack socket avoids real Docker configuration"
+  ]
+}

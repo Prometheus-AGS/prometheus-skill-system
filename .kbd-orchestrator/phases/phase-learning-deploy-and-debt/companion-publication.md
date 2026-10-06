@@ -1,0 +1,21 @@
+# Companion publication preparation
+
+The source candidate is `/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final`, branch `codex/ldd-companion-final`, recovered from committed Companion base `773aa5e33b2217135bc423e526c497cceb0e7058`. Its local bootstrap bare repository is `/Users/gqadonis/Projects/prometheus/worktrees/.ldd-companion-bootstrap.git`; `origin/main` there identifies that committed base. This is local recovery provenance, not an existing public upstream.
+
+`evidence/companion-publication-inventory.json` inventories existing tracked history and explicitly recovered new production paths. `evidence/companion-source-capture.json` records the original 116-file capture. Original source-owner changes to harness configuration, protected versions and local KBD/knowledge/session state were preserved in the original checkout. No arbitrary staging of all untracked files is authorized. Task14/2 adds its explicit source handoff to the final allowlist.
+
+The intended publication destination is a **private** `prometheus-companion` repository under `Prometheus-AGS`. If the authenticated principal cannot create an organization repository, use a private repository under that authenticated principal and record the actual owner and URL. These are destination choices; neither existence nor creation permission is presently certified. Current reader documentation must not advertise a fictional repository URL.
+
+## Final12 publication order
+
+1. Finish all remaining phase production, reconcile the actual Companion/package contract and exact release declarations, and obtain the required explicit owner approval for any versions.toml edits or tags. The four full-pack git consumers use the owner's exact `ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61` selection; do not silently substitute a later full-pack commit.
+2. Refresh the path allowlist, hashes and outbound commit inventory from the completed candidate and task14/2 handoff. Keep build outputs, keys, credentials and original local session/configuration dirt out of new staged changes. Existing committed provenance remains visible and must be included in final release/security assessment.
+3. Run the smallest relevant real local integration and applicable release gates, using scratch homes, data roots, ports and sockets. Check machine Cargo/rustc ownership first and serialize builds. Exit2 is BLOCKED. No GitHub Actions validation.
+4. Stage only the recorded production paths, prepare the candidate commit, then run required final certification from committed Git state. Record exact commands, source identities and results. Obtain canonical signed approval if a protected test change requires it.
+5. Resolve/create the private remote after passing local gates. An existing repository must have the intended owner, privacy and compatible history; do not overwrite an unrelated remote or force-push. Keep the local bootstrap provenance as a separate named remote, attach the resolved upstream, and push the certified source branch. Verify the published commit identity.
+6. If the destination has no main branch, publish the recorded committed base as main and the certified candidate on its review branch, then open the reviewable PR. If compatible main already exists, use its verified base without resetting it. The owner merges the PR. Attach every created PR to this chat and record the actual remote and review URL.
+7. After the owner merge, use the actual merged source identity for approved release/install and full/mini documentation cross-links. Verify deployment separately from source publication. Retain the bootstrap/candidate until no installed references depend on them; remove only merged, idle, unreferenced worktrees. Never touch deploy-main or deploy/main.
+
+## Current proof state
+
+Source recovery and Companion packaging/documentation production are complete; `evidence/companion-integration-source-handoff.json` records the 31-path source batch. This is source completion only. Local integration, outbound history certification, final coherent pins, remote creation, commits, push, owner merge, release and installed operation are pending. This procedure prepares publication; it grants no acceptance or merge credit.

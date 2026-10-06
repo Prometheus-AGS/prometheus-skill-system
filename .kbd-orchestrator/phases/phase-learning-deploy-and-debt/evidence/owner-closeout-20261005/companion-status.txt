@@ -1,0 +1,26 @@
+ M .gitignore
+ M README.md
+ M docs/00-architecture-and-implementation-plan.md
+ M src-tauri/Cargo.toml
+ M src-tauri/src/lib.rs
+ M versions.toml
+?? Cargo.lock
+?? Cargo.toml
+?? LICENSE
+?? crates/
+?? docs/brand/
+?? docs/control-api.md
+?? docs/decisions/
+?? docs/installation.md
+?? docs/maintenance.md
+?? docs/ui/
+?? scripts/install-companion-service.sh
+?? scripts/install-skill-package.mjs
+?? scripts/install-skill-package.sh
+?? scripts/render-companion-plist.mjs
+?? scripts/tests/
+?? shared/
+?? skill-package.json
+?? skills/
+?? src-tauri/icons/tray/
+?? src-tauri/src/tray.rs

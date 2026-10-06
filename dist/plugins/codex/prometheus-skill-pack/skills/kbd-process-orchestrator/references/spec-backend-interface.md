@@ -24,6 +24,22 @@ performs two mutations.
 `list_tasks` task shape is normalized to **exactly** `{id, title, done}` so the
 driver is backend-agnostic. Adapters map their native fields into this shape.
 
+## Behavioral acceptance across backends
+
+`kbd-spec` applies [`acceptance.template.md`](templates/acceptance.template.md)
+to native verification files and OpenSpec scenario/verification artifacts alike.
+It requires the shipped production entry point, real collaborators and process/
+filesystem/network/database/protocol/UI boundary, observable result, negative
+control, explicit scratch roots and exact final local gate. Backend validation
+and all-done structural checks are supplemental; they cannot certify behavior.
+This requirement adds no adapter operation and does not renumber tasks.
+
+Complete every planned parent-phase production change before test authoring,
+execution or implementation review. Defer executable verification commands and
+QA to that consolidated final integration boundary, using real collaborating
+components. Missing services/tools/approvals or an exit 2 are BLOCKED, never pass.
+Record acceptance separately from source progress and publication.
+
 ---
 
 ## Adapter: OpenSpec  (verified against `openspec` CLI, v-on-PATH, 2026-06-03)
@@ -107,6 +123,7 @@ for (i, t) in enumerate(tasks where not t.done):
     kbd_hooks_fire task after  "<change>:<t.id>" i p.total
     emit  "Completed task <i> of <p.total>: <t.title>"
 # final task fires on_change_complete via index==total sentinel
-run artifact-refiner QA gate
-backend.verify(change) && backend.archive(change)
+# continue production changes until the complete parent phase is implemented
+# at the final boundary: real integration gate + implementation QA
+# then backend.verify(change) and archive for each completed change
 ```

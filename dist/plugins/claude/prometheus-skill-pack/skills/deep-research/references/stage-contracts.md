@@ -91,6 +91,35 @@ carries `{stage, reason}` when set. `awaiting_stage` is checkpoint mode: the
 driver has validated everything so far and is waiting for the harness to run
 `current_stage`.
 
+## Script and payload prerequisites
+
+The shell entry points require Bash (including macOS Bash 3.2); the data
+transforms require Python 3, and the driver requires `jq`. Threaded dispatch
+also requires the `prometheus-research` binary on PATH. Search and model stages
+use the existing configured providers and shared model resolver. Companion is
+not a prerequisite.
+
+`scripts/research-root.sh` resolves shared libraries from the existing
+`PROMETHEUS_PLUGIN_ROOT`, then `CLAUDE_PLUGIN_ROOT`, then at most four ancestors
+of the executing scripts directory. A source tree has a category directory;
+flattened generated plugins, installed plugins and immutable generation
+payloads have `skills/deep-research/scripts` under their payload root. The
+resolver uses the payload's own `shared/scripts/lib`; it never searches other
+checkouts or requires the original repository beside an installed plugin.
+Full generated payloads carry that shared runtime.
+
+A separately copied deep-research directory must retain all sibling scripts,
+including `claim_ids.py` and `research-root.sh`. The merge additionally needs
+`shared/scripts/lib/canonical-url.sh` in an accompanying payload root; point an
+existing root variable at that payload when it is not an ancestor. Without it,
+merge exits nonzero with the missing prerequisite. The driver can still run
+its existing checkpoint/basic paths without shared libraries, using its slug
+fallback; model discovery is unavailable until the shared resolver is present.
+The optional adversarial-review skill is discovered as a flattened sibling or
+in the source category layout; absent review capability retains the driver's
+recorded blocked-review behavior. A copied skill is not evidence that external
+search, worker or judge prerequisites are installed.
+
 ## The thread merge
 
 Added by change-drt-004. `scripts/merge-threads.sh --package <dir>` folds
@@ -107,7 +136,7 @@ drift, and it is asserted by hash in `tests/merge-threads.sh`.
 | `threads/*/sources.json` | `sources/url-list.json` (02), `sources/registry.json` (04) | canonical URL |
 | `threads/*/chunks/*.json` | `sources/chunk-<n>.json` (03) | canonical URL + chunk id |
 | `threads/*/claims.json` | `claims.json` | the pack's content-addressed claim id (rah-010) |
-| per-thread markers | `citation-map.json` | canonical URL → one global number |
+| per-thread `[src:<local-id>]` markers | `citation-map.json`, `merged-dossiers/<tid>.md` | canonical URL → one global number |
 
 **One document, one citation number.** Three threads citing the same page under
 three spellings (`/Guide/`, `?utm_source=…`, `:443/Guide#intro`) resolve to a
@@ -122,16 +151,39 @@ unions two different pages is worse than one that keeps them apart.
 **Duplicate claims collapse; provenance does not.** The same claim id asserted
 by three threads becomes one claim carrying three `(thread_id, source_id, quote)`
 tuples. Three independent threads reaching the same sentence is evidence, not
-duplication.
+duplication. `claim_ids.py` supplies the existing normalized-text, package-scoped
+hash to merge, graph and contradiction transforms. A supplied claim id that
+does not match that address is a CRITICAL failure; the merge does not silently
+invent a replacement. Scope comes from `checkpoint.json.package_id`, or the
+package directory name when no checkpoint identifies it, as in the graph
+wrapper.
+
+Each original worker dossier remains untouched. Its numbered copy is recorded
+in `citation-map.json.dossiers`; `local_markers` retains thread/local-source
+identity for provenance. Repeated sources get one global number. Conflicting
+local source identities or document/chunk identities fail instead of choosing
+an arbitrary record. All input checks and output serialization precede writes.
+A smaller successful rerun removes obsolete `sources/chunk-<n>.json` files and
+previously declared numbered dossiers; unrelated package files are preserved.
+
+Report assembly resolves a graph claim's `sources[]` union and the legacy
+`source_id` field through that same citation map. It deduplicates aliases and
+emits global numbers in ascending order. A cited source with no mapping, or an
+ambiguous/invalid global number, fails assembly before draft/cited-claim output
+is rewritten. No number is inferred from claim order. The section assignment,
+verification-label language check and editor-only-removes invariant still apply
+to claim ids before markers are rendered as numbers.
 
 ### The merge is where the no-search rule is enforced
 
 A `tools:` allowlist is intent — a harness may ignore frontmatter. A dossier
 citing a source absent from its own thread's `sources.json` means something
 fetched outside a worker: a director that searched, or a worker that
-sub-dispatched. The merge exits **2** naming the thread, the source and the
-rule, and writes no partial artifacts. That single check enforces both the
-director's no-search rule and the two-levels-never-three depth ceiling.
+sub-dispatched. Both bare URL citations and the documented `[src:<local-id>]`
+markers must resolve to that thread's own sources. The merge exits **2** naming
+the thread, source and rule before emitting artifacts. This detects unowned
+citations; it cannot prove which tools or dispatch depth a harness used for
+sources that are listed by its worker.
 
 ## Budgets and bounded concurrency
 

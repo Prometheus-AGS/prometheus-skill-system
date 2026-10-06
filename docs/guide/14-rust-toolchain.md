@@ -28,7 +28,7 @@ rustup show
 cargo --version
 ```
 
-Go and Node are detected and, where possible, installed by the prerequisite script; the Go toolchain backs the `go/go-base-patterns` skill and the Flint Go SDK, and Node backs the React/TypeScript/HTMX skills and the JS-based installers. The full prerequisite and install flow is on the [Installation](19-installation.md) page. The single command that builds and installs all six tool binaries is:
+Go and Node are detected and, where possible, installed by the prerequisite script; the Go toolchain backs the `go/go-base-patterns` skill and the Flint Go SDK, and Node backs the React/TypeScript/HTMX skills and the JS-based installers. The full prerequisite and install flow is on the [Installation](19-installation.md) page. The single command that builds and installs the selected source-owned binaries is:
 
 ```bash
 bash scripts/install-binaries.sh
@@ -37,7 +37,7 @@ bash scripts/install-binaries.sh
 
 # or, the higher-level path that also checks prerequisites:
 bash scripts/check-prerequisites.sh --install --build-tools
-# (npm run doctor wraps this and the smoke test)
+# doctor is a separate read-only diagnostic path
 ```
 
 ## Dynamic generation — three layers
@@ -46,36 +46,24 @@ The pack generates new capability at three levels, each building on the one belo
 
 ```mermaid
 graph TD
-    A["Meta-templates (forge-rs)<br/>generate new skills & templates"] --> B["pmpo-skill-creator<br/>generate full skills via PMPO"]
+    A["Forge enrichment<br/>reference context for code authors"] --> B["pmpo-skill-creator<br/>generate full skills via PMPO"]
     B --> C["native-agent<br/>generate complete agent binaries"]
-    A -.scaffolds.-> D[New .tera template]
-    A -.scaffolds.-> E[New skill.toml + SKILL.md]
+    A -.context.-> D[Applicable reference patterns]
     B -.create/clone/extend/update.-> F[Production skill tree]
     C -.cargo workspace + frontend.-> G[Deployable Rust agent]
 ```
 
-### Layer 1 — the forge-rs meta-template system
+### Layer 1 — Forge enrichment
 
-The lowest layer generates the building blocks themselves. forge-rs ships meta-templates in `tools/forge-rs/templates/meta/` — templates that generate templates:
-
-- `new_skill_toml.tera` — generates a `skill.toml`
-- `new_skill_md.tera` — generates a `SKILL.md`
-- `new_tera_template.tera` — generates a new `.tera` file with variable documentation
-- `new_constitution_toml.tera` — generates a language constitution
-
-The CLI surface:
+Forge reads an OpenSpec task and renders applicable reference patterns into an agent context document. The shipped CLI supports `init`, `enrich`, `reflect`, `drift`, `validate`, `status`, `mcp`, `skill`, `constitution` and `package-librefang`. It has no template-management subcommand; the old meta-template files do not establish an executable CLI.
 
 ```bash
-forge template new skill rust my-skill                      # scaffold a new skill
-forge template new template skills/rust/my-skill/ handler.rs # add a template to it
-forge template validate skills/rust/my-skill/                # check Tera syntax
-forge template render handler.rs --var name=Widget          # render with variables
+forge init
+forge enrich openspec/changes/example/tasks.md
+forge validate src/main.rs --language rust
 ```
 
-A template becomes useful through its four variables, filled at enrichment time:
-`task_description` and `task_id` from the OpenSpec task,
-`constitution_summary` from the active language constitution, and
-`karpathy_focus` from the bounded committed prompt snapshot.
+These commands need an actual project/task and installed binary. Enrichment supplies the task description/identity/path, acceptance criteria, constitution summary and bounded Karpathy focus; arbitrary template variables are not supplied. See [Forge and template runtimes](14a-forge-rs.md) for source limitations.
 
 ### Layer 2 — pmpo-skill-creator
 
@@ -83,7 +71,7 @@ The middle layer generates *complete skills* through the PMPO loop, in four mode
 
 ### Layer 3 — native-agent
 
-The top layer generates a complete, deployable agent — a five-crate Cargo workspace, a React 19 frontend, three interop protocols, and a management CLI — validated with `cargo check` and `npm install` before it is handed back. The full treatment is on [The Native Agent Generator](12-native-agent-generator.md) page. The WASM build target compiles the generated skill against the LibreFang Guest ABI for `wasm32-unknown-unknown`, which is the same target you added with `rustup target add` above.
+The top layer generates a complete, deployable agent — a six-crate Cargo workspace (seven with its optional WASM adapter), a React 19 frontend, three interop protocols, and a management CLI — validated with `cargo check` and `npm install` before it is handed back. The full treatment is on [The Native Agent Generator](12-native-agent-generator.md) page. The WASM build target compiles the generated skill against the LibreFang Guest ABI for `wasm32-unknown-unknown`, which is the same target you added with `rustup target add` above.
 
 ## Generating native skills, CLIs, and MCP servers
 

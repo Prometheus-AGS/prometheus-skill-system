@@ -6,39 +6,16 @@ sidebar_label: KB Adapters
 
 # KB Adapters
 
-The Learn domain supports custom knowledge bases via the `/learn-kb` skill. KB adapters
-allow you to ground learning in your own proprietary content.
+Register a named corpus with [learn-kb](/docs/learn/skills/learn-kb), then select that name in a learning goal:
 
-## Adding a KB
-
-```bash
-/learn-kb add dify:my-legal-kb
-/learn-kb add local:/path/to/clinical-protocols
-/learn-kb add palace:my-collection
-/learn-kb add web:https://my-docs.example.com
+```text
+/learn-kb add --type local --name clinical-protocols --content-dir /path/to/protocols
+/learn-goal "Understand our clinical protocols" --kb clinical-protocols
+/learn-kb query --name clinical-protocols --subject "inclusion criteria" --top-k 5
 ```
 
-## Adapter types and privacy guarantee
+The registry supports local, Dify, Palace and URL-registration procedures. URL registration is an explicit Firecrawl scrape followed by configured Palace ingestion; the grounding helper has only `dify:`, `palace:` and `local:` adapters.
 
-The four adapter prefixes (`dify:` / `palace:` / `local:` / `web:`), their
-backends, and the `content-grounding-kb.sh` privacy enforcement are documented
-once, canonically, in the
-[KB Adapter Guide](/docs/learn-internals/kb-adapter-guide) — this page stays
-the narrative entry point and does not duplicate that reference.
+Read [KB Adapter Guide](/docs/learn-internals/kb-adapter-guide) for helper arguments, configuration and failure behavior. There is no automatic waterfall between backends. Local file reads stay local, but configured Dify/Palace endpoints and any downstream model receiving extracted text may be remote. A helper's `privacy_mode` result does not enforce destination authorization or prevent later publication.
 
-## Using a KB in a learning session
-
-```bash
-/learn-goal "I want to understand clinical trial protocols" --kb local:/protocols
-```
-
-The KB adapter is loaded alongside the standard learning arc. Concept gaps are
-grounded in the KB content rather than the model's training data.
-
-## Managing KBs
-
-```bash
-/learn-kb list                    # show registered KBs
-/learn-kb remove dify:my-kb       # deregister a KB
-/learn-kb status                  # check adapter health
-```
+Use only authorized corpora and endpoints. Missing credentials, unreadable files or absent results must remain explicit failures; generated answers do not establish corpus coverage.

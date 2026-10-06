@@ -1,0 +1,67 @@
+{
+  "state": {
+    "schemaVersion": 1,
+    "revision": 2,
+    "team": {
+      "schemaVersion": 1,
+      "id": "offline",
+      "outcome": "Exercise the packaged project adoption contract",
+      "scope": "project",
+      "harness": "codex",
+      "roles": [
+        {
+          "id": "implementer",
+          "description": "Own implementation",
+          "prompt": "Read the project instructions and preserve evidence.",
+          "skills": [],
+          "owns": [
+            "src/**"
+          ],
+          "inputs": [
+            "Requirements"
+          ],
+          "outputs": [
+            "Source"
+          ],
+          "dependsOn": []
+        }
+      ]
+    },
+    "tasks": [],
+    "handoffs": [],
+    "outbox": [
+      {
+        "id": "memory-15bd5c701fa7f1d3461cc91bcc964b282f28e0cdbd6b5a0c",
+        "content": "An explicit durable scope.",
+        "scope": "team:offline",
+        "provenance": {
+          "evidence": [
+            "scratch-only"
+          ],
+          "teamId": "offline",
+          "source": "agent-team-runtime",
+          "authority": "local-team-record; KBD references are unverified mirrors"
+        },
+        "status": "queued",
+        "ts": "2026-10-05T22:19:33.134Z",
+        "receipt": {
+          "at": "2026-10-05T22:19:33.206Z",
+          "outcome": "unavailable",
+          "reason": "missing_project_id",
+          "uncertain": false
+        }
+      }
+    ],
+    "events": []
+  },
+  "publication": {
+    "id": "memory-15bd5c701fa7f1d3461cc91bcc964b282f28e0cdbd6b5a0c",
+    "status": "queued",
+    "receipt": {
+      "at": "2026-10-05T22:19:33.206Z",
+      "outcome": "unavailable",
+      "reason": "missing_project_id",
+      "uncertain": false
+    }
+  }
+}

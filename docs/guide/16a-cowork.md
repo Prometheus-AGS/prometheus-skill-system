@@ -81,10 +81,10 @@ Full flow: [`adopting-external-skills.md`](https://github.com/Prometheus-AGS/pro
 | `cowork status` | current status and configuration |
 | `cowork doctor` | check for configuration issues |
 | `cowork toolchain status` | full toolchain health (Rust, binaries, MCP services) |
-| `cowork toolchain check` | exit 0 if all required tools present, 1 otherwise — CI-friendly |
+| `cowork toolchain check` | exit 0 if all required tools present, 1 otherwise — suitable for a local gate |
 | `cowork toolchain install <tool>` | print install instructions for one tool |
 
-`toolchain check` is the one to wire into CI; `toolchain status` is for humans.
+`toolchain check` is a local prerequisite diagnostic; `toolchain status` is for humans.
 
 ### Skills
 

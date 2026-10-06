@@ -12,7 +12,7 @@ switches `current`.
 
 ```mermaid
 flowchart LR
-  Source["Certified repository"] --> Stage["Private staging directory"]
+  Source["Selected source repository"] --> Stage["Private staging directory"]
   Stage --> Hash["Canonical manifest + skill index"]
   Hash --> Sign["Ed25519 signature + trust verification"]
   Sign --> Generation["generations/hash"]
@@ -30,12 +30,11 @@ is active only when signature, trust, provenance, payload, index, and receipt
 verification succeeds.
 
 `current` points to the active payload and index as one transaction. `previous`
-preserves the last certified generation for rollback. Hardcoded version
+preserves the previous verified generation for rollback. Hardcoded version
 directories are forbidden because they bypass content verification and become
 stale after upgrades.
 
-The host, generated-agent, and mobile index projections are byte-identical and
-use the shared deterministic selector. See [Signing, indexes, and receipts](./signing-index-and-receipts)
+Generation index projections are byte-identical and can use the shared deterministic selector. Actual loaded clients and caller-provided mobile index bytes require their own provenance and acceptance evidence. See [Signing, indexes, and receipts](./signing-index-and-receipts)
 for the full trust and parity contract.
 
 Verify without mutation:

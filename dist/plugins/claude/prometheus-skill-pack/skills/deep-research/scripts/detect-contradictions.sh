@@ -24,8 +24,9 @@
 # invoked as `<command> <prompt-file>` and must print the judge's JSON.
 # Claim ids use the same function as build-graph.sh. bash 3.2 compatible (C-05).
 set -euo pipefail
-HERE="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$HERE/../../../.." && pwd)"
+HERE="$(cd "$(dirname "$0")" && pwd -P)"
+. "$HERE/research-root.sh"
+REPO_ROOT="$(research_pack_root "$HERE")" || REPO_ROOT=""
 
 CRED=""; REGISTRY=""; PKG_ID=""; SEMANTIC=0; MAX_PAIRS=20; OUT=""
 if [ $# -gt 0 ] && [ -d "$1" ]; then
@@ -63,7 +64,7 @@ semantic_judge() { # semantic_judge <prompt-file>
     $RESEARCH_SEMANTIC_JUDGE_CMD "$1"; return $?
   fi
   local lib=""
-  for cand in "$REPO_ROOT/shared/scripts/lib/kbd-model-resolve.sh" "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+  for cand in "${REPO_ROOT:+$REPO_ROOT/shared/scripts/lib/kbd-model-resolve.sh}"; do
     [ -n "$cand" ] && [ -f "$cand" ] && { lib="$cand"; break; }
   done
   [ -n "$lib" ] || { echo "kbd-model-resolve.sh not found; semantic path unavailable" >&2; return 3; }

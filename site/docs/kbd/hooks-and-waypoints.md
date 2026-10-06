@@ -36,7 +36,9 @@ adapters. The native event names differ, but they map to the same KBD events:
 
 The adapter no longer intercepts tool calls on any harness. The pre-mutation
 fence that once guarded `Bash`, `Write`, `Edit`, and `MultiEdit` was removed;
-these events are observational and always exit successfully. See
+ordinary event adapters are advisory. The separate `TaskCompleted` hook may
+reject inconsistent completion of a canonical KBD task; it is not a mutation-tool
+guard and does not create a missing accepted task. See
 [Tool guards](./bash-mutation-guard).
 
 ## Stop and interrupt semantics

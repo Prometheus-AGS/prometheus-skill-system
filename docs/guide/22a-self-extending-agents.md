@@ -126,7 +126,7 @@ pipeline reported success the entire time.
 
 ## A full cycle
 
-`/start-business-build` is the closest thing to an end-to-end demonstration, chaining
+The following is an illustrative request/outcome sketch, not an observed installed or published delivery. `/start-business-build` is a workflow to an end-to-end demonstration, chaining
 ideation → specification → planning → generation → packaging → deployment:
 
 ```
@@ -146,8 +146,7 @@ Stage 6: /upload-to-bossfang?                           y  → installed and ver
 
 The important line is the **rejection**. A constraint discovered during implementation —
 carrier rate limits — is captured into the knowledge base rather than discarded. The next
-plan that touches carrier APIs will surface it before the same wall is hit again. That is
-the Karpathy loop closing around code generation.
+plan that touches carrier APIs will surface it before the same wall is hit again. That is the intended knowledge feedback boundary; a queued record does not yet prove publication or recall.
 
 ## Installing the whole thing
 
@@ -156,12 +155,12 @@ The composition only works if the substrate is actually running. In dependency o
 ```bash
 bash scripts/install-binaries.sh          # 14 CLIs
 bash scripts/install-mcp-services.sh      # launchd/systemd daemons
-bash scripts/install-skills-flat.sh       # 145 skills → 14 platforms
+./install.sh --profile skills --targets detected  # manifest-selected skill delivery
 bash scripts/register-slash-commands.sh   # slash commands
 ```
 
 Then configure the second model — without it, adversarial review silently degrades to
-same-family self-review:
+a native fallback whose actual model family must be recorded; same-family review cannot complete independent QA:
 
 ```bash
 bash skills/process/liter-llm-bridge/scripts/configure-models.sh repair
@@ -176,8 +175,7 @@ bash scripts/check-model-config.sh   # gateway, roles, cache drift (exit 2 = dri
 node scripts/verify-installed-skills.js
 ```
 
-> `prometheus doctor` does not yet verify binaries, LaunchAgents, MCP config, or hooks —
-> those checks report `not implemented yet`. The three commands above cover what it skips.
+> Doctor groups inspect selected local facts; they do not prove installed model inference or release acceptance. Use the current [doctor reference](/docs/operations/doctors-and-mac-certification).
 
 ## What this is not
 

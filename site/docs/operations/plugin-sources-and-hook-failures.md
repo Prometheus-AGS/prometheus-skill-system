@@ -5,7 +5,7 @@ description: Where the plugin marketplace source should live, how hook activatio
 
 # Plugin sources and hook failures
 
-Plugin hooks run from a plugin payload directory: the marketplace source (a `directory` source is read in place) or the native cache. If that payload is incomplete, or the directory is gone, **every hook of the plugin fails on every turn**, in every session that loaded it.
+Plugin hooks run from a plugin payload directory: the marketplace source (a `directory` source is read in place) or the native cache. If that payload is incomplete, or the directory is gone, affected hook invocation can fail in a session that retained that source.
 
 ## What to point the marketplace at
 
@@ -22,7 +22,7 @@ Do not register a topic-branch checkout or worktree. It lives only as long as it
 | `HOOK_RUNTIME_ERROR` with code `BOOTSTRAP_FAILED` | Activation failed for another reason; the message carries the first error line. | Re-run with `PROMETHEUS_HOOK_DEBUG=1` for the full output. |
 | `HOOK_RUNTIME_ERROR` with code `NOT_ACTIVATED` | No activated bundle, and no plugin root or bootstrap payload to build one from. | Reinstall the plugin. |
 
-A session on a superseded cache version keeps working while its bundle is still registered under `~/.prometheus/plugins/prometheus-skill-pack/bundles`. It only fails if its bundle is not registered.
+A session on a superseded cache version may retain its registered bundle under `~/.prometheus/plugins/prometheus-skill-pack/bundles`. Bundle registration does not independently prove payload completeness or runtime compatibility.
 
 ## Diagnose
 

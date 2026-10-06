@@ -1,0 +1,233 @@
+[
+  {
+    "path": "dist/plugins/claude/prometheus-skill-pack/shared/scripts/lib/cortex_feed_slots.py",
+    "sha256": "51aa48f53f677267c45fb39a89843784273c07b593b16e7ae63808647d67248b",
+    "mode": "0o644",
+    "bytes": 4940,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/claude/prometheus-skill-pack/shared/scripts/tests/cortex-mirror-integration.py",
+    "sha256": "15c93e46453e09d4d60f78c59b6971fbae92a20d2ad45df6def80093070ba551",
+    "mode": "0o755",
+    "bytes": 12110,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/claim_ids.py",
+    "sha256": "1c924b577231f6407a9040c3637fd54d9e4e348d6e7fe92ff533a2eb4710d6d6",
+    "mode": "0o755",
+    "bytes": 350,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/research-root.sh",
+    "sha256": "0acd27d2dd3dcfdb183709ab957e88b6fc7e5d52b58d57663b50f2f541310b3b",
+    "mode": "0o755",
+    "bytes": 990,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/claude/prometheus-skill-pack/skills/deep-research/tests/bench/LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "mode": "0o644",
+    "bytes": 11357,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/references/templates/acceptance.template.md",
+    "sha256": "1f9adce853ca2346fa251f406732bacdb2ba2259f7cc0e77f02a974ed65796cb",
+    "mode": "0o644",
+    "bytes": 3159,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/codex/prometheus-skill-pack/shared/scripts/lib/cortex_feed_slots.py",
+    "sha256": "51aa48f53f677267c45fb39a89843784273c07b593b16e7ae63808647d67248b",
+    "mode": "0o644",
+    "bytes": 4940,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/codex/prometheus-skill-pack/shared/scripts/tests/cortex-mirror-integration.py",
+    "sha256": "15c93e46453e09d4d60f78c59b6971fbae92a20d2ad45df6def80093070ba551",
+    "mode": "0o755",
+    "bytes": 12110,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/claim_ids.py",
+    "sha256": "1c924b577231f6407a9040c3637fd54d9e4e348d6e7fe92ff533a2eb4710d6d6",
+    "mode": "0o755",
+    "bytes": 350,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/codex/prometheus-skill-pack/skills/deep-research/scripts/research-root.sh",
+    "sha256": "0acd27d2dd3dcfdb183709ab957e88b6fc7e5d52b58d57663b50f2f541310b3b",
+    "mode": "0o755",
+    "bytes": 990,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/codex/prometheus-skill-pack/skills/deep-research/tests/bench/LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "mode": "0o644",
+    "bytes": 11357,
+    "symlink": false
+  },
+  {
+    "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/references/templates/acceptance.template.md",
+    "sha256": "1f9adce853ca2346fa251f406732bacdb2ba2259f7cc0e77f02a974ed65796cb",
+    "mode": "0o644",
+    "bytes": 3159,
+    "symlink": false
+  },
+  {
+    "path": "docs/generated-output-ownership.md",
+    "sha256": "d56489835a3f8ce6b25e6688e548eea9864b8df5fd91e420547b087fae619ca1",
+    "mode": "0o644",
+    "bytes": 3672,
+    "symlink": false
+  },
+  {
+    "path": "docs/guide/26-service-operations.md",
+    "sha256": "dc2546de590aa65317edc3f6c304343ac4bdd8a8395ad6729477dd6fa34255dc",
+    "mode": "0o644",
+    "bytes": 14971,
+    "symlink": false
+  },
+  {
+    "path": "docs/maintenance.md",
+    "sha256": "c94b01afd6072c28c25fdf4e09cf54ace10c49d171e4f63e683e40ebfbd2a50a",
+    "mode": "0o644",
+    "bytes": 23660,
+    "symlink": false
+  },
+  {
+    "path": "scripts/generated-materialization-inventory.mjs",
+    "sha256": "3606a3e0f42c918ca8fae83ed5378360b335c32e3c47d9c4dca24d59214fc29e",
+    "mode": "0o644",
+    "bytes": 5690,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/certify-generated-materializations.mjs",
+    "sha256": "44485fd2e47bb121d8f3998106dd87c1e112e0a019560db0168fda1633c93290",
+    "mode": "0o755",
+    "bytes": 3323,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/certify-initial-protected-candidate.mjs",
+    "sha256": "8ebc794f96f3bb3c9cd0d6bf22c0dfe1bc1ea39e5f7a90332843c2f4fff7bebc",
+    "mode": "0o755",
+    "bytes": 14143,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/certify-remote-install-graph.py",
+    "sha256": "5b1fb58bb17fa4549206ceffeecff69d173ef85eee33bfd598c0965a86465c68",
+    "mode": "0o755",
+    "bytes": 7597,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/learning-deploy-and-debt.py",
+    "sha256": "7b2a0a3c5febb7c23a911b46314140e2aad2d566e024d0a4f4c440667ade23a9",
+    "mode": "0o755",
+    "bytes": 25458,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/prepare-learning-deploy-candidate.mjs",
+    "sha256": "385715bd922cbb1847fc24fe2b5b49d609c38631dd0d890c7d88152a54fa7176",
+    "mode": "0o755",
+    "bytes": 12890,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/test-codex-home-integration.sh",
+    "sha256": "06d790ccc3f696d4c88f1026fa35f0424f051b22ca3129876281fa54074cf4be",
+    "mode": "0o755",
+    "bytes": 13850,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/test-codex-memory-integration.sh",
+    "sha256": "e56b5faad9a7b0053ec755e4161e0bf83a9b2c9280e9647bb721551fd7ec85db",
+    "mode": "0o755",
+    "bytes": 30389,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/test-hook-bytecode-integration.sh",
+    "sha256": "b06d2f785ba06841912a7e5d1912536cea4a296977f2efaa9b1670052edcbe46",
+    "mode": "0o755",
+    "bytes": 17037,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/test-learning-deploy-and-debt.sh",
+    "sha256": "140c72f3bd4224fd19b9187e640722fcf882536264907efdebc6aa9a82750f63",
+    "mode": "0o755",
+    "bytes": 211,
+    "symlink": false
+  },
+  {
+    "path": "scripts/tests/test-team-control-integration.mjs",
+    "sha256": "98f041afc8cf56c40ea52e93f7d4f22a734a91aeb4845460863de34a25f763f0",
+    "mode": "0o755",
+    "bytes": 27516,
+    "symlink": false
+  },
+  {
+    "path": "shared/scripts/lib/cortex_feed_slots.py",
+    "sha256": "51aa48f53f677267c45fb39a89843784273c07b593b16e7ae63808647d67248b",
+    "mode": "0o644",
+    "bytes": 4940,
+    "symlink": false
+  },
+  {
+    "path": "shared/scripts/tests/cortex-mirror-integration.py",
+    "sha256": "15c93e46453e09d4d60f78c59b6971fbae92a20d2ad45df6def80093070ba551",
+    "mode": "0o755",
+    "bytes": 12110,
+    "symlink": false
+  },
+  {
+    "path": "site/docs/agent-teams/overview.md",
+    "sha256": "f548a401c53cc27ec5fddce20cc31149304a4516e1f00c6110175d48e376465d",
+    "mode": "0o644",
+    "bytes": 5813,
+    "symlink": false
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/references/templates/acceptance.template.md",
+    "sha256": "1f9adce853ca2346fa251f406732bacdb2ba2259f7cc0e77f02a974ed65796cb",
+    "mode": "0o644",
+    "bytes": 3159,
+    "symlink": false
+  },
+  {
+    "path": "skills/research/deep-research/scripts/claim_ids.py",
+    "sha256": "1c924b577231f6407a9040c3637fd54d9e4e348d6e7fe92ff533a2eb4710d6d6",
+    "mode": "0o755",
+    "bytes": 350,
+    "symlink": false
+  },
+  {
+    "path": "skills/research/deep-research/scripts/research-root.sh",
+    "sha256": "0acd27d2dd3dcfdb183709ab957e88b6fc7e5d52b58d57663b50f2f541310b3b",
+    "mode": "0o755",
+    "bytes": 990,
+    "symlink": false
+  },
+  {
+    "path": "skills/research/deep-research/tests/bench/LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "mode": "0o644",
+    "bytes": 11357,
+    "symlink": false
+  }
+]

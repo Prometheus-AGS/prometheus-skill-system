@@ -5,24 +5,24 @@ description: Strict local installation, LaunchAgent operation, non-mutating diag
 
 # Installation, doctor, and recovery
 
-The installer is strict by default. It builds or accepts a `prometheus-exec 1.7.0` release binary, checks its version, stages it on the destination filesystem, applies and verifies the platform signature, atomically replaces the destination, reads back the installed hash/version/signature, and writes a mode-`0600` installation receipt. Any failure restores the prior binary or removes the failed first install.
+The installer is strict by default. It builds or accepts the independently pinned Exec release binary, checks its version, stages it on the destination filesystem, applies and verifies the platform signature, atomically replaces the destination, reads back the installed hash/version/signature, and writes a mode-`0600` installation receipt. Any failure restores the prior binary or removes the failed first install.
 
 ## Build and install locally
 
+Finish the phase's production changes and local integration gates before installing.
+The installer invokes the canonical reproducible build helper by default:
+
 ```bash
-(cd crates/prometheus-exec && cargo build --release)
 bash scripts/install-prometheus-exec.sh
 prometheus-exec --version
 ```
 
-Build from inside the crate directory. `crates/prometheus-exec/rust-toolchain.toml`
-pins the stable toolchain, and `rust-toolchain.toml` is resolved from the current
-directory — it is **not** honored via `cargo build --manifest-path`. Building
-from the repo root uses whatever default toolchain the caller has, producing a
-binary whose SHA256 cannot match `config/prometheus-exec-binary.json` and
-failing the installer's hash gate on an otherwise correct build.
-
-Expected output is exactly `prometheus-exec 1.7.0`.
+`scripts/build-prometheus-exec.sh` stages a workspace, uses the crate's pinned
+toolchain and remaps source paths. A plain Cargo release build may embed a checkout
+path and cannot be assumed to match the certified hash. Keep the source build,
+expected version and `config/prometheus-exec-binary.json` hash aligned through the
+authorized final certification process; do not bypass a mismatch. Exec's version
+is independent of the skill pack and other services.
 
 Validate the checked documentation examples against the installed binary and active signed generation using disposable state:
 
@@ -39,7 +39,8 @@ Inspect service installation without changing the machine:
 bash scripts/install-prometheus-exec-service.sh --dry-run
 ```
 
-On macOS, the service installer creates a private identity if absent, renders the checked LaunchAgent, validates it with `plutil`, installs it atomically, and optionally loads `ai.prometheus.exec`. Use `--no-load` when only the definition should be installed.
+The shipped service definition is macOS-only; a binary build on another platform
+does not provide a matching managed service. On macOS, the service installer creates a private identity if absent, renders the checked LaunchAgent, validates it with `plutil`, installs it atomically, and optionally loads `ai.prometheus.exec`. Use `--no-load` when only the definition should be installed.
 
 ## Non-mutating doctor
 

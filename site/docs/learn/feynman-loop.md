@@ -24,7 +24,8 @@ non-expert audience). No notes, no lookup.
 - Misconceptions that were present
 - Transfer problems not correctly solved
 
-The grade routes through sycophancy-correction to prevent false "you got it!" feedback.
+The skill instructs the agent to screen the grade with the available sycophancy
+checker or manual fallback. Record that evidence; persistence is not enforcement.
 
 ### 3. Re-Study
 

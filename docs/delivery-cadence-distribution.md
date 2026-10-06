@@ -11,14 +11,18 @@ node scripts/distribute-delivery-cadence.mjs --targets all
 
 | Target ID | Global skill directory | Discovery basis |
 | --- | --- | --- |
-| `codex` | `~/.codex/skills/delivery-cadence` | Existing full-pack Codex copy convention |
+| `codex` | `$CODEX_HOME/skills/delivery-cadence`, default `~/.codex/skills/delivery-cadence` | Shared full-pack effective Codex home resolver |
 | `claude` | `~/.claude/skills/delivery-cadence` | Claude Code personal skill directory |
 | `kimi-code` | `$KIMI_CODE_HOME/skills/delivery-cadence`, default `~/.kimi-code/skills/delivery-cadence` | [Kimi native skills](https://github.com/moonshotai/kimi-code/blob/main/docs/en/customization/skills.md) |
 | `minimax` | `~/.minimax/skills/delivery-cadence` | Existing `scripts/install-minimax-skills.js` copy and `_meta.json` convention |
 | `zed` | `~/.agents/skills/delivery-cadence` | [Zed native skills](https://zed.dev/docs/ai/skills); this shared directory also serves compatible agents |
 | `opencode` | `$XDG_CONFIG_HOME/opencode/skills/delivery-cadence`, default `~/.config/opencode/skills/delivery-cadence` | [OpenCode native skills](https://opencode.ai/docs/skills) |
 
-Use a comma-separated subset with `--targets codex,claude`. `--home PATH` installs into an isolated home and deliberately ignores the real session's `KIMI_CODE_HOME` and `XDG_CONFIG_HOME`; it is suitable for an integration sandbox. `--source-root PATH` selects another full-pack checkout or packaged full-pack distribution. The source contract must name `prometheus-skill-pack`; mini cannot use this global installer. The source layout is `skills/process/delivery-cadence` in the checkout or `skills/delivery-cadence` in a packaged distribution, alongside the declared pack adapters and their dependencies. Mini receives the shared skill through the existing full-to-mini synchronization workflow.
+This targeted installer uses the full pack's shared Codex home resolver. A nonempty
+`CODEX_HOME` takes precedence; otherwise the effective home from `--home` or the
+default home supplies the `.codex` fallback.
+
+Use a comma-separated subset with `--targets codex,claude`. `--home PATH` changes the home fallback and deliberately ignores the real session's `KIMI_CODE_HOME` and `XDG_CONFIG_HOME`. A nonempty `CODEX_HOME` still takes precedence: for a scratch integration run, explicitly set it to the scratch Codex directory or unset/empty it to use the scratch home fallback. `--source-root PATH` selects another full-pack checkout or packaged full-pack distribution. The source contract must name `prometheus-skill-pack`; mini cannot use this global installer. The source layout is `skills/process/delivery-cadence` in the checkout or `skills/delivery-cadence` in a packaged distribution, alongside the declared pack adapters and their dependencies. Mini receives the shared skill through the existing full-to-mini synchronization workflow.
 
 Every destination is a complete directory copy. The installer creates no symlinks and preserves existing parent-directory aliases. It refuses a symlink at the skill destination and refuses symlinks inside payloads. MiniMax receives the existing numeric skill ID convention, the skill version, `platform: minimax`, and an `updated_at` timestamp derived from the source skill file modification time so repeated installations remain unchanged.
 

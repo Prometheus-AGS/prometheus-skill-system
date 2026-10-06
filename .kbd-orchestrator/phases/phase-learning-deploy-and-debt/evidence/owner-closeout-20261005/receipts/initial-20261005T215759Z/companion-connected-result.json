@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "exitCode": 0,
+  "reason": null,
+  "start": "2026-10-05T22:19:38.093232+00:00",
+  "end": "2026-10-05T22:19:46.281102+00:00",
+  "sourceRoot": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final",
+  "inputs": {
+    "headless": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/target/debug/prometheus-companion-headless",
+      "sha256": "82f7539d4799a02c51db501ea3327ad88dec6f35dc92df058957a59a0fc368ff"
+    },
+    "sync": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/target/debug/sovereign-sync",
+      "sha256": "4f1cfda4bc5ec4fd6e723bdb3dae8b81392d39cca54fc0ac1385357940fc280a"
+    },
+    "prometheus": {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "4ff2966adc27abe25523643f3b74338838d2ed3dd32cb67575d6089cc8a8c7f7"
+    },
+    "integration": {
+      "path": "/Users/gqadonis/.cargo-build/0e/f6f33dfee29efd/debug/deps/connected_headless_processes-a9e0450ab6824d95",
+      "sha256": "71ed9d6969cbb8bff6f79e15fd14507f0b5dc5d5fdd68c8e139ce24f1d27f3e9"
+    }
+  },
+  "isolatedRoot": "/private/tmp/ldd-local-07t76e9q/companion-connected-z2htsvb4",
+  "acceptance": [
+    "14/AC-1"
+  ],
+  "publication": "pending; not exercised"
+}

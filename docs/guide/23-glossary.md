@@ -8,7 +8,7 @@
 
 **AG-UI.** A CopilotKit-compatible protocol for streaming agent runs to a UI over Server-Sent Events (`agui.*` events). Drives the generated React frontend.
 
-**AgentSkills.io.** The portable skill specification every native skill in the pack conforms to. Defines the `SKILL.md` frontmatter schema, the name pattern, and the standard directory layout.
+**AgentSkills.io.** The portable skill specification used for authoring and validating native skills. Defines the `SKILL.md` frontmatter schema, the name pattern, and the standard directory layout.
 
 **Cedar.** The policy language used by the Skill-Mutation policy enforcement point. Default-deny; governs `skill.mutate`, `skill.generate`, `skill.promote`, and `trace.capture` per environment.
 
@@ -25,7 +25,7 @@
 **KBD (Knowledge-Based Development).** The Prometheus methodology that keeps domain knowledge and code aligned across sessions, via KB priming, hard phase discipline, and waypoint continuity.
 
 **KBD control token.** A project-scoped, mode-`0600`, URL-safe bearer token
-used only for explicit loopback-TCP Sovereign Sync authentication. The default
+for configured local runtime authentication; separately owned connected-client transports have their own authentication contracts. The default
 local API uses same-user Unix-socket credentials. This token is not a P2P group
 secret or an Ed25519 device key.
 
@@ -33,7 +33,7 @@ secret or an Ed25519 device key.
 active phase/stage/change/task path, completion dimensions, decisions,
 blockers, devices, and commands.
 
-**liter-llm.** The multi-provider LLM gateway (140+ providers) that does per-phase model routing. Frontier models for reasoning phases, cheap models for status.
+**liter-llm.** The multi-provider LLM gateway that does per-phase model routing. Frontier models for reasoning phases, cheap models for status.
 
 **Loop levels (L0–L3).** L0 harness micro-loop, L1 tactical KBD loop, L2 strategic evolver loop, L3 outer standing loop. State is harness-agnostic; the driver is harness-specific.
 
@@ -58,7 +58,7 @@ repository fingerprint used to name a canonical KBD runtime.
 `progress.json`, `current-waypoint.json`, and `position.json` rendered from
 canonical replay for older readers. They are not mutation authority.
 
-**Sovereign Sync group secret.** A random 256-bit value persisted in the private
+**Relocated peer group secret.** A random 256-bit value persisted in the private
 P2P identity and transferred only through pairing tickets. It derives the
 gossip topic and is separate from endpoint, KBD device, and TCP-token identity.
 
@@ -72,7 +72,7 @@ gossip topic and is separate from endpoint, KBD device, and TCP-token identity.
 
 ## Sources
 
-External claims in this guide are validated against the following sources.
+The following external reading list is historical background, not current release evidence or verification of every claim. Current command and configuration authority is the selected production source plus the installed tool version's official documentation.
 
 ### Loop engineering and Boris Cherny
 

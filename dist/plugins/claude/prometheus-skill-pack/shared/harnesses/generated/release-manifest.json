@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.11.2",
+  "sourceVersion": "1.11.3",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -18,7 +18,7 @@
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "f5f1f6e37b78b03972196684ff46541207846d94424fa94dab0abba66a665738",
+      "sha256": "168909726230c6110663fcd8d0a9abbf02ef167ed71e8d52795de91f9b129869",
       "executable": true
     },
     {
@@ -68,7 +68,7 @@
     },
     {
       "path": "scripts/lib/plugin-source-topology.js",
-      "sha256": "050263b6ef5b84ffd9cd659cb933c008c78ccfdf9e40e3b7e79419e6c841ab53",
+      "sha256": "01401903bff5c8bd99cc3f45c71c823a72c9d24a4cb76217a0390b5fb21a79a0",
       "executable": false
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "path": "scripts/lib/store-paths.js",
-      "sha256": "2c3b79239480936d89b0b560be36468b312cb7ee799e0b768e3bd2ffd698db6d",
+      "sha256": "8b18df106eb5f18110a2a9092f2f39ed5d149cdcc85132126d6b83646add3271",
       "executable": false
     },
     {
@@ -108,7 +108,7 @@
     },
     {
       "path": "shared/scripts/codex-memories-config.sh",
-      "sha256": "cc0f26d4deed5f2f5ef5905aa3ed9aa156f9d9e078234e516f2eacd986d19f18",
+      "sha256": "c7e0dae9ec8dffef024824ef0fdef9600414319b4e07ab49abca66637d739eeb",
       "executable": true
     },
     {
@@ -128,7 +128,7 @@
     },
     {
       "path": "shared/scripts/detect-surface-tier.sh",
-      "sha256": "1db68173f9bf3000176a26c41a94a9c79e3076199054e4c74adbb650fb46b333",
+      "sha256": "ca0af9f593d6387ef84b81dc6edd5785451f4965773edc67a6974f6ebc73d50c",
       "executable": true
     },
     {
@@ -153,7 +153,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "5edba511e9cef969ed8971c62674feff3fa8721c0d707222dfe76535a8e26d9d",
+      "sha256": "54a0c2568c2b75cd41411ef75243a9bdd3c05bd7463fcf087193cef82dbedf5c",
       "executable": true
     },
     {
@@ -212,6 +212,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/lib/cortex_feed_slots.py",
+      "sha256": "51aa48f53f677267c45fb39a89843784273c07b593b16e7ae63808647d67248b",
+      "executable": false
+    },
+    {
       "path": "shared/scripts/lib/hook-log.sh",
       "sha256": "9dfb7f87f0d3334bc44b57461a9e622144c7338522f22a9c6e48cf35f3796e0c",
       "executable": true
@@ -223,7 +228,7 @@
     },
     {
       "path": "shared/scripts/lib/learning_recall.py",
-      "sha256": "291f4734a44e5c889544425697931f66c55aa5bf32ae69c29a090cba27dc97d9",
+      "sha256": "bfb2efa0de05ddfc4bc92c9e7d9b5021be8fa5b4946be639cb20f86ab8d6e7b8",
       "executable": true
     },
     {
@@ -233,7 +238,7 @@
     },
     {
       "path": "shared/scripts/lib/learning_write.py",
-      "sha256": "535451f1c482f69449a5844ca297032c41351b0a1b10d7b1730212d2a5725fe8",
+      "sha256": "32d4f44af85c9020c600122d18e29f53d279691b93395f0acc98ea6290a59763",
       "executable": true
     },
     {
@@ -333,7 +338,7 @@
     },
     {
       "path": "shared/scripts/README.md",
-      "sha256": "1b033a42a68036a635b662ee76c93fbb5918637c5b4972e64938beb1c5a6ba17",
+      "sha256": "60b6b4b86c8c65e5e1205b9c6203d078e032d682ebba330387e38a948e86ebaf",
       "executable": false
     },
     {
@@ -363,7 +368,7 @@
     },
     {
       "path": "shared/scripts/scheduled/README.md",
-      "sha256": "a891990cbc7d779dee3431ba770ea13b4471ac9a5c5e47d6fa5fc966f96ff27b",
+      "sha256": "098a3118d2faf898b2a02158848d4306f82b11c7630e5553062d06acc361a8d5",
       "executable": false
     },
     {
@@ -383,7 +388,7 @@
     },
     {
       "path": "shared/scripts/sessionstart-learning.sh",
-      "sha256": "47e4a77bac2a523d2065ee139d313cca95f8861435b895e2b5f9bc489676867a",
+      "sha256": "f6a242fe65379318c6372e56ff1c247a5730293a056fe5916e81465115db0edc",
       "executable": true
     },
     {
@@ -398,12 +403,12 @@
     },
     {
       "path": "shared/scripts/subagentstart-learning.sh",
-      "sha256": "ce7bc7958c83507f0b87485f388e81d472183cb674a35e1b8aa2e87473321cc3",
+      "sha256": "404e4609016f02be1129b56c252f23ea975e6f36bc3f707ac12aecb8644683dc",
       "executable": true
     },
     {
       "path": "shared/scripts/subagentstop-learning.sh",
-      "sha256": "43dc16d40da5de6fdc09e77ec0e1e7ccecf9e16442c0d6e7c5b767d56bce89c3",
+      "sha256": "e465f12b9840c155b1b24766f96806605333543b96c2cd783c31e3c414fcb352",
       "executable": true
     },
     {
@@ -487,5 +492,5 @@
       "executable": true
     }
   ],
-  "bundleId": "5e700547d7d82da64e316fa1cff3f8722add6c0999799d7be71aeae29d663a18"
+  "bundleId": "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7"
 }

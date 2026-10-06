@@ -35,8 +35,7 @@ stage reads first, and emits plain-text progress signals
 
 ## What the control plane protects
 
-The runtime coordinates Claude Code, Codex, OpenCode, Kimi, CLI operators, and
-Sovereign Sync around one ordered history:
+The runtime coordinates Claude Code, Codex, OpenCode, Kimi, CLI operators around one ordered local history:
 
 - immutable project identity in `.prometheus/project.json`;
 - lifecycle and pause checkpoints;
@@ -56,7 +55,7 @@ serialized across replay, validation, append, and fsync by one journal lock.
 
 - [Canonical control plane](./control-plane): runtime, identity, events, and projections
 - [Identity and authentication](./tokens-and-authentication): project, replica, operator, and device identities
-- [Tool guards](./bash-mutation-guard): the one remaining write guard, and why the Bash fence was removed
+- [Tool guards](./bash-mutation-guard): unrestricted mutation tools and the canonical completion receipt boundary
 - [Operator controls](./operator-controls): pause, revise, resume, cancel, and audit
 - [Migration and rollout](./migration-and-rollout): importing legacy ledgers and canary gates
 - [Troubleshooting](./troubleshooting): error-to-remediation lookup

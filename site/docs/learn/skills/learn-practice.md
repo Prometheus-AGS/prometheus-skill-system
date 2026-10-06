@@ -6,31 +6,12 @@ sidebar_label: learn-practice
 
 # /learn-practice
 
-Deliberate practice track for building skill through targeted exercises.
+Work on problems for a specific concept in an existing goal:
 
-## Difference from Feynman loop
-
-| Feynman loop | Deliberate practice |
-|-------------|-------------------|
-| Explain concepts verbally | Solve exercises with feedback |
-| Gap-find from explanation | Gap-find from exercise performance |
-| Good for conceptual understanding | Good for procedural skill |
-
-## Practice types
-
-- **Exercise sets** — structured problems at increasing difficulty
-- **Transfer problems** — apply concept in new contexts
-- **Error analysis** — review mistakes, identify patterns
-- **Speed drills** — timed exercises for automatic recall
-
-## Usage
-
-```
-/learn-practice "Rust lifetime annotations"
+```text
+/learn-practice --concept-id borrow-checker --goal-id rust-basics --type implementation --problems 3
 ```
 
-## Integration
+Supported types are `derivation`, `implementation` and `transfer`. With no explicit type, the procedure rotates types; the default problem count is three. The skill records practice sessions and observations through the learner-model.
 
-`learn-practice` contributes to the transfer gate of mastery closure:
-the two novel transfer problems solved at ≥ 0.7 can come from practice
-session performance.
+Practice supplies evidence of application. Mastery still requires two novel transfer problems at `>= 0.7`, explanation evidence and delayed retention. State whether a result was independently verified, inferred or self-reported; a score alone cannot establish the transfer gate.

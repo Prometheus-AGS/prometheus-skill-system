@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T19:29:31.319957+00:00",
+  "phase": "phase-learning-deploy-and-debt",
+  "change": "change-ldd-17-service-sites-current",
+  "sourceSubset": "explicit narrow hosted workflow/release-method correction",
+  "scopeAuthorization": "root scope-ready message: explicit exact-workflow correction recorded in MAIN and candidate plan.md and change17 spec.md before edits",
+  "actualModel": "gpt-6.1-sol",
+  "actualReasoning": "xhigh",
+  "actualRoute": "native OpenAI Codex implementation worker /root/source_inventory",
+  "sourceOnly": true,
+  "canonicalCompletionClaim": false,
+  "releaseAcceptanceClaim": false,
+  "worktrees": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "head": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "head": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1"
+    }
+  ],
+  "files": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final/.github/workflows/ci.yml",
+      "beforeSha256": "0cb8ae8e4d12ad38a2c649b1dfefed322b0b2c62c6d423b5a41e2aa71e7ebb3c",
+      "beforeBytes": 4925,
+      "disposition": "removed",
+      "afterSha256": null,
+      "afterBytes": null,
+      "reason": "Removed push/PR CI matrix running node --test, coverage, rules --check, OpenSpec validation, hook tests/cold-start measurement, and hosted Cargo CLI build/integration. No manual fallback or runnable archived copy created.",
+      "history": "original tracked source remains recoverable from Git; no archived runnable workflow copy"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/.github/workflows/image.yml",
+      "beforeSha256": "77bc613047a9beb8b5aad6d97861edc0f52d27d62386bcb25acf8b66159c52de",
+      "beforeBytes": 3504,
+      "disposition": "removed",
+      "afterSha256": null,
+      "afterBytes": null,
+      "reason": "Removed main/tag/manual-dispatch Rust container build-and-push matrix, hosted multi-arch assembly and image inspection. Publication now requires locally built/certified approved artifacts; no publisher infrastructure introduced.",
+      "history": "original tracked source remains recoverable from Git; no archived runnable workflow copy"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/.github/workflows/docs.yml",
+      "beforeSha256": "818d1e55ee997bf859f616898c6ab63a9a58a4e1bc6044e13a069af70c155b59",
+      "beforeBytes": 1490,
+      "disposition": "retained-permitted-pages-packaging-and-deployment",
+      "afterSha256": "3f2187062b0be78c606ea2fe79edcb7f1048f327d5fa7c97e3a867b0a52c4d9c",
+      "afterBytes": 1465,
+      "reason": "Retained existing Pages triggers, dependency installation, Docusaurus packaging, Pages artifact upload and deploy. Removed separate npm typecheck; names/comments describe packaging rather than validation.",
+      "history": "original tracked source remains recoverable from Git; no archived runnable workflow copy"
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/docs/container-publication.md",
+      "beforeSha256": null,
+      "afterSha256": "df68fe01a9a9c0181128311f05e0151e97c0e646d36b985df4a74027aa0afbea",
+      "afterBytes": 2235,
+      "disposition": "added-authored-release-method-policy",
+      "reason": "Documents local builds/certification, approval-first publication of exact existing artifact digests, platform-specific evidence, rollback, and Pages exception. No README/pin metadata edits."
+    }
+  ],
+  "pagesPackageSource": {
+    "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final/website/package.json",
+    "sha256": "f06523edd607924f1c32307c573d7859efdabda27fdfa8535ee6c6d9663ccc61",
+    "observedBuildScript": "docusaurus build",
+    "observedSeparateTypecheckScript": "tsc",
+    "modified": false
+  },
+  "allowedHostedOperations": [
+    "deterministic documentation sync",
+    "GitHub Pages packaging/deployment"
+  ],
+  "forbiddenHostedOperations": [
+    "Rust/container or product builds",
+    "tests/coverage",
+    "lint/type checks",
+    "validators/doctor/health checks",
+    "contract checks",
+    "release certification"
+  ],
+  "containerPublicationContract": "Locally build and certify each approved platform artifact first, obtain applicable owner approvals, then publish only those exact existing digests to the selected registry and approved tags. No hosted rebuild/validation or new publisher infrastructure.",
+  "historicalPreservation": "Deleted workflow definitions retained in Git history. Historical authored assessments remain untouched and are not current release evidence.",
+  "actionsPerformed": [
+    "read assigned workflow/current package sources",
+    "delete two assigned runnable workflows",
+    "edit only assigned Pages workflow names/comments and remove typecheck step",
+    "add directly related authored container release-method document",
+    "record source SHA-256 provenance"
+  ],
+  "validationPerformed": [],
+  "notPerformed": [
+    "workflow execution/start/rerun/watch/poll/cancel",
+    "tests/checks/validators",
+    "compiler/build/typecheck",
+    "probes/generation",
+    "commits/pushes/publication",
+    "remote/network action",
+    "protected versions/pin/tag or README mutation"
+  ],
+  "remaining": [
+    "lead copies/reconciles source disposition and owns canonical transitions",
+    "applicable final local gates and approved source/artifact/platform freeze",
+    "approved local container build/certification and explicitly authorized exact-artifact publication; no current artifact approval inferred"
+  ],
+  "preserved": [
+    "other owners production/docs changes",
+    "memory README and pin metadata",
+    "all protected versions/tags",
+    "existing Pages deployment permissions/concurrency/artifact flow",
+    "historical authored assessments",
+    "no cleanup of worktrees or homes"
+  ]
+}

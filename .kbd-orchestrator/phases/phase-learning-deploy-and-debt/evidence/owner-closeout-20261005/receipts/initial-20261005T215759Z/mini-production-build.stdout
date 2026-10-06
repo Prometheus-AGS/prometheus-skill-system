@@ -1,0 +1,7 @@
+[INFO] [en] Creating an optimized production build...
+[webpackbar] ℹ Compiling Client
+[webpackbar] ℹ Compiling Server
+[webpackbar] ✔ Server: Compiled successfully in 3.33s
+[webpackbar] ✔ Client: Compiled successfully in 6.37s
+[SUCCESS] Generated static files in "../../../../../../../private/tmp/ldd-local-07t76e9q/mini-site".
+[INFO] Use `npm run serve` command to test your build locally.

@@ -3,36 +3,21 @@
 > Applies to every `SKILL.md` in this repo. Enforced (as a warning) by
 > `npm run validate` and (as an error) by `npm run validate:strict`.
 
-## Why the description is the whole game
+## Make discovery criteria explicit
 
-A skill is a prompt template, not executable code. Nothing routes to it
-algorithmically: the model picks a skill by **reading its `description`** and
-nothing else. The body is not consulted at selection time — only after the skill
-is already chosen. A perfect 500-line `SKILL.md` behind a vague description is
-never read.
+Skill descriptions help the selected harness decide what to load. The pack also
+has deterministic catalogs, source templates and programmatic selection paths;
+there is no universal description-only routing algorithm across every harness.
+A discoverable skill is not automatically activated or followed.
 
-Two facts about this repo make that sharper than it sounds.
+Keep descriptions specific and concise. Listing budgets and truncation depend on
+the actual harness/version/configuration. `config/codex-catalog.txt` is the pack's
+curated selection input, not evidence of a fixed vendor token budget or a guaranteed
+activation rate. Inspect actual discovery and record a real request before claiming
+that a description triggers reliably.
 
-**1. Descriptions compete for a fixed budget.** Codex renders every
-discoverable skill into one `## Skills` section with a fixed size budget. Names
-and paths are mandatory; descriptions get what is left. Each additional skill
-shortens the description of every other skill. From
-[`config/codex-catalog.txt`](../config/codex-catalog.txt):
-
-| Catalog entries | Avg description | Effect |
-|---|---|---|
-| ~130 | ~166 chars | full — the model triggers reliably |
-| ~200 | ~66 chars | usable |
-| ~360 | ~10 chars | **broken** — the model cannot tell skills apart |
-
-This pack currently exposes **321 catalog entries**. We are near the bottom of
-that curve, which is why trigger wording — not prose quality — is the thing that
-matters.
-
-**2. Similar skills actively compete.** `iterative-evolver`, `pmpo-outer-loop`,
-and `pmpo-elicit` all describe "a loop that improves things". Without an
-exclusion clause, every one of them is a plausible match for every prompt about
-improving something, and the model picks close to arbitrarily.
+Similar skills benefit from clear boundaries: distinguish a standing loop from
+elicitation, strategic evolution and canonical task execution.
 
 ## The shape
 
@@ -93,12 +78,16 @@ of it.
 ## Deciding between `Use when` and the catalog
 
 Not every skill should be in the auto-trigger catalog. A skill excluded in
-`config/codex-catalog.txt` is **still reachable** as `/<skill-name>` — it just
-stops taxing every other skill's description budget. Prefer exclusion for
+`config/codex-catalog.txt` remains in source, but may require deliberate loading through an installed
+compatible path. Exclusion from a generated catalog does not guarantee a native
+slash command remains available. Prefer exclusion for
 skills that are always invoked deliberately by name (sub-skills, stage-* steps,
 one-off migrations) over writing trigger words nobody will ever type.
 
-## Checking your work
+## Final structural checks
+
+Complete all phase production first, then run applicable local structural checks
+alongside the required production-path integration gate:
 
 ```bash
 npm run validate                       # warns on missing triggers/exclusions

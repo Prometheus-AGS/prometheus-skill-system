@@ -1,46 +1,27 @@
-# Bench Automation Toolkit
+# Research benchmark tooling
 
-Implements the close-out for the parent's G5 (RACE measurement) on the 10-task bench subset.
+These scripts operate on existing research packages for the recorded ten-task
+subset. They do not by themselves prove task dispatch, search-tool use, complete
+reports, benchmark quality or closure of the historical research change.
 
-## Quick start
+| Source | Behavior |
+|---|---|
+| `run-bench-suite.sh` | Agent-driven package coordinator; search and research stages still need their actual collaborators |
+| `bench-runbook.sh` | Labels existing packages, adapts package layout, runs scoring and appends result rows |
+| `../../skills/research/deep-research/scripts/label-claims.py` | Assigns claim labels from available source evidence |
 
-```bash
-export KBD_PRODUCER_MODEL=glm-5.3
-# 1. Label all packages (closes the drt-006 verified_claim_ratio=0.0 gap)
-#    (bench-runbook.sh does this automatically, but it can be run alone)
-python3 skills/research/deep-research/scripts/label-claims.py <pkg>
+The scripts default to a home research directory and can mutate package layout,
+labels and recorded results. Inspect their entry points and select disposable
+package/state roots before a local acceptance run. `BENCH_G5` selects that package
+root; model/provider selection belongs to the actual configured route. A default
+model string is not evidence that the provider executed.
 
-# 2. Run the full bench (scores all 10 tasks, appends rows to BENCH-RESULTS.md)
-tools/bench-automation/bench-runbook.sh
-```
+Scoring incomplete or previously prepared packages is not an end-to-end research
+run. Missing stages and skipped packages remain explicit gaps. Reapplying a
+runbook is not a promise of exactly-once result recording. Retain source identity,
+provider identity, package hashes and the actual collaborator receipts.
 
-## Files
-
-- `../../skills/research/deep-research/scripts/label-claims.py` — adds `verified`/`partial`/`unverified` to each claim in `sources/registry.json` based on credibility score + source tier + verbatim-quote presence in chunk texts. Idempotent.
-- `run-bench-suite.sh` — coordinator stub for invoking the per-task pipeline (the LLM-driven stage runner + agent I/O); the actual stage execution is currently agent-driven in this session (the runner stage is a follow-up).
-- `bench-runbook.sh` — labels all packages, fixes the nested→flat layout run-bench expects, runs `run-bench.sh`, scores via `score-race.sh` + `score-fact.py`, and appends per-task rows to `tests/bench/BENCH-RESULTS.md`.
-
-## Output layout
-
-```
-~/.prometheus/research/bench-g5/
-  task-51/         →  symlink to nested slug-dir package
-  task-58/         →  ...
-  ...
-  bench-summary.json   ← per-task RACE array
-```
-
-Each package:
-```
-~/.prometheus/research/bench-g5/task-<id>/
-  from-<slug>-<8hex>/
-    report.md, plan.md, graph.json, citations.json,
-    manifest.json, index.md, checkpoint.json,
-    sources/{url-list.json, registry.json, credibility.json,
-             chunk-NN.json, contradictions.json, label-summary.json}
-    review/{findings.json, packet.json, ...}
-```
-
-## Retry semantics
-
-`bench-runbook.sh` is idempotent: re-running labels do not duplicate work, and `run-bench.sh` SKIPs tasks that lack `report.md` (the symlink fix is also non-destructive). The orchestrator (`run-bench-suite.sh`) is a thin coordinator; the real per-task work remains agent-driven for now (a follow-up would wire the LLM stage runner + a gateway web-search proxy for full autonomy).
+Preserve [benchmark attribution](../../skills/research/deep-research/tests/bench/ATTRIBUTION.md),
+license notices and protected fixtures. Complete all production work first; tests,
+benchmark execution and independent review wait for the final local integration
+boundary. Fixture changes follow the signed protected-test approval protocol.

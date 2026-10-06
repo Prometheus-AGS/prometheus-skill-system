@@ -1,0 +1,577 @@
+{
+  "kind": "task16-completed-author-source-handoff",
+  "sourceTasksComplete": [
+    1,
+    2,
+    3
+  ],
+  "acceptance": "none; final integration/generation/installed/runtime gates pending",
+  "model": "Native OpenAI gpt-6.1-sol/high scoped fallback; planned route is not provider inference evidence",
+  "canonicalCompletionEvidence": [
+    "/tmp/ldd-task16-1-end.log @ revision2311",
+    "/tmp/ldd-task16-2-end.log @ revision2315",
+    "/tmp/ldd-task16-3-end.log @ revision2325"
+  ],
+  "authoredRows": [
+    {
+      "pack": "full",
+      "path": "docs/guide/24-agent-teams.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Canonical mounted guide: discover/create/import/select, path ownership, revisioned task lifecycle, context-bearing handoffs, authorization, full-only cross-project cards/intake, scoped memory, model policy and evidence limits.",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/models.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/runtime/src/project-install.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "c1e3d14680a46e2244e3610b06c2ca64d7f7942d3d112c6a30e34a2948a524ca",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "full",
+      "path": "docs/agent-teams.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Executable JSON request reference for the current creator/state/handoff contracts; separates UAR schema direct coordinator acceptance from local lifecycle/handoff acceptance.",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/models.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/runtime/src/project-install.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "5b04ffeedf506775e55a4b8ca28a1296007f7643ea6ac3e5759c25d8cac0424a",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-teams/overview.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Current site entrypoint links to the canonical guide and request reference, with installed harness/role execution boundaries.",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/models.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/runtime/src/project-install.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "5220367e90cc81bc3602334e5e3d96c5856fb13f999e148afd74094348a46c50",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/task-model-assignments.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "KBD planned task model assignment, discovery/cost/effort/fallback/native controls and actual inference evidence separated.",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/models.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/runtime/src/project-install.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "206e907600cad86805d08e3a4028f34ed90d93a46cc2de46678dace6ed1d4a47",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/models-memory.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Amended policy persistence/native limits and current scoped queue/publication examples; source-based limits, uncertainty and identity are explicit.",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/models.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/runtime/src/project-install.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "d079ec9e6ea2ef7b54e45eb3cb26bd00497d93854a771780f8f654c0657b2a2b",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/schemas/uar/README.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Draft.1 and draft.2 snapshots distinguished, selected provider identity comes from the receipt; validity/provenance are not runtime conformance.",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/models.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/runtime/src/project-install.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "9450245098a38321517eafda9843d2e5b4fb32816474cbc5567d02181118bdde",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "mini",
+      "path": "docs/agent-teams.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Portable lifecycle/handoff/model request reference with explicitly reduced mini memory and missing full-only card/intake commands. Later authorized memory source corrections are reflected without claiming generated or installed repair.",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/state.mts",
+        "skills/agent-team-creator/runtime/src/handoff.mts",
+        "skills/agent-team-creator/runtime/src/models.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/runtime/src/project-install.mts",
+        "skills/agent-team-creator/schemas/team.schema.json",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "9a6954e3affb4dd7c5ee724133fc0d1ee195b970b541e369e1bb984f46b0542e",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/agent-teams/overview.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Current site entrypoint to mini request reference and native execution limits.",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/state.mts",
+        "skills/agent-team-creator/runtime/src/handoff.mts",
+        "skills/agent-team-creator/runtime/src/models.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/runtime/src/project-install.mts",
+        "skills/agent-team-creator/schemas/team.schema.json",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "0aa1025c9a811e852891c06195edd0ba5761314f1ec089fc7a1cd260e8880642",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/kbd/task-model-assignments.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Planned/configured/run model evidence, policy layers, budgets and native control limits.",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/state.mts",
+        "skills/agent-team-creator/runtime/src/handoff.mts",
+        "skills/agent-team-creator/runtime/src/models.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/runtime/src/project-install.mts",
+        "skills/agent-team-creator/schemas/team.schema.json",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "1e0a4a2b5b447f5c3e7490210aa4a5c205cf36f8e551090df522442c4936f36f",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/models-memory.md",
+      "disposition": "authored-source-complete-task16",
+      "notes": "Amended policy/native limits and candidate canonical scoped REST envelope with explicit project identity, missing-project file-tier outcome and uncertain prior-publication reconciliation; no full Python/Cortex parity.",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/state.mts",
+        "skills/agent-team-creator/runtime/src/handoff.mts",
+        "skills/agent-team-creator/runtime/src/models.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/runtime/src/project-install.mts",
+        "skills/agent-team-creator/schemas/team.schema.json",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "currentCandidateSha256": "cf5e705a69c1616a0a875b061d4d271722dea83e24a9d95132c8a91b5ad2a166",
+      "acceptance": "none; final phase gate pending",
+      "hashMeaning": "Current source identity only, not proof of semantic or runtime acceptance."
+    }
+  ],
+  "referenceInputRows": [
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/SKILL.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": true,
+      "disposition": "corrected-source-active-task17; use separate handoff",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable team/native export contract and chosen provider profile. Newly discovered parity/profile conflicts are corrected under17, not credited retroactively to16."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/manifest.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": true,
+      "disposition": "corrected-source-active-task17; use separate handoff",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable team/native export contract and chosen provider profile. Newly discovered parity/profile conflicts are corrected under17, not credited retroactively to16."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/models-memory.md",
+      "task16Use": "authored-amendment",
+      "laterTask17Correction": false,
+      "disposition": "author-source-complete-task16",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/models.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable policy selection/discovery and optional memory publication; declared/selected/exported/invoked models and price evidence are distinct."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/native-harnesses.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": true,
+      "disposition": "corrected-source-active-task17; use separate handoff",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable team/native export contract and chosen provider profile. Newly discovered parity/profile conflicts are corrected under17, not credited retroactively to16."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/project-installation.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/project-install.mts",
+        "skills/process/agent-team-creator/runtime/src/ui-bindings.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Project team selection/routing, preserve existing native files and staged definition provenance; installation is discovery setup, not activation."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/task-handoff.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Revisioned task lifecycle and context-bearing handoff creation/acceptance; administrative reassign and destination acceptance remain different actions."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/uar-deployment.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/uar-package/commands.mts",
+        "skills/process/agent-team-creator/runtime/src/uar-package/workspace.mts",
+        "skills/process/agent-team-creator/runtime/src/uar-client.mts",
+        "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Revisioned authoring, immutable catalog package/private binding, capability/preflight/status and explicit activation refusal; legacy migration retains profile."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-creator/references/team-cards.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/registry.mts",
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Full-only card discovery/intake/routing contract; routing does not supply permission to message, publish an issue or write another repository."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-handoff/SKILL.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Revisioned task lifecycle and context-bearing handoff creation/acceptance; administrative reassign and destination acceptance remain different actions."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-manage/SKILL.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/state.mts",
+        "skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "skills/process/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Revisioned task lifecycle and context-bearing handoff creation/acceptance; administrative reassign and destination acceptance remain different actions."
+    },
+    {
+      "pack": "full",
+      "path": "skills/process/agent-team-models/SKILL.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/models.mts",
+        "skills/process/agent-team-creator/runtime/src/memory.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/adapters-local.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable policy selection/discovery and optional memory publication; declared/selected/exported/invoked models and price evidence are distinct."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/SKILL.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": true,
+      "disposition": "corrected-source-active-task17; use separate handoff",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/schemas/team.schema.json",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable team/native export contract and chosen provider profile. Newly discovered parity/profile conflicts are corrected under17, not credited retroactively to16."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/manifest.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": true,
+      "disposition": "corrected-source-active-task17; use separate handoff",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/schemas/team.schema.json",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable team/native export contract and chosen provider profile. Newly discovered parity/profile conflicts are corrected under17, not credited retroactively to16."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/models-memory.md",
+      "task16Use": "authored-amendment",
+      "laterTask17Correction": false,
+      "disposition": "author-source-complete-task16",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/models.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable policy selection/discovery and optional memory publication; declared/selected/exported/invoked models and price evidence are distinct."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/native-harnesses.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": true,
+      "disposition": "corrected-source-active-task17; use separate handoff",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts",
+        "skills/agent-team-creator/schemas/team.schema.json",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable team/native export contract and chosen provider profile. Newly discovered parity/profile conflicts are corrected under17, not credited retroactively to16."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/project-installation.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/project-install.mts",
+        "skills/agent-team-creator/runtime/src/ui-bindings.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Project team selection/routing, preserve existing native files and staged definition provenance; installation is discovery setup, not activation."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/task-handoff.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/state.mts",
+        "skills/agent-team-creator/runtime/src/handoff.mts",
+        "skills/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Revisioned task lifecycle and context-bearing handoff creation/acceptance; administrative reassign and destination acceptance remain different actions."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-creator/references/uar-deployment.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/uar-package/commands.mts",
+        "skills/agent-team-creator/runtime/src/uar-package/workspace.mts",
+        "skills/agent-team-creator/runtime/src/uar-client.mts",
+        "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Revisioned authoring, immutable catalog package/private binding, capability/preflight/status and explicit activation refusal; legacy migration retains profile."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-handoff/SKILL.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/state.mts",
+        "skills/agent-team-creator/runtime/src/handoff.mts",
+        "skills/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Revisioned task lifecycle and context-bearing handoff creation/acceptance; administrative reassign and destination acceptance remain different actions."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-manage/SKILL.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/state.mts",
+        "skills/agent-team-creator/runtime/src/handoff.mts",
+        "skills/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Revisioned task lifecycle and context-bearing handoff creation/acceptance; administrative reassign and destination acceptance remain different actions."
+    },
+    {
+      "pack": "mini",
+      "path": "skills/agent-team-models/SKILL.md",
+      "task16Use": "reference-contract-input; no blanket rewrite or current-runtime certification",
+      "laterTask17Correction": false,
+      "disposition": "retained-contract-reference-with-bounded-source-provenance",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/models.mts",
+        "skills/agent-team-creator/runtime/src/memory.mts",
+        "skills/agent-team-creator/runtime/src/types.mts",
+        "skills/agent-team-creator/runtime/src/adapters-local.mts"
+      ],
+      "acceptance": "none; final phase gate pending",
+      "notes": "Task16 handbook uses these contracts as reference inputs. Existing reference syntax is not a distinct guarantee of installed execution, remote activation, cross-pack byte parity or platform conformance.",
+      "contractUseNotes": "Portable policy selection/discovery and optional memory publication; declared/selected/exported/invoked models and price evidence are distinct."
+    }
+  ],
+  "provenanceBoundary": "Reconstructed from completed source work, existing page dispositions and canonical completion records. Later17 editorial refinements/current memory source handoffs are preserved. Current hashes identify bytes only; no review, checks or runtime work reran.",
+  "remaining": [
+    "Active17 six creator source corrections are recorded separately",
+    "Final12 generated .mjs rebuild and local full-integration/native acceptance",
+    "Remote mapped-http authorization/idempotency remain unverified; uncertain legacy publications need operator disposition",
+    "Full-only cards/intake intentionally do not exist in mini; UAR schema support does not add local direct-accept CLI or activation authority"
+  ],
+  "notExecuted": [
+    "tests",
+    "checks",
+    "review",
+    "compiler",
+    "generation",
+    "runtime probes"
+  ]
+}

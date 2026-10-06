@@ -4,89 +4,33 @@ title: Rust SDK
 sidebar_label: Rust SDK
 ---
 
-# Sovereign Client — Rust SDK
+# Companion Rust client
 
-`sovereign-client` provides typed models and convenience methods for the
-loopback Sovereign Sync REST and AG-UI surfaces.
+The `sovereign-client` crate belongs to Companion. A pack dependency on the old
+`substrate/sovereign-client` path is invalid. Use the separately selected approved
+Companion source identity and its client contract.
 
-## Add to a workspace
+On Unix, `SovereignClient::unix_socket(path)` selects same-user control with
+proxies/redirects disabled and a ten-second request timeout. The retained
+`new(base_url)` constructor is a different HTTP client; do not assume it selects
+the socket or supplies explicit TCP authentication.
 
-```toml
-[dependencies]
-sovereign-client = { path = "../substrate/sovereign-client" }
-kbd-runtime = { path = "../substrate/kbd-runtime" }
-```
+`sync_push_signed` submits an already signed v2 request once and returns HTTP
+status/body. Persist the exact request and endpoint before invoking it;
+`sync_push_receipt` resolves its original ID. SDK callers do not automatically
+receive the MCP bridge's durable intent outbox. Keep transport/decoding failure
+uncertain until reconciled on the original host. The legacy unsigned helper is
+same-user Unix-only and does not replace the v2 receipt contract.
 
-## Basic use
+## Ownership and evidence
 
-```rust
-use sovereign_client::SovereignClient;
+These routes remain useful after relocation. The current recovered Companion
+source (`docs/installation.md`, `docs/control-api.md`) has no public remote or
+certified release yet. Source inspection is not installed or peer acceptance;
+final source/artifact identities and publication links remain release-owned.
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    let client = SovereignClient::new("http://127.0.0.1:7892")?;
-    let health = client.health().await?;
-    let sync = client.sync_status().await?;
-    println!("{}: {}", health["service"], sync.node_state);
-    Ok(())
-}
-```
-
-The daemon is loopback-only. Read routes do not use the removed bearer-token
-scheme. KBD mutation methods accept a `SignedCommandEnvelope`; the caller must
-sign a schema-v2 command with an active enrolled device key before submission.
-
-## KBD status and signed commands
-
-```rust
-use kbd_runtime::{CommandEnvelope, SignedCommandEnvelope};
-
-let state = client.kbd_status(project_id).await?;
-let command: CommandEnvelope = build_command_with_frontier(state.frontier);
-let signed = SignedCommandEnvelope::sign(command, &device_signer)?;
-let committed = client.submit_kbd_command(project_id, &signed).await?;
-```
-
-Normal commands use the current causal frontier. Scalar revision is a derived
-compatibility projection and is not the concurrency authority.
-
-## Continuous operational events
-
-```rust
-use futures::StreamExt;
-
-let mut events = client.stream_events().await?;
-while let Some(event) = events.next().await {
-    println!("{:?}", event?);
-}
-```
-
-The typed stream includes `event_appended`, `claim_acquired`,
-`claim_conflict`, and `singleton_violation` in addition to AG-UI task events.
-
-## API surface
-
-```text
-SovereignClient::new(base_url)
-health()
-search_skills(query, limit)
-sync_status()
-sync_push(domain)
-kbd_status(project_id)
-submit_kbd_command(project_id, signed_command)
-kbd_claims(project_id)
-stream_task(task)
-stream_events()
-```
-
-## Error types
-
-```rust
-pub enum ClientError {
-    Http(reqwest::Error),
-    Json(serde_json::Error),
-    Stream(String),
-    Url(url::ParseError),
-    Api(String),
-}
-```
+Use [local KBD](/docs/kbd/control-plane) without the optional extension, and the
+[service operations guide](/docs/guide/service-operations#optional-companion)
+for pack/Companion ownership. The [integration contract](/docs/kbd/integration-contract)
+is a one-way seam. [Relocation history](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/decisions/sovereign-sync-relocated-to-companion.md)
+is a decision record, not a Companion repository URL.

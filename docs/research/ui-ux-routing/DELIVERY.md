@@ -1,3 +1,5 @@
+> **Recorded research/implementation evidence; outside current onboarding.** Results apply to the named source and execution boundary. Current source, compiled payloads, installed harness use and release certification require their own final local evidence.
+
 # Delivery record
 
 Implementation is complete locally; release certification remains open.
