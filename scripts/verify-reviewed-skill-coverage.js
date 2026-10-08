@@ -24,7 +24,11 @@ function parseArgs(argv) {
 function verifyInstalledGeneration(args) {
   const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const installer = path.join(sourceRoot, 'scripts', 'install-plugin-generation.js');
-  const result = spawnSync(process.execPath, [installer, '--reviewed-coverage', '--source-root', sourceRoot, '--plugin-root', args.pluginRoot, '--home', args.home, '--trust-store', args.trustStore], { encoding: 'utf8', shell: false });
+  const result = spawnSync(process.execPath, [installer, '--reviewed-coverage', '--source-root', sourceRoot, '--plugin-root', args.pluginRoot, '--home', args.home, '--trust-store', args.trustStore], {
+    encoding: 'utf8',
+    shell: false,
+    maxBuffer: 64 * 1024 * 1024,
+  });
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(result.stderr.trim() || 'installed generation verification failed');
   return result.stdout.trim();
