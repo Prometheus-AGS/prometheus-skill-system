@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "kind": "completed-cadence-source-reconciliation-boundary",
+  "version": "1.2.5",
+  "recordedAt": "2026-10-08T11:26:54.042Z",
+  "cliOperation": {
+    "platform": "darwin-arm64",
+    "reconciliationSha256": "9d7cfd82ec07df132ed686982bd6e7d448fc6f293219df072a9e37c02a2a871e",
+    "adoptedFeatureReceiptSha256": "8c8e3449a9ce581a0b9524ba591f5d5b0c60fb97f754167be95d80a76ab0b9bf",
+    "iterationStatus": "finished",
+    "workOutcome": "success",
+    "originalFirstWorkAt": "2026-10-08T02:17:47.912Z",
+    "finishedAt": "2026-10-08T11:22:40.863Z",
+    "canonicalTaskCredit": 0,
+    "publicationDebtPreserved": true
+  },
+  "fullMiniPayload": {
+    "status": "identical",
+    "files": [
+      {
+        "path": "SKILL.md",
+        "sha256": "4cb0f6804b8d3b48025b013df815c903e1214bf28cd90f9fca0c46e6664994c0",
+        "size": 6815
+      },
+      {
+        "path": "assets/boss-provider-setup.mjs",
+        "sha256": "fb9d16c97ac9ea2798a110ac1d0fd7f10ee444ed6bdd5a5c5f97755d676ac9e8",
+        "size": 2511
+      },
+      {
+        "path": "assets/hooks/email-api.mjs",
+        "sha256": "c4041e45942e11b8c620477671336a134b6d692f34eca5a8e6b8fe3f3c026733",
+        "size": 1166
+      },
+      {
+        "path": "assets/hooks/local-summary.mjs",
+        "sha256": "982979f0f577e73dcc795ec422d76a09283489e5685c7ef854265919a6b05ff7",
+        "size": 851
+      },
+      {
+        "path": "assets/hooks/webhook.mjs",
+        "sha256": "8a1ebebfa19995554faa858c76ddf728990792bd7fc2978477079e75c71a7607",
+        "size": 773
+      },
+      {
+        "path": "examples/README.md",
+        "sha256": "97b553749e2a5bcea97360054489abb47a9ebe890bf2638ad2997e3cbdbce20b",
+        "size": 949
+      },
+      {
+        "path": "examples/boss-consumer-capabilities.json",
+        "sha256": "014bcc583fbd96dbbb0e2f62faccc2501d2d1b95f3bcfe4116f83b2767bf276f",
+        "size": 3901
+      },
+      {
+        "path": "examples/operation-admission.json",
+        "sha256": "45713d6f2534bc2c831234a754958bf7c27436672c2cc6f209a757ae63c0ef8c",
+        "size": 1815
+      },
+      {
+        "path": "examples/refresh-skill-pack-shim.sh",
+        "sha256": "b6e2ea16eb9017bbc7a9660f9f5d7f820a1b0d722ac5895b09551cfaad153f7d",
+        "size": 717
+      },
+      {
+        "path": "references/adapters.md",
+        "sha256": "0407a04cc2b73004c5f4082aaea24b106b59ba1f32ad8180f39e3d3c6c561a88",
+        "size": 6674
+      },
+      {
+        "path": "references/boss-profile.md",
+        "sha256": "053490d87bb2777ca52fbdb16e797d3dc4acef0d32fe967bd0681ae07d9377f1",
+        "size": 6465
+      },
+      {
+        "path": "references/child-recovery.md",
+        "sha256": "07df9c6b24c63c8d92c0e33cd7aaf6b71f69f9b0ed84f29c25003da7a831e737",
+        "size": 4037
+      },
+      {
+        "path": "references/hooks.md",
+        "sha256": "cba791dd450af9c4548d925d289e5237a577b74b40a46a146199ac4dba38f9d9",
+        "size": 4922
+      },
+      {
+        "path": "references/measurement.md",
+        "sha256": "5f9423d0dde7684f922262d9e1c61a6b69b6397e073bca1f1b5ee045fc5772e2",
+        "size": 4480
+      },
+      {
+        "path": "references/pipeline-contract.md",
+        "sha256": "3810c7e828463f4e4a99e3de5a0fa0bc95402b5d47eea097510da75be2651fda",
+        "size": 4585
+      },
+      {
+        "path": "references/profile.md",
+        "sha256": "0b1087c841ee356cae7787d1df5fbc052d73336c5a783e34a21fd6c819c8dc4f",
+        "size": 11665
+      },
+      {
+        "path": "references/source-reconciliation.md",
+        "sha256": "049008bf717592d2770a0cdc57eb1a849fe478c07f070c106915b2c327f35009",
+        "size": 5399
+      },
+      {
+        "path": "schemas/event.schema.json",
+        "sha256": "88330f7e1454c96a3f42b420aa0ee83badd5ca120d09327de67d73fb3cc2fb76",
+        "size": 1884
+      },
+      {
+        "path": "schemas/pipeline-v3.schema.json",
+        "sha256": "17b04b234541a20842813425be110f0ef0452b7642a9235b8b11bd87e241e49c",
+        "size": 7254
+      },
+      {
+        "path": "schemas/profile.schema.json",
+        "sha256": "5e9de2d0a4fbb1eccf119f6bf927fadcfa461af988adbdd102c4a92ed905c8b5",
+        "size": 5792
+      },
+      {
+        "path": "schemas/state.schema.json",
+        "sha256": "aff50bf9b20c4100d868404deca5d772c4ebdfbc8393a31aa2cb13f35b4a2a10",
+        "size": 26346
+      },
+      {
+        "path": "scripts/boss-launch.mjs",
+        "sha256": "1d7ae203035e956aa47c4ac44acdc6894a5eced2a0213f3291fef7213e82e3d2",
+        "size": 10044
+      },
+      {
+        "path": "scripts/cadence.mjs",
+        "sha256": "b09e5c6b86589ba3c0b28c312bd30415b3a918c0e08cf94de9d5ea3ee9bee91a",
+        "size": 1849
+      },
+      {
+        "path": "scripts/lib/activity.mjs",
+        "sha256": "99987b1f09a5de0092c7de5ee56d6e015767288d931f61c88d703f7fe7f90730",
+        "size": 2529
+      },
+      {
+        "path": "scripts/lib/candidates.mjs",
+        "sha256": "b1d411377cec9efad3734077404f58b3b73fb2ef722d7397e1e7bb52149a0784",
+        "size": 5177
+      },
+      {
+        "path": "scripts/lib/checkpoint-receipts.mjs",
+        "sha256": "14953b9134e32e8a417835c9a705732df73ed4d9e836a9e4c197180965430576",
+        "size": 7327
+      },
+      {
+        "path": "scripts/lib/checkpoints.mjs",
+        "sha256": "2bce3a91ecce1d0148ac1a7e723f932985a2e886dbacc44dbbf6d890a91c50bd",
+        "size": 18844
+      },
+      {
+        "path": "scripts/lib/children.mjs",
+        "sha256": "19e4d6583a7a7324d93e7bddaaf495e5863bd4fa95dad439a378000738e98025",
+        "size": 11192
+      },
+      {
+        "path": "scripts/lib/command-recovery.mjs",
+        "sha256": "fba01821b006b685bffeff69ee0a435b6e50c5df5cb7cd2bdbdfb6d2d62c8f47",
+        "size": 1806
+      },
+      {
+        "path": "scripts/lib/delivery-contract.mjs",
+        "sha256": "0f6c17a9bd581385e99249119beaa76fa5aea69987ed4b03850c26a81ad67fab",
+        "size": 6213
+      },
+      {
+        "path": "scripts/lib/engine.mjs",
+        "sha256": "87ab7ae9bd4d54f023c32a0e58d7de09912de39f0e958f19a598e66d4e2c4c3f",
+        "size": 27571
+      },
+      {
+        "path": "scripts/lib/finish-effects.mjs",
+        "sha256": "e1dbc5cd0e83fbbf980479ed43d642a5fdd9ef061ffaae5b4174e6ca1af0e1ee",
+        "size": 5482
+      },
+      {
+        "path": "scripts/lib/frozen-source-reconciliation.mjs",
+        "sha256": "e460b05fd33459b966dee7fb29d459d3787afb48d515f110f77adf3ec0d143bc",
+        "size": 10034
+      },
+      {
+        "path": "scripts/lib/hook-registry.mjs",
+        "sha256": "6710ffd1d41af689ed1d9360ad91298e3ecf21ec1ffd1f6401613d5b77b57794",
+        "size": 3899
+      },
+      {
+        "path": "scripts/lib/hook-runner.mjs",
+        "sha256": "4c33b5495bd13f91afba7beb2344194afd69bf41b0c0fab515d694ef07975cb7",
+        "size": 1134
+      },
+      {
+        "path": "scripts/lib/hooks.mjs",
+        "sha256": "9eb1b12a4ad7ab72517e9bdd5ccf9c86ed82f966333ef1328020755d56e0df75",
+        "size": 8506
+      },
+      {
+        "path": "scripts/lib/jobs.mjs",
+        "sha256": "e750c90df28b2ca02bf5d96aa2df90276007323f2d26e62378daef108e9e2ed2",
+        "size": 7969
+      },
+      {
+        "path": "scripts/lib/lifecycle.mjs",
+        "sha256": "816b572f1840a199085c14e1218a82d2fd95629b2c601dceab5968d34eed57c0",
+        "size": 5657
+      },
+      {
+        "path": "scripts/lib/operation-readiness.mjs",
+        "sha256": "9262ef37fa1df6e1c10a2dace7f05670bdc408456ab52a3cd7ed6719fca1f186",
+        "size": 7218
+      },
+      {
+        "path": "scripts/lib/opportunities.mjs",
+        "sha256": "99995830d3e9a22d03469087da4eb9e446a2f8ebc9371038e708a06515e9d8ab",
+        "size": 6280
+      },
+      {
+        "path": "scripts/lib/pipeline-data.mjs",
+        "sha256": "b1e108ddb39c676b5bcc1721ecda12120103d7eed43e4940fdd40348c229469f",
+        "size": 2464
+      },
+      {
+        "path": "scripts/lib/pipeline-report.mjs",
+        "sha256": "1b94067f394c58b8ebda62ebc44f7f7beb288936dcd2fb485860f92db12974a0",
+        "size": 3013
+      },
+      {
+        "path": "scripts/lib/process.mjs",
+        "sha256": "c04f245e214af823c401660116881918f6455c79e143b4bdc4628859a321116b",
+        "size": 5882
+      },
+      {
+        "path": "scripts/lib/profile.mjs",
+        "sha256": "b90a156330f27825cced4b6fde4bce45f44148926e978696edd294112793bfd2",
+        "size": 6307
+      },
+      {
+        "path": "scripts/lib/publication-effects.mjs",
+        "sha256": "9232afdc02bac6a4455c25935b4df0ff36be002e26278995e47802a47693c53e",
+        "size": 7588
+      },
+      {
+        "path": "scripts/lib/publication-receipts.mjs",
+        "sha256": "21d441bc5022a141a58fa3664e29e46b83c9fa06d2371e770311f283b1aa4112",
+        "size": 3829
+      },
+      {
+        "path": "scripts/lib/publication.mjs",
+        "sha256": "780a75109547bd0b037a8206536b8b3c69267452c37bb2050ff6c78156c03a7e",
+        "size": 14142
+      },
+      {
+        "path": "scripts/lib/report.mjs",
+        "sha256": "a69e123cd894200ce0225b28b57c61a796fa089a412d279ad1941f08faa2a5fc",
+        "size": 20744
+      },
+      {
+        "path": "scripts/lib/resources.mjs",
+        "sha256": "c249c2480256dee6095ed79daab41c3defe0f1d93bf84ac1af8d10fdfdbfc542",
+        "size": 3982
+      },
+      {
+        "path": "scripts/lib/storage.mjs",
+        "sha256": "aea6a16614f7386f76049d2095b49b5114136c85b03a56c69c80e2aabc9bf4f1",
+        "size": 14322
+      },
+      {
+        "path": "scripts/lib/work-ahead-nested-proof.mjs",
+        "sha256": "5004c77df8b2938d62888eca185ce308fd2ea94069929b150e32ae1d9100ca85",
+        "size": 6238
+      },
+      {
+        "path": "scripts/lib/work-ahead-repair.mjs",
+        "sha256": "01053730cc1ee929f6b8c03270c061124fda9d63684df9a49184e37413ccf207",
+        "size": 7241
+      },
+      {
+        "path": "scripts/lib/work-ahead.mjs",
+        "sha256": "274e6be3416c67c25d7fb4d459970f5e02e2f04e39d19d7426fb93053cba7ede",
+        "size": 10976
+      },
+      {
+        "path": "scripts/publication-receipt.mjs",
+        "sha256": "e7bb2fac01e9fde7b9067267e185d405dbfbdb3722b0f7ff8713ede564d86ed8",
+        "size": 3305
+      },
+      {
+        "path": "scripts/refresh-skill-pack.sh",
+        "sha256": "ea7c351a9d95bcfb48d00035192a77eb4fafedc7c63698b2cff13784747d7818",
+        "size": 10183
+      },
+      {
+        "path": "scripts/sync-mini.mjs",
+        "sha256": "91d1613eaf3ba4a9756a9bb65be1ca92b3e8efa49d1a6a38c18c564c97c5732e",
+        "size": 4575
+      }
+    ]
+  },
+  "nativeWindows": "pending",
+  "suiteExecution": "none"
+}
