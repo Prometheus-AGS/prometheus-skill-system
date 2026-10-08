@@ -1,0 +1,46 @@
+{
+  "changeId": "change-tli-c3b-skill-candidate-surfacing",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[C3b] List skill candidates in kbd-open and add the reflect review",
+      "done": true,
+      "doneAt": "2026-10-04T22:41:11Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/kbd-open.sh",
+        "skills/process/kbd-process-orchestrator/prompts/reflect.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[C3b] Correct the pmpo-skill-creator integration doc and propose-skill-update header",
+      "done": true,
+      "doneAt": "2026-10-04T22:41:37Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/kbd-process-orchestrator/references/integrations/pmpo-skill-creator.md",
+        "shared/scripts/propose-skill-update.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[C3b] Write test-skill-candidates.sh",
+      "done": true,
+      "doneAt": "2026-10-04T22:42:03Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-skill-candidates.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-c3b-skill-candidate-surfacing/verify.sh",
+      "notes": null
+    }
+  ]
+}

@@ -1,0 +1,3369 @@
+{
+  "schemaVersion": 1,
+  "phase": "phase-learning-deploy-and-debt",
+  "observedAt": "2026-10-05T19:01:51.738534+00:00",
+  "freezeState": "Functional source and documentation handoffs recorded; protected approvals, exact final dependency commits and publication freeze remain pending.",
+  "ownerSelectedFullDependency": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "gitlinks": [
+    {
+      "pack": "full",
+      "path": "skills/imported/artifact-refiner",
+      "declaredCommit": "18d000f3e46952418f682159b227dbf71ce61dcb",
+      "repository": "https://github.com/GQAdonis/artifact-refiner-skill.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/skills/imported/artifact-refiner",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/skills/imported/artifact-refiner"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "upstreamMain": "18d000f3e46952418f682159b227dbf71ce61dcb",
+      "recentVersionTags": [
+        "v1.2.0"
+      ],
+      "difference": []
+    },
+    {
+      "pack": "full",
+      "path": "skills/imported/prometheus-entity-management",
+      "declaredCommit": "d1588d8c93cc267774d1911e8bd53bd3918a7f12",
+      "repository": "https://github.com/Prometheus-AGS/prometheus-entity-management.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/skills/imported/prometheus-entity-management",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/skills/imported/prometheus-entity-management"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "upstreamMain": "071b9e5b06c31f6c7d9d191bdaa4a2e188d1d565",
+      "recentVersionTags": [
+        "v3.2.0",
+        "v3.1.0",
+        "v3.0.5",
+        "v3.0.4",
+        "v3.0.3",
+        "v3.0.2"
+      ],
+      "difference": [
+        "071b9e5b refactor(core): split local-first-runtime to satisfy the 500-line limit",
+        "66c20972 fix(docs): resolve re-exported doc comments and compile docs snippets",
+        "486880c0 fix(release): retire CommonJS assertions the 4.0.0 ESM-only migration outgrew",
+        "f812f1d5 fix(skills): record the 4.0.1 core exports in the skills ledger",
+        "d252c5e0 release: 4.0.2 \u2014 republish 4.0.1 with the workspace protocol resolved",
+        "2db88cf4 release: 4.0.1 \u2014 local-first runtime scoping, dispose barrier, checkpoint atomicity",
+        "6fffa05c chore(kbd): sync orchestrator + knowledge state",
+        "eb4ccc1b docs: never use CI to run tests \u2014 local integration only",
+        "297cccea feat(persistence): commit replica rows and resume checkpoint atomically",
+        "4614976b fix(local-first): make dispose drain in-flight persistence",
+        "97baec05 fix(local-first): scope pending actions and sync status per runtime",
+        "05622ae5 release: bump docs site to 0.0.4 for the 4.0.0 dependency"
+      ]
+    },
+    {
+      "pack": "full",
+      "path": "skills/imported/sycophancy-correction",
+      "declaredCommit": "bc348fffb4b622c142c1082b281dd2f44b74d37b",
+      "repository": "https://github.com/Know-Me-Tools/sycophancy-correction-skill.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/skills/imported/sycophancy-correction",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/skills/imported/sycophancy-correction"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "upstreamMain": "bc348fffb4b622c142c1082b281dd2f44b74d37b",
+      "recentVersionTags": [],
+      "difference": []
+    },
+    {
+      "pack": "full",
+      "path": "tools/cowork-skills",
+      "declaredCommit": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+      "repository": "https://github.com/GQAdonis/cowork-skills.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/cowork-skills",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/cowork-skills"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "upstreamMain": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+      "recentVersionTags": [
+        "v0.2.0",
+        "v0.1.5",
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2",
+        "v0.1.1"
+      ],
+      "difference": []
+    },
+    {
+      "pack": "full",
+      "path": "tools/disk-space-guardian",
+      "declaredCommit": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+      "repository": "https://github.com/GQAdonis/disk-space-guardian.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/disk-space-guardian",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/disk-space-guardian"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "upstreamMain": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+      "recentVersionTags": [
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2",
+        "v0.1.1",
+        "v0.1.0"
+      ],
+      "difference": []
+    },
+    {
+      "pack": "full",
+      "path": "tools/liter-llm",
+      "declaredCommit": "12a2fae9675e34b88e9373caa2bca9959f416493",
+      "repository": "https://github.com/GQAdonis/liter-llm.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/liter-llm",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/liter-llm"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "upstreamMain": "12a2fae9675e34b88e9373caa2bca9959f416493",
+      "recentVersionTags": [
+        "v1.1.1",
+        "v1.1.0",
+        "v1.0.0-rc.9",
+        "v1.0.0-rc.8",
+        "v1.0.0-rc.7",
+        "v1.0.0-rc.6"
+      ],
+      "difference": []
+    },
+    {
+      "pack": "full",
+      "path": "tools/openai-proxy",
+      "declaredCommit": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
+      "repository": "https://github.com/GQAdonis/openai-proxy.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/openai-proxy",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/openai-proxy"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "upstreamMain": "ad32f5dc1f676dc1b40b01de8a4f043a6ee6928d",
+      "recentVersionTags": [
+        "v0.1.0"
+      ],
+      "difference": [
+        "ad32f5d Merge pull request #1 from GQAdonis/feat/gpt-6.1-sol",
+        "563e70c feat: add gpt-6.1-sol and make it the default model"
+      ]
+    },
+    {
+      "pack": "full",
+      "path": "tools/prometheus-knowledge",
+      "declaredCommit": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+      "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/prometheus-knowledge",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/prometheus-knowledge"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "From https://github.com/Prometheus-AGS/prometheus-knowledge-rs\n - [deleted]         (none)     -> origin/codex/calibrate-learning-worker-request-budget\n - [deleted]         (none)     -> origin/codex/learning-worker-reconciliation\n - [deleted]         (none)     -> origin/codex/learning-worker-recovery-scan\n - [deleted]         (none)     -> origin/codex/record-worker-budget-deployment\n - [deleted]         (none)     -> origin/feat/ingest-type-tags-context-filter\n - [deleted]         (none)     -> origin/fix/context-score-all-entries\n - [deleted]         (none)     -> origin/fix/worker-attribution-snapshot"
+      },
+      "upstreamMain": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+      "recentVersionTags": [
+        "v1.11.0",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ],
+      "difference": []
+    },
+    {
+      "pack": "full",
+      "path": "tools/surreal-memory-server",
+      "declaredCommit": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+      "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/surreal-memory-server",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/surreal-memory-server"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "From https://github.com/Prometheus-AGS/surreal-memory-server\n - [deleted]         (none)     -> origin/chore/surrealdb-3.2.4\n - [deleted]         (none)     -> origin/codex/bound-embedding-dimension-validation\n - [deleted]         (none)     -> origin/codex/bound-operation-query-deadlines\n - [deleted]         (none)     -> origin/codex/bound-operation-receipt-projection\n - [deleted]         (none)     -> origin/codex/bound-operation-reconciliation-projection\n - [deleted]         (none)     -> origin/codex/complete-operation-ledger-recovery\n - [deleted]         (none)     -> origin/codex/direct-operation-lookup\n - [deleted]         (none)     -> origin/codex/finish-operation-ledger-recovery\n - [deleted]         (none)     -> origin/codex/record-runtime-recovery-deployment\n - [deleted]         (none)     -> origin/codex/remove-product-test-actions\n - [deleted]         (none)     -> origin/feat/tlh-05-query-embedding-cache\n - [deleted]         (none)     -> origin/fix/hf-cache-hub-subdir-and-executor-readiness"
+      },
+      "upstreamMain": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "recentVersionTags": [
+        "v1.10.1",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ],
+      "difference": [
+        "0cf8c7e Merge pull request #46 from Prometheus-AGS/feat/tlh-05-query-embedding-cache",
+        "f919469 fix(cache): write-path duplicate checks reuse the content embedding and bypass the query cache",
+        "20c19d8 docs(cache): name the miss de-duplication primitive at the call site",
+        "cdb791b perf: cache search query embeddings in SurrealStorage and expose cache stats",
+        "d72023e perf: measure query embedding latency through the real executor before adding a cache"
+      ]
+    },
+    {
+      "pack": "mini",
+      "path": "tools/liter-llm",
+      "declaredCommit": "12a2fae9675e34b88e9373caa2bca9959f416493",
+      "repository": "https://github.com/GQAdonis/liter-llm.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/.git/modules/tools/liter-llm",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/.git/modules/tools/liter-llm"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "upstreamMain": "12a2fae9675e34b88e9373caa2bca9959f416493",
+      "recentVersionTags": [
+        "v2.0.3",
+        "v2.0.2",
+        "v2.0.1",
+        "v2.0.0",
+        "v1.19.2",
+        "v1.19.1"
+      ],
+      "difference": []
+    },
+    {
+      "pack": "mini",
+      "path": "tools/prometheus-knowledge",
+      "declaredCommit": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+      "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/.git/modules/tools/prometheus-knowledge",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/.git/modules/tools/prometheus-knowledge"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "From github.com:Prometheus-AGS/prometheus-knowledge-rs\n - [deleted]         (none)     -> origin/codex/rust-development-instructions\n - [deleted]         (none)     -> origin/feat/okf-v02-writer\n - [deleted]         (none)     -> origin/fix/windows-build"
+      },
+      "upstreamMain": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+      "recentVersionTags": [
+        "v1.11.0",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ],
+      "difference": []
+    },
+    {
+      "pack": "mini",
+      "path": "tools/surreal-memory-server",
+      "declaredCommit": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+      "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
+      "gitMetadata": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/.git/modules/tools/surreal-memory-server",
+      "gitPrefix": [
+        "git",
+        "--git-dir=/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/.git/modules/tools/surreal-memory-server"
+      ],
+      "fetch": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "From https://github.com/Prometheus-AGS/surreal-memory-server\n - [deleted]         (none)     -> origin/chore/surrealdb-3.2.4\n - [deleted]         (none)     -> origin/codex/boss-namespace-auth\n - [deleted]         (none)     -> origin/feat/tlh-05-query-embedding-cache\n - [deleted]         (none)     -> origin/fix/hf-cache-hub-subdir-and-executor-readiness"
+      },
+      "upstreamMain": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "recentVersionTags": [
+        "v1.10.1",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ],
+      "difference": [
+        "0cf8c7e Merge pull request #46 from Prometheus-AGS/feat/tlh-05-query-embedding-cache",
+        "f919469 fix(cache): write-path duplicate checks reuse the content embedding and bypass the query cache",
+        "20c19d8 docs(cache): name the miss de-duplication primitive at the call site",
+        "cdb791b perf: cache search query embeddings in SurrealStorage and expose cache stats",
+        "d72023e perf: measure query embedding latency through the real executor before adding a cache"
+      ]
+    }
+  ],
+  "repositories": [
+    {
+      "name": "full",
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "head": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+      "origin": "git@github.com:Prometheus-AGS/prometheus-skill-system.git",
+      "branch": "codex/learning-deploy-and-debt",
+      "candidateChanges": [
+        {
+          "path": ".gitmodules",
+          "kind": "file",
+          "sha256": "e5f455cddc2c5c8c54fde00fcc6a2d36edfc8170eb0eff7716e8567b3d340c7d"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-01-hook-bytecode/spec.md",
+          "kind": "file",
+          "sha256": "e6243f3ec8705734176a3f4c85981cfe6f103d0a8ae254dd18de83c9e949613e"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-01-hook-bytecode/tasks.json",
+          "kind": "file",
+          "sha256": "f2c10eab1b3c6a6b9978c21e7065481f2f598a4eee2f7b74ed84b73cd31f6065"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-01-hook-bytecode/tasks.md",
+          "kind": "file",
+          "sha256": "d0cfb5572f122664be51a433c1645698799eac9f3f8bd0e2da3b89f1907afaa6"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-01-hook-bytecode/verification.md",
+          "kind": "file",
+          "sha256": "1a4dbf2a7a6584d3d5703c2142430f7e3a410817bbd1c1176b1161929bdd3e2e"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-02-codex-memory-control/spec.md",
+          "kind": "file",
+          "sha256": "3ae14fe9feca5df5ce18a37a1c7212b008940a7e876834bc879ecce160cbf72b"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-02-codex-memory-control/tasks.json",
+          "kind": "file",
+          "sha256": "dafe08b27bf4961ddea14af5b634ab2e22782fb584e6a0162ca8fa438018fc2a"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-02-codex-memory-control/tasks.md",
+          "kind": "file",
+          "sha256": "bb808436b68237ace24eb19fa75e0fadc5ad1d337c70842d2c17fdc10e4fe115"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-02-codex-memory-control/verification.md",
+          "kind": "file",
+          "sha256": "36449c91faad3b1df6b6fa4911ef2c02f925fbcb22da98623a78171f6da5b59c"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-03-published-memory-pins/spec.md",
+          "kind": "file",
+          "sha256": "f382781eb6619b9fedc760d6688aaa258739687796d2baf181eab6e9f3bf22ab"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-03-published-memory-pins/tasks.json",
+          "kind": "file",
+          "sha256": "491e59fa3e17e33f246e5aae31877085e416c9de8f28199a25896218566284da"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-03-published-memory-pins/tasks.md",
+          "kind": "file",
+          "sha256": "42e50abd561552acec52a2faa78df75ebe79c2dc98b7553470f6981fec5ff762"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-03-published-memory-pins/verification.md",
+          "kind": "file",
+          "sha256": "ce52f5c33d38a24aa0bb30b4873ead4e794cf00f008f91ead1ae63bcf3d45ca2"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/spec.md",
+          "kind": "file",
+          "sha256": "ca898c27c7eff13401e5c2340afb83476e454d26b2b33a94ca78f289c69c8d98"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/tasks.json",
+          "kind": "file",
+          "sha256": "e7a0c7f7147637b879e807a6c785739e73a014c80af98927012c8f35b50237bd"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/tasks.md",
+          "kind": "file",
+          "sha256": "9490715addcabe627595e0b1fc224797fc28dac4b922d877c9414efb99af670a"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/verification.md",
+          "kind": "file",
+          "sha256": "ef2d627a82b9a92a749a3d2d1dd46cacf9f95b915217d1a0a714e7e0729bf0f8"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/spec.md",
+          "kind": "file",
+          "sha256": "0fa55286c057f904be3f4974fb07404f5b880466f4c58b501258f8f4f2728466"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/tasks.json",
+          "kind": "file",
+          "sha256": "e93297bc9501f0500641e4c6c06dc21c810aafc99865e03cc7a7b2a5af186bb6"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/tasks.md",
+          "kind": "file",
+          "sha256": "79f1942f27fd7696f5fea7617f3b78d8586067bb2167580add219924013ad52d"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/verification.md",
+          "kind": "file",
+          "sha256": "0f98d2b8ab3786f34409dc67750f718dac6aff59069493304cd74db0c3f3d309"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/spec.md",
+          "kind": "file",
+          "sha256": "001899b919bf308e19a8c6ea30ffa2848dc51ce1060016d6a8a003745ae17158"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/tasks.json",
+          "kind": "file",
+          "sha256": "74fe193985d2b70b0accfe7965049c7962c5863099b5982a326858b6c5e7c35b"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/tasks.md",
+          "kind": "file",
+          "sha256": "172a15bafdfe60479bc8ea92468acfc302dedcd8dd5ce9cea76f99255015efb9"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/verification.md",
+          "kind": "file",
+          "sha256": "9c4e4eb4fd3f98f58a7ee242e7b2094b3c529403f71737b5859c176cfc816bb2"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-07-custom-codex-home/spec.md",
+          "kind": "file",
+          "sha256": "565b58f405ac5e3a451c9522ab8c695f0898a84f01e9990f621c3f5b00a3b981"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-07-custom-codex-home/tasks.json",
+          "kind": "file",
+          "sha256": "d1e0efd83a2b6b9ecbdf43b835855a9bed2d36f82a1e57c23a2a26bcf4260a88"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-07-custom-codex-home/tasks.md",
+          "kind": "file",
+          "sha256": "7153c86ff4d02c13c407c0e31774a83fb56aca799ec8fb7ed21a10ba26696aaa"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-07-custom-codex-home/verification.md",
+          "kind": "file",
+          "sha256": "7ac57d6aeb9fe635905e2a0cb2109a026b59acc32aaacf15cd458ad58093ed91"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/spec.md",
+          "kind": "file",
+          "sha256": "d4d8ed6293069fa0ee815b8726fc0dc6a5bf184e50e65275aad3190e84f5d6c2"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/tasks.json",
+          "kind": "file",
+          "sha256": "0d6fc044dd82cc25c101ec751ba1767b6c3a552339e811da2c5ad867361a6ab6"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/tasks.md",
+          "kind": "file",
+          "sha256": "a5b44ed077d1a74046d2737184f5335f84178e28915980e96e207ac0b24ec789"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/verification.md",
+          "kind": "file",
+          "sha256": "dda0dac76483a9393216121c607a523eb68f83290266df67f95d805181c35f19"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-09-partition-footer/spec.md",
+          "kind": "file",
+          "sha256": "1dc529e9b2a9108f589df43acb1cb5e07a802b9157709e92cb4e0cc4d0ea7149"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-09-partition-footer/tasks.json",
+          "kind": "file",
+          "sha256": "b751326d38b2bc5ad8e301ac4ab102971efd5b59b0c6ecf3c42c93f65705cab3"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-09-partition-footer/tasks.md",
+          "kind": "file",
+          "sha256": "fe5c42eeccb4a253284f58574477257f8b67c460e70d6c629f5e57346b1934b8"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-09-partition-footer/verification.md",
+          "kind": "file",
+          "sha256": "6857db963754cb07ec1b4916ec80967e5bed351cc28ce6b9c3284bf7a648a6d0"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/spec.md",
+          "kind": "file",
+          "sha256": "9c6cba7ec70a5634c0f8aad6527f755c952a55e0f475f822bac2ed57a5f3bd14"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/tasks.json",
+          "kind": "file",
+          "sha256": "bca7db832260601c3f306e11988585b407a2ff3851db0cacb79ed2df87f32a72"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/tasks.md",
+          "kind": "file",
+          "sha256": "1a874fcd6f82d2700ed1e6c66cdaae8e0afa574f19056039892a853b64c2cc77"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/verification.md",
+          "kind": "file",
+          "sha256": "027a8b9fe7fec404c5b0647d8806a80c38a8e607c1058a4d28f7ad82b4a356e5"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/spec.md",
+          "kind": "file",
+          "sha256": "769756051b8301c512c5b3f8201dc17b720af77bbad977743eb7fc59f118c159"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/tasks.json",
+          "kind": "file",
+          "sha256": "148fdd55281d5a63a23461e63174c3a3f071818b7827053a5799f2fc95678fd2"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/tasks.md",
+          "kind": "file",
+          "sha256": "aaf7f8342cf8b3c38f590e59815f7563b6f489fecf4fa8276f39eef82bb9d4bc"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/verification.md",
+          "kind": "file",
+          "sha256": "c34ce930129bd0878e7fc9734e544dae3806cd3f6e7faed14d9c473352781869"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-12-integration-rollout/spec.md",
+          "kind": "file",
+          "sha256": "e55c31c8cb227dedfaa8dd35a719d5c6227939e35ec63c614de0502fdfe5fc3d"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-12-integration-rollout/tasks.json",
+          "kind": "file",
+          "sha256": "882c8ed671606cb1082ee15a5835f114b76f4dc2410c9d00cc250d9b3f7726db"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-12-integration-rollout/tasks.md",
+          "kind": "file",
+          "sha256": "6c99f23a602f17df324c8411c30a98bdc3187adccaf78cf5fb83a63a5a67a82f"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-12-integration-rollout/verification.md",
+          "kind": "file",
+          "sha256": "ccbd9c0c170271e9482fd9d48ac07c9890ae35af521f7c40479c7bd489503cb9"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-13-source-convergence/spec.md",
+          "kind": "file",
+          "sha256": "1369bb6196fbfafe7b8560a4000fe89fb93ef0437b6059aa7931955b09356168"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-13-source-convergence/tasks.json",
+          "kind": "file",
+          "sha256": "db7ca9fcc5cb50380ba97a4ce74d97e4f120598df1afe9091db65b578391c004"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-13-source-convergence/tasks.md",
+          "kind": "file",
+          "sha256": "fa1383955998f05e3da4002e0744a6b4a4be4442f630a093b091548f64cc4bd3"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-13-source-convergence/verification.md",
+          "kind": "file",
+          "sha256": "0fdfca41fe12db35c64b48261cbd169d3ba9414a7b7a9208ea4bcdef834d70ef"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-14-companion-publication-preparation/spec.md",
+          "kind": "file",
+          "sha256": "a96d1260a49810ae0f496994d32a8c751aa2fe10713ab5739fe0213ea460a8ae"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-14-companion-publication-preparation/tasks.json",
+          "kind": "file",
+          "sha256": "f96355fba7e14dcade5e79e7af250821de4163498d94ce990c9adc0b7f2525d1"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-14-companion-publication-preparation/tasks.md",
+          "kind": "file",
+          "sha256": "94621cc1b7d5f3679b303ae5204f14929138a991a94b56468965d8878a4e0b01"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-14-companion-publication-preparation/verification.md",
+          "kind": "file",
+          "sha256": "e7e0ee1b76c7c4c852c23f9a80b324c00c8275048e91e107e0a4f8dddaaf552d"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-15-readme-content-renewal/spec.md",
+          "kind": "file",
+          "sha256": "25bd8a7cdce46097734cb98f1ca67ce2f818e07965ee6b9e49c55cc9c8957d5e"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-15-readme-content-renewal/tasks.json",
+          "kind": "file",
+          "sha256": "01577ea116d850793d4319a29cfc795900be1beebcb407d9f9874f9a0afc26f5"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-15-readme-content-renewal/tasks.md",
+          "kind": "file",
+          "sha256": "7ec3d21dc380999fbb26600ea4259da977650637c47211d78f8bf175b8cd9048"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-15-readme-content-renewal/verification.md",
+          "kind": "file",
+          "sha256": "0e46b9b6605596ea002b0a1b91dc0e2dc0583a2cd05f2b085718576c230bbf01"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-16-agent-team-handbook/spec.md",
+          "kind": "file",
+          "sha256": "acc834f3cdbd80536e2a2bca9c3f1da9dd4d5140d560cf59d78cf9c25cf78e1d"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-16-agent-team-handbook/tasks.json",
+          "kind": "file",
+          "sha256": "c3c9b287c88d0a69409aeaf28afbb30f86de722b2baf5d1e3d8077132449a40e"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-16-agent-team-handbook/tasks.md",
+          "kind": "file",
+          "sha256": "674e3ba393c84acbaa4b44448a856ffbb66702dda9a5ac408928de8fef3d39a3"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-16-agent-team-handbook/verification.md",
+          "kind": "file",
+          "sha256": "c9c61158c931a5e757744a59e15358cc6306c6f1d35a4f27908216b3bf5cf0a1"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-17-service-sites-current/spec.md",
+          "kind": "file",
+          "sha256": "d9271be1bd6c55bd1ed8df778d77bd9f27dcc1d6653bec2d4b3e75d33c620dde"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-17-service-sites-current/tasks.json",
+          "kind": "file",
+          "sha256": "1132b6a0585e4baf34a7bb2454c72c37581eec4a45bb7bed0172678cc16e0afd"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-17-service-sites-current/tasks.md",
+          "kind": "file",
+          "sha256": "01ff174d970244aacbabc4989c94ebba464ee6862d47b3a62a573f04a206f542"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-17-service-sites-current/verification.md",
+          "kind": "file",
+          "sha256": "bec8ef5b1511e56611a163e99325d6e595761ab50e67a53396a39b050f659f38"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-18-stability-legacy-closure/spec.md",
+          "kind": "file",
+          "sha256": "8451fd3e2d4366342a6d0b04402bf362bfb8be4a64f522e2c382ffd87abff085"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-18-stability-legacy-closure/tasks.json",
+          "kind": "file",
+          "sha256": "c0b2032f56c9f9a0ccb3f0922e319ba0f23de03c16ebd48cea01805e85787355"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-18-stability-legacy-closure/tasks.md",
+          "kind": "file",
+          "sha256": "72fabd4b201bd81f08de9a783fb6a19f81811183b17448740ecfa97c68bb34b9"
+        },
+        {
+          "path": ".kbd-orchestrator/changes/change-ldd-18-stability-legacy-closure/verification.md",
+          "kind": "file",
+          "sha256": "d004ea377aff4c6f4615c00ec32d795c8d3b5f4a6d237c75af41a2392ff33dd3"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/analysis.md",
+          "kind": "file",
+          "sha256": "694c84485ce6c159980e3706849f33c908933c6a03944ad643062398c9cc21a6"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/assessment.md",
+          "kind": "file",
+          "sha256": "2df428a01e61e445306890bbdd10927a172f00af73cf08e80b454026a63b1fab"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/cadence-profile.json",
+          "kind": "file",
+          "sha256": "4b0b52bf2940e738f93166d33d48ed43afd2cb980fd6e6aa705be3daf4df1904"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/codex-memory-proposal.toml",
+          "kind": "file",
+          "sha256": "306f5f6959aeaa6750d296dab6ee556aba39ecf60b85d72d247785c1ce499ef7"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/companion-publication.md",
+          "kind": "file",
+          "sha256": "59ab6227240167ec17434df58a74640d9c6467aa1541b30145784cb62e56debd"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/companion-versions-proposed.toml",
+          "kind": "file",
+          "sha256": "a2de510e22f4c1870531610d30147ae1eb6fb41a12671e0984eab2bb2f401d53"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/companion-versions.patch",
+          "kind": "file",
+          "sha256": "03669b60213e42f667864118695e628ecd7f85c4a70a94d50fab4ef0faeeb53b"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/content-disposition.md",
+          "kind": "file",
+          "sha256": "95bd47948b29809263500b2032d1697e88b2251f9932f2660a9519d4ea4b2a02"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/content-inventory.json",
+          "kind": "file",
+          "sha256": "b4348813d99a0326728c136622d5682f1b5fb5bc6fd1fb7b26b460879b6e4d39"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/decision-log.md",
+          "kind": "file",
+          "sha256": "f341eaac527060216ab1065fee183c520ff5612aa8ddb038e26a889501be92ef"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/benchmark-upstream-source.json",
+          "kind": "file",
+          "sha256": "415200b0e3d0d71cb49d2aaa73f8bdd4fc2cbd4b941e6e20a578c26cdfa9071d"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/cadence-build-contention.json",
+          "kind": "file",
+          "sha256": "ed0c0a3a5ca6446dcb594c2de888a2889bb53afd81bc74c90051bd6cf713ee87"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/cadence-native-source-remediation.json",
+          "kind": "file",
+          "sha256": "8365e9a7b5076abb32d29dfe7c88f2249e3a043f7b931f49ddac0787cf84c08e"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/codex-memory-metadata.json",
+          "kind": "file",
+          "sha256": "cf665eb6b289755f10b5706833c55d24ab67001b58e5ba0dff0b1bfa6b4fb2f7"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/companion-integration-source-handoff.json",
+          "kind": "file",
+          "sha256": "505424826a0fcd0d4c81e5f6777b43d52e3af45463854f681186c893d2c65597"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/companion-publication-inventory.json",
+          "kind": "file",
+          "sha256": "49831d0d69ea65605b805e04a529755ba62bb1c03ac0c2016d57a5f3f5cd5005"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/companion-source-capture.json",
+          "kind": "file",
+          "sha256": "843e7e5d518e1952fb0d2186fbd81db9d89971ae3282b7052dd207e8ca3a80ed"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/content-scope-preflight.json",
+          "kind": "file",
+          "sha256": "3f8fb44791ff04dc1e727306fdbcc1989324040fb5310b19aae3f6f9dc74ed24"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/execute-source-inventory.json",
+          "kind": "file",
+          "sha256": "338379065b54db48d643a5078bf97cee382bc80746ad55f86ad71be6e844203a"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/execute-source-inventory.provenance.py",
+          "kind": "file",
+          "sha256": "6ea414ad6debea36b4df5892705994e48a674fd290d8e302cfb0ef034c1dc943"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/final-content-source-refresh.json",
+          "kind": "file",
+          "sha256": "b9b61d1fdd50f05a7416bf08f67167f40095b11b18202ca109c15842a1ad1ce0"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/final-status.json",
+          "kind": "file",
+          "sha256": "000e19b042832e0bd957a039ce4c1becbaf1cf8648af891b4fc09c335f611880"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/historical-closure-source-map.json",
+          "kind": "file",
+          "sha256": "b874c45e288ccae0341b5dbebaffe1f9f528b19458a2a0b786dd05cdd91f8023"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/hosted-workflow-source-disposition.json",
+          "kind": "file",
+          "sha256": "07b6502b9c011e376c6842041c15a1d07f2045b7dc396a2866d6159740963d25"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/import-refresh.json",
+          "kind": "file",
+          "sha256": "aa578b384fe93137e88956e7079b68c90fcb1986963a9eb93c30dde6a3a724f1"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/initial-pin-inventory.json",
+          "kind": "file",
+          "sha256": "faeaa579225ee349a5fb2d799590104b5dbd03d71fe16cf9ee9578312a60cab6"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/kbd-status-after-analyze.json",
+          "kind": "file",
+          "sha256": "0e22239a0085da0b48fb03ba78a7bfc41a13ef9d9dfbda3b0ed95f2e7b3a1498"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/kbd-status-after-spec.json",
+          "kind": "file",
+          "sha256": "de5327802c156e908d0f9fb3192beae74a928e708dc743576c6302c0959bd391"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/maintenance-contract-source-handoff.json",
+          "kind": "file",
+          "sha256": "ab7d8bed5a638e73fe33de0b01fec8f7f2101a17ad05c90fb18a4602649ac679"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/memory-hook-production.patch",
+          "kind": "file",
+          "sha256": "05e39dbb3ce8c29f672e736843d56b46106425ed1056aad0ca5aff18f0adbb0f"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/memory-local-skill.patch",
+          "kind": "file",
+          "sha256": "3c60b211dbc63454c9f7b47945c6bf3757ce09b3b80a7f92041c67da9df32e0a"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/memory-source-convergence.json",
+          "kind": "file",
+          "sha256": "1933ce8977e310690862bb979dee196218e3095b85ca714afe22a05b6f5083ac"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/merged-prs.json",
+          "kind": "file",
+          "sha256": "6450618ecadc0e69845757ebc70f39071a748cfdaef587071afb6ea6cc6b69f6"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/migration-control-source-completion.json",
+          "kind": "file",
+          "sha256": "c5753e26da1d45c7bd25dd11c31bf99982274b5a4ecb45abba6cd1c585d7cadb"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/mini-hook-activation-production.patch",
+          "kind": "file",
+          "sha256": "be6fb3faad985ce871af1e3b2c6c1e09ea711a3e1743735890bcf3d67e6d6622"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/mini-merged-source-refresh.json",
+          "kind": "file",
+          "sha256": "b4a94db3ff3ca7239192a49daf3bf1e6625e5c07f15365a0fbeb4cd25b6aabe2"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/mini-source-convergence.json",
+          "kind": "file",
+          "sha256": "acd1c0d94d17d1c1ff5d956a0d6da9fa2188bc7d5d669e452ee62163db934322"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/owner-selected-system-pin.json",
+          "kind": "file",
+          "sha256": "e11c82b19776c39d485cfa40e63d4955b8800d9380e0b2be26ce93f547624113"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/plan-model-preflight.json",
+          "kind": "file",
+          "sha256": "d6a390efd0e663e69fbaf554dacdc33b83d794117d18a511a0989d89be04e3e4"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/plan-registration.jsonl",
+          "kind": "file",
+          "sha256": "18b997b4af1f6960a11183c07f58c5af13edcb8a8e2623fb2cc7e072d0c01873"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/projection-migration-source-handoff.json",
+          "kind": "file",
+          "sha256": "d2679cbde3e462f2be258b4182ae72b169415e851b5b3045db6ee8264516858b"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/prometheus-codex-handoff-status.json",
+          "kind": "file",
+          "sha256": "0522617390b19701d20086b1c95ec5c88b4e2a1bc95df51092ec867e0c9e7089"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/prometheus-ldd-start-receipt.json",
+          "kind": "file",
+          "sha256": "1a8ccb98c4681faf4a737f0ed06592bd2646ce0ab05aaf25cc49714299bf2f9c"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/prometheus-tlh-reconcile.json",
+          "kind": "file",
+          "sha256": "fdd76dbfd4095af82754814009beb10a9a6234f3ea5ef0ec7405e2b0c38cac09"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/readme-content-source-handoff.json",
+          "kind": "file",
+          "sha256": "32c0b1a85334104cef135bb33ce7d95bfa08756918e5dc49004fad3641440b3e"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/remote-refresh.json",
+          "kind": "file",
+          "sha256": "42f153f163965234c208f5cf09ee2a60408e47f2da4e705074780a1ee906d172"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/repository-inventory.json",
+          "kind": "file",
+          "sha256": "87f5cf2bfd4939f6cc22ea93402d3109c20927edfc0a8046edcf8dd6faf62600"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/service-dispatch-source-corrections.json",
+          "kind": "file",
+          "sha256": "e668b7b51f84589789932a9345ba5638c92a7bca12a7eb5c1fbf3c0b79e7b01b"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/service-sites-source-handoff.json",
+          "kind": "file",
+          "sha256": "960a3147f5dc9136cd58d15784f3e78e59fbc5045af37472e3d8b2cfec447856"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/site-content-source-dispositions.json",
+          "kind": "file",
+          "sha256": "9f1eff034a9f7563e14b43ce2551f1780566b6468f8504b4638fb20a172b6ef4"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/team-handbook-source-handoff.json",
+          "kind": "file",
+          "sha256": "617388dd6450657e4c88ad291620cf3e0dd927155c647c376006ba5e14f96b07"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/team-memory-source-subsets.json",
+          "kind": "file",
+          "sha256": "0d4e6982bc8fb70988e61f618bfed82afbe7d6490ce64970c34eeeba0b249f0d"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/team-reference-source-corrections.json",
+          "kind": "file",
+          "sha256": "9bfccae2816eda45b231c0f38d7d4be429a480b972e2eaaacbbe01dec0419b8f"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/tlh-blocker-disposition.json",
+          "kind": "file",
+          "sha256": "e1afcb8b8205ef6a3013ca23ba2fc7c43b09f840a9088611c9d8159894d51d98"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/execute-dispatch.json",
+          "kind": "file",
+          "sha256": "a5656d585ef4cbd1908d8071fed54d4a852ca9d4befabcaa14dd9daa7660b02d"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/execution.md",
+          "kind": "file",
+          "sha256": "f9066b04dee7910dd33298683349a82467190c2faf24d6dd4f3e9f0d030242a5"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/goals.md",
+          "kind": "file",
+          "sha256": "93be22d7bfa0e45a3810c7fe5e199d8ca2693a91b78e6dbe5a2fc1dafb145538"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/handoffs/analyze.handoff.json",
+          "kind": "file",
+          "sha256": "1ce08e693d65b8f9f8a85165fa8934d9182b4344098569e511416f88e8a7d180"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/handoffs/assess.handoff.json",
+          "kind": "file",
+          "sha256": "dfece18c5f2a19d789f39c1774d3da888349e1d55b0fc87b965153556c6980cd"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/handoffs/plan.handoff.json",
+          "kind": "file",
+          "sha256": "a2d0b91843f5d0b4e9b6439ebe4fe41b204ee05408ae265b4e94a39cd424c659"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/handoffs/spec.handoff.json",
+          "kind": "file",
+          "sha256": "47fa41e66a0d24683a0ca8d093d4afc8540e16d56ea460d1f73cc3920b99c2cd"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/historical-closure-map.md",
+          "kind": "file",
+          "sha256": "941aea682ff60a69161434a8c1aff3e06b7e2f4f95cbd3ad6dd6182802e5912f"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/library-candidates.json",
+          "kind": "file",
+          "sha256": "72ad1b8582cbca92a43f82375634d2a4f6adbee761e5d5ee2bbdb54b1b0f8e69"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/maintenance-readiness.md",
+          "kind": "file",
+          "sha256": "d968821a4623a6420960440d68936878e1691cfd280f2683f7d4ca903c75ebe3"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/pin-proposal.md",
+          "kind": "file",
+          "sha256": "356dc927591dc63abe5b47412fd2211ba65c25102953c27cc0a0df83d0d56815"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/plan.md",
+          "kind": "file",
+          "sha256": "fc92412934eec160f827a890ae2fbd22ab67452a8e12f26d6951dc098e10a8ce"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/plugin-version-proposal.json",
+          "kind": "file",
+          "sha256": "61d431ec71c59c890e006595cd88e09f24f82315a8a7c81d6f026952313afd06"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/prior-context.md",
+          "kind": "file",
+          "sha256": "8296030ef0fef0574b3f9a0c67a37daa747f881f21d9b7fd62a7109b10832847"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/progress.json",
+          "kind": "file",
+          "sha256": "f19bc802e863a117984d14ad230ae906d675b7e4aa491c345aed2f8b94119edf"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/scope-amendment.md",
+          "kind": "file",
+          "sha256": "69e9bc7d2b91948e53f96e0c9504cb0f5162395bcb9aea1f2a5743435879593c"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/source-disposition.md",
+          "kind": "file",
+          "sha256": "7d01c209e6bfdfd1eed2e608944ec15a307331a64454e6e814660e63c67c5f1a"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/spec-index.json",
+          "kind": "file",
+          "sha256": "84a8dfa567ea0340e1bb2871fd0482e4aaca1113c9bc97502f642f679e603740"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/spec-summary.md",
+          "kind": "file",
+          "sha256": "ca55c4619298518d4ab1d7c3d6c7d04836706ec116d344f8da530196a8f0be9e"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/status.md",
+          "kind": "file",
+          "sha256": "ed6b8e373a4eab961998a3b634572e90f2f0e812b0784a4e812ac69f433fc2c6"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/takeover-reconciliation.md",
+          "kind": "file",
+          "sha256": "794ee9850e197adae4411cd35eb65ae43dfddfbff7b9741c9d52707b6bef61ff"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/tasks.md",
+          "kind": "file",
+          "sha256": "242b1f27993cec49f1571d9e5b72d091b9921d58648121feaa39aca69bf3e95f"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/phase-learning-deploy-and-debt/verification-contract.md",
+          "kind": "file",
+          "sha256": "665d538f10500aa28b4b41a3616f53bf7d4bf0f0e14cf1cebcc1d2b172e35ebe"
+        },
+        {
+          "path": ".opencode/README.md",
+          "kind": "file",
+          "sha256": "f15e52222efcb9e1a715bb2888fe8b444eac7de7b4432cb50b518e519fd05158"
+        },
+        {
+          "path": "CLAUDE.md",
+          "kind": "file",
+          "sha256": "825b00f2eb2eccbae4000b5124977f9b2ad5e719d5387c92dd0518e40763afe8"
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "kind": "file",
+          "sha256": "c98f521a06a747db571188b44ace3d515b8ce88b141885dd1abf049235bb57ce"
+        },
+        {
+          "path": "README.md",
+          "kind": "file",
+          "sha256": "ebd60c5ebd8a59133c97760f6299f73318a2f7a858befcf24f66eaa28779fe7f"
+        },
+        {
+          "path": "SKILLS.md",
+          "kind": "file",
+          "sha256": "7619ba97d05a9d63ac167a9ef31161586bfa6d9ef38444b2eaba1033f28ee8cf"
+        },
+        {
+          "path": "crates/prometheus-exec/README.md",
+          "kind": "file",
+          "sha256": "d1a71ceda28744599d54f91fe1647a2aabafc98cb0a0f0111320bd36000ff31a"
+        },
+        {
+          "path": "docs/BUG-FIX-LEDGER.md",
+          "kind": "file",
+          "sha256": "27fe06c197774c36f209da490958b0ca25b9050c63416d756c971abb2ae9bbed"
+        },
+        {
+          "path": "docs/CONTRIBUTING.md",
+          "kind": "file",
+          "sha256": "3a0996ced43c5cefbe4343c2ed39db543209a5fee2c0f45c941f5d1d40bc97a0"
+        },
+        {
+          "path": "docs/IMPORTING_SKILLS.md",
+          "kind": "file",
+          "sha256": "5b817a46353b2fe3b889340b37a9c5ddbaaa6f376edb371a7848ce2d960986d2"
+        },
+        {
+          "path": "docs/QUICK_REFERENCE.md",
+          "kind": "file",
+          "sha256": "ed525b25d0e8ca2c15fd54713aea39155336e1dd0ecf921e29aac2af44abd6a6"
+        },
+        {
+          "path": "docs/QUICK_START.md",
+          "kind": "file",
+          "sha256": "423f20e0c96db2b61f3ff9611eb868aebea2c77e69ea3be301d2b257542547bc"
+        },
+        {
+          "path": "docs/README.md",
+          "kind": "file",
+          "sha256": "87e7d82437ce946b00ba3b1523af956470fe3384d4aa77dc857cac37b07cf4b6"
+        },
+        {
+          "path": "docs/SKILL_TEMPLATE.md",
+          "kind": "file",
+          "sha256": "2f9fe712b102efea156c053781a0427e1daad6185ebb11b55912121a79f5d569"
+        },
+        {
+          "path": "docs/SUBMODULES.md",
+          "kind": "file",
+          "sha256": "cece16ca0e993f9d01545ee310516ce0c7c8e7c264522f0d812bee2ad3200a78"
+        },
+        {
+          "path": "docs/UPDATE_CONSIDERATIONS.md",
+          "kind": "file",
+          "sha256": "909d63fed34d19c7fa511b81a6f8090c71904e53c6f9444f18f4b8c14c32d0c3"
+        },
+        {
+          "path": "docs/agent-teams.md",
+          "kind": "file",
+          "sha256": "5b04ffeedf506775e55a4b8ca28a1296007f7643ea6ac3e5759c25d8cac0424a"
+        },
+        {
+          "path": "docs/articles/OUTLINE-loops-that-lie.md",
+          "kind": "file",
+          "sha256": "a91674dfc017f2f76243cba90a8449254c9484cfadb4324fb24a94d05b7706d1"
+        },
+        {
+          "path": "docs/articles/autonomous-loops-prometheus-skill-pack.md",
+          "kind": "file",
+          "sha256": "cbf977f8573324c10b52e6cb98336d26f9fefd3a847dc1e4e3bf966d738d4f60"
+        },
+        {
+          "path": "docs/codex-plugin.md",
+          "kind": "file",
+          "sha256": "090b63c3b5e8a1c5acb764f3a2bdcfb6ba83315777b1ba8ac81608b48cc8e0a5"
+        },
+        {
+          "path": "docs/deep-research-skill-playbook.md",
+          "kind": "file",
+          "sha256": "bbee3cb60e8fc983a15cb8587c0eebe85b5c1a8a5e151f31f15d675bdb626150"
+        },
+        {
+          "path": "docs/deep-research/README.md",
+          "kind": "file",
+          "sha256": "a2650797187a0c8b18cd48a9bf18475e8b02a10bcc3eeb8de8203b6e0155e0c2"
+        },
+        {
+          "path": "docs/deep-research/deep-research-skill-vs-onyx-report.md",
+          "kind": "file",
+          "sha256": "bbad8e1e870df101c84cae1a89d11405446e72954ca864955cd01acbc165639b"
+        },
+        {
+          "path": "docs/deep-research/fable5-comparison.md",
+          "kind": "file",
+          "sha256": "8d704b9140401ab2d7d05dcaa77e36c4ff17dc352fb924125cde874b7d728487"
+        },
+        {
+          "path": "docs/deep-research/index.md",
+          "kind": "file",
+          "sha256": "a163b07d67d2ad8c5ebce88ccd960472d5c3b263f2b80d467dfc5b5cf5efa874"
+        },
+        {
+          "path": "docs/deep-research/plan.md",
+          "kind": "file",
+          "sha256": "c34b5e2cf8841e054d660a36c3a62e920fc9cf05f67204851c6445d44cbad6e7"
+        },
+        {
+          "path": "docs/delivery-cadence-distribution.md",
+          "kind": "file",
+          "sha256": "84470e620dae3df8a0de39c8cde0892070e2d248736c17de3c47845f3af7184e"
+        },
+        {
+          "path": "docs/deployment-modes.md",
+          "kind": "file",
+          "sha256": "b607223223354d4c67fe8797b845db65c9ee0074a86f84235a18e545c75f8d47"
+        },
+        {
+          "path": "docs/features/goals/compass_artifact_wf-69df91d9-86bb-54f0-86ee-e627b12a4796_text_markdown.md",
+          "kind": "file",
+          "sha256": "4b4ca40d8bcf9792720781f728cc626a6d0be78cd98839dcb2dbb78fc3967274"
+        },
+        {
+          "path": "docs/features/skills/PAGS-SPEC-PSP-IP-002-rev1.1-skill-router.md",
+          "kind": "file",
+          "sha256": "8faadb9d9287a7b905c4db1f774e36654f7bfc74b744ba2f2124e74145af904b"
+        },
+        {
+          "path": "docs/features/skills/compass_artifact_wf-59b3b094-72c1-5bec-ba09-c02bb263a218_text_markdown.md",
+          "kind": "file",
+          "sha256": "3c5701f728b4a7ff0d30e90869ba7936d0fed4630ab29262e903726ea81493a5"
+        },
+        {
+          "path": "docs/generated-output-ownership.md",
+          "kind": "file",
+          "sha256": "d56489835a3f8ce6b25e6688e548eea9864b8df5fd91e420547b087fae619ca1"
+        },
+        {
+          "path": "docs/guide/00-quick-start.md",
+          "kind": "file",
+          "sha256": "d4f4d181f511b58b83cb6e16298315486116bcdc7bafe5bf2a35c1b0fc07c5cd"
+        },
+        {
+          "path": "docs/guide/01-introduction.md",
+          "kind": "file",
+          "sha256": "afb5c544cef9eb6a62e2516d82e68d1e077b65dc26de7c86f0daf1527c0a847c"
+        },
+        {
+          "path": "docs/guide/02-metaprompting-pmpo-kbd.md",
+          "kind": "file",
+          "sha256": "efe3364a9a57d74dc4debe74293bece0589e3cf398cc8433a9c04421f816121c"
+        },
+        {
+          "path": "docs/guide/03-loop-architecture.md",
+          "kind": "file",
+          "sha256": "a6242d03232f5084187c533dede7d6931508fc443702967e5598ce95cdcec149"
+        },
+        {
+          "path": "docs/guide/04-four-layer-pipeline.md",
+          "kind": "file",
+          "sha256": "e8ca0ebf3d1fe057a5c789a29516eab9bd203d880c619b556ec047c138541713"
+        },
+        {
+          "path": "docs/guide/05-mcp-substrate.md",
+          "kind": "file",
+          "sha256": "07f254864207d3584ff12619765ca8f85c7ec86b5a5ff1e8788f2c03c0bb7745"
+        },
+        {
+          "path": "docs/guide/06-memory-and-learning.md",
+          "kind": "file",
+          "sha256": "56dc917b868d51dbe81cd68dc3bb0cc58d17ec6c9b404337b2c1a34dfd89da4f"
+        },
+        {
+          "path": "docs/guide/07-sycophancy-correction.md",
+          "kind": "file",
+          "sha256": "bbedfa63a2f02b86e385530e7d4fae216a9a902a29795fbb74a71294b9923f19"
+        },
+        {
+          "path": "docs/guide/08-skills-overview.md",
+          "kind": "file",
+          "sha256": "80d65fca05dcc163d17981e374923416e4c47175e72dc82518b6f7b86ee7d319"
+        },
+        {
+          "path": "docs/guide/09-process-skills.md",
+          "kind": "file",
+          "sha256": "51a06f640595d7d76fc4cf7882daea661093e86728a5fe575e631c4d10172115"
+        },
+        {
+          "path": "docs/guide/09a-adversarial-review.md",
+          "kind": "file",
+          "sha256": "d1519040e30a4f6f8ff33facc0d2f0cc8abdc50ae39c7e0ce108404e33c93c8b"
+        },
+        {
+          "path": "docs/guide/09b-liter-llm.md",
+          "kind": "file",
+          "sha256": "f5dc40a094f83e67a3491648ec56b6ca367477d3215caa99a7ff9f703dfe02fa"
+        },
+        {
+          "path": "docs/guide/10-language-skills.md",
+          "kind": "file",
+          "sha256": "69ab94400c65699a30a2a2aaec9c91f84f72f89966570adf056a2142b03347ac"
+        },
+        {
+          "path": "docs/guide/10-learn-skills.md",
+          "kind": "file",
+          "sha256": "c8bae4b4d9d8f5488155c2933e34def60180495e31f82580cbe9d6b838f57d8a"
+        },
+        {
+          "path": "docs/guide/11-artifact-refiner.md",
+          "kind": "file",
+          "sha256": "3f4ffb34f55954954ee640c497c24849fc63a8b8975dc8020865be422631592a"
+        },
+        {
+          "path": "docs/guide/12-native-agent-generator.md",
+          "kind": "file",
+          "sha256": "c42399ef0e0bab5fdb80a9c121557b7b241496f92e826f51c99ad631eb28da23"
+        },
+        {
+          "path": "docs/guide/12a-pmpo-skill-creator.md",
+          "kind": "file",
+          "sha256": "d47c42d301a4496b2de13eaa526e9abb75ac2aff36880df772988c81ef2fcfd3"
+        },
+        {
+          "path": "docs/guide/13-tools-reference.md",
+          "kind": "file",
+          "sha256": "91df4a1e11ac0caab83b9f872b30686a3037c2b6e41edddd453d12ab567f9b86"
+        },
+        {
+          "path": "docs/guide/14-rust-toolchain.md",
+          "kind": "file",
+          "sha256": "b853ab3a27b3541f6be0a7efd747b89f90fd464e906aae0f4f89692517f1c6a8"
+        },
+        {
+          "path": "docs/guide/14a-forge-rs.md",
+          "kind": "file",
+          "sha256": "05a63bbc4d5af7c6d2bf292b266852fa8e33108afa533066b9ea6b0d480b0c67"
+        },
+        {
+          "path": "docs/guide/15-hooks-and-lifecycle.md",
+          "kind": "file",
+          "sha256": "b6929506dcf3a18ef33127f40a9ed873f6cba7a9d820a4185d9764cfe8eb032e"
+        },
+        {
+          "path": "docs/guide/16-cli-and-scripts.md",
+          "kind": "file",
+          "sha256": "0eb9ad7f4ab74f78fa4529f722dc6da086115b61f6686a0aa9b4a0e5a7f7cf8e"
+        },
+        {
+          "path": "docs/guide/16a-cowork.md",
+          "kind": "file",
+          "sha256": "147f074111ea8c44588ad61b96b7004e28050e76b35111ad4ebf2fd367c465ae"
+        },
+        {
+          "path": "docs/guide/17-platform-support.md",
+          "kind": "file",
+          "sha256": "b6ddc0535723c5d7a9e74d40f7d99e74c3b44f1c68d17ad85eafe12208046efb"
+        },
+        {
+          "path": "docs/guide/18-plugins-and-marketplace.md",
+          "kind": "file",
+          "sha256": "0ef820586db4ab76a9e568402b1bca59b04f15c6a3fa01f19666a6b66064b6ea"
+        },
+        {
+          "path": "docs/guide/19-installation.md",
+          "kind": "file",
+          "sha256": "b12a04e20187ef03b0dee8aac8524313c9136a325e8ca419f0f50aab70ad6a34"
+        },
+        {
+          "path": "docs/guide/20-updating.md",
+          "kind": "file",
+          "sha256": "ace0583f597d481db76c57045a0fa5b0ea9ffd3360fae1646634d6e4a1a52e46"
+        },
+        {
+          "path": "docs/guide/21-contributing.md",
+          "kind": "file",
+          "sha256": "21602320115bcbfdfc91365cf4523ce4257c3aebcd562aa0f32b97c353b8a627"
+        },
+        {
+          "path": "docs/guide/22-advantages-and-impact.md",
+          "kind": "file",
+          "sha256": "95fd5fb50d2931b1a4c6d6135635668b74d5b45dc2d3119f7ac9abc39a37f52a"
+        },
+        {
+          "path": "docs/guide/22a-self-extending-agents.md",
+          "kind": "file",
+          "sha256": "5a7698d38bc66ca54bc9eed0cf9227155729d670fd5b1a78c169645c4d64489c"
+        },
+        {
+          "path": "docs/guide/23-glossary.md",
+          "kind": "file",
+          "sha256": "0cc074aee341779b822415a40bb1e3c5c732db14937aab9b8bb5a4d12f2e61d6"
+        },
+        {
+          "path": "docs/guide/24-agent-teams.md",
+          "kind": "file",
+          "sha256": "c1e3d14680a46e2244e3610b06c2ca64d7f7942d3d112c6a30e34a2948a524ca"
+        },
+        {
+          "path": "docs/guide/25-ui-ux-routing.md",
+          "kind": "file",
+          "sha256": "3a749e6701c9b431ac20f9a6bd7e26ddbdfec7c38cfcec51b1231a2aacf663ee"
+        },
+        {
+          "path": "docs/guide/26-service-operations.md",
+          "kind": "file",
+          "sha256": "e88db9051038e7d7d87a662082694dd37201f89eb8599b81188cf2eb4f723c29"
+        },
+        {
+          "path": "docs/guide/README.md",
+          "kind": "file",
+          "sha256": "b00c396b07304d9945522d372a9ef9d4d76f768b12921cb53899036930b4df3b"
+        },
+        {
+          "path": "docs/guide/memory-tiers.md",
+          "kind": "file",
+          "sha256": "c0ddded10eeeb78104f749b7378c9463c8657a84779b6f8326aefc0520a67f92"
+        },
+        {
+          "path": "docs/integration-contract.md",
+          "kind": "file",
+          "sha256": "4edaa7ae3d28290036d4e1954a1c72efbf1d8b28c2d2401038f292bedfa1169a"
+        },
+        {
+          "path": "docs/integration/all-tools-reinstall-20260823.md",
+          "kind": "file",
+          "sha256": "9ffe4d446eae645d78dd350bae1c2dbdd046a845888a5c9d3e655457408e1ba2"
+        },
+        {
+          "path": "docs/integration/prometheus-knowledge-semantic-port.md",
+          "kind": "file",
+          "sha256": "b3b0519c71afd1962f9787024cc75faf63549f3467993c459de7ca59a72018c3"
+        },
+        {
+          "path": "docs/learn/crdt-conflict-semantics.md",
+          "kind": "file",
+          "sha256": "e002e085c3867a8d1944d29085097aee948b8aebd6eee1246c85a99944ba82ea"
+        },
+        {
+          "path": "docs/learn/kb-adapter-guide.md",
+          "kind": "file",
+          "sha256": "0dde669e2b8805bf72d8f5beb930de2719c483c449d9d5b954d53a44e87ed9f4"
+        },
+        {
+          "path": "docs/learn/surface-tier-detection.md",
+          "kind": "file",
+          "sha256": "05032adeb9b1517cea4a4bc21cda0825ff47c7e4e45083e549506ab7ebe86370"
+        },
+        {
+          "path": "docs/loops-architecture-spec.md",
+          "kind": "file",
+          "sha256": "1fa27aa99e227bdd1e3220532742e76bda6d5da9ab003b144cabc5763fe44a56"
+        },
+        {
+          "path": "docs/maintenance.md",
+          "kind": "file",
+          "sha256": "c94b01afd6072c28c25fdf4e09cf54ace10c49d171e4f63e683e40ebfbd2a50a"
+        },
+        {
+          "path": "docs/plugin-authoring.md",
+          "kind": "file",
+          "sha256": "baf7786c238d01788f64d9238f79fe1bb581d1cf004bf34f78a6c94d662b50dc"
+        },
+        {
+          "path": "docs/production-readiness-report.md",
+          "kind": "file",
+          "sha256": "1eabe28912df2e80384bd91141266ba30dcce8243990703986f041d6374921fa"
+        },
+        {
+          "path": "docs/psp-instruction-plane-spec-2026-07-28.md",
+          "kind": "file",
+          "sha256": "6cbfa9f0e86020524fe19bb0bc88c7203a6a12daca5bde0f9ccea0b21e17f67d"
+        },
+        {
+          "path": "docs/reports/2026-07-18-cross-tool-learning-validation.md",
+          "kind": "file",
+          "sha256": "f49c549eb35002a5585abaa7a9258f3418f8bc10994e8fc53f6a228d3d87e3eb"
+        },
+        {
+          "path": "docs/reports/2026-08-02-kbd-startup-isolation-artifact-review.md",
+          "kind": "file",
+          "sha256": "d57b4d5912a32e2fedea93ba1b343cc36dfb0ab578623c829701eb19e12f4e8b"
+        },
+        {
+          "path": "docs/research-agent-hardening-evidence.md",
+          "kind": "file",
+          "sha256": "a13aecd2e033f9f55d7dd7f7a2f26a77e07f860935593954c04e16852392bc6f"
+        },
+        {
+          "path": "docs/research/ui-ux-routing/DELIVERY.md",
+          "kind": "file",
+          "sha256": "6bea938d427b47a9366aaf34d9c8900b87025200065b8dafc643fe370f684561"
+        },
+        {
+          "path": "docs/research/ui-ux-routing/independent-review.md",
+          "kind": "file",
+          "sha256": "0386d4b4c8ed55055be1bfa88c5a101f1c721e4909c8569e9ebeb8ccbf629203"
+        },
+        {
+          "path": "docs/research/ui-ux-routing/report.md",
+          "kind": "file",
+          "sha256": "5013905996d854d65fadcada2ef77473f61e9fb1ac57dace7903cebd5d4169c1"
+        },
+        {
+          "path": "docs/skill-authoring-guide.md",
+          "kind": "file",
+          "sha256": "6a2e5498e9f52b39f8d722e438bb0f6bcdea42b96acc97eca6ddd0e196e6f9d5"
+        },
+        {
+          "path": "docs/superpowers/plans/2026-07-17-global-skill-system-repair.md",
+          "kind": "file",
+          "sha256": "14616586022cbeadd588b06e8ea599b65a5467d142d816fa670609472af1798c"
+        },
+        {
+          "path": "examples/prometheus-exec/README.md",
+          "kind": "file",
+          "sha256": "891f7861572b128d04688388f7140f06366be6f626850f04e5193bab8b2119de"
+        },
+        {
+          "path": "package.json",
+          "kind": "file",
+          "sha256": "3ef1098b0f1d68e2b1e030e2d10984f4696bb0ab41adcc7afd9263fb3d02e958"
+        },
+        {
+          "path": "policies/README.md",
+          "kind": "file",
+          "sha256": "37cb502d4b7533841ce24f168756cbefe259dc29cd30275f9371069450804859"
+        },
+        {
+          "path": "scripts/codex-provision-mcp-env.sh",
+          "kind": "file",
+          "sha256": "3b01135ebea799eeb458e608fe1f4679fbcc4504bdbb578a376d5cea9eced9d8"
+        },
+        {
+          "path": "scripts/configure-mcp-all-tools.sh",
+          "kind": "file",
+          "sha256": "145ead3802a988323bd7c6dfe7598a76e818efaad47df4a74ab98490d25502dc"
+        },
+        {
+          "path": "scripts/distribute-delivery-cadence.mjs",
+          "kind": "file",
+          "sha256": "5d62fe08c6b73501ebd3c6cb6c69350147f6d70ccb468c3dfcba9e0e9c00d0bc"
+        },
+        {
+          "path": "scripts/generate-harness-adapters.js",
+          "kind": "file",
+          "sha256": "b8e96fd5a882787400b6ece13ac44cf1c5b3225a3972d30182ee4266c7723203"
+        },
+        {
+          "path": "scripts/generate-service-manifest.mjs",
+          "kind": "file",
+          "sha256": "0758e6fd8039c030fff99818c277e7d24fefdfe15f8380274a952e7bf203991b"
+        },
+        {
+          "path": "scripts/generate-skill-system-distribution.js",
+          "kind": "file",
+          "sha256": "a79c9b5710f72d2d035a7a69a52dd92a6691258ed313371f41946d776927a87b"
+        },
+        {
+          "path": "scripts/generated-paths.mjs",
+          "kind": "file",
+          "sha256": "9fc3f461d4afaab76482b083007cd942329ca83d14d6fb39099d4d1d43e75e49"
+        },
+        {
+          "path": "scripts/install-plugin-generation.js",
+          "kind": "file",
+          "sha256": "168909726230c6110663fcd8d0a9abbf02ef167ed71e8d52795de91f9b129869"
+        },
+        {
+          "path": "scripts/install-skills-flat.sh",
+          "kind": "file",
+          "sha256": "50985adc355144b706c9b9332764639184f4c013d190982fd18bcbed721a778a"
+        },
+        {
+          "path": "scripts/install-system.js",
+          "kind": "file",
+          "sha256": "244128a57c6e6677afcca1bda2de8b0f4fbccd25b3cf65f1d0f4dc2cf576ccb0"
+        },
+        {
+          "path": "scripts/lib/plugin-source-topology.js",
+          "kind": "file",
+          "sha256": "01401903bff5c8bd99cc3f45c71c823a72c9d24a4cb76217a0390b5fb21a79a0"
+        },
+        {
+          "path": "scripts/lib/store-paths.js",
+          "kind": "file",
+          "sha256": "8b18df106eb5f18110a2a9092f2f39ed5d149cdcc85132126d6b83646add3271"
+        },
+        {
+          "path": "scripts/memory-index-partition.py",
+          "kind": "file",
+          "sha256": "c149c8debd18bdf5ebfdd29f2c416bc90c23fa8cfeae95b75a5d744d292e37aa"
+        },
+        {
+          "path": "scripts/rebase-regenerate.sh",
+          "kind": "file",
+          "sha256": "ff3fe2954efc614449530fda073885c272de7ddf5033c022aecc1f19d121178e"
+        },
+        {
+          "path": "shared/scripts/README.md",
+          "kind": "file",
+          "sha256": "60b6b4b86c8c65e5e1205b9c6203d078e032d682ebba330387e38a948e86ebaf"
+        },
+        {
+          "path": "shared/scripts/codex-memories-config.sh",
+          "kind": "file",
+          "sha256": "c7e0dae9ec8dffef024824ef0fdef9600414319b4e07ab49abca66637d739eeb"
+        },
+        {
+          "path": "shared/scripts/detect-surface-tier.sh",
+          "kind": "file",
+          "sha256": "ca0af9f593d6387ef84b81dc6edd5785451f4965773edc67a6974f6ebc73d50c"
+        },
+        {
+          "path": "shared/scripts/lib/cortex_feed_slots.py",
+          "kind": "file",
+          "sha256": "51aa48f53f677267c45fb39a89843784273c07b593b16e7ae63808647d67248b"
+        },
+        {
+          "path": "shared/scripts/lib/learning_recall.py",
+          "kind": "file",
+          "sha256": "bfb2efa0de05ddfc4bc92c9e7d9b5021be8fa5b4946be639cb20f86ab8d6e7b8"
+        },
+        {
+          "path": "shared/scripts/lib/learning_write.py",
+          "kind": "file",
+          "sha256": "32d4f44af85c9020c600122d18e29f53d279691b93395f0acc98ea6290a59763"
+        },
+        {
+          "path": "shared/scripts/scheduled/README.md",
+          "kind": "file",
+          "sha256": "098a3118d2faf898b2a02158848d4306f82b11c7630e5553062d06acc361a8d5"
+        },
+        {
+          "path": "shared/scripts/sessionstart-learning.sh",
+          "kind": "file",
+          "sha256": "f6a242fe65379318c6372e56ff1c247a5730293a056fe5916e81465115db0edc"
+        },
+        {
+          "path": "shared/scripts/subagentstart-learning.sh",
+          "kind": "file",
+          "sha256": "404e4609016f02be1129b56c252f23ea975e6f36bc3f707ac12aecb8644683dc"
+        },
+        {
+          "path": "shared/scripts/subagentstop-learning.sh",
+          "kind": "file",
+          "sha256": "e465f12b9840c155b1b24766f96806605333543b96c2cd783c31e3c414fcb352"
+        },
+        {
+          "path": "site/docs/agent-context/harness-support.md",
+          "kind": "file",
+          "sha256": "efbd104a1dbdbab492baf57c46c6cb091c911c4d3776acce7b142a19a32df43e"
+        },
+        {
+          "path": "site/docs/agent-context/model-profiles.md",
+          "kind": "file",
+          "sha256": "fb3a0305655b1da4b331663cc6c550b88e01754c83f4ca0c1cc14d866d5b9f15"
+        },
+        {
+          "path": "site/docs/agent-context/overview.md",
+          "kind": "file",
+          "sha256": "c7021c3640112e7a4884f36a0cbcabeb29db3bd1a88f7027e71a1424b5d90f87"
+        },
+        {
+          "path": "site/docs/agent-context/quick-start.md",
+          "kind": "file",
+          "sha256": "9f9c0715d96acadc056627042c49384e9d37d9f4082cdbefb6b6982643ded9d9"
+        },
+        {
+          "path": "site/docs/agent-context/skill-budget.md",
+          "kind": "file",
+          "sha256": "bdcfa625425dba13c897e05846cb3c5386106c55d9cfcf381236518beed83db1"
+        },
+        {
+          "path": "site/docs/agent-context/theory-and-sources.md",
+          "kind": "file",
+          "sha256": "90218adf837c50629f96627aba2271e7a4df7e24dec63c598ca43e81efbe455f"
+        },
+        {
+          "path": "site/docs/agent-context/use-cases.md",
+          "kind": "file",
+          "sha256": "c6ac9bdf30b60fc1993c0043ffec387825f22bbbb763fe19df1692b2e4980d6a"
+        },
+        {
+          "path": "site/docs/agent-teams/overview.md",
+          "kind": "file",
+          "sha256": "5220367e90cc81bc3602334e5e3d96c5856fb13f999e148afd74094348a46c50"
+        },
+        {
+          "path": "site/docs/execution/architecture-and-tiers.md",
+          "kind": "file",
+          "sha256": "91d4a7fb77b5af051f1474e240b68346c8098e352922529b57a79bb347ddda18"
+        },
+        {
+          "path": "site/docs/execution/choosing-the-right-capability.md",
+          "kind": "file",
+          "sha256": "6b5ea4c91769613d5fda77d4c31f7a6d70d24b5289477bace4100a37b878351f"
+        },
+        {
+          "path": "site/docs/execution/closed-loop-architecture.md",
+          "kind": "file",
+          "sha256": "108e91511bcd347bd16c7c822117f0ae7807d875cceea1ad53066b8af40c0dff"
+        },
+        {
+          "path": "site/docs/execution/generating-programs.md",
+          "kind": "file",
+          "sha256": "405309d2c5231c7abb78c5fb907984e08e10264402d210594623272e3cac07ab"
+        },
+        {
+          "path": "site/docs/execution/installation-doctor-and-recovery.md",
+          "kind": "file",
+          "sha256": "afe45752d4d76cb4afdf296222bfc0d54092e9bf2962781ca84f2460a9fc32fd"
+        },
+        {
+          "path": "site/docs/execution/platform-and-evidence-status.md",
+          "kind": "file",
+          "sha256": "3695e5ec81adc902f658cebd252aee84aa715dc60a39cfc1b14a73701733d79f"
+        },
+        {
+          "path": "site/docs/execution/remote-dispatch-and-reconciliation.md",
+          "kind": "file",
+          "sha256": "c68f5d4e2b10699aace05219694d5cadf7f8a7f535dda2e1536d558aa75ef96e"
+        },
+        {
+          "path": "site/docs/kbd/bash-mutation-guard.md",
+          "kind": "file",
+          "sha256": "b644b5488fe1ce97df2190f9ef50e926bdca8c9dbced0417cdd5d95abd2e387d"
+        },
+        {
+          "path": "site/docs/kbd/control-plane-recovery.md",
+          "kind": "file",
+          "sha256": "02a9f9f6735f5a5d7755fb7fba65a11326abf5e1bcc0b60a7e3f6abd659dbdf8"
+        },
+        {
+          "path": "site/docs/kbd/control-plane.md",
+          "kind": "file",
+          "sha256": "c920c55b7bc4e22095b83ba772637b534c1922eace12a639449251a5bd9dcc17"
+        },
+        {
+          "path": "site/docs/kbd/hooks-and-waypoints.md",
+          "kind": "file",
+          "sha256": "27c07634f497a325d1d4bf92be559099ea953a23dd3232f31837511d2a4777fe"
+        },
+        {
+          "path": "site/docs/kbd/integration-contract.md",
+          "kind": "file",
+          "sha256": "0f5d8c4817eeb7464738bbf5c78aa3a8f6014501c8bac7203605eb4c5602ff87"
+        },
+        {
+          "path": "site/docs/kbd/overview.md",
+          "kind": "file",
+          "sha256": "ae7e1dec3ded98cae2cfb23692b79109e841884f9891d970e7ea38abc4b0d31f"
+        },
+        {
+          "path": "site/docs/kbd/quality-gates.md",
+          "kind": "file",
+          "sha256": "00ac98691d8f31fb99fdb8196ffea58e5bec60ed743ee208ba6cf2da8e469fcb"
+        },
+        {
+          "path": "site/docs/kbd/task-model-assignments.md",
+          "kind": "file",
+          "sha256": "206e907600cad86805d08e3a4028f34ed90d93a46cc2de46678dace6ed1d4a47"
+        },
+        {
+          "path": "site/docs/kbd/tokens-and-authentication.md",
+          "kind": "file",
+          "sha256": "9908d8522fe4c2857c6a54bfc1777fe2a4f7c0143edb0b81234ab2f531bf277b"
+        },
+        {
+          "path": "site/docs/kbd/troubleshooting.md",
+          "kind": "file",
+          "sha256": "5d82f29b93589b1d966619d15fcf400754142844037a1002ccd77ad07dd2a6e4"
+        },
+        {
+          "path": "site/docs/knowledge-learning/hooks-worker-and-receipts.md",
+          "kind": "file",
+          "sha256": "4a010f3f416ca1550c149c056bc3631aff8111d02c4d1d7011f61aa540350fba"
+        },
+        {
+          "path": "site/docs/knowledge-learning/loro-evidence-and-migration.md",
+          "kind": "file",
+          "sha256": "43daf1ef91a00a68207e3e2f0da899999741477300ce5c751320c1fef75d5384"
+        },
+        {
+          "path": "site/docs/knowledge-learning/snapshots-and-context.md",
+          "kind": "file",
+          "sha256": "277330afcafc652e02a1d2a8b7f95b4dce7bedf12a685524bd0a8e514e206a9f"
+        },
+        {
+          "path": "site/docs/learn/anti-sycophancy.md",
+          "kind": "file",
+          "sha256": "5294e42f3397154501663174a4b7a3d81ae1ddbdba0718a12636aa3606c9a6b0"
+        },
+        {
+          "path": "site/docs/learn/feynman-loop.md",
+          "kind": "file",
+          "sha256": "a09a837a9bc5a1c3246d6eb9dd63a7741fb234e76695ea09080bc56baa418f91"
+        },
+        {
+          "path": "site/docs/learn/kb-adapters.md",
+          "kind": "file",
+          "sha256": "2ae4c02868023034f1d3827453f9648b0ae695a57fdca825b526da1ffd07109c"
+        },
+        {
+          "path": "site/docs/learn/mastery-criterion.md",
+          "kind": "file",
+          "sha256": "7ab6fedf25047c0adb5f1340e44b567143fa56a46ba0d23f1d776dbd027c4ffb"
+        },
+        {
+          "path": "site/docs/learn/overview.md",
+          "kind": "file",
+          "sha256": "af62ec0655118aa9b10d80d60cb9d29f04a5d966459d7ba708d3ec30bce0de66"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-about-system.md",
+          "kind": "file",
+          "sha256": "16d0ebab0ac6ef6b40fc275689f9984fa569672adaf34c9a83d2edb8b3ce2ef5"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-certify.md",
+          "kind": "file",
+          "sha256": "ac1b27321c6d7f25246c87cf709fce73a5579314c5bdee8e7a37780f6bb41bce"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-goal.md",
+          "kind": "file",
+          "sha256": "41042789b2edbc953043710ebf9053da483160423636a02746450a46baf5ce64"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-grade.md",
+          "kind": "file",
+          "sha256": "58469ef6ce42172c9e3e52bdc31746e09a2f89b97010e0bb95ec1126b761879e"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-harness.md",
+          "kind": "file",
+          "sha256": "38551be31eee60796a8051d21d69c19802b947c794fdfffb77cc0a440443b31f"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-kb.md",
+          "kind": "file",
+          "sha256": "22f4f038c5180acba4d75c228bcad5773aaca30e21cb33c28752256e75905716"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-plan.md",
+          "kind": "file",
+          "sha256": "a6c76ee54066cdc2545cd59f122dc78a0d17871056cbfcdb1056d801e9a88cfa"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-practice.md",
+          "kind": "file",
+          "sha256": "f1dd7ed14d6824163ec30bc0e2e134d0a732a256c27901197e89feb7de3b86a3"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-retain.md",
+          "kind": "file",
+          "sha256": "504d1e40da003913b823c4ed966808ffdfa37fb56b82c8c8adc4d2900588d452"
+        },
+        {
+          "path": "site/docs/learn/skills/learn-survey.md",
+          "kind": "file",
+          "sha256": "34b7901aa8de5502377ee50b8366d1fa0a1223818930a5131c2d856ab86e953f"
+        },
+        {
+          "path": "site/docs/memory/cortex-mirror.md",
+          "kind": "file",
+          "sha256": "de98c105ff370f52ca10f458efeabdf2b6f8815867dbec3eeace224645784ea0"
+        },
+        {
+          "path": "site/docs/memory/executor-and-recovery.md",
+          "kind": "file",
+          "sha256": "ee536bf9b077125dbbebcd18405fbf35b9aa990847c0bcd16bafafcc2d869467"
+        },
+        {
+          "path": "site/docs/memory/operation-api.md",
+          "kind": "file",
+          "sha256": "878fde83bde31b948aa437f7f0f75c008e85bb473d0f9328584108164220f4b5"
+        },
+        {
+          "path": "site/docs/memory/overview.md",
+          "kind": "file",
+          "sha256": "4f64d1befbb30b24f71a7007c0201a2370a437ab294d75d509699dd738958ce5"
+        },
+        {
+          "path": "site/docs/mobile/execution-classes.md",
+          "kind": "file",
+          "sha256": "a4ce873f550b575ba041b696cdfeea535502939943019622cc83a8987340d06d"
+        },
+        {
+          "path": "site/docs/mobile/native-ffi.md",
+          "kind": "file",
+          "sha256": "09fda3dc2d0e9de452dba554a541c7dd6d54b3fd10d08ac6d72aeeb0e9319795"
+        },
+        {
+          "path": "site/docs/mobile/overview.md",
+          "kind": "file",
+          "sha256": "b453ecd3718d239679a164f2605646eec0f4ae53146167d2a0951085d6dff571"
+        },
+        {
+          "path": "site/docs/mobile/uar-skill-database.md",
+          "kind": "file",
+          "sha256": "3067658afbf95a5462d2aef57de39d281e277955bfe39997d4e0be89308574ec"
+        },
+        {
+          "path": "site/docs/mobile/wasm-components.md",
+          "kind": "file",
+          "sha256": "6748374ce132620ec37a61e059e2171d4c09cff52ae77ffa60a2af80e88e5592"
+        },
+        {
+          "path": "site/docs/operations/doctors-and-mac-certification.md",
+          "kind": "file",
+          "sha256": "71e757e43dde63e273ecf721056cf8b7582a210f247c6677ea7cd79f81a7f1fc"
+        },
+        {
+          "path": "site/docs/operations/installation-and-upgrades.md",
+          "kind": "file",
+          "sha256": "9ae8aad8c229db773ae841e042443be1cc1e68b1d4e32b2ed2a0cf7b6a35d7b4"
+        },
+        {
+          "path": "site/docs/operations/local-validation-and-docs-automation.md",
+          "kind": "file",
+          "sha256": "96b4b9e749cabb7ebd85f7743331745261f661e91a163223145e87676f40d15f"
+        },
+        {
+          "path": "site/docs/operations/logs-recovery-and-failures.md",
+          "kind": "file",
+          "sha256": "43228eec5ad98134d861aadf1aa6ed1006852bb5f789301ae24a4edd42fa33b4"
+        },
+        {
+          "path": "site/docs/operations/plugin-sources-and-hook-failures.md",
+          "kind": "file",
+          "sha256": "31b14a234f2f55a6f9886632a7a582baea18f76509ff12d8e08723e5f141253e"
+        },
+        {
+          "path": "site/docs/plugin-distribution/activation-rollback-uninstall.md",
+          "kind": "file",
+          "sha256": "a053ce127b147832b35a4c0e2769b4f5b484ffade16401a71cbc5033f978b0a1"
+        },
+        {
+          "path": "site/docs/plugin-distribution/immutable-generations.md",
+          "kind": "file",
+          "sha256": "0f9af71adec4f3718f8edab2685ed759ee363080f6d844cfb69312cfd224eab9"
+        },
+        {
+          "path": "site/docs/plugin-distribution/signing-index-and-receipts.md",
+          "kind": "file",
+          "sha256": "38c94a8800b8ca03337a45723333edf773301b1f25f1105bb3acdd46a20702c5"
+        },
+        {
+          "path": "site/docs/plugin-distribution/targets-and-dispatchers.md",
+          "kind": "file",
+          "sha256": "124506b9b034d21680265fed03fe0706341c86ad17ce9bceef4dd5cba4c8c123"
+        },
+        {
+          "path": "site/docs/research/deep-research.md",
+          "kind": "file",
+          "sha256": "0bad1ab2145eb3a4a9b6c79418c88008639e73eb858955aa539769b0055b2c1f"
+        },
+        {
+          "path": "site/docs/sovereign-sync/ag-ui-sse.md",
+          "kind": "file",
+          "sha256": "53f042e364ba7e9f00c83205615ec59d5bdaf090baa58bf87a878b6f3aa6075e"
+        },
+        {
+          "path": "site/docs/sovereign-sync/architecture.md",
+          "kind": "file",
+          "sha256": "bef584aa59286193c7287df934ee66c348ebfb00f093ba8bea3abe4e36e749d0"
+        },
+        {
+          "path": "site/docs/sovereign-sync/data-scope.md",
+          "kind": "file",
+          "sha256": "bc0ac77690b6d76f4e73f4d0d3af0a907560c616d7e3294df4f82b8fda0b721c"
+        },
+        {
+          "path": "site/docs/sovereign-sync/installation.md",
+          "kind": "file",
+          "sha256": "ea57471a9f681ac244ac5c5462e11ca6c821074bd16b1d2a5b1a72157fd051dc"
+        },
+        {
+          "path": "site/docs/sovereign-sync/mcp-tools.md",
+          "kind": "file",
+          "sha256": "857310dbc95238307e90431cc5e781e516446e51b22aa7ee58ef3cc73216a063"
+        },
+        {
+          "path": "site/docs/sovereign-sync/overview.md",
+          "kind": "file",
+          "sha256": "5430cc656ed675de90098048bf2f4de90653955fa499dcb00b29afdcbaf71077"
+        },
+        {
+          "path": "site/docs/sovereign-sync/p2p-network.md",
+          "kind": "file",
+          "sha256": "82ef893f12312655fbc5fe7649729c3beebf386befa57df7dbf41571a7097d53"
+        },
+        {
+          "path": "site/docs/sovereign-sync/pair-two-machines.md",
+          "kind": "file",
+          "sha256": "5df461528ac0db8b6fcedd20da525ad69493450562dbd759c1da06aa03a3e7b7"
+        },
+        {
+          "path": "site/docs/sovereign-sync/privacy-model.md",
+          "kind": "file",
+          "sha256": "458c9567a8b9ce717e1fbf6f89f47d26867eb30bedf16109190b9adb9bdbc221"
+        },
+        {
+          "path": "site/docs/sovereign-sync/rest-api.md",
+          "kind": "file",
+          "sha256": "e56578fe636b0f60dd362dc8ded519784eac8591e687ffa720ec1572bb91255e"
+        },
+        {
+          "path": "site/docs/sovereign-sync/rust-sdk.md",
+          "kind": "file",
+          "sha256": "1976eb4981860ace1ed0f3c7388ed56c7dff71a72e4c72886f4370cd8408ad90"
+        },
+        {
+          "path": "site/docs/sovereign-sync/signed-pushes-and-receipts.md",
+          "kind": "file",
+          "sha256": "6ca3fa4879797f507a54bdae4e118776d09f490621beb966f1379a940d3a52c6"
+        },
+        {
+          "path": "site/docs/sovereign-sync/sync-peers-skill.md",
+          "kind": "file",
+          "sha256": "3a4216d7279700c55c61f43eece402ced3b9f7bf2b5fc1863fbc030f1702600b"
+        },
+        {
+          "path": "site/docs/sovereign-sync/sync-push-skill.md",
+          "kind": "file",
+          "sha256": "5a4dc426e6babdccc7d4c269e8b5af2320254d60980d943545d717bd3a75c863"
+        },
+        {
+          "path": "site/docs/sovereign-sync/sync-status-skill.md",
+          "kind": "file",
+          "sha256": "79636c62d37d2d62179b8123a53fdb0dad85b75bf4ab4c9ae167ffe619aa92aa"
+        },
+        {
+          "path": "site/docs/sovereign-sync/use-cases.md",
+          "kind": "file",
+          "sha256": "1a43eabecae10d523a29e2ca485e60591a17dc36656bcf3f9dd427367a8af197"
+        },
+        {
+          "path": "site/docs/substrate/index.md",
+          "kind": "file",
+          "sha256": "62b4b62429d2caa34f4c81f869d27a98127c45550dca360b86ac86421c1864db"
+        },
+        {
+          "path": "site/docs/substrate/kbd-runtime.md",
+          "kind": "file",
+          "sha256": "92400dab955530bd93104265ba037b7385d793fe6663f29f23466af236277cd9"
+        },
+        {
+          "path": "site/docs/substrate/learner-model.md",
+          "kind": "file",
+          "sha256": "4591e43485da8cad637ac49da2325ef6f1cdece28e81bf2a74c6e687c321aa52"
+        },
+        {
+          "path": "site/docs/substrate/prometheus-research.md",
+          "kind": "file",
+          "sha256": "5de08f05943530f507a0e1f8fd850812d42a28a0d440767f7496047efe626948"
+        },
+        {
+          "path": "site/docs/substrate/sovereign-client.md",
+          "kind": "file",
+          "sha256": "336f9bfc2cbafa22cb9d7fa4602c8e36aa90d6f2ed64278c60fa11b2eab241ef"
+        },
+        {
+          "path": "site/docs/substrate/storage-provider.md",
+          "kind": "file",
+          "sha256": "1b56bb035b8906eef253ea6820cbe22c5fb358c71798cc153b8bbcad6368a0a9"
+        },
+        {
+          "path": "site/docs/substrate/surface-bridge.md",
+          "kind": "file",
+          "sha256": "6330ad3f39494ef3dacfc65fc442e261a4092cd5feb12a869a6db6fb65d86d73"
+        },
+        {
+          "path": "site/docusaurus.config.js",
+          "kind": "file",
+          "sha256": "ca8421a19ce6349066da1766d999e51e23e1a7491a3cc6e3e0ae1313e7beb490"
+        },
+        {
+          "path": "site/src/pages/index.js",
+          "kind": "file",
+          "sha256": "4c698d23fd55375bb15fec437aa71aed19659e7b3babf304e0f951563c916ab2"
+        },
+        {
+          "path": "skills/imported/README.md",
+          "kind": "file",
+          "sha256": "e776d41647391e3d93365f109e38e8f46fdc22c38e7f938cce9344c7ed1eb951"
+        },
+        {
+          "path": "skills/learn/README.md",
+          "kind": "file",
+          "sha256": "df876ae7bc10151790e836a2868aeaf5682bbaafd94ba10d904084418d3a6802"
+        },
+        {
+          "path": "skills/process/agent-team-creator/SKILL.md",
+          "kind": "file",
+          "sha256": "059e57896d89fbaca5678064fb59563b861b25947cd44a1809551524b1e52730"
+        },
+        {
+          "path": "skills/process/agent-team-creator/references/manifest.md",
+          "kind": "file",
+          "sha256": "216b545cd1062fb11378706e6ef931f56484baa67de7cd953ec389eddcaed48c"
+        },
+        {
+          "path": "skills/process/agent-team-creator/references/models-memory.md",
+          "kind": "file",
+          "sha256": "d079ec9e6ea2ef7b54e45eb3cb26bd00497d93854a771780f8f654c0657b2a2b"
+        },
+        {
+          "path": "skills/process/agent-team-creator/references/native-harnesses.md",
+          "kind": "file",
+          "sha256": "5bb45cdaa2778958d609991401a2ba52dce7adac55fb200f46b86b101cf7bbb3"
+        },
+        {
+          "path": "skills/process/agent-team-creator/schemas/uar/README.md",
+          "kind": "file",
+          "sha256": "9450245098a38321517eafda9843d2e5b4fb32816474cbc5567d02181118bdde"
+        },
+        {
+          "path": "skills/process/iterative-evolver/README.md",
+          "kind": "file",
+          "sha256": "215de3546a5a5154b0cd0fe90162b3c5073637c4cc60d930a05258f254bfda7f"
+        },
+        {
+          "path": "skills/process/kbd-process-orchestrator/references/native-backend.md",
+          "kind": "file",
+          "sha256": "8ea67924f9ceb7bcd19fc919c828b897a644936f1aaf709c154490abda765121"
+        },
+        {
+          "path": "skills/process/kbd-process-orchestrator/references/spec-backend-interface.md",
+          "kind": "file",
+          "sha256": "71eac4dbd33f79cde79650f4dd5ccd4408e1952d2e221c1ff26b965b3a70b45c"
+        },
+        {
+          "path": "skills/process/kbd-process-orchestrator/references/templates/acceptance.template.md",
+          "kind": "file",
+          "sha256": "1f9adce853ca2346fa251f406732bacdb2ba2259f7cc0e77f02a974ed65796cb"
+        },
+        {
+          "path": "skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md",
+          "kind": "file",
+          "sha256": "df2330d7b088249ccea45a2724a8d1710eb4a108bbaccc787572d09fe80686b3"
+        },
+        {
+          "path": "skills/process/native-agent/SKILL.md",
+          "kind": "file",
+          "sha256": "bd68886b4ce0c026290aa1d18f88277677764ae80afebc5a9bc195010c3a7d4a"
+        },
+        {
+          "path": "skills/process/spec-gate/README.md",
+          "kind": "file",
+          "sha256": "548cebb9565e7e868262826d0cdb4a56b4b185f26415b3f3bcda50afdd1dd5b9"
+        },
+        {
+          "path": "skills/process/spec-gate/references/dimensions/who.md",
+          "kind": "file",
+          "sha256": "5e9888e271595e3216744b7c4cbb5b51fc0d832e585b1711ed73f9763caab6ec"
+        },
+        {
+          "path": "skills/react/prometheus-entity-skills/entity-graph-optimize/component/README.md",
+          "kind": "file",
+          "sha256": "65cc31222b2b2fad254fc05e5c964c53d0c9d6a83b9cfc425be1d101646c1d22"
+        },
+        {
+          "path": "skills/research/deep-research/references/stage-contracts.md",
+          "kind": "file",
+          "sha256": "13e2f70833152104ccd9c588b5099426f9b6701121e841e9a5694abae6196fc1"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/assemble-report.py",
+          "kind": "file",
+          "sha256": "078059454526350c253d8c298d5ccd804843757def12ff743b777c73147bea56"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/build-graph.py",
+          "kind": "file",
+          "sha256": "7137759ab4f5487b04bf590aa17aa2acf8c256f6ae6a60c3cf42dd897d4e7f2a"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/build-graph.sh",
+          "kind": "file",
+          "sha256": "0a71e93b0e0850cb86c5c51b9f02d307e7f9f4346594df1934580d8eb7911ebc"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/claim_ids.py",
+          "kind": "file",
+          "sha256": "1c924b577231f6407a9040c3637fd54d9e4e348d6e7fe92ff533a2eb4710d6d6"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/detect-contradictions.py",
+          "kind": "file",
+          "sha256": "c125e3d901e29ca7c3339d3126e7dd1ba6c9cc51cf01fde7a25830748ac000e6"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/detect-contradictions.sh",
+          "kind": "file",
+          "sha256": "0e1bb598ef0648789f40299ff710e50096f12115f1aa81509d02e8712fa2d8e2"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/merge-threads.py",
+          "kind": "file",
+          "sha256": "6e25207ddd14fbd18b6e6032dd76541c3a0521642fbf42cd457ae00ea337daa8"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/merge-threads.sh",
+          "kind": "file",
+          "sha256": "963b2e5497cae714eb3d465d9f3edadc07d4a5914cbc04ef5bc5ca75c19f9833"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/research-root.sh",
+          "kind": "file",
+          "sha256": "0acd27d2dd3dcfdb183709ab957e88b6fc7e5d52b58d57663b50f2f541310b3b"
+        },
+        {
+          "path": "skills/research/deep-research/scripts/run-research.sh",
+          "kind": "file",
+          "sha256": "58c180ba848f57775dec7e42959a65bbc4928a74f42f4e931a5a649897829d8b"
+        },
+        {
+          "path": "skills/research/deep-research/tests/bench/ATTRIBUTION.md",
+          "kind": "file",
+          "sha256": "6a9cd76a375362285db19438abdba16d97d89314c25ada5dc7f00cf823816ced"
+        },
+        {
+          "path": "skills/research/deep-research/tests/bench/LICENSE",
+          "kind": "file",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        },
+        {
+          "path": "skills/rust/librefang-wasm-skill/references/example-echo/README.md",
+          "kind": "file",
+          "sha256": "0bdeda1823dcdf912518ce971c4367fd365003aa8d95a25fb7d3fd1ae7f6733f"
+        },
+        {
+          "path": "skills/testing/bdd-cucumber-js/references/examples/README.md",
+          "kind": "file",
+          "sha256": "fd3bba58cbb8edbcfcc2b74c0df1003c7b436a092547624a6b70955eb80bf2fd"
+        },
+        {
+          "path": "skills/testing/bdd-cucumber-rs/references/examples/README.md",
+          "kind": "file",
+          "sha256": "e46c20775c479b40699438bc5293d67e7a674f201005a8a6e499387fb37efc6e"
+        },
+        {
+          "path": "skills/testing/bdd-lifecycle-loop/SKILL.md",
+          "kind": "file",
+          "sha256": "e07c08c34834efb8f12af5c9480a20f4149ff60be4044f7bed1d89c9698e670a"
+        },
+        {
+          "path": "skills/testing/bdd-lifecycle-loop/references/visual-baseline-refresh.md",
+          "kind": "file",
+          "sha256": "f2dd7b7cddf1c3681556cfafd1388b7c0673faea3c564fa08d71463b87b7937e"
+        },
+        {
+          "path": "substrate/exec-contracts/README.md",
+          "kind": "file",
+          "sha256": "12c0cfb59b1a50406cefd4bfa41c6411c981cdc692b2bc5853900b4b3ae14b20"
+        },
+        {
+          "path": "substrate/exec-core/README.md",
+          "kind": "file",
+          "sha256": "23b99383697f8c0d0aecc76de1ff9bc851a7611bc080166c6ed369fad75a14c4"
+        },
+        {
+          "path": "substrate/exec-embedded/README.md",
+          "kind": "file",
+          "sha256": "8445271815c382bb87fb089585a87c47d71e4f3948829aa16531777a600a4868"
+        },
+        {
+          "path": "substrate/exec-remote/README.md",
+          "kind": "file",
+          "sha256": "d4c0b2479a3c5387e6d093d21b3f8c65a8f8329808d7314e73d76440d63e9eed"
+        },
+        {
+          "path": "substrate/exec-service/README.md",
+          "kind": "file",
+          "sha256": "6ef065b14d32341bd1d6aaeabd606acd25423eae9cf1fff5ce97b348c839eff1"
+        },
+        {
+          "path": "substrate/exec-tier-p/README.md",
+          "kind": "file",
+          "sha256": "e969aa733d938d408aff395d7dc04042f38a7f396515463aa6ec660625e0f4dd"
+        },
+        {
+          "path": "substrate/exec-tier-w/README.md",
+          "kind": "file",
+          "sha256": "e7d662181051037f8fb5754be11e3b6bfa0d20ee4751b21b91830cac2814186a"
+        },
+        {
+          "path": "substrate/kbd-runtime/src/lib.rs",
+          "kind": "file",
+          "sha256": "7526697b3557c662fd8d417f6aa20942cee52ee4b52b9ddd5dbc2fcb9cb93d50"
+        },
+        {
+          "path": "substrate/skill-ffi/README.md",
+          "kind": "file",
+          "sha256": "5c022196cc23589ce5fb4013bb48a977121c57f90a61b3a4261ac83fd2dc4db6"
+        },
+        {
+          "path": "substrate/surface-bridge/README.md",
+          "kind": "file",
+          "sha256": "efee611a34b00015411d0b37217bc3b9d72cb549ae6430c40a7708729aa4c939"
+        },
+        {
+          "path": "tools/bench-automation/README.md",
+          "kind": "file",
+          "sha256": "f2b7f2204974da8fe4feee4ffee65736566f0506b654580fac1e0286efc0d6e5"
+        },
+        {
+          "path": "tools/forge-rs/README.md",
+          "kind": "file",
+          "sha256": "d9cccf18f9ce7074efbdf6278c12c3de2a47ffd5e6a500f309198876e0aec2a8"
+        },
+        {
+          "path": "tools/prometheus-cli/README.md",
+          "kind": "file",
+          "sha256": "50d9995df51b0d9ce7e4c4c9848505e70de08fd53a5710633c19c98328fcffdf"
+        },
+        {
+          "path": "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+          "kind": "file",
+          "sha256": "4c4e7d58744ed1f43bce0a9cf0d27377cd36aeaf4468df9f9a52f5c8fa51d0fe"
+        },
+        {
+          "path": "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+          "kind": "file",
+          "sha256": "651bf75640447a33df55fb7dbeb693b21cec6136097310d9a99777e5a974ca3c"
+        },
+        {
+          "path": "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+          "kind": "file",
+          "sha256": "124d5d0445b38e2a991d9f99a463be157172d9dc9494233a5b844bf1d79e7aa4"
+        }
+      ],
+      "proof": "source observation only; candidate not committed or certified",
+      "candidateObservedAt": "2026-10-05T19:35:17.050725+00:00"
+    },
+    {
+      "name": "mini",
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "head": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0",
+      "origin": "git@github.com:Prometheus-AGS/prometheus-skills-mini.git",
+      "branch": "codex/ldd-mini-final",
+      "candidateChanges": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "kind": "deleted",
+          "sha256": null
+        },
+        {
+          "path": "README.md",
+          "kind": "file",
+          "sha256": "baa56eb73fedb39b1f74f4f2b21bf6377bfb4d3d9c497afc11007aa7c8d102e5"
+        },
+        {
+          "path": "docs/agent-teams.md",
+          "kind": "file",
+          "sha256": "9a6954e3affb4dd7c5ee724133fc0d1ee195b970b541e369e1bb984f46b0542e"
+        },
+        {
+          "path": "docs/distribution.md",
+          "kind": "file",
+          "sha256": "1c725170f567ddb54fca08b38b79b4eaa330cb96b0ed2b62b05aa328e852b654"
+        },
+        {
+          "path": "docs/maintenance.md",
+          "kind": "file",
+          "sha256": "ac353f7d9cebae41d1429c4af33ce21cef188d6b3ff8e75fc8370dce3fab1e2b"
+        },
+        {
+          "path": "docs/research/ui-ux-routing/DELIVERY.md",
+          "kind": "file",
+          "sha256": "6bea938d427b47a9366aaf34d9c8900b87025200065b8dafc643fe370f684561"
+        },
+        {
+          "path": "docs/research/ui-ux-routing/independent-review.md",
+          "kind": "file",
+          "sha256": "0386d4b4c8ed55055be1bfa88c5a101f1c721e4909c8569e9ebeb8ccbf629203"
+        },
+        {
+          "path": "docs/research/ui-ux-routing/report.md",
+          "kind": "file",
+          "sha256": "5013905996d854d65fadcada2ef77473f61e9fb1ac57dace7903cebd5d4169c1"
+        },
+        {
+          "path": "docs/service-operations.md",
+          "kind": "file",
+          "sha256": "4315afa580e40e6bd4d47c5e9f927e508f19cfbbd6a1707cd055ac75ba508aea"
+        },
+        {
+          "path": "docs/ui-ux-routing.md",
+          "kind": "file",
+          "sha256": "f514e5248c0d4652d8b84c1ebe9ab42f00c453b9720ebebf483218db8187cb19"
+        },
+        {
+          "path": "docs/versions-toml.md",
+          "kind": "file",
+          "sha256": "c9cd209a75433f68c70c978c30467c4b2ac391e732d7ec85d4c245cb69ffc337"
+        },
+        {
+          "path": "lib/distribution/package-builder.mjs",
+          "kind": "file",
+          "sha256": "7b5863ad5fd343e93967f5220c12d835a9b2d773cf21f3749bd83d938570a696"
+        },
+        {
+          "path": "rules/src/constitution.md",
+          "kind": "file",
+          "sha256": "1ac7cc9b734dea4521b4b2a55a6508f3684a004b7249e83b37eb2e053eb26ebc"
+        },
+        {
+          "path": "rules/src/project/docker-services.md",
+          "kind": "file",
+          "sha256": "b364b613226ade0ba1291b1dba418c2de01453ab1d93b9a2a75fa34b183bf074"
+        },
+        {
+          "path": "scripts/generate-skill-system-distribution.mjs",
+          "kind": "file",
+          "sha256": "279c16ce2e64da39067f32034c794baeabc53103262e3ca068258f0a997c4a89"
+        },
+        {
+          "path": "site/docs/agent-teams/overview.md",
+          "kind": "file",
+          "sha256": "0aa1025c9a811e852891c06195edd0ba5761314f1ec089fc7a1cd260e8880642"
+        },
+        {
+          "path": "site/docs/distribution/plugin-marketplace.md",
+          "kind": "file",
+          "sha256": "8bf7c1a1e3c69e7ea2ae702398f212815e98cab809301e4ba94f1774adc43dc7"
+        },
+        {
+          "path": "site/docs/getting-started/installation.md",
+          "kind": "file",
+          "sha256": "4c27dfb391cb0d8af927e36b89ce618f71a00122f4376b170cca501055feea35"
+        },
+        {
+          "path": "site/docs/getting-started/npm-scripts.md",
+          "kind": "file",
+          "sha256": "e2135f157d0b577d968215032954d87c8030480531e94e8e3c95c93a351fa919"
+        },
+        {
+          "path": "site/docs/ideation/ideation-mindmap.md",
+          "kind": "file",
+          "sha256": "62c244cdbd2465bbd918a7af187646dbb6f9649b015b5fcb79e6b597121c9f33"
+        },
+        {
+          "path": "site/docs/intro.md",
+          "kind": "file",
+          "sha256": "9dcbaeb7b859c0d52f7f178ba7fa3551bdaad2311fbb6311cf8d3b8ea9a5340f"
+        },
+        {
+          "path": "site/docs/kbd/overview.md",
+          "kind": "file",
+          "sha256": "123bc24e2fdc19225d633c5f19547f10cbca0a51b73313792b2890346dc79395"
+        },
+        {
+          "path": "site/docs/kbd/skills.md",
+          "kind": "file",
+          "sha256": "e5dca83fe120af37d21f8dd5e4ea88c6d38be7fde97699ce82b52e43416126b7"
+        },
+        {
+          "path": "site/docs/kbd/task-model-assignments.md",
+          "kind": "file",
+          "sha256": "1e0a4a2b5b447f5c3e7490210aa4a5c205cf36f8e551090df522442c4936f36f"
+        },
+        {
+          "path": "site/docs/platform/doctor.md",
+          "kind": "file",
+          "sha256": "6fb2880de38f04fd39ff4757b9620ac62ab63578e27f4071f4ed33da905d4880"
+        },
+        {
+          "path": "site/docs/platform/windows-constraints.md",
+          "kind": "file",
+          "sha256": "f4966dab7363a9f24b2ae5226fe4014c2df7c6a1cc060639a237c4ae0da02319"
+        },
+        {
+          "path": "site/docs/reference/comparison-with-full-pack.md",
+          "kind": "file",
+          "sha256": "3ff785e5cf008466e8cde79d0ff6d2ef91a6b0b164eda49ac9ade28df9bf6977"
+        },
+        {
+          "path": "site/docs/review/adversarial-review.md",
+          "kind": "file",
+          "sha256": "d22d90712b1ae9b2509d3b5116bfd3823fe49999af2cb1c8ca0e90229471f56b"
+        },
+        {
+          "path": "site/docs/rust/prometheus-rust-workspace.md",
+          "kind": "file",
+          "sha256": "becc913549f07c96bca1da2d606065a67ccd85e86e26097010172fb9e05a70a7"
+        },
+        {
+          "path": "site/docs/scaffolding/overview.md",
+          "kind": "file",
+          "sha256": "2193a91b9e4010eacac1cae8fe6fc986879c1534fdfd52e01f8957ec2848c727"
+        },
+        {
+          "path": "site/docs/services/docker-services.md",
+          "kind": "file",
+          "sha256": "997c18c99d4c61ce3b1479dd51bb5f94d12989dde74042cc9c427c00e86098ed"
+        },
+        {
+          "path": "site/docs/ui-ux/overview.md",
+          "kind": "file",
+          "sha256": "a0e950a35d96537105964741961ee52191c319515c3ef0ed17fd7ea1e16494ea"
+        },
+        {
+          "path": "site/docusaurus.config.js",
+          "kind": "file",
+          "sha256": "01d58193fc78cb27b38af5062cbf257952abbe87086804be5af1983deebab2f5"
+        },
+        {
+          "path": "site/src/pages/index.js",
+          "kind": "file",
+          "sha256": "67a3dab8339f0506c418c953549ca42b69edc7cdd798ea504565a03cbf11255b"
+        },
+        {
+          "path": "skills/agent-team-creator/SKILL.md",
+          "kind": "file",
+          "sha256": "9b003e8568badeedbbe6c13576044cac9822dd874a61eda30146b68ed853fa6c"
+        },
+        {
+          "path": "skills/agent-team-creator/references/manifest.md",
+          "kind": "file",
+          "sha256": "2371a1efa06e9ad29e96ca0e4356f569b0533d95895a916506254d4e55914baa"
+        },
+        {
+          "path": "skills/agent-team-creator/references/models-memory.md",
+          "kind": "file",
+          "sha256": "cf5e705a69c1616a0a875b061d4d271722dea83e24a9d95132c8a91b5ad2a166"
+        },
+        {
+          "path": "skills/agent-team-creator/references/native-harnesses.md",
+          "kind": "file",
+          "sha256": "5bb45cdaa2778958d609991401a2ba52dce7adac55fb200f46b86b101cf7bbb3"
+        },
+        {
+          "path": "skills/agent-team-creator/runtime/src/cli.mts",
+          "kind": "file",
+          "sha256": "3cce6666409032f5ec6d8a71859d072e078f620bc8345ee37eb2e2271ed13ad8"
+        },
+        {
+          "path": "skills/agent-team-creator/runtime/src/memory.mts",
+          "kind": "file",
+          "sha256": "ed5dc40556483a24e56eacf254682890a71bd572179a67de4d737ad44a987b9c"
+        },
+        {
+          "path": "skills/agent-team-creator/runtime/src/types.mts",
+          "kind": "file",
+          "sha256": "ac4277b61152cf2cd6883804ae59c394dc80b87623af85e21eab49b37b2b4e03"
+        },
+        {
+          "path": "skills/agent-team-creator/schemas/uar/README.md",
+          "kind": "file",
+          "sha256": "9450245098a38321517eafda9843d2e5b4fb32816474cbc5567d02181118bdde"
+        }
+      ],
+      "proof": "source observation only; candidate not committed or certified",
+      "candidateObservedAt": "2026-10-05T19:35:17.050725+00:00"
+    },
+    {
+      "name": "surreal-memory",
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "head": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "origin": "git@github.com:Prometheus-AGS/surreal-memory-server.git",
+      "branch": "codex/ldd-memory-final",
+      "candidateChanges": [
+        {
+          "path": ".github/workflows/docs.yml",
+          "kind": "file",
+          "sha256": "3f2187062b0be78c606ea2fe79edcb7f1048f327d5fa7c97e3a867b0a52c4d9c"
+        },
+        {
+          "path": ".github/workflows/image.yml",
+          "kind": "deleted",
+          "sha256": null
+        },
+        {
+          "path": "Cargo.lock",
+          "kind": "file",
+          "sha256": "bbd86fddc117f981229316b5339bea547d0bbd45eef4939257775e333fec4271"
+        },
+        {
+          "path": "Cargo.toml",
+          "kind": "file",
+          "sha256": "d17eaeb45d3069a6c891f59474b1d453c059a25ca86833f7d0d561c5c284af2d"
+        },
+        {
+          "path": "crates/surreal-memory/src/embeddings/candle.rs",
+          "kind": "file",
+          "sha256": "405a7aea27224fe4d3ec54083df7db5bfc1ed2764163b1d3ffd4501a3b59db1e"
+        },
+        {
+          "path": "crates/surreal-memory/src/embeddings/cohere.rs",
+          "kind": "file",
+          "sha256": "4b86090fa8d391799fd04aa22bb11d20f6b54ab2e86316f119074ed57a045fcf"
+        },
+        {
+          "path": "crates/surreal-memory/src/embeddings/mod.rs",
+          "kind": "file",
+          "sha256": "216913d0add85ff4e81aab5cce4d5a85a3f0f20024d9f6a7ac9e26086e3a170a"
+        },
+        {
+          "path": "crates/surreal-memory/src/embeddings/openai.rs",
+          "kind": "file",
+          "sha256": "28a5cbff85108c333b7efa2735f6f0d2478932ab3e68fb8d6a8a8a477366fd3f"
+        },
+        {
+          "path": "crates/surreal-memory/src/palace/embedding.rs",
+          "kind": "file",
+          "sha256": "b8442ac04162e31c30ea984bc595df39b60d4433afa120e6742209af9d59b5eb"
+        },
+        {
+          "path": "crates/surreal-memory/src/storage/surreal.rs",
+          "kind": "file",
+          "sha256": "fd5369bb8bc4c617bcab3a37e821a30218297008e54fafb35206a51a1006414d"
+        },
+        {
+          "path": "docs/container-publication.md",
+          "kind": "file",
+          "sha256": "df68fe01a9a9c0181128311f05e0151e97c0e646d36b985df4a74027aa0afbea"
+        },
+        {
+          "path": "docs/query-embedding-cache.md",
+          "kind": "file",
+          "sha256": "8d83ad1789f767ba376e385c0a798574cfab2caf1a921072834a62d6b036f8b0"
+        },
+        {
+          "path": "executors/mlx/Sources/SurrealMemoryMLXExecutor/main.swift",
+          "kind": "file",
+          "sha256": "7f9100bdde414d9171f0eb843e2c29cffe1b4c3434e69269e6c891e9607e073a"
+        },
+        {
+          "path": "executors/mlx/Sources/SurrealMemoryMLXExecutorCore/Protocol.swift",
+          "kind": "file",
+          "sha256": "55c4451f522dcb0d09f55f444a972aaff9a34d3d9a11c31100ee4a0c98210c9a"
+        },
+        {
+          "path": "openapi/surreal-memory-v2.openapi.json",
+          "kind": "file",
+          "sha256": "8ee2642523b55e45e88c61e76efe46f31eccfee648a017f9411a285735591a9b"
+        },
+        {
+          "path": "skills/surreal-memory/SKILL.md",
+          "kind": "file",
+          "sha256": "81328d5a69c2b9ee86e8aa3817e4370ea53a33d8acffa234de6a53662d9c4f6d"
+        },
+        {
+          "path": "src/executor.rs",
+          "kind": "file",
+          "sha256": "e4a792f87df89d0b920549e83594295951a654ad406adf96eebbf70e73f045f6"
+        },
+        {
+          "path": "src/hook.rs",
+          "kind": "file",
+          "sha256": "7971f85d49376eb18b229119da055c2fd9046315c4092efc58236b16dd6e6bda"
+        },
+        {
+          "path": "src/lib.rs",
+          "kind": "file",
+          "sha256": "453bae1bb44c73272dcca73d0990836bd6141aaf261709e4f2c4328d46fad4cf"
+        },
+        {
+          "path": "src/main.rs",
+          "kind": "file",
+          "sha256": "ee353768adc10cf4b621d30e6939ccf7593fbc94e403e948e1d865d22abec931"
+        },
+        {
+          "path": "src/operations.rs",
+          "kind": "file",
+          "sha256": "45f7b1b4ec4b4326ab3b208d011baf254b1b3c685a342f4b93aa2d3ceb52eeb4"
+        }
+      ],
+      "proof": "source observation only; candidate not committed or certified",
+      "candidateObservedAt": "2026-10-05T19:35:17.050725+00:00"
+    },
+    {
+      "name": "companion",
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final",
+      "head": "773aa5e33b2217135bc423e526c497cceb0e7058",
+      "origin": "/Users/gqadonis/Projects/prometheus/prometheus-companion",
+      "branch": "codex/ldd-companion-final",
+      "candidateChanges": [
+        {
+          "path": ".gitignore",
+          "kind": "file",
+          "sha256": "e1f15ba625b151edb97636442efa2d580d11fce4dacf7003b68ac30a00ea3596"
+        },
+        {
+          "path": "Cargo.lock",
+          "kind": "file",
+          "sha256": "8aaba61df3b9b389dac49af6c8b98a1de77c0b24f37d5654476fd15c83fb6026"
+        },
+        {
+          "path": "Cargo.toml",
+          "kind": "file",
+          "sha256": "534775b5de313980fd88a9c317b8ab6e44841a19ed3377a8eaf3c788f0abc123"
+        },
+        {
+          "path": "LICENSE",
+          "kind": "file",
+          "sha256": "b164a95706dd6b691be8419873b721f5ac5ee38db381ebda1759ea8b0f71091d"
+        },
+        {
+          "path": "README.md",
+          "kind": "file",
+          "sha256": "3d19a422730c5f0fc6c539b83eba11e77b6f077a0b39bc0b6833a4a410296618"
+        },
+        {
+          "path": "crates/iroh-docs-adapter/Cargo.toml",
+          "kind": "file",
+          "sha256": "df1dab736c677341fa184d8049aa1878b746fec6a963e682a2c4eaf5034de39b"
+        },
+        {
+          "path": "crates/iroh-docs-adapter/README.md",
+          "kind": "file",
+          "sha256": "871ab62f25e0289800b075e3435fd5820163db1739e7d50876eb6ad3c629ef8c"
+        },
+        {
+          "path": "crates/iroh-docs-adapter/src/lib.rs",
+          "kind": "file",
+          "sha256": "553ce9e41bed7a6014496d8101b6c3149e49e91ac01e8b3f25846a1d7e8a0bc4"
+        },
+        {
+          "path": "crates/kbd-mobile/Cargo.toml",
+          "kind": "file",
+          "sha256": "ff88df355822b39bd4fcd55ccd3c0d8575436417019e35b116f107b85512547b"
+        },
+        {
+          "path": "crates/kbd-mobile/README.md",
+          "kind": "file",
+          "sha256": "9a47e762531aac67a84cba63be577cf393365bba7908ff44c5d6cbe1e6f06e13"
+        },
+        {
+          "path": "crates/kbd-mobile/src/lib.rs",
+          "kind": "file",
+          "sha256": "1f4a69d284524515f8b1420738f51310dd250d2fb1c3cef05785cf731c2a46a9"
+        },
+        {
+          "path": "crates/kbd-mobile/tests/wire_compat.rs",
+          "kind": "file",
+          "sha256": "45abf1bfe20859b2f4b2d88541f00744169de89f2b49495e664d37d738617cad"
+        },
+        {
+          "path": "crates/prometheus-substrate/Cargo.toml",
+          "kind": "file",
+          "sha256": "335b669b4e5a77429dcbe0f367b160c72bc7ef2cfa8e336636a1a99b2c2baad8"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/bin/prometheus-companion-headless.rs",
+          "kind": "file",
+          "sha256": "150910fd334f7672f9f60dbf7f9f6955040cd9b38ade8344d2c3c4585b9b1221"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/health.rs",
+          "kind": "file",
+          "sha256": "bfc505c05ce4920264b2e2d264b141f32ae44532f891fd410824831527e9d4cb"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/identity.rs",
+          "kind": "file",
+          "sha256": "753d414a044bd6f96304f7a9e2fa53b88c11db41166ac459c715923bd8a99786"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/lib.rs",
+          "kind": "file",
+          "sha256": "2e757e727cfdc4bcb6416f8ab7749e5b37c40492c3ee5b92745a120858baac0a"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/node.rs",
+          "kind": "file",
+          "sha256": "df3b946558bd2be47a242283eee75819abca2b5f38763afc5d360f9d03097499"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/pairing.rs",
+          "kind": "file",
+          "sha256": "e9387134c8d078e66908fb4fdf5ae5df31e15001391badeffa94446f60a9639b"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/paths.rs",
+          "kind": "file",
+          "sha256": "80dc206021d05a5b9d8c470e24309fcf9352324dd61ab74a71e1c178b735a549"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/services.rs",
+          "kind": "file",
+          "sha256": "aea11d71be4de78eea371e71aaea114c912b062792a2c4cf0c1cda611b2f26fb"
+        },
+        {
+          "path": "crates/prometheus-substrate/src/supervisor.rs",
+          "kind": "file",
+          "sha256": "ff76e02c12beb995d8440ad11a9c32565d41e7b25da9a8c65ccc0b1bb88ab5d6"
+        },
+        {
+          "path": "crates/prometheus-substrate/tests/continuity.rs",
+          "kind": "file",
+          "sha256": "75299c8f5511b67e266e850692af98a5f34e0a8596f68f26ea4a26fff0a43217"
+        },
+        {
+          "path": "crates/prometheus-substrate/tests/supervision.rs",
+          "kind": "file",
+          "sha256": "c3b5705ac9dc87f7ce3f5e8cbbfb01a080f5308d754b886e02ba186e82a5341b"
+        },
+        {
+          "path": "crates/sovereign-client/Cargo.toml",
+          "kind": "file",
+          "sha256": "1123350227366c592b4064ad555287bb8208241613cdfb5e7bc5d52684db9229"
+        },
+        {
+          "path": "crates/sovereign-client/README.md",
+          "kind": "file",
+          "sha256": "9b575911ea9e864bdbe459c7c531fc7f48c439c42a1cf1344ea2bef5dbefaf07"
+        },
+        {
+          "path": "crates/sovereign-client/src/client.rs",
+          "kind": "file",
+          "sha256": "43937d2b90575c281b757bdf1fb3acab4d5e62abbd3a899c0ac78e817d4c9830"
+        },
+        {
+          "path": "crates/sovereign-client/src/error.rs",
+          "kind": "file",
+          "sha256": "a337acc1c08e129412c266e35cb79d6b91bf5a748f8695d8adcc8b66f326b568"
+        },
+        {
+          "path": "crates/sovereign-client/src/lib.rs",
+          "kind": "file",
+          "sha256": "0ff1d04e22b8d05d2833a44b5a9cc9099f5c4b7ec3baf6ca265d405030366d09"
+        },
+        {
+          "path": "crates/sovereign-client/src/types.rs",
+          "kind": "file",
+          "sha256": "0488f096b7159255c3d2781c70a740f99c58fe5ebacbda9c6c35a3f922096e4e"
+        },
+        {
+          "path": "crates/sovereign-sync/Cargo.toml",
+          "kind": "file",
+          "sha256": "fa280914f90c7ba43fa9a7863d61649a63f3adcd30ceecd700719bbbdaa7bfcb"
+        },
+        {
+          "path": "crates/sovereign-sync/README.md",
+          "kind": "file",
+          "sha256": "17e0852443871dae578563dc3b2901fcc33c921ab2342dcf9af212cdfa7b7de2"
+        },
+        {
+          "path": "crates/sovereign-sync/src/ag_ui.rs",
+          "kind": "file",
+          "sha256": "bd9aa5ef32d11deb6d501c3ef1c680907e6ff3f4848b7fdd8c6e59e99d84801b"
+        },
+        {
+          "path": "crates/sovereign-sync/src/config.rs",
+          "kind": "file",
+          "sha256": "7852f83a1b4b1b9ac89d022a0237697efe444beec933f81bce01156024348374"
+        },
+        {
+          "path": "crates/sovereign-sync/src/crdt.rs",
+          "kind": "file",
+          "sha256": "37b765070edbadc914bf08091bb5f309b4b465a61f7630b04d7c0299343be6f3"
+        },
+        {
+          "path": "crates/sovereign-sync/src/domains.rs",
+          "kind": "file",
+          "sha256": "c721df40b29f0292a76cdf09c6550251d8f23f17d41fa5957f8615e112049d59"
+        },
+        {
+          "path": "crates/sovereign-sync/src/error.rs",
+          "kind": "file",
+          "sha256": "2e4e766f7cd48f1fdc2ef2b65a5457b6483ac70ead50c4d7535e99f52f969fe0"
+        },
+        {
+          "path": "crates/sovereign-sync/src/health_check.rs",
+          "kind": "file",
+          "sha256": "bf36c5262afff17a54924dc7231f3e6fd5d522d50b5dd0aa51a38779827ca15d"
+        },
+        {
+          "path": "crates/sovereign-sync/src/kbd_control.rs",
+          "kind": "file",
+          "sha256": "7fafbbec1ff65060ffd24da080f8d53e3a36648e180f3f114c92a2f0546cbb79"
+        },
+        {
+          "path": "crates/sovereign-sync/src/kbd_sync.rs",
+          "kind": "file",
+          "sha256": "126e6feaa7e53f96b7a3866bff7e2a87bfdda0a0aa839a164681746ac8276b95"
+        },
+        {
+          "path": "crates/sovereign-sync/src/lib.rs",
+          "kind": "file",
+          "sha256": "576594c59ef7b0707ffcb4cfb157231f164df42125da58c4d56b78ba8ba5398b"
+        },
+        {
+          "path": "crates/sovereign-sync/src/main.rs",
+          "kind": "file",
+          "sha256": "e8111332e1104712e38da03c85698598ea3b15891b4f8e26f3daa565bbef9f6a"
+        },
+        {
+          "path": "crates/sovereign-sync/src/mcp_client_pool.rs",
+          "kind": "file",
+          "sha256": "182d80d5de44780990c96aae7ba3d6826f2aa6c303a7a9e8a097cac5a7c0c5fe"
+        },
+        {
+          "path": "crates/sovereign-sync/src/mcp_server.rs",
+          "kind": "file",
+          "sha256": "702711cf0a8b66b7f8e7d9cf89383e4881c2e4939092e9184052f85efddd6c9d"
+        },
+        {
+          "path": "crates/sovereign-sync/src/p2p.rs",
+          "kind": "file",
+          "sha256": "eed7dc9306e8cf4b87f6152484c0eadc670ab49714e317f2f20c5801cfc735fa"
+        },
+        {
+          "path": "crates/sovereign-sync/src/rest_api.rs",
+          "kind": "file",
+          "sha256": "13a29277f7d9cf6822ac994c1414870246b557062aea9d8de3f7cd6dc0d05258"
+        },
+        {
+          "path": "crates/sovereign-sync/src/store.rs",
+          "kind": "file",
+          "sha256": "62dc76ecb423c6f16b1c6d6228bfb5fd33a96fd4b6159a144e883c3dea55ae80"
+        },
+        {
+          "path": "crates/sovereign-sync/tests/cli_socket_contract.rs",
+          "kind": "file",
+          "sha256": "a9ab4ac323a07c2d44a245b559f5b0475b3848f1141f09c921db19e96414dc0e"
+        },
+        {
+          "path": "crates/sovereign-sync/tests/discovery.rs",
+          "kind": "file",
+          "sha256": "04ae9b6c8d450bd4c853b7a71042424a4fd8367f0e2bdbc1b2df255b871772d5"
+        },
+        {
+          "path": "crates/sovereign-sync/tests/domain_sync.rs",
+          "kind": "file",
+          "sha256": "77c77952cb721fc35fc8e68b63a9c50489b603da6ae24b353b079f8c0bc8d7af"
+        },
+        {
+          "path": "crates/sovereign-sync/tests/integration_tests.rs",
+          "kind": "file",
+          "sha256": "56e39fb1adfd9ec41b6c9a99d13f34bd42a6542f775b74fef7745d7a3bf05c87"
+        },
+        {
+          "path": "docs/00-architecture-and-implementation-plan.md",
+          "kind": "file",
+          "sha256": "2c147834853fbadd0a2d9af6d600d15bc38e2919d3ad27f7b69fbba8b7af4157"
+        },
+        {
+          "path": "docs/brand/01-branding-guide.md",
+          "kind": "file",
+          "sha256": "3fadb5c647ff767a66ae7286ca66245f404996b6bc55466da36148442d587471"
+        },
+        {
+          "path": "docs/brand/assets/companion-appicon-dark.svg",
+          "kind": "file",
+          "sha256": "51879b4b42fcc10a3dbd7bb35f419b96f981b7c32d731c72b468f8f9aacc1a15"
+        },
+        {
+          "path": "docs/brand/assets/companion-appicon-light.svg",
+          "kind": "file",
+          "sha256": "f60e15e730695b1361dc77ecb2305b2cae1f9f9bf193f27cb485180d27099f9a"
+        },
+        {
+          "path": "docs/brand/assets/companion-lockup-dark.svg",
+          "kind": "file",
+          "sha256": "d597fcbae93788de0c457e036c2501015459c8bb05184ab706fb35c55b802e36"
+        },
+        {
+          "path": "docs/brand/assets/companion-lockup-light.svg",
+          "kind": "file",
+          "sha256": "7ce5115e2d64b80113ed2706f9a7349e16b658d89797b59066c03cbd042109b1"
+        },
+        {
+          "path": "docs/brand/assets/companion-mark-indigo-dark.svg",
+          "kind": "file",
+          "sha256": "9057396af821e0541174918c60e1f3644bdb38486392ba636ab41cd1e7965504"
+        },
+        {
+          "path": "docs/brand/assets/companion-mark-indigo.svg",
+          "kind": "file",
+          "sha256": "cabfc26f4449aceaeddab545fbfae20b27690f2d1d5af14a57cadbdff76d1ef3"
+        },
+        {
+          "path": "docs/brand/assets/companion-mark-mono-dark.svg",
+          "kind": "file",
+          "sha256": "2c6dc46c8af8f9074353f95c73c000be9ebf1156021f375f3d81a731518cc987"
+        },
+        {
+          "path": "docs/brand/assets/companion-mark-mono-white.svg",
+          "kind": "file",
+          "sha256": "b9091bf2041ac2914b3329b9eaea2c69555d317fd796b062844dad1d21c1b649"
+        },
+        {
+          "path": "docs/brand/assets/favicon.svg",
+          "kind": "file",
+          "sha256": "86f6b0a8832ee2493954ec8650194dcabc492b26bc9ad5fab6f773afb17d02f0"
+        },
+        {
+          "path": "docs/brand/assets/tray-degraded-dark.svg",
+          "kind": "file",
+          "sha256": "b34b9d8c806c753d9db3a107982c17f4dd127e4bf1612ea543b07e58c505ba20"
+        },
+        {
+          "path": "docs/brand/assets/tray-degraded-light.svg",
+          "kind": "file",
+          "sha256": "ebd24525e96f9bedc015d019ada6e9c331c1c51962d1baa3f565fe3d4b66b62e"
+        },
+        {
+          "path": "docs/brand/assets/tray-degraded-template.svg",
+          "kind": "file",
+          "sha256": "1199fc46031af2b3b840ba3e7fd707872d341b3cee2961764226008df96ed647"
+        },
+        {
+          "path": "docs/brand/assets/tray-down-dark.svg",
+          "kind": "file",
+          "sha256": "9621ea721b52d4d4cf00b76332e3bd110e53b5495830af8d0d7dc5cd467c88ce"
+        },
+        {
+          "path": "docs/brand/assets/tray-down-light.svg",
+          "kind": "file",
+          "sha256": "cc847bdbdba634b3fedc15bbb4d0d8e0ad8d0ca20e9137035acdc20479197db7"
+        },
+        {
+          "path": "docs/brand/assets/tray-down-template.svg",
+          "kind": "file",
+          "sha256": "273f8bdc86d6d8f2175c11acb52676bf58a5221e818640deb81474b17994c5c8"
+        },
+        {
+          "path": "docs/brand/assets/tray-init-dark.svg",
+          "kind": "file",
+          "sha256": "e7940f11f46bac4789a04b3fb3111463272023b8b473eb37970e357a1ce5aa69"
+        },
+        {
+          "path": "docs/brand/assets/tray-init-light.svg",
+          "kind": "file",
+          "sha256": "b7b0c2fc16670797a7a314f1de0cd72fe242a55f99f98b403e50212cf97fbb2a"
+        },
+        {
+          "path": "docs/brand/assets/tray-init-template.svg",
+          "kind": "file",
+          "sha256": "ace2dda2895508bef43312e6c97b1960ed05b521c334d7f852dfaa5e728d96e6"
+        },
+        {
+          "path": "docs/brand/assets/tray-paused-dark.svg",
+          "kind": "file",
+          "sha256": "0b180dfcea86c9662edc7ba352a3af9d8125a65e828f93ebc38ddda0a814879a"
+        },
+        {
+          "path": "docs/brand/assets/tray-paused-light.svg",
+          "kind": "file",
+          "sha256": "d08487fa45467a49f02bfd68dcf77cd242a5ffd3cf1177cd37977098865affb7"
+        },
+        {
+          "path": "docs/brand/assets/tray-paused-template.svg",
+          "kind": "file",
+          "sha256": "b86dd9a75d1b858e64b78f6dffcf66409be5f0ddc3840d53225c5578e75cf2af"
+        },
+        {
+          "path": "docs/brand/assets/tray-up-dark.svg",
+          "kind": "file",
+          "sha256": "2d295231502d968fd909b74e8be7125eefc9f93f19aa67a9608970c25cb078d8"
+        },
+        {
+          "path": "docs/brand/assets/tray-up-light.svg",
+          "kind": "file",
+          "sha256": "0e841b34d6850dc14de6fde361083c5e095efed8faf9b1da0d24abfedbbca339"
+        },
+        {
+          "path": "docs/brand/assets/tray-up-template.svg",
+          "kind": "file",
+          "sha256": "b32748b9c336ac42f8c76ab460d1b2d1b9455015afdcf929749f505bf1a79072"
+        },
+        {
+          "path": "docs/brand/rules-patch.md",
+          "kind": "file",
+          "sha256": "897ca0d4f003e9e8bd0b00939062fd27cdedc81024465755b8db64ab03fbc686"
+        },
+        {
+          "path": "docs/control-api.md",
+          "kind": "file",
+          "sha256": "7b2dd203ec58f04dc57a1404b5b181e696f5a2283d17cf6fcd9eae4070f0bbd5"
+        },
+        {
+          "path": "docs/decisions/versions-pins-proposal.md",
+          "kind": "file",
+          "sha256": "2ff712c25b7f8a5bc34ecb3697080e26ec48d95dcf73a69edbf9150eab159cbd"
+        },
+        {
+          "path": "docs/installation.md",
+          "kind": "file",
+          "sha256": "3fb313f38029a9aa6fa94aa65f48d628b4a008075501c31dd065d0bbc8b5e6ac"
+        },
+        {
+          "path": "docs/maintenance.md",
+          "kind": "file",
+          "sha256": "9ff06a7f256f32353d74364dbf58d061b9a0cfc0682c0e9be0215a30dc97d281"
+        },
+        {
+          "path": "docs/ui/00-BUILD-PLAN.md",
+          "kind": "file",
+          "sha256": "a76eb2b9319a40d0027da2d5f5c47e5bdc3accc23e3a9685b39fb745f392bb33"
+        },
+        {
+          "path": "docs/ui/10-a2ui-component-spec.md",
+          "kind": "file",
+          "sha256": "152f051dae0ce9da176cfa79eb59cf1228bd4fdf56e68f3b998c63805a715758"
+        },
+        {
+          "path": "docs/ui/11-react-surfaces-spec.md",
+          "kind": "file",
+          "sha256": "3e4dd6bbcc4f3cb420aadcad941de789d29ac760af8cc337af246003c40f3046"
+        },
+        {
+          "path": "docs/ui/20-agui-agent-spec.md",
+          "kind": "file",
+          "sha256": "3b72e1ea71850535c746961cce62cd6474a273040ddcedda101514415a0feac8"
+        },
+        {
+          "path": "docs/ui/30-task-resolution-spec.md",
+          "kind": "file",
+          "sha256": "f0118b9acdbd87ecbf42182868c482cee235415e729d3c40010349d0a3489ac0"
+        },
+        {
+          "path": "docs/ui/40-adversarial-review-config.md",
+          "kind": "file",
+          "sha256": "9710e74bce6cdea8f022ab0da492ab58c54917b29b26574c24c61727b0281e85"
+        },
+        {
+          "path": "docs/ui/50-skills-manifest.md",
+          "kind": "file",
+          "sha256": "6b973bc68563f76ba48bf7cc96a5acc11ffd7a1665bad3fdffbc31b0f47a7412"
+        },
+        {
+          "path": "docs/ui/60-acceptance-tests.md",
+          "kind": "file",
+          "sha256": "c56088e487d04159c5e3a654ac724255c73402929b05238c5006381d9b40fe1b"
+        },
+        {
+          "path": "docs/ui/README.md",
+          "kind": "file",
+          "sha256": "149f664e7eb2d7afabdd3dda04402b65b807f630eedccc4d179b03ddebede5cf"
+        },
+        {
+          "path": "docs/ui/prompts/00-orientation.md",
+          "kind": "file",
+          "sha256": "c4c646620fe8922aa47710e9c2e3ca5ff61bf72da6e830a1082ad4d9e336ee47"
+        },
+        {
+          "path": "docs/ui/prompts/01-a2ui-catalog.md",
+          "kind": "file",
+          "sha256": "5751fd46791240cbd008c73b1092f051fa5c75ae3b9c3a4cd2a693286fa1d8b3"
+        },
+        {
+          "path": "docs/ui/prompts/02-react-surfaces.md",
+          "kind": "file",
+          "sha256": "d332f43f0c9d1d20e6e9854bf961a2c6ba5c3a00e05ec09f8aea348b0109bb76"
+        },
+        {
+          "path": "docs/ui/prompts/03-agui-gateway.md",
+          "kind": "file",
+          "sha256": "b07a82023ba8f9c26fc3e1a230fa19b186fb363cebf8afd347ab4620b53ba139"
+        },
+        {
+          "path": "docs/ui/prompts/04-task-resolver.md",
+          "kind": "file",
+          "sha256": "182c2a40cef729760f8ab700a8d3015bb003129e4b8be0638699edcfd3063bdb"
+        },
+        {
+          "path": "docs/ui/prompts/05-settings-review.md",
+          "kind": "file",
+          "sha256": "e4a8cc20677eb5b7bea6f3c6cb4c06b388d4a62ffcdfedcafb89a9be6319b54c"
+        },
+        {
+          "path": "docs/ui/prompts/06-verification.md",
+          "kind": "file",
+          "sha256": "5892603d6724a19b787d4acd29e524032a60d0898cd0e3acf8638afed4c308a4"
+        },
+        {
+          "path": "docs/ui/prompts/harness-notes.md",
+          "kind": "file",
+          "sha256": "d1357749a61467cfadab974875db6e21c16d31cbc30f6cfd6273ec8d9c24c717"
+        },
+        {
+          "path": "docs/ui/reference/agui-stream.example.jsonl",
+          "kind": "file",
+          "sha256": "14722a442f8ad297b445fe97d78870d80d13918ed64aaf8c12e15f004386510e"
+        },
+        {
+          "path": "docs/ui/reference/capability-manifest.example.json",
+          "kind": "file",
+          "sha256": "2bccfd29e1d528aecb39c799557cfba261e4850dcfa0e59537c4e628d4baaaf3"
+        },
+        {
+          "path": "docs/ui/reference/resolution.ambiguous.example.json",
+          "kind": "file",
+          "sha256": "b9ae1bc741adc5818d6676c6b4d8b91d91747b4bd58f6ebcf652a1ab570eef06"
+        },
+        {
+          "path": "docs/ui/schemas/a2ui-catalog.schema.json",
+          "kind": "file",
+          "sha256": "a5ac236a1ffb049d471f3be26f1d44adefce9a72fa71a066e36f11478de86dc7"
+        },
+        {
+          "path": "docs/ui/schemas/agui-event.schema.json",
+          "kind": "file",
+          "sha256": "9a4b68342b4511b5d4b63c608d621be760cdfab9fc9e0f4f2b1eb054e864643c"
+        },
+        {
+          "path": "docs/ui/schemas/capability-manifest.schema.json",
+          "kind": "file",
+          "sha256": "7ae7bf10811b2d365d8249b6faa9b7c2137f922485e208a2de86db456a0578bb"
+        },
+        {
+          "path": "docs/ui/schemas/resolution-trace.schema.json",
+          "kind": "file",
+          "sha256": "cfbfe7f62562a48d492f8e63a12464863cafa3b33583283c975c2b445cb7399e"
+        },
+        {
+          "path": "scripts/install-companion-service.sh",
+          "kind": "file",
+          "sha256": "e3bda3075015a0d71474a2dded2e5db9f6ac8c92638b30364b75045afe2da2a5"
+        },
+        {
+          "path": "scripts/install-skill-package.mjs",
+          "kind": "file",
+          "sha256": "41459486715c82663b2461244b314d83f52d1f5d53ef510a08286debbbc02a52"
+        },
+        {
+          "path": "scripts/install-skill-package.sh",
+          "kind": "file",
+          "sha256": "ae6a2c682f7e3f331e436d6dff3f201a52be19ebfcd0ded3969ee33eb08e8a7b"
+        },
+        {
+          "path": "scripts/render-companion-plist.mjs",
+          "kind": "file",
+          "sha256": "a789d116c62070ce086c9e2a3e957fcb6eb8a1ec2575ba73eb9e214aa2f3e0a1"
+        },
+        {
+          "path": "shared/launchd/ai.prometheus.companion.plist.tmpl",
+          "kind": "file",
+          "sha256": "0d45727c812e66ccb60013220d989406457bf2a5ef7b4deea3eb8f3479b21945"
+        },
+        {
+          "path": "skill-package.json",
+          "kind": "file",
+          "sha256": "c71249cfd7a988a89ff52ef947737b4175759fb51ee847fc84d8a6585c135422"
+        },
+        {
+          "path": "skills/sync-peers/SKILL.md",
+          "kind": "file",
+          "sha256": "960388ca43a23c01f088428814050b5a5cb8c633f230751be2015384f93ecae4"
+        },
+        {
+          "path": "skills/sync-push/SKILL.md",
+          "kind": "file",
+          "sha256": "8546a1638e3a75d58b9516f66aa5d093b3691afce2562e5d7f7e8f4587319b5d"
+        },
+        {
+          "path": "skills/sync-status/SKILL.md",
+          "kind": "file",
+          "sha256": "3b0eb869a5fcc8049bbbef6e04d9e1f6e238fe2f6047b3cfd64d48617389d1ed"
+        },
+        {
+          "path": "src-tauri/Cargo.toml",
+          "kind": "file",
+          "sha256": "fc5d43fe2820f90243f5fb5cd060f0108ac2585cf92f3acdf897e1d8f8e39437"
+        },
+        {
+          "path": "src-tauri/icons/tray/degraded.png",
+          "kind": "file",
+          "sha256": "672ecd594b017fd933b2d8d2117a6ac32e41a24c40a625901a481ba7696c4e2e"
+        },
+        {
+          "path": "src-tauri/icons/tray/down.png",
+          "kind": "file",
+          "sha256": "0c865ef48b12d6939ae445a3390d2e95fcd0686ce18b753ef922823faf0a92bd"
+        },
+        {
+          "path": "src-tauri/icons/tray/init.png",
+          "kind": "file",
+          "sha256": "2a55d04a8dc3fa97fe6aac8a0ad79ce66e025faa5e521911a4cb3c2b0113380a"
+        },
+        {
+          "path": "src-tauri/icons/tray/paused.png",
+          "kind": "file",
+          "sha256": "285c24c207639cab46875d9fb43997b7a568dd0af220d8c0e49a48732920cae6"
+        },
+        {
+          "path": "src-tauri/icons/tray/up.png",
+          "kind": "file",
+          "sha256": "2a55d04a8dc3fa97fe6aac8a0ad79ce66e025faa5e521911a4cb3c2b0113380a"
+        },
+        {
+          "path": "src-tauri/src/lib.rs",
+          "kind": "file",
+          "sha256": "8240b813f3ca2c86d32234b37c01a4cf8e0f9e015de0ce0486ae1e2cded15200"
+        },
+        {
+          "path": "src-tauri/src/tray.rs",
+          "kind": "file",
+          "sha256": "511a246b9c8fd742454b7b1b0102cec463166a8d262445c6749a17349508afd2"
+        }
+      ],
+      "proof": "source observation only; candidate not committed or certified",
+      "candidateObservedAt": "2026-10-05T19:35:17.050725+00:00"
+    }
+  ],
+  "convergenceEvidence": [
+    "evidence/execute-source-inventory.json",
+    "evidence/mini-source-convergence.json",
+    "evidence/memory-source-convergence.json",
+    "evidence/import-refresh.json",
+    "evidence/companion-source-capture.json"
+  ],
+  "releaseIdentities": {
+    "full": {
+      "proposedVersion": "1.11.3",
+      "tag": "v1.11.3",
+      "commit": "pending owner merge"
+    },
+    "mini": {
+      "proposedVersion": "1.11.3",
+      "tag": "v1.11.3",
+      "commit": "pending owner merge"
+    },
+    "surreal-memory": {
+      "baselineCommit": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "proposedVersion": "1.10.2",
+      "tag": "v1.10.2",
+      "commit": "pending certification/commit/owner merge of cache and hook source"
+    },
+    "companion": {
+      "proposedVersion": "0.1.0",
+      "tag": "v0.1.0",
+      "commit": "pending certification/private publication/owner merge"
+    }
+  },
+  "protectedPinSequence": "Exact final memory gitlink SHA is determined by the certified dependency commit/owner merge; no invented future SHA and no retagging v1.10.1. Exact mini versions.toml patch approval precedes its mutation.",
+  "acceptance": "not-run; final12 local integration and remote fresh-clone resolution required",
+  "dependencySelectorCorrections": [
+    {
+      "repository": "surreal-memory",
+      "dependency": "mempalace-core",
+      "before": "branch=main",
+      "after": "rev=f8a1b4c86ef28f8f8070142d600e650f187c538d",
+      "sameLockedSource": true,
+      "sourceState": "implemented; lock source discriminator aligned, local gate deferred"
+    }
+  ],
+  "candidateSourceRefreshedAt": "2026-10-05T19:35:17.050725+00:00",
+  "sourceHandoffs": [
+    {
+      "path": "evidence/companion-integration-source-handoff.json",
+      "sha256": "505424826a0fcd0d4c81e5f6777b43d52e3af45463854f681186c893d2c65597"
+    },
+    {
+      "path": "evidence/migration-control-source-completion.json",
+      "sha256": "c5753e26da1d45c7bd25dd11c31bf99982274b5a4ecb45abba6cd1c585d7cadb"
+    },
+    {
+      "path": "evidence/service-sites-source-handoff.json",
+      "sha256": "960a3147f5dc9136cd58d15784f3e78e59fbc5045af37472e3d8b2cfec447856"
+    },
+    {
+      "path": "evidence/maintenance-contract-source-handoff.json",
+      "sha256": "ab7d8bed5a638e73fe33de0b01fec8f7f2101a17ad05c90fb18a4602649ac679"
+    },
+    {
+      "path": "evidence/hosted-workflow-source-disposition.json",
+      "sha256": "07b6502b9c011e376c6842041c15a1d07f2045b7dc396a2866d6159740963d25"
+    },
+    {
+      "path": "evidence/final-content-source-refresh.json",
+      "sha256": "b9b61d1fdd50f05a7416bf08f67167f40095b11b18202ca109c15842a1ad1ce0"
+    }
+  ],
+  "fingerprintLimit": "Candidate source observations only; excludes this self-referential manifest. No certified commit, approved tag, installable parent graph, acceptance or final freeze is claimed."
+}

@@ -54,7 +54,7 @@
         },
         "annotations": {
           "type": "array",
-          "description": "Read-only ingest of foreign state (.evolver/, .zeespec/) — annotate, don't migrate.",
+          "description": "Read-only ingest of foreign state (.evolver/) — annotate, don't migrate.",
           "items": {
             "type": "object",
             "required": ["source", "ref", "summary"],

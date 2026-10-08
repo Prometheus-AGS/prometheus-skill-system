@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Spec-engine support: OpenSpec (default), GitHub Spec Kit, native-kbd, and a
+  documented extension path.** `kbd-apply` now implements the full five-op
+  adapter contract (list / progress / mark-done / verify / archive) for all
+  three engines: `sk_verify` (structural gate — every checkbox in
+  `specs/<change>/tasks.md` checked plus `spec.md` present) and `sk_archive`
+  (moves `specs/<change>` to `specs/archive/<date>-<change>`) join the existing
+  speckit ops; change-scoped detection accepts `specs/<change>/{tasks,spec,plan}.md`.
+  New `config/spec-engines.json` registry records engine metadata and exact
+  version pins (openspec `@fission-ai/openspec` 1.14.0, GitHub Spec Kit
+  `specify` 1.1.2) with an update procedure for new upstream releases, documented
+  in `docs/guide/spec-engines.md` together with the add-a-new-engine contract.
+  New `shared/scripts/spec-engine-info.mjs` (pure Node, zero deps) reports the
+  default engine, the registry, and the detected engine for a project root.
+
+### Removed
+
+- **The unused Zachman 5W1H interrogator skill is removed entirely**: the skill
+  (and its four sub-skills), the coverage gate in `kbd-spec`, its stage in
+  `start-business-build`, its boundary kind in `kbd-runtime` and
+  `prometheus-cli`, its state-dir position-ingest in `shared/lib/position.sh`,
+  and every documentation, guide, site, and baseline reference. The enforced
+  pipeline is now PMPO → OpenSpec/Spec Kit → forge-rs; historical run-history and
+  review-packet records were redacted in place.
+
 - `prometheus-context-bootstrap --layout v4`: Prometheus Rules Architecture v4. Seeds `rules/src/`
   (constitution with v3 §A verbatim plus A-15…A-17, a named skill-routing table, seven stack rule files,
   four domain rule files), the `rules/build.sh` generator with `--check`, `scripts/check-file-lines.sh`

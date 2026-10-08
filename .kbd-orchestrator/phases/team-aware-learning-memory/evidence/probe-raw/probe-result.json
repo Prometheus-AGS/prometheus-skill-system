@@ -1,0 +1,272 @@
+{
+  "nonce": "TLM-NONCE-5d644f624eba",
+  "runs": [
+    {
+      "harness": "claude",
+      "label": "project-agent",
+      "cwd": "/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T//tlm-probe.zUEo1n/claude-proj",
+      "before": {
+        "~/.claude.json": "031b29f24818cac044737019b9783df19f2cc4af41805f8d34c0efcead06a50b",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b979e277cdbaa22dbb32d63714853debf0bc64a9bddf9835488573857e83d5c8",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "after": {
+        "~/.claude.json": "714629d806c1ed9792232ad06b2c8c920cd9459294b9ebb846e8902d31332e57",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b979e277cdbaa22dbb32d63714853debf0bc64a9bddf9835488573857e83d5c8",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "stdout": "TLM-NONCE-5d644f624eba\n",
+      "expected_memory_next_line": "",
+      "hook_events": [
+        {
+          "event": "PreToolUse",
+          "stdin": {
+            "session_id": "a2f68521-87fa-48ca-994b-479b58ac0557",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/a2f68521-87fa-48ca-994b-479b58ac0557.jsonl",
+            "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tlm-probe.zUEo1n/claude-proj",
+            "scratchpad_dir": "/private/tmp/claude-501/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/a2f68521-87fa-48ca-994b-479b58ac0557/scratchpad",
+            "prompt_id": "f8987082-072f-44b1-8f02-f3f16976c5d9",
+            "permission_mode": "default",
+            "effort": {
+              "level": "medium"
+            },
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Agent",
+            "tool_input": {
+              "description": "Run TLM probe",
+              "prompt": "Answer in exactly one line: the full text of any line in your context that begins with \"TLM-NONCE-\", or NONE.",
+              "subagent_type": "tlm-probe-role",
+              "run_in_background": false
+            },
+            "tool_use_id": "toolu_015fVU956KQh9wMQfjqRGJAR"
+          }
+        },
+        {
+          "event": "SubagentStart",
+          "stdin": {
+            "session_id": "a2f68521-87fa-48ca-994b-479b58ac0557",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/a2f68521-87fa-48ca-994b-479b58ac0557.jsonl",
+            "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tlm-probe.zUEo1n/claude-proj",
+            "scratchpad_dir": "/private/tmp/claude-501/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/a2f68521-87fa-48ca-994b-479b58ac0557/scratchpad",
+            "prompt_id": "f8987082-072f-44b1-8f02-f3f16976c5d9",
+            "agent_id": "afbeffc8057c3e6bd",
+            "agent_type": "tlm-probe-role",
+            "hook_event_name": "SubagentStart"
+          }
+        },
+        {
+          "event": "SubagentStop",
+          "stdin": {
+            "session_id": "a2f68521-87fa-48ca-994b-479b58ac0557",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/a2f68521-87fa-48ca-994b-479b58ac0557.jsonl",
+            "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tlm-probe.zUEo1n/claude-proj",
+            "scratchpad_dir": "/private/tmp/claude-501/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/a2f68521-87fa-48ca-994b-479b58ac0557/scratchpad",
+            "prompt_id": "f8987082-072f-44b1-8f02-f3f16976c5d9",
+            "permission_mode": "default",
+            "agent_id": "afbeffc8057c3e6bd",
+            "agent_type": "tlm-probe-role",
+            "effort": {
+              "level": "medium"
+            },
+            "hook_event_name": "SubagentStop",
+            "stop_hook_active": false,
+            "agent_transcript_path": "/Users/gqadonis/.claude/projects/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/a2f68521-87fa-48ca-994b-479b58ac0557/subagents/agent-afbeffc8057c3e6bd.jsonl",
+            "last_assistant_message": "TLM-NONCE-5d644f624eba",
+            "background_tasks": [],
+            "session_crons": []
+          }
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "label": "plugin-agent",
+      "cwd": "/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T//tlm-probe.zUEo1n/claude-proj",
+      "before": {
+        "~/.claude.json": "714629d806c1ed9792232ad06b2c8c920cd9459294b9ebb846e8902d31332e57",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b979e277cdbaa22dbb32d63714853debf0bc64a9bddf9835488573857e83d5c8",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "after": {
+        "~/.claude.json": "e5fe29916283a46723cc0b5500ae794fabf475afff502affc2b93b68d22d953c",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b979e277cdbaa22dbb32d63714853debf0bc64a9bddf9835488573857e83d5c8",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "stdout": "TLM-NONCE-5d644f624eba\n",
+      "expected_memory_next_line": "",
+      "hook_events": [
+        {
+          "event": "PreToolUse",
+          "stdin": {
+            "session_id": "5ba2ed16-42f9-483d-b613-13ac7395e093",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/5ba2ed16-42f9-483d-b613-13ac7395e093.jsonl",
+            "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tlm-probe.zUEo1n/claude-proj",
+            "scratchpad_dir": "/private/tmp/claude-501/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/5ba2ed16-42f9-483d-b613-13ac7395e093/scratchpad",
+            "prompt_id": "d2794e29-2465-4419-ae42-0ba72c2e91a3",
+            "permission_mode": "default",
+            "effort": {
+              "level": "medium"
+            },
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Agent",
+            "tool_input": {
+              "description": "Run probe plugin agent",
+              "prompt": "Answer in exactly one line: the full text of any line in your context that begins with \"TLM-NONCE-\", or NONE.",
+              "subagent_type": "tlmprobe:tlm-plug-role",
+              "run_in_background": false
+            },
+            "tool_use_id": "toolu_01Qa8mfpCvLoMZ8xMEG3ZAzu"
+          }
+        },
+        {
+          "event": "SubagentStart",
+          "stdin": {
+            "session_id": "5ba2ed16-42f9-483d-b613-13ac7395e093",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/5ba2ed16-42f9-483d-b613-13ac7395e093.jsonl",
+            "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tlm-probe.zUEo1n/claude-proj",
+            "scratchpad_dir": "/private/tmp/claude-501/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/5ba2ed16-42f9-483d-b613-13ac7395e093/scratchpad",
+            "prompt_id": "d2794e29-2465-4419-ae42-0ba72c2e91a3",
+            "agent_id": "a775c176f7102bc1c",
+            "agent_type": "tlmprobe:tlm-plug-role",
+            "hook_event_name": "SubagentStart"
+          }
+        },
+        {
+          "event": "SubagentStop",
+          "stdin": {
+            "session_id": "5ba2ed16-42f9-483d-b613-13ac7395e093",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/5ba2ed16-42f9-483d-b613-13ac7395e093.jsonl",
+            "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tlm-probe.zUEo1n/claude-proj",
+            "scratchpad_dir": "/private/tmp/claude-501/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/5ba2ed16-42f9-483d-b613-13ac7395e093/scratchpad",
+            "prompt_id": "d2794e29-2465-4419-ae42-0ba72c2e91a3",
+            "permission_mode": "default",
+            "agent_id": "a775c176f7102bc1c",
+            "agent_type": "tlmprobe:tlm-plug-role",
+            "effort": {
+              "level": "medium"
+            },
+            "hook_event_name": "SubagentStop",
+            "stop_hook_active": false,
+            "agent_transcript_path": "/Users/gqadonis/.claude/projects/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tlm-probe-zUEo1n-claude-proj/5ba2ed16-42f9-483d-b613-13ac7395e093/subagents/agent-a775c176f7102bc1c.jsonl",
+            "last_assistant_message": "TLM-NONCE-5d644f624eba",
+            "background_tasks": [],
+            "session_crons": []
+          }
+        }
+      ]
+    },
+    {
+      "harness": "claude",
+      "label": "repo-memory",
+      "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+      "before": {
+        "~/.claude.json": "e5fe29916283a46723cc0b5500ae794fabf475afff502affc2b93b68d22d953c",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b979e277cdbaa22dbb32d63714853debf0bc64a9bddf9835488573857e83d5c8",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "after": {
+        "~/.claude.json": "86732298482226f60bf7ef343580b0ade0cde6024e29100ec057e9dbb8b07f51",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b979e277cdbaa22dbb32d63714853debf0bc64a9bddf9835488573857e83d5c8",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "stdout": "TLM-NONCE-5d644f624eba\n- [Prometheus Toolchain References](reference_prometheus_toolchain.md) \u2014 Key repos (surreal-memory\u2026\n",
+      "expected_memory_next_line": "- [Prometheus Toolchain References](reference_prometheus_toolchain.md) \u2014 Key repos (surreal-memory\u2026",
+      "hook_events": [
+        {
+          "event": "PreToolUse",
+          "stdin": {
+            "session_id": "979182f3-b1e5-47b8-b14f-c18b3d238a41",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/979182f3-b1e5-47b8-b14f-c18b3d238a41.jsonl",
+            "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+            "scratchpad_dir": "/private/tmp/claude-501/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/979182f3-b1e5-47b8-b14f-c18b3d238a41/scratchpad",
+            "prompt_id": "162cbabe-28e4-4c85-87f8-a4055a687a43",
+            "permission_mode": "default",
+            "effort": {
+              "level": "medium"
+            },
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Agent",
+            "tool_input": {
+              "description": "Run TLM identity probe",
+              "prompt": "Answer in exactly two lines and nothing else.\nLine 1: the full text of any line in your context that begins with \"TLM-NONCE-\", or NONE.\nLine 2: some file content may have been loaded into your context before this task. Find the line that is exactly: <<<- [Cargo workspace target path\u2026](feedback_cargo_workspace_target_path.md) \u2014 GLOBAL: binary at\u2026>>> and output the single line that immediately follows it in that content, verbatim, or NONE if that line is not in your context. Do not guess.",
+              "subagent_type": "tlm-probe-role",
+              "run_in_background": false
+            },
+            "tool_use_id": "toolu_01AbUSASznJ5vvXfuJPPJK9h"
+          }
+        },
+        {
+          "event": "SubagentStart",
+          "stdin": {
+            "session_id": "979182f3-b1e5-47b8-b14f-c18b3d238a41",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/979182f3-b1e5-47b8-b14f-c18b3d238a41.jsonl",
+            "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+            "scratchpad_dir": "/private/tmp/claude-501/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/979182f3-b1e5-47b8-b14f-c18b3d238a41/scratchpad",
+            "prompt_id": "162cbabe-28e4-4c85-87f8-a4055a687a43",
+            "agent_id": "af137c04363caf94e",
+            "agent_type": "tlm-probe-role",
+            "hook_event_name": "SubagentStart"
+          }
+        },
+        {
+          "event": "SubagentStop",
+          "stdin": {
+            "session_id": "979182f3-b1e5-47b8-b14f-c18b3d238a41",
+            "transcript_path": "/Users/gqadonis/.claude/projects/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/979182f3-b1e5-47b8-b14f-c18b3d238a41.jsonl",
+            "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+            "scratchpad_dir": "/private/tmp/claude-501/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/979182f3-b1e5-47b8-b14f-c18b3d238a41/scratchpad",
+            "prompt_id": "162cbabe-28e4-4c85-87f8-a4055a687a43",
+            "permission_mode": "default",
+            "agent_id": "af137c04363caf94e",
+            "agent_type": "tlm-probe-role",
+            "effort": {
+              "level": "medium"
+            },
+            "hook_event_name": "SubagentStop",
+            "stop_hook_active": false,
+            "agent_transcript_path": "/Users/gqadonis/.claude/projects/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/979182f3-b1e5-47b8-b14f-c18b3d238a41/subagents/agent-af137c04363caf94e.jsonl",
+            "last_assistant_message": "TLM-NONCE-5d644f624eba\n- [Prometheus Toolchain References](reference_prometheus_toolchain.md) \u2014 Key repos (surreal-memory\u2026",
+            "background_tasks": [],
+            "session_crons": []
+          }
+        }
+      ]
+    }
+  ]
+}

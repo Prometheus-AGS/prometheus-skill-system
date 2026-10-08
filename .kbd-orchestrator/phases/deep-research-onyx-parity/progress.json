@@ -2,16 +2,19 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1186,
-  "derivedRevision": 1186,
+  "sourceRevision": 2386,
+  "derivedRevision": 2386,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186
+    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2269,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
   },
   "conflictCount": 0,
   "phase": "deep-research-onyx-parity",
   "phaseId": "deep-research-onyx-parity",
   "parentPhase": null,
-  "last_updated": "2026-09-19T15:41:44.853555Z",
+  "last_updated": "2026-10-05T22:54:33.817457Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 7,
   "changes_completed": 7,
@@ -23,6 +26,35 @@
       "completed": 7,
       "total": 7,
       "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 99,
+      "total": 104,
+      "status": "IN_PROGRESS"
     },
     "evidence": {
       "status": "COMPLETE",
@@ -80,9 +112,9 @@
       "status": "DONE",
       "implementation_status": "COMPLETE",
       "tasks_total": 6,
-      "tasks_done": 5,
+      "tasks_done": 6,
       "last_task_completed": "Regenerate the distribution after editing run-research.sh and pass check:distribution and validate:codex in this change (C-01; a desynced driver is defect D-B)",
-      "next_task_pending": "Implement scripts/merge-threads.sh: union sources by canonical URL into the existing stage 02/04 shapes, chunks into stage 03, claims by content-addressed id, and write citation-map.json",
+      "next_task_pending": null,
       "blockers": []
     },
     {
@@ -91,9 +123,9 @@
       "status": "DONE",
       "implementation_status": "COMPLETE",
       "tasks_total": 6,
-      "tasks_done": 5,
+      "tasks_done": 6,
       "last_task_completed": "Run the integration gate: driver contract suite plus strict validation of the edited skill",
-      "next_task_pending": "Regenerate the distribution after editing run-research.sh and pass check:distribution and validate:codex in this change (C-01; a desynced driver is defect D-B)",
+      "next_task_pending": null,
       "blockers": []
     },
     {
@@ -113,9 +145,9 @@
       "status": "DONE",
       "implementation_status": "COMPLETE",
       "tasks_total": 1,
-      "tasks_done": 0,
+      "tasks_done": 1,
       "last_task_completed": null,
-      "next_task_pending": "Vendor the adopted criteria, English criteria prompt, and a 10-task query subset pinned at upstream commit 469cce54; write ATTRIBUTION.md per Apache-2.0",
+      "next_task_pending": null,
       "blockers": []
     }
   ],

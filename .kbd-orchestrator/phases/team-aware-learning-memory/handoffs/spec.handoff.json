@@ -1,0 +1,11 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-10-04T00:13:50Z",
+  "outputs": [
+    "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlm-004-hook-timeout-seconds/spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "4 native-kbd changes: change-tlm-004-hook-timeout-seconds, change-tlm-001-subagent-identity-probe, change-tlm-002-team-aware-learning-design (depends 001), change-tlm-003-revised-implementation-plan (depends 002). spec-gate: n/a (no .spec-gate). Review: 2 harness-native rounds (round1 BLOCK 1/8/2, round2 BLOCK 1/5/5), all findings revised; round-2 fixes unreviewed (see review/spec/resolution.md). WARNING carry: tlm-001 isolation relies on codex --ignore-user-config and claude --setting-sources project,local; any residual side effect must be recorded; 10s timeout floor is conversion-only.",
+  "skipped": false,
+  "skipReason": null
+}

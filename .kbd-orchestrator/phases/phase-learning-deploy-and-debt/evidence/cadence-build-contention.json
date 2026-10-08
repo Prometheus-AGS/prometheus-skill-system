@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-05T14:47:10.375529+00:00",
+  "status": "own-cargo-finished-monitor-ended",
+  "ownCargoPid": 55638,
+  "ownCheckout": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main/tools/prometheus-cli",
+  "pausedPids": [
+    4446,
+    4528,
+    4676,
+    4735,
+    6229,
+    6278,
+    6287,
+    20879,
+    21091,
+    21098,
+    55638,
+    77107,
+    77108
+  ],
+  "otherCargoPid": 5895,
+  "otherCheckout": "/Users/gqadonis/Projects/prometheus/worktrees/uar-usage",
+  "reason": "Other session started build after our preflight; pause only our process subtree, resume after other Cargo/rustc operation ends. No other session process touched.",
+  "resumedAt": "2026-10-05T14:50:25.360515+00:00",
+  "resumedPids": [
+    4446,
+    4528,
+    4676,
+    4735,
+    6229,
+    6278,
+    6287,
+    20879,
+    21091,
+    21098,
+    55638
+  ],
+  "resourceEvents": [
+    {
+      "at": "2026-10-05T14:54:55.328965+00:00",
+      "status": "paused-own-build",
+      "competingProcessIds": [
+        63109,
+        72430,
+        80309,
+        80393,
+        87622,
+        87693,
+        88084,
+        88098
+      ],
+      "pausedProcessCount": 3
+    },
+    {
+      "at": "2026-10-05T17:31:35.658970+00:00",
+      "status": "own-cargo-finished-monitor-ended"
+    }
+  ]
+}

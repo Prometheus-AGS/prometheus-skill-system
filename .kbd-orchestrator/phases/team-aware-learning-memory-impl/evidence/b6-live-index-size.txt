@@ -1,0 +1,7 @@
+path: /Users/gqadonis/.claude/projects/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/memory/MEMORY.md
+before: 15580
+after: 3974
+kept_lines: 28
+moved_to_learning_store: 89
+applied_at: 2026-10-04T19:28:12Z
+note: index reordered first (current phase, feedback newest-first, archives, older projects) so the 4 KB budget keeps working rules; backups MEMORY.md.pre-reorder-* and MEMORY.md.bak-*

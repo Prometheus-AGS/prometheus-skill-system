@@ -1,0 +1,241 @@
+{
+  "phase": "phase-team-learning-hardening",
+  "generated_at": "2026-10-04T23:40:00Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1": 1,
+      "tier2": 0,
+      "tier3": 3,
+      "tier4": 0
+    }
+  },
+  "gaps_addressed": [
+    "G1a",
+    "G1b",
+    "G1c",
+    "G2a",
+    "G2b",
+    "G2c",
+    "G3a",
+    "G3b",
+    "G3c"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "quick_cache",
+      "kind": "library",
+      "registry": "crates",
+      "repo_url": "https://github.com/arthurprs/quick-cache",
+      "fit_for_gap": "G2b: query-path-only embedding LRU in surreal-memory-server (key: model id + normalised text); pin 0.6 to the lockfile copy; spec confirms async miss dedupe (get_value_or_guard_async) and a size bound; precondition: measure single-embedding latency",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "0.7.0 (crates.io, 2026-10)",
+        "in_lockfile": "0.6.21 via surrealdb-core"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/crates/quick_cache",
+          "claim": "cargo search reports quick_cache 0.7.0, a lightweight concurrent cache"
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Users/gqadonis/Projects/prometheus/surreal-memory-server/Cargo.lock",
+          "claim": "quick_cache 0.6.21 is already resolved transitively (surrealdb-core), so a direct dependency at ^0.6 adds no new crate"
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Users/gqadonis/Projects/prometheus/surreal-memory-server/crates/surreal-memory/src/storage/surreal.rs",
+          "claim": "hybrid_search_memories -> search_memories -> embed_text -> embedding_service.embed with no cache"
+        }
+      ]
+    },
+    {
+      "id": "cand-002",
+      "name": "moka",
+      "kind": "library",
+      "registry": "crates",
+      "repo_url": "https://github.com/moka-rs/moka",
+      "fit_for_gap": "G2b alternative cache (Caffeine-style, async-aware)",
+      "verdict": "reject",
+      "coverage_estimate": 0.9,
+      "license": "MIT OR Apache-2.0",
+      "maintenance": {
+        "last_release": "0.12.16"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/crates/moka",
+          "claim": "moka 0.12.16 is current, but it is not in surreal-memory's lockfile; quick_cache covers the need with zero new crates"
+        }
+      ]
+    },
+    {
+      "id": "cand-003",
+      "name": "Cortex 2.0.3 MCP server (real, scratch CORTEX_DATA_DIR)",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "G3a: real-service integration target for the D3 Cortex mirror",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "2.0.3 (installed)"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "file:///Users/gqadonis/.claude/plugins/cache/cortex/cortex/2.0.3/src/config.ts",
+          "claim": "CORTEX_DATA_DIR overrides the data directory (line 108), so a scratch instance needs no /cortex:setup on ~/.cortex"
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Users/gqadonis/.claude/plugins/cache/cortex/cortex/2.0.3/src/mcp-server.ts",
+          "claim": "cortex_remember takes content, optional context, projectId; no tag field"
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Users/gqadonis/.claude/plugins/cache/cortex/cortex/2.0.3/node_modules/@xenova/transformers/.cache",
+          "claim": "the nomic-ai embedding model is already cached; the test must exit BLOCKED rather than download into the plugin cache when it is missing"
+        }
+      ]
+    },
+    {
+      "id": "cand-004",
+      "name": "npm-merge-driver",
+      "kind": "pattern",
+      "registry": "npm",
+      "repo_url": "https://github.com/npm/npm-merge-driver",
+      "fit_for_gap": "G3c: pattern for regenerating generated files on conflict",
+      "verdict": "reference",
+      "coverage_estimate": 0.2,
+      "license": "ISC",
+      "maintenance": {
+        "last_release": "2.3.6 (modified 2026-09-09)"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "https://www.npmjs.com/package/npm-merge-driver",
+          "claim": "npm lockfile-specific merge driver; the pattern (custom driver -> regenerate) transfers, the code does not"
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/search?q=git+merge+driver+regenerate+generated+files&type=repositories",
+          "claim": "gh search repos returned no general generated-file regeneration tool"
+        }
+      ]
+    },
+    {
+      "id": "cand-005",
+      "name": "existing scratch surreal-memory harness (test-kbd-memory-loop.sh / test-subagent-delivery.sh)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G2a: start a scratch surreal-memory-server for memory-envelope.integration",
+      "verdict": "adapt",
+      "coverage_estimate": 0.8,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "file:///Users/gqadonis/Projects/prometheus/prometheus-skill-pack/shared/scripts/tests/test-kbd-memory-loop.sh",
+          "claim": "already starts a scratch server on a free port with a temp data dir and tears it down"
+        }
+      ]
+    },
+    {
+      "id": "cand-006",
+      "name": "codex-cli memories feature (generate_memories=false + summary archive)",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "G1b: what the installer must set; whether leftover MEMORY.md is read",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "Apache-2.0",
+      "maintenance": {
+        "last_release": "codex-cli 0.158.0"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "codex debug prompt-input (local, read-only)",
+          "claim": "with generate_memories=false and memory_summary.md archived, the prompt contains no ~/.codex/memories/MEMORY.md text and no memory_summary reference; feature 'memories' is stable/enabled"
+        }
+      ]
+    },
+    {
+      "id": "cand-007",
+      "name": "git rerere / .gitattributes merge drivers",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G3c: git-native conflict handling",
+      "verdict": "reference",
+      "coverage_estimate": 0.2,
+      "license": "GPL-2.0-only",
+      "evidence": [
+        {
+          "tier": 2,
+          "claim": "rerere replays recorded resolutions, which does not fit regenerated content that differs per conflict; merge drivers need per-clone .git/config setup, so they stay an optional layer"
+        }
+      ]
+    },
+    {
+      "id": "cand-008",
+      "name": "smol-toml / @iarna/toml",
+      "kind": "library",
+      "registry": "npm",
+      "fit_for_gap": "G1b: edit ~/.codex/config.toml from the Node installer",
+      "verdict": "reject",
+      "coverage_estimate": 0.6,
+      "evidence": [
+        {
+          "tier": 2,
+          "claim": "both re-serialise and drop operator comments; an idempotent line-level section edit with re-parse validation and backup preserves the file"
+        }
+      ]
+    }
+  ],
+  "build_required": [
+    {
+      "need": "G1a: domain-specific ranking in memory-index-partition.py (phase > feedback/GLOBAL > project newest-first > archive)",
+      "why_no_candidate": "Repository-specific logic; no external library or tool covers it (tier 1 and 3 searched)",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G1b: installer merge of [memories] generate_memories=false + summary archive; optional doctor check codex.memories",
+      "why_no_candidate": "Repository-specific logic; no external library or tool covers it (tier 1 and 3 searched)",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G1c: ship refresh-skill-pack.sh in delivery-cadence with profile inputs; fail-loud parity from state.json",
+      "why_no_candidate": "Repository-specific logic; no external library or tool covers it (tier 1 and 3 searched)",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G2b: client-side: answer user/global scopes with lexical GET (5 to 3 embeddings); server-side cache uses cand-001",
+      "why_no_candidate": "Repository-specific logic; no external library or tool covers it (tier 1 and 3 searched)",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G2c: mark-done syncs; new kbd-apply reconcile [--repair]; called at cadence/reflect boundary",
+      "why_no_candidate": "Repository-specific logic; no external library or tool covers it (tier 1 and 3 searched)",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G3b: pk_allowed admits untagged entries only for current-project scope or lexical match; evaluation fixture",
+      "why_no_candidate": "Repository-specific logic; no external library or tool covers it (tier 1 and 3 searched)",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G3c: scripts/rebase-regenerate.sh: generated-only conflict guard, take main, regenerate, validate, stage",
+      "why_no_candidate": "Repository-specific logic; no external library or tool covers it (tier 1 and 3 searched)",
+      "capability_gap_id": null
+    }
+  ]
+}

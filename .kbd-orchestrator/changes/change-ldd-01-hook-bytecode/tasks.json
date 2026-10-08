@@ -1,0 +1,34 @@
+{
+  "changeId": "change-ldd-01-hook-bytecode",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Suppress bytecode at generated dispatch and direct learning entry points",
+      "done": true,
+      "doneAt": "2026-10-05T13:26:33Z",
+      "doneBy": "codex",
+      "files": [
+        "scripts/generate-harness-adapters.js",
+        "shared/scripts/sessionstart-learning.sh",
+        "shared/scripts/subagentstart-learning.sh",
+        "shared/scripts/subagentstop-learning.sh"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    },
+    {
+      "id": "2",
+      "title": "Preserve suppression across writer subprocesses and document packaged execution",
+      "done": true,
+      "doneAt": "2026-10-05T13:30:23Z",
+      "doneBy": "codex",
+      "files": [
+        "shared/scripts/lib/learning_write.py",
+        "docs/codex-plugin.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

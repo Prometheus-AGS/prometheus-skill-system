@@ -28,9 +28,9 @@ case "$mode" in
     }'
     ;;
   evaluate|repair)
-    boundary="${1:?usage: $mode <task|phase|zeespec> <before|after> <subject>}"
-    edge="${2:?usage: $mode <task|phase|zeespec> <before|after> <subject>}"
-    subject="${3:?usage: $mode <task|phase|zeespec> <before|after> <subject>}"
+    boundary="${1:?usage: $mode <task|phase> <before|after> <subject>}"
+    edge="${2:?usage: $mode <task|phase> <before|after> <subject>}"
+    subject="${3:?usage: $mode <task|phase> <before|after> <subject>}"
     args=(kbd --path . guard evaluate
       --boundary "$boundary" --edge "$edge" --subject "$subject" --json)
     [ "$mode" = "repair" ] && args+=(--repair-projections)

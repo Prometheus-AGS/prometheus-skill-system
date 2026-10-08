@@ -1,0 +1,45 @@
+{
+  "changeId": "change-tlh-03-versioned-cadence-refresh-procedure",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[03] Write scripts/refresh-skill-pack.sh with profile inputs, state.json parity, fail-loud exits and the JSON summary",
+      "done": true,
+      "doneAt": "2026-10-05T04:47:46Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/delivery-cadence/scripts/refresh-skill-pack.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[03] Document it in references/profile.md and SKILL.md and add the shim example",
+      "done": true,
+      "doneAt": "2026-10-05T04:48:20Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/delivery-cadence/references/profile.md",
+        "skills/process/delivery-cadence/SKILL.md",
+        "skills/process/delivery-cadence/examples/refresh-skill-pack-shim.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[03] Add test-cadence-refresh-procedure.sh (scratch git repo with a submodule as the deploy worktree; parity from state.json odd/even; missing/garbage iteration exits 2; dirty worktree exits 1; verify mode changes nothing (HEAD, submodule commit and a stub-call log unchanged); the JSON summary has sourceCommit, versions and health keys; runs under /bin/bash; local submodule via `-c protocol.file.allow=always`)",
+      "done": true,
+      "doneAt": "2026-10-05T04:49:07Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-cadence-refresh-procedure.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-03-versioned-cadence-refresh-procedure/verify.sh",
+      "notes": null
+    }
+  ]
+}

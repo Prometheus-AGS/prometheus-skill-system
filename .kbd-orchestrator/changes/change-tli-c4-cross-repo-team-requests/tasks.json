@@ -1,0 +1,61 @@
+{
+  "changeId": "change-tli-c4-cross-repo-team-requests",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[C4] Add the team card schema and its type/validation mirrors",
+      "done": true,
+      "doneAt": "2026-10-04T22:36:30Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/schemas/team.schema.json",
+        "skills/process/agent-team-creator/runtime/src/types.mts",
+        "skills/process/agent-team-creator/runtime/src/validation.mts"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[C4] Write registry.mts publish/discover/request/intake and the CLI commands",
+      "done": true,
+      "doneAt": "2026-10-04T22:37:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/runtime/src/registry.mts",
+        "skills/process/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[C4] Update managed instructions, SKILL.md and rebuild scripts",
+      "done": true,
+      "doneAt": "2026-10-04T22:37:26Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/runtime/src/project-instructions.mts",
+        "skills/process/agent-team-creator/SKILL.md",
+        "skills/process/agent-team-creator/scripts/*.mjs",
+        "skills/process/agent-team-creator/tests/*.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[C4] Write teams.integration.mts against a sandbox repo (PROMETHEUS_TEAM_TEST_REPO)",
+      "done": true,
+      "doneAt": "2026-10-04T22:37:53Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/runtime/test-src/teams.integration.mts",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-c4-cross-repo-team-requests/verify.sh",
+      "notes": null
+    }
+  ]
+}

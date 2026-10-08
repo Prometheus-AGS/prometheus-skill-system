@@ -24,7 +24,7 @@ In severity order:
 6. `pk lint` has DUPLICATE detection but `pk-lint-cron.sh` exists unwired — no scheduled job runs it. SP-009.
 7. `compile_user_prompt` strips ` ```json ` fences but does not handle preamble or strict-mode validation. Brittle to LLM whim. SP-010.
 8. Cedar PEP gates `skill.mutate` programmatically but `Edit`/`Write`/`MultiEdit` to a `SKILL.md` bypasses Cedar entirely. SP-011.
-9. The 4-layer pipeline (ZeeSpec → PMPO → OpenSpec → forge-rs) is documented but not enforced — nothing checks that a multi-step task actually descended through the layers. SP-012.
+9. The pipeline (PMPO → OpenSpec → forge-rs) is documented but not enforced — nothing checks that a multi-step task actually descended through the layers. SP-012.
 10. **The single highest-leverage fix in the pack:** the `sycophancy-correction` skill is available but not invoked in the PMPO Reflect phase. Wiring it into the SubagentStop(reflector) hook is a few hours of work and structurally eliminates a class of "completion without trade-offs" output. SP-013.
 11. The change-006 plan asserts a SubagentStop fallback matcher works without verifying it. SP-014.
 12. Two `hooks.json` files exist (in `.claude-plugin/hooks/` and `hooks/`) committed as identical content rather than symlinks. Drift is a foot-gun. SP-015.

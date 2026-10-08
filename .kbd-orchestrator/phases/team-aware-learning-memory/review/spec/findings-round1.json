@@ -1,0 +1,87 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "claude (harness-native subagent)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-model-collision",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "change-tlm-001-subagent-identity-probe/spec.md",
+      "claim": "The probe's isolation claim is false by construction: real `claude -p` and `codex exec --dangerously-bypass-hook-trust` runs fire the user's installed plugin hooks and write user-level state, and the before/after hash gate covers only four config files, so it cannot detect the pollution.",
+      "evidence": "spec: 'it never edits ~/.claude, ~/.codex, plugin caches or ~/.prometheus/plugins. It uses the user's existing authentication (real model calls)'. verification hashes only ~/.claude/settings.json, ~/.codex/config.toml, ~/.codex/hooks.json and the plugins pointer. `codex exec --help` (0.158.0): --dangerously-bypass-hook-trust 'Run enabled hooks without requiring persisted hook trust', so every enabled user/plugin hook runs untrusted. The pack's own Stop/SessionStart hooks (memory-outbox-flush, karpathy-hook-dispatch, kbd-control in hook-contract.json) enqueue learning jobs and write ~/.prometheus state. analysis.md W2: 'Codex consolidates every thread, subagent threads included, into the user-level ~/.codex/memories', which exists on this machine (memory_summary.md, MEMORY.md). Claude -p writes ~/.claude/projects/<slug>/ transcripts. Behaviour 5 also proposes 'planting a unique token in a scratch-only memory location', but for Codex the store is user-level. The probe would contaminate the memory stores this phase is designing, and its gate would still report 'unchanged'.",
+      "suggested_fix": "Codex: require `--ephemeral` plus `-c` overrides that disable memory generation and use for the probe thread, and never plant tokens in ~/.codex/memories. Claude: use `--setting-sources project,local --strict-mcp-config --no-session-persistence`, and record which plugin hooks still fire. Extend the before/after hashes to ~/.codex/memories/*, ~/.claude/projects/*/memory, the ~/.prometheus learning queue/outbox and ~/.claude.json. The gate should compare the recorded hashes mechanically, not grep a self-written 'yes'."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-001-subagent-identity-probe/tasks.json",
+      "claim": "Behaviours 5 and 6 (native memory reaching subagents; Codex per-thread memory controls) are in Why and in the acceptance criteria, but no task records them, What Changes records only 1–4, and fallbacks are named only for behaviours 1 and 3.",
+      "evidence": "tasks: 'record behaviours 1-2', 'record behaviours 3-4'. What Changes: 'For each harness and behaviour 1–4'. verification: 'a verdict ... for each of behaviours 1–6' and 'For each REFUTED or UNVERIFIABLE behaviour, a named fallback'. change-tlm-002 section 5 depends on behaviour 6: 'State the per-thread control ... per the change-tlm-001 probe'.",
+      "suggested_fix": "Add a task that records behaviours 5–6 and names a fallback for every behaviour, including D-2a options for 5 and the absence of a per-thread control for 6."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-001-subagent-identity-probe/verification.md",
+      "claim": "The verify commands pass vacuously: a single table row satisfies the grep, and the user-config check greps a string the producer writes.",
+      "evidence": "`grep -E \"^\\| *(1|2|3|4|5|6) .*\\| *(CONFIRMED|REFUTED|UNVERIFIABLE)\"` exits 0 when any one row matches, but the criterion is all six behaviours in both harnesses. `grep -q \"user config unchanged: yes\"` checks prose, not the recorded hashes.",
+      "suggested_fix": "Count rows per harness and behaviour (12 expected, minus documented n/a). Re-hash the files and diff them against the recorded 'before' hashes in the verify step."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-002-team-aware-learning-design/spec.md",
+      "claim": "Design section 5 (Delivery) omits the hook safety properties that analysis requires of the SubagentStart hook.",
+      "evidence": "analysis.md delivery row: the hook must '(1) carry an explicit timeout of at most 5 s, with an internal watchdog and a store-query timeout of 2 s; (2) emit nothing and exit 0 when stores or teams are absent (integration contract); (3) fence and label recalled lessons as untrusted data'. Spec section 5 covers matcher, file tier, Codex memories and fallbacks, but none of these three properties, and no acceptance criterion checks them.",
+      "suggested_fix": "Add the timeout/watchdog, silent-absence (integration-contract rule 2) and untrusted-data fencing to section 5 and to the acceptance criteria."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-002-team-aware-learning-design/verification.md",
+      "claim": "The verify gates for change-tlm-002 and change-tlm-003 do not test most of their own acceptance criteria.",
+      "evidence": "002: 'Budgets match analysis D-4', 'maps every envelope field onto surreal-memory, pk and the Karpathy records' and 'rejected alternatives and evidence' are unchecked. The only probe check is `grep -q \"subagent-identity-probe\"`. 003: `grep -c \"^### PR \"` passes with one PR, and nothing checks the per-PR fields (repo/files/design section/deps/gate), the two-role alpha/beta gate, byte budgets, or upstream-before-pin-bump ordering.",
+      "suggested_fix": "Add greps or a small parser: D-4 numbers (8,000 / 2,000) in the design, a field-mapping table covering every schema property, and in the plan every '### PR' block containing Repo:/Files:/Design section:/Depends:/Gate: lines plus an alpha/beta gate per harness."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-003-revised-implementation-plan/spec.md",
+      "claim": "change-tlm-003 drops work that other changes delegate to it: the Cortex/CLAUDE.md update (W4) appears nowhere, and the matcher namespacing and mini timeout fix are mentioned but never gated.",
+      "evidence": "change-tlm-002 section 8: 'The CLAUDE.md change is scheduled in change-tlm-003'. analysis W4: 'The revised plan includes a CLAUDE.md update'. change-tlm-003 spec, tasks and acceptance never mention Cortex or CLAUDE.md. change-tlm-004 'Out of scope (carried to the revised plan)' covers the mini hooks timeout and SubagentStop namespacing, and change-tlm-003 acceptance verifies neither.",
+      "suggested_fix": "Add a Cortex/CLAUDE.md envelope PR, the mini seconds-timeout PR and the matcher-namespacing PR to change-tlm-003's What Changes, and make each a checked acceptance item."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-003-revised-implementation-plan/tasks.json",
+      "claim": "Task 3 edits a file in the user's ~/.claude, outside the repo, but declares no files, and the verify step depends on the user's home directory.",
+      "evidence": "task 3: \"files\": [], notes 'edits ~/.claude/plans/yes-fix-it-in-logical-mccarthy.md (outside repo)'. verify: `grep -q ... ~/.claude/plans/yes-fix-it-in-logical-mccarthy.md`. The review focus treats ~/.claude modifications as unsafe, and this edit is neither versioned nor reproducible on another machine.",
+      "suggested_fix": "Declare the path, back the file up with a hash before editing, restrict the edit to an appended pointer section, or record the pointer in-repo and leave the user file to the operator."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-004-hook-timeout-seconds/spec.md",
+      "claim": "Converting timeouts with 'value / 1000, rounded up, minimum 1' cuts three hooks from an effective ~1000 s to 1 s in both harnesses, with no measurement of their real runtime.",
+      "evidence": "hook-contract.json on origin/main: sessionstart-kbd-control, taskcompleted-kbd-receipt (a blocking completion gate) and precompact-kbd-control are each 'timeout': 1000. The repo's own docs/codex-plugin.md:76 says 'starting the entry point alone takes about one second'. Each of these runs node hook-entry.mjs, then bash, then the KBD runtime. Claude never killed these hooks before; after the change, both harnesses can.",
+      "suggested_fix": "Measure p95 wall time of each hook through hook-entry.mjs, set each timeout to at least 2x p95 (minimum 5 s for the kbd-control and gate hooks), and record the measurements in the change evidence."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-004-hook-timeout-seconds/verification.md",
+      "claim": "Several acceptance criteria have no verify command: per-hook-id equality, the >600 negative control, CLAUDE.md wording, and idempotency beyond the two hook files.",
+      "evidence": "The node verify only checks `v>600`, not 'identical timeouts per hook id'. Today codex-hooks.json has 13 timeouts and hooks.json has 14, so matching must be by id. No command feeds a 5000 timeout to the generator to prove the rejection. `! grep -i milliseconds` covers only docs/codex-plugin.md, while CLAUDE.md:1028 says 'Codex reads `timeout` as milliseconds'. The shasum idempotency check covers only hooks/*.json, not shared/harnesses/generated/* or dist/plugins, and the dist regeneration command (generate-skill-system-distribution.js) is never named.",
+      "suggested_fix": "Add: an id-keyed equality check, a negative-control run against a temp contract copy, `! grep -n 'milliseconds' CLAUDE.md` scoped to the Codex hooks section, and double-run hashing of every generated output including dist."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlm-004-hook-timeout-seconds/spec.md",
+      "claim": "Changing the contract changes bundleId, but the spec does not mention the plugin-generation publication or receipt verification that CLAUDE.md requires when hook bundle IDs change.",
+      "evidence": "generate-harness-adapters.js:382 `const bundleId = sha256(canonicalJson(identity))`, and every hook command embeds `--bundle <id>`. CLAUDE.md: 'regenerate and validate them together, then verify the active manifest and all 14 target receipts'.",
+      "suggested_fix": "Add a task step that publishes or activates the new generation and verifies the receipts. Otherwise, state explicitly that installed hooks keep the old bundle until the next publication."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlm-003-revised-implementation-plan/spec.md",
+      "claim": "The PR range is inconsistent: goals and assessment say PRs 4–13, while plan.md and change-tlm-003 say 4–14.",
+      "evidence": "goals.md: 'revised implementation plan for PRs 4-13'. assessment.md:188 'PRs 4–13'. change-tlm-003: 'replacing PRs 4–14'. The session plan has '### PR 14 (SP + MINI) — final pin bump'.",
+      "suggested_fix": "State explicitly that PR 14 (pin bump) is in scope and reconcile the goal text, or exclude it."
+    }
+  ]
+}

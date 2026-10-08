@@ -1,0 +1,329 @@
+{
+  "phase": "phase-learning-deploy-and-debt",
+  "backend": "native-kbd",
+  "generated_at": "2026-10-05T12:09:17.885655+00:00",
+  "spec-gate": "not-present: unknown-acceptable",
+  "review": "pending: deferred to completed-production boundary",
+  "canonical_registration": {
+    "status": "complete",
+    "revision": 2204,
+    "plan_revision": 17,
+    "registered_changes": 18,
+    "registered_tasks": 40
+  },
+  "changes": [
+    {
+      "id": "change-ldd-13-source-convergence",
+      "title": "Reconcile outstanding source across full mini and dependency worktrees",
+      "repository": "full+mini+dependencies",
+      "gaps": [
+        "G15"
+      ],
+      "depends_on": [],
+      "task_count": 3,
+      "spec": ".kbd-orchestrator/changes/change-ldd-13-source-convergence/spec.md",
+      "sequence": 1
+    },
+    {
+      "id": "change-ldd-01-hook-bytecode",
+      "title": "Prevent Python bytecode in immutable hook generations",
+      "repository": "full",
+      "gaps": [
+        "G1"
+      ],
+      "depends_on": [
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 2,
+      "spec": ".kbd-orchestrator/changes/change-ldd-01-hook-bytecode/spec.md",
+      "sequence": 2
+    },
+    {
+      "id": "change-ldd-02-codex-memory-control",
+      "title": "Stop Codex startup consolidation through the feature gate",
+      "repository": "full",
+      "gaps": [
+        "G2"
+      ],
+      "depends_on": [
+        "change-ldd-01-hook-bytecode"
+      ],
+      "task_count": 2,
+      "spec": ".kbd-orchestrator/changes/change-ldd-02-codex-memory-control/spec.md",
+      "sequence": 3
+    },
+    {
+      "id": "change-ldd-04-cache-identity-accounting",
+      "title": "Honor embedding model identity and consistent query-cache accounting",
+      "repository": "surreal-memory",
+      "gaps": [
+        "G4",
+        "G5"
+      ],
+      "depends_on": [
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 2,
+      "spec": ".kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/spec.md",
+      "sequence": 4
+    },
+    {
+      "id": "change-ldd-05-generated-output-ownership",
+      "title": "Replace the self-confirming generated-path assertion",
+      "repository": "full",
+      "gaps": [
+        "G6"
+      ],
+      "depends_on": [
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 1,
+      "spec": ".kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/spec.md",
+      "sequence": 5
+    },
+    {
+      "id": "change-ldd-06-installed-doctor-remediation",
+      "title": "Resolve Codex repair instructions from a verified installation",
+      "repository": "full",
+      "gaps": [
+        "G7"
+      ],
+      "depends_on": [
+        "change-ldd-02-codex-memory-control"
+      ],
+      "task_count": 1,
+      "spec": ".kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/spec.md",
+      "sequence": 6
+    },
+    {
+      "id": "change-ldd-07-custom-codex-home",
+      "title": "Honor one effective Codex home throughout installation lifecycle",
+      "repository": "full",
+      "gaps": [
+        "G8"
+      ],
+      "depends_on": [
+        "change-ldd-02-codex-memory-control",
+        "change-ldd-06-installed-doctor-remediation"
+      ],
+      "task_count": 2,
+      "spec": ".kbd-orchestrator/changes/change-ldd-07-custom-codex-home/spec.md",
+      "sequence": 7
+    },
+    {
+      "id": "change-ldd-08-bounded-cortex-mirror",
+      "title": "Bound optional Cortex feeders without weakening durable lesson writes",
+      "repository": "full",
+      "gaps": [
+        "G9",
+        "G10"
+      ],
+      "depends_on": [
+        "change-ldd-01-hook-bytecode"
+      ],
+      "task_count": 2,
+      "spec": ".kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/spec.md",
+      "sequence": 8
+    },
+    {
+      "id": "change-ldd-09-partition-footer",
+      "title": "Make partition footer budgeting exact and idempotent",
+      "repository": "full",
+      "gaps": [
+        "G11"
+      ],
+      "depends_on": [
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 1,
+      "spec": ".kbd-orchestrator/changes/change-ldd-09-partition-footer/spec.md",
+      "sequence": 9
+    },
+    {
+      "id": "change-ldd-10-mini-executable-modes",
+      "title": "Preserve executable intent in mini distribution packages",
+      "repository": "mini",
+      "gaps": [
+        "G12",
+        "G13"
+      ],
+      "depends_on": [
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 1,
+      "spec": ".kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/spec.md",
+      "sequence": 10
+    },
+    {
+      "id": "change-ldd-11-entrypoint-spec-contract",
+      "title": "Require production entry points in KBD acceptance templates",
+      "repository": "full",
+      "gaps": [
+        "G14"
+      ],
+      "depends_on": [
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 1,
+      "spec": ".kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/spec.md",
+      "sequence": 11
+    },
+    {
+      "id": "change-ldd-14-companion-publication-preparation",
+      "title": "Recover document and prepare the Companion repository for publication",
+      "repository": "companion",
+      "gaps": [
+        "G16"
+      ],
+      "depends_on": [
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 3,
+      "spec": ".kbd-orchestrator/changes/change-ldd-14-companion-publication-preparation/spec.md",
+      "sequence": 12
+    },
+    {
+      "id": "change-ldd-18-stability-legacy-closure",
+      "title": "Finish historical delivery obligations and define maintenance readiness",
+      "repository": "full+mini+companion",
+      "gaps": [
+        "G20"
+      ],
+      "depends_on": [
+        "change-ldd-13-source-convergence",
+        "change-ldd-14-companion-publication-preparation"
+      ],
+      "task_count": 3,
+      "spec": ".kbd-orchestrator/changes/change-ldd-18-stability-legacy-closure/spec.md",
+      "sequence": 13
+    },
+    {
+      "id": "change-ldd-03-published-memory-pins",
+      "title": "Freeze and apply owner-approved final release pins across full mini and services",
+      "repository": "full+mini",
+      "gaps": [
+        "G3",
+        "G15",
+        "G16",
+        "G20"
+      ],
+      "depends_on": [
+        "change-ldd-04-cache-identity-accounting",
+        "change-ldd-13-source-convergence",
+        "change-ldd-14-companion-publication-preparation",
+        "change-ldd-18-stability-legacy-closure"
+      ],
+      "task_count": 3,
+      "spec": ".kbd-orchestrator/changes/change-ldd-03-published-memory-pins/spec.md",
+      "sequence": 14
+    },
+    {
+      "id": "change-ldd-15-readme-content-renewal",
+      "title": "Rewrite full and mini READMEs and audit all owned reader-facing content",
+      "repository": "full+mini",
+      "gaps": [
+        "G17"
+      ],
+      "depends_on": [
+        "change-ldd-03-published-memory-pins",
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 2,
+      "spec": ".kbd-orchestrator/changes/change-ldd-15-readme-content-renewal/spec.md",
+      "sequence": 15
+    },
+    {
+      "id": "change-ldd-16-agent-team-handbook",
+      "title": "Publish complete agent-team and model-operation documentation in both sites",
+      "repository": "full+mini",
+      "gaps": [
+        "G18"
+      ],
+      "depends_on": [
+        "change-ldd-02-codex-memory-control",
+        "change-ldd-07-custom-codex-home",
+        "change-ldd-08-bounded-cortex-mirror",
+        "change-ldd-11-entrypoint-spec-contract",
+        "change-ldd-13-source-convergence"
+      ],
+      "task_count": 3,
+      "spec": ".kbd-orchestrator/changes/change-ldd-16-agent-team-handbook/spec.md",
+      "sequence": 16
+    },
+    {
+      "id": "change-ldd-17-service-sites-current",
+      "title": "Refresh service architecture operations and all Docusaurus content",
+      "repository": "full+mini+companion",
+      "gaps": [
+        "G19"
+      ],
+      "depends_on": [
+        "change-ldd-03-published-memory-pins",
+        "change-ldd-14-companion-publication-preparation",
+        "change-ldd-15-readme-content-renewal",
+        "change-ldd-16-agent-team-handbook",
+        "change-ldd-18-stability-legacy-closure"
+      ],
+      "task_count": 2,
+      "spec": ".kbd-orchestrator/changes/change-ldd-17-service-sites-current/spec.md",
+      "sequence": 17
+    },
+    {
+      "id": "change-ldd-12-integration-rollout",
+      "title": "Reconcile generated outputs certify locally and hand off approved rollout",
+      "repository": "full+mini+surreal-memory",
+      "gaps": [
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G13",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18",
+        "G19",
+        "G20"
+      ],
+      "depends_on": [
+        "change-ldd-01-hook-bytecode",
+        "change-ldd-02-codex-memory-control",
+        "change-ldd-03-published-memory-pins",
+        "change-ldd-04-cache-identity-accounting",
+        "change-ldd-05-generated-output-ownership",
+        "change-ldd-06-installed-doctor-remediation",
+        "change-ldd-07-custom-codex-home",
+        "change-ldd-08-bounded-cortex-mirror",
+        "change-ldd-09-partition-footer",
+        "change-ldd-10-mini-executable-modes",
+        "change-ldd-11-entrypoint-spec-contract",
+        "change-ldd-13-source-convergence",
+        "change-ldd-14-companion-publication-preparation",
+        "change-ldd-15-readme-content-renewal",
+        "change-ldd-16-agent-team-handbook",
+        "change-ldd-17-service-sites-current",
+        "change-ldd-18-stability-legacy-closure"
+      ],
+      "task_count": 6,
+      "spec": ".kbd-orchestrator/changes/change-ldd-12-integration-rollout/spec.md",
+      "sequence": 18
+    }
+  ],
+  "scope_revision": "owner-release-closure-20261005",
+  "pin_target": {
+    "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+    "commit": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+    "source": "explicit owner chat reply 2026-10-05",
+    "status": "selected; application pending",
+    "protected_edits_approval": "pending concrete patch"
+  }
+}

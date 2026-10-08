@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-05T15:31:03.603359+00:00",
+  "worker": "source_inventory",
+  "actualModel": "gpt-6.1-sol",
+  "reasoningEffort": "xhigh",
+  "status": "production subset only; task18/2 open",
+  "files": [
+    {
+      "path": "substrate/kbd-runtime/src/lib.rs",
+      "sha256": "7526697b3557c662fd8d417f6aa20942cee52ee4b52b9ddd5dbc2fcb9cb93d50"
+    },
+    {
+      "path": "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+      "sha256": "651bf75640447a33df55fb7dbeb693b21cec6136097310d9a99777e5a974ca3c"
+    },
+    {
+      "path": "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+      "sha256": "124d5d0445b38e2a991d9f99a463be157172d9dc9494233a5b844bf1d79e7aa4"
+    }
+  ],
+  "acceptance": "final12 pending; no migration, compiler, generation or gate ran",
+  "readOnlyCorrection": "ordinary open_canonical_snapshot may initialize registry/lock; new projection migration constructor reads existing registry+manifest only and decodes signed Loro in memory",
+  "preservation": "existing initialized replica/Loro locks required for apply; journal/frontier retained; unknown phases archived with null canonical identity; interrupted provenance retained",
+  "platformLimit": "Unix/macOS/Linux anchored paths; other platforms explicit unsupported"
+}

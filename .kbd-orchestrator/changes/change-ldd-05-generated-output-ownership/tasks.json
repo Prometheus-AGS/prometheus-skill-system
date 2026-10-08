@@ -1,0 +1,21 @@
+{
+  "changeId": "change-ldd-05-generated-output-ownership",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement independent materialized-output ownership and consumer checks",
+      "done": true,
+      "doneAt": "2026-10-05T13:38:01Z",
+      "doneBy": "codex",
+      "files": [
+        "scripts/generate-skill-system-distribution.js",
+        "scripts/generated-paths.mjs",
+        "scripts/rebase-regenerate.sh",
+        "docs/generated-output-ownership.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

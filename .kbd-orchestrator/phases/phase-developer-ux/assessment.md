@@ -66,7 +66,7 @@ generate_ideation_mindmap(topic: string, depth?: number, branches?: number)
 ```
 
 **Gap summary (G2-H1):**
-A new `ideation-mindmap` skill must be created at `skills/process/ideation-mindmap/`. The skill wraps `generate_ideation_mindmap` with structured output formatting, prompt engineering for business concept expansion, and clear invocation by `/start-business-build` Stage 1. It is the "stage-zero onramp" — the first step in any business build that takes a free-form concept and produces 6 structured branches for the zeespec interrogator to constrain.
+A new `ideation-mindmap` skill must be created at `skills/process/ideation-mindmap/`. The skill wraps `generate_ideation_mindmap` with structured output formatting, prompt engineering for business concept expansion, and clear invocation by `/start-business-build` Stage 1. It is the "stage-zero onramp" — the first step in any business build that takes a free-form concept and produces 6 structured branches for the spec-gate to constrain.
 
 ---
 
@@ -170,7 +170,7 @@ $ARGUMENTS
 ```yaml
 ---
 name: ideation-mindmap
-description: Stage-zero onramp for /start-business-build. Takes a one-line business concept and generates a 6-branch concept mindmap via surreal-memory, structuring raw ideas into actionable branches ready for zeespec constraint capture.
+description: Stage-zero onramp for /start-business-build. Takes a one-line business concept and generates a 6-branch concept mindmap via surreal-memory, structuring raw ideas into actionable branches ready for spec-gate constraint capture.
 license: MIT
 version: '1.0.0'
 authors:
@@ -193,7 +193,7 @@ triggers:
 **Body content:**
 - Invoke `generate_ideation_mindmap(topic, branches=6)` via surreal-memory MCP
 - Format output as numbered branch list with sub-bullets for each cluster
-- Output is structured for handoff to `/zeespec-interrogate` (next stage in pipeline)
+- Output is structured for handoff to `/spec-gate` (next stage in pipeline)
 - Prompt the user to pick branches to pursue or accept all 6
 
 **Stage 1 integration:** Update `start-business-build/SKILL.md` to explicitly invoke `/ideation-mindmap` in Stage 1 instructions (currently Stage 1 is implicit).

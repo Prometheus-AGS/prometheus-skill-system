@@ -48,7 +48,7 @@ A `prometheus doctor` CLI command (in `pk-cli` or a new `prometheus-cli` crate) 
 
 **Pipeline layer:**
 
-- [ ] ZeeSpec → PMPO → OpenSpec layers all have at least one artifact in the last 30 days.
+- [ ] PMPO → OpenSpec layers all have at least one artifact in the last 30 days.
 - [ ] No reflections rejected for >48h consecutively (per SP-013).
 - [ ] Pipeline smoke test (`scripts/test-pipeline-e2e.sh`) passes.
 

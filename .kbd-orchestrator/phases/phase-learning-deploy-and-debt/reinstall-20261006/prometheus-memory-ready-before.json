@@ -1,0 +1,1 @@
+{"capabilities":{"coordinator":true,"ledger":true,"model_executor":true,"search_index":true,"storage":true,"tokenizer":true},"ingestion_ready":true,"search_ready":true,"status":"ready"}

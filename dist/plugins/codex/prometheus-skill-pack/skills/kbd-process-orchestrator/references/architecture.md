@@ -101,7 +101,6 @@ ANALYZE (optional; skippable with recorded reason)
 SPEC
  └─ /kbd-spec (turns assessment + analysis into change specs)
     └─ native-kbd specs (spec.md + tasks.json + verification.md) OR /opsx:new
-    └─ ZeeSpec coverage gate: NO-GO blocks spec→plan until /zeespec-interrogate
 
 PLAN
  └─ /kbd-plan (orders the change list)

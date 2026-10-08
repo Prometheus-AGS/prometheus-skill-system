@@ -1,17 +1,29 @@
 #!/usr/bin/env bash
 # skills/kbd-apply/kbd-apply.sh
 #
-# KBD-owned spec-apply driver. Wraps a spec backend (OpenSpec today; Spec Kit
-# via change-007) and drives it ONE task at a time so KBD stays the source of
-# truth: every task boundary fires the KBD hooks, emits a plain-text position
-# signal, and syncs progress.json + the waypoint.
+# KBD-owned spec-apply driver. Wraps a spec backend and drives it ONE task at
+# a time so KBD stays the source of truth: every task boundary fires the KBD
+# hooks, emits a plain-text position signal, and syncs progress.json + the
+# waypoint.
+#
+# Supported engines (see docs/guide/spec-engines.md and config/spec-engines.json):
+#   openspec  — DEFAULT. @fission-ai/openspec CLI (pinned in package.json),
+#               artifacts under openspec/. Adapter: os_* below.
+#   speckit   — GitHub Spec Kit v1.x (`specify` CLI, installed via
+#               `uv tool install specify-cli`), artifacts under .specify/ and
+#               specs/<slug>/{spec.md,plan.md,tasks.md}. Adapter: sk_* below.
+#   native-kbd— the KBD-owned change store under .kbd-orchestrator/changes/.
+#               Adapter: nk_* below.
+# The adapter contract is documented and extensible: implement the five ops
+# (list/progress/mark_done/verify/archive) as <prefix>_* functions and add the
+# detection shape + pin value to backend_detect.
 #
 # HARD INVARIANT: this driver never invokes a backend's "implement everything"
 # command (bare `/opsx:apply`, `/speckit.implement`). It calls the backend per
 # task. That is the entire point of this phase (F1).
 #
 # Subcommands:
-#   detect [<dir>]                 → prints backend id ("openspec"|"speckit"|"")
+#   detect [<dir>]                 → prints backend id ("openspec"|"speckit"|"native-kbd"|"")
 #   list <change>                  → prints tasks as TSV: <id>\t<done 0|1>\t<title>
 #   progress <change>              → prints "total complete remaining"
 #   begin-task <change> <id> <i> <n> <title>
@@ -101,7 +113,12 @@ backend_detect() {
     if [ -f "openspec/changes/$change/proposal.md" ] || [ -f "openspec/changes/$change/tasks.md" ]; then
       printf 'openspec'; return 0
     fi
-    if [ -f "specs/$change/tasks.md" ]; then
+    # Spec Kit v1 feature dirs carry spec.md and plan.md alongside tasks.md;
+    # a change may be driven before tasks.md is generated, so accept any of
+    # the three artifacts as the change-scoped speckit shape.
+    if [ -f "specs/$change/tasks.md" ] \
+       || [ -f "specs/$change/spec.md" ] \
+       || [ -f "specs/$change/plan.md" ]; then
       printf 'speckit'; return 0
     fi
     # Change id didn't match a known shape under any backend — fall through
@@ -341,7 +358,8 @@ os_archive() { _os_run archive "$1" --yes >/dev/null; }
 
 # ---- Spec Kit (GitHub) adapter --------------------------------------------
 # A "change" for Spec Kit is a feature dir name under specs/. tasks.md uses a
-# Markdown checklist: "- [ ] T001 description". Spec Kit has no archive step.
+# Markdown checklist: "- [ ] T001 description". Artifacts live under .specify/
+# (templates, scripts) and specs/<slug>/{spec.md,plan.md,tasks.md}.
 
 _sk_tasks_file() {
   local change="$1"
@@ -392,6 +410,35 @@ sk_mark_done() {
   fi
 }
 
+sk_verify() {
+  # Structural gate. Spec Kit's own check (`/speckit.analyze`) is
+  # model-driven — it dispatches an LLM, not a CLI — so it cannot run inside
+  # this driver's non-interactive loop. Instead we enforce the structural
+  # equivalent: every checkbox in specs/<change>/tasks.md is checked AND
+  # specs/<change>/spec.md exists.
+  local change="$1" tf unchecked
+  tf="$(_sk_tasks_file "$change")"
+  [ -n "$tf" ] && [ -f "$tf" ] || { warn "no tasks.md for change $change under specs/"; return 1; }
+  [ -f "specs/$change/spec.md" ] || { warn "specs/$change/spec.md missing"; return 1; }
+  unchecked="$(grep -cE '^[[:space:]]*[-*][[:space:]]*\[[[:space:]]\]' "$tf")"
+  [ "${unchecked:-1}" -eq 0 ] || { warn "$unchecked unchecked task(s) in $tf"; return 1; }
+  return 0
+}
+
+sk_archive() {
+  # Best-effort archive mirroring native-kbd's: move specs/<change> to
+  # specs/archive/<date>-<change>. Spec Kit has no native archive command, so
+  # this is the documented pack-side convention, not upstream behavior.
+  local change="$1" src date dest
+  src="specs/$change"
+  [ -d "$src" ] || return 1
+  date="$(date -u +%Y-%m-%d 2>/dev/null || echo undated)"
+  dest="specs/archive/$date-$change"
+  mkdir -p specs/archive || return 1
+  [ -e "$dest" ] && { warn "archive destination exists: $dest"; return 1; }
+  mv "$src" "$dest"
+}
+
 # ---- backend dispatch ------------------------------------------------------
 
 # BACKEND is the repo-wide guess, used only for the bare `detect` diagnostic
@@ -404,8 +451,12 @@ BACKEND="$(backend_detect)"
 b_list()      { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_list "$@";; speckit) sk_list "$@";; native-kbd) nk_list "$@";; *) die "no spec backend detected (cwd=$(pwd))";; esac; }
 b_progress()  { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_progress "$@";; speckit) sk_progress "$@";; native-kbd) nk_progress "$@";; *) die "no spec backend detected";; esac; }
 b_mark_done() { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_mark_done "$@";; speckit) sk_mark_done "$@";; native-kbd) nk_mark_done "$@";; *) die "no spec backend detected";; esac; }
-b_verify()    { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_verify "$@";; native-kbd) nk_verify "$@";; *) return 0;; esac; }   # speckit: /speckit.analyze is model-driven, no CLI gate
-b_archive()   { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_archive "$@";; native-kbd) nk_archive "$@";; *) return 0;; esac; }  # speckit: no archive step
+# speckit's /speckit.analyze is model-driven (no CLI gate), so sk_verify is a
+# structural gate instead; unknown backends stay a safe no-op pass.
+b_verify()    { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_verify "$@";; speckit) sk_verify "$@";; native-kbd) nk_verify "$@";; *) return 0;; esac; }
+# speckit has no native archive; sk_archive is the documented pack-side move
+# to specs/archive/. Unknown backends stay a safe no-op pass.
+b_archive()   { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_archive "$@";; speckit) sk_archive "$@";; native-kbd) nk_archive "$@";; *) return 0;; esac; }
 
 b_remaining_titles() {
   local change="$1"

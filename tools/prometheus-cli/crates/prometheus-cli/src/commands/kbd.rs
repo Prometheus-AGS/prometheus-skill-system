@@ -964,26 +964,6 @@ fn guard_context(state: &RuntimeState, boundary: BoundaryKind, subject: &str) ->
                 valid,
             }
         }
-        BoundaryKind::Zeespec => {
-            let phases = ["interrogate", "score", "manifest"];
-            let ordinal = phases
-                .iter()
-                .position(|phase| *phase == subject)
-                .unwrap_or(0)
-                + 1;
-            let mut position = phase_path;
-            position.push(format!("zeespec:{subject}"));
-            GuardContext {
-                phase_id: active_phase_id,
-                change_id: None,
-                task_id: None,
-                ordinal,
-                total: phases.len(),
-                name: subject.to_owned(),
-                position: position.join(" › "),
-                valid: phases.contains(&subject),
-            }
-        }
     }
 }
 
@@ -1138,7 +1118,6 @@ async fn guard_evaluate(
         BoundaryKind::Task => "task",
         BoundaryKind::Change => "change",
         BoundaryKind::Phase => "phase",
-        BoundaryKind::Zeespec => "zeespec stage",
     };
     let verb = if edge == BoundaryEdge::Before {
         "Starting"

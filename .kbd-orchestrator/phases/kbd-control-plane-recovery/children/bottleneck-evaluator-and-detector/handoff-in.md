@@ -17,7 +17,7 @@ four-change plan was projected as zero changes and pointed back to assessment.
 
 - Signed boundary and gate receipts replay through the canonical KBD runtime.
 - A deterministic guard repairs projections only and never blocks operator Stop.
-- KBD/OpenSpec/ZeeSpec lifecycle boundaries surface revision-bound progress.
+- KBD/OpenSpec/spec-gate lifecycle boundaries surface revision-bound progress.
 - Rust gates enforce implementation-first timing and machine-wide build exclusion.
 - Terminal adversarial review is screened for sycophancy and locally certified.
 

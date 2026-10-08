@@ -1,0 +1,1449 @@
+{
+  "captured_at": "2026-10-05T12:20:08.879275+00:00",
+  "repositories": [
+    {
+      "name": "full",
+      "path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+      "head": "f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837",
+      "branch": "main",
+      "origin": "git@github.com:Prometheus-AGS/prometheus-skill-system.git",
+      "origin_main_before_fetch": "f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837",
+      "recent_version_sorted_tags": [
+        "wip/preserve-kbd-drift-cleanup",
+        "wip/preserve-final-main-convergence",
+        "wip/pem-302-repin",
+        "v1.10.0",
+        "v1.8.0",
+        "v1.7.0",
+        "v1.6.0",
+        "v1.2.0"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+          "HEAD": "f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837",
+          "branch": "refs/heads/main",
+          "status_lines": [
+            "M .kbd-orchestrator/current-waypoint.json",
+            " M .kbd-orchestrator/phases/agent-team-creator/progress.json",
+            " M .kbd-orchestrator/phases/agent-team-creator/tasks.md",
+            " M .kbd-orchestrator/phases/control-plane-to-companion/progress.json",
+            " M .kbd-orchestrator/phases/control-plane-to-companion/tasks.md",
+            " M .kbd-orchestrator/phases/deep-research-onyx-parity/children/bench-runner-automation/progress.json",
+            " M .kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/progress.json",
+            " M .kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/tasks.md",
+            " M .kbd-orchestrator/phases/deep-research-onyx-parity/progress.json",
+            " M .kbd-orchestrator/phases/deep-research-onyx-parity/tasks.md",
+            " M .kbd-orchestrator/phases/kbd-control-plane-recovery/children/bottleneck-evaluator-and-detector/progress.json",
+            " M .kbd-orchestrator/phases/kbd-control-plane-recovery/children/skill-pack-1-10-recovery/progress.json",
+            " M .kbd-orchestrator/phases/kbd-control-plane-recovery/children/skill-pack-1-10-recovery/tasks.md",
+            " M .kbd-orchestrator/phases/kbd-control-plane-recovery/progress.json",
+            " M .kbd-orchestrator/phases/kbd-control-plane-recovery/tasks.md",
+            " M .kbd-orchestrator/phases/openspec-mirror-drift-cleanup/children/sovereign-sync-service-reliability/progress.json",
+            " M .kbd-orchestrator/phases/openspec-mirror-drift-cleanup/children/sovereign-sync-service-reliability/tasks.md",
+            " M .kbd-orchestrator/phases/research-agent-hardening/progress.json",
+            " M .kbd-orchestrator/phases/research-agent-hardening/tasks.md",
+            " M .kbd-orchestrator/position-reminder.txt",
+            " M .kbd-orchestrator/position.json",
+            " M .prometheus/knowledge/wiki/index.md",
+            " M .prometheus/knowledge/wiki/log.md",
+            " M .prometheus/session-log.md",
+            " M tools/surreal-memory-server",
+            "?? .kbd-orchestrator/changes/archive/2026-10-04-change-tlm-001-subagent-identity-probe/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-04-change-tlm-002-team-aware-learning-design/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-04-change-tlm-003-revised-implementation-plan/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-04-change-tlm-004-hook-timeout-seconds/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-01-ranked-memory-partition/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-02-codex-memories-install-and-doctor/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-03-versioned-cadence-refresh-procedure/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-04-scratch-surreal-for-envelope-test/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-05-query-embedding-cache/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-06-ledger-reconciliation/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-07-cortex-mirror-real-service/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-08-recall-scoping-and-eval/",
+            "?? .kbd-orchestrator/changes/archive/2026-10-05-change-tlh-09-rebase-regenerate/",
+            "?? .kbd-orchestrator/changes/change-ldd-01-hook-bytecode/",
+            "?? .kbd-orchestrator/changes/change-ldd-02-codex-memory-control/",
+            "?? .kbd-orchestrator/changes/change-ldd-03-published-memory-pins/",
+            "?? .kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/",
+            "?? .kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/",
+            "?? .kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/",
+            "?? .kbd-orchestrator/changes/change-ldd-07-custom-codex-home/",
+            "?? .kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/",
+            "?? .kbd-orchestrator/changes/change-ldd-09-partition-footer/",
+            "?? .kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/",
+            "?? .kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/",
+            "?? .kbd-orchestrator/changes/change-ldd-12-integration-rollout/",
+            "?? .kbd-orchestrator/changes/change-tli-a1-pk-context-scoring/",
+            "?? .kbd-orchestrator/changes/change-tli-a2-pk-worker-attribution/",
+            "?? .kbd-orchestrator/changes/change-tli-a3-pk-tags-and-type/",
+            "?? .kbd-orchestrator/changes/change-tli-a4-surreal-lean-search-categories-rekey/",
+            "?? .kbd-orchestrator/changes/change-tli-a5a-skillpack-pin-v1-10-0/",
+            "?? .kbd-orchestrator/changes/change-tli-a5b-mini-pin-operator-request/",
+            "?? .kbd-orchestrator/changes/change-tli-b1-identity-resolver/",
+            "?? .kbd-orchestrator/changes/change-tli-b2-namespaced-subagent-matchers/",
+            "?? .kbd-orchestrator/changes/change-tli-b3-envelope-write-library/",
+            "?? .kbd-orchestrator/changes/change-tli-b3b-agent-team-memory-envelope/",
+            "?? .kbd-orchestrator/changes/change-tli-b4-per-agent-recall-and-kbd-loop/",
+            "?? .kbd-orchestrator/changes/change-tli-b5-subagentstart-delivery-alpha/",
+            "?? .kbd-orchestrator/changes/change-tli-b6-file-tier-reduction/",
+            "?? .kbd-orchestrator/changes/change-tli-b7-cross-agent-awareness-beta/",
+            "?? .kbd-orchestrator/changes/change-tli-c1a-pk-promotion-candidates/",
+            "?? .kbd-orchestrator/changes/change-tli-c1b-promotion-routing/",
+            "?? .kbd-orchestrator/changes/change-tli-c2-feynman-gap-routing/",
+            "?? .kbd-orchestrator/changes/change-tli-c3a-pk-skill-discovery/",
+            "?? .kbd-orchestrator/changes/change-tli-c3b-skill-candidate-surfacing/",
+            "?? .kbd-orchestrator/changes/change-tli-c4-cross-repo-team-requests/",
+            "?? .kbd-orchestrator/changes/change-tli-d1a-mini-file-tier-port/",
+            "?? .kbd-orchestrator/changes/change-tli-d1b-mini-pk-tags/",
+            "?? .kbd-orchestrator/changes/change-tli-d2-mini-hook-timeouts-seconds/",
+            "?? .kbd-orchestrator/changes/change-tli-d3-claude-md-memory-chain-cortex/",
+            "?? .kbd-orchestrator/changes/change-tli-e1-pin-v1-11-0/",
+            "?? .kbd-orchestrator/phases/phase-learning-deploy-and-debt/",
+            "?? .kbd-orchestrator/phases/phase-team-learning-hardening/",
+            "?? .kbd-orchestrator/phases/team-aware-learning-memory-impl/",
+            "?? .kbd-orchestrator/phases/team-aware-learning-memory/",
+            "?? .prometheus/knowledge/wiki/.index.lock",
+            "?? .prometheus/knowledge/wiki/delivery-cadence-source-freezing-requires-deploy-worktrees.md",
+            "?? .prometheus/knowledge/wiki/deploy-worktrees-need-submodule-update-after-fast-forward.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-00ad59a77d1b2d93.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-00ecdb3249e9a248.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-045e4c9e458f2e00.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-063e516f980fd8d6.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-06d71d62a74fe114.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-0a92399690edc97e.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-0cbdd3c325ffc306.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-0d453c292b264c6f.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-0d48a12a0fc857cd.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-12e18a9582839a48.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-1714061cda76d9bf.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-17b927e6f85a9654.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-18d0689668665ffb.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-1987397cf11527d0.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-1d23ec5ac4158325.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-213e3a4d614d1782.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-226ac41b9bc428b3.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-24b8297902a59060.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-27d9198aaeb08f98.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-288e398d4f061e2e.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-2906883c3cca879f.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-2a5f58f75223ddce.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-2bb497ca5df6ef59.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-2d3e872f22149600.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-315aec49b44bac98.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-324da25e6f8c7702.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-325d76408563938c.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-343d9fd2d4d4ec8a.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-37f9fbebe179e16d.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-399d078d496488d9.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-3ad3e3da4d4dc322.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-3b775cbd05946593.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-3bc7949601bed083.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-3c737395e861b5a1.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-3cdceb2fe12fc822.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-40862edf7ffb3242.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-470e8b3b1ff831bb.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-4b9b0f26a029f06f.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-4e1056c6ebc5223a.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-4fc8d93f5d55167f.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-50cbf54508a59082.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-54d2518a6e589949.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-5678eaf5eaafe30e.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-56aa3ea79983b017.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-56bd7f9cab2b4cf6.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-5738c9a2754e98fe.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-59475a825ffff1e0.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-59724817e1febf16.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-5a1b3cf80c03cc35.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-5e0b2d8823d44f3e.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-6001f74c17dba3d5.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-60faf55b43849c13.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-6119fd1701afb14f.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-61c3a2f48787fed5.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-62e0b7ac5eebc7ea.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-642ac0b0e290219c.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-65d29eeaf6819297.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-697fb08c471e1885.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-6d019e5224e92c6b.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-6f0e45051e54f594.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-6f422de0e85fdbec.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-70f02ec759656815.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-713354e32cda29d9.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-756b175b69720cdf.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-7629f9706cdb9fd5.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-79a0655f1f7f7ae0.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-7a415bac465b71d8.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-7afc4c44e1a75282.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-7c89d3af7d298b6b.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-7de785b0556222d8.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-7fb2ec1cf8e08cdb.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-8167fd7a02c353d1.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-8194f310fee06eff.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-82952856ae537015.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-8512fdeec68fd876.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-85bb63c70e5e4579.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-8710c6d682604803.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-89d661e236dbb0f4.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-8a8cb7c5e1025bf6.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-8b4eff2fdd6a4b86.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-90fd121dbcd78354.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-9289cf65a9079515.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-9354050c8e14360b.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-98f6d8a9b2558624.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-9bfab64613078514.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-a33f238bf6b32e46.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-a55b95200cdfffaf.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-ae031f6078b724c7.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-b1146ee9d1e32e98.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-b29b85afd31c4e70.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-b4d45cc07800e63d.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-b56c000bebddc25f.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-b5a9322df347ace6.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-b8df60187e2eebae.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-b9ebb43a3c904f11.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-ba3bd6dad0368162.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-bafc5c649e015f2a.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-bd1f90d9c0050612.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-bf223e9f736f0405.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-c19cc94fa03dba49.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-c2eebd81b11d04d1.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-c3408149272e61e1.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-c49dec8976e5d87e.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-c58b34d05d3a2ee8.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-c63dee2f01a58e8c.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-c78768da137cff3a.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-cd54db344380c7c2.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-cf4ac8935cf4142a.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-cf96a87aa49dc261.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-d028b7d66807a245.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-d10e9a05ff4722a3.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-d11afbaafde89329.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-d52a70c4303817a1.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-d587614cc2df94c5.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-d768f165a180244f.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-d8e1be714b6365d2.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-d9ea407d5ab14d49.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-dcec52d0829efb77.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-de062f8ce478d61d.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-e419e1bccfa4d19e.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-e52bcf1b89094e3c.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-e5c140a582fa6336.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-edad0b20218adf87.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-f756c024b7d8973e.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-f98abd566275bc94.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-f99d270fab69cc64.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-fd0d06a782c78969.md",
+            "?? .prometheus/knowledge/wiki/kbd-task-closure-requires-ledger-synchronization.md",
+            "?? .prometheus/knowledge/wiki/prometheus-skill-pack-1-11-2-hook-activation-closure.md",
+            "?? .prometheus/knowledge/wiki/team-aware-learning-memory-implementation-reflect-lessons.md",
+            "?? .prometheus/knowledge/wiki/team-learning-hardening-phase-lessons-and-corrective-actions.md",
+            "?? .prometheus/knowledge/wiki/team-learning-hardening-phase-reflection.md",
+            "?? .prometheus/knowledge/wiki/treat-one-build-guard-blocked-phase-gates-as-rerunnable.md",
+            "?? .prometheus/knowledge/wiki/use-rebase-regenerate-sh-for-generated-only-rebase-conflicts.md",
+            "?? skills/process/karpathy-progress-memory/scripts/__pycache__/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "0\t0",
+          "divergence_after_fetch": "0\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/elastic-moore-46d8e7",
+          "HEAD": "c308f9762635076b3e98ce0e68224cddfa8f6e84",
+          "branch": "refs/heads/fix/prometheus-exec-path-independent-build",
+          "status_lines": [
+            "M .prometheus/knowledge/wiki/index.md",
+            " M .prometheus/knowledge/wiki/log.md",
+            "?? .prometheus/knowledge/wiki/.index.lock",
+            "?? .prometheus/knowledge/wiki/karpathy-session-4ea3fe117f1c58c4.md"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "73\t0",
+          "divergence_after_fetch": "73\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/goofy-ritchie-6e4a6c",
+          "HEAD": "dc56eb81b24e692552eb3a6e4e91ddef05f1cf70",
+          "branch": "refs/heads/claude/goofy-ritchie-6e4a6c",
+          "status_lines": [
+            "M .prometheus/knowledge/wiki/index.md",
+            " M .prometheus/knowledge/wiki/log.md",
+            "?? .prometheus/knowledge/wiki/.index.lock",
+            "?? .prometheus/knowledge/wiki/karpathy-session-90cf1f2052f8bbfc.md"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "74\t0",
+          "divergence_after_fetch": "74\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/optimistic-morse-06f4c1",
+          "HEAD": "dc56eb81b24e692552eb3a6e4e91ddef05f1cf70",
+          "branch": "refs/heads/claude/optimistic-morse-06f4c1",
+          "status_lines": [
+            "M .prometheus/knowledge/wiki/index.md",
+            " M .prometheus/knowledge/wiki/log.md",
+            "?? .prometheus/knowledge/wiki/.index.lock",
+            "?? .prometheus/knowledge/wiki/karpathy-session-8f8ef5f0cbeeb3bd.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-a7d02f34b267885f.md"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "74\t0",
+          "divergence_after_fetch": "74\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/deploy-main",
+          "HEAD": "f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837",
+          "branch": "refs/heads/deploy/main",
+          "protected": true,
+          "inspection": "listed only; no checkout access"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/hook-activation-closure",
+          "HEAD": "72e0d184150e7f38f35bfaa2168bbaffa313298b",
+          "branch": "refs/heads/fix/hook-activation-closure",
+          "status_lines": [
+            "?? node_modules"
+          ],
+          "unique_vs_local_origin_main": [
+            "72e0d18 fix(doctor): order cache versions by direction and enforce hook timeouts in the activation test",
+            "eeccf08 fix(plugins): activate both shipped payloads and report unreadable version registries",
+            "fc16de2 fix(plugins): keep git probe and stat failures advisory and never lose an established topic branch",
+            "4e9053d fix(doctor): ship the plugin source checker and stop resolving it from the cwd",
+            "5ab5007 fix(plugins): scope TOML dotted keys to the root, surface failed git probes, compare canonical paths across clients",
+            "5730801 fix(plugins): report unsupported Codex spellings; keep live-session findings when a version is missing",
+            "9514fa5 fix(plugins): validate registrations at the boundary so no input hides another client's source",
+            "04b084c fix(plugins): decode every TOML basic-string escape and report unreadable Claude registries",
+            "f4b252a fix(plugins): an unreadable registration cannot crash the guard; report only comparisons that happened",
+            "3c2fbdd fix(plugins): read every Codex registration spelling, stay read-only, and never pass a malformed report",
+            "cfa2f8c fix(plugins): propagate the guard exit status, canonicalise symlinked sources, isolate cache failures",
+            "07f0d39 feat(doctor): report plugin source topology and native cache skew",
+            "5a90215 feat(plugins): detect an unsafe plugin source and guard installer refreshes",
+            "679dcc5 feat(hooks): verify payload activation end to end and report why activation fails"
+          ],
+          "divergence_vs_local_origin_main": "0\t14",
+          "divergence_after_fetch": "0\t14"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+          "HEAD": "f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837",
+          "branch": "refs/heads/codex/learning-deploy-and-debt",
+          "status_lines": [
+            "?? .kbd-orchestrator/changes/change-ldd-01-hook-bytecode/",
+            "?? .kbd-orchestrator/changes/change-ldd-02-codex-memory-control/",
+            "?? .kbd-orchestrator/changes/change-ldd-03-published-memory-pins/",
+            "?? .kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/",
+            "?? .kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/",
+            "?? .kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/",
+            "?? .kbd-orchestrator/changes/change-ldd-07-custom-codex-home/",
+            "?? .kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/",
+            "?? .kbd-orchestrator/changes/change-ldd-09-partition-footer/",
+            "?? .kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/",
+            "?? .kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/",
+            "?? .kbd-orchestrator/changes/change-ldd-12-integration-rollout/",
+            "?? .kbd-orchestrator/phases/phase-learning-deploy-and-debt/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "0\t0",
+          "divergence_after_fetch": "0\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-task-acceptance-full",
+          "HEAD": "34beecdfbda23748cdb4d423e2401aa270ebce3f",
+          "branch": "refs/heads/codex/uar-task-acceptance-schema",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [
+            "34beecd fix(teams): mirror direct task acceptance schema"
+          ],
+          "divergence_vs_local_origin_main": "0\t1",
+          "divergence_after_fetch": "0\t1"
+        }
+      ],
+      "release_tags": [
+        "v1.10.0",
+        "v1.8.0",
+        "v1.7.0",
+        "v1.6.0",
+        "v1.2.0"
+      ]
+    },
+    {
+      "name": "mini",
+      "path": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini",
+      "head": "6044ecdeb5c8c957646fef422d886a4568212888",
+      "branch": "main",
+      "origin": "git@github.com:Prometheus-AGS/prometheus-skills-mini.git",
+      "origin_main_before_fetch": "6044ecdeb5c8c957646fef422d886a4568212888",
+      "recent_version_sorted_tags": [
+        "archive/20261005/codex/liter-llm-2.1-pin-mini",
+        "archive/20261005/codex/hma-adjacent-plugin",
+        "archive/20261005/codex/delivery-cadence-recovery",
+        "archive/20261005/codex/agent-fabric-convergence",
+        "archive/20261005/codex/afc-c03-team-authoring"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini",
+          "HEAD": "6044ecdeb5c8c957646fef422d886a4568212888",
+          "branch": "refs/heads/main",
+          "status_lines": [
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/evidence/a1/cargo-check-final.log",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/evidence/a1/cargo-check.log",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/evidence/a1/cargo-clippy-final.log",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/evidence/a1/cargo-clippy.log",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/evidence/a1/installed-baseline.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/evidence/a1/mcp-integration-final.log",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/evidence/a1/mcp-library-recheck.log",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/evidence/a1/tests-before-priming-fix.log",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/handoffs/a1-in-progress.diff",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/handoffs/codex-prompt.txt",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/a1/",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r10.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r11.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r2.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r3.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r4.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r5.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r6.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r7.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r8.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci-r9.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/findings-ci.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r10.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r11.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r2.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r3.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r4.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r5.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r6.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r7.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r8.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci-r9.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-ci.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-r1.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-r2.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet-r3.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-compass-integration/review/compass-mcp-protocol-negotiation/packet.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-universal-agent-runtime/review/impl/sidecar-launch-security.packet.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-universal-agent-runtime/review/impl/sidecar-launch-security.r2.packet.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/the-boss-universal-agent-runtime/review/impl/sidecar-launch-security.r3.packet.json",
+            "?? .kbd-orchestrator/phases/the-boss-shipping-and-settings/children/uar-working-agent/children/integration-administration/children/non-uar-customer-release/",
+            "?? .playwright-mcp/",
+            "?? .prometheus/cadence-profile.json.before-v2.json",
+            "?? YOUR_MEMORY_FILE_PATH",
+            "?? history.txt",
+            "?? openspec/changes/delivery-cadence/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "0\t0",
+          "divergence_after_fetch": "0\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-task-acceptance-mini",
+          "HEAD": "62dc8243f34008e3e73dab48c910e418af7aef12",
+          "branch": "refs/heads/codex/uar-task-acceptance-schema",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [
+            "62dc824 fix(teams): mirror direct task acceptance schema"
+          ],
+          "divergence_vs_local_origin_main": "0\t1",
+          "divergence_after_fetch": "0\t1"
+        }
+      ],
+      "release_tags": []
+    },
+    {
+      "name": "surreal-memory",
+      "path": "/Users/gqadonis/Projects/prometheus/surreal-memory-server",
+      "head": "704528b03a06566dc7c84357a1deade816dcd232",
+      "branch": "main",
+      "origin": "git@github.com:Prometheus-AGS/surreal-memory-server.git",
+      "origin_main_before_fetch": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "recent_version_sorted_tags": [
+        "v1.10.1",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/surreal-memory-server",
+          "HEAD": "704528b03a06566dc7c84357a1deade816dcd232",
+          "branch": "refs/heads/main",
+          "status_lines": [
+            "M .prometheus/knowledge/wiki/index.md",
+            " M .prometheus/knowledge/wiki/log.md",
+            " M src/lib.rs",
+            " M src/main.rs",
+            "?? .prometheus/knowledge/wiki/karpathy-session-2b6c3fa0ae86b99e.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-418d122dcd669368.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-4d769a0e5fe35134.md",
+            "?? src/hook.rs"
+          ],
+          "unique_vs_local_origin_main": [
+            "704528b feat: add surreal-memory agent skill (RECALL\u2192WORK\u2192REMEMBER loop)"
+          ],
+          "divergence_vs_local_origin_main": "9\t1",
+          "divergence_after_fetch": "9\t1"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/agent-fabric-convergence/surreal-memory-server",
+          "HEAD": "a335fdfe6b7f6f8789055756b7b068f6b3a015ee",
+          "branch": "refs/heads/codex/agent-fabric-convergence",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [
+            "a335fdf docs: record agent fabric convergence role"
+          ],
+          "divergence_vs_local_origin_main": "60\t1",
+          "divergence_after_fetch": "60\t1"
+        }
+      ],
+      "release_tags": [
+        "v1.10.1",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ]
+    },
+    {
+      "name": "knowledge",
+      "path": "/Users/gqadonis/Projects/prometheus/prometheus-knowledge",
+      "head": "1bbaecc61391257e4bb69d67d5c3716aa8dece4d",
+      "branch": "main",
+      "origin": "git@github.com:Prometheus-AGS/prometheus-knowledge-rs.git",
+      "origin_main_before_fetch": "1bbaecc61391257e4bb69d67d5c3716aa8dece4d",
+      "recent_version_sorted_tags": [
+        "v1.9.0",
+        "v1.8.0"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-knowledge",
+          "HEAD": "1bbaecc61391257e4bb69d67d5c3716aa8dece4d",
+          "branch": "refs/heads/main",
+          "status_lines": [
+            "M .prometheus/knowledge/wiki/index.md",
+            " M .prometheus/knowledge/wiki/log.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-9af3222c6496d9c2.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-fb98571ce5b9e695.md"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "0\t0",
+          "divergence_after_fetch": "18\t0"
+        }
+      ],
+      "release_tags": [
+        "v1.11.0",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ]
+    },
+    {
+      "name": "companion",
+      "path": "/Users/gqadonis/Projects/prometheus/prometheus-companion",
+      "head": "773aa5e33b2217135bc423e526c497cceb0e7058",
+      "branch": "main",
+      "origin": "",
+      "origin_main_before_fetch": "origin/main",
+      "recent_version_sorted_tags": [],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-companion",
+          "HEAD": "773aa5e33b2217135bc423e526c497cceb0e7058",
+          "branch": "refs/heads/main",
+          "status_lines": [
+            "M .claude/settings.json",
+            " M .gitignore",
+            " M .kbd-orchestrator/current-waypoint.json",
+            " M .kbd-orchestrator/project.json",
+            " M .prometheus/events.jsonl",
+            " M .prometheus/knowledge/.prompt-snapshots/project/current",
+            " M .prometheus/knowledge/wiki/index.md",
+            " M .prometheus/knowledge/wiki/log.md",
+            " M docs/00-architecture-and-implementation-plan.md",
+            " M src-tauri/Cargo.toml",
+            " M src-tauri/src/lib.rs",
+            " M versions.toml",
+            "?? .kbd-orchestrator/model-preflight.json",
+            "?? .kbd-orchestrator/phases/",
+            "?? .kbd-orchestrator/position-reminder.txt",
+            "?? .kbd-orchestrator/position.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/025af3309bd7018027c39116191465ad829e1ede129cf728069a11937a2b7fd7.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/03cdf4ae8c28d804d9c0dd59bf80eec2427c4903da485edc2cb0d52572c09c4c.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/33192299e6997fe807bec20c71cd7d317d83b8ced2b1b0d6c6b7695962ba2424.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/37993a3d2d36feea90f523f0d6f237d5216775b6b364762ac6a442b1b07b42e9.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/38301e1ef3f388be366886fd3d52c4074771459b9a41f8ee9cef58cb20603624.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/5e3b48e19bd10f19cb2f5e520ff08123e651e5cacc115fa18e1ee21240014c5e.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/5f723fecd5b3380c7e18607293e2bad9f20642845937b9cb2d54e4fb06682823.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/7ebef6ef28c850a2b853cba58c5ce00cb4cf3aa87daaa2dcce19b5037ea9ccee.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/80964c19bb8c49d20ceb31927899f86cc0715a406975045f2b98a47fb6eadd71.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/8b7cfcb40fb91791cda0be81fbc7532103be7dbc5fa22445c290d9974bb55f6d.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/8f2547de33b2357a5fb13c7e991fa3c4b957db5846ca2b6211e42a97bcc930c5.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/a8c6e681d2409d72063e378275905e2262e6ee0a706afba6542e0e9e0589b44d.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/ae3425a5d3e89696246b9a9a132b9dfcdfc8539229af2b1b76ef4afd844b8be6.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/b4946b864ff9bcda217cd42eb0e2f5886daa1eeff319a7e23ab1a4016a950a7c.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/c3318932f4a5235484f1e4ec41e804e5882721a0ab34b3bacb1e3fc5ae95b641.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/c4f769292811c4a2290f8814ae047b810e13fa46e4d1965e28ef54123ff2decc.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/c5d23d038c3d29012706975f2e4ec709026702400b1fa6bf348068a6874452f4.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/cb905c0c8426fca8731be67480a980a297fba9d90a4573048a2737b2a467fe4b.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/eceb5d41b8105493fe43aa898c79850778c38c1c44235d4cc9f7f5be26faefad.json",
+            "?? .prometheus/knowledge/.prompt-snapshots/project/generations/fb4a854c69ebc7e18787b0549cb2dacfe2cd08a794dbb5dc155f31cc3d975a14.json",
+            "?? .prometheus/knowledge/wiki/executor-session-completed-in-docs-review-phase-with-unknown-change.md",
+            "?? .prometheus/knowledge/wiki/executor-session-completed-in-spec-phase-with-unknown-change.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-067821b891d0a829.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-0d1a18f608746d44.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-13eeb39400a341bf.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-15dd420ad62330ac.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-1aafb42137b487ec.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-2801aa061a244b8c.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-29ca8cd84b22e121.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-3bedfd56542366c7.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-3f754d3190e46e38.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-4c4bd4f9b8b63af1.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-4db7f816ad831486.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-535a4a419207021b.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-5852158aa0a7e1a3.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-58a305b3b121723a.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-6bb8ee3cfc7efcb5.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-6f579109da4fd10b.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-78549d9714ea3e32.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-7b3d94ecb3006d0b.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-88d0138978a7367a.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-a0a52e9ffca7d0e1.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-adaf00a1c66cf397.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-ae310168ce034671.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-af0b9767e5140f0c.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-bd3456294c8d8e6b.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-be66e61c8dd26d71.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-c095da0ebc7081d9.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-da0da9f5be6b1438.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-e6063ffda30f3ee5.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-ed1b076c3ab6020f.md",
+            "?? .prometheus/knowledge/wiki/karpathy-session-f34dc4f3677d247e.md",
+            "?? .prometheus/project.json",
+            "?? Cargo.lock",
+            "?? Cargo.toml",
+            "?? crates/",
+            "?? docs/brand/",
+            "?? docs/decisions/",
+            "?? docs/ui/",
+            "?? openspec/changes/",
+            "?? scripts/install-companion-service.sh",
+            "?? scripts/install-skill-package.sh",
+            "?? shared/",
+            "?? skill-package.json",
+            "?? skills/",
+            "?? src-tauri/icons/tray/",
+            "?? src-tauri/src/tray.rs"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": ""
+        }
+      ]
+    },
+    {
+      "name": "uar",
+      "path": "/Users/gqadonis/Projects/prometheus/universal-agent-runtime",
+      "head": "a7cb972992d4f83db6585449ea81af0fe4a1c990",
+      "branch": "feat/uar-ui-foundation",
+      "origin": "git@github.com:Prometheus-AGS/universal-agent-runtime.git",
+      "origin_main_before_fetch": "4c141dfedfb253fb7f66fc628f0fec7dbb005edc",
+      "recent_version_sorted_tags": [
+        "v1.0.0-rc.9",
+        "v1.0.0-rc.8",
+        "v1.0.0-rc.7",
+        "v1.0.0-rc.6",
+        "v1.0.0-rc.5",
+        "v1.0.0-rc.4",
+        "v1.0.0-rc.3",
+        "v1.0.0-rc.2"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/universal-agent-runtime",
+          "HEAD": "a7cb972992d4f83db6585449ea81af0fe4a1c990",
+          "branch": "refs/heads/feat/uar-ui-foundation",
+          "status_lines": [
+            "M .prometheus/knowledge/wiki/index.md",
+            " M .prometheus/knowledge/wiki/log.md",
+            " M crates/prometheus-skill-system",
+            " M frontend/.storybook/main.ts",
+            " M frontend/.storybook/preview.tsx",
+            " M frontend/eslint-flat2-baseline.config.js",
+            " M frontend/eslint.config.js",
+            " M frontend/index.html",
+            " M frontend/package.json",
+            " M frontend/packages/prometheus-entity-management",
+            " M frontend/pnpm-lock.yaml",
+            " M frontend/src/index.css",
+            " M frontend/src/main.tsx",
+            " M frontend/src/shared/theme/tokens.css",
+            " M frontend/vitest.config.ts",
+            " M pnpm-lock.yaml",
+            " M scripts/check-flat2-style.mjs",
+            " M scripts/check-frontend-boundaries.mjs",
+            " M scripts/test-frontend-boundaries-negative.mjs",
+            " M static/.vite/markdown-engine-graph.json",
+            " M static/index.html",
+            " M vendor/git/liter-llm",
+            "?? .prometheus/knowledge/wiki/.index.lock",
+            "?? .prometheus/knowledge/wiki/karpathy-session-32c16b997679ee7e.md",
+            "?? docs/codex/",
+            "?? docs/design/",
+            "?? frontend/packages/uar-ui/",
+            "?? migrations/history.txt",
+            "?? scripts/fixtures/frontend-boundaries-allowed/__library__/",
+            "?? scripts/fixtures/frontend-boundary-cases/allowlist-growth/",
+            "?? scripts/fixtures/frontend-boundary-cases/allowlist-malformed/",
+            "?? scripts/fixtures/frontend-boundary-cases/allowlist-stale/",
+            "?? scripts/fixtures/frontend-boundary-cases/library-app-import/",
+            "?? scripts/fixtures/frontend-boundary-cases/library-direct-fetch/",
+            "?? scripts/fixtures/frontend-boundary-cases/library-entity-import/",
+            "?? scripts/fixtures/frontend-boundary-cases/library-relative-escape/",
+            "?? scripts/fixtures/frontend-boundary-cases/library-service-import/",
+            "?? scripts/fixtures/frontend-boundary-cases/library-state-import/",
+            "?? scripts/fixtures/frontend-boundary-cases/library-tauri-import/",
+            "?? scripts/frontend-boundary-allowlist.txt"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "46\t0",
+          "divergence_after_fetch": "46\t0"
+        },
+        {
+          "worktree": "/private/tmp/claude-501/-Users-gqadonis-Projects-know-me-charcoal-agent/f387bcbd-326d-4e0b-a0d8-b156ce6cbd80/scratchpad/uar-ch1",
+          "HEAD": "178a7ea233a6b7064b1f2f332e137dc7924d0e79",
+          "branch": "refs/heads/ci/ghcr-multiarch-publish",
+          "prunable": "gitdir file points to non-existent location",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "",
+          "divergence_after_fetch": "75\t0"
+        },
+        {
+          "worktree": "/private/tmp/claude-501/-Users-gqadonis-Projects-know-me-charcoal-agent/f387bcbd-326d-4e0b-a0d8-b156ce6cbd80/scratchpad/uar-ch2",
+          "HEAD": "72cd98894bcfaf8cad87484988a292c35116937f",
+          "branch": "refs/heads/fix/kb-retrieval-embedding",
+          "prunable": "gitdir file points to non-existent location",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "",
+          "divergence_after_fetch": "74\t0"
+        },
+        {
+          "worktree": "/private/tmp/claude-501/-Users-gqadonis-Projects-know-me-charcoal-agent/f387bcbd-326d-4e0b-a0d8-b156ce6cbd80/scratchpad/uar-es256",
+          "HEAD": "7c1a14ba064e7277b2479954c398db5a268f3437",
+          "branch": "refs/heads/feat/jwks-es256",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "45\t0",
+          "divergence_after_fetch": "45\t0"
+        },
+        {
+          "worktree": "/private/tmp/claude-501/-Users-gqadonis-Projects-know-me-charcoal-agent/f387bcbd-326d-4e0b-a0d8-b156ce6cbd80/scratchpad/uar-fix",
+          "HEAD": "ec36c0e0ac7a3f04635124777db5a22eafd09e27",
+          "branch": "refs/heads/fix/dockerignore-collab-schemas",
+          "prunable": "gitdir file points to non-existent location",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "",
+          "divergence_after_fetch": "73\t0"
+        },
+        {
+          "worktree": "/private/tmp/claude-501/-Users-gqadonis-Projects-know-me-charcoal-agent/f387bcbd-326d-4e0b-a0d8-b156ce6cbd80/scratchpad/uar-noazure",
+          "HEAD": "09c87ec117af0a709951956eed990191b737a8ea",
+          "branch": "refs/heads/ci/remove-azure-jobs",
+          "prunable": "gitdir file points to non-existent location",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "",
+          "divergence_after_fetch": "71\t0"
+        },
+        {
+          "worktree": "/private/tmp/claude-501/-Users-gqadonis-Projects-know-me-charcoal-agent/f387bcbd-326d-4e0b-a0d8-b156ce6cbd80/scratchpad/uar-org-main",
+          "HEAD": "853490db3a9862312c6013b28c13557ba31bd1c6",
+          "prunable": "gitdir file points to non-existent location",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "",
+          "divergence_after_fetch": "76\t0"
+        },
+        {
+          "worktree": "/private/tmp/claude-501/-Users-gqadonis-Projects-know-me-charcoal-agent/f387bcbd-326d-4e0b-a0d8-b156ce6cbd80/scratchpad/uar-policies",
+          "HEAD": "fefbf35ec49a3c09fb797a9558d664c85a2265df",
+          "branch": "refs/heads/fix/docker-ship-cedar-policies",
+          "prunable": "gitdir file points to non-existent location",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "",
+          "divergence_after_fetch": "71\t0"
+        },
+        {
+          "worktree": "/private/tmp/claude-501/-Users-gqadonis-Projects-know-me-charcoal-agent/f387bcbd-326d-4e0b-a0d8-b156ce6cbd80/scratchpad/uar-rmcp",
+          "HEAD": "78377fc7e8ef0c934fee64025cb752025ff931e6",
+          "branch": "refs/heads/fix/rmcp-pin-align",
+          "status_lines": [
+            "M pnpm-lock.yaml"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "29\t0",
+          "divergence_after_fetch": "29\t0"
+        },
+        {
+          "worktree": "/private/tmp/uar-48ce85dc-clean",
+          "HEAD": "48ce85dc06f3f579f9444600258acc5b7a07585b",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "19\t0",
+          "divergence_after_fetch": "19\t0"
+        },
+        {
+          "worktree": "/private/tmp/uar-c906-local-payload-c08",
+          "HEAD": "c906c24fb8114f1a3b55dc83a12feec542ae8b8d",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "24\t0",
+          "divergence_after_fetch": "24\t0"
+        },
+        {
+          "worktree": "/private/tmp/uar-package-024f2226",
+          "HEAD": "024f2226eb086c83d418d5c7cf14b94f5762f02e",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "22\t0",
+          "divergence_after_fetch": "22\t0"
+        },
+        {
+          "worktree": "/private/tmp/uar-package-b1f936f8",
+          "HEAD": "b1f936f88aeb2b9068c5d4daa465da1dc39356ec",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "21\t0",
+          "divergence_after_fetch": "21\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-c03-uar",
+          "HEAD": "fd6a538bb379f33f6ed1caf10123dbadeda1bebf",
+          "branch": "refs/heads/codex/afc-c03-lossless-definitions",
+          "status_lines": [
+            "M crates/prometheus-skill-system"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "115\t0",
+          "divergence_after_fetch": "115\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-c04-uar",
+          "HEAD": "33d817a95d21e81fff5b0ee504975edfadd84b91",
+          "branch": "refs/heads/codex/afc-c04-service-placement",
+          "status_lines": [
+            "M pnpm-lock.yaml"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "111\t0",
+          "divergence_after_fetch": "111\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-c05-uar",
+          "HEAD": "fcfce6d226b50eee502c5f272e9215112d933e29",
+          "branch": "refs/heads/codex/afc-c05-full-run-delegation",
+          "status_lines": [
+            "M crates/prometheus-skill-system",
+            " M frontend/packages/prometheus-entity-management",
+            " M models.dev",
+            " M pnpm-lock.yaml",
+            " M vendor/git/rust-mcp-filesystem",
+            "?? .librefang/",
+            "?? history.txt"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "106\t0",
+          "divergence_after_fetch": "106\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-c08-uar",
+          "HEAD": "b18397a3b23eb97a9e0da2618bc1747f99e7cc04",
+          "branch": "refs/heads/codex/agent-fabric-convergence-c08",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [
+            "b18397a3 feat(uar): admit governed text channel projections",
+            "4e549100 feat(uar): add governed channel-source observer profile"
+          ],
+          "divergence_vs_local_origin_main": "99\t2",
+          "divergence_after_fetch": "99\t2"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-c08-uar-delivery",
+          "HEAD": "53b063622b4ed8ce1f2ec30f9788c4d9d05cbfa5",
+          "branch": "refs/heads/codex/afc-c08-uar-delivery",
+          "status_lines": [
+            "M pnpm-lock.yaml"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "18\t0",
+          "divergence_after_fetch": "18\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-c10-feedback-intake",
+          "HEAD": "73f4d76a61efd6130138643d52c9e7ca676ec98e",
+          "branch": "refs/heads/codex/afc-c10-feedback-intake",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [
+            "73f4d76a feat(feedback): persist governed intake and implementation decisions",
+            "809e8953 feat(connectors): persist scoped effect intents and host dispatch leases",
+            "fa45e610 docs(workflow): link C10.1 UAR source and pending restart gate"
+          ],
+          "divergence_vs_local_origin_main": "57\t3",
+          "divergence_after_fetch": "57\t3"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-c10-governed-effects",
+          "HEAD": "809e8953a91d89fff79f4ff0c82289b39dce7bdc",
+          "branch": "refs/heads/codex/afc-c10-governed-effects",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [
+            "809e8953 feat(connectors): persist scoped effect intents and host dispatch leases",
+            "fa45e610 docs(workflow): link C10.1 UAR source and pending restart gate"
+          ],
+          "divergence_vs_local_origin_main": "57\t2",
+          "divergence_after_fetch": "57\t2"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-c10-workflow-pin-audit",
+          "HEAD": "fa45e610984a64a550a82841d54c3606aef47650",
+          "branch": "refs/heads/codex/afc-c10-workflow-pin-audit",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [
+            "fa45e610 docs(workflow): link C10.1 UAR source and pending restart gate"
+          ],
+          "divergence_vs_local_origin_main": "57\t1",
+          "divergence_after_fetch": "57\t1"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/afc-d01-uar",
+          "HEAD": "9378fdd379328fc690c9d19de07e97dafe5db068",
+          "branch": "refs/heads/codex/uar-intel-sidecar-tract",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "81\t0",
+          "divergence_after_fetch": "81\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/boss-d01-uar-ba723-local",
+          "HEAD": "ba7233875f8df3b2add68fc487d364428432c07d",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "91\t0",
+          "divergence_after_fetch": "91\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/boss-d01-uar-local-payload",
+          "HEAD": "48bc45b59d02d4febf4ed36e352af367fef73049",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "96\t0",
+          "divergence_after_fetch": "96\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/runtime-harness-baseline",
+          "HEAD": "226d4a0af89811975662cf3f203c699f70e8cebc",
+          "status_lines": [
+            "M AGENTS.md",
+            " M frontend/packages/prometheus-entity-management",
+            " M tests/context_history_integrity.rs",
+            "?? tests/support/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "211\t0",
+          "divergence_after_fetch": "211\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/runtime-harness-checkpoint-d586c75d",
+          "HEAD": "d586c75d9d69cf94a54d62e95ade78ae94147745",
+          "status_lines": [
+            "M AGENTS.md",
+            " M crates/prometheus-skill-system",
+            " M frontend/packages/prometheus-entity-management"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "208\t0",
+          "divergence_after_fetch": "208\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/uar-c09-2-local-payload",
+          "HEAD": "d3d768636b46bd7b7cea29fba4987aa1754f8352",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "85\t0",
+          "divergence_after_fetch": "85\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/uar-liter-context-window",
+          "HEAD": "f7e0441e4547ea94c583592504bf8a80870835bb",
+          "branch": "refs/heads/codex/uar-liter-context-window",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "82\t0",
+          "divergence_after_fetch": "82\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/uar-presentation-wip",
+          "HEAD": "aa553c6e5f85cc54634c70e3e9954bfc2dc2fabe",
+          "branch": "refs/heads/codex/uar-presentation-wip",
+          "status_lines": [
+            "M .agents/skills/impeccable/SKILL.md",
+            " M .agents/skills/impeccable/scripts/detector/engines/static-html/css-cascade.mjs",
+            " M AGENTS.md",
+            " M frontend/packages/a2ui-inspector/src/components/InspectorPanel.tsx",
+            " M frontend/packages/a2ui-inspector/test/cross-renderer-conformance.test.tsx",
+            " M frontend/packages/a2ui-uar/src/dev/build-surface.tsx",
+            " M frontend/packages/a2ui-uar/src/index.ts",
+            " M frontend/packages/a2ui-uar/src/react/SurfaceErrorBoundary.tsx",
+            " M frontend/packages/a2ui-uar/src/react/UarSurface.tsx",
+            " M frontend/packages/a2ui-uar/test/accessibility.test.tsx",
+            " M frontend/packages/a2ui-uar/test/cross-reference.test.tsx",
+            " M frontend/packages/a2ui-uar/test/entity-card.test.tsx",
+            " M frontend/packages/a2ui-uar/test/helpers.ts",
+            " M frontend/packages/a2ui-uar/test/inputs.test.tsx",
+            " M frontend/packages/a2ui-uar/test/perf/render-budget.test.tsx",
+            " M frontend/packages/a2ui-uar/test/surface.test.tsx",
+            " M frontend/packages/a2ui-uar/test/ux.test.tsx",
+            " M frontend/src/components/assistant-ui/enhanced-thread.tsx",
+            " M frontend/src/features/chat/components/a2ui-artifact-block.test.tsx",
+            " M frontend/src/features/chat/components/a2ui-artifact-block.tsx",
+            " M frontend/src/features/chat/ui/chunks/a2ui-chunk.tsx",
+            " M frontend/src/features/chat/use-chat-runtime.ts",
+            " M frontend/src/features/presentation/index.ts",
+            " M frontend/src/features/presentation/ui/presentation-example-preview.tsx",
+            " M frontend/src/features/runtime/ui/runtime-console-page.tsx",
+            " M frontend/src/features/runtime/ui/runtime-runs-trace.test.tsx",
+            " D frontend/src/features/skills/model/skills-graph.ts",
+            " M frontend/src/features/skills/model/skills-page.utils.test.ts",
+            " M frontend/src/features/skills/model/skills-page.utils.ts",
+            " M frontend/src/features/skills/model/use-skills-admin.ts",
+            " M frontend/src/features/skills/model/use-skills.ts",
+            " M frontend/src/features/skills/ui/rich-markdown-editor.tsx",
+            " M frontend/src/features/skills/ui/skill-editor-page.tsx",
+            " M frontend/src/features/skills/ui/skill-import-dialog.tsx",
+            " M frontend/src/features/skills/ui/skills-registry-page.tsx",
+            " M frontend/src/platform/agui/agui-adapter.test.ts",
+            " M frontend/src/platform/agui/agui-adapter.ts",
+            " M frontend/src/platform/agui/agui-normalizer.test.ts",
+            " M frontend/src/platform/agui/runtime-chunk-projection.ts",
+            " M frontend/src/platform/entities/presentation-decision/actions.test.ts",
+            " M frontend/src/platform/entities/presentation-decision/actions.ts",
+            " M frontend/src/platform/entities/presentation-decision/api.test.ts",
+            " M frontend/src/platform/entities/presentation-decision/api.ts",
+            " M frontend/src/platform/entities/presentation-decision/contracts.ts",
+            " M frontend/src/platform/entities/presentation-decision/domain.test.ts",
+            " M frontend/src/platform/entities/presentation-decision/domain.ts",
+            " M frontend/src/platform/entities/presentation-decision/index.ts",
+            " M frontend/src/platform/entities/presentation-decision/realtime.test.ts",
+            " M frontend/src/platform/entities/presentation-decision/realtime.ts",
+            " M frontend/src/platform/entities/presentation-decision/use-presentation-decision.ts",
+            " M frontend/src/platform/entities/presentation/lifecycle-contracts.ts",
+            " M frontend/src/platform/entities/skill/api/skill-api.ts",
+            " M frontend/src/platform/entities/skill/contracts.ts",
+            " M frontend/src/platform/entities/skill/domain.test.ts",
+            " M frontend/src/platform/entities/skill/domain.ts",
+            " M frontend/src/platform/entities/skill/index.ts",
+            " D frontend/src/platform/entities/skill/use-skills.ts",
+            " M frontend/src/stores/chat-stream-store.ts",
+            " M frontend/src/types/index.ts",
+            " M openspec/changes/migrate-skills-page-direct-and-redesign/tasks.md",
+            " M openspec/changes/select-and-observe-presentations/tasks.md",
+            " M src/uar/api/skills.rs",
+            " M src/uar/domain/skills.rs",
+            " M src/uar/presentation/routes.rs",
+            " M src/uar/presentation/selection/service.rs",
+            " M src/uar/presentation/selection/types.rs",
+            " M src/uar/presentation/surreal_store.rs",
+            " M src/uar/runtime/manager.rs",
+            " M src/uar/runtime/skills/builtin_loader.rs",
+            " M src/uar/runtime/skills/service.rs",
+            " M src/uar/runtime/skills/storage/filesystem.rs",
+            " M static/.vite/markdown-engine-graph.json",
+            " M static/index.html",
+            " M tests/fixtures/presentation/selection-lifecycle-v1.json",
+            " M tests/integration/live/baseline_cases.rs",
+            "?? .kbd-orchestrator/phases/skills-a2ui-library-and-runtime-observability::agui-a2ui-selection-architecture/",
+            "?? frontend/packages/a2ui-uar/src/react/presentation-authority.ts",
+            "?? frontend/src/features/a2ui/a2ui-runtime-context.test.ts",
+            "?? frontend/src/features/a2ui/a2ui-runtime-context.ts",
+            "?? frontend/src/features/chat/components/presentation-message-summary.test.tsx",
+            "?? frontend/src/features/chat/components/presentation-message-summary.tsx",
+            "?? frontend/src/features/chat/use-chat-runtime-projection.test.ts",
+            "?? frontend/src/features/presentation/ui/presentation-run-summary.stories.tsx",
+            "?? frontend/src/features/presentation/ui/presentation-run-summary.test.tsx",
+            "?? frontend/src/features/presentation/ui/presentation-run-summary.tsx",
+            "?? frontend/src/features/skills/model/skill-virtualization.ts",
+            "?? frontend/src/features/skills/ui/skill-editor-page.test.tsx",
+            "?? frontend/src/features/skills/ui/skills-registry-page.test.tsx",
+            "?? frontend/src/platform/entities/core.ts",
+            "?? frontend/src/platform/entities/presentation-decision/use-presentation-surface-acknowledgement.test.tsx",
+            "?? frontend/src/platform/entities/skill/api/skill-api.test.ts",
+            "?? openspec/changes/migrate-skills-page-direct-and-redesign/receipts/",
+            "?? openspec/changes/select-and-observe-presentations/receipts/"
+          ],
+          "unique_vs_local_origin_main": [
+            "aa553c6e chore: refresh migrated KBD projections",
+            "f2e99b42 chore: preserve presentation runtime work in progress"
+          ],
+          "divergence_vs_local_origin_main": "228\t2",
+          "divergence_after_fetch": "228\t2"
+        },
+        {
+          "worktree": "/Users/gqadonis/.claude/worktrees/uar-skill-deployment-catalog",
+          "HEAD": "4e0d69378e44dbeafc0da58937db9c161723824c",
+          "branch": "refs/heads/codex/uar-skill-deployment-catalog",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [
+            "4e0d6937 chore(uar-api): merge canonical direct task acceptance repair",
+            "d8896d74 fix(teams): preserve strict schema in oneOf consumers",
+            "0ad9ad97 fix(teams): permit direct coordinator task definitions",
+            "65e208ed docs(teams): plan direct coordinator schema repair",
+            "c12562f0 merge: retain stable C14 canonical host repair in API payload",
+            "e2fd557f fix(teams): decode canonical host extension envelope",
+            "0a6dd953 docs(openspec): plan canonical team host extension repair",
+            "34482c86 fix(skills): accept shipped scalar metadata tags",
+            "75e26fc0 docs(openspec): plan shipped skill tag-format compatibility",
+            "0dfe689c fix(catalog): add authoritative GPT-6.1 Sol pricing snapshot",
+            "c74db48d docs(openspec): plan exact GPT-6.1 Sol pricing repair",
+            "237c8d31 fix(catalog): add authoritative GPT-6.1 Sol pricing snapshot",
+            "4046bf85 docs(openspec): plan exact GPT-6.1 Sol pricing repair",
+            "5a9ab75a feat(skills): expose trusted deployment catalog for team authoring",
+            "b77f0b46 docs(openspec): plan trusted skill deployment catalog",
+            "c72b0003 feat(teams): attach scoped host workspace resources to execution",
+            "1e281229 docs(teams): specify trusted workspace host attachment"
+          ],
+          "divergence_vs_local_origin_main": "0\t17",
+          "divergence_after_fetch": "0\t17"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/afc-c10-uar",
+          "HEAD": "1db1afb48b606e5a92057386dda4f8d19cbbf2c1",
+          "branch": "refs/heads/codex/afc-c10-workflow",
+          "status_lines": [
+            "M pnpm-lock.yaml",
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "57\t0",
+          "divergence_after_fetch": "57\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/agent-fabric-c09-uar",
+          "HEAD": "afeb528b794961483862436edac6b7063065d66e",
+          "branch": "refs/heads/codex/agent-fabric-c09-admission",
+          "status_lines": [
+            "M pnpm-lock.yaml",
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "62\t0",
+          "divergence_after_fetch": "62\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/agent-fabric-convergence/universal-agent-runtime",
+          "HEAD": "676f995c73dc7dacdce71c929ffac88ac3618bb0",
+          "branch": "refs/heads/codex/agent-fabric-convergence",
+          "status_lines": [
+            "?? openspec/changes/archive/2026-09-26-uar-collaboration-package-catalog/evidence/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "145\t0",
+          "divergence_after_fetch": "145\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-boss-payload-000e",
+          "HEAD": "bb6ea8ba10378732db5647c6957ba88788626ff9",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "2\t0",
+          "divergence_after_fetch": "2\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-boss-payload-c906",
+          "HEAD": "c906c24fb8114f1a3b55dc83a12feec542ae8b8d",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "24\t0",
+          "divergence_after_fetch": "24\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-c094-local-payload",
+          "HEAD": "afeb528b794961483862436edac6b7063065d66e",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "62\t0",
+          "divergence_after_fetch": "62\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-c10-merge",
+          "HEAD": "48b7162dd8f03d1d78909f5ac1e4964e5ee97d41",
+          "branch": "refs/heads/merge/afc-c10-with-main",
+          "status_lines": [
+            "M pnpm-lock.yaml"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "5\t0",
+          "divergence_after_fetch": "5\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-c14-teams-work",
+          "HEAD": "d8896d743cd945d40f918ff8ca397909f6c1fe22",
+          "branch": "refs/heads/codex/afc-c14-teams-work",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [
+            "d8896d74 fix(teams): preserve strict schema in oneOf consumers",
+            "0ad9ad97 fix(teams): permit direct coordinator task definitions",
+            "65e208ed docs(teams): plan direct coordinator schema repair",
+            "e2fd557f fix(teams): decode canonical host extension envelope",
+            "0a6dd953 docs(openspec): plan canonical team host extension repair",
+            "237c8d31 fix(catalog): add authoritative GPT-6.1 Sol pricing snapshot",
+            "4046bf85 docs(openspec): plan exact GPT-6.1 Sol pricing repair",
+            "c72b0003 feat(teams): attach scoped host workspace resources to execution",
+            "1e281229 docs(teams): specify trusted workspace host attachment"
+          ],
+          "divergence_vs_local_origin_main": "0\t9",
+          "divergence_after_fetch": "0\t9"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-cadence-clean-payload",
+          "HEAD": "1db1afb48b606e5a92057386dda4f8d19cbbf2c1",
+          "status_lines": [
+            "?? dist/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "57\t0",
+          "divergence_after_fetch": "57\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-chunker",
+          "HEAD": "bb1696a0d0133acdd4e352db1c1052a1adfc5621",
+          "branch": "refs/heads/fix/kb-retrieval-config",
+          "status_lines": [
+            "M pnpm-lock.yaml"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "10\t0",
+          "divergence_after_fetch": "10\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-corrective-sidecar-release",
+          "HEAD": "853490db3a9862312c6013b28c13557ba31bd1c6",
+          "branch": "refs/heads/codex/uar-sidecar-corrective-release",
+          "status_lines": [
+            "?? dist/",
+            "?? docs/agents/TEAM_IMPLEMENTATION_REPORT_2026-09-29.md",
+            "?? docs/agents/collaboration/README.md",
+            "?? docs/agents/collaboration/TEAM_SHARED_INSTRUCTIONS_AMENDMENT.md",
+            "?? docs/agents/collaboration/handoffs/"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "76\t0",
+          "divergence_after_fetch": "76\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-dependabot-pins",
+          "HEAD": "45efa3b5dc617b541ecab97009412c5807788b8f",
+          "branch": "refs/heads/fix/dependabot-pinned-crates",
+          "status_lines": [
+            "M pnpm-lock.yaml"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "25\t0",
+          "divergence_after_fetch": "25\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-kb-chunk-strategy",
+          "HEAD": "4143341c24cdcfbab55686d14c699b1bd2f6367b",
+          "branch": "refs/heads/fix/kb-chunk-strategy-at-ingest",
+          "status_lines": [
+            "M pnpm-lock.yaml"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "27\t0",
+          "divergence_after_fetch": "27\t0"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-tool-policy",
+          "HEAD": "5b7c215d6d48bd26048041261f2598d86532e6a2",
+          "branch": "refs/heads/fix/tool-policy-builtins",
+          "status_lines": [
+            "M pnpm-lock.yaml"
+          ],
+          "unique_vs_local_origin_main": [
+            "5b7c215d fix(runtime): built-in model-control tools follow the policy that restricts them"
+          ],
+          "divergence_vs_local_origin_main": "2\t1",
+          "divergence_after_fetch": "2\t1"
+        },
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/uar-usage",
+          "HEAD": "4c141dfedfb253fb7f66fc628f0fec7dbb005edc",
+          "branch": "refs/heads/fix/non-streaming-usage",
+          "status_lines": [
+            "M src/server.rs",
+            " M src/uar/api/openai/mod.rs",
+            "?? src/uar/api/openai/usage.rs",
+            "?? tests/openai_usage.rs"
+          ],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "0\t0",
+          "divergence_after_fetch": "0\t0"
+        }
+      ],
+      "release_tags": [
+        "v1.0.0-rc.9",
+        "v1.0.0-rc.8",
+        "v1.0.0-rc.7",
+        "v1.0.0-rc.6",
+        "v1.0.0-rc.5"
+      ]
+    },
+    {
+      "name": "liter-llm",
+      "path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/liter-llm",
+      "head": "12a2fae9675e34b88e9373caa2bca9959f416493",
+      "branch": "",
+      "origin": "https://github.com/GQAdonis/liter-llm.git",
+      "origin_main_before_fetch": "12a2fae9675e34b88e9373caa2bca9959f416493",
+      "recent_version_sorted_tags": [
+        "v1.1.1",
+        "v1.1.0",
+        "v1.0.0-rc.9",
+        "v1.0.0-rc.8",
+        "v1.0.0-rc.7",
+        "v1.0.0-rc.6",
+        "v1.0.0-rc.5",
+        "v1.0.0-rc.4"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/liter-llm",
+          "HEAD": "12a2fae9675e34b88e9373caa2bca9959f416493",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "0\t0",
+          "divergence_after_fetch": "0\t0"
+        }
+      ],
+      "release_tags": [
+        "v1.1.1",
+        "v1.1.0",
+        "v1.0.0-rc.9",
+        "v1.0.0-rc.8",
+        "v1.0.0-rc.7"
+      ]
+    },
+    {
+      "name": "openai-proxy",
+      "path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/openai-proxy",
+      "head": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
+      "branch": "",
+      "origin": "https://github.com/GQAdonis/openai-proxy.git",
+      "origin_main_before_fetch": "ad32f5dc1f676dc1b40b01de8a4f043a6ee6928d",
+      "recent_version_sorted_tags": [
+        "v0.1.0"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/openai-proxy",
+          "HEAD": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "2\t0",
+          "divergence_after_fetch": "2\t0"
+        }
+      ],
+      "release_tags": [
+        "v0.1.0"
+      ]
+    },
+    {
+      "name": "cowork",
+      "path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/cowork-skills",
+      "head": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+      "branch": "",
+      "origin": "https://github.com/GQAdonis/cowork-skills.git",
+      "origin_main_before_fetch": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+      "recent_version_sorted_tags": [
+        "v0.2.0",
+        "v0.1.5",
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2",
+        "v0.1.1",
+        "v0.1.0"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/cowork-skills",
+          "HEAD": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "0\t0",
+          "divergence_after_fetch": "0\t0"
+        }
+      ],
+      "release_tags": [
+        "v0.2.0",
+        "v0.1.5",
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2"
+      ]
+    },
+    {
+      "name": "disk-space-guardian",
+      "path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/disk-space-guardian",
+      "head": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+      "branch": "main",
+      "origin": "https://github.com/GQAdonis/disk-space-guardian.git",
+      "origin_main_before_fetch": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+      "recent_version_sorted_tags": [
+        "wip/preserve-codex-merge-base-rules-v3-main",
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2",
+        "v0.1.1",
+        "v0.1.0",
+        "pruned/codex-merge-base-rules-v3-main",
+        "pruned/codex-main-convergence-base-rules-20260823"
+      ],
+      "worktrees": [
+        {
+          "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.git/modules/tools/disk-space-guardian",
+          "HEAD": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+          "branch": "refs/heads/main",
+          "status_lines": [],
+          "unique_vs_local_origin_main": [],
+          "divergence_vs_local_origin_main": "0\t0",
+          "divergence_after_fetch": "0\t0"
+        }
+      ],
+      "release_tags": [
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2",
+        "v0.1.1",
+        "v0.1.0"
+      ]
+    }
+  ]
+}

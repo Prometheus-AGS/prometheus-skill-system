@@ -65,8 +65,8 @@
  M dist/plugins/claude/prometheus-skill-pack/skills/native-agent/SKILL.md
  M dist/plugins/claude/prometheus-skill-pack/skills/prometheus-entity-skills/.claude-plugin/plugin.json
  M dist/plugins/claude/prometheus-skill-pack/skills/prometheus-entity-skills/entity-graph-optimize/component/README.md
- M dist/plugins/claude/prometheus-skill-pack/skills/zeespec-interrogator/README.md
- M dist/plugins/claude/prometheus-skill-pack/skills/zeespec-interrogator/references/dimensions/who.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/spec-gate/README.md
+ M dist/plugins/claude/prometheus-skill-pack/skills/spec-gate/references/dimensions/who.md
  M dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json
  M dist/plugins/codex/prometheus-skill-pack/config/prometheus-exec-component.json
  M dist/plugins/codex/prometheus-skill-pack/hooks/hooks.json
@@ -123,8 +123,8 @@
  M dist/plugins/codex/prometheus-skill-pack/skills/native-agent/SKILL.md
  M dist/plugins/codex/prometheus-skill-pack/skills/prometheus-entity-skills/.claude-plugin/plugin.json
  M dist/plugins/codex/prometheus-skill-pack/skills/prometheus-entity-skills/entity-graph-optimize/component/README.md
- M dist/plugins/codex/prometheus-skill-pack/skills/zeespec-interrogator/README.md
- M dist/plugins/codex/prometheus-skill-pack/skills/zeespec-interrogator/references/dimensions/who.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/spec-gate/README.md
+ M dist/plugins/codex/prometheus-skill-pack/skills/spec-gate/references/dimensions/who.md
  M docs/BUG-FIX-LEDGER.md
  M docs/CONTRIBUTING.md
  M docs/IMPORTING_SKILLS.md
@@ -346,8 +346,8 @@ M  skills/imported/prometheus-entity-management
  M skills/process/kbd-process-orchestrator/references/spec-backend-interface.md
  M skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md
  M skills/process/native-agent/SKILL.md
- M skills/process/zeespec-interrogator/README.md
- M skills/process/zeespec-interrogator/references/dimensions/who.md
+ M skills/process/spec-gate/README.md
+ M skills/process/spec-gate/references/dimensions/who.md
  M skills/react/prometheus-entity-skills/.claude-plugin/plugin.json
  M skills/react/prometheus-entity-skills/entity-graph-optimize/component/README.md
  M skills/research/.claude-plugin/plugin.json

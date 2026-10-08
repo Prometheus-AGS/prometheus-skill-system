@@ -1,0 +1,105 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "claude (harness-native subagent)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-model-collision",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "line": 61,
+      "claim": "D-2a rests on a false premise: codex-cli 0.158 has a native, enabled memories tier, so SubagentStart is not Codex's only memory channel, and the Codex baseline is missing.",
+      "evidence": "analysis.md:61 says \"Codex has no auto-loaded file tier, so SubagentStart is its only per-agent channel\", and :75 says \"Low for Codex native memory (docs returned 404); it is not relied upon\". Read-only check: ~/.codex/config.toml:463 `memories = true`; ~/.codex/memories/ holds memory_summary.md (10,840 B), MEMORY.md (182,746 B) and raw_memories.md, all updated 2026-10-03. The codex 0.158.0 binary contains memories_1.sqlite / memories_v2, memory_consolidate_global and ext/memories/src/tools, plus prompt text on producing and refreshing MEMORY.md and memory_summary.md. ~/.codex/AGENTS.md (1,715 B) and the repo AGENTS.md are also auto-loaded. The candidate was never inspected. Hitting a 404 was treated as proof the feature is absent.",
+      "suggested_fix": "Add a Codex native-memory candidate (and AGENTS.md as a file tier). Determine at runtime what memory_summary.md/MEMORY.md content reaches main threads and subagents, and add it to the Codex baseline. Extend D-2a's options to Codex (shrink, partition per role, or disable via memory_mode) so SubagentStart context is not stacked on top of an untargeted ~10 KB summary."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 52,
+      "claim": "The upstream pin claim is wrong for surreal-memory, and the sequencing leaves PRs 4-13 unable to show per-agent targeting end to end.",
+      "evidence": "analysis.md:52 says \"Both are pinned through PR 14 of the parent plan (tag v1.10.0)\". In ~/.claude/plans/yes-fix-it-in-logical-mccarthy.md:233, PR 14 covers only prometheus-knowledge (\"PRs 5, 8 and 10 add new prometheus-knowledge commits. Tag v1.10.0\"). No PR in that plan owns the surreal-memory changes (category CONTAINSANY filter, embedding stripping, settable metadata/scope/importance). The pk truncation fix has no client-side fallback (analysis.md: \"Without this no recall path works\"), yet the pin lands only in PR 14, after the SP PRs whose integration gates Goal 5 requires.",
+      "suggested_fix": "Name an owning upstream change (with a version tag) for each surreal-memory prerequisite. Either pull the pk truncation and snapshot-commit fix plus its pin ahead of the first SP PR that depends on recall, or make the per-agent integration gates run against locally built upstream binaries."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 51,
+      "claim": "Client-side category filtering after a top-k database query cannot deliver addressed (`audience:role:<r>`) lessons, but the analysis presents it as a working interim fallback.",
+      "evidence": "Row D: \"category filtering is client-side until upstream adds it\". :51: \"Until these ship, the pack filters client-side\". Row F routes cross-role lessons through `audience:role:<r>` categories, which are written under the author's agent_id, not the reader's. The database filter on agent_id therefore cannot select them. Post-filtering a `limit`-bounded semantic result set silently drops addressed lessons that rank outside the top k. The assessment (C) also found 50 of 50 live records with agent_id null and no categories envelope, and the analysis never says how legacy unattributed records are scoped or recalled.",
+      "suggested_fix": "State the interim recall algorithm: either over-fetch with an explicit multiplier and measured recall loss, or a separate list query by category. Also define the treatment of null-agent legacy records (project scope only, or a backfill)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 33,
+      "claim": "Assessment gap E (reflect write-back and recall closure BROKEN) and the two constraint violations have no row and no verdict in the build-vs-adopt table.",
+      "evidence": "The table rows cover C, D, B, F, A, J and K. library-candidates.json gaps_addressed omits E. The assessment's E (memory-writeback.sh drops Lessons Learned, four divergent project-id derivations, kbd-memory-recall querying entities/search for lifecycle metadata, next-phase seeding on a boilerplate heading) and its CONSTRAINT CHECK (evaluate-session.sh POSTing directly to surreal-memory against memory-bridge.sh:12-14, and the MEM_PROJECT default mis-scoping other projects) are addressed only by the passing phrase \"project id from one resolver\". Goal 4 (\"how an agent's lessons are recalled for that agent next time\") depends on write-back working, and row F relies on the reflector promoting lessons that are never captured today.",
+      "suggested_fix": "Add a row for E with a verdict (fix in pack, via parent PR 4). Name the single project-id resolver and its precedence, and put the evaluate-session.sh direct POST and the MEM_PROJECT default on the fix list."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 4,
+      "claim": "The analysis leaves the CLAUDE.md-mandated Cortex tier out entirely and does not reconcile it with the goal's fallback chain.",
+      "evidence": "The assessment (N) records that CLAUDE.md makes \"surreal-memory MCP, then Cortex MCP, then file memory\" mandatory and that Cortex is configured. Goal 3 names \"surreal-memory -> pk -> file fallback\". analysis.md:4 fixes the stores as \"surreal-memory, pk, and the Karpathy session logs\" and never mentions Cortex. Agents following CLAUDE.md will keep writing and reading an unscoped Cortex store outside the envelope, so targeting can be bypassed.",
+      "suggested_fix": "Decide explicitly: either drop Cortex from the CLAUDE.md chain (with the doc change scheduled), or include it in the envelope and recall order."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 75,
+      "claim": "Confidence \"High for Claude Code delivery\" is not supported while the analysis itself carries an unresolved contrary field report and an untested runtime path.",
+      "evidence": ":27 says regin claims SubagentStart ignores additionalContext, which \"must be confirmed by a run\". Q-1 says Claude additionalContext reaching the subagent is \"documented but unconfirmed at runtime\". Current hooks docs confirm only the generic 10,000-char cap and Context-only control. Their matcher examples use names such as `^my-plugin:reviewer$`. The 10,000-char cap is per hook output, so other plugins' SubagentStart hooks can add to the same subagent's context, and the D-4 \"8,000 chars\" budget does not account for that.",
+      "suggested_fix": "Lower Claude delivery to Medium until the execute-first probe passes. Define the fallback's acceptance threshold, and define the budget as a total across all SubagentStart hooks per subagent."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 70,
+      "claim": "Q-3 misstates the mini baseline and leaves mini's existing unattributed writers outside the envelope.",
+      "evidence": "Q-3: mini \"has no learning hooks today. Proposed answer: recall and delivery only, with no worker dependency.\" Assessment M: \"Learning capture **exists**\": karpathy-progress-memory and lib/karpathy/* write to `pk ingest`, and agent-team-creator/scripts/memory.mjs posts to surreal-memory, with no per-role identity. Under the proposed answer those writers keep producing unenveloped records that the new role-scoped recall in both repos will read, while parent PRs 6 and 13 target mini.",
+      "suggested_fix": "Have mini's existing writers carry the envelope (agent_id, team, role, audience categories), even if mini ships no worker."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 35,
+      "claim": "The new SubagentStart delivery path has no stated latency, failure or silence contract, even though it blocks every subagent spawn on network calls.",
+      "evidence": "Row B builds a hook script that queries surreal-memory and pk before the subagent's first prompt. The assessment's constraint check requires that \"any new delivery path must stay silent when surreal-memory, pk or agent teams are absent\" (integration contract). The analysis never mentions this, sets no timeout (seconds, per D-5) and gives no watchdog, although the cited prior art cand-009 has a \"watchdog, FTS fallback\". The analysis also does not address prompt-injection risk from lessons that other agents wrote being injected as subagent context.",
+      "suggested_fix": "Add design requirements for the SubagentStart hook: a hard timeout of N seconds, emit nothing on absence or timeout, a cached or file fallback, and sanitization or provenance labelling of injected lessons."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "Candidate evidence is self-referential: every evidence `claim` is the candidate's own fit_for_gap string, truncated, so no landscape claim can be checked against its source.",
+      "evidence": "For example, cand-002's evidence claim is \"supports: C/D/F: path scopes /team/<t>/role/<r>, /team/<t>/lead, /project; private-by-source default; read-only shared slices; sco\", identical to its fit_for_gap, cut mid-word. The specific numbers it carries (semantic 0.5 + recency 0.3, 30-day half-life + importance 0.2; Letta last-writer-wins; regin's 1 in 2,410) have no quoted source text. coverage_estimate values (0.2-0.8) have no stated criteria. cand-009's license is \"unverified\" even though its watchdog and transcript-recovery design is being copied.",
+      "suggested_fix": "Replace each evidence claim with a short quote or paraphrase from the cited page. Give the coverage rubric, and verify the B12 license before reusing its code."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 33,
+      "claim": "Goal 5's PR scope includes Feynman gaps, skill discovery and cross-team requests, but the analysis gives no build/adopt verdict or design input for them.",
+      "evidence": "Goal 5 lists \"memory loop, scopes and promotion, Feynman gaps, skill discovery, cross-team requests\". The table has no row for Feynman/learn gap routing (parent PR 9), for the knowledge-gaps queue producer, or for cross-team and cross-repo request routing (parent PRs 12/13; assessment G: one activeTeam per repo, team ids repeating across repos, keys needing projectRoot). Row J only renames the skill queue.",
+      "suggested_fix": "Add rows for G (projectRoot in keys, cross-repo routing), Feynman gap routing and the knowledge-gap producer, or explicitly mark them out of scope for the design with a reason."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "line": 36,
+      "claim": "The team digest's storage location and concurrency model are not stated, though the Letta evidence cited flags lost updates.",
+      "evidence": "Row F: \"A small append-only team digest is surfaced to the lead role and the main thread\". cand-005: \"whole-block rewrites are last-writer-wins and lose updates\". The analysis does not say which store holds the digest (surreal-memory category, pk entry, team state file), how its size limit is enforced, or who compacts it.",
+      "suggested_fix": "Name the digest's store, its append primitive, its size cap and its compaction owner."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "line": 49,
+      "claim": "The upstream pk prerequisites drop the assessment's settable entry_type finding.",
+      "evidence": "Assessment C: \"entry_type is hard-coded to \\\"Reference\\\" (pk-librarian/src/librarian.rs:413)\" and the risks list \"settable type and tags\". Analysis upstream item 1 lists only \"let pk ingest set tags\".",
+      "suggested_fix": "Add settable entry_type, or record why kind:* categories in tags make it unnecessary."
+    }
+  ]
+}

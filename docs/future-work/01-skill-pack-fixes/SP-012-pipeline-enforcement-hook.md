@@ -15,7 +15,7 @@ created_from_conversation_turn: 3-4
 
 ## Problem
 
-The skill-pack documents a 4-layer pipeline: **ZeeSpec → PMPO → OpenSpec → forge-rs**. Each layer has a defined contract. The pipeline is documented but not enforced — a session can skip from "user asks for change" directly to "agent writes code," bypassing ZeeSpec, PMPO planning, and OpenSpec change records.
+The skill-pack documents a pipeline: **PMPO → OpenSpec → forge-rs**. Each layer has a defined contract. The pipeline is documented but not enforced — a session can skip from "user asks for change" directly to "agent writes code," bypassing PMPO planning and OpenSpec change records.
 
 When this happens, the work lacks the artifacts the pipeline produces (specs, planning trace, change records). Reviewing later is harder, and KBD lifecycle violations accumulate silently.
 
@@ -36,7 +36,6 @@ A `UserPromptSubmit` hook that classifies the incoming request and gates progres
 1. **Classify the request.** Cheap-LLM call (or heuristic) decides: trivial / narrow / broad change. Trivial = "explain this", "fix this typo". Narrow = single-file edit with no contract change. Broad = anything meeting the broad-change threshold.
 
 2. **For broad changes only:** require pipeline artifacts to exist before allowing tool use. Specifically, before any `Edit`/`Write`/`MultiEdit` to source files, require:
-   - A ZeeSpec entry referencing the work (path: `zee/specs/<id>.md`).
    - A PMPO plan with at least an `assessment.md` (path: `.kbd-orchestrator/phases/<phase>/assessment.md`).
    - An OpenSpec change record (path: `openspec/changes/<change-id>/proposal.md`).
 

@@ -168,13 +168,13 @@ A new `pmpo-evolver.schema.json` should extend (not replace) the existing evolut
 
 ### Perspective 4: Operator Idea Validation
 
-**What exists:** `pmpo-elicit` (just shipped) handles the intake. `zeespec-interrogator` validates specs.
+**What exists:** `pmpo-elicit` (just shipped) handles the intake. `spec-gate` validates specs.
 
 **What's missing:**
 - No **idea-validation pipeline** as a unified skill or prompt sequence: idea → research → feasibility score → spec draft → human gate → KBD phase creation
 - No **idea intake schema**: structured representation of an operator-submitted idea with context fields (motivation, success criteria, constraints, related prior work)
 - No **feasibility research step**: given an idea, research whether it has been tried before (by competitors or open source), what the implementation complexity is, and whether the required dependencies exist
-- No **idea-to-spec bridge**: from a validated idea to a `SPEC.md` that `zeespec-interrogator` can score
+- No **idea-to-spec bridge**: from a validated idea to a `SPEC.md` that `spec-gate` can score
 
 **Design pattern to add:** A `validate-idea` sub-skill inside `pmpo-evolver/skills/` that implements the full pipeline: intake (via pmpo-elicit) → research → score → spec draft → gate.
 
@@ -239,7 +239,7 @@ A new `pmpo-evolver.schema.json` should extend (not replace) the existing evolut
 
 4. **Karpathy feedback sources — telemetry**: Telemetry integration is product-specific (Posthog, Amplitude, custom). Should the schema support arbitrary URL+JSON-path sources? Recommendation: yes — `telemetry-url` source type with `jsonpath` field for metric extraction, similar to the existing `url` type's `interpret` field.
 
-5. **Idea validation — spec generation**: Should the spec draft use `zeespec-interrogator` or produce a new lighter-weight spec format? Recommendation: produce a KBD-compatible `SPEC.md` that `zeespec-interrogator` can score, not a custom format.
+5. **Idea validation — spec generation**: Should the spec draft use `spec-gate` or produce a new lighter-weight spec format? Recommendation: produce a KBD-compatible `SPEC.md` that `spec-gate` can score, not a custom format.
 
 ---
 

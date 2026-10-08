@@ -1,0 +1,42 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "claude (harness-native subagent)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-model-collision",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 47,
+      "claim": "The inventory and baseline leave out the file-based memory tier (Claude auto-memory and the CLAUDE.md-mandated memory directory). That tier already writes lessons and delivers them to every session, subagents included, so 'today a subagent receives nothing' and the 0 B per-subagent baseline are wrong.",
+      "evidence": "Goal 3 names the 'surreal-memory -> pk -> file fallback' and requires measuring 'context bytes per agent versus today'. The artifact never mentions MEMORY.md, auto-memory or the file tier (string search of the artifact: none). Project CLAUDE.md (origin/main, 'Memory — Check Before You Code, Write After You Ship') requires a file-memory read at session start and writes after every task, to ~/.claude/projects/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/memory/. That directory holds 115 files, and MEMORY.md is 13.9 KB on disk. This reviewing subagent's own context was injected with that MEMORY.md (the harness reported 39KB, truncated to 24.4KB), which directly contradicts line 47 ('today a subagent receives nothing') and line 178 ('0 bytes for subagents'). The baseline table (lines 171-176) has no row for this surface, although it is larger than every measured row. Cortex MCP, the second tier in the CLAUDE.md priority chain, is also absent.",
+      "suggested_fix": "Add the file-memory tier, and Cortex if it is present, to the write/read inventory: who writes it (agents following the CLAUDE.md rule, Claude auto-memory), who receives it (main thread and subagents, in both harnesses), what identity or scope it carries (per-project directory only), and its measured bytes per agent. Correct line 47 and the baseline table, then re-derive the Goal 3 'versus today' baseline from the corrected numbers."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 157,
+      "claim": "Section M's mini baseline is factually wrong: mini has a SubagentStop hook and an existing Karpathy learning-capture write path, and its hook timeouts carry the same unit defect as section I.",
+      "evidence": "Line 157 says mini has 'no Stop, SubagentStop or learning hooks', and line 160 says 'Learning capture does not exist there at all'. On prometheus-skills-mini origin/main (56cbf12), hooks/hooks.json registers SubagentStop[*] -> subagent-fallback-checkpoint (lib/hooks/subagent-fallback-checkpoint.mjs), which reads `input.subagent_name`. That field has the same never-populated problem as the skill-pack's SUBAGENT_NAME. Mini also ships skills/karpathy-progress-memory with lib/karpathy/{record,session-log,transport}.mjs, a port of record-progress.py that delivers to `pk ingest`. skills/agent-team-creator/scripts/memory.mjs writes to surreal-memory POST /api/v1/memory/ with an 'explicit identity filters and content envelope', which is directly relevant to the Goal 2 envelope. Mini's hooks.json uses timeouts of 1000–15000, the same seconds-vs-milliseconds defect section I describes, but section I scopes the fix to the skill-pack only. The mini baseline line also gives no commit SHA, unlike the other repos.",
+      "suggested_fix": "Correct section M. List mini's SubagentStop fallback (with its subagent_name defect), the karpathy-progress-memory pk write path, and the agent-team memory.mjs envelope. Add mini's hook timeouts to section I's scope. Record mini origin/main 56cbf12 in the baseline."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "line": 170,
+      "claim": "The KBD stage-start delivery point, which Goal 3 names explicitly, is not inventoried as a delivery surface and is missing from the baseline cost table.",
+      "evidence": "Goal 3 lists 'KBD stage start' among the delivery points. kbd-memory-recall.sh (origin/main) is the script that writes .kbd-orchestrator/phases/<phase>/prior-context.md at stage start (622 B for this phase). Line 14 mentions the file, and section D covers only the script's query defect. The baseline table (lines 171-176) has rows for UserPromptSubmit, SessionStart and SubagentStart but none for stage start. The table also omits who consumes prior-context.md (main thread only, or dispatched agents too).",
+      "suggested_fix": "Add a 'KBD stage start (prior-context.md)' row with writer, consumer and bytes. In section B, state whether stage-start context reaches subagents."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "line": 77,
+      "claim": "The round-1 path-ambiguity fix is incomplete: several citations still lack the declared prefixes, and the central truncation defect's `main.rs` is easy to misread as the worker.",
+      "evidence": "The header declares `pkw/` = pk-learning-worker and `sm/` = surreal-memory-server. Line 77's 'main.rs:735-743' is actually prometheus-knowledge pk-cli/src/main.rs, not pkw, and line 32 cites 'pk-learning-worker main.rs' in the same unprefixed style. Lines 55, 60 and 70 cite 'contracts.rs', 'memory.rs', 'librarian.rs' and 'surreal.rs' with no repo prefix. Line 187 calls evaluate-session's direct POST an 'AGENTS.md / CLAUDE.md' violation, but the 'hooks never call the memory service' rule is stated in shared/scripts/lib/memory-bridge.sh:12-14, not in AGENTS.md or CLAUDE.md.",
+      "suggested_fix": "Prefix every citation, e.g. pk-cli/src/main.rs:735-743 and sm/src/contracts.rs:93-119, and attribute the memory-bridge rule to its actual source."
+    }
+  ]
+}

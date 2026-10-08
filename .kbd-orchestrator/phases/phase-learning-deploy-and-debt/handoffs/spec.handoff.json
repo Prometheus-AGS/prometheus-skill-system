@@ -1,0 +1,25 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-10-05T12:10:32Z",
+  "outputs": [
+    "spec-summary.md",
+    "spec-index.json",
+    "verification-contract.md",
+    ".kbd-orchestrator/changes/change-ldd-01-hook-bytecode/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-02-codex-memory-control/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-03-published-memory-pins/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-04-cache-identity-accounting/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-05-generated-output-ownership/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-06-installed-doctor-remediation/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-07-custom-codex-home/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-08-bounded-cortex-mirror/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-09-partition-footer/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-10-mini-executable-modes/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-11-entrypoint-spec-contract/spec.md",
+    ".kbd-orchestrator/changes/change-ldd-12-integration-rollout/spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "12 native changes / 22 pending authored tasks covering G1-G14; canonical registration belongs to Plan. spec-gate absent (unknown-acceptable). Priority hooks then Codex then published pins; cache namespace/counters, CODEX_HOME precedence and bounded optional Cortex semantics resolved. Change 12 owns generated reconciliation and all final integration/review after production completion. Versions.toml and machine changes remain owner-approval gated. Independent review deferred by canonical policy, not passed; real isolated Codex provider may block final acceptance.",
+  "skipped": false,
+  "skipReason": null
+}

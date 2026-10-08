@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-04T23:08:23Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "8 candidates. Adopt: quick_cache (already in surreal-memory Cargo.lock) for a query-path embedding LRU (G2b), real Cortex 2.0.3 on scratch CORTEX_DATA_DIR (G3a), codex memories settings (G1b). Adapt: scratch surreal-memory harness (G2a). Reference: npm-merge-driver, rerere/merge drivers (G3c). Reject: moka, smol-toml, G2b lexical-scope option C (hurts G3b). 7 build items (G1a ranking, G1b installer line-edit + doctor check, G1c procedure shipped in delivery-cadence, G2b, G2c mark-done sync + kbd-apply reconcile, G3b untagged-pk scoping + eval fixture, G3c rebase-regenerate.sh). Open: G2b needs a single-embedding latency measurement first, and A is a cross-repo surreal-memory 1.10.1 release (operator-approved tag). Review (harness-native, same family) PASS with 7 WARNINGs, all folded in; carry: G1b inert-files conclusion is one probe (doctor re-verifies), and the generated-path set source must be named in spec.",
+  "skipped": false,
+  "skipReason": null
+}

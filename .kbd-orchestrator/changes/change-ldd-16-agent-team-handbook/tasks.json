@@ -1,0 +1,45 @@
+{
+  "changeId": "change-ldd-16-agent-team-handbook",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "title": "Document team creation role ownership task lifecycle and native harness use",
+      "files": [
+        "full:team documentation",
+        "mini:team documentation"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T14:48:09Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "1"
+    },
+    {
+      "title": "Document communication handoffs cross-project coordination and scoped memory",
+      "files": [
+        "full:team communication documentation",
+        "mini:team communication documentation"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T15:08:02Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "2"
+    },
+    {
+      "title": "Document model assignment policy discovery budgets and harness limitations",
+      "files": [
+        "full:model documentation/examples",
+        "mini:model documentation/examples"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T15:25:47Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "3"
+    }
+  ]
+}

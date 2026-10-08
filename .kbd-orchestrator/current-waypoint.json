@@ -2,11 +2,11 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1362,
-  "derivedRevision": 1362,
+  "sourceRevision": 2422,
+  "derivedRevision": 2422,
   "frontier": {
     "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
     "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
   },
@@ -14,29 +14,29 @@
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
   "runId": "sovereign-sync-service-reliability-20260829",
   "path": [
-    "agent-team-creator"
+    "phase-learning-deploy-and-debt"
   ],
   "phaseIds": [
-    "agent-team-creator"
+    "phase-learning-deploy-and-debt"
   ],
-  "activePhaseId": "agent-team-creator",
-  "activePhase": "agent-team-creator",
-  "phase": "agent-team-creator",
+  "activePhaseId": "phase-learning-deploy-and-debt",
+  "activePhase": "phase-learning-deploy-and-debt",
+  "phase": "phase-learning-deploy-and-debt",
   "parentPhase": null,
   "childPointer": null,
   "change": null,
   "currentTask": null,
   "status": "ready",
   "lifecycle": "ready",
-  "stageId": "reflect",
-  "stageStatus": "COMPLETE",
+  "stageId": null,
+  "stageStatus": null,
   "completionMetric": "implementation",
-  "implementationCompleted": 44,
-  "implementationTotal": 48,
-  "planRevision": 16,
-  "revision": 1362,
-  "exactNextCommand": "/kbd-assess agent-team-creator",
+  "implementationCompleted": 101,
+  "implementationTotal": 104,
+  "planRevision": 17,
+  "revision": 2422,
+  "exactNextCommand": "None. Owner closed the effort after documentation and incident accounting; cancelled release work must not resume. Future bugs require a new explicit request. No final certification or deployment claimed.",
   "nextChange": null,
   "nextTask": null,
-  "updatedAt": "2026-09-30T12:35:20.164786Z"
+  "updatedAt": "2026-10-05T23:00:25.251624Z"
 }

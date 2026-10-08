@@ -1,0 +1,20 @@
+{
+  "changeId": "change-ldd-10-mini-executable-modes",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Preserve packaged executable modes and detect mode drift in mini CLI",
+      "done": true,
+      "doneAt": "2026-10-05T14:17:32Z",
+      "doneBy": "codex",
+      "files": [
+        "lib/distribution/package-builder.mjs",
+        "scripts/generate-skill-system-distribution.mjs",
+        "docs/distribution.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

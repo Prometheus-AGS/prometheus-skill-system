@@ -1,0 +1,35 @@
+{
+  "changeId": "change-ldd-15-readme-content-renewal",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "title": "Audit all owned content and rewrite the full product README",
+      "files": [
+        "full:README.md",
+        "full:owned README.md files",
+        "phase:content-inventory.json",
+        "phase:content-disposition.md"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T19:14:03Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "1"
+    },
+    {
+      "title": "Rewrite mini onboarding and reconcile both README families with final product state",
+      "files": [
+        "mini:README.md",
+        "mini:owned README.md files",
+        "phase:content-disposition.md"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T19:14:44Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "2"
+    }
+  ]
+}

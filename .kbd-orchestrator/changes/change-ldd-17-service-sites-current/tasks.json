@@ -1,0 +1,34 @@
+{
+  "changeId": "change-ldd-17-service-sites-current",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "title": "Document service ownership repositories installation and recovery from actual contracts",
+      "files": [
+        "full:service/operations documentation",
+        "mini:service/operations documentation",
+        "companion:documentation cross-links"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T19:29:51Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "1"
+    },
+    {
+      "title": "Reconcile all site content canonical guides navigation redirects and catalogs",
+      "files": [
+        "full:site/** and docs/**",
+        "mini:site/** and docs/**",
+        "phase:content-disposition.md"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T19:33:11Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "2"
+    }
+  ]
+}

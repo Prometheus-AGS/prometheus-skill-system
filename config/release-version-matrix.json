@@ -1,34 +1,34 @@
 {
   "schemaVersion": 1,
-  "release": "1.11.3",
+  "release": "1.12.0",
   "ownedSurfaces": [
     {
       "path": "package.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.11\\.3\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "package-lock.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.11\\.3\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "package-lock.json",
-      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.11\\.3\""
+      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "site/package.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.11\\.3\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "site/package-lock.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.11\\.3\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "site/package-lock.json",
-      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.11\\.3\""
+      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\"releaseVersion\"\\s*:\\s*\"1\\.11\\.3\""
+      "pattern": "\"releaseVersion\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "skill-system.json",
@@ -36,115 +36,115 @@
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-ui\\-ux\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/ui\\-ux\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.0\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-ui\\-ux\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/ui\\-ux\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.0\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-react\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/react/prometheus\\-entity\\-skills\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.5\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-react\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/react/prometheus\\-entity\\-skills\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.5\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-process\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.7\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-process\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.7\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-devops\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/devops\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.5\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-devops\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/devops\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.5\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-testing\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/testing\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.5\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-testing\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/testing\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.5\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"learn\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/learn\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.6\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"learn\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/learn\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.6\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-librefang\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/rust/librefang\\-wasm\\-skill\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.5\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-librefang\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/rust/librefang\\-wasm\\-skill\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.5\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"cowork\\-management\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process/cowork\\-management\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.0\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"cowork\\-management\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process/cowork\\-management\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.0\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"disk\\-space\\-guardian\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/devops/disk\\-space\\-guardian\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.0\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"disk\\-space\\-guardian\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/devops/disk\\-space\\-guardian\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.0\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-research\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/research\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.1\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-research\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/research\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.1\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-research\\-server\"\\s*,\\s*\"path\"\\s*:\\s*\"substrate/prometheus\\-research\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.7\\.1\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-research\\-server\"\\s*,\\s*\"path\"\\s*:\\s*\"substrate/prometheus\\-research\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.7\\.2\""
     },
     {
       "path": "config/prometheus-exec-component.json",
-      "pattern": "\"release\"\\s*:\\s*\"1\\.11\\.3\""
+      "pattern": "\"release\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.toml",
-      "pattern": "\\[workspace\\.package\\]\\s*version\\s*=\\s*\"1\\.11\\.3\""
+      "pattern": "\\[workspace\\.package\\]\\s*version\\s*=\\s*\"1\\.12\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-agents\"\\s*version\\s*=\\s*\"1\\.11\\.3\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-agents\"\\s*version\\s*=\\s*\"1\\.12\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cedar\"\\s*version\\s*=\\s*\"1\\.11\\.3\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cedar\"\\s*version\\s*=\\s*\"1\\.12\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cli\"\\s*version\\s*=\\s*\"1\\.11\\.3\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cli\"\\s*version\\s*=\\s*\"1\\.12\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-learn\"\\s*version\\s*=\\s*\"1\\.11\\.3\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-learn\"\\s*version\\s*=\\s*\"1\\.12\\.0\""
     },
     {
       "path": "skills/ui-ux/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.0\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.0\\.2\""
     },
     {
       "path": "skills/react/prometheus-entity-skills/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.5\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.5\\.2\""
     },
     {
       "path": "skills/process/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.7\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.7\\.2\""
     },
     {
       "path": "skills/devops/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.5\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.5\\.2\""
     },
     {
       "path": "skills/testing/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.5\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.5\\.2\""
     },
     {
       "path": "skills/learn/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.6\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.6\\.2\""
     },
     {
       "path": "skills/rust/librefang-wasm-skill/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.5\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.5\\.2\""
     },
     {
       "path": "skills/process/cowork-management/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.0\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.0\\.2\""
     },
     {
       "path": "skills/devops/disk-space-guardian/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.0\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.0\\.2\""
     },
     {
       "path": "skills/research/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.1\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.1\\.2\""
     },
     {
       "path": "substrate/prometheus-research/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.7\\.1\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.7\\.2\""
     }
   ],
   "intentionalExemptions": [

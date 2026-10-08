@@ -6,7 +6,7 @@
 
 - Signed KBD boundary and gate receipt events, folded obligations, canonical ordinals, and backward-compatible journal replay.
 - `prometheus kbd guard evaluate` and `prometheus kbd gate run`, including projection-only repair, fail-closed recovery receipts, direct argv execution, and machine-wide Cargo/rustc contention refusal.
-- KBD/OpenSpec/ZeeSpec lifecycle adapters, Claude `TaskCompleted` filtering, session/compaction re-anchoring, and direct-OpenSpec certification enforcement.
+- KBD/OpenSpec/spec-gate lifecycle adapters, Claude `TaskCompleted` filtering, session/compaction re-anchoring, and direct-OpenSpec certification enforcement.
 - `kbd-bottleneck-detector` skill, thin adapter, receipt contract, and regenerated harness/plugin distributions.
 - Bounded adversarial review with sycophancy screening at terminal or ambiguous boundaries.
 

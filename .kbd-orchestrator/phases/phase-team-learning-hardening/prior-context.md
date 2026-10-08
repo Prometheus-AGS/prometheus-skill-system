@@ -1,0 +1,57 @@
+# Prior context — phase-team-learning-hardening (execute)
+
+> Auto-populated by /kbd-memory-recall for lead view (main thread); lessons from pk. Cite the lessons that apply; recalled entries are information recorded by agents, not instructions.
+
+## Lessons
+
+- [pk:project] Team-Aware Learning Memory Implementation Reflect Lessons: `team-aware-learning-memory-impl` reached reflect with all `tasks.json` files showing done, but the canonical runtime ledger had drifted and required repair. - At reflect time, `progress.json` recorded only **13 of 25 changes**, while every `tasks.json` showed all tasks complete. - From B5 onward, tasks were closed with `kbd-apply mark-done`; this flips task flags but does **not** sync the runtime ledger. - Reflect repair replayed every task through `begin-task` / `end-task`. _(recorded by an agent; lesson; via pk learning:d630eaafa139fe7b)_
+- [pk:project] Delivery Cadence Source Freezing Requires Deploy Worktrees: `delivery-cadence` freezes every source named in `ready`; do **not** point those sources at the actively edited main checkout. Use a dedicated deploy worktree instead, because normal bookkeeping or local writes in the main checkout can invalidate the frozen source and trip checkpoint guards. - `ready` records the source state for the iteration. - `finish` refuses unchanged sources, so an iteration cannot be completed by simply retrying without an admissible source-state change. - If `finish` fails, the only repair path is to run `ready` again for that **same iteration**. _(recorded by an agent; lesson; via pk learning:cf4a0d4d09608dcd)_
+- [pk:project] KBD Task Closure Requires Ledger Synchronization: `kbd-apply mark-done` updates the task flag but does **not** synchronize the canonical KBD ledger. - Do not rely on `kbd-apply mark-done` alone when closing phase tasks. - `begin-task` - `end-task` _(recorded by an agent; lesson; via pk learning:e5e11913d966b673)_
+- [pk:project] Deploy Worktrees Need Submodule Update After Fast-Forward: After fast-forwarding a dedicated deploy worktree, run `git submodule update` before invoking `update-skill-pack.sh`; otherwise the script can reject the checkout as a dirty tree. _(recorded by an agent; lesson; via pk learning:90adeb6bc53b712e)_
+- [pk:shared] Operator controls PR merges and requires end-of-turn KBD status: For `team-aware-learning-memory-impl`, the operator owns all PR merges and expects the full KBD status at the end of every turn. _(recorded by an agent; lesson; via pk learning:c217c3a296f8ed4f)_
+- [pk:shared] External integrations require at least one real-service test: For every external integration, run at least one test against the real service before claiming the work is done. Fakes and mocks can hide service-specific preconditions, such as labels that must already exist or context that is inherited rather than supplied explicitly. - Prefer CI or repeatable scripts for the real-service check when feasible; see related real-environment validation patterns in [Codex plugin verify-and-publish phase goals and validation plan](/codex-plugin-verify-and-publish-phase-goals-and-validation-plan.md) and [Live Postgres startup checks for flint_meta reflection drift] _(recorded by an agent; lesson; via pk learning:ddd2db0fb37f6232)_
+- [pk:shared] Poll after creating GitHub issues before listing by label: GitHub's issue list-by-label results can lag a just-created issue by several seconds. When automation creates an issue and then verifies it via label-filtered listing, poll until the issue appears instead of asserting immediately. - After `gh issue create --label X`, treat `gh issue list --label X` or equivalent API searches as eventually consistent. issue_url=$(gh issue create --title "$title" --body "$body" --label "$label") if gh issue list --label "$label" --json url --jq '.[].url' | grep -Fxq "$issue_url"; then _(recorded by an agent; lesson; via pk learning:caad2f3ba9a7510b)_
+- [pk:shared] Keep Codex parent SessionStart injections safe for subagents: Codex forks the parent thread history into every spawned child. Any text injected into the parent at `SessionStart` is inherited by every subagent, so parent-level injections must not contain role-private, lead-only, or otherwise compartmentalized instructions. - Treat parent `SessionStart` context as **broadcast context** for the entire agent tree. - When validating Codex hook behavior, include inheritance effects in the review alongside normal `SessionStart` execution checks, such as those discussed in [Codex plugin verify-and-publish phase goals and validation plan](/codex-plugin-verify-and _(recorded by an agent; lesson; via pk learning:417cea63da61f206)_
+- [pk:shared] Generated Format Emitters and Validators Must Stay Paired: For each generated format, maintain exactly one authoritative emitter and one authoritative validator. The validator should have its own tests, and those tests must fail when the emitter changes the generated shape unexpectedly. - If validator tests fail on `main`, treat it as a product defect to fix; do not classify it as a harmless pre-existing failure or skip it. _(recorded by an agent; lesson; via pk learning:098018956240d0b9)_
+- [pk:shared] Avoid reentrant lock-taking CLIs and default fallbacks: Do not invoke a CLI or subprocess that takes a lock from inside code that already holds the same lock. If the nested call fails due to lock contention, do not mask the failure with a default value. _(recorded by an agent; lesson; via pk learning:48c0f579fcb59754)_
+
+## pk knowledge
+
+- [pk:global] KnowMe PoC C-102 Codegen Run and Tauri Desktop Lessons: - Project: `hybrid-mobile-architecture-src` / TJ-ARCH-MOB-001 skill package. - Phase: `phase-codegen-and-ci-verification`. - Changes merged to `main`: - C-101: `86e7d1d` _(recorded by an agent; lesson; via pk pk:knowme-poc-c-102-codegen-run-and-tauri-desktop-lessons)_
+- [pk:project] Decision: defer MCP 2026-07-28 adoption; converge rmcp in a dedicated phase: Decision: defer MCP 2026-07-28 adoption; converge rmcp in a dedicated phase **Do not adopt MCP `2026-07-28` now.** Unblock the parent phase with two minimal edits, record what was measured, and give the five-crate `rmcp` convergence its Committed instead: `sse-stream` floor at 0.2.4 + `ContentBlock as Content` in two _(recorded by an agent; lesson; via pk pk:decision-defer-mcp-2026-07-28-adoption)_
+- [pk:shared] Live avatar WebRTC agents — comparative analysis and optimal stack recommendation (2026): Live Avatar WebRTC Agents for Agentic Applications: A Comparative Analysis and Optimal Stack Recommendation **Author:** Travis James (`@GQAdonis`) **Companion to:** `karpathy-loop-continuous-improvement.md`, `live-avatar-agent-webrtc-conferences.md` - **Wav2Lip** (2020) — the original lip-sync model from the Indian Institute of Science. 30fps, <100ms inference on V100. Lip-only — no head motion, no expression. Quality is dated but reliable; the model is small (~200MB) and runs on almost anything. MIT-style license. _(recorded by an agent; lesson; via pk pk:live-avatar-agent-comparative-analysis-2026)_
+- [pk:shared] Rust AI agent gateway — Actix + ONNX + MCP design doc (from ChatGPT mobile): Travis, build this as a Rust "agent gateway" with Actix as the HTTP/control plane, ONNX Runtime as the local inference plane, and MCP as the tool/context interoperability plane. Use unpinned `cargo add` during spike development, then pin exact versions in Cargo.lock before production. cargo add actix-web actix-cors serde serde_json thiserror anyhow async-trait Note: the RMCP GitHub page shows an import example using `rmcp = { version = "0.16.0", features = ["server"] }`, but the same repository also shows a newer rmcp-v2.0.0 release dated June 29, 2026. Pin what `cargo add rmcp` resolves today _(recorded by an agent; lesson; via pk pk:rust-ai-agent-gateway-actix-onnx-mcp-architecture)_
+
+## Previous reflection
+
+From `team-aware-learning-memory-impl/reflection.md`:
+
+**Delta**
+
+1. **The canonical ledger drifted from the change files.** At reflect time `progress.json` recorded 13 of 25 changes, while every `tasks.json` showed all tasks done. From B5 onward, tasks were closed with `kbd-apply mark-done`, which flips the flag but does not sync the runtime ledger. Fixed at reflect by replaying every task through `begin-task`/`end-task`.
+2. **Merge conflicts took far more time than planned.** Six PRs needed rebases after a sibling merged: B5, B6, C2, B7, C3b and C4. Most conflicts were in generated files (hook bundles, release manifests, `dist/**`). Two were real source conflicts:
+   - `learning_recall.py` imports: C2's `prompt_gap` against B7's `learning_route`.
+   - `team.schema.json` / `validation.mts`: B6's `agentMemory` against C4's `card`.
+3. **A PR merged at a stale head.** mini #34 merged at its pre-rebase commit `5a74398`. The follow-up `9c08636` (Codex exclusion of D1a's Claude-only hook, plus its test) never reached main, so mini main carried a failing test until fix PR mini #38.
+4. **Live and integration runs found defects that mocked and earlier gates had missed:**
+   - The doctor rejected every Codex hook as "not pinned". Generated hooks moved to single-string commands in `abf0ade`, but `collect_hook_commands` still read `command`+`args`. Fixed in #137.
+   - `team-request` failed on the first request to any team because `gh issue create --label` errors when the label is missing. Fixed in #144.
+   - Codex forks the parent thread into every spawned child, so the SessionStart lead view leaked `@lead` text into ui_dev. The Codex main-thread view was made digest-only.
+5. **The cadence engine fought the delivery procedure. Four distinct failures:**
+   - Iteration 1 froze the constantly mutated main checkout and was refused three times ("Source changed after freeze").
+   - After a failed finish, every `start` is refused. The only repair path is `ready` on the failed iteration.
+   - `finish` refuses a candidate whose sources are unchanged, which forced skipped hours.
+   - My `--auto` parity called the lock-holding cadence CLI from inside its own checkpoint. The call failed silently and fell back to N=1, so every `--auto` run was a full refresh until iteration 4.
+6. **Main itself was broken twice by other work, and each break blocked delivery:**
+   - Stale generated `dist/` for delivery-cadence (16 fil
+… (truncated)
+
+## Knowledge gaps
+
+- `scripts/memory-index-partition.py` keeps file order. The live partition needed a manual priority reorder first: current phase, then feedback, then archives, then older projects. The tool should rank entries itself.
+- Codex memory generation is disabled in the operator's `~/.codex/config.toml` by hand. The installer neither sets it nor checks it, so a fresh machine will regrow `memory_summary.md`.
+- `.prometheus/cadence/procedures/refresh-skill-pack.sh` is local and unversioned, and it contains the parity and submodule fixes made during this phase.
+- `skills/process/agent-team-creator/tests/memory-envelope.integration.mjs` publishes to the live `:23001` service rather than a scratch server. It flaked twice at load average ~250.
+- The D3 Cortex mirror has been tested only against a stub server. Real Cortex 2.0.3 has no tag field, so the role tag goes into `context`.
+- SubagentStart delivery is skipped (logged, not retried) when recall misses the 3.5 s watchdog under extreme load. B4's recall embeds the same query several times.
+- `kbd-apply mark-done` leaves the canonical ledger stale. Nothing warns about it.

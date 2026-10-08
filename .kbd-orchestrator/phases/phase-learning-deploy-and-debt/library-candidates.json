@@ -1,0 +1,307 @@
+{
+  "phase": "phase-learning-deploy-and-debt",
+  "generated_at": "2026-10-05T10:19:58.803244+00:00",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier_1": 4,
+      "tier_2": 5,
+      "tier_3": 2,
+      "tier_4": 0
+    }
+  },
+  "gaps_addressed": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6",
+    "G7",
+    "G8",
+    "G9",
+    "G10",
+    "G11",
+    "G12",
+    "G13",
+    "G14"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "Python inherited bytecode suppression",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G1",
+      "verdict": "adopt",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://docs.python.org/3.11/using/cmdline.html#envvar-PYTHONDONTWRITEBYTECODE",
+          "claim": "Environment suppression applies to interpreter imports and propagates to descendants."
+        }
+      ],
+      "risks": [
+        "Direct invocations and explicit environment replacement need coverage."
+      ],
+      "decision_rationale": "Wire the standard control into the generated dispatcher and direct hook paths."
+    },
+    {
+      "id": "cand-002",
+      "name": "Codex feature-gated memory startup",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G2",
+      "verdict": "adapt",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/openai/codex/blob/064c6b8c737f5b41d171fdda80bd9ef10ad06eb3/codex-rs/memories/write/src/start.rs",
+          "claim": "Release startup checks MemoryTool but not generate_memories or use_memories."
+        }
+      ],
+      "risks": [
+        "Running sessions keep prior config; desktop engine version remains unverified."
+      ],
+      "decision_rationale": "Disable the feature and update helper, doctor and installer coherently."
+    },
+    {
+      "id": "cand-003",
+      "name": "Existing quick_cache 0.6.21",
+      "kind": "library",
+      "registry": "crates",
+      "fit_for_gap": "G4, G5",
+      "verdict": "adopt",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://docs.rs/quick_cache/0.6.21/quick_cache/sync/struct.Cache.html",
+          "claim": "Exact local pinned source confirms fallible async insertion and successful-value storage."
+        }
+      ],
+      "risks": [
+        "Context7 docs are 0.6.18; live registry metadata could not be obtained."
+      ],
+      "decision_rationale": "Retain dependency; fix application identity/accounting requirements.",
+      "license": "MIT",
+      "repo_url": "https://github.com/arthurprs/quick-cache",
+      "maintenance": {
+        "registry_lookup": "Unavailable: TLS validation failure followed by HTTP 403; no freshness claim."
+      }
+    },
+    {
+      "id": "cand-004",
+      "name": "Storage-instance cache isolation",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G4",
+      "verdict": "reference",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/surreal-memory-server/blob/0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1/crates/surreal-memory/src/storage/surreal.rs",
+          "claim": "Each storage owns a private cache alongside its fixed provider reference."
+        }
+      ],
+      "risks": [
+        "A provider that changes internal remote model config would require a stable namespace."
+      ],
+      "decision_rationale": "Reassess collision premise before widening provider identity APIs."
+    },
+    {
+      "id": "cand-005",
+      "name": "Bounded filesystem feeder leases",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G9, G10",
+      "verdict": "adapt",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837/shared/scripts/lib/learning_write.py",
+          "claim": "Current optional mirror starts detached processes and has no concurrency limit."
+        }
+      ],
+      "risks": [
+        "Stale leases, spawn failure, portability and skip-on-full semantics need specification."
+      ],
+      "decision_rationale": "Use standard-library cross-process ownership rather than a new queue framework."
+    },
+    {
+      "id": "cand-006",
+      "name": "Full-pack mode-preserving copy",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G13",
+      "verdict": "adapt",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837/scripts/generate-skill-system-distribution.js",
+          "claim": "Full distribution preserves file modes while mini copies only bytes."
+        }
+      ],
+      "risks": [
+        "POSIX modes and Windows capabilities differ."
+      ],
+      "decision_rationale": "Port existing executable intent handling and mode drift checks."
+    },
+    {
+      "id": "cand-007",
+      "name": "Verified installed-generation helper resolution",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G7",
+      "verdict": "adapt",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837/scripts/install-plugin-generation.js",
+          "claim": "Immutable generations contain helper payloads and are verified before activation."
+        }
+      ],
+      "risks": [
+        "Missing or invalid generation must not produce a misleading repair command."
+      ],
+      "decision_rationale": "Doctor should report a quoted absolute helper from a verified generation."
+    },
+    {
+      "id": "cand-008",
+      "name": "Single effective Codex-home resolver",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G8",
+      "verdict": "adapt",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837/scripts/install-plugin-generation.js",
+          "claim": "Projection, uninstall and verification currently derive target roots from HOME."
+        }
+      ],
+      "risks": [
+        "Environment-only fix leaves skill copies under a different root."
+      ],
+      "decision_rationale": "Apply one root consistently across all install lifecycle operations."
+    },
+    {
+      "id": "cand-009",
+      "name": "Materialized-output ownership contract",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G6",
+      "verdict": "adapt",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837/scripts/generated-paths.mjs",
+          "claim": "Current assertion consumes roots from the same generator it compares."
+        }
+      ],
+      "risks": [
+        "Avoid another redundant hand-maintained root list."
+      ],
+      "decision_rationale": "Measure actual owned output and consumer classification instead."
+    },
+    {
+      "id": "cand-010",
+      "name": "Production-entry-point acceptance contract",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G10, G11, G12, G14",
+      "verdict": "adapt",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837/skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md",
+          "claim": "Authoring guide names native/OpenSpec artifacts but lacks an explicit integration acceptance template."
+        }
+      ],
+      "risks": [
+        "Protected scenarios cannot be modified without canonical owner approval."
+      ],
+      "decision_rationale": "Add a template naming entry points, collaborators, isolation and final gates."
+    },
+    {
+      "id": "cand-011",
+      "name": "Ignore bytecode in generation manifests",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G1",
+      "verdict": "reject",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837/scripts/install-plugin-generation.js",
+          "claim": "Integrity verification checks manifested payloads rather than accepting runtime writes."
+        }
+      ],
+      "risks": [
+        "Would falsely certify a mutated payload."
+      ],
+      "decision_rationale": "Ignoring corruption would hide the defect and weaken immutable generation guarantees."
+    },
+    {
+      "id": "cand-012",
+      "name": "generate_memories=false as sole write control",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G2",
+      "verdict": "reject",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/openai/codex/blob/064c6b8c737f5b41d171fdda80bd9ef10ad06eb3/codex-rs/config/src/types.rs",
+          "claim": "Generation flag changes new-thread eligibility, not startup consolidation authorization."
+        }
+      ],
+      "risks": [
+        "Retained outputs, queued work and existing sessions can still write."
+      ],
+      "decision_rationale": "Use the feature gate; use_memories=false alone is also not a write gate."
+    }
+  ],
+  "build_required": [
+    {
+      "need": "G1/G2/G7/G8: hook and Codex production wiring",
+      "why_no_candidate": "Interpreter/configuration mechanisms exist; application dispatch, root resolution and diagnostic predicates require coherent edits.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G3: published pin rollout and load evidence",
+      "why_no_candidate": "Release exists; operator-approved version edits, user merges and separately approved installation remain.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G4/G5: cache requirement disposition and accounting",
+      "why_no_candidate": "Existing library fits; model mutability premise and failure/statistics contracts need application decisions.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G6: generated ownership invariant",
+      "why_no_candidate": "No library can choose the repository-specific independent output/consumer contract.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G9/G10: bounded optional mirroring and scratch ownership",
+      "why_no_candidate": "Standard primitives fit; capacity policy and real service isolation are repository responsibilities.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G11: exact partition budget/footer calculation",
+      "why_no_candidate": "Repository ranking and output-count contract need a local algorithm correction.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G12/G13: mini baseline and executable modes",
+      "why_no_candidate": "Reuse mode-copy pattern; derive current integration outcomes at the final boundary.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G14: acceptance authoring template",
+      "why_no_candidate": "No external framework replaces the canonical entry-point acceptance policy.",
+      "capability_gap_id": null
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "changeId": "change-tli-a1-pk-context-scoring",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[A1] Score all snapshot entries per scope and apply the candidate cap after scoring with deterministic ordering",
+      "done": true,
+      "doneAt": "2026-10-04T03:45:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        "pk-cli/src/main.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[A1] Add the context_scoring integration test (200-entry scope, last-by-id match, failed-scope redistribution, stable order)",
+      "done": true,
+      "doneAt": "2026-10-04T03:45:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        "pk-cli/tests/context_scoring.rs"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-a1-pk-context-scoring/verify.sh",
+      "notes": null
+    }
+  ]
+}

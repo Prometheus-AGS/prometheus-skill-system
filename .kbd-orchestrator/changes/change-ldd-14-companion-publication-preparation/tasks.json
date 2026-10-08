@@ -1,0 +1,51 @@
+{
+  "changeId": "change-ldd-14-companion-publication-preparation",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "title": "Capture intended Companion source into an isolated publication candidate",
+      "files": [
+        "companion:Cargo.toml",
+        "companion:Cargo.lock",
+        "companion:crates/**",
+        "companion:src-tauri/**",
+        "companion:scripts/**",
+        "companion:shared/**",
+        "companion:.gitignore"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T18:46:52Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "1"
+    },
+    {
+      "title": "Finish Companion integration packaging and replace starter documentation",
+      "files": [
+        "companion:skill-package.json",
+        "companion:skills/**",
+        "companion:README.md",
+        "companion:docs/**"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T19:26:02Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "2"
+    },
+    {
+      "title": "Prepare explicit commit inventory remote destination and publication procedure",
+      "files": [
+        "phase:companion-publication.md"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T18:51:05Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "3"
+    }
+  ]
+}

@@ -6,7 +6,7 @@
     "openspec/changes/agent-team-creator"
   ],
   "nextStage": "plan",
-  "summaryForNext": "Two ordered changes: KBD consistency prerequisite then agent team creator. OpenSpec strict validation passes. Distinct-model review PASS with two warnings addressed in marketplace and verification wording; original findings retained. Mini has no ZeeSpec; full none configured.",
+  "summaryForNext": "Two ordered changes: KBD consistency prerequisite then agent team creator. OpenSpec strict validation passes. Distinct-model review PASS with two warnings addressed in marketplace and verification wording; original findings retained. Mini has no spec-gate; full none configured.",
   "skipped": false,
   "skipReason": null
 }

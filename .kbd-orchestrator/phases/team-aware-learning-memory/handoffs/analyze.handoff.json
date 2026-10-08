@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-04T00:00:07Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "13 candidates; no memory library adopted (patterns copied from mem0/CrewAI/LangMem/Graphiti/Letta); adopt SubagentStart delivery in Claude Code and Codex; both harnesses already push untargeted memory (Claude auto-memory ~14 KB/project, Codex native memory_summary ~10.8 KB/user) that must be partitioned or reduced. Upstream pk truncation fix + surreal-memory category filter/no-embeddings are hard prerequisites, pinned v1.10.0 before dependent pack PRs. Review: 2 harness-native rounds; round 2 PASS 0/4/3. WARNINGS carried to change-tlm-002: (W1) agent_id equality-only filter -> one agent_id key per visibility level (<team>/<role>, <team>/@team, @project, @user, @global), legacy null-agent records need migration or archive status; (W2) Codex writes all threads incl. subagents into user-level memories -> probe memory_mode/use_memories; (W3) budget is per subagent across all channels, not per hook; (W4) Cortex writes lack team/role -> CLAUDE.md update in revised plan.",
+  "skipped": false,
+  "skipReason": null
+}

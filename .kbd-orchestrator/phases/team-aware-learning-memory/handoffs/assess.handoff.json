@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-10-03T23:50:38Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Agent identity (agent_id/agent_type) is exposed by both harnesses but dropped everywhere; SubagentStart can inject per-subagent context in both but no hook exists; today every subagent gets ~14 KB of untargeted Claude auto-memory and 0 targeted lessons, the main thread ~4 KB of near-irrelevant pk context per prompt (pk context scores only the first 43 entries per scope by id) plus ~8.5 KB at session start. Stores: surreal-memory filters agent_id/user_id/session_id but ignores categories and cannot set metadata/scope; pk cannot set or filter tags; reflect write-back and recall are broken (section-name mismatch, lifecycle-metadata recall, no worker snapshot commit). Also: SubagentStop bare-name matchers collide with team roles; PR #121 timeout-ms misdiagnosis (both harnesses use seconds); constraints C-01/C-03/C-04/C-05 bind hook changes. Review: 2 harness-native rounds (same family), round-2 fixes unreviewed; cross-model judge pending (JUDGE_MODEL_COLLISION). Open for analyze: Codex agent_type runtime confirmation, visibility model, budgets, upstream sm/pk changes, mini scope, overlapping owns.",
+  "skipped": false,
+  "skipReason": null
+}

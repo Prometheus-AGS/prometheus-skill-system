@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T21:54:59.824280+00:00",
+  "originalMemoryHead": "752456f",
+  "message": "feat: Claude Code hook/statusline client mode",
+  "observation": "original checkout now commits previously dirty recovered hook/statusline source; original checkout preserved",
+  "candidateBase": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+  "productionComparison": "src/lib.rs identical; hook.rs differs only excluded newly authored module-local unit suite; main.rs additionally preserves candidate loopback connect-info security repair and excludes new hook parsing units",
+  "fullSelectedPin": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "fullOriginMainSameAsSelectedPin": true,
+  "acceptance": false
+}

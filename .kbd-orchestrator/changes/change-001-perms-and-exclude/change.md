@@ -7,19 +7,19 @@
 
 ## Goal
 
-Fix `zeespec-interrogator` script permissions (eliminating 6 warnings from `npm run validate`)
+Fix `spec-gate` script permissions (eliminating 6 warnings from `npm run validate`)
 and add `--exclude-submodules` flag to `validate-skills.js` so submodule skills are skipped
 when running `npm run validate:strict`.
 
 ## Files
 
-- `skills/process/zeespec-interrogator/scripts/` — 6 scripts need `chmod +x`
+- `skills/process/spec-gate/scripts/` — 6 scripts need `chmod +x`
 - `scripts/validate-skills.js` — add `--exclude-submodules` to `findSkills()`
 - `package.json` — update `validate:strict` to pass `--exclude-submodules`
 
 ## Tasks
 
-- [ ] `chmod +x` all 6 zeespec-interrogator scripts
+- [ ] `chmod +x` all 6 spec-gate scripts
 - [ ] Add `--exclude-submodules` flag handling to `findSkills()` in `validate-skills.js`
 - [ ] Strip `--exclude-submodules` from `filteredArgs` in `main()` alongside `--strict`
 - [ ] Update `package.json`: `"validate:strict": "node scripts/validate-skills.js --strict --exclude-submodules"`

@@ -1,0 +1,47 @@
+{
+  "changeId": "change-tlh-06-ledger-reconciliation",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[06] Make mark-done sync progress and add the reconcile subcommand with --repair and --json",
+      "done": true,
+      "doneAt": "2026-10-05T06:27:53Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+        "skills/process/kbd-process-orchestrator/skills/kbd-apply/SKILL.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[06] Wire reconcile into kbd-reflect step 4, the refresh procedure's --kbd-root/--reconcile-phase and the shim example, and add a --reconcile-phase case (stub kbd-apply on PATH, JSON summary has a reconcile field, a cadence.mjs tripwire on PATH is never called) to test-cadence-refresh-procedure.sh",
+      "done": true,
+      "doneAt": "2026-10-05T06:29:25Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md",
+        "skills/process/delivery-cadence/scripts/refresh-skill-pack.sh",
+        "skills/process/delivery-cadence/examples/refresh-skill-pack-shim.sh",
+        "shared/scripts/tests/test-cadence-refresh-procedure.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[06] Add test-kbd-apply-reconcile.sh (scratch KBD project with the real runtime: drift created by flipping tasks.json, detect exit 1, --repair to clean exit 0, mark-done leaves no drift)",
+      "done": true,
+      "doneAt": "2026-10-05T06:31:12Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-kbd-apply-reconcile.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-06-ledger-reconciliation/verify.sh",
+      "notes": null
+    }
+  ]
+}

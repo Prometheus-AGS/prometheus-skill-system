@@ -5,8 +5,7 @@ version: '1.0.0'
 description: >
   Run the Spec stage of the KBD lifecycle: turn an assessment and analysis into
   concrete, ordered changes — native-kbd specs (spec.md + tasks.json +
-  verification.md) or OpenSpec proposals — gated by ZeeSpec requirements
-  coverage when present.
+  verification.md), OpenSpec proposals, or Spec Kit feature specs.
 metadata:
   tags: [process, orchestration, automation]
 ---
@@ -29,21 +28,6 @@ order and the Execute stage will drive one task per turn:
 
 Backend is resolved exactly as `kbd-apply` resolves it (`project.json.specBackend`
 → openspec → speckit → native-kbd).
-
-## ZeeSpec coverage gate
-
-When `.zeespec/<subject>/` exists for the active subject, read its coverage
-verdict before writing specs:
-
-- **GO** — proceed; record the verdict in the spec handoff.
-- **CAUTION** — proceed, but list the under-covered dimensions in `spec.md`
-  "Open Questions" so the Plan/Execute stages surface them.
-- **NO-GO** — do **not** write specs. Stop and instruct the operator:
-  `Run /zeespec-interrogate <subject> to raise coverage above threshold, then re-run /kbd-spec.`
-  This is the spec→plan gate remediation.
-
-When no `.zeespec/` exists, the gate is inactive (coverage is treated as
-unknown-acceptable) — ZeeSpec is opt-in.
 
 ## Progress Signals (MANDATORY)
 
@@ -75,9 +59,8 @@ Never guess. Emit to plain response text — no tool call needed.
 4. **Read inputs** — `assessment.md`; `analysis.json` /
    `library-candidates.json` if Analyze ran (adopt/adapt candidates become
    "reuse this library" tasks, not "build it" tasks).
-5. **ZeeSpec gate** — apply the coverage gate above.
-6. **Resolve backend** — `kbd-apply detect` semantics.
-7. **Write change specs** — native-kbd files or `/opsx:new` per change, with a
+5. **Resolve backend** — `kbd-apply detect` semantics.
+6. **Write change specs** — native-kbd files or `/opsx:new` per change, with a
    declared `scope:` and explicit task list each. Apply
    `references/templates/acceptance.template.md` for every specified behavior:
    copy its populated contract into native `verification.md`, or the OpenSpec
@@ -89,7 +72,7 @@ Never guess. Emit to plain response text — no tool call needed.
    implementation review; the consolidated integration batch runs at its final
    boundary. Helper-only, unit, structural or mocked checks cannot establish
    acceptance. Missing services/tools/approvals are BLOCKED; exit 2 never passes.
-8. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
+7. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
    `/adversarial-review --mode artifact spec` on the change set (see orchestrator
    `references/integrations/adversarial-review.md`). CRITICAL findings → revise
    the affected `spec.md` / `tasks.json` / `verification.md` and re-vet (max 2
@@ -103,7 +86,7 @@ Never guess. Emit to plain response text — no tool call needed.
    omits a file its tasks edit, or two changes editing the same file with no
    ordering. Reviewing one change in isolation cannot see any of them.
 
-9. **Write handoff** — `kbd_stage_handoff_write spec "<changes created, zeespec verdict>" <first change path>`.
+8. **Write handoff** — `kbd_stage_handoff_write spec "<changes created>" <first change path>`.
 
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
@@ -115,7 +98,7 @@ kbd_hooks_fire spec before "$phase" 1 1
 # … write change specs …
 # … adversarial vet (step 8) runs here, before the handoff …
 kbd_hooks_fire spec after  "$phase" 1 1
-kbd_stage_handoff_write spec "<N changes; zeespec: GO|CAUTION|n/a>" "<first-change>/spec.md"
+kbd_stage_handoff_write spec "<N changes created>" "<first-change>/spec.md"
 ```
 
 ## Examples

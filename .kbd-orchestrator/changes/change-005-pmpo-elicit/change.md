@@ -19,7 +19,7 @@ scope:
 ## Context
 
 When the process is missing information it either asks everything upfront
-(zeespec) or silently decides. The plan calls for a reusable primitive: ask the
+(spec-gate) or silently decides. The plan calls for a reusable primitive: ask the
 user for the answer OR its source, and ALWAYS offer "research it for me."
 
 ## Scope
@@ -36,10 +36,10 @@ In:
   Signals.
 - `references/schemas/elicitation.schema.json` (request + result with provenance
   user|source|research|implicit, confidence, evidence, cost).
-- `references/integration-contract.md` — how kbd-analyze/zeespec/any stage call
+- `references/integration-contract.md` — how kbd-analyze/spec-gate/any stage call
   it.
 
-Out: zeespec interrogate.md rewrite (later phase) — contract documented here so
+Out: spec-gate.md rewrite (later phase) — contract documented here so
 that change is mechanical when it lands.
 
 ## Tasks

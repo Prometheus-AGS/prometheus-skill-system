@@ -1,0 +1,51 @@
+{
+  "changeId": "change-tlm-004-hook-timeout-seconds",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Convert hook-contract timeouts to seconds (one-time 10 s floor) and enforce 1-600 second generator bounds",
+      "done": true,
+      "doneAt": "2026-10-04T00:25:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/harnesses/hook-contract.json",
+        "scripts/generate-harness-adapters.js"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Remove CODEX_MIN_HOOK_TIMEOUT_MS and assert equal timeouts across harnesses in the dispatch test",
+      "done": true,
+      "doneAt": "2026-10-04T00:26:13Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/lib/hook-config.js",
+        "scripts/generate-harness-adapters.js",
+        "scripts/tests/hook-dispatch.test.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Correct CLAUDE.md and docs/codex-plugin.md, regenerate all hook and dist outputs",
+      "done": true,
+      "doneAt": "2026-10-04T00:28:38Z",
+      "doneBy": "claude-code",
+      "files": [
+        "CLAUDE.md",
+        "docs/codex-plugin.md",
+        "hooks/hooks.json",
+        "hooks/codex-hooks.json",
+        "shared/harnesses/generated",
+        "shared/scripts/generated/hook-dispatch-v1.sh",
+        "dist/plugins"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlm-004-hook-timeout-seconds/verify.sh",
+      "notes": null
+    }
+  ]
+}

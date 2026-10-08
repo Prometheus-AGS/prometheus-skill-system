@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T21:57:58.020150+00:00",
+  "status": "coherent-correction-source-complete",
+  "handoffs": [
+    {
+      "path": "/tmp/ldd-root-integration-correction-handoff.json",
+      "sha256": "5e9e85ec5398ffa227533fa07785798b77faa7fa040e7eb9a252c783a13dd2eb"
+    },
+    {
+      "path": "/tmp/ldd-hook-fixture-correction-handoff.json",
+      "sha256": "211c6c8a635aeadfa9e9350c6da95d937f7f7eed1a1f6adabccb4485e3ebeeb4"
+    },
+    {
+      "path": "/tmp/ldd-site-failure-source-handoff.json",
+      "sha256": "58c57263cd6578f02c557a883b54176041e6335af65699a025a0692b76a9c8ab"
+    },
+    {
+      "path": "/tmp/ldd-initial-protected-rebase-source-handoff.json",
+      "sha256": "cf671a4c5141f92f08c65ccb3ef49284a8883add461ebbf7097541a122102051"
+    },
+    {
+      "path": "/tmp/ldd-full-correction-generation-handoff.json",
+      "sha256": "f40efd5cce784ab7f9737ca7993a762a876d67465513cfb9a93eabaa9800f277"
+    }
+  ],
+  "initialFailureReceipt": "evidence/local-integration/initial-20261005T210725Z/batch.json",
+  "acceptance": false,
+  "publication": false,
+  "deployment": false,
+  "knownUnchangedBlocker": "real Cortex2.0.3 package prerequisite still pending owner input; not included in affected confirmation"
+}

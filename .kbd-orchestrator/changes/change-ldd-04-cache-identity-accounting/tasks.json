@@ -1,0 +1,39 @@
+{
+  "changeId": "change-ldd-04-cache-identity-accounting",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Bind query caching to immutable provider/model identity while retaining the pinned cache",
+      "done": true,
+      "doneAt": "2026-10-05T13:32:30Z",
+      "doneBy": "codex",
+      "files": [
+        "crates/surreal-memory/src/embeddings/mod.rs",
+        "crates/surreal-memory/src/embeddings/openai.rs",
+        "crates/surreal-memory/src/embeddings/cohere.rs",
+        "crates/surreal-memory/src/embeddings/candle.rs",
+        "crates/surreal-memory/src/palace/embedding.rs",
+        "src/executor.rs",
+        "crates/surreal-memory/src/storage/surreal.rs"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    },
+    {
+      "id": "2",
+      "title": "Correct attempt/reuse counters and explicit stats error behavior",
+      "done": true,
+      "doneAt": "2026-10-05T13:46:31Z",
+      "doneBy": "codex",
+      "files": [
+        "crates/surreal-memory/src/storage/surreal.rs",
+        "src/operations.rs",
+        "openapi/surreal-memory-v2.openapi.json",
+        "docs/query-embedding-cache.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

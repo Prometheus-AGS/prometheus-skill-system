@@ -1,0 +1,33 @@
+{
+  "changeId": "change-tlh-07-cortex-mirror-real-service",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[07] Add the real-Cortex case to test-cortex-mirror.sh (scratch CORTEX_DATA_DIR and HOME, model-cache precondition, recall by projectId, role tag in context)",
+      "done": true,
+      "doneAt": "2026-10-05T04:57:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-cortex-mirror.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[07] Fix any mirror defect the real case exposes in learning_write.py and document the verified version",
+      "done": true,
+      "doneAt": "2026-10-05T04:57:33Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/learning_write.py",
+        "site/docs/memory/cortex-mirror.md",
+        "site/sidebars.js",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-07-cortex-mirror-real-service/verify.sh",
+      "notes": null
+    }
+  ]
+}

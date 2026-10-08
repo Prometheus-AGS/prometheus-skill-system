@@ -1,0 +1,47 @@
+{
+  "changeId": "change-tli-e1-pin-v1-11-0",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[E1] Bump and tag pk v1.11.0 (confirm before pushing)",
+      "done": true,
+      "doneAt": "2026-10-04T22:28:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        "prometheus-knowledge-rs:Cargo.toml",
+        "prometheus-knowledge-rs:Cargo.lock"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[E1] Move the skill-pack pk gitlink, import commit, Cargo pins and version matrix to v1.11.0",
+      "done": true,
+      "doneAt": "2026-10-04T22:28:53Z",
+      "doneBy": "claude-code",
+      "files": [
+        "tools/prometheus-knowledge",
+        "skill-system.json",
+        "tools/prometheus-cli/Cargo.toml",
+        "tools/prometheus-cli/Cargo.lock",
+        "tools/forge-rs/Cargo.toml",
+        "tools/forge-rs/Cargo.lock",
+        "config/release-version-matrix.json"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[E1] File the mini operator pin request for v1.11.0 (after confirmation)",
+      "done": true,
+      "doneAt": "2026-10-04T22:29:23Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-e1-pin-v1-11-0/verify.sh",
+      "notes": null
+    }
+  ]
+}

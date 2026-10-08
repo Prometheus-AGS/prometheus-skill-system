@@ -1,0 +1,1 @@
+{"results": [{"name": "memory", "exit_code": 0, "command": ["cargo", "build", "--locked", "--release", "--no-default-features", "--features", "embedded,metal,local-embeddings,palace", "--bin", "surreal-memory-server", "--jobs", "4"]}, {"name": "prometheus", "exit_code": 0, "command": ["cargo", "build", "--locked", "--release", "-p", "prometheus-cli", "--jobs", "4"]}]}

@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 2132,
+  "derivedRevision": 2132,
+  "frontier": {
+    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2015,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
+  },
+  "conflictCount": 0,
+  "phase": "phase-team-learning-hardening",
+  "phaseId": "phase-team-learning-hardening",
+  "parentPhase": null,
+  "last_updated": "2026-10-05T09:56:08.328614Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 9,
+  "changes_completed": 9,
+  "implementation_total": 9,
+  "implementation_completed": 9,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 9,
+      "total": 9,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 82,
+      "total": 86,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-tlh-03-versioned-cadence-refresh-procedure",
+      "title": "Ship the skill-pack refresh procedure in delivery-cadence: profile inputs, state.json parity, fail-loud, submodule update",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[03] Add test-cadence-refresh-procedure.sh (scratch git repo with a submodule as the deploy worktree; parity from state.json odd/even; missing/garbage iteration exits 2; dirty worktree exits 1; verify mode changes nothing (HEAD, submodule commit and a stub-call log unchanged); the JSON summary has sourceCommit, versions and health keys; runs under /bin/bash; local submodule via `-c protocol.file.allow=always`)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tlh-04-scratch-surreal-for-envelope-test",
+      "title": "Shared scratch surreal-memory test library; memory-envelope.integration runs against it, never the live :23001",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "[04] Remove the :23001 default from memory-envelope.integration.mts, rebuild the .mjs, and add run-memory-envelope.sh",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tlh-01-ranked-memory-partition",
+      "title": "memory-index-partition.py ranks entries (current phase, feedback/GLOBAL, project newest-first, archives) before moving any to the learning store",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "[01] Extend test-memory-partition.sh with a ranked fixture (active phase entry last in file, archives first) and an idempotence run",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tlh-09-rebase-regenerate",
+      "title": "scripts/rebase-regenerate.sh resolves generated-only rebase/merge conflicts by regenerating, then validates",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[09] Add test-rebase-regenerate.sh (temp repo built from the worktree's current files including uncommitted ones (copied excluding .git and node_modules, then `git init` + commit), `node_modules` symlinked: two branches editing one skill's SKILL.md so dist/ conflicts; rebase; helper resolves and validators pass; a real source conflict is refused with exit 1)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tlh-07-cortex-mirror-real-service",
+      "title": "Verify the D3 Cortex mirror against the real Cortex 2.0.3 MCP server on a scratch CORTEX_DATA_DIR",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "[07] Fix any mirror defect the real case exposes in learning_write.py and document the verified version",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tlh-05-query-embedding-cache",
+      "title": "surreal-memory caches query embeddings (quick_cache, query path only) after measuring single-embedding latency under load; release 1.10.1",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[05] Add the query_embedding_cache and root query_embed_cache_stats integration tests and bump to 1.10.1 (Cargo.toml, Cargo.lock, openapi)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tlh-02-codex-memories-install-and-doctor",
+      "title": "The installer sets Codex `[memories] generate_memories = false` and archives memory_summary.md; the doctor checks it",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "[02] Add test-codex-memories-config.sh (scratch CODEX_HOME: comments preserved, idempotent, corrupt-TOML restore, summary archived, codex debug prompt-input carries no memories text when codex is present; a failing CODEX_MEMORIES_SCRIPT leaves both installer entry points exiting 0 with a warning) and update the docs",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tlh-06-ledger-reconciliation",
+      "title": "kbd-apply mark-done syncs the ledger; kbd-apply reconcile detects and repairs task/ledger drift; cadence and reflect run it",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[06] Add test-kbd-apply-reconcile.sh (scratch KBD project with the real runtime: drift created by flipping tasks.json, detect exit 1, --repair to clean exit 0, mark-done leaves no drift)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tlh-08-recall-scoping-and-eval",
+      "title": "Recall admits untagged pk entries only for the current project or on a lexical match; a fixed evaluation fixture gates recall quality",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "[08] Add the recall-quality fixture and test-recall-quality.sh, then set the threshold from it",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

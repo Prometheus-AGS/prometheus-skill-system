@@ -15,13 +15,13 @@ created_from_conversation_turn: 3-4
 
 ## Problem
 
-The 4-layer pipeline (ZeeSpec → PMPO → OpenSpec → forge-rs) is documented and (after SP-012) enforced. But there is no automated smoke test that exercises the full pipeline end-to-end on a synthetic case. Each layer's tests cover that layer; nothing tests the integration.
+The pipeline (PMPO → OpenSpec → forge-rs) is documented and (after SP-012) enforced. But there is no automated smoke test that exercises the full pipeline end-to-end on a synthetic case. Each layer's tests cover that layer; nothing tests the integration.
 
 ## Evidence
 
 Look for any test that:
 1. Submits a synthetic broad-change prompt.
-2. Requires ZeeSpec, PMPO, OpenSpec artifacts to exist.
+2. Requires PMPO, OpenSpec artifacts to exist.
 3. Validates the eventual code-edit happens.
 4. Validates the reflector runs and the reflection passes sycophancy correction.
 
@@ -41,7 +41,6 @@ Build a synthetic test harness in `scripts/test-pipeline-e2e.sh` that:
 2. Initializes it as a Claude Code-aware project (minimal `.claude/`, `.kbd-orchestrator/`, etc.).
 3. Submits a synthetic broad-change prompt (via either a scripted Claude Code invocation or by faking the hook events).
 4. Asserts the artifacts at each layer:
-   - ZeeSpec entry exists.
    - PMPO `.kbd-orchestrator/phases/<phase>/assessment.md` exists.
    - OpenSpec `openspec/changes/<change-id>/proposal.md` exists.
    - The actual code edit was made.

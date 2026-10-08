@@ -22,8 +22,8 @@ artifact.
 
 ## Boundary and bottleneck evaluation
 
-KBD records idempotent before/after receipts for OpenSpec tasks, phase/child
-transitions, and ZeeSpec interrogate, score, and manifest checkpoints. Each
+KBD records idempotent before/after receipts for OpenSpec tasks and phase/child
+transitions. Each
 receipt binds the canonical subject, ordinal, total, phase path, and source
 revision. The detector emits the exact progress line and current position,
 re-anchors outstanding obligations after compaction, and can repair only

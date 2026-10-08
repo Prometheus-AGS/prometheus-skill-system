@@ -36,10 +36,6 @@ wherever it stores the resolved value.
 
 - **kbd-analyze** — contested stack choice (score gap < 15%) routes here rather
   than silently picking.
-- **zeespec-interrogate** *(wiring lands in a later phase)* — unanswered
-  questions in below-threshold dimensions route here, batched per dimension,
-  instead of being silently marked implicit. Answers gain `provenance` and
-  `elicitation_id`.
 - **kbd-capability** *(later phase)* — under-specified capability needs route
   the missing fields here.
 

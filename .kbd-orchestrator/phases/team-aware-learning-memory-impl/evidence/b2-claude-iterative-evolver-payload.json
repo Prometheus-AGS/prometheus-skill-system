@@ -1,0 +1,17 @@
+{
+ "session_id": "634313d4-edb1-46bd-8f58-80b46095d459",
+ "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tmp.8Z6jkO6qUB/proj",
+ "scratchpad_dir": "/private/tmp/claude-501/-private-var-folders-ln-0wnpd96j26z2qhvx9m6hwt2r0000gn-T-tmp-8Z6jkO6qUB-proj/634313d4-edb1-46bd-8f58-80b46095d459/scratchpad",
+ "prompt_id": "452ef4b1-e86e-4b89-9da0-ccbc8f207c24",
+ "permission_mode": "default",
+ "agent_id": "ad50cd017f2d20e38",
+ "agent_type": "iterative-evolver:planner",
+ "effort": {
+  "level": "medium"
+ },
+ "hook_event_name": "SubagentStop",
+ "stop_hook_active": false,
+ "background_tasks": [],
+ "session_crons": [],
+ "_captured": "claude-code 2.1.289, --plugin-dir skills/process/iterative-evolver, 2026-10-04"
+}

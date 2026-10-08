@@ -1,0 +1,11 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-10-04T03:10:28Z",
+  "outputs": [
+    ".kbd-orchestrator/changes/change-tli-a1-pk-context-scoring/spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "25 native-kbd changes (82 tasks) across pk, surreal-memory, skill-pack and mini; spec-gate n/a. Two review rounds: 14 CRITICALs fixed (vacuous set -e gates fixed systemically via per-line subshell+exit propagation; 10 dependency orderings added). One operator-owned change (A5b). Accepted warning: regenerate-after-rebase rule covers all four generated trees.",
+  "skipped": false,
+  "skipReason": null
+}

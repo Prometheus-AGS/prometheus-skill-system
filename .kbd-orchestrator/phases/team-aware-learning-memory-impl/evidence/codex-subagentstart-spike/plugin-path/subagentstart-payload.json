@@ -1,0 +1,10 @@
+{
+ "session_id": "01a104d1-ac1e-79b0-b42f-30d4d2deeb18",
+ "turn_id": "01a104d2-0458-7b33-bc94-aa1eb2dbccff",
+ "cwd": "/private/tmp/claude-501/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/733a99fd-b357-4127-87d1-0c794fcde506/scratchpad/codex-spike/proj",
+ "hook_event_name": "SubagentStart",
+ "model": "gpt-6-astra",
+ "permission_mode": "bypassPermissions",
+ "agent_id": "01a104d2-03fc-7633-91e5-c5882d622138",
+ "agent_type": "tlm_spike_role"
+}

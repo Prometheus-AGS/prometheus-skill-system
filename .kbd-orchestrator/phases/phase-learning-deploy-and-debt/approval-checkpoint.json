@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T19:36:23.586097+00:00",
+  "phase": "phase-learning-deploy-and-debt",
+  "canonicalRevision": 2368,
+  "status": "release-proposal-approved",
+  "goalStatus": "native goal last reported blocked; human approval authorizes current continuation",
+  "independentSourceWork": "All admitted independent source handoffs and source tasks complete; remaining phase source is protected release pins/identity substitution, followed by final12.",
+  "approvalRequests": [
+    {
+      "subject": "concrete Companion versions.toml import and proposed release/tag identities",
+      "proposal": "pin-proposal.md",
+      "patch": "companion-versions.patch",
+      "status": "requested; no explicit answer received"
+    },
+    {
+      "subject": "narrow exception to Immutable Implementation-First and Integration-Only Policy for certified dependency commit before final parent SHA metadata",
+      "proposal": "pin-proposal.md: Release ordering requiring an explicit policy exception",
+      "status": "requested; no explicit answer received"
+    }
+  ],
+  "retainedOwnerDecision": {
+    "fullDependency": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+    "scope": "exact full dependency only; no inferred protected-file or tag approval"
+  },
+  "laterExactApproval": "Mini versions.toml final memory SHA patch after actual certified dependency commit/owner merge; not fabricated or requested with an unknown SHA",
+  "proposalHashes": {
+    "pin-proposal.md": "356dc927591dc63abe5b47412fd2211ba65c25102953c27cc0a0df83d0d56815",
+    "companion-versions.patch": "03669b60213e42f667864118695e628ecd7f85c4a70a94d50fab4ef0faeeb53b",
+    "plugin-version-proposal.json": "61d431ec71c59c890e006595cd88e09f24f82315a8a7c81d6f026952313afd06"
+  },
+  "blockedAudit": {
+    "firstRecordedImpasseAt": "2026-10-05T19:36:23.586097+00:00",
+    "recordedOccurrences": 0,
+    "condition": "required protected-release and metadata-sequencing approval unanswered after independent source work",
+    "threshold": 3,
+    "note": "Direct human approval resolves preceding blocker; later resumed blocking audit starts fresh.",
+    "latestSafeAction": "Corrected18/03 circular source-order dependency and closed written maintenance contract via typed KBD transitions; all required freeze/readiness work retained under03/12.",
+    "latestRevalidation": {
+      "canonicalRevision": 2368,
+      "proposalHashesUnchanged": true,
+      "explicitApprovalReceived": false,
+      "independentSourceTasksRemaining": false,
+      "implementationAgents": "all completed",
+      "cargoOrRustcBuildObserved": false,
+      "ongoingProcessWaitClaim": false,
+      "meaningfulSafeNextAction": "none until protected-release or metadata-sequencing approval",
+      "previousGoalTurn": "progress: corrected circular source ownership and completed maintenance source"
+    }
+  },
+  "nextAfterApproval": [
+    "Apply only approved exact protected pins and coherent release metadata",
+    "Finish freeze-dependent maintenance source values",
+    "Reconcile generation then perform the authorized local integration/commit/publication dependency sequence",
+    "User merges; approved rollout and actual installed operation; historical closure and reflection"
+  ],
+  "notPerformed": [
+    "protected version-file mutations",
+    "tag creation",
+    "tests or scenario authoring",
+    "generation",
+    "builds or review",
+    "commits/publication",
+    "installed-home or service mutation",
+    "goal completion or pause"
+  ],
+  "revalidatedAt": "2026-10-05T19:42:48.438263+00:00",
+  "remainingPhaseTasks": [
+    {
+      "change": "change-ldd-03-published-memory-pins",
+      "task": "2",
+      "title": "Freeze exact compatible release identities and obtain protected-edit and tag approvals",
+      "status": "in_progress"
+    },
+    {
+      "change": "change-ldd-03-published-memory-pins",
+      "task": "3",
+      "title": "Apply approved final gitlinks and coherent version declarations",
+      "status": "pending"
+    },
+    {
+      "change": "change-ldd-12-integration-rollout",
+      "task": "1",
+      "title": "Reconcile all generated outputs then author isolated product and documentation integration scenarios",
+      "status": "pending"
+    },
+    {
+      "change": "change-ldd-12-integration-rollout",
+      "task": "2",
+      "title": "Run the consolidated local product services sites and fresh-clone release gates",
+      "status": "pending"
+    },
+    {
+      "change": "change-ldd-12-integration-rollout",
+      "task": "3",
+      "title": "Complete independent cumulative review and confirm any batched fixes",
+      "status": "pending"
+    },
+    {
+      "change": "change-ldd-12-integration-rollout",
+      "task": "4",
+      "title": "Publish certified source including Companion and hand PRs to the user for merge",
+      "status": "pending"
+    },
+    {
+      "change": "change-ldd-12-integration-rollout",
+      "task": "5",
+      "title": "Apply approved machine rollout and publish certified documentation sites",
+      "status": "pending"
+    },
+    {
+      "change": "change-ldd-12-integration-rollout",
+      "task": "6",
+      "title": "Close evidenced historical obligations and record maintenance readiness with safe worktree cleanup",
+      "status": "pending"
+    }
+  ],
+  "requestedGoalTransition": "blocked",
+  "approvalEvidence": "release-approval.json"
+}

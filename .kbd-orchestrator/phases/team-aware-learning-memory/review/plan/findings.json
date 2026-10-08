@@ -1,0 +1,57 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "claude (harness-native subagent)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-model-collision",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "No acceptance gate in the plan is ever executed. The plan's only commands are `/kbd-apply <change>`. For native-kbd, kbd-apply's verify runs only the per-task `verify` strings in tasks.json plus an all-tasks-done check, and every task in all four changes has `\"verify\": null`. Each change therefore passes as soon as its tasks are marked done, and the dependency edges (002 on 001, 003 on 002/004) gate on nothing.",
+      "evidence": "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh nk_verify (lines 195-211) runs `jq -r '.tasks[] | select(.verify != null and .verify != \"\") | .verify'` and then only checks `remaining==0` and that spec.md exists. It never reads verification.md. native-backend.md calls the fenced commands 'optional', and there is no runner for them. All 13 tasks across change-tlm-001/002/003/004 tasks.json have `\"verify\": null`. Note also that nk_verify reads verify strings line by line (`while IFS= read -r c ... bash -c \"$c\"`), so the multi-line heredoc fences in verification.md would break if they were simply pasted into a verify field.",
+      "suggested_fix": "Put each change's verification fence on its final task's `verify` field as a single-line invocation. For example, save the fence as a script under the change dir or evidence dir and set `verify: \"bash .kbd-orchestrator/changes/<id>/verify.sh\"`. Alternatively, add an explicit COMMANDS step that runs each verification.md fence before the dependent change starts. State that 002 must not start until 001's gate exits 0.",
+      "line": 67
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "change-tlm-001's isolation set-up switches off the very features behaviours 3\u20136 measure, so those behaviours can come out REFUTED rather than UNVERIFIABLE. Its fallback table then turns that false negative into dropped design work ('Not reaching them means there is no reduction work').",
+      "evidence": "(a) Codex: the user's ~/.codex/config.toml has `[features]` with `multi_agent = true` and `memories = true` set at user level. The tlm-001 spec runs `codex exec --ignore-user-config` but asserts 'Native memories keep their default-on read behaviour'. Ignoring user config drops both flags, so memory_summary injection (behaviour 5) and subagent spawning (behaviours 3/4) may be disabled. Project trust (`[projects.\"\u2026\"] trust_level`) also lives in user config, which can stop project `.codex/agents` from loading. The spec only covers the case where auth or project hooks are dropped. (b) Claude: behaviour 5 asks whether a subagent sees 'the project auto-memory MEMORY.md (about 14 KB)' using lines 'that already exist in those files'. The run happens in a fresh scratch project, and its ~/.claude/projects/<scratch-slug> has no MEMORY.md. The repo's auto-memory is never in scope, so a correct 'no' reads as REFUTED.",
+      "suggested_fix": "For Codex, re-enable the features under test for that session only (e.g. `-c features.multi_agent=true -c features.memories=true`, plus a session-scoped trust override), or record behaviours 3\u20136 UNVERIFIABLE when those features are off. For Claude behaviour 5, seed the scratch project's auto-memory directory with known lines, or run the memory probe with cwd set to the real repo while keeping its isolation flags. Require that a negative verdict on 5 or 6 show the feature was enabled during the run (from captured stdin or config). Otherwise record UNVERIFIABLE, not REFUTED.",
+      "line": 25
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "change-tlm-004 targets code that does not exist on the working branch. The plan names no base branch, so on the current checkout the change's removal task is a no-op and its gates pass without fixing anything. The PR #121 defect then survives on origin/main.",
+      "evidence": "`git grep CODEX_MIN_HOOK_TIMEOUT_MS origin/main -- scripts` finds it at scripts/lib/hook-config.js:101 and generate-harness-adapters.js:11,317. origin/main:docs/codex-plugin.md:76 says '`timeout` is milliseconds in Codex', and origin/main:CLAUDE.md:1028 says 'Codex reads `timeout` as milliseconds'. On the current branch (codex/delivery-cadence-recovery), and on local `main` (at #120), `grep -rn CODEX_MIN scripts` and the docs greps return nothing. Several tlm-004 verify lines (`! grep -rn \"CODEX_MIN_HOOK_TIMEOUT_MS\" scripts` and the docs/CLAUDE.md milliseconds greps) are therefore already true before any work is done. The plan's own words, 'removes wrong guidance this session introduced', presuppose #121 is present.",
+      "suggested_fix": "State the execution base in plan.md: branch from up-to-date origin/main, which contains PR #121. Add a precondition gate to tlm-004 that asserts `CODEX_MIN_HOOK_TIMEOUT_MS` is present before task 2 starts, so a wrong base fails loudly.",
+      "line": 8
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-tlm-001's no-persistent-change gate can still pass vacuously: empty hash blocks pass, and any key can be waived through the residual list without a reason.",
+      "evidence": "The verification.md loop is `diff=[k for k in b if b[k]!=a.get(k) and k not in residual]`, so `{}` before/after blocks pass. The strict live check is `[k for k in STRICT if k in first and \u2026]`, so a first block that omits the four strict files passes. The `json residual` list is unbounded and unexplained, and it may include the STRICT keys. In addition, a `claude -p` run in a new cwd will almost certainly change ~/.claude.json (project entry, counters), so that key has to be waived every time. That makes the spec's listing of ~/.claude.json as proof of no persistent change ineffective.",
+      "suggested_fix": "Assert that every before/after block contains the full required key set from the spec (the 4 config files, ~/.claude.json, the queue/outbox listings, the Codex memory files, the scratch-slug count). Forbid STRICT keys from appearing in residual. Require each residual entry to carry a `reason` and a `source`. Declare ~/.claude.json as an expected residual up front, and diff it at the JSON-key level so that only the scratch project entry and counters are allowed to change.",
+      "line": 25
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "The narrowed tlm-004 docs grep still rejects correct sentences. For example, it trips on an accurate explanation that Kimi/OpenCode `controlTimeoutMs` is in milliseconds. tlm-004 explicitly keeps that field, and the docs may need to say so.",
+      "evidence": "Pattern `(timeout|reads?)[^.]*\\bin milliseconds` with `-i` matches 'controlTimeoutMs is in milliseconds' and 'Codex does not read timeout in milliseconds'.",
+      "suggested_fix": "Scope the pattern to the wrong claim, e.g. `Codex[^.]*\\b(reads?|is|uses)\\b[^.]*milliseconds` with no 'not', or exclude lines that mention controlTimeoutMs."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "change-tlm-003 writes a file that is not in its Scope or in tasks.json `files`.",
+      "evidence": "tlm-003 spec: 'First copy it to `.kbd-orchestrator/phases/team-aware-learning-memory/evidence/parent-plan.before.md`', and verification.md tests that this file exists. The Scope lists only the docs/plans file and the session plan file. Task 3's `files` lists only the session plan file.",
+      "suggested_fix": "Add the parent-plan.before.md evidence path to tlm-003's Scope and to task 3's `files`.",
+      "line": 43
+    }
+  ]
+}

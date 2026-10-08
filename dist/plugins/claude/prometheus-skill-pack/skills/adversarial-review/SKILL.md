@@ -67,8 +67,8 @@ This is a different job from the existing gates:
 - `sycophancy-correction` corrects **existing text** for excess agreeableness.
   Adversarial review **generates** a finding set from scratch — and then has
   its own report screened by sycophancy-correction (see Anti-Theater Gate).
-- `zeespec-interrogator` and the Darwin gates operate **pre-spec**. This skill
-  operates on concrete artifacts and diffs.
+- The Darwin gates operate **pre-spec**. This skill operates on concrete
+  artifacts and diffs.
 
 ## Isolation contract
 
@@ -423,7 +423,7 @@ shows a single isolated adversarial reviewer captures most of the value,
 while fixed-round multi-agent debate can launder confidence into consensus —
 the exact failure mode sycophancy-correction exists to fight. Reserve
 multi-persona escalation for pre-implementation, hard-to-reverse decisions
-(zeespec-interrogator NO-GO/CAUTION, Darwin Gate 3). If it is ever built,
+(Darwin Gate 3). If it is ever built,
 personas must be adversarial on *priorities* (security vs shippability vs
 maintainability) — not the same reviewer run three times.
 

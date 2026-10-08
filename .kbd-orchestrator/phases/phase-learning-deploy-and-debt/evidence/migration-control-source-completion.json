@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T19:27:09.224348+00:00",
+  "phase": "phase-learning-deploy-and-debt",
+  "change": "change-ldd-18-stability-legacy-closure",
+  "task": "2",
+  "sourceComplete": true,
+  "acceptance": "pending final12 production integration; source completion does not close original historical obligations",
+  "sources": [
+    {
+      "path": "projection-migration-source-handoff.json",
+      "sha256": "d2679cbde3e462f2be258b4182ae72b169415e851b5b3045db6ee8264516858b"
+    },
+    {
+      "path": "team-memory-source-subsets.json",
+      "sha256": "0d4e6982bc8fb70988e61f618bfed82afbe7d6490ce64970c34eeeba0b249f0d"
+    },
+    {
+      "path": "companion-integration-source-handoff.json",
+      "sha256": "505424826a0fcd0d4c81e5f6777b43d52e3af45463854f681186c893d2c65597"
+    }
+  ],
+  "completedSourceContracts": [
+    "Pack projection migration with read-only dry-run and existing signed-authority continuity requirements",
+    "Full digest-only Codex lookup and mini canonical project-scoped learning publication with preserved uncertainty",
+    "Companion standalone and connected local authority, real Unix MCP bridge, configured P2P ownership and durable pre-submission signed intent"
+  ],
+  "remaining": [
+    "Approved dependency/version freeze",
+    "Compilation and real migration/interruption/standalone/connected acceptance at final12",
+    "Historical typed evidence-backed reconciliation after acceptance"
+  ]
+}

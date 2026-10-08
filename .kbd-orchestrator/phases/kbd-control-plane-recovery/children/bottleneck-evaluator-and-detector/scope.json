@@ -4,7 +4,7 @@
     "substrate/kbd-runtime/**",
     "tools/prometheus-cli/**",
     "skills/process/kbd-process-orchestrator/**",
-    "skills/process/zeespec-interrogator/**",
+    "skills/process/spec-gate/**",
     "shared/harnesses/**",
     "shared/scripts/**",
     "scripts/**",

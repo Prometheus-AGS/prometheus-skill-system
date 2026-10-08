@@ -23,7 +23,7 @@ at decision points.
 
 This is a thin standing wrapper over the existing iterative-evolver — it adds no
 new loop engine and runs no daemon. One tick = one evolver cycle (which itself
-composes zeespec elicitation, kbd-analyze research, and the KBD execute loop).
+composes kbd-analyze research and the KBD execute loop).
 
 ## Three commands
 
@@ -163,7 +163,6 @@ Elicitation ID: <id>
 
 ## Relationship to the rest of PMPO
 
-`/loop-tick` → `/evolve` (one cycle) → which runs zeespec (when
-under-constrained), kbd-analyze (research), and the KBD assess→…→reflect loop.
+`/loop-tick` → `/evolve` (one cycle) → which runs kbd-analyze (research) and the KBD assess→…→reflect loop.
 Escalations and missing information route through `/pmpo-elicit`. The loop is
 the outermost layer; everything else composes beneath it.

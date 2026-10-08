@@ -1,0 +1,15 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-05T10:20:47Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json",
+    "decision-log.md",
+    "codex-memory-proposal.toml",
+    "pin-proposal.md"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "12 candidate decisions; no new dependencies. Adopt inherited Python bytecode suppression; adapt Codex 0.158.0 feature gate, corroborated by consolidation timings; retain quick_cache. Full pack has no root versions.toml. Open Spec decisions: model lifetime, error stats, Codex-home precedence, optional feeder saturation. Registry metadata unavailable; adversarial review deferred to completed production boundary, not passed. Owner approval still required for protected edits and machine changes.",
+  "skipped": false,
+  "skipReason": null
+}

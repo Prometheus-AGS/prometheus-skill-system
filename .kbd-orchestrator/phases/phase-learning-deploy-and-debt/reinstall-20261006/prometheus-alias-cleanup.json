@@ -1,0 +1,1738 @@
+[
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-async-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-async-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-convert-htmx-react",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-convert-htmx-react"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-prometheus-entity-skills",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-prometheus-entity-skills"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-ui-ux-pro-max",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-ui-ux-pro-max"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-04-collect",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-04-collect"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-plan",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-realtime-surreal-live",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-realtime-surreal-live"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-clone-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-clone-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-retain",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-retain"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-spec-gate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-spec-gate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-native-agent",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-native-agent"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-pyo3-bridge",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-pyo3-bridge"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-child-exit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-child-exit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-evolve",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-evolve"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kreuzberg",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kreuzberg"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-03-retrieve",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-03-retrieve"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-memory-recall",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-memory-recall"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-error-handling",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-error-handling"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-rust-mcp-server-generator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-rust-mcp-server-generator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-grade",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-grade"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-better-interface",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-better-interface"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-status",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-delivery-cadence",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-delivery-cadence"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-apply",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-apply"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-spec-gate-score",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-spec-gate-score"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-spec-gate-status",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-spec-gate-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-bdd-lifecycle-loop",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-bdd-lifecycle-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-gitops-transform",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-gitops-transform"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-survey",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-survey"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-feynman-loop",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-feynman-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-pause",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-pause"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-validate-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-validate-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-evolve-assess",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-evolve-assess"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flutter-build-responsive-layout",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flutter-build-responsive-layout"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-spec",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-spec"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-a2ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flint-sdk-ts",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flint-sdk-ts"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-vercel-react-native-skills",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-vercel-react-native-skills"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-prometheus-ui-ux",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-prometheus-ui-ux"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-actor-model",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-actor-model"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-prometheus-rust-auditor",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-prometheus-rust-auditor"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-explain-interface",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-explain-interface"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-artifact-refiner",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-artifact-refiner"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-resume",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-resume"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-doctor",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-doctor"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-agent-team-models",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-agent-team-models"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-impeccable",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-06-resolve",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-06-resolve"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-full-output-enforcement",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-full-output-enforcement"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-plan",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-design-taste-frontend-v1",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-design-taste-frontend-v1"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-init",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-init"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-gql-hooks",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-gql-hooks"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-argocd-multicloud",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-argocd-multicloud"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-validate-idea",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-validate-idea"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-web-design-guidelines",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-web-design-guidelines"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-prometheus-context-bootstrap",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-prometheus-context-bootstrap"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-harness",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-harness"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-pmpo-elicit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-pmpo-elicit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-init",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-init"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-next-child",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-next-child"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-09-report",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-09-report"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-karpathy-tokenizer",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-karpathy-tokenizer"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-pmpo-skill-creator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-pmpo-skill-creator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-prisma-generator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-prisma-generator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-scaffold-react-vite-tauri",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-scaffold-react-vite-tauri"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-new-child",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-new-child"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-iterative-evolver",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-iterative-evolver"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-android-edge-to-edge",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-android-edge-to-edge"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-scaffold-react-vite",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-scaffold-react-vite"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-process-orchestrator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-process-orchestrator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-interface-review",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-interface-review"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-gc",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-gc"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-deep-research",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-deep-research"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-mcp-server",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-mcp-server"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-better-colors",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-better-colors"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-spec-gate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-spec-gate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-go-base-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-go-base-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-pmpo-evolver",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-pmpo-evolver"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-rust-best-practices",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-rust-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-cancel",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-cancel"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flutter-rust-ffi",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flutter-rust-ffi"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-realtime-local-first",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-realtime-local-first"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-ideation-mindmap",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-ideation-mindmap"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-better-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-better-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-prometheus-ui-review",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-prometheus-ui-review"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-optimize",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-optimize"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-extend-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-extend-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-evolve-report",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-evolve-report"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stitch-design-taste",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stitch-design-taste"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-evolve-plan",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-evolve-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flint-sdk-csharp",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flint-sdk-csharp"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-better-typography",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-better-typography"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-mcp-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-mcp-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-convert-md-to-htmx",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-convert-md-to-htmx"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-karpathy-progress-memory",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-karpathy-progress-memory"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-scaffold-react-vite-agui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-scaffold-react-vite-agui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-disk-space-guardian",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-disk-space-guardian"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-realtime-channel",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-realtime-channel"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-industrial-brutalist-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-industrial-brutalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-prometheus-rust-workspace",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-prometheus-rust-workspace"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-bdd-video-proof",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-bdd-video-proof"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-evolve",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-evolve"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-swiftui-pro",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-swiftui-pro"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-librefang-wasm-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-librefang-wasm-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-android-compose-adaptive",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-android-compose-adaptive"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-htmx-alpine-lit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-htmx-alpine-lit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-better-accessibility",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-better-accessibility"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-bdd-testing",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-bdd-testing"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-reflect",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-reflect"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-goal-check",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-goal-check"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-adversarial-review",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-adversarial-review"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-perf",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-perf"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-expo-design-system",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-expo-design-system"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-graphql",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-graphql"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-moodboard",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-moodboard"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-ui-surface",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-ui-surface"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flutter-setup-declarative-routing",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flutter-setup-declarative-routing"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-agent-team-handoff",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-agent-team-handoff"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-expo-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-expo-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-better-layout",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-better-layout"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-gql-subscription",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-gql-subscription"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flint-sdk-dart",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flint-sdk-dart"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-rust-async-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-rust-async-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-prisma-setup",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-prisma-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-bdd-cucumber-rs",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-bdd-cucumber-rs"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-scaffold-react-vite-a2ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-scaffold-react-vite-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-practice",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-practice"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-crud-form",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-crud-form"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-crud-relations",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-crud-relations"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-create-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-create-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flint-sdk-swift",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flint-sdk-swift"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-expo-animation",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-expo-animation"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-crud-page",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-crud-page"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-07-graph",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-07-graph"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-10-export",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-10-export"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-setup",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-pmpo-outer-loop",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-pmpo-outer-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-cowork-management",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-cowork-management"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-analyze",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-analyze"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-new-phase",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-new-phase"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-rebrand-artifact",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-rebrand-artifact"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-workspace-structure",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-workspace-structure"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flutter-fix-layout-issues",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flutter-fix-layout-issues"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-01-planner",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-01-planner"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-bdd-cucumber-js",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-bdd-cucumber-js"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-image",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-image"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-evolve-analyze",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-evolve-analyze"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-design-taste-frontend",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-design-taste-frontend"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-realtime-setup",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-realtime-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-audit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-audit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-validate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-validate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-migrate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-migrate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-fabric-integration",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-fabric-integration"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-convert-htmx-pdf",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-convert-htmx-pdf"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-llm-wiki",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-llm-wiki"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-crud-table",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-crud-table"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-05-verify",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-05-verify"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-goal",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-goal"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-variant",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-variant"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-gql-setup",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-gql-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-loop",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-next-phase",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-next-phase"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-detect",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-detect"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-liter-llm-bridge",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-liter-llm-bridge"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-expo-native-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-expo-native-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flint-sdk-kotlin",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flint-sdk-kotlin"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-agent-team-creator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-agent-team-creator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-certify",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-certify"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-typescript-base-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-typescript-base-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-create-native-agent",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-create-native-agent"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-02-search",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-02-search"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kustomize-overlay",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kustomize-overlay"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-better-writing",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-better-writing"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-realtime",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-realtime"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-inject-agent-rules",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-inject-agent-rules"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-about-system",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-about-system"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-minimalist-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-minimalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-break",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-break"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-gpt-taste",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-gpt-taste"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-kb",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-kb"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-design-svg-logo",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-design-svg-logo"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-vercel-react-best-practices",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-vercel-react-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-high-end-visual-design",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-high-end-visual-design"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-clean-architecture",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-clean-architecture"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-performance",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-performance"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-tauri-react-vite",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-tauri-react-vite"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-evolve-execute",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-evolve-execute"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-react-vite-stack",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-react-vite-stack"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-axum-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-axum-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-prisma-api",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-prisma-api"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-evolve-status",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-evolve-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-status",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-logo",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-logo"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-expo-router",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-expo-router"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-refine-content",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-refine-content"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-vercel-composition-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-vercel-composition-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-redesign-existing-projects",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-redesign-existing-projects"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-prisma",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-prisma"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-gitops-bootstrap",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-gitops-bootstrap"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-upload-to-bossfang",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-upload-to-bossfang"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-execute",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-execute"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-graph-crud",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-graph-crud"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-assess",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-assess"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flutter-setup-localization",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flutter-setup-localization"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-flint-sdk-go",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-flint-sdk-go"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-agent-team-manage",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-agent-team-manage"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-scaffold-flutter-a2ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-scaffold-flutter-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-start-business-build",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-start-business-build"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-audit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-audit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-stage-08-cite",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-stage-08-cite"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-sycophancy-correction",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-sycophancy-correction"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-kbd-bottleneck-detector",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-kbd-bottleneck-detector"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-prisma-migrate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-entity-prisma-migrate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-learn-goal",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-learn-goal"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-prometheus-impeccable-core",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.codex/skills/prometheus-prometheus-impeccable-core"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-async-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-async-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-convert-htmx-react",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-convert-htmx-react"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-prometheus-entity-skills",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-prometheus-entity-skills"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-ui-ux-pro-max",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-ui-ux-pro-max"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-04-collect",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-04-collect"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-plan",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-realtime-surreal-live",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-realtime-surreal-live"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-clone-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-clone-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-retain",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-retain"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-spec-gate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-spec-gate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-native-agent",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-native-agent"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-pyo3-bridge",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-pyo3-bridge"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-child-exit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-child-exit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-evolve",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-evolve"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kreuzberg",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kreuzberg"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-03-retrieve",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-03-retrieve"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-memory-recall",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-memory-recall"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-error-handling",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-error-handling"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-rust-mcp-server-generator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-rust-mcp-server-generator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-grade",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-grade"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-better-interface",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-better-interface"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-status",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-status"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-delivery-cadence",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-delivery-cadence"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-apply",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-apply"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-spec-gate-score",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-spec-gate-score"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-spec-gate-status",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-spec-gate-status"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-bdd-lifecycle-loop",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-bdd-lifecycle-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-gitops-transform",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-gitops-transform"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-survey",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-survey"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-feynman-loop",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-feynman-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-pause",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-pause"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-validate-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-validate-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-evolve-assess",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-evolve-assess"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flutter-build-responsive-layout",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flutter-build-responsive-layout"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-spec",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-spec"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-a2ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flint-sdk-ts",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flint-sdk-ts"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-vercel-react-native-skills",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-vercel-react-native-skills"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-prometheus-ui-ux",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-prometheus-ui-ux"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-actor-model",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-actor-model"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-prometheus-rust-auditor",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-prometheus-rust-auditor"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-explain-interface",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-explain-interface"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-artifact-refiner",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-artifact-refiner"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-resume",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-resume"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-doctor",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-doctor"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-agent-team-models",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-agent-team-models"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-impeccable",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-06-resolve",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-06-resolve"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-full-output-enforcement",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-full-output-enforcement"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-plan",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-design-taste-frontend-v1",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-design-taste-frontend-v1"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-init",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-init"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-gql-hooks",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-gql-hooks"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-argocd-multicloud",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-argocd-multicloud"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-validate-idea",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-validate-idea"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-web-design-guidelines",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-web-design-guidelines"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-prometheus-context-bootstrap",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-prometheus-context-bootstrap"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-harness",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-harness"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-pmpo-elicit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-pmpo-elicit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-init",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-init"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-next-child",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-next-child"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-09-report",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-09-report"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-karpathy-tokenizer",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-karpathy-tokenizer"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-pmpo-skill-creator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-pmpo-skill-creator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-prisma-generator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-prisma-generator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-scaffold-react-vite-tauri",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-scaffold-react-vite-tauri"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-new-child",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-new-child"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-iterative-evolver",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-iterative-evolver"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-android-edge-to-edge",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-android-edge-to-edge"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-scaffold-react-vite",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-scaffold-react-vite"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-process-orchestrator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-process-orchestrator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-interface-review",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-interface-review"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-gc",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-gc"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-deep-research",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-deep-research"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-mcp-server",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-mcp-server"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-better-colors",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-better-colors"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-spec-gate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-spec-gate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-go-base-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-go-base-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-pmpo-evolver",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-pmpo-evolver"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-rust-best-practices",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-rust-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-cancel",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-cancel"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flutter-rust-ffi",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flutter-rust-ffi"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-realtime-local-first",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-realtime-local-first"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-ideation-mindmap",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-ideation-mindmap"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-better-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-better-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-prometheus-ui-review",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-prometheus-ui-review"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-optimize",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-optimize"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-extend-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-extend-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-evolve-report",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-evolve-report"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stitch-design-taste",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stitch-design-taste"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-evolve-plan",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-evolve-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flint-sdk-csharp",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flint-sdk-csharp"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-better-typography",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-better-typography"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-mcp-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-mcp-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-convert-md-to-htmx",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-convert-md-to-htmx"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-karpathy-progress-memory",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-karpathy-progress-memory"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-scaffold-react-vite-agui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-scaffold-react-vite-agui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-disk-space-guardian",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-disk-space-guardian"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-realtime-channel",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-realtime-channel"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-industrial-brutalist-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-industrial-brutalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-prometheus-rust-workspace",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-prometheus-rust-workspace"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-bdd-video-proof",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-bdd-video-proof"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-evolve",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-evolve"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-swiftui-pro",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-swiftui-pro"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-librefang-wasm-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-librefang-wasm-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-android-compose-adaptive",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-android-compose-adaptive"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-htmx-alpine-lit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-htmx-alpine-lit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-better-accessibility",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-better-accessibility"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-bdd-testing",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-bdd-testing"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-reflect",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-reflect"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-goal-check",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-goal-check"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-adversarial-review",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-adversarial-review"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-perf",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-perf"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-expo-design-system",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-expo-design-system"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-graphql",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-graphql"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-moodboard",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-moodboard"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-ui-surface",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-ui-surface"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flutter-setup-declarative-routing",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flutter-setup-declarative-routing"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-agent-team-handoff",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-agent-team-handoff"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-expo-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-expo-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-better-layout",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-better-layout"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-gql-subscription",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-gql-subscription"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flint-sdk-dart",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flint-sdk-dart"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-rust-async-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-rust-async-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-prisma-setup",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-prisma-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-bdd-cucumber-rs",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-bdd-cucumber-rs"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-scaffold-react-vite-a2ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-scaffold-react-vite-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-practice",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-practice"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-crud-form",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-crud-form"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-crud-relations",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-crud-relations"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-create-skill",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-create-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flint-sdk-swift",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flint-sdk-swift"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-expo-animation",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-expo-animation"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-crud-page",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-crud-page"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-07-graph",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-07-graph"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-10-export",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-10-export"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-setup",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-pmpo-outer-loop",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-pmpo-outer-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-cowork-management",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-cowork-management"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-analyze",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-analyze"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-new-phase",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-new-phase"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-rebrand-artifact",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-rebrand-artifact"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-workspace-structure",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-workspace-structure"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flutter-fix-layout-issues",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flutter-fix-layout-issues"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-01-planner",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-01-planner"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-bdd-cucumber-js",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-bdd-cucumber-js"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-image",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-image"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-evolve-analyze",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-evolve-analyze"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-design-taste-frontend",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-design-taste-frontend"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-realtime-setup",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-realtime-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-audit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-audit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-validate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-validate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-migrate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-migrate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-fabric-integration",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-fabric-integration"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-convert-htmx-pdf",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-convert-htmx-pdf"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-llm-wiki",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-llm-wiki"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-crud-table",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-crud-table"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-05-verify",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-05-verify"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-goal",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-goal"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-variant",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-variant"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-gql-setup",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-gql-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-loop",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-next-phase",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-next-phase"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-detect",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-detect"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-liter-llm-bridge",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-liter-llm-bridge"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-expo-native-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-expo-native-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flint-sdk-kotlin",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flint-sdk-kotlin"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-agent-team-creator",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-agent-team-creator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-certify",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-certify"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-typescript-base-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-typescript-base-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-create-native-agent",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-create-native-agent"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-02-search",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-02-search"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kustomize-overlay",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kustomize-overlay"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-better-writing",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-better-writing"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-realtime",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-realtime"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-inject-agent-rules",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-inject-agent-rules"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-about-system",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-about-system"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-minimalist-ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-minimalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-break",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-break"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-gpt-taste",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-gpt-taste"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-kb",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-kb"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-design-svg-logo",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-design-svg-logo"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-vercel-react-best-practices",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-vercel-react-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-high-end-visual-design",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-high-end-visual-design"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-clean-architecture",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-clean-architecture"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-performance",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-performance"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-tauri-react-vite",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-tauri-react-vite"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-evolve-execute",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-evolve-execute"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-react-vite-stack",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-react-vite-stack"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-axum-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-axum-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-prisma-api",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-prisma-api"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-evolve-status",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-evolve-status"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-status",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-status"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-logo",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-logo"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-expo-router",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-expo-router"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-refine-content",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-refine-content"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-vercel-composition-patterns",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-vercel-composition-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-redesign-existing-projects",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-redesign-existing-projects"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-prisma",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-prisma"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-gitops-bootstrap",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-gitops-bootstrap"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-upload-to-bossfang",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-upload-to-bossfang"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-execute",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-execute"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-graph-crud",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-graph-crud"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-assess",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-assess"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flutter-setup-localization",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flutter-setup-localization"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-flint-sdk-go",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-flint-sdk-go"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-agent-team-manage",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-agent-team-manage"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-scaffold-flutter-a2ui",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-scaffold-flutter-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-start-business-build",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-start-business-build"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-audit",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-audit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-stage-08-cite",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-stage-08-cite"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-sycophancy-correction",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-sycophancy-correction"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-kbd-bottleneck-detector",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-kbd-bottleneck-detector"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-prisma-migrate",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-entity-prisma-migrate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-learn-goal",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-learn-goal"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-prometheus-impeccable-core",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/temporary-namespaced-copies/.minimax/skills/prometheus-prometheus-impeccable-core"
+  }
+]

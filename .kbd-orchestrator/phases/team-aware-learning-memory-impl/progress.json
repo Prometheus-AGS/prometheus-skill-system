@@ -1,0 +1,354 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 2132,
+  "derivedRevision": 2132,
+  "frontier": {
+    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2015,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
+  },
+  "conflictCount": 0,
+  "phase": "team-aware-learning-memory-impl",
+  "phaseId": "team-aware-learning-memory-impl",
+  "parentPhase": null,
+  "last_updated": "2026-10-05T09:56:08.328614Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 25,
+  "changes_completed": 25,
+  "implementation_total": 25,
+  "implementation_completed": 25,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 25,
+      "total": 25,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 82,
+      "total": 86,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-tli-a1-pk-context-scoring",
+      "title": "pk context scores every snapshot entry, caps after scoring, and redistributes a failed scope's budget",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "[A1] Add the context_scoring integration test (200-entry scope, last-by-id match, failed-scope redistribution, stable order)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-a2-pk-worker-attribution",
+      "title": "Learning worker carries project/team/role, never emits a null agent_id, and commits the prompt snapshot",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[A2] Add the attribution integration test (outbox op keys, task-step keys, pk context sees the session entry)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-a4-surreal-lean-search-categories-rekey",
+      "title": "surreal-memory: lean search responses, categories honoured on both hybrid legs, loopback-only re-key operation",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "[A4] Add the team_scoping server-mode integration test",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-b1-identity-resolver",
+      "title": "One project-id resolver and an agent identity resolver used by every memory path",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "[B1] Write test-identity.sh (real git repo with two worktrees, payload fixtures for both harnesses)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-d2-mini-hook-timeouts-seconds",
+      "title": "Mini: hook timeouts in seconds, budget test rewritten, one unit in lib/kbd/hooks.mjs",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "[D2] Rewrite hooks-budget.test.mjs and hooks.test.mjs bounds in seconds; regenerate distribution",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-a3-pk-tags-and-type",
+      "title": "pk ingest accepts --type and --tag, and pk context filters by --tag",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[A3] Add the tags_and_type integration test",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-b2-namespaced-subagent-matchers",
+      "title": "Per-role anchored SubagentStop matchers with a Codex team-role guard; executor learning preserved",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "[B2] Write subagent-matchers.test.mjs (no bare-role match, args preserved, guard behaviour both harnesses)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-a5a-skillpack-pin-v1-10-0",
+      "title": "Tag pk and surreal-memory v1.10.0 and bump the skill-pack pins",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[A5a] Update the release version matrix and installation docs to 1.10.0",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-a5b-mini-pin-operator-request",
+      "title": "Operator pin request: mini gitlinks and versions.toml to v1.10.0 (operator-authored)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[A5b] Operator lands the mini pin commit (owner: operator; agent re-checks)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-b3-envelope-write-library",
+      "title": "learning_write: one attributed write path to surreal-memory, pk and the Karpathy log",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "[B3] Write test-learning-write.sh against live surreal-memory and real pk",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-c1a-pk-promotion-candidates",
+      "title": "pk promotion detector and `pk candidates list|accept|reject`",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[C1a] Add the promotion (worker) and candidates (pk-cli) integration tests",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-b3b-agent-team-memory-envelope",
+      "title": "agent-team runtime memory writer adopts the learning envelope, agent_id table and a required project id",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[B3b] Add memory-envelope.integration.mts against live surreal-memory and rebuild scripts",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-b4-per-agent-recall-and-kbd-loop",
+      "title": "learning_recall and the KBD memory loop: lessons written at reflect come back at the next stage",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "[B4] Write test-kbd-memory-loop.sh (reflect token → worker run-once → next-phase → assess recall)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-c3a-pk-skill-discovery",
+      "title": "Whole-transcript parsing and skill candidates in the learning worker",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[C3a] Add the skill_discovery integration test",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-b5-subagentstart-delivery-alpha",
+      "title": "SubagentStart delivery hook in both harnesses — alpha gate",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "[B5] Write the alpha gate test-subagent-delivery.sh for Claude Code and Codex, recording the Codex trust-path evidence",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-e1-pin-v1-11-0",
+      "title": "Tag pk v1.11.0 (promotion + skill discovery) and bump the skill-pack pin; operator request for mini",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[E1] File the mini operator pin request for v1.11.0 (after confirmation)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-b6-file-tier-reduction",
+      "title": "Reduce the file-memory tier: MEMORY.md index ≤ 4 KB, per-role local memory, Codex names and memory controls",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "[B6] Write memory-tiers.md and test-memory-partition.sh; extend export.integration.mts",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-b7-cross-agent-awareness-beta",
+      "title": "Path-overlap routing, team digest and lead view — beta gate",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[B7] Write report-learning-delivery.py and the beta gate test-team-awareness.sh",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-c1b-promotion-routing",
+      "title": "[GLOBAL]/[USER] routing, user/global recall quotas, and candidate review at reflect",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[C1b] Write test-promotion-routing.sh",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-c2-feynman-gap-routing",
+      "title": "Knowledge-gap detection on prompts with /learn-goal suggestion and gap resolution",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[C2] Write test-prompt-gap.sh with real pk",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-c4-cross-repo-team-requests",
+      "title": "Team cards, discovery, and same-repo handoff vs cross-repo GitHub issue requests",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "[C4] Write teams.integration.mts against a sandbox repo (PROMETHEUS_TEAM_TEST_REPO)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-d1a-mini-file-tier-port",
+      "title": "Mini: envelope on Karpathy records, identity resolver port, file-tier SubagentStart hook (Claude)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[D1a] Add the file-tier SubagentStart hook and its test; regenerate distribution",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-d3-claude-md-memory-chain-cortex",
+      "title": "CLAUDE.md memory chain describes per-role delivery; optional Cortex mirror",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[D3] Write test-cortex-mirror.sh (present and absent)",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-c3b-skill-candidate-surfacing",
+      "title": "Surface skill candidates in kbd-open and reflect",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "[C3b] Write test-skill-candidates.sh",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-tli-d1b-mini-pk-tags",
+      "title": "Mini: use pk --type/--tag when delivering Karpathy records",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "[D1b] Extend transport.test.mjs for both pk versions",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

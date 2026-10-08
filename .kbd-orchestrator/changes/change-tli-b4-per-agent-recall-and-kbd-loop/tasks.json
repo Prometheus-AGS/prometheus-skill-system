@@ -1,0 +1,82 @@
+{
+  "changeId": "change-tli-b4-per-agent-recall-and-kbd-loop",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[B4] Write learning_recall.py (scope queries, scoring, dedupe, budget, pk and file fallback, delivery log, legacy records)",
+      "done": true,
+      "doneAt": "2026-10-04T14:10:43Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/learning_recall.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[B4] Rewrite kbd-memory-recall.sh on learning_recall producing lesson-bearing prior-context.md",
+      "done": true,
+      "doneAt": "2026-10-04T14:11:25Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/kbd-process-orchestrator/skills/kbd-memory-recall/kbd-memory-recall.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[B4] Restructure the reflect template and memory-writeback extraction through learning_write",
+      "done": true,
+      "doneAt": "2026-10-04T14:12:03Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/kbd-process-orchestrator/prompts/reflect.md",
+        "shared/scripts/memory-writeback.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[B4] Add kbd-stage-writeback.sh stage hooks and fix the reflect:after hook path",
+      "done": true,
+      "doneAt": "2026-10-04T14:12:41Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/kbd-stage-writeback.sh",
+        "skills/process/kbd-process-orchestrator/hooks/hooks.json",
+        "skills/process/kbd-process-orchestrator/shared/lib/hooks.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "[B4] Update kbd stage SKILL.md files to read and cite prior-context.md",
+      "done": true,
+      "doneAt": "2026-10-04T14:13:19Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/kbd-process-orchestrator/skills/kbd-*/SKILL.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "6",
+      "title": "[B4] Write test-kbd-memory-loop.sh (reflect token \u2192 worker run-once \u2192 next-phase \u2192 assess recall)",
+      "done": true,
+      "doneAt": "2026-10-04T14:13:53Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-kbd-memory-loop.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-b4-per-agent-recall-and-kbd-loop/verify.sh",
+      "notes": null
+    }
+  ]
+}

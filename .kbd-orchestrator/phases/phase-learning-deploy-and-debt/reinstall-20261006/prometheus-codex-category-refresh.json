@@ -1,0 +1,218 @@
+[
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "prometheus-react-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-react-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-react-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "prometheus-react-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-react-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-react-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.5.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/prometheus-react-skills/1.5.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "prometheus-devops-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-devops-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-devops-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "prometheus-devops-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-devops-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-devops-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.5.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/prometheus-devops-skills/1.5.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "prometheus-testing-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-testing-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-testing-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "prometheus-testing-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-testing-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-testing-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.5.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/prometheus-testing-skills/1.5.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "learn@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"learn@prometheus-skill-pack\",\n  \"name\": \"learn\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "learn@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"learn@prometheus-skill-pack\",\n  \"name\": \"learn\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.6.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/learn/1.6.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "prometheus-librefang-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-librefang-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-librefang-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "prometheus-librefang-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-librefang-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-librefang-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.5.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/prometheus-librefang-skills/1.5.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "cowork-management@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"cowork-management@prometheus-skill-pack\",\n  \"name\": \"cowork-management\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "cowork-management@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"cowork-management@prometheus-skill-pack\",\n  \"name\": \"cowork-management\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.0.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/cowork-management/1.0.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "disk-space-guardian@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"disk-space-guardian@prometheus-skill-pack\",\n  \"name\": \"disk-space-guardian\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "disk-space-guardian@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"disk-space-guardian@prometheus-skill-pack\",\n  \"name\": \"disk-space-guardian\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.0.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/disk-space-guardian/1.0.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "prometheus-research-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-research-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-research-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "prometheus-research-skills@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-research-skills@prometheus-skill-pack\",\n  \"name\": \"prometheus-research-skills\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.1.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/prometheus-research-skills/1.1.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "remove",
+      "prometheus-research-server@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-research-server@prometheus-skill-pack\",\n  \"name\": \"prometheus-research-server\",\n  \"marketplaceName\": \"prometheus-skill-pack\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "codex",
+      "plugin",
+      "add",
+      "prometheus-research-server@prometheus-skill-pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"pluginId\": \"prometheus-research-server@prometheus-skill-pack\",\n  \"name\": \"prometheus-research-server\",\n  \"marketplaceName\": \"prometheus-skill-pack\",\n  \"version\": \"1.7.1\",\n  \"installedPath\": \"/Users/gqadonis/.codex/plugins/cache/prometheus-skill-pack/prometheus-research-server/1.7.1\",\n  \"authPolicy\": \"ON_INSTALL\"\n}\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T21:52:27.305441+00:00",
+  "kind": "initial-actual-candidate-gate-diagnostics",
+  "batchReceipt": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt/.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence/local-integration/initial-20261005T210725Z/batch.json",
+  "batchSha256": "873b5c707eafc4f00926dd43f00c7d922c52b0af9b1aab610c165a0a8816e2e4",
+  "exitCode": 1,
+  "sourceUnchangedDuringGate": true,
+  "results": [
+    {
+      "case": "build-native-cli",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "build-hook-runtime",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "build-memory-candidate",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "build-memory-prior",
+      "status": "FAIL",
+      "exitCode": -2,
+      "reason": null
+    },
+    {
+      "case": "build-companion-hosts",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": "another Cargo/rustc process owns the machine"
+    },
+    {
+      "case": "build-cache-integration",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": "another Cargo/rustc process owns the machine"
+    },
+    {
+      "case": "build-companion-integration",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": "another Cargo/rustc process owns the machine"
+    },
+    {
+      "case": "full-distribution",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "full-harnesses",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "full-release-version",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "full-workflow-policy",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "full-docs-sync",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "mini-distribution",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "prepare-install-source",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": null
+    },
+    {
+      "case": "hook-bytecode",
+      "status": "FAIL",
+      "exitCode": 1,
+      "reason": null
+    },
+    {
+      "case": "installer-prerequisites",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": "scratch-contained actual installer source preparation failed"
+    },
+    {
+      "case": "partition",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "rebase-generated-ownership",
+      "status": "FAIL",
+      "exitCode": 1,
+      "reason": null
+    },
+    {
+      "case": "real-cortex",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": null
+    },
+    {
+      "case": "mini-production",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": null
+    },
+    {
+      "case": "cache-prerequisites",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": "explicit existing absolute input missing: priorMemoryBinary"
+    },
+    {
+      "case": "companion-prerequisites",
+      "status": "BLOCKED",
+      "exitCode": 2,
+      "reason": "explicit existing absolute input missing: companionHeadlessBinary"
+    },
+    {
+      "case": "full-production-build",
+      "status": "FAIL",
+      "exitCode": 1,
+      "reason": null
+    },
+    {
+      "case": "mini-production-build",
+      "status": "FAIL",
+      "exitCode": 1,
+      "reason": null
+    },
+    {
+      "case": "generated-byte-mode-certification",
+      "status": "PASS",
+      "exitCode": 0,
+      "reason": null
+    },
+    {
+      "case": "final-parent-remote-install-graph",
+      "status": "PENDING",
+      "exitCode": null,
+      "reason": "owner-approved dependency certification/merge precedes final exact parent pin approval and fresh-clone certification"
+    }
+  ],
+  "acceptance": false,
+  "publication": false,
+  "deployment": false,
+  "correctionPolicy": "one coherent source/prerequisite correction batch, then affected integration gates; exit2 stays BLOCKED",
+  "cadence": {
+    "iteration": "ec5ccf20-62e4-435e-914a-9e8a24f82bfb",
+    "startedAt": "2026-10-05T18:45:48Z",
+    "deadline": "2026-10-05T19:45:48Z",
+    "overrun": true,
+    "usableDeliveryClaim": false
+  }
+}

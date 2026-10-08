@@ -32,7 +32,7 @@ In:
   - `/loop-tick <name>` = exactly ONE cycle: collect feedback_sources → diff vs
     goal criteria → satisfied? terminate + final report : regression/stall
     (max_no_progress_ticks)? escalate via pmpo-elicit : run one `/evolve
-    "<evolution_name>"` cycle (which composes zeespec, kbd-analyze, KBD
+    "<evolution_name>"` cycle (which composes spec-gate, kbd-analyze, KBD
     execute) → append journal.md + decision-log.
   - `/loop-report <name>` renders journal.md (dual format).
   - Cadence delegated to platform primitives (manual / background task / cron

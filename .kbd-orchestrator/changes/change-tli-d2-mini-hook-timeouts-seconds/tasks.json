@@ -1,0 +1,33 @@
+{
+  "changeId": "change-tli-d2-mini-hook-timeouts-seconds",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[D2] Convert hooks.json timeouts to seconds and unify lib/kbd/hooks.mjs",
+      "done": true,
+      "doneAt": "2026-10-04T03:47:04Z",
+      "doneBy": "claude-code",
+      "files": [
+        "hooks/hooks.json",
+        "lib/kbd/hooks.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[D2] Rewrite hooks-budget.test.mjs and hooks.test.mjs bounds in seconds; regenerate distribution",
+      "done": true,
+      "doneAt": "2026-10-04T03:47:32Z",
+      "doneBy": "claude-code",
+      "files": [
+        "lib/karpathy/hooks-budget.test.mjs",
+        "hooks/hooks.test.mjs",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-d2-mini-hook-timeouts-seconds/verify.sh",
+      "notes": null
+    }
+  ]
+}

@@ -1125,7 +1125,6 @@ A spot check of the `process/` skills:
 
 ```
 native-agent:       "Generates a complete, production-ready native Rust agent application with a Supabase-style management CLI. ..."
-zeespec-interrogator: "60-question Zachman 5W1H constraint interrogation, GO/CAUTION/NO-GO manifests ..."
 iterative-evolver:  "Strategic PMPO loop: Assess→Analyze→Plan→Execute→Reflect ..."
 pmpo-evolver:       "Strategy router for 5 evolution perspectives: ..."
 kbd-process-orchestrator: "Tactical KBD loop (16 child skills): change management, multi-tool dispatch"

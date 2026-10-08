@@ -12,7 +12,7 @@
 | # | Goal |
 |---|------|
 | G1 | Backfill `version`, `license`, and `metadata.tags` in all native (non-submodule) skills so `npm run validate:strict` exits 0 on the full corpus |
-| G2 | Fix `zeespec-interrogator` script permissions (`chmod +x`) so no warnings fire |
+| G2 | Fix `spec-gate` script permissions (`chmod +x`) so no warnings fire |
 | G3 | Add `validate:strict` as the primary CI gate (replaces or supplements `validate`) |
 | G4 | Handle submodule skills (artifact-refiner, sycophancy-correction) correctly — do NOT edit them directly; either skip them in strict mode or open upstream PRs |
 
@@ -24,7 +24,7 @@
 
 ```
 npm run validate:strict   → 158 ERRORS, 6 WARNINGS
-npm run validate          → 0 ERRORS, 6 WARNINGS  (warnings = zeespec-interrogator script perms)
+npm run validate          → 0 ERRORS, 6 WARNINGS  (warnings = spec-gate script perms)
 ```
 
 ### Error Breakdown by Field
@@ -82,12 +82,12 @@ Missing: `version` and `metadata: { tags: [...] }`.
 
 18 native skills — primarily rust skills (`async-patterns`, `axum-patterns`, `actor-model`, etc.) and a few process skills. These have `version: '1.0.0'` and `license: MIT` but no `metadata:` block at all.
 
-### zeespec-interrogator Script Permissions
+### spec-gate Script Permissions
 
-6 shell scripts in `skills/process/zeespec-interrogator/scripts/` are not executable:
+6 shell scripts in `skills/process/spec-gate/scripts/` are not executable:
 - `score-coverage.sh`, `state-checkpoint.sh`, `state-finalize.sh`, `state-init.sh`, `state-resolve-provider.sh`, `workflow-dispatch.sh`
 
-Fix: `chmod +x skills/process/zeespec-interrogator/scripts/*.sh`
+Fix: `chmod +x skills/process/spec-gate/scripts/*.sh`
 
 ---
 
@@ -96,7 +96,7 @@ Fix: `chmod +x skills/process/zeespec-interrogator/scripts/*.sh`
 | Gap | Priority | Effort | Goal | Description |
 |-----|----------|--------|------|-------------|
 | G1-BACKFILL-NATIVE | P0 | M | G1 | Add `version`, `license`, `metadata.tags` to all 77 native skills with violations |
-| G2-PERMS | P1 | XS | G2 | `chmod +x` zeespec-interrogator scripts |
+| G2-PERMS | P1 | XS | G2 | `chmod +x` spec-gate scripts |
 | G3-CI | P1 | XS | G3 | Update `package.json` to add `validate:strict` as primary gate; update `CLAUDE.md` contributing docs |
 | G4-SUBMODULES | P1 | S | G4 | Exclude submodule skills from strict validation OR open upstream PRs for the two submodule repos |
 
@@ -149,9 +149,9 @@ Fix: `chmod +x skills/process/zeespec-interrogator/scripts/*.sh`
 
 ### G2-PERMS — Script permissions
 
-**Files:** 6 shell scripts in `skills/process/zeespec-interrogator/scripts/`
+**Files:** 6 shell scripts in `skills/process/spec-gate/scripts/`
 
-**Fix:** `chmod +x skills/process/zeespec-interrogator/scripts/*.sh`
+**Fix:** `chmod +x skills/process/spec-gate/scripts/*.sh`
 
 **Acceptance criteria:**
 - `npm run validate` produces 0 warnings (currently 6 permission warnings)
@@ -192,7 +192,7 @@ Fix: `chmod +x skills/process/zeespec-interrogator/scripts/*.sh`
 
 ### Change order recommendation
 
-1. **change-001-perms-and-submodule-exclude** (XS+XS): Fix zeespec-interrogator permissions AND add `--exclude-submodules` flag. Bundle together as both are trivial and unblocking.
+1. **change-001-perms-and-submodule-exclude** (XS+XS): Fix spec-gate permissions AND add `--exclude-submodules` flag. Bundle together as both are trivial and unblocking.
 2. **change-002-backfill-script** (S): Write and run `backfill-strict-fields.js` script to auto-add missing fields to native skills.
 3. **change-003-ci-gate** (XS): Update `CLAUDE.md` and `package.json` to document `validate:strict` as the CI gate.
 

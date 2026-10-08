@@ -1,0 +1,11 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-10-04T23:28:37Z",
+  "outputs": [
+    ".kbd-orchestrator/changes/change-tlh-01-ranked-memory-partition/spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "9 native-kbd changes, 24 tasks; spec-gate n/a. change-tlh-01-ranked-memory-partition, change-tlh-02-codex-memories-install-and-doctor (cargo), change-tlh-03-versioned-cadence-refresh-procedure, change-tlh-04-scratch-surreal-for-envelope-test, change-tlh-05-query-embedding-cache (surreal-memory-server, cargo, 1.10.1 tag needs operator approval; stops if idle p95 > 2.0 s), change-tlh-06-ledger-reconciliation (depends 03), change-tlh-07-cortex-mirror-real-service, change-tlh-08-recall-scoping-and-eval (depends 04), change-tlh-09-rebase-regenerate. Review: round 1 BLOCK (3 CRITICAL, all fixed), round 2 PASS (0 CRITICAL, 5 WARNING folded in after round 2 without a third vet). Harness-native, same-family judge.",
+  "skipped": false,
+  "skipReason": null
+}

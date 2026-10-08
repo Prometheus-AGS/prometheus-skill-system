@@ -1,0 +1,25 @@
+{
+  "sourceCommit": "bfb6d49a7fe25d82ef4ad55f49c8f97e6e82c54a",
+  "oldPid": 44008,
+  "label": "gui/501/ai.prometheus.surreal-memory-native",
+  "plistUnchanged": true,
+  "version": "surreal-memory-server 1.10.2",
+  "serverSha256": "65c473c9a68954614c4268757d49ff9c222e763dd22f6e8fdd689cfbfb3f0d88",
+  "localServerSha256": "65c473c9a68954614c4268757d49ff9c222e763dd22f6e8fdd689cfbfb3f0d88",
+  "executorSha256": "737a497e85f243d00218e1f644ce58f4061e6d6391faa1be71532e0db8dc78e5",
+  "localExecutorSha256": "737a497e85f243d00218e1f644ce58f4061e6d6391faa1be71532e0db8dc78e5",
+  "ready": {
+    "capabilities": {
+      "coordinator": true,
+      "ledger": true,
+      "model_executor": true,
+      "search_index": true,
+      "storage": true,
+      "tokenizer": true
+    },
+    "ingestion_ready": true,
+    "search_ready": true,
+    "status": "ready"
+  },
+  "launchdPid": 55583
+}

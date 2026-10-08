@@ -1,0 +1,1410 @@
+[
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/adversarial-review",
+    "oldGeneration": "efc8924d2e8be9626c9e97462b3df41733e79bec46f81a071638e46ef169a18d",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/adversarial-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/android-compose-adaptive",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/android-compose-adaptive"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/android-edge-to-edge",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/android-edge-to-edge"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-accessibility",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-accessibility"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-colors",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-colors"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-interface",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-interface"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-layout",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-layout"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-typography",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-typography"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-writing",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/better-writing"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/break",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/break"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/delivery-cadence",
+    "oldGeneration": "efc8924d2e8be9626c9e97462b3df41733e79bec46f81a071638e46ef169a18d",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/delivery-cadence"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/design-taste-frontend",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/design-taste-frontend"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/design-taste-frontend-v1",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/design-taste-frontend-v1"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/explain-interface",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/explain-interface"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-animation",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-animation"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-design-system",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-design-system"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-native-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-native-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-router",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-router"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/expo-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-build-responsive-layout",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-build-responsive-layout"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-fix-layout-issues",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-fix-layout-issues"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-rust-ffi",
+    "oldGeneration": "efc8924d2e8be9626c9e97462b3df41733e79bec46f81a071638e46ef169a18d",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-rust-ffi"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-setup-declarative-routing",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-setup-declarative-routing"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-setup-localization",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/flutter-setup-localization"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/full-output-enforcement",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/full-output-enforcement"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/gpt-taste",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/gpt-taste"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/high-end-visual-design",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/high-end-visual-design"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/impeccable",
+    "oldGeneration": "efc8924d2e8be9626c9e97462b3df41733e79bec46f81a071638e46ef169a18d",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/industrial-brutalist-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/industrial-brutalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/interface-review",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/interface-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/minimalist-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/minimalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/prometheus-impeccable-core",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/prometheus-impeccable-core"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/prometheus-ui-review",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/prometheus-ui-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/prometheus-ui-ux",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/prometheus-ui-ux"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/redesign-existing-projects",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/redesign-existing-projects"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/stitch-design-taste",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/stitch-design-taste"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/swiftui-pro",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/swiftui-pro"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/ui-ux-pro-max",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/ui-ux-pro-max"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/variant",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/variant"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/vercel-composition-patterns",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/vercel-composition-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/vercel-react-best-practices",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/vercel-react-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/vercel-react-native-skills",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/vercel-react-native-skills"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/web-design-guidelines",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.agents/skills/web-design-guidelines"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/android-compose-adaptive",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/android-compose-adaptive"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/android-edge-to-edge",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/android-edge-to-edge"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-accessibility",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-accessibility"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-colors",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-colors"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-interface",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-interface"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-layout",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-layout"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-typography",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-typography"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-writing",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/better-writing"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/break",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/break"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/design-taste-frontend",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/design-taste-frontend"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/design-taste-frontend-v1",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/design-taste-frontend-v1"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/explain-interface",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/explain-interface"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-animation",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-animation"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-design-system",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-design-system"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-native-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-native-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-router",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-router"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/expo-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/flutter-build-responsive-layout",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/flutter-build-responsive-layout"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/flutter-fix-layout-issues",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/flutter-fix-layout-issues"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/flutter-setup-declarative-routing",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/flutter-setup-declarative-routing"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/flutter-setup-localization",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/flutter-setup-localization"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/full-output-enforcement",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/full-output-enforcement"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/gpt-taste",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/gpt-taste"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/high-end-visual-design",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/high-end-visual-design"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/impeccable",
+    "oldGeneration": "efc8924d2e8be9626c9e97462b3df41733e79bec46f81a071638e46ef169a18d",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/industrial-brutalist-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/industrial-brutalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/interface-review",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/interface-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/minimalist-ui",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/minimalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/prometheus-impeccable-core",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/prometheus-impeccable-core"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/prometheus-ui-review",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/prometheus-ui-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/prometheus-ui-ux",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/prometheus-ui-ux"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/redesign-existing-projects",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/redesign-existing-projects"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/stitch-design-taste",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/stitch-design-taste"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/swiftui-pro",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/swiftui-pro"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/ui-ux-pro-max",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/ui-ux-pro-max"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/variant",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/variant"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/vercel-composition-patterns",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/vercel-composition-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/vercel-react-best-practices",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/vercel-react-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/vercel-react-native-skills",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/vercel-react-native-skills"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/web-design-guidelines",
+    "oldGeneration": "90e9aa6cc3e5bea5f191a1d792dfb7b7d8cd6e2f0229b1837ab9c74c74c918ae",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/TribeHealth/kevin/prior-auth/patient-gpt/.claude/skills/web-design-guidelines"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/agent-team-creator",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/agent-team-creator"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/agent-team-models",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/agent-team-models"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/android-compose-adaptive",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/android-compose-adaptive"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/android-edge-to-edge",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/android-edge-to-edge"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/better-accessibility",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/better-accessibility"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/better-colors",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/better-colors"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/better-interface",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/better-interface"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/better-layout",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/better-layout"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/better-typography",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/better-typography"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/better-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/better-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/better-writing",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/better-writing"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/break",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/break"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/design-taste-frontend",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/design-taste-frontend"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/design-taste-frontend-v1",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/design-taste-frontend-v1"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/explain-interface",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/explain-interface"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/expo-animation",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/expo-animation"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/expo-design-system",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/expo-design-system"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/expo-native-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/expo-native-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/expo-router",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/expo-router"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/expo-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/expo-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/flutter-build-responsive-layout",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/flutter-build-responsive-layout"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/flutter-fix-layout-issues",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/flutter-fix-layout-issues"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/flutter-setup-declarative-routing",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/flutter-setup-declarative-routing"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/flutter-setup-localization",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/flutter-setup-localization"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/full-output-enforcement",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/full-output-enforcement"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/gpt-taste",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/gpt-taste"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/high-end-visual-design",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/high-end-visual-design"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/impeccable",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/industrial-brutalist-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/industrial-brutalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/interface-review",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/interface-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/minimalist-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/minimalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/prometheus-impeccable-core",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/prometheus-impeccable-core"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/prometheus-rust-workspace",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/prometheus-rust-workspace"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/prometheus-ui-review",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/prometheus-ui-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/prometheus-ui-ux",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/prometheus-ui-ux"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/redesign-existing-projects",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/redesign-existing-projects"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/stitch-design-taste",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/stitch-design-taste"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/swiftui-pro",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/swiftui-pro"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/ui-ux-pro-max",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/ui-ux-pro-max"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/variant",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/variant"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/vercel-composition-patterns",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/vercel-composition-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/vercel-react-best-practices",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/vercel-react-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/vercel-react-native-skills",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/vercel-react-native-skills"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.agents/skills/web-design-guidelines",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.agents/skills/web-design-guidelines"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/agent-team-creator",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/agent-team-creator"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/agent-team-models",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/agent-team-models"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/android-compose-adaptive",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/android-compose-adaptive"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/android-edge-to-edge",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/android-edge-to-edge"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/better-accessibility",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/better-accessibility"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/better-colors",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/better-colors"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/better-interface",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/better-interface"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/better-layout",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/better-layout"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/better-typography",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/better-typography"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/better-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/better-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/better-writing",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/better-writing"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/break",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/break"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/design-taste-frontend",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/design-taste-frontend"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/design-taste-frontend-v1",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/design-taste-frontend-v1"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/explain-interface",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/explain-interface"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/expo-animation",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/expo-animation"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/expo-design-system",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/expo-design-system"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/expo-native-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/expo-native-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/expo-router",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/expo-router"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/expo-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/expo-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/flutter-build-responsive-layout",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/flutter-build-responsive-layout"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/flutter-fix-layout-issues",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/flutter-fix-layout-issues"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/flutter-setup-declarative-routing",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/flutter-setup-declarative-routing"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/flutter-setup-localization",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/flutter-setup-localization"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/full-output-enforcement",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/full-output-enforcement"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/gpt-taste",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/gpt-taste"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/high-end-visual-design",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/high-end-visual-design"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/impeccable",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/industrial-brutalist-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/industrial-brutalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/interface-review",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/interface-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/minimalist-ui",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/minimalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/prometheus-impeccable-core",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/prometheus-impeccable-core"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/prometheus-rust-workspace",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/prometheus-rust-workspace"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/prometheus-ui-review",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/prometheus-ui-review"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/prometheus-ui-ux",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/prometheus-ui-ux"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/redesign-existing-projects",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/redesign-existing-projects"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/stitch-design-taste",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/stitch-design-taste"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/swiftui-pro",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/swiftui-pro"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/ui-ux-pro-max",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/ui-ux-pro-max"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/variant",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/variant"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/vercel-composition-patterns",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/vercel-composition-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/vercel-react-best-practices",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/vercel-react-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/vercel-react-native-skills",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/vercel-react-native-skills"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.claude/skills/web-design-guidelines",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.claude/skills/web-design-guidelines"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.kimi-code/skills/impeccable",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.kimi-code/skills/impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.minimax/skills/impeccable",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.minimax/skills/impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/Projects/prometheus/skills/video/.opencode/skills/impeccable",
+    "oldGeneration": "bdad67dcc943ca2112b2b9f0c030f8c983dcdb8ca2ed08d0f97b0bb34ab0751f",
+    "differences": [],
+    "action": "refreshed",
+    "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+    "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/project-copies/Projects/prometheus/skills/video/.opencode/skills/impeccable"
+  }
+]

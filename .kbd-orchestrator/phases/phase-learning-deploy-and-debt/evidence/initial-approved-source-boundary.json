@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T21:04:55.484841+00:00",
+  "status": "initial-approved-candidate-source-frozen",
+  "handoffs": [
+    {
+      "path": "/tmp/ldd-root-integration-source-handoff.json",
+      "sha256": "621d0517cb01e92e1fdbdce3d0d695c71ed13ff9f711f424d77ea26943476f55"
+    },
+    {
+      "path": "/tmp/ldd-candidate-team-integration-source-handoff.json",
+      "sha256": "58087bb6067fb23ef35f7850ffcf76d2fe3d2ed48b881ef869c1a75fad78ec18"
+    },
+    {
+      "path": "/tmp/ldd-task12-hook-home-companion-source-handoff.json",
+      "sha256": "eaabc25fb61f4aa59cb9de4b18a54737daa8afd490d609e4a354109e50d048a6"
+    },
+    {
+      "path": "/tmp/ldd-mini-memory-integration-source-handoff.json",
+      "sha256": "835442eb8d7cd820cf327674edbbdc4cea6dac20a353c9d20541275d6e30cb5d"
+    },
+    {
+      "path": "/tmp/ldd-full-final-generation-handoff.json",
+      "sha256": "210b9152639060894161ef120a17e91617de5e50b242785ee11620aae14436a0"
+    },
+    {
+      "path": "/tmp/ldd-mini-generation-handoff.json",
+      "sha256": "72fa4208916e6ff5e48ffa84535cbad67b09c0e736c58d2c8ec561d81e052810"
+    }
+  ],
+  "initialAcceptance": false,
+  "finalParentGraphAcceptance": false,
+  "knownMissingRuntimeInput": "Real Cortex2.0.3 package; owner location question pending",
+  "retainedFinalMetadata": "Certified memory commit plus exact mini protected-file approval after dependency publication/owner merge",
+  "miniSourceCorrection": "Only verified mini receipt and matching orchestrator SKILL ownership avoids false full-pack marker; independent full markers remain conflicts"
+}

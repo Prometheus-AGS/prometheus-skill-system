@@ -470,7 +470,7 @@ enum KbdAction {
         #[command(subcommand)]
         action: KbdRolloutAction,
     },
-    /// Evaluate canonical task, phase, and ZeeSpec boundaries
+    /// Evaluate canonical task, phase, and change boundaries
     Guard {
         #[command(subcommand)]
         action: KbdGuardAction,
@@ -522,7 +522,6 @@ enum KbdBoundaryKind {
     Task,
     Change,
     Phase,
-    Zeespec,
 }
 
 impl From<KbdBoundaryKind> for kbd_runtime::BoundaryKind {
@@ -531,7 +530,6 @@ impl From<KbdBoundaryKind> for kbd_runtime::BoundaryKind {
             KbdBoundaryKind::Task => Self::Task,
             KbdBoundaryKind::Change => Self::Change,
             KbdBoundaryKind::Phase => Self::Phase,
-            KbdBoundaryKind::Zeespec => Self::Zeespec,
         }
     }
 }

@@ -1,0 +1,20 @@
+{
+  "capturedAt": "2026-10-05T13:19:48.979758+00:00",
+  "base": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+  "skillCommit": "704528b03a06566dc7c84357a1deade816dcd232",
+  "trackedProductionPatchSha256": "05e39dbb3ce8c29f672e736843d56b46106425ed1056aad0ca5aff18f0adbb0f",
+  "originalHookSha256": "3240321264a6bd5148ff412ce04081e40a54b15b1047f6e4f1e963419cf3e9e2",
+  "selectedHookSha256": "7971f85d49376eb18b229119da055c2fd9046315c4092efc58236b16dd6e6bda",
+  "originalSourceHashes": {
+    "src/main.rs": "8f8141672a3d2860ae3fb07e6555e70bf329938abbb6ea3dc30d4c14fb91de33",
+    "src/lib.rs": "453bae1bb44c73272dcca73d0990836bd6141aaf261709e4f2c4328d46fad4cf",
+    "src/hook.rs": "3240321264a6bd5148ff412ce04081e40a54b15b1047f6e4f1e963419cf3e9e2"
+  },
+  "excludedUncommittedUnitHunks": [
+    "5a85748d4a776d717056f2b2e01b4368c2682c63c1dccb6f98c25aaf4f11c568"
+  ],
+  "excludedHookUnitSection": true,
+  "unitDisposition": "Preserved in original checkout; excluded from new phase delivery under integration-only policy. Production acceptance scenarios belong to final completed-production boundary. Existing committed upstream unit suites remain untouched.",
+  "originalCheckoutUntouched": true,
+  "buildOrTestsRun": false
+}

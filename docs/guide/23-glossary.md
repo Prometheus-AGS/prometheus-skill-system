@@ -14,8 +14,6 @@
 
 **Constitution.** A per-language set of standards and denied patterns that forge-rs checks code against and injects into enrichment context (`constitution_summary`).
 
-**Constraint manifest.** The output of the ZeeSpec interrogator — a scored GO / CAUTION / NO-GO assessment of whether work is specified well enough to proceed.
-
 **evolver-bridge.json.** The write-back contract between the KBD inner loop (L1) and the evolver (L2). Maps completed changes to evolution items so the strategic loop knows what landed.
 
 **forge-rs.** The Layer 4 code-enrichment engine. Injects language knowledge before an agent writes code; processes reflections back into the Karpathy loop.
@@ -67,8 +65,6 @@ gossip topic and is separate from endpoint, KBD device, and TCP-token identity.
 **surreal-memory.** The semantic knowledge graph (SurrealDB + HNSW) on port 23001. Stores relationships, scoped memory, task streams, and mindmaps.
 
 **Waypoint.** The resume contract in `.kbd-orchestrator/current-waypoint.json` / `position-reminder.txt` that restores an agent's exact position at session start.
-
-**ZeeSpec.** The Zachman-Framework 5W1H interrogator that gates under-specified work at Layer 1.
 
 ## Sources
 

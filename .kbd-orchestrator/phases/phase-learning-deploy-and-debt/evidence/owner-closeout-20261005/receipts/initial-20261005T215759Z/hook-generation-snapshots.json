@@ -8883,7 +8883,7 @@
         493,
         "b5ecaf8a3afeb8d6d31c88d680ac4e57055d57ce798371c986f92f0f332d9b62"
       ],
-      "skills/kbd-process-orchestrator/shared/lib/tests/test-zeespec-checkpoint-e2e.sh": [
+      "skills/kbd-process-orchestrator/shared/lib/tests/test-spec-gate-checkpoint-e2e.sh": [
         "file",
         493,
         "f961299d3ed9370793d598b26c8b0ebeacf8287e3443c20727309e66a44ff412"
@@ -14673,272 +14673,272 @@
         420,
         "0d24ee225ba9978969b23e4acae89217111ea13aeca2327f106e1cbdb6b0edcc"
       ],
-      "skills/zeespec-interrogate": [
+      "skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogate/SKILL.md": [
+      "skills/spec-gate/SKILL.md": [
         "file",
         420,
         "45bc37e648c2c15384856edccf4805e8033efe96e0120b221abedc8799ab3fb0"
       ],
-      "skills/zeespec-interrogator": [
+      "skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/.mcp.json": [
+      "skills/spec-gate/.mcp.json": [
         "file",
         420,
         "dffda35a19c2a3778294cd6f2bd341a7197680925c0b12468ad357be88c588fb"
       ],
-      "skills/zeespec-interrogator/AGENTS.md": [
+      "skills/spec-gate/AGENTS.md": [
         "file",
         420,
         "682b1123c7289bf2c974095ba4822805d023501eaa6a37a4a3e5c716f9f2a329"
       ],
-      "skills/zeespec-interrogator/CLAUDE.md": [
+      "skills/spec-gate/CLAUDE.md": [
         "file",
         420,
         "e1221cc3a5c0c3f6d2a6abc1b00b9aaee06fbd384c3fad2e51ff8ea8a7870f3d"
       ],
-      "skills/zeespec-interrogator/README.md": [
+      "skills/spec-gate/README.md": [
         "file",
         420,
         "548cebb9565e7e868262826d0cdb4a56b4b185f26415b3f3bcda50afdd1dd5b9"
       ],
-      "skills/zeespec-interrogator/SKILL.md": [
+      "skills/spec-gate/SKILL.md": [
         "file",
         420,
         "298229d201c5be81257b8fb732519e4df3fa5cea727104f199e29414c3516faf"
       ],
-      "skills/zeespec-interrogator/hooks": [
+      "skills/spec-gate/hooks": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/hooks/hooks.json": [
+      "skills/spec-gate/hooks/hooks.json": [
         "file",
         420,
         "106ee1a98cca1cfc61c216be9e41e9d0a09b8c77068d5c20d3b744692a45efa8"
       ],
-      "skills/zeespec-interrogator/prompts": [
+      "skills/spec-gate/prompts": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/prompts/interrogate.md": [
+      "skills/spec-gate/prompts/interrogate.md": [
         "file",
         420,
         "92263c34a229a3a324ef851924141b877d34d6e52cb0eed203e969afc58865d1"
       ],
-      "skills/zeespec-interrogator/prompts/manifest.md": [
+      "skills/spec-gate/prompts/manifest.md": [
         "file",
         420,
         "dacbdee18cdee0c267433998c44e87cfed287a405ad9788660ba7876c0c45ef0"
       ],
-      "skills/zeespec-interrogator/prompts/meta-controller.md": [
+      "skills/spec-gate/prompts/meta-controller.md": [
         "file",
         420,
         "b3a731f30e384b3c0375d96eb3af3e57e1ddddbbc2ced7534b6a61eff6e82b16"
       ],
-      "skills/zeespec-interrogator/prompts/persist.md": [
+      "skills/spec-gate/prompts/persist.md": [
         "file",
         420,
         "c0d9ce1fb84b70231db9210f8210a0a3d806ac970d96dea99facc60a6fd74a56"
       ],
-      "skills/zeespec-interrogator/prompts/score.md": [
+      "skills/spec-gate/prompts/score.md": [
         "file",
         420,
         "3491a0358492ed449c49f5b76751ba2cf90bb7174ea1f22fbe54d7a7b735cb23"
       ],
-      "skills/zeespec-interrogator/references": [
+      "skills/spec-gate/references": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/coverage-scoring.md": [
+      "skills/spec-gate/references/coverage-scoring.md": [
         "file",
         420,
         "81bc48fd71abe94b09cfe23f21629fbcb136e48f4f859992ccfc0bd8b0808190"
       ],
-      "skills/zeespec-interrogator/references/dimensions": [
+      "skills/spec-gate/references/dimensions": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/dimensions/how.md": [
+      "skills/spec-gate/references/dimensions/how.md": [
         "file",
         420,
         "672d58974eba1f013a6edef16dbe807f9aeeea814e7080ce68f29cc832aabfb6"
       ],
-      "skills/zeespec-interrogator/references/dimensions/what.md": [
+      "skills/spec-gate/references/dimensions/what.md": [
         "file",
         420,
         "4fdd3cb68d8747e27ed1cc1b095623c6af3d712c9aac4c4ab0805be37f8ef7e4"
       ],
-      "skills/zeespec-interrogator/references/dimensions/when.md": [
+      "skills/spec-gate/references/dimensions/when.md": [
         "file",
         420,
         "43662e16b2b463db98da2c731101ba29d8db9b03a36864b4c14c3dfb665ad401"
       ],
-      "skills/zeespec-interrogator/references/dimensions/where.md": [
+      "skills/spec-gate/references/dimensions/where.md": [
         "file",
         420,
         "6323b22bfbdcf2784b8e4f2fc56fa827c0493869b39c9e00f0944436a08e08cb"
       ],
-      "skills/zeespec-interrogator/references/dimensions/who.md": [
+      "skills/spec-gate/references/dimensions/who.md": [
         "file",
         420,
         "5e9888e271595e3216744b7c4cbb5b51fc0d832e585b1711ed73f9763caab6ec"
       ],
-      "skills/zeespec-interrogator/references/dimensions/why.md": [
+      "skills/spec-gate/references/dimensions/why.md": [
         "file",
         420,
         "d616680e4b88205fa5649e7c3e51b3b92449771149936e7122dda4b4a62645b0"
       ],
-      "skills/zeespec-interrogator/references/integration-contract.md": [
+      "skills/spec-gate/references/integration-contract.md": [
         "file",
         420,
         "75461d86823f950427433959fb47e397bd4bdd19624e978fb7a53adc9855cfa0"
       ],
-      "skills/zeespec-interrogator/references/integrations": [
+      "skills/spec-gate/references/integrations": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/integrations/iterative-evolver.md": [
+      "skills/spec-gate/references/integrations/iterative-evolver.md": [
         "file",
         420,
         "2308eef2124d8595f2aa4ad81216e0ad8e90e892e0cd11e1160e09c17a9c5915"
       ],
-      "skills/zeespec-interrogator/references/integrations/kbd-orchestrator.md": [
+      "skills/spec-gate/references/integrations/kbd-orchestrator.md": [
         "file",
         420,
         "45401aba3d9e7e4f69e6cc6e647d22e11abc626d39f7c1e43089b7624f23a719"
       ],
-      "skills/zeespec-interrogator/references/model-routing.md": [
+      "skills/spec-gate/references/model-routing.md": [
         "file",
         420,
         "88bb3ccbf2d47dfa73a71ccec5c7b803b2172566a703aeac319a5d28091be83c"
       ],
-      "skills/zeespec-interrogator/references/schemas": [
+      "skills/spec-gate/references/schemas": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/schemas/constraint-manifest.schema.json": [
+      "skills/spec-gate/references/schemas/constraint-manifest.schema.json": [
         "file",
         420,
         "d0c4a93898f938ea1f84f4c625a9bf9539b7f3530106e61f1648dea91ee9fec4"
       ],
-      "skills/zeespec-interrogator/references/schemas/coverage-score.schema.json": [
+      "skills/spec-gate/references/schemas/coverage-score.schema.json": [
         "file",
         420,
         "ca0e7ff121c51298513603a10d2559ff1c81cbb9248da91d05dbdad4ffb6686b"
       ],
-      "skills/zeespec-interrogator/references/schemas/interrogation-state.schema.json": [
+      "skills/spec-gate/references/schemas/interrogation-state.schema.json": [
         "file",
         420,
         "240e4a3b4c19a3ccbbada0931438d1f828aa1295b7e6641591160dd2c1d7df09"
       ],
-      "skills/zeespec-interrogator/references/zeespec-framework.md": [
+      "skills/spec-gate/references/spec-gate-framework.md": [
         "file",
         420,
         "e74506044734d62078ab7f426114b7f84381a1bba09afbdd06aa90861e232a6b"
       ],
-      "skills/zeespec-interrogator/scripts": [
+      "skills/spec-gate/scripts": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/scripts/score-coverage.sh": [
+      "skills/spec-gate/scripts/score-coverage.sh": [
         "file",
         493,
         "6d8a3ca8ff93500e37bb2d797b9b1cae1a9ff7f63b49ff9e666bf540c5c0d273"
       ],
-      "skills/zeespec-interrogator/scripts/state-checkpoint.sh": [
+      "skills/spec-gate/scripts/state-checkpoint.sh": [
         "file",
         493,
         "280af6f28350f3f669ed7069bd77ba012a4dc3fa3d40f0daa6a2d974025549fe"
       ],
-      "skills/zeespec-interrogator/scripts/state-finalize.sh": [
+      "skills/spec-gate/scripts/state-finalize.sh": [
         "file",
         493,
         "da5e95b84433e0b779a277f9e079636da8a82ddbe11f1192c3cbb9adcf1d9a96"
       ],
-      "skills/zeespec-interrogator/scripts/state-init.sh": [
+      "skills/spec-gate/scripts/state-init.sh": [
         "file",
         493,
         "0f4a1e03b8b728242db14301d6ce2a5511111531eee14f48487096616e928cf4"
       ],
-      "skills/zeespec-interrogator/scripts/state-resolve-provider.sh": [
+      "skills/spec-gate/scripts/state-resolve-provider.sh": [
         "file",
         493,
         "f4e11b15a884836339c88c87f92d97767f8b36f4b4a10984e5dbb6ef7367f4e6"
       ],
-      "skills/zeespec-interrogator/scripts/workflow-dispatch.sh": [
+      "skills/spec-gate/scripts/workflow-dispatch.sh": [
         "file",
         493,
         "716eebae015ceb631d27552a0682454938af75cbdba22693eb2a8e5e7ad1f893"
       ],
-      "skills/zeespec-interrogator/setup.sh": [
+      "skills/spec-gate/setup.sh": [
         "file",
         420,
         "5b26b9367e3a7e8f7abf29d266517c4a8db740389d3d0ccdebcdac236e70e9e9"
       ],
-      "skills/zeespec-interrogator/skills": [
+      "skills/spec-gate/skills": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-interrogate": [
+      "skills/spec-gate/skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-interrogate/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate/SKILL.md": [
         "file",
         420,
         "45bc37e648c2c15384856edccf4805e8033efe96e0120b221abedc8799ab3fb0"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-score": [
+      "skills/spec-gate/skills/spec-gate-score": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-score/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate-score/SKILL.md": [
         "file",
         420,
         "79c4ba5050a92c4897703e421b1d716e63414d7ce9905fe3bff877a4a5e4f466"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-status": [
+      "skills/spec-gate/skills/spec-gate-status": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-status/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate-status/SKILL.md": [
         "file",
         420,
         "b2727481f8c268502c704e1b4cce8cca73251c3986342d1553feeb0b030d86a2"
       ],
-      "skills/zeespec-score": [
+      "skills/spec-gate-score": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-score/SKILL.md": [
+      "skills/spec-gate-score/SKILL.md": [
         "file",
         420,
         "79c4ba5050a92c4897703e421b1d716e63414d7ce9905fe3bff877a4a5e4f466"
       ],
-      "skills/zeespec-status": [
+      "skills/spec-gate-status": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-status/SKILL.md": [
+      "skills/spec-gate-status/SKILL.md": [
         "file",
         420,
         "b2727481f8c268502c704e1b4cce8cca73251c3986342d1553feeb0b030d86a2"
@@ -23825,7 +23825,7 @@
         493,
         "b5ecaf8a3afeb8d6d31c88d680ac4e57055d57ce798371c986f92f0f332d9b62"
       ],
-      "skills/kbd-process-orchestrator/shared/lib/tests/test-zeespec-checkpoint-e2e.sh": [
+      "skills/kbd-process-orchestrator/shared/lib/tests/test-spec-gate-checkpoint-e2e.sh": [
         "file",
         493,
         "f961299d3ed9370793d598b26c8b0ebeacf8287e3443c20727309e66a44ff412"
@@ -29615,272 +29615,272 @@
         420,
         "0d24ee225ba9978969b23e4acae89217111ea13aeca2327f106e1cbdb6b0edcc"
       ],
-      "skills/zeespec-interrogate": [
+      "skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogate/SKILL.md": [
+      "skills/spec-gate/SKILL.md": [
         "file",
         420,
         "45bc37e648c2c15384856edccf4805e8033efe96e0120b221abedc8799ab3fb0"
       ],
-      "skills/zeespec-interrogator": [
+      "skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/.mcp.json": [
+      "skills/spec-gate/.mcp.json": [
         "file",
         420,
         "dffda35a19c2a3778294cd6f2bd341a7197680925c0b12468ad357be88c588fb"
       ],
-      "skills/zeespec-interrogator/AGENTS.md": [
+      "skills/spec-gate/AGENTS.md": [
         "file",
         420,
         "682b1123c7289bf2c974095ba4822805d023501eaa6a37a4a3e5c716f9f2a329"
       ],
-      "skills/zeespec-interrogator/CLAUDE.md": [
+      "skills/spec-gate/CLAUDE.md": [
         "file",
         420,
         "e1221cc3a5c0c3f6d2a6abc1b00b9aaee06fbd384c3fad2e51ff8ea8a7870f3d"
       ],
-      "skills/zeespec-interrogator/README.md": [
+      "skills/spec-gate/README.md": [
         "file",
         420,
         "548cebb9565e7e868262826d0cdb4a56b4b185f26415b3f3bcda50afdd1dd5b9"
       ],
-      "skills/zeespec-interrogator/SKILL.md": [
+      "skills/spec-gate/SKILL.md": [
         "file",
         420,
         "298229d201c5be81257b8fb732519e4df3fa5cea727104f199e29414c3516faf"
       ],
-      "skills/zeespec-interrogator/hooks": [
+      "skills/spec-gate/hooks": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/hooks/hooks.json": [
+      "skills/spec-gate/hooks/hooks.json": [
         "file",
         420,
         "106ee1a98cca1cfc61c216be9e41e9d0a09b8c77068d5c20d3b744692a45efa8"
       ],
-      "skills/zeespec-interrogator/prompts": [
+      "skills/spec-gate/prompts": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/prompts/interrogate.md": [
+      "skills/spec-gate/prompts/interrogate.md": [
         "file",
         420,
         "92263c34a229a3a324ef851924141b877d34d6e52cb0eed203e969afc58865d1"
       ],
-      "skills/zeespec-interrogator/prompts/manifest.md": [
+      "skills/spec-gate/prompts/manifest.md": [
         "file",
         420,
         "dacbdee18cdee0c267433998c44e87cfed287a405ad9788660ba7876c0c45ef0"
       ],
-      "skills/zeespec-interrogator/prompts/meta-controller.md": [
+      "skills/spec-gate/prompts/meta-controller.md": [
         "file",
         420,
         "b3a731f30e384b3c0375d96eb3af3e57e1ddddbbc2ced7534b6a61eff6e82b16"
       ],
-      "skills/zeespec-interrogator/prompts/persist.md": [
+      "skills/spec-gate/prompts/persist.md": [
         "file",
         420,
         "c0d9ce1fb84b70231db9210f8210a0a3d806ac970d96dea99facc60a6fd74a56"
       ],
-      "skills/zeespec-interrogator/prompts/score.md": [
+      "skills/spec-gate/prompts/score.md": [
         "file",
         420,
         "3491a0358492ed449c49f5b76751ba2cf90bb7174ea1f22fbe54d7a7b735cb23"
       ],
-      "skills/zeespec-interrogator/references": [
+      "skills/spec-gate/references": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/coverage-scoring.md": [
+      "skills/spec-gate/references/coverage-scoring.md": [
         "file",
         420,
         "81bc48fd71abe94b09cfe23f21629fbcb136e48f4f859992ccfc0bd8b0808190"
       ],
-      "skills/zeespec-interrogator/references/dimensions": [
+      "skills/spec-gate/references/dimensions": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/dimensions/how.md": [
+      "skills/spec-gate/references/dimensions/how.md": [
         "file",
         420,
         "672d58974eba1f013a6edef16dbe807f9aeeea814e7080ce68f29cc832aabfb6"
       ],
-      "skills/zeespec-interrogator/references/dimensions/what.md": [
+      "skills/spec-gate/references/dimensions/what.md": [
         "file",
         420,
         "4fdd3cb68d8747e27ed1cc1b095623c6af3d712c9aac4c4ab0805be37f8ef7e4"
       ],
-      "skills/zeespec-interrogator/references/dimensions/when.md": [
+      "skills/spec-gate/references/dimensions/when.md": [
         "file",
         420,
         "43662e16b2b463db98da2c731101ba29d8db9b03a36864b4c14c3dfb665ad401"
       ],
-      "skills/zeespec-interrogator/references/dimensions/where.md": [
+      "skills/spec-gate/references/dimensions/where.md": [
         "file",
         420,
         "6323b22bfbdcf2784b8e4f2fc56fa827c0493869b39c9e00f0944436a08e08cb"
       ],
-      "skills/zeespec-interrogator/references/dimensions/who.md": [
+      "skills/spec-gate/references/dimensions/who.md": [
         "file",
         420,
         "5e9888e271595e3216744b7c4cbb5b51fc0d832e585b1711ed73f9763caab6ec"
       ],
-      "skills/zeespec-interrogator/references/dimensions/why.md": [
+      "skills/spec-gate/references/dimensions/why.md": [
         "file",
         420,
         "d616680e4b88205fa5649e7c3e51b3b92449771149936e7122dda4b4a62645b0"
       ],
-      "skills/zeespec-interrogator/references/integration-contract.md": [
+      "skills/spec-gate/references/integration-contract.md": [
         "file",
         420,
         "75461d86823f950427433959fb47e397bd4bdd19624e978fb7a53adc9855cfa0"
       ],
-      "skills/zeespec-interrogator/references/integrations": [
+      "skills/spec-gate/references/integrations": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/integrations/iterative-evolver.md": [
+      "skills/spec-gate/references/integrations/iterative-evolver.md": [
         "file",
         420,
         "2308eef2124d8595f2aa4ad81216e0ad8e90e892e0cd11e1160e09c17a9c5915"
       ],
-      "skills/zeespec-interrogator/references/integrations/kbd-orchestrator.md": [
+      "skills/spec-gate/references/integrations/kbd-orchestrator.md": [
         "file",
         420,
         "45401aba3d9e7e4f69e6cc6e647d22e11abc626d39f7c1e43089b7624f23a719"
       ],
-      "skills/zeespec-interrogator/references/model-routing.md": [
+      "skills/spec-gate/references/model-routing.md": [
         "file",
         420,
         "88bb3ccbf2d47dfa73a71ccec5c7b803b2172566a703aeac319a5d28091be83c"
       ],
-      "skills/zeespec-interrogator/references/schemas": [
+      "skills/spec-gate/references/schemas": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/schemas/constraint-manifest.schema.json": [
+      "skills/spec-gate/references/schemas/constraint-manifest.schema.json": [
         "file",
         420,
         "d0c4a93898f938ea1f84f4c625a9bf9539b7f3530106e61f1648dea91ee9fec4"
       ],
-      "skills/zeespec-interrogator/references/schemas/coverage-score.schema.json": [
+      "skills/spec-gate/references/schemas/coverage-score.schema.json": [
         "file",
         420,
         "ca0e7ff121c51298513603a10d2559ff1c81cbb9248da91d05dbdad4ffb6686b"
       ],
-      "skills/zeespec-interrogator/references/schemas/interrogation-state.schema.json": [
+      "skills/spec-gate/references/schemas/interrogation-state.schema.json": [
         "file",
         420,
         "240e4a3b4c19a3ccbbada0931438d1f828aa1295b7e6641591160dd2c1d7df09"
       ],
-      "skills/zeespec-interrogator/references/zeespec-framework.md": [
+      "skills/spec-gate/references/spec-gate-framework.md": [
         "file",
         420,
         "e74506044734d62078ab7f426114b7f84381a1bba09afbdd06aa90861e232a6b"
       ],
-      "skills/zeespec-interrogator/scripts": [
+      "skills/spec-gate/scripts": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/scripts/score-coverage.sh": [
+      "skills/spec-gate/scripts/score-coverage.sh": [
         "file",
         493,
         "6d8a3ca8ff93500e37bb2d797b9b1cae1a9ff7f63b49ff9e666bf540c5c0d273"
       ],
-      "skills/zeespec-interrogator/scripts/state-checkpoint.sh": [
+      "skills/spec-gate/scripts/state-checkpoint.sh": [
         "file",
         493,
         "280af6f28350f3f669ed7069bd77ba012a4dc3fa3d40f0daa6a2d974025549fe"
       ],
-      "skills/zeespec-interrogator/scripts/state-finalize.sh": [
+      "skills/spec-gate/scripts/state-finalize.sh": [
         "file",
         493,
         "da5e95b84433e0b779a277f9e079636da8a82ddbe11f1192c3cbb9adcf1d9a96"
       ],
-      "skills/zeespec-interrogator/scripts/state-init.sh": [
+      "skills/spec-gate/scripts/state-init.sh": [
         "file",
         493,
         "0f4a1e03b8b728242db14301d6ce2a5511111531eee14f48487096616e928cf4"
       ],
-      "skills/zeespec-interrogator/scripts/state-resolve-provider.sh": [
+      "skills/spec-gate/scripts/state-resolve-provider.sh": [
         "file",
         493,
         "f4e11b15a884836339c88c87f92d97767f8b36f4b4a10984e5dbb6ef7367f4e6"
       ],
-      "skills/zeespec-interrogator/scripts/workflow-dispatch.sh": [
+      "skills/spec-gate/scripts/workflow-dispatch.sh": [
         "file",
         493,
         "716eebae015ceb631d27552a0682454938af75cbdba22693eb2a8e5e7ad1f893"
       ],
-      "skills/zeespec-interrogator/setup.sh": [
+      "skills/spec-gate/setup.sh": [
         "file",
         420,
         "5b26b9367e3a7e8f7abf29d266517c4a8db740389d3d0ccdebcdac236e70e9e9"
       ],
-      "skills/zeespec-interrogator/skills": [
+      "skills/spec-gate/skills": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-interrogate": [
+      "skills/spec-gate/skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-interrogate/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate/SKILL.md": [
         "file",
         420,
         "45bc37e648c2c15384856edccf4805e8033efe96e0120b221abedc8799ab3fb0"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-score": [
+      "skills/spec-gate/skills/spec-gate-score": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-score/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate-score/SKILL.md": [
         "file",
         420,
         "79c4ba5050a92c4897703e421b1d716e63414d7ce9905fe3bff877a4a5e4f466"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-status": [
+      "skills/spec-gate/skills/spec-gate-status": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-status/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate-status/SKILL.md": [
         "file",
         420,
         "b2727481f8c268502c704e1b4cce8cca73251c3986342d1553feeb0b030d86a2"
       ],
-      "skills/zeespec-score": [
+      "skills/spec-gate-score": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-score/SKILL.md": [
+      "skills/spec-gate-score/SKILL.md": [
         "file",
         420,
         "79c4ba5050a92c4897703e421b1d716e63414d7ce9905fe3bff877a4a5e4f466"
       ],
-      "skills/zeespec-status": [
+      "skills/spec-gate-status": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-status/SKILL.md": [
+      "skills/spec-gate-status/SKILL.md": [
         "file",
         420,
         "b2727481f8c268502c704e1b4cce8cca73251c3986342d1553feeb0b030d86a2"
@@ -38771,7 +38771,7 @@
         493,
         "b5ecaf8a3afeb8d6d31c88d680ac4e57055d57ce798371c986f92f0f332d9b62"
       ],
-      "skills/kbd-process-orchestrator/shared/lib/tests/test-zeespec-checkpoint-e2e.sh": [
+      "skills/kbd-process-orchestrator/shared/lib/tests/test-spec-gate-checkpoint-e2e.sh": [
         "file",
         493,
         "f961299d3ed9370793d598b26c8b0ebeacf8287e3443c20727309e66a44ff412"
@@ -44561,272 +44561,272 @@
         420,
         "0d24ee225ba9978969b23e4acae89217111ea13aeca2327f106e1cbdb6b0edcc"
       ],
-      "skills/zeespec-interrogate": [
+      "skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogate/SKILL.md": [
+      "skills/spec-gate/SKILL.md": [
         "file",
         420,
         "45bc37e648c2c15384856edccf4805e8033efe96e0120b221abedc8799ab3fb0"
       ],
-      "skills/zeespec-interrogator": [
+      "skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/.mcp.json": [
+      "skills/spec-gate/.mcp.json": [
         "file",
         420,
         "dffda35a19c2a3778294cd6f2bd341a7197680925c0b12468ad357be88c588fb"
       ],
-      "skills/zeespec-interrogator/AGENTS.md": [
+      "skills/spec-gate/AGENTS.md": [
         "file",
         420,
         "682b1123c7289bf2c974095ba4822805d023501eaa6a37a4a3e5c716f9f2a329"
       ],
-      "skills/zeespec-interrogator/CLAUDE.md": [
+      "skills/spec-gate/CLAUDE.md": [
         "file",
         420,
         "e1221cc3a5c0c3f6d2a6abc1b00b9aaee06fbd384c3fad2e51ff8ea8a7870f3d"
       ],
-      "skills/zeespec-interrogator/README.md": [
+      "skills/spec-gate/README.md": [
         "file",
         420,
         "548cebb9565e7e868262826d0cdb4a56b4b185f26415b3f3bcda50afdd1dd5b9"
       ],
-      "skills/zeespec-interrogator/SKILL.md": [
+      "skills/spec-gate/SKILL.md": [
         "file",
         420,
         "298229d201c5be81257b8fb732519e4df3fa5cea727104f199e29414c3516faf"
       ],
-      "skills/zeespec-interrogator/hooks": [
+      "skills/spec-gate/hooks": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/hooks/hooks.json": [
+      "skills/spec-gate/hooks/hooks.json": [
         "file",
         420,
         "106ee1a98cca1cfc61c216be9e41e9d0a09b8c77068d5c20d3b744692a45efa8"
       ],
-      "skills/zeespec-interrogator/prompts": [
+      "skills/spec-gate/prompts": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/prompts/interrogate.md": [
+      "skills/spec-gate/prompts/interrogate.md": [
         "file",
         420,
         "92263c34a229a3a324ef851924141b877d34d6e52cb0eed203e969afc58865d1"
       ],
-      "skills/zeespec-interrogator/prompts/manifest.md": [
+      "skills/spec-gate/prompts/manifest.md": [
         "file",
         420,
         "dacbdee18cdee0c267433998c44e87cfed287a405ad9788660ba7876c0c45ef0"
       ],
-      "skills/zeespec-interrogator/prompts/meta-controller.md": [
+      "skills/spec-gate/prompts/meta-controller.md": [
         "file",
         420,
         "b3a731f30e384b3c0375d96eb3af3e57e1ddddbbc2ced7534b6a61eff6e82b16"
       ],
-      "skills/zeespec-interrogator/prompts/persist.md": [
+      "skills/spec-gate/prompts/persist.md": [
         "file",
         420,
         "c0d9ce1fb84b70231db9210f8210a0a3d806ac970d96dea99facc60a6fd74a56"
       ],
-      "skills/zeespec-interrogator/prompts/score.md": [
+      "skills/spec-gate/prompts/score.md": [
         "file",
         420,
         "3491a0358492ed449c49f5b76751ba2cf90bb7174ea1f22fbe54d7a7b735cb23"
       ],
-      "skills/zeespec-interrogator/references": [
+      "skills/spec-gate/references": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/coverage-scoring.md": [
+      "skills/spec-gate/references/coverage-scoring.md": [
         "file",
         420,
         "81bc48fd71abe94b09cfe23f21629fbcb136e48f4f859992ccfc0bd8b0808190"
       ],
-      "skills/zeespec-interrogator/references/dimensions": [
+      "skills/spec-gate/references/dimensions": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/dimensions/how.md": [
+      "skills/spec-gate/references/dimensions/how.md": [
         "file",
         420,
         "672d58974eba1f013a6edef16dbe807f9aeeea814e7080ce68f29cc832aabfb6"
       ],
-      "skills/zeespec-interrogator/references/dimensions/what.md": [
+      "skills/spec-gate/references/dimensions/what.md": [
         "file",
         420,
         "4fdd3cb68d8747e27ed1cc1b095623c6af3d712c9aac4c4ab0805be37f8ef7e4"
       ],
-      "skills/zeespec-interrogator/references/dimensions/when.md": [
+      "skills/spec-gate/references/dimensions/when.md": [
         "file",
         420,
         "43662e16b2b463db98da2c731101ba29d8db9b03a36864b4c14c3dfb665ad401"
       ],
-      "skills/zeespec-interrogator/references/dimensions/where.md": [
+      "skills/spec-gate/references/dimensions/where.md": [
         "file",
         420,
         "6323b22bfbdcf2784b8e4f2fc56fa827c0493869b39c9e00f0944436a08e08cb"
       ],
-      "skills/zeespec-interrogator/references/dimensions/who.md": [
+      "skills/spec-gate/references/dimensions/who.md": [
         "file",
         420,
         "5e9888e271595e3216744b7c4cbb5b51fc0d832e585b1711ed73f9763caab6ec"
       ],
-      "skills/zeespec-interrogator/references/dimensions/why.md": [
+      "skills/spec-gate/references/dimensions/why.md": [
         "file",
         420,
         "d616680e4b88205fa5649e7c3e51b3b92449771149936e7122dda4b4a62645b0"
       ],
-      "skills/zeespec-interrogator/references/integration-contract.md": [
+      "skills/spec-gate/references/integration-contract.md": [
         "file",
         420,
         "75461d86823f950427433959fb47e397bd4bdd19624e978fb7a53adc9855cfa0"
       ],
-      "skills/zeespec-interrogator/references/integrations": [
+      "skills/spec-gate/references/integrations": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/integrations/iterative-evolver.md": [
+      "skills/spec-gate/references/integrations/iterative-evolver.md": [
         "file",
         420,
         "2308eef2124d8595f2aa4ad81216e0ad8e90e892e0cd11e1160e09c17a9c5915"
       ],
-      "skills/zeespec-interrogator/references/integrations/kbd-orchestrator.md": [
+      "skills/spec-gate/references/integrations/kbd-orchestrator.md": [
         "file",
         420,
         "45401aba3d9e7e4f69e6cc6e647d22e11abc626d39f7c1e43089b7624f23a719"
       ],
-      "skills/zeespec-interrogator/references/model-routing.md": [
+      "skills/spec-gate/references/model-routing.md": [
         "file",
         420,
         "88bb3ccbf2d47dfa73a71ccec5c7b803b2172566a703aeac319a5d28091be83c"
       ],
-      "skills/zeespec-interrogator/references/schemas": [
+      "skills/spec-gate/references/schemas": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/schemas/constraint-manifest.schema.json": [
+      "skills/spec-gate/references/schemas/constraint-manifest.schema.json": [
         "file",
         420,
         "d0c4a93898f938ea1f84f4c625a9bf9539b7f3530106e61f1648dea91ee9fec4"
       ],
-      "skills/zeespec-interrogator/references/schemas/coverage-score.schema.json": [
+      "skills/spec-gate/references/schemas/coverage-score.schema.json": [
         "file",
         420,
         "ca0e7ff121c51298513603a10d2559ff1c81cbb9248da91d05dbdad4ffb6686b"
       ],
-      "skills/zeespec-interrogator/references/schemas/interrogation-state.schema.json": [
+      "skills/spec-gate/references/schemas/interrogation-state.schema.json": [
         "file",
         420,
         "240e4a3b4c19a3ccbbada0931438d1f828aa1295b7e6641591160dd2c1d7df09"
       ],
-      "skills/zeespec-interrogator/references/zeespec-framework.md": [
+      "skills/spec-gate/references/spec-gate-framework.md": [
         "file",
         420,
         "e74506044734d62078ab7f426114b7f84381a1bba09afbdd06aa90861e232a6b"
       ],
-      "skills/zeespec-interrogator/scripts": [
+      "skills/spec-gate/scripts": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/scripts/score-coverage.sh": [
+      "skills/spec-gate/scripts/score-coverage.sh": [
         "file",
         493,
         "6d8a3ca8ff93500e37bb2d797b9b1cae1a9ff7f63b49ff9e666bf540c5c0d273"
       ],
-      "skills/zeespec-interrogator/scripts/state-checkpoint.sh": [
+      "skills/spec-gate/scripts/state-checkpoint.sh": [
         "file",
         493,
         "280af6f28350f3f669ed7069bd77ba012a4dc3fa3d40f0daa6a2d974025549fe"
       ],
-      "skills/zeespec-interrogator/scripts/state-finalize.sh": [
+      "skills/spec-gate/scripts/state-finalize.sh": [
         "file",
         493,
         "da5e95b84433e0b779a277f9e079636da8a82ddbe11f1192c3cbb9adcf1d9a96"
       ],
-      "skills/zeespec-interrogator/scripts/state-init.sh": [
+      "skills/spec-gate/scripts/state-init.sh": [
         "file",
         493,
         "0f4a1e03b8b728242db14301d6ce2a5511111531eee14f48487096616e928cf4"
       ],
-      "skills/zeespec-interrogator/scripts/state-resolve-provider.sh": [
+      "skills/spec-gate/scripts/state-resolve-provider.sh": [
         "file",
         493,
         "f4e11b15a884836339c88c87f92d97767f8b36f4b4a10984e5dbb6ef7367f4e6"
       ],
-      "skills/zeespec-interrogator/scripts/workflow-dispatch.sh": [
+      "skills/spec-gate/scripts/workflow-dispatch.sh": [
         "file",
         493,
         "716eebae015ceb631d27552a0682454938af75cbdba22693eb2a8e5e7ad1f893"
       ],
-      "skills/zeespec-interrogator/setup.sh": [
+      "skills/spec-gate/setup.sh": [
         "file",
         420,
         "5b26b9367e3a7e8f7abf29d266517c4a8db740389d3d0ccdebcdac236e70e9e9"
       ],
-      "skills/zeespec-interrogator/skills": [
+      "skills/spec-gate/skills": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-interrogate": [
+      "skills/spec-gate/skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-interrogate/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate/SKILL.md": [
         "file",
         420,
         "45bc37e648c2c15384856edccf4805e8033efe96e0120b221abedc8799ab3fb0"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-score": [
+      "skills/spec-gate/skills/spec-gate-score": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-score/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate-score/SKILL.md": [
         "file",
         420,
         "79c4ba5050a92c4897703e421b1d716e63414d7ce9905fe3bff877a4a5e4f466"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-status": [
+      "skills/spec-gate/skills/spec-gate-status": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-status/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate-status/SKILL.md": [
         "file",
         420,
         "b2727481f8c268502c704e1b4cce8cca73251c3986342d1553feeb0b030d86a2"
       ],
-      "skills/zeespec-score": [
+      "skills/spec-gate-score": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-score/SKILL.md": [
+      "skills/spec-gate-score/SKILL.md": [
         "file",
         420,
         "79c4ba5050a92c4897703e421b1d716e63414d7ce9905fe3bff877a4a5e4f466"
       ],
-      "skills/zeespec-status": [
+      "skills/spec-gate-status": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-status/SKILL.md": [
+      "skills/spec-gate-status/SKILL.md": [
         "file",
         420,
         "b2727481f8c268502c704e1b4cce8cca73251c3986342d1553feeb0b030d86a2"
@@ -53713,7 +53713,7 @@
         493,
         "b5ecaf8a3afeb8d6d31c88d680ac4e57055d57ce798371c986f92f0f332d9b62"
       ],
-      "skills/kbd-process-orchestrator/shared/lib/tests/test-zeespec-checkpoint-e2e.sh": [
+      "skills/kbd-process-orchestrator/shared/lib/tests/test-spec-gate-checkpoint-e2e.sh": [
         "file",
         493,
         "f961299d3ed9370793d598b26c8b0ebeacf8287e3443c20727309e66a44ff412"
@@ -59503,272 +59503,272 @@
         420,
         "0d24ee225ba9978969b23e4acae89217111ea13aeca2327f106e1cbdb6b0edcc"
       ],
-      "skills/zeespec-interrogate": [
+      "skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogate/SKILL.md": [
+      "skills/spec-gate/SKILL.md": [
         "file",
         420,
         "45bc37e648c2c15384856edccf4805e8033efe96e0120b221abedc8799ab3fb0"
       ],
-      "skills/zeespec-interrogator": [
+      "skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/.mcp.json": [
+      "skills/spec-gate/.mcp.json": [
         "file",
         420,
         "dffda35a19c2a3778294cd6f2bd341a7197680925c0b12468ad357be88c588fb"
       ],
-      "skills/zeespec-interrogator/AGENTS.md": [
+      "skills/spec-gate/AGENTS.md": [
         "file",
         420,
         "682b1123c7289bf2c974095ba4822805d023501eaa6a37a4a3e5c716f9f2a329"
       ],
-      "skills/zeespec-interrogator/CLAUDE.md": [
+      "skills/spec-gate/CLAUDE.md": [
         "file",
         420,
         "e1221cc3a5c0c3f6d2a6abc1b00b9aaee06fbd384c3fad2e51ff8ea8a7870f3d"
       ],
-      "skills/zeespec-interrogator/README.md": [
+      "skills/spec-gate/README.md": [
         "file",
         420,
         "548cebb9565e7e868262826d0cdb4a56b4b185f26415b3f3bcda50afdd1dd5b9"
       ],
-      "skills/zeespec-interrogator/SKILL.md": [
+      "skills/spec-gate/SKILL.md": [
         "file",
         420,
         "298229d201c5be81257b8fb732519e4df3fa5cea727104f199e29414c3516faf"
       ],
-      "skills/zeespec-interrogator/hooks": [
+      "skills/spec-gate/hooks": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/hooks/hooks.json": [
+      "skills/spec-gate/hooks/hooks.json": [
         "file",
         420,
         "106ee1a98cca1cfc61c216be9e41e9d0a09b8c77068d5c20d3b744692a45efa8"
       ],
-      "skills/zeespec-interrogator/prompts": [
+      "skills/spec-gate/prompts": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/prompts/interrogate.md": [
+      "skills/spec-gate/prompts/interrogate.md": [
         "file",
         420,
         "92263c34a229a3a324ef851924141b877d34d6e52cb0eed203e969afc58865d1"
       ],
-      "skills/zeespec-interrogator/prompts/manifest.md": [
+      "skills/spec-gate/prompts/manifest.md": [
         "file",
         420,
         "dacbdee18cdee0c267433998c44e87cfed287a405ad9788660ba7876c0c45ef0"
       ],
-      "skills/zeespec-interrogator/prompts/meta-controller.md": [
+      "skills/spec-gate/prompts/meta-controller.md": [
         "file",
         420,
         "b3a731f30e384b3c0375d96eb3af3e57e1ddddbbc2ced7534b6a61eff6e82b16"
       ],
-      "skills/zeespec-interrogator/prompts/persist.md": [
+      "skills/spec-gate/prompts/persist.md": [
         "file",
         420,
         "c0d9ce1fb84b70231db9210f8210a0a3d806ac970d96dea99facc60a6fd74a56"
       ],
-      "skills/zeespec-interrogator/prompts/score.md": [
+      "skills/spec-gate/prompts/score.md": [
         "file",
         420,
         "3491a0358492ed449c49f5b76751ba2cf90bb7174ea1f22fbe54d7a7b735cb23"
       ],
-      "skills/zeespec-interrogator/references": [
+      "skills/spec-gate/references": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/coverage-scoring.md": [
+      "skills/spec-gate/references/coverage-scoring.md": [
         "file",
         420,
         "81bc48fd71abe94b09cfe23f21629fbcb136e48f4f859992ccfc0bd8b0808190"
       ],
-      "skills/zeespec-interrogator/references/dimensions": [
+      "skills/spec-gate/references/dimensions": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/dimensions/how.md": [
+      "skills/spec-gate/references/dimensions/how.md": [
         "file",
         420,
         "672d58974eba1f013a6edef16dbe807f9aeeea814e7080ce68f29cc832aabfb6"
       ],
-      "skills/zeespec-interrogator/references/dimensions/what.md": [
+      "skills/spec-gate/references/dimensions/what.md": [
         "file",
         420,
         "4fdd3cb68d8747e27ed1cc1b095623c6af3d712c9aac4c4ab0805be37f8ef7e4"
       ],
-      "skills/zeespec-interrogator/references/dimensions/when.md": [
+      "skills/spec-gate/references/dimensions/when.md": [
         "file",
         420,
         "43662e16b2b463db98da2c731101ba29d8db9b03a36864b4c14c3dfb665ad401"
       ],
-      "skills/zeespec-interrogator/references/dimensions/where.md": [
+      "skills/spec-gate/references/dimensions/where.md": [
         "file",
         420,
         "6323b22bfbdcf2784b8e4f2fc56fa827c0493869b39c9e00f0944436a08e08cb"
       ],
-      "skills/zeespec-interrogator/references/dimensions/who.md": [
+      "skills/spec-gate/references/dimensions/who.md": [
         "file",
         420,
         "5e9888e271595e3216744b7c4cbb5b51fc0d832e585b1711ed73f9763caab6ec"
       ],
-      "skills/zeespec-interrogator/references/dimensions/why.md": [
+      "skills/spec-gate/references/dimensions/why.md": [
         "file",
         420,
         "d616680e4b88205fa5649e7c3e51b3b92449771149936e7122dda4b4a62645b0"
       ],
-      "skills/zeespec-interrogator/references/integration-contract.md": [
+      "skills/spec-gate/references/integration-contract.md": [
         "file",
         420,
         "75461d86823f950427433959fb47e397bd4bdd19624e978fb7a53adc9855cfa0"
       ],
-      "skills/zeespec-interrogator/references/integrations": [
+      "skills/spec-gate/references/integrations": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/integrations/iterative-evolver.md": [
+      "skills/spec-gate/references/integrations/iterative-evolver.md": [
         "file",
         420,
         "2308eef2124d8595f2aa4ad81216e0ad8e90e892e0cd11e1160e09c17a9c5915"
       ],
-      "skills/zeespec-interrogator/references/integrations/kbd-orchestrator.md": [
+      "skills/spec-gate/references/integrations/kbd-orchestrator.md": [
         "file",
         420,
         "45401aba3d9e7e4f69e6cc6e647d22e11abc626d39f7c1e43089b7624f23a719"
       ],
-      "skills/zeespec-interrogator/references/model-routing.md": [
+      "skills/spec-gate/references/model-routing.md": [
         "file",
         420,
         "88bb3ccbf2d47dfa73a71ccec5c7b803b2172566a703aeac319a5d28091be83c"
       ],
-      "skills/zeespec-interrogator/references/schemas": [
+      "skills/spec-gate/references/schemas": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/references/schemas/constraint-manifest.schema.json": [
+      "skills/spec-gate/references/schemas/constraint-manifest.schema.json": [
         "file",
         420,
         "d0c4a93898f938ea1f84f4c625a9bf9539b7f3530106e61f1648dea91ee9fec4"
       ],
-      "skills/zeespec-interrogator/references/schemas/coverage-score.schema.json": [
+      "skills/spec-gate/references/schemas/coverage-score.schema.json": [
         "file",
         420,
         "ca0e7ff121c51298513603a10d2559ff1c81cbb9248da91d05dbdad4ffb6686b"
       ],
-      "skills/zeespec-interrogator/references/schemas/interrogation-state.schema.json": [
+      "skills/spec-gate/references/schemas/interrogation-state.schema.json": [
         "file",
         420,
         "240e4a3b4c19a3ccbbada0931438d1f828aa1295b7e6641591160dd2c1d7df09"
       ],
-      "skills/zeespec-interrogator/references/zeespec-framework.md": [
+      "skills/spec-gate/references/spec-gate-framework.md": [
         "file",
         420,
         "e74506044734d62078ab7f426114b7f84381a1bba09afbdd06aa90861e232a6b"
       ],
-      "skills/zeespec-interrogator/scripts": [
+      "skills/spec-gate/scripts": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/scripts/score-coverage.sh": [
+      "skills/spec-gate/scripts/score-coverage.sh": [
         "file",
         493,
         "6d8a3ca8ff93500e37bb2d797b9b1cae1a9ff7f63b49ff9e666bf540c5c0d273"
       ],
-      "skills/zeespec-interrogator/scripts/state-checkpoint.sh": [
+      "skills/spec-gate/scripts/state-checkpoint.sh": [
         "file",
         493,
         "280af6f28350f3f669ed7069bd77ba012a4dc3fa3d40f0daa6a2d974025549fe"
       ],
-      "skills/zeespec-interrogator/scripts/state-finalize.sh": [
+      "skills/spec-gate/scripts/state-finalize.sh": [
         "file",
         493,
         "da5e95b84433e0b779a277f9e079636da8a82ddbe11f1192c3cbb9adcf1d9a96"
       ],
-      "skills/zeespec-interrogator/scripts/state-init.sh": [
+      "skills/spec-gate/scripts/state-init.sh": [
         "file",
         493,
         "0f4a1e03b8b728242db14301d6ce2a5511111531eee14f48487096616e928cf4"
       ],
-      "skills/zeespec-interrogator/scripts/state-resolve-provider.sh": [
+      "skills/spec-gate/scripts/state-resolve-provider.sh": [
         "file",
         493,
         "f4e11b15a884836339c88c87f92d97767f8b36f4b4a10984e5dbb6ef7367f4e6"
       ],
-      "skills/zeespec-interrogator/scripts/workflow-dispatch.sh": [
+      "skills/spec-gate/scripts/workflow-dispatch.sh": [
         "file",
         493,
         "716eebae015ceb631d27552a0682454938af75cbdba22693eb2a8e5e7ad1f893"
       ],
-      "skills/zeespec-interrogator/setup.sh": [
+      "skills/spec-gate/setup.sh": [
         "file",
         420,
         "5b26b9367e3a7e8f7abf29d266517c4a8db740389d3d0ccdebcdac236e70e9e9"
       ],
-      "skills/zeespec-interrogator/skills": [
+      "skills/spec-gate/skills": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-interrogate": [
+      "skills/spec-gate/skills/spec-gate": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-interrogate/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate/SKILL.md": [
         "file",
         420,
         "45bc37e648c2c15384856edccf4805e8033efe96e0120b221abedc8799ab3fb0"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-score": [
+      "skills/spec-gate/skills/spec-gate-score": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-score/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate-score/SKILL.md": [
         "file",
         420,
         "79c4ba5050a92c4897703e421b1d716e63414d7ce9905fe3bff877a4a5e4f466"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-status": [
+      "skills/spec-gate/skills/spec-gate-status": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-interrogator/skills/zeespec-status/SKILL.md": [
+      "skills/spec-gate/skills/spec-gate-status/SKILL.md": [
         "file",
         420,
         "b2727481f8c268502c704e1b4cce8cca73251c3986342d1553feeb0b030d86a2"
       ],
-      "skills/zeespec-score": [
+      "skills/spec-gate-score": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-score/SKILL.md": [
+      "skills/spec-gate-score/SKILL.md": [
         "file",
         420,
         "79c4ba5050a92c4897703e421b1d716e63414d7ce9905fe3bff877a4a5e4f466"
       ],
-      "skills/zeespec-status": [
+      "skills/spec-gate-status": [
         "directory",
         493,
         "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       ],
-      "skills/zeespec-status/SKILL.md": [
+      "skills/spec-gate-status/SKILL.md": [
         "file",
         420,
         "b2727481f8c268502c704e1b4cce8cca73251c3986342d1553feeb0b030d86a2"

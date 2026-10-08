@@ -1,0 +1,40 @@
+{
+  "kind": "source-convergence-not-acceptance",
+  "capturedAt": "2026-10-05T14:23:27.491871+00:00",
+  "before": "62dc8243f34008e3e73dab48c910e418af7aef12",
+  "after": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0",
+  "preservedCandidateFileHashes": {
+    "lib/distribution/package-builder.mjs": "7b5863ad5fd343e93967f5220c12d835a9b2d773cf21f3749bd83d938570a696",
+    "scripts/generate-skill-system-distribution.mjs": "279c16ce2e64da39067f32034c794baeabc53103262e3ca068258f0a997c4a89",
+    "docs/distribution.md": "1c725170f567ddb54fca08b38b79b4eaa330cb96b0ed2b62b05aa328e852b654",
+    "lib/doctor/plugin-source.mjs": "d842fe90befd2197e63a692aa8086c045adc50b9f5c99e548b32d132e7551f87",
+    "lib/doctor/registry.mjs": "8ebd5f893bd466e92f032cd24475d6b55b5b31e417b8333ff79e203072819870",
+    "scripts/hook-entry.mjs": "a34eef15a4054906f3ef88f57f7563fcf7e5378b1052b94a872017cff298b237"
+  },
+  "pullRequests": [
+    {
+      "headRefOid": "62dc8243f34008e3e73dab48c910e418af7aef12",
+      "mergeCommit": {
+        "oid": "ce893fb89bb20c250ff222a6d12c2e0f4820eef0"
+      },
+      "mergedAt": "2026-10-05T13:13:13Z",
+      "number": 41,
+      "state": "MERGED",
+      "title": "fix(teams): mirror direct task acceptance schema",
+      "url": "https://github.com/Prometheus-AGS/prometheus-skills-mini/pull/41"
+    },
+    {
+      "headRefOid": "0e80cd5ca883d24c309b67a58ff49b2f2813a0dd",
+      "mergeCommit": {
+        "oid": "2fca10e15a973ff862180de30d05c65afb87fd79"
+      },
+      "mergedAt": "2026-10-05T13:12:54Z",
+      "number": 42,
+      "state": "MERGED",
+      "title": "fix(hooks): verify payload activation, report incomplete payloads, check the plugin source (1.11.2)",
+      "url": "https://github.com/Prometheus-AGS/prometheus-skills-mini/pull/42"
+    }
+  ],
+  "result": "Updating 62dc824..ce893fb\nFast-forward\n .agents/plugins/marketplace.json                   |   4 +-\n .claude-plugin/marketplace.json                    |   4 +-\n README.md                                          |   4 +\n .../.claude-plugin/plugin.json                     |   2 +-\n .../prometheus-skills-mini/scripts/hook-entry.mjs  |  35 +++++\n .../.codex-plugin/plugin.json                      |   2 +-\n .../prometheus-skills-mini/scripts/hook-entry.mjs  |  35 +++++\n lib/doctor/plugin-source.mjs                       | 122 ++++++++++++++++++\n lib/doctor/plugin-source.test.mjs                  | 141 +++++++++++++++++++++\n lib/doctor/registry.mjs                            |   3 +-\n package-lock.json                                  |   4 +-\n package.json                                       |   2 +-\n scripts/hook-entry.mjs                             |  35 +++++\n scripts/hook-entry.test.mjs                        |  61 ++++++++-\n scripts/payload-activation.test.mjs                | 141 +++++++++++++++++++++\n site/docs/distribution/plugin-marketplace.md       |  18 +++\n skill-system.json                                  |   2 +-\n 17 files changed, 603 insertions(+), 12 deletions(-)\n create mode 100644 lib/doctor/plugin-source.mjs\n create mode 100644 lib/doctor/plugin-source.test.mjs\n create mode 100644 scripts/payload-activation.test.mjs\n",
+  "testsRun": false
+}

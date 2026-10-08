@@ -1,0 +1,44 @@
+{
+  "changeId": "change-tli-c1a-pk-promotion-candidates",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[C1a] Write promotion.rs fingerprinting and candidate proposal",
+      "done": true,
+      "doneAt": "2026-10-04T13:08:52Z",
+      "doneBy": "claude-code",
+      "files": [
+        "pk-learning-worker/src/promotion.rs",
+        "pk-learning-worker/src/main.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[C1a] Add pk candidates list/accept/reject",
+      "done": true,
+      "doneAt": "2026-10-04T13:09:32Z",
+      "doneBy": "claude-code",
+      "files": [
+        "pk-cli/src/main.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[C1a] Add the promotion (worker) and candidates (pk-cli) integration tests",
+      "done": true,
+      "doneAt": "2026-10-04T13:10:09Z",
+      "doneBy": "claude-code",
+      "files": [
+        "pk-learning-worker/tests/promotion.rs",
+        "pk-cli/tests/candidates.rs"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-c1a-pk-promotion-candidates/verify.sh",
+      "notes": null
+    }
+  ]
+}

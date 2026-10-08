@@ -133,15 +133,14 @@ ideation → specification → planning → generation → packaging → deploym
 $ /start-business-build "track shipping-cost trends across our top 5 carriers"
 
 Stage 1: Ideation mindmap...                            ✅
-Stage 2: ZeeSpec — 60 questions answered, 4 NO-GO       ✅
-Stage 3: Evolver plan — 3 changes ordered               ✅
-Stage 4: OpenSpec changes generated                     ✅
-Stage 5: change-001 (carrier-data-scraper)              ✅ accepted
-Stage 5: change-002 (price-trend-analyzer)              ✅ accepted
-Stage 5: change-003 (alert-dispatch)                    ⚠ rejected (carrier API rate limits)
+Stage 2: Evolver plan — 3 changes ordered               ✅
+Stage 3: OpenSpec changes generated                     ✅
+Stage 4: change-001 (carrier-data-scraper)              ✅ accepted
+Stage 4: change-002 (price-trend-analyzer)              ✅ accepted
+Stage 4: change-003 (alert-dispatch)                    ⚠ rejected (carrier API rate limits)
         pk ingest captured: "carrier API rate limits force alerting to be daily, not realtime"
-Stage 6: forge package-librefang ./shipping-cost-watch  ✅ → shipping-cost-watch.lf-skill.zip
-Stage 6: /upload-to-bossfang?                           y  → installed and verified
+Stage 5: forge package-librefang ./shipping-cost-watch  ✅ → shipping-cost-watch.lf-skill.zip
+Stage 5: /upload-to-bossfang?                           y  → installed and verified
 ```
 
 The important line is the **rejection**. A constraint discovered during implementation —

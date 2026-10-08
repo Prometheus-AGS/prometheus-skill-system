@@ -47,7 +47,7 @@
 ### Gaps from assessment that were deprioritized
 - **G-06: Domain taxonomy — standards-body mapping:** Plan called for mapping to standards bodies (IETF, W3C, NIST, ISO). Delivered as domain cluster mapping with detection queries and polling TTLs. Standards-body enumeration within each cluster is operator-specific and would require research per project; documented as the operator's responsibility via the cluster structure.
 - **No `mcp-tool` feedback source type in loop-tick.sh:** The schema extension added `mcp-tool` as a valid type in loop-definition.schema.json. The `loop-tick.sh` implementation does not yet handle `mcp-tool` at runtime (it falls to the `unknown type WARN` branch). Added a `feedback-digest.sh` handler stub for non-implemented types. Full MCP tool dispatch in loop-tick.sh is a carry-forward.
-- **Idea-to-spec bridge with `zeespec-interrogator`:** Plan mentioned zeespec-interrogator integration. Delivered as a standalone SPEC.md format in validate-idea. zeespec-interrogator integration is a carry-forward (would require verifying zeespec-interrogator still exists and its current interface).
+- **Idea-to-spec bridge with `spec-gate`:** Plan mentioned spec-gate integration. Delivered as a standalone SPEC.md format in validate-idea. spec-gate integration is a carry-forward (would require verifying spec-gate still exists and its current interface).
 - **Platform-specific `references/platforms/` directory:** Assessment noted this as LOW priority for G6. Not implemented — `context-management.md` documents harness-native fallback pattern instead, which covers platform differences adequately.
 
 ---
@@ -99,7 +99,7 @@ No artifact-refiner QA logs present for this phase (`.refiner/artifacts/change-e
 - **`mcp-tool` feedback source runtime dispatch in `loop-tick.sh`** — Schema defined; handler not implemented. Requires: MCP tool name + arguments dispatch pattern in bash. Estimated: 1 change, S effort.
 - **`commit-history-analyze.sh` hotspot detection** — `hotspots: []` always. Requires: `git log --name-only` parsing + frequency count. Estimated: 1 change, XS effort.
 - **Gate 2 and Gate 3 scripts for `validate-idea`** — Currently prose-only in SKILL.md. Extracting to `idea-gate-2.sh` and `idea-gate-3.sh` would make them callable from non-Claude-Code platforms. Estimated: 1 change, S effort.
-- **`zeespec-interrogator` integration in validate-idea Gate 3** — Validate whether zeespec-interrogator is still available and its current interface. If so, pipe the Gate 3 SPEC.md through it for automated spec quality scoring. Estimated: 1 change, M effort.
+- **`spec-gate` integration in validate-idea Gate 3** — Validate whether spec-gate is still available and its current interface. If so, pipe the Gate 3 SPEC.md through it for automated spec quality scoring. Estimated: 1 change, M effort.
 - **Carry-Forwards discipline in KBD Reflect** — Most phases lack `## Carry-Forwards` sections. The KBD Reflect skill prompt should explicitly require this section with at least one entry (or a deliberate "none" marker). Estimated: 1 prose change to kbd-reflect SKILL.md, XS effort.
 - **`feedback-digest.sh` handlers for `sentiment-feed`, `telemetry-url`, `competitor-scan`, `changelog`** — Currently only `commit-history` and `gh-issues` have runtime handlers. Four types have stubs. Estimated: 4 handlers, 1 change, M effort.
 

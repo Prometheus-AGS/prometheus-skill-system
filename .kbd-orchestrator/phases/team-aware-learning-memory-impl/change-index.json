@@ -1,0 +1,259 @@
+[
+  {
+    "id": "change-tli-a1-pk-context-scoring",
+    "code": "A1",
+    "repo": "prometheus-knowledge-rs",
+    "depends": [],
+    "title": "pk context scores every snapshot entry, caps after scoring, and redistributes a failed scope's budget",
+    "tasks": 2
+  },
+  {
+    "id": "change-tli-a2-pk-worker-attribution",
+    "code": "A2",
+    "repo": "prometheus-knowledge-rs",
+    "depends": [],
+    "title": "Learning worker carries project/team/role, never emits a null agent_id, and commits the prompt snapshot",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-a3-pk-tags-and-type",
+    "code": "A3",
+    "repo": "prometheus-knowledge-rs",
+    "depends": [
+      "change-tli-a1-pk-context-scoring"
+    ],
+    "title": "pk ingest accepts --type and --tag, and pk context filters by --tag",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-a4-surreal-lean-search-categories-rekey",
+    "code": "A4",
+    "repo": "surreal-memory-server",
+    "depends": [],
+    "title": "surreal-memory: lean search responses, categories honoured on both hybrid legs, loopback-only re-key operation",
+    "tasks": 4
+  },
+  {
+    "id": "change-tli-b1-identity-resolver",
+    "code": "B1",
+    "repo": "prometheus-skill-system",
+    "depends": [],
+    "title": "One project-id resolver and an agent identity resolver used by every memory path",
+    "tasks": 4
+  },
+  {
+    "id": "change-tli-b2-namespaced-subagent-matchers",
+    "code": "B2",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b1-identity-resolver"
+    ],
+    "title": "Per-role anchored SubagentStop matchers with a Codex team-role guard; executor learning preserved",
+    "tasks": 4
+  },
+  {
+    "id": "change-tli-b3-envelope-write-library",
+    "code": "B3",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b1-identity-resolver",
+      "change-tli-b2-namespaced-subagent-matchers",
+      "change-tli-a5a-skillpack-pin-v1-10-0"
+    ],
+    "title": "learning_write: one attributed write path to surreal-memory, pk and the Karpathy log",
+    "tasks": 4
+  },
+  {
+    "id": "change-tli-b3b-agent-team-memory-envelope",
+    "code": "B3b",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b3-envelope-write-library"
+    ],
+    "title": "agent-team runtime memory writer adopts the learning envelope, agent_id table and a required project id",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-b4-per-agent-recall-and-kbd-loop",
+    "code": "B4",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b3-envelope-write-library"
+    ],
+    "title": "learning_recall and the KBD memory loop: lessons written at reflect come back at the next stage",
+    "tasks": 6
+  },
+  {
+    "id": "change-tli-b5-subagentstart-delivery-alpha",
+    "code": "B5",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b4-per-agent-recall-and-kbd-loop",
+      "change-tli-b2-namespaced-subagent-matchers"
+    ],
+    "title": "SubagentStart delivery hook in both harnesses \u2014 alpha gate",
+    "tasks": 4
+  },
+  {
+    "id": "change-tli-b6-file-tier-reduction",
+    "code": "B6",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b5-subagentstart-delivery-alpha",
+      "change-tli-b3b-agent-team-memory-envelope"
+    ],
+    "title": "Reduce the file-memory tier: MEMORY.md index \u2264 4 KB, per-role local memory, Codex names and memory controls",
+    "tasks": 4
+  },
+  {
+    "id": "change-tli-b7-cross-agent-awareness-beta",
+    "code": "B7",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b5-subagentstart-delivery-alpha",
+      "change-tli-b6-file-tier-reduction"
+    ],
+    "title": "Path-overlap routing, team digest and lead view \u2014 beta gate",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-c1a-pk-promotion-candidates",
+    "code": "C1a",
+    "repo": "prometheus-knowledge-rs",
+    "depends": [
+      "change-tli-a5a-skillpack-pin-v1-10-0"
+    ],
+    "title": "pk promotion detector and `pk candidates list|accept|reject`",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-c3a-pk-skill-discovery",
+    "code": "C3a",
+    "repo": "prometheus-knowledge-rs",
+    "depends": [
+      "change-tli-c1a-pk-promotion-candidates"
+    ],
+    "title": "Whole-transcript parsing and skill candidates in the learning worker",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-e1-pin-v1-11-0",
+    "code": "E1",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-a5a-skillpack-pin-v1-10-0",
+      "change-tli-c1a-pk-promotion-candidates",
+      "change-tli-c3a-pk-skill-discovery"
+    ],
+    "title": "Tag pk v1.11.0 (promotion + skill discovery) and bump the skill-pack pin; operator request for mini",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-c1b-promotion-routing",
+    "code": "C1b",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-e1-pin-v1-11-0",
+      "change-tli-b7-cross-agent-awareness-beta"
+    ],
+    "title": "[GLOBAL]/[USER] routing, user/global recall quotas, and candidate review at reflect",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-c2-feynman-gap-routing",
+    "code": "C2",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b7-cross-agent-awareness-beta"
+    ],
+    "title": "Knowledge-gap detection on prompts with /learn-goal suggestion and gap resolution",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-c3b-skill-candidate-surfacing",
+    "code": "C3b",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-e1-pin-v1-11-0",
+      "change-tli-c1b-promotion-routing"
+    ],
+    "title": "Surface skill candidates in kbd-open and reflect",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-c4-cross-repo-team-requests",
+    "code": "C4",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b7-cross-agent-awareness-beta",
+      "change-tli-b3b-agent-team-memory-envelope",
+      "change-tli-b6-file-tier-reduction"
+    ],
+    "title": "Team cards, discovery, and same-repo handoff vs cross-repo GitHub issue requests",
+    "tasks": 4
+  },
+  {
+    "id": "change-tli-d1a-mini-file-tier-port",
+    "code": "D1a",
+    "repo": "prometheus-skills-mini",
+    "depends": [
+      "change-tli-b7-cross-agent-awareness-beta",
+      "change-tli-d2-mini-hook-timeouts-seconds"
+    ],
+    "title": "Mini: envelope on Karpathy records, identity resolver port, file-tier SubagentStart hook (Claude)",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-d1b-mini-pk-tags",
+    "code": "D1b",
+    "repo": "prometheus-skills-mini",
+    "depends": [
+      "change-tli-a5b-mini-pin-operator-request",
+      "change-tli-d1a-mini-file-tier-port"
+    ],
+    "title": "Mini: use pk --type/--tag when delivering Karpathy records",
+    "tasks": 2
+  },
+  {
+    "id": "change-tli-d2-mini-hook-timeouts-seconds",
+    "code": "D2",
+    "repo": "prometheus-skills-mini",
+    "depends": [],
+    "title": "Mini: hook timeouts in seconds, budget test rewritten, one unit in lib/kbd/hooks.mjs",
+    "tasks": 2
+  },
+  {
+    "id": "change-tli-d3-claude-md-memory-chain-cortex",
+    "code": "D3",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-b6-file-tier-reduction",
+      "change-tli-b7-cross-agent-awareness-beta"
+    ],
+    "title": "CLAUDE.md memory chain describes per-role delivery; optional Cortex mirror",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-a5a-skillpack-pin-v1-10-0",
+    "code": "A5a",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tli-a1-pk-context-scoring",
+      "change-tli-a2-pk-worker-attribution",
+      "change-tli-a3-pk-tags-and-type",
+      "change-tli-a4-surreal-lean-search-categories-rekey"
+    ],
+    "title": "Tag pk and surreal-memory v1.10.0 and bump the skill-pack pins",
+    "tasks": 3
+  },
+  {
+    "id": "change-tli-a5b-mini-pin-operator-request",
+    "code": "A5b",
+    "repo": "prometheus-skills-mini",
+    "depends": [
+      "change-tli-a5a-skillpack-pin-v1-10-0"
+    ],
+    "title": "Operator pin request: mini gitlinks and versions.toml to v1.10.0 (operator-authored)",
+    "tasks": 3
+  }
+]

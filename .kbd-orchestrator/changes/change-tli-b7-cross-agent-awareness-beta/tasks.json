@@ -1,0 +1,46 @@
+{
+  "changeId": "change-tli-b7-cross-agent-awareness-beta",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[B7] Write learning_route.py and wire audience routing into learning_write",
+      "done": true,
+      "doneAt": "2026-10-04T22:31:47Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/learning_route.py",
+        "shared/scripts/lib/learning_write.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[B7] Add the team digest file and @team mirror, and digest/lead views in learning_recall",
+      "done": true,
+      "doneAt": "2026-10-04T22:32:19Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/learning_write.py",
+        "shared/scripts/lib/learning_recall.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[B7] Write report-learning-delivery.py and the beta gate test-team-awareness.sh",
+      "done": true,
+      "doneAt": "2026-10-04T22:32:50Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/report-learning-delivery.py",
+        "shared/scripts/tests/test-team-awareness.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-b7-cross-agent-awareness-beta/verify.sh",
+      "notes": null
+    }
+  ]
+}

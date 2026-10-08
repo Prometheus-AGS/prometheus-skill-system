@@ -1,0 +1,60 @@
+{
+  "changeId": "change-tlh-02-codex-memories-install-and-doctor",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[02] Write codex-memories-config.sh (line-level edit, backup, re-parse/restore, summary archive, --check JSON)",
+      "done": true,
+      "doneAt": "2026-10-05T05:00:05Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/codex-memories-config.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[02] Call it from install-system.js and, through scripts/lib/install-codex-memories.sh, from install_to_codex(), with every failure path guarded",
+      "done": true,
+      "doneAt": "2026-10-05T05:00:39Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/install-system.js",
+        "scripts/lib/install-codex-memories.sh",
+        "scripts/install-skills-flat.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[02] Add the optional codex.memories doctor check and its integration test cases",
+      "done": true,
+      "doneAt": "2026-10-05T05:01:14Z",
+      "doneBy": "claude-code",
+      "files": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+        "tools/prometheus-cli/crates/prometheus-cli/tests/doctor.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[02] Add test-codex-memories-config.sh (scratch CODEX_HOME: comments preserved, idempotent, corrupt-TOML restore, summary archived, codex debug prompt-input carries no memories text when codex is present; a failing CODEX_MEMORIES_SCRIPT leaves both installer entry points exiting 0 with a warning) and update the docs",
+      "done": true,
+      "doneAt": "2026-10-05T05:01:48Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-codex-memories-config.sh",
+        "docs/guide/06-memory-and-learning.md",
+        "site/docs/operations/doctors-and-mac-certification.md",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-02-codex-memories-install-and-doctor/verify.sh",
+      "notes": null
+    }
+  ]
+}

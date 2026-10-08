@@ -1,0 +1,59 @@
+{
+  "changeId": "change-tli-b6-file-tier-reduction",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[B6] Write memory-index-partition.py with dry-run default",
+      "done": true,
+      "doneAt": "2026-10-04T22:29:56Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/memory-index-partition.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[B6] Export Codex agent names with underscores and generate_memories=false; opt-in Claude memory: local",
+      "done": true,
+      "doneAt": "2026-10-04T22:30:22Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/runtime/src/export-files.mts",
+        "skills/process/agent-team-creator/scripts/*.mjs",
+        "skills/process/agent-team-creator/tests/*.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[B6] Apply the partition to the live auto-memory index after explicit user confirmation and record wc -c before/after as evidence",
+      "done": true,
+      "doneAt": "2026-10-04T22:30:47Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".kbd-orchestrator/phases/team-aware-learning-memory-impl/evidence/b6-live-index-size.txt"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[B6] Write memory-tiers.md and test-memory-partition.sh; extend export.integration.mts",
+      "done": true,
+      "doneAt": "2026-10-04T22:31:18Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/guide/memory-tiers.md",
+        "scripts/tests/test-memory-partition.sh",
+        "skills/process/agent-team-creator/runtime/test-src/export.integration.mts",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-b6-file-tier-reduction/verify.sh",
+      "notes": null
+    }
+  ]
+}

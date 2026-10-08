@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://prometheus-ags.dev/schemas/pmpo/loop-definition.schema.json",
   "title": "PMPO outer-loop definition",
-  "description": "Written by /loop-define to .kbd-orchestrator/loops/<name>/loop.json. Defines a standing loop: a goal + feedback sources + termination criteria. /loop-tick runs one cycle (one evolver cycle, which composes zeespec, kbd-analyze, and the KBD execute loop); the human is only consulted at escalation points. The Boris Cherny shape: write the loop once, the framework runs it.",
+  "description": "Written by /loop-define to .kbd-orchestrator/loops/<name>/loop.json. Defines a standing loop: a goal + feedback sources + termination criteria. /loop-tick runs one cycle (one evolver cycle, which composes kbd-analyze and the KBD execute loop); the human is only consulted at escalation points. The Boris Cherny shape: write the loop once, the framework runs it.",
   "type": "object",
   "required": ["name", "goal", "termination", "evolution_name"],
   "properties": {
@@ -77,7 +77,7 @@
     "escalation_points": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Conditions that pause the loop and ask the human via pmpo-elicit (e.g. 'zeespec NO-GO', 'capability gap FAILED', 'feedback regression', 'termination decision')."
+      "description": "Conditions that pause the loop and ask the human via pmpo-elicit (e.g. 'spec coverage NO-GO', 'capability gap FAILED', 'feedback regression', 'termination decision')."
     },
     "cadence": {
       "type": "object",

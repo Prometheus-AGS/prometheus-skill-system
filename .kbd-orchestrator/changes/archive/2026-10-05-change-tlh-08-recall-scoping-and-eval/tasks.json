@@ -1,0 +1,32 @@
+{
+  "changeId": "change-tlh-08-recall-scoping-and-eval",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[08] Restrict untagged pk admission in pk_allowed with the PK_UNTAGGED_MIN_SIMILARITY constant",
+      "done": true,
+      "doneAt": "2026-10-05T06:22:17Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/learning_recall.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[08] Add the recall-quality fixture and test-recall-quality.sh, then set the threshold from it",
+      "done": true,
+      "doneAt": "2026-10-05T06:25:05Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-recall-quality.sh",
+        "shared/scripts/tests/fixtures/recall-quality/**",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-08-recall-scoping-and-eval/verify.sh",
+      "notes": null
+    }
+  ]
+}

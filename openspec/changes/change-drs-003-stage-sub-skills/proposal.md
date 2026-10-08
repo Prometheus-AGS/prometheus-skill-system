@@ -42,7 +42,7 @@ Each of the 10 pipeline stages needs a self-contained `SKILL.md` with:
 
 | Dir | name | Purpose | Key integration | Model class |
 |-----|------|---------|-----------------|-------------|
-| stage-01-planner | deep-research-stage-01 | Decompose query → sub-questions + plan | zeespec-interrogator (optional) | frontier |
+| stage-01-planner | deep-research-stage-01 | Decompose query → sub-questions + plan | — | frontier |
 | stage-02-search | deep-research-stage-02 | Web search → source URLs | firecrawl_search, tavily_search | medium |
 | stage-03-retrieve | deep-research-stage-03 | Retrieve + chunk content | firecrawl_scrape, kreuzberg | medium |
 | stage-04-collect | deep-research-stage-04 | Index sources into graph | surreal-memory create_entity | medium |

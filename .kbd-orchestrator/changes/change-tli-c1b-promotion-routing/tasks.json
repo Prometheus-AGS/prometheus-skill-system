@@ -1,0 +1,44 @@
+{
+  "changeId": "change-tli-c1b-promotion-routing",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[C1b] Route [GLOBAL]/[USER] lines in memory-writeback",
+      "done": true,
+      "doneAt": "2026-10-04T22:33:26Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/memory-writeback.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[C1b] List promotion candidates in kbd-open and add the reflect review step",
+      "done": true,
+      "doneAt": "2026-10-04T22:33:57Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/kbd-open.sh",
+        "skills/process/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[C1b] Write test-promotion-routing.sh",
+      "done": true,
+      "doneAt": "2026-10-04T22:34:28Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-promotion-routing.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-c1b-promotion-routing/verify.sh",
+      "notes": null
+    }
+  ]
+}

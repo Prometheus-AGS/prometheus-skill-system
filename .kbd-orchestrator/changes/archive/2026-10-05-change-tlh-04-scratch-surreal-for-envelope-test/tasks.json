@@ -1,0 +1,35 @@
+{
+  "changeId": "change-tlh-04-scratch-surreal-for-envelope-test",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[04] Extract shared/scripts/tests/lib/scratch-surreal.sh and switch test-kbd-memory-loop.sh and test-subagent-delivery.sh to it",
+      "done": true,
+      "doneAt": "2026-10-05T04:50:32Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/lib/scratch-surreal.sh",
+        "shared/scripts/tests/test-kbd-memory-loop.sh",
+        "shared/scripts/tests/test-subagent-delivery.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[04] Remove the :23001 default from memory-envelope.integration.mts, rebuild the .mjs, and add run-memory-envelope.sh",
+      "done": true,
+      "doneAt": "2026-10-05T04:51:05Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/runtime/test-src/memory-envelope.integration.mts",
+        "skills/process/agent-team-creator/tests/memory-envelope.integration.mjs",
+        "skills/process/agent-team-creator/tests/run-memory-envelope.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-04-scratch-surreal-for-envelope-test/verify.sh",
+      "notes": null
+    }
+  ]
+}

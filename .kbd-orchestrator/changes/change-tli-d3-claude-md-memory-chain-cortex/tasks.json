@@ -1,0 +1,45 @@
+{
+  "changeId": "change-tli-d3-claude-md-memory-chain-cortex",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[D3] Rewrite the CLAUDE.md/AGENTS.md memory chain for per-role delivery",
+      "done": true,
+      "doneAt": "2026-10-04T22:39:46Z",
+      "doneBy": "claude-code",
+      "files": [
+        "CLAUDE.md",
+        "AGENTS.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[D3] Add the optional Cortex mirror to learning_write and document it",
+      "done": true,
+      "doneAt": "2026-10-04T22:40:12Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/learning_write.py",
+        "docs/guide/memory-tiers.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[D3] Write test-cortex-mirror.sh (present and absent)",
+      "done": true,
+      "doneAt": "2026-10-04T22:40:39Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-cortex-mirror.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-d3-claude-md-memory-chain-cortex/verify.sh",
+      "notes": null
+    }
+  ]
+}

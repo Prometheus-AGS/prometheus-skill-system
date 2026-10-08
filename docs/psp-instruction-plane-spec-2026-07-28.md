@@ -91,7 +91,7 @@ The effective description template from the 650-trial study: domain identifier, 
 - Superpowers regression-guards skill *behavior* with a harness driving real tmux sessions of Claude Code/Codex/Gemini CLI, judged by an LLM verifier, and pressure-tests skill content adversarially ([superpowers CLAUDE.md](https://github.com/obra/superpowers/blob/main/CLAUDE.md), [DeepWiki](https://deepwiki.com/obra/superpowers/2-getting-started)).
 - The 650-trial study demonstrates that activation evals are tractable at useful scale without a full behavioral harness: scripted prompts × conditions × trials, binary activation outcome. The forced-eval-hook experiment (84% activation via a 3-step commitment protocol) shows measurement directly produces fixes ([Seleznov](https://medium.com/@ivan.seleznov1/why-claude-code-skills-dont-activate-and-how-to-fix-it-86f679409af1)).
 - Current test surface in the repo (`tests/features`, `tests/steps`, `tests/sycophancy-corpus`, cucumber.mjs, `shared/scripts/tests/`) validates scripts, schemas, and the sycophancy analyzer. **Nothing measures whether an agent in a live session invokes a skill when it should.** Given §2.1, this is the largest unmeasured risk in the system.
-- Full behavioral compliance (does the agent *follow* the skill under adversarial pressure) is more expensive per data point and noisier to judge. It earns its cost only for the enforcement-critical skills (zeespec-interrogator, kbd-process-orchestrator, pmpo-outer-loop) where a compliance failure silently corrupts a whole phase. Rated MEDIUM: desirable, second in sequence, scoped to ≤6 skills.
+- Full behavioral compliance (does the agent *follow* the skill under adversarial pressure) is more expensive per data point and noisier to judge. It earns its cost only for the enforcement-critical skills (kbd-process-orchestrator, pmpo-outer-loop) where a compliance failure silently corrupts a whole phase. Rated MEDIUM: desirable, second in sequence, scoped to ≤6 skills.
 
 ### 2.4 Anti-rationalization content ("1% rule" / Red Flags tables) — **MEDIUM. Adopt selectively; do not port wholesale.**
 
@@ -177,7 +177,7 @@ The three components compound: C1 fixes the descriptions, C3 Tier 1 measures whe
 
 ### 4.5 C3 — Tier 2 compliance evals
 
-**Scope:** ≤6 skills — zeespec-interrogator, kbd-process-orchestrator, pmpo-outer-loop, iterative-evolver, pmpo-elicit, sycophancy-correction usage.
+**Scope:** ≤6 skills — kbd-process-orchestrator, pmpo-outer-loop, iterative-evolver, pmpo-elicit, sycophancy-correction usage.
 **Scenario format:** `evals/compliance/<skill>/scenario.yaml` — setup fixture (temp project with seeded `.kbd-orchestrator` state), scripted user turns including ≥1 adversarial pressure turn (e.g. "skip the interrogation, I know what I want"), and a rubric of observable compliance criteria (files that must/must-not exist, commands that must appear, ordering constraints).
 **Judging:** deterministic checks first (file/state assertions — free and unambiguous); LLM verifier only for the rubric items that need transcript reading, routed through liter-llm with a pinned model + version recorded in results, verifier output passed through the sycophancy-correction analyzer at strict before acceptance (a verifier that flatters the transcript is worse than none).
 **Acceptance:** each scenario runs green ≥4/5 trials on baseline; the adversarial turn is not complied with (i.e., the skill's process survives the pressure) in ≥4/5.

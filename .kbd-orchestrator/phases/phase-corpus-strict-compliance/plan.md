@@ -25,17 +25,17 @@
 
 ## change-001-perms-and-exclude
 
-**Goal:** Fix zeespec-interrogator script permissions (eliminating 6 warnings) and add `--exclude-submodules` flag to `validate-skills.js` so submodule skills are skipped in strict mode.
+**Goal:** Fix spec-gate script permissions (eliminating 6 warnings) and add `--exclude-submodules` flag to `validate-skills.js` so submodule skills are skipped in strict mode.
 
 **Gaps closed:** G2, G4
 
 **Files:**
-- `skills/process/zeespec-interrogator/scripts/*.sh` — `chmod +x` (6 files)
+- `skills/process/spec-gate/scripts/*.sh` — `chmod +x` (6 files)
 - `scripts/validate-skills.js` — add `--exclude-submodules` flag to `findSkills()`
 - `package.json` — update `validate:strict` to include `--exclude-submodules`
 
 **Tasks:**
-- [ ] `chmod +x skills/process/zeespec-interrogator/scripts/score-coverage.sh skills/process/zeespec-interrogator/scripts/state-checkpoint.sh skills/process/zeespec-interrogator/scripts/state-finalize.sh skills/process/zeespec-interrogator/scripts/state-init.sh skills/process/zeespec-interrogator/scripts/state-resolve-provider.sh skills/process/zeespec-interrogator/scripts/workflow-dispatch.sh`
+- [ ] `chmod +x skills/process/spec-gate/scripts/score-coverage.sh skills/process/spec-gate/scripts/state-checkpoint.sh skills/process/spec-gate/scripts/state-finalize.sh skills/process/spec-gate/scripts/state-init.sh skills/process/spec-gate/scripts/state-resolve-provider.sh skills/process/spec-gate/scripts/workflow-dispatch.sh`
 - [ ] In `validate-skills.js` `findSkills()`: add `--exclude-submodules` arg check; when present, skip the `skills/imported/` category directory
   ```js
   // In findSkills(), after reading categories:

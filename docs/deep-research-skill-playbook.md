@@ -146,7 +146,6 @@ metadata:
 | **Feynman skills** | `skills/learn/` | `learn-plan`, `learn-survey`, `learn-kb`, `learn-grade`, `learn-practice`, `learn-retain`, `learn-certify` |
 | **sycophancy-correction** | `skills/imported/sycophancy-correction/` | Bias correction during research synthesis |
 | **pmpo-elicit** | `skills/process/pmpo-elicit/` | Human escalation for low-confidence findings |
-| **zeespec-interrogator** | `skills/process/zeespec-interrogator/` | Requirement extraction from research queries |
 
 ---
 
@@ -278,7 +277,7 @@ Each stage is a self-contained sub-skill that can be invoked independently or as
 
 | Stage | Sub-skill | Purpose | Key Integration |
 |-------|-----------|---------|-----------------|
-| 1 | `stage-01-planner` | Decompose query into sub-questions | `zeespec-interrogator` for requirement extraction |
+| 1 | `stage-01-planner` | Decompose query into sub-questions | — |
 | 2 | `stage-02-search` | Web search + source discovery | `liter-llm-bridge` for cost-aware routing |
 | 3 | `stage-03-retrieve` | Retrieve + chunk content | `kreuzberg` for document extraction |
 | 4 | `stage-04-collect` | Collect + index sources | `surreal-memory` for graph storage |
@@ -994,7 +993,6 @@ codex config mcpServers.prometheus-research "{\"command\":\"prometheus-research\
 | prometheus-entity-skills | `skills/react/prometheus-entity-skills/` | Graph CRUD operations |
 | sycophancy-correction | `skills/imported/sycophancy-correction/` | Bias detection and correction |
 | pmpo-elicit | `skills/process/pmpo-elicit/` | Human escalation primitive |
-| zeespec-interrogator | `skills/process/zeespec-interrogator/` | Requirement extraction |
 | learn-plan | `skills/learn/learn-plan/` | Curriculum generation from research |
 | learn-grade | `skills/learn/learn-grade/` | Quality assessment |
 | learn-survey | `skills/learn/learn-survey/` | Knowledge gap identification |

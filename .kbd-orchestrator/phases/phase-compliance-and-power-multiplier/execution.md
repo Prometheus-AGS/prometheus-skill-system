@@ -66,7 +66,7 @@ chase the same false positive.
 ```
 📊 84 skill(s) validated (including sub-skills)
 ✅ 0 errors
-⚠️ 6 warnings — all pre-existing chmod warnings on zeespec-interrogator scripts (out of scope for change-001)
+⚠️ 6 warnings — all pre-existing chmod warnings on spec-gate scripts (out of scope for change-001)
 ```
 
 ### QA Gate Decision
@@ -389,7 +389,7 @@ Total: 6 new files (~385 LOC), 4 files edited.
 ```
 $ npm run validate
 📊 85 skill(s) validated (including sub-skills)
-0 errors. 6 pre-existing chmod warnings on zeespec scripts.
+0 errors. 6 pre-existing chmod warnings on spec-gate scripts.
 ```
 
 The end-to-end build verification (`/create-native-agent --target librefang-wasm`
@@ -485,7 +485,7 @@ boundaries.
 
 - **Stage 1 (ideation)**: stub — writes concept verbatim into the next
   stage's input. Full ideation lands in `phase-ideation-onramp`.
-- **Stage 2 (zeespec)**: delegates to `/zeespec-interrogate` via a sentinel
+- **Stage 2 (spec-gate)**: delegates to `/spec-gate` via a sentinel
   file pattern. The orchestrator AI tool drives the actual interrogation.
 - **Stage 3 (evolver)**: delegates to `/evolve-assess` and `/evolve-plan`.
 - **Stage 4 (changes)**: detects `openspec/` and emits backend-appropriate
@@ -536,7 +536,7 @@ Total: 7 new files (~950 LOC) + 1 file edited.
 ```
 $ npm run validate
 📊 87 skill(s) validated (including sub-skills)
-0 errors. 6 pre-existing chmod warnings on zeespec scripts.
+0 errors. 6 pre-existing chmod warnings on spec-gate scripts.
 
 $ bash -n skills/.../upload-to-bossfang/scripts/upload.sh
 (syntax OK)

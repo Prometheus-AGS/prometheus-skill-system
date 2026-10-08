@@ -1,0 +1,9 @@
+
+
+[features]
+hooks = true
+multi_agent = true
+[memories]
+generate_memories = false
+[projects."/private/tmp/claude-501/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/733a99fd-b357-4127-87d1-0c794fcde506/scratchpad/codex-spike/proj"]
+trust_level = "trusted"

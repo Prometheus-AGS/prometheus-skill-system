@@ -2,27 +2,26 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1362,
-  "derivedRevision": 1362,
+  "sourceRevision": 2422,
+  "derivedRevision": 2422,
   "frontier": {
     "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
     "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
   },
   "conflictCount": 0,
-  "updatedAt": "2026-09-30T12:35:20.164786Z",
+  "updatedAt": "2026-10-05T23:00:25.251624Z",
   "cursor": [
-    "agent-team-creator",
-    "reflect"
+    "phase-learning-deploy-and-debt"
   ],
   "root": {
     "type": "phase",
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "status": "ready",
     "progress": {
-      "done": 44,
-      "total": 48
+      "done": 101,
+      "total": 104
     },
     "children": [
       {
@@ -62,7 +61,7 @@
         "canonicalId": "control-plane-to-companion",
         "status": "IN_PROGRESS",
         "progress": {
-          "done": 9,
+          "done": 10,
           "total": 13
         },
         "children": [
@@ -134,7 +133,7 @@
             "id": "change-cpc-008-sync-skills-plugin",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
+              "done": 3,
               "total": 3
             }
           },
@@ -150,16 +149,16 @@
           {
             "type": "change",
             "id": "change-cpc-009-pack-removal",
-            "status": "IN_PROGRESS",
+            "status": "COMPLETE",
             "progress": {
-              "done": 2,
+              "done": 3,
               "total": 3
             }
           },
           {
             "type": "change",
             "id": "change-cpc-010-kbd-state-migration",
-            "status": "PENDING",
+            "status": "SKIPPED",
             "progress": {
               "done": 0,
               "total": 0
@@ -168,7 +167,7 @@
           {
             "type": "change",
             "id": "change-cpc-011-integration-evidence",
-            "status": "PENDING",
+            "status": "SKIPPED",
             "progress": {
               "done": 0,
               "total": 0
@@ -177,7 +176,7 @@
           {
             "type": "change",
             "id": "change-cpc-013-pack-certification-without-companion",
-            "status": "PENDING",
+            "status": "SKIPPED",
             "progress": {
               "done": 0,
               "total": 0
@@ -280,7 +279,7 @@
             "id": "change-drt-004-deterministic-merge",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
+              "done": 6,
               "total": 6
             }
           },
@@ -289,7 +288,7 @@
             "id": "change-drt-003-director-worker-agents",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
+              "done": 6,
               "total": 6
             }
           },
@@ -307,7 +306,7 @@
             "id": "change-drt-006-bench-and-metrics",
             "status": "COMPLETE",
             "progress": {
-              "done": 0,
+              "done": 1,
               "total": 1
             }
           }
@@ -471,6 +470,287 @@
       },
       {
         "type": "phase",
+        "id": "phase-learning-deploy-and-debt",
+        "canonicalId": "phase-learning-deploy-and-debt",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 18,
+          "total": 18
+        },
+        "children": [
+          {
+            "type": "phase",
+            "id": "release-recovery",
+            "canonicalId": "phase-learning-deploy-and-debt::release-recovery",
+            "status": "SKIPPED",
+            "progress": {
+              "done": 0,
+              "total": 0
+            },
+            "children": [],
+            "annotations": []
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-13-source-convergence",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-01-hook-bytecode",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-02-codex-memory-control",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-04-cache-identity-accounting",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-05-generated-output-ownership",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 1,
+              "total": 1
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-06-installed-doctor-remediation",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 1,
+              "total": 1
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-07-custom-codex-home",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-08-bounded-cortex-mirror",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-09-partition-footer",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 1,
+              "total": 1
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-10-mini-executable-modes",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 1,
+              "total": 1
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-11-entrypoint-spec-contract",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 1,
+              "total": 1
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-14-companion-publication-preparation",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-18-stability-legacy-closure",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-03-published-memory-pins",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-15-readme-content-renewal",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-16-agent-team-handbook",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-17-service-sites-current",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-ldd-12-integration-rollout",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-team-learning-hardening",
+        "canonicalId": "phase-team-learning-hardening",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 9,
+          "total": 9
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-tlh-03-versioned-cadence-refresh-procedure",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlh-04-scratch-surreal-for-envelope-test",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlh-01-ranked-memory-partition",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlh-09-rebase-regenerate",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlh-07-cortex-mirror-real-service",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlh-05-query-embedding-cache",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlh-02-codex-memories-install-and-doctor",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlh-06-ledger-reconciliation",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlh-08-recall-scoping-and-eval",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
         "id": "research-agent-hardening",
         "canonicalId": "research-agent-hardening",
         "status": "IN_PROGRESS",
@@ -594,6 +874,293 @@
             "progress": {
               "done": 4,
               "total": 4
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "team-aware-learning-memory",
+        "canonicalId": "team-aware-learning-memory",
+        "status": "IN_PROGRESS",
+        "progress": {
+          "done": 4,
+          "total": 4
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-tlm-004-hook-timeout-seconds",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlm-001-subagent-identity-probe",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlm-002-team-aware-learning-design",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tlm-003-revised-implementation-plan",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "team-aware-learning-memory-impl",
+        "canonicalId": "team-aware-learning-memory-impl",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 25,
+          "total": 25
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-tli-a1-pk-context-scoring",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-a2-pk-worker-attribution",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-a4-surreal-lean-search-categories-rekey",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-b1-identity-resolver",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-d2-mini-hook-timeouts-seconds",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-a3-pk-tags-and-type",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-b2-namespaced-subagent-matchers",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-a5a-skillpack-pin-v1-10-0",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-a5b-mini-pin-operator-request",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-b3-envelope-write-library",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-c1a-pk-promotion-candidates",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-b3b-agent-team-memory-envelope",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-b4-per-agent-recall-and-kbd-loop",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-c3a-pk-skill-discovery",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-b5-subagentstart-delivery-alpha",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-e1-pin-v1-11-0",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-b6-file-tier-reduction",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-b7-cross-agent-awareness-beta",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-c1b-promotion-routing",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-c2-feynman-gap-routing",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-c4-cross-repo-team-requests",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-d1a-mini-file-tier-port",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-d3-claude-md-memory-chain-cortex",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-c3b-skill-candidate-surfacing",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-tli-d1b-mini-pk-tags",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
             }
           }
         ],

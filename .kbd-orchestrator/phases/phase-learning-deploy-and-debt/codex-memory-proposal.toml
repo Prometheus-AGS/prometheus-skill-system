@@ -1,0 +1,8 @@
+# Review fragment only. NOT applied to any user configuration.
+# Merge into existing tables; do not duplicate TOML headers.
+[features]
+memories = false
+
+[memories]
+generate_memories = false
+use_memories = false

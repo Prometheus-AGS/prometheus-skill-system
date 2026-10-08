@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-10-04T23:55:54Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "9 changes / 24 tasks registered. Order: round 1 parallel (03, 04, 01, 09, 07), round 2 cargo serialized (05 then 02), round 3 after merges (06 after 03, 08 after 04; stacked-branch fallback). First change: change-tlh-03-versioned-cadence-refresh-procedure. Task model assignments in plan.md: Sonnet 5.5 workers via the Agent tool, Opus 5.5 lead for 05 task 1 and the phase gate; liter-llm cross-model judge unresolved (preflight degraded), so the fallback is harness-native. Review PASS 0/3/4, all folded in. Approvals: v1.10.1 tag, real ~/.codex installer run, local shim replacement, machine refresh at the boundary.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -1,0 +1,78 @@
+[
+  {
+    "id": "change-tlh-01-ranked-memory-partition",
+    "code": "01",
+    "repo": "prometheus-skill-system",
+    "depends": [],
+    "title": "memory-index-partition.py ranks entries (current phase, feedback/GLOBAL, project newest-first, archives) before moving any to the learning store",
+    "tasks": 2
+  },
+  {
+    "id": "change-tlh-02-codex-memories-install-and-doctor",
+    "code": "02",
+    "repo": "prometheus-skill-system",
+    "depends": [],
+    "title": "The installer sets Codex `[memories] generate_memories = false` and archives memory_summary.md; the doctor checks it",
+    "tasks": 4
+  },
+  {
+    "id": "change-tlh-03-versioned-cadence-refresh-procedure",
+    "code": "03",
+    "repo": "prometheus-skill-system",
+    "depends": [],
+    "title": "Ship the skill-pack refresh procedure in delivery-cadence: profile inputs, state.json parity, fail-loud, submodule update",
+    "tasks": 3
+  },
+  {
+    "id": "change-tlh-04-scratch-surreal-for-envelope-test",
+    "code": "04",
+    "repo": "prometheus-skill-system",
+    "depends": [],
+    "title": "Shared scratch surreal-memory test library; memory-envelope.integration runs against it, never the live :23001",
+    "tasks": 2
+  },
+  {
+    "id": "change-tlh-05-query-embedding-cache",
+    "code": "05",
+    "repo": "surreal-memory-server",
+    "depends": [],
+    "title": "surreal-memory caches query embeddings (quick_cache, query path only) after measuring single-embedding latency under load; release 1.10.1",
+    "tasks": 3
+  },
+  {
+    "id": "change-tlh-06-ledger-reconciliation",
+    "code": "06",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tlh-03-versioned-cadence-refresh-procedure"
+    ],
+    "title": "kbd-apply mark-done syncs the ledger; kbd-apply reconcile detects and repairs task/ledger drift; cadence and reflect run it",
+    "tasks": 3
+  },
+  {
+    "id": "change-tlh-07-cortex-mirror-real-service",
+    "code": "07",
+    "repo": "prometheus-skill-system",
+    "depends": [],
+    "title": "Verify the D3 Cortex mirror against the real Cortex 2.0.3 MCP server on a scratch CORTEX_DATA_DIR",
+    "tasks": 2
+  },
+  {
+    "id": "change-tlh-08-recall-scoping-and-eval",
+    "code": "08",
+    "repo": "prometheus-skill-system",
+    "depends": [
+      "change-tlh-04-scratch-surreal-for-envelope-test"
+    ],
+    "title": "Recall admits untagged pk entries only for the current project or on a lexical match; a fixed evaluation fixture gates recall quality",
+    "tasks": 2
+  },
+  {
+    "id": "change-tlh-09-rebase-regenerate",
+    "code": "09",
+    "repo": "prometheus-skill-system",
+    "depends": [],
+    "title": "scripts/rebase-regenerate.sh resolves generated-only rebase/merge conflicts by regenerating, then validates",
+    "tasks": 3
+  }
+]

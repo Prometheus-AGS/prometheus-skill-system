@@ -1,0 +1,261 @@
+{
+  "phase": "team-aware-learning-memory",
+  "generated_at": "2026-10-03T23:58:00Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1_github": 4,
+      "tier2_docs": 10,
+      "tier3_registry": 0,
+      "tier4_web": 1
+    }
+  },
+  "gaps_addressed": [
+    "A-identity-capture",
+    "B-per-agent-delivery",
+    "C-learning-envelope",
+    "D-targeted-recall",
+    "E-writeback-recall-closure",
+    "F-cross-agent-awareness",
+    "G-role-metadata-keys",
+    "J-candidate-queues",
+    "K-other-readers",
+    "N-file-memory-tiers",
+    "goal5-gaps-discovery-teams"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "mem0 scoping keys (user_id / agent_id / run_id + metadata filters)",
+      "kind": "pattern",
+      "repo_url": "https://github.com/mem0ai/mem0",
+      "registry": "none",
+      "fit_for_gap": "C-learning-envelope: key tuple maps almost 1:1 onto surreal-memory user_id/agent_id/session_id; user_id = project, agent_id = authoring role",
+      "verdict": "reference",
+      "coverage_estimate": 0.4,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://docs.mem0.ai/core-concepts/memory-operations/search",
+          "claim": "Search filters by user_id, agent_id and run_id; Platform API supports AND/OR and comparison filters on metadata"
+        },
+        {
+          "tier": 2,
+          "source_url": "https://docs.mem0.ai/cookbooks/essentials/building-ai-companion",
+          "claim": "Multi-agent companion pattern: each agent keeps agent_id-scoped memory while user context is shared"
+        }
+      ]
+    },
+    {
+      "id": "cand-002",
+      "name": "CrewAI hierarchical memory scopes (MemoryScope / MemorySlice, private by source, read-only slices, composite scoring)",
+      "kind": "pattern",
+      "repo_url": "https://github.com/crewAIInc/crewAI",
+      "registry": "none",
+      "fit_for_gap": "C/D/F: path scopes /team/<t>/role/<r>, /team/<t>/lead, /project; private-by-source default; read-only shared slices; scoring semantic 0.5 + recency 0.3 (30-day half-life) + importance 0.2",
+      "verdict": "reference",
+      "coverage_estimate": 0.6,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://docs.crewai.com/en/concepts/memory",
+          "claim": "Hierarchical path scopes with MemoryScope and MemorySlice; private-by-source records; read-only slices; composite score semantic 0.5, recency 0.3 (30-day half-life), importance 0.2"
+        }
+      ]
+    },
+    {
+      "id": "cand-003",
+      "name": "LangMem / LangGraph store namespaces",
+      "kind": "pattern",
+      "repo_url": "https://github.com/langchain-ai/langmem",
+      "registry": "none",
+      "fit_for_gap": "C: hierarchical namespace tuple (project, team, role) filled from runtime config",
+      "verdict": "reference",
+      "coverage_estimate": 0.2,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://langchain-ai.github.io/langmem/concepts/conceptual_guide/",
+          "claim": "Memories stored under hierarchical namespace tuples whose placeholders are filled from run configuration"
+        }
+      ]
+    },
+    {
+      "id": "cand-004",
+      "name": "Zep / Graphiti group_id namespacing with multi-group search",
+      "kind": "pattern",
+      "repo_url": "https://github.com/getzep/graphiti",
+      "registry": "none",
+      "fit_for_gap": "D-targeted-recall: one query across [role, team, project] groups, merged",
+      "verdict": "reference",
+      "coverage_estimate": 0.2,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://help.getzep.com/graphiti/core-concepts/graph-namespacing",
+          "claim": "Every node and edge carries group_id; one search can span several group_ids"
+        }
+      ]
+    },
+    {
+      "id": "cand-005",
+      "name": "Letta shared memory blocks (per-agent core blocks + shared block_ids, char limit, append-safe)",
+      "kind": "pattern",
+      "repo_url": "https://github.com/letta-ai/letta",
+      "registry": "none",
+      "fit_for_gap": "F-cross-agent-awareness: a small size-limited append-only team digest plus per-role blocks; whole-block rewrites are last-writer-wins and lose updates",
+      "verdict": "reference",
+      "coverage_estimate": 0.3,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://docs.letta.com/guides/agents/multi-agent-shared-memory",
+          "claim": "Shared memory blocks attach to many agents; appends are concurrency-safe but whole-block rewrites are last-writer-wins"
+        }
+      ]
+    },
+    {
+      "id": "cand-006",
+      "name": "Claude Code SubagentStart hook (additionalContext into one subagent, matcher on agent_type, 10,000-char cap)",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "B-per-agent-delivery (Claude): the only per-subagent injection point; payload has agent_id/agent_type but no task text",
+      "verdict": "adopt",
+      "coverage_estimate": 0.8,
+      "license": "harness feature",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://code.claude.com/docs/en/hooks.md",
+          "claim": "SubagentStart input has agent_id and agent_type; additionalContext is added to the subagent context before its first prompt; output over 10,000 chars is saved to a file and replaced by a preview"
+        }
+      ]
+    },
+    {
+      "id": "cand-007",
+      "name": "Codex SubagentStart hook (stdout or additionalContext as developer context, default 2500-token additionalContextLimit)",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "B-per-agent-delivery (Codex): same mechanism; agent_type = role name (runtime confirmation pending)",
+      "verdict": "adopt",
+      "coverage_estimate": 0.7,
+      "license": "harness feature",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://learn.chatgpt.com/docs/hooks",
+          "claim": "Codex SubagentStart stdout or additionalContext is added as developer context for the subagent; default additionalContextLimit 2500 tokens"
+        }
+      ]
+    },
+    {
+      "id": "cand-008",
+      "name": "Claude Code subagent persistent `memory:` frontmatter (MEMORY.md first 200 lines / 25 KB in the subagent system prompt; user/project/local scopes)",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "B/D (Claude only, auto-memory on): a durable per-role inbox the pack can write a generated index into; ignored when auto-memory is off; not available for Codex",
+      "verdict": "adapt",
+      "coverage_estimate": 0.3,
+      "license": "harness feature",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://code.claude.com/docs/en/sub-agents.md",
+          "claim": "Subagent memory field (user/project/local) loads the first 200 lines or 25 KB of MEMORY.md into the subagent system prompt; requires auto-memory"
+        }
+      ]
+    },
+    {
+      "id": "cand-009",
+      "name": "B12 memory-subagent-start.sh (SubagentStart retrieval keyed on agent_type + parent transcript's last Agent call, watchdog, FTS fallback)",
+      "kind": "skeleton",
+      "repo_url": "https://github.com/dorukardahan/B12",
+      "registry": "none",
+      "fit_for_gap": "B/D: prior art for recovering the task brief that SubagentStart does not pass; confirms the role-keyed hook design",
+      "verdict": "reference",
+      "coverage_estimate": 0.3,
+      "license": "unverified",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/dorukardahan/B12/blob/main/hooks/memory-subagent-start.sh",
+          "claim": "SubagentStart hook keys retrieval on agent_type and recovers the task brief from the parent transcript last Agent call, with a 5 s watchdog and FTS fallback; license unverified, so only the design idea is referenced, no code copied"
+        }
+      ]
+    },
+    {
+      "id": "cand-010",
+      "name": "surreal-memory palace store (wing/room drawers with settable scope/importance)",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "C/D: an existing store in our stack whose partitioning could host role/team drawers; evaluated against the memory table in the design",
+      "verdict": "reference",
+      "coverage_estimate": 0.3,
+      "license": "in-house",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "shared/scripts/content-grounding.sh:219",
+          "claim": "Palace recall is an existing pack read path partitioned by wing and room"
+        }
+      ]
+    },
+    {
+      "id": "cand-011",
+      "name": "OpenAI Agents SDK sessions / AutoGen shared Memory",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "none beyond session-level history; no per-agent scoping",
+      "verdict": "reject",
+      "coverage_estimate": 0.05,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://openai.github.io/openai-agents-python/sessions/",
+          "claim": "Sessions share one history across handed-off agents; limit applies per session, not per agent"
+        }
+      ]
+    },
+    {
+      "id": "cand-012",
+      "name": "Codex native memories (~/.codex/memories: memory_summary.md injected per session, MEMORY.md on demand, consolidation by Codex)",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "N/B: an existing untargeted user-level memory tier in Codex; must be partitioned or reduced, not stacked on; subagent behaviour unverified",
+      "verdict": "reference",
+      "coverage_estimate": 0.2,
+      "license": "harness feature",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "~/.codex/config.toml [features] memories = true",
+          "claim": "native memories enabled locally; memory_summary.md 10,840 B and MEMORY.md 182,746 B present and updated 2026-10-03"
+        }
+      ]
+    },
+    {
+      "id": "cand-013",
+      "name": "Cortex MCP (cortex_recall / cortex_remember)",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "N: mandated by CLAUDE.md as the second lookup tier but unused by any pack script; kept as an interactive agent fallback, not part of the automated pipeline",
+      "verdict": "reference",
+      "coverage_estimate": 0.1,
+      "license": "plugin",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "CLAUDE.md (Memory \u2014 Check Before You Code)",
+          "claim": "lookup chain surreal-memory, then Cortex, then file memory"
+        }
+      ]
+    }
+  ]
+}

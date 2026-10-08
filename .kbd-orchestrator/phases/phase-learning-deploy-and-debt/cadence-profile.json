@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "name": "learning-deploy-and-debt-final-product",
+  "mode": "kbd",
+  "iterationMinutes": 60,
+  "reviewEvery": 0,
+  "publication": {
+    "mode": "manual",
+    "every": 2
+  },
+  "budgets": {
+    "maxIterations": null,
+    "maxRunMinutes": null
+  },
+  "checkpoints": [],
+  "binding": {
+    "phaseId": "phase-learning-deploy-and-debt",
+    "canonicalRoot": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+    "implementationRoot": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+    "machineRefresh": "full after iteration 1 and every odd numbered iteration; even iterations operate frozen product without full refresh",
+    "authority": "owner goal message 2026-10-05 explicitly requests full machine build/deployment with all services and skills",
+    "mergePolicy": "owner merges every PR",
+    "protectedEdits": "explicit exact versions.toml and tag approval required"
+  },
+  "team": {
+    "maxImplementers": 3,
+    "maxBuildWriters": 1
+  }
+}

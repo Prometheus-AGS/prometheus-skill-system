@@ -76,10 +76,10 @@ jq -e '.root.status == "active-parent" and .root.children[0].type == "phase"
   || fail "test 4 — child tree wrong: $(jq -c '.root' "$POS")"
 pass "child pointer nests phase node and extends cursor"
 
-# Test 5: annotations ingest .evolver/ and .zeespec/ read-only
-mkdir -p "$SANDBOX/repo/.evolver/evolutions/my-evo" "$SANDBOX/repo/.zeespec/my-subject"
+# Test 5: annotations ingest .evolver/ read-only
+mkdir -p "$SANDBOX/repo/.evolver/evolutions/my-evo"
 ( cd "$SANDBOX/repo" && . "$SKILL_ROOT/shared/lib/position.sh" && kbd_position_sync )
-jq -e '.root.annotations | map(.source) | sort == ["evolver", "zeespec"]' "$POS" >/dev/null \
+jq -e '.root.annotations | map(.source) | sort == ["evolver"]' "$POS" >/dev/null \
   || fail "test 5 — annotations wrong: $(jq -c '.root.annotations' "$POS")"
 jq -e '.root.annotations[] | select(.source=="evolver") | .summary | contains("my-evo")' \
   "$POS" >/dev/null || fail "test 5 — evolver summary missing evolution name"

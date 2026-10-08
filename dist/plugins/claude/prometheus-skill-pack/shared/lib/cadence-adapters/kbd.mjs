@@ -5,7 +5,7 @@ import { bindingAt, object, readJson, runJson, writeJson } from './io.mjs';
 
 /** Read-only canonical authority; never substitute a possibly stale waypoint projection. */
 export function canonicalSnapshot(project) {
-  const state = runJson(process.env.PROMETHEUS_BIN || 'prometheus', ['kbd', '--path', project, 'status', '--json'], project, undefined, 5000);
+  const state = runJson(process.env.PROMETHEUS_BIN || 'prometheus', ['kbd', '--path', project, 'status', '--json'], project, undefined, 12000);
   const phaseId = state.activePath?.phaseId;
   const phase = state.phases?.[phaseId];
   if (!object(state.phases) || !phase || !Array.isArray(state.activePath.phasePath) || !Number.isInteger(state.revision)) {

@@ -1,0 +1,52 @@
+{
+  "changeId": "change-ldd-18-stability-legacy-closure",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "title": "Map historical tasks blockers and boundary gaps to evidence-backed closure work",
+      "files": [
+        "phase:historical-closure-map.md"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T14:41:20Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "1"
+    },
+    {
+      "title": "Finish migration and standalone versus connected control-plane source contracts",
+      "files": [
+        "full:substrate/kbd-runtime/src/**",
+        "full:CLI and daemon references",
+        "companion:control-contract source",
+        "full:tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "full:tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+        "full:shared/scripts/sessionstart-learning.sh",
+        "full:shared/scripts/lib/learning_recall.py",
+        "mini:skills/agent-team-creator/runtime/src/memory.mts",
+        "mini:skills/agent-team-creator/runtime/src/types.mts",
+        "mini:skills/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T19:27:12Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "2"
+    },
+    {
+      "title": "Write supported-product maintenance upgrade rollback and recovery contract",
+      "files": [
+        "full+mini:docs/maintenance.md",
+        "phase:maintenance-readiness.md"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T19:39:25Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "3"
+    }
+  ]
+}

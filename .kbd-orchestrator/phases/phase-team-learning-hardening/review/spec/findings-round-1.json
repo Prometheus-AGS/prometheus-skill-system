@@ -1,0 +1,123 @@
+{
+  "mode": "artifact",
+  "target": "spec",
+  "verdict": "BLOCK",
+  "judge_model": "claude-sonnet (harness-native)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-family-harness-native",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "change-tlh-06-ledger-reconciliation/verification.md",
+      "line": 14,
+      "claim": "Acceptance criterion 3 (refresh procedure with --reconcile-phase emits a `reconcile` JSON field and never invokes cadence.mjs) is not proven by any gate, and the only file that could prove it is owned by change 03.",
+      "evidence": "Criterion: 'The refresh procedure with --reconcile-phase includes a reconcile field in its JSON summary and never invokes cadence.mjs.' The verify block only reruns shared/scripts/tests/test-cadence-refresh-procedure.sh, which is created by change 03 and is NOT in change 06's spec Scope or tasks.json files; task 3 describes test-kbd-apply-reconcile.sh as covering drift/--repair/mark-done only. The rerun of 03's test passes unchanged whether or not --reconcile-phase exists.",
+      "suggested_fix": "Add test-cadence-refresh-procedure.sh (or a new test-refresh-reconcile.sh) to change 06's Scope/tasks files, with a case that runs --reconcile-phase against the scratch KBD project, asserts the `reconcile` field and that a stubbed cadence.mjs is never called."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-tlh-04-scratch-surreal-for-envelope-test/verification.md",
+      "line": 11,
+      "claim": "Criterion 1 requires the gate to read the live :23001 service and criterion 3 requires a no-surviving-server check, but neither is in the verify commands; the live-count check is also inherently flaky and violates the 'never the live service' intent.",
+      "evidence": "'the live service's record count for the test's user id is unchanged (checked before/after against :23001 when it is up; skipped with a note when it is down)' and 'no scratch server process survives any of the three runs (pgrep -f ...)'. The ```verify block contains only run-memory-envelope.sh, the unset-URL exit-2 check, two other tests and check:distribution - no before/after count, no pgrep. The live count can change from unrelated concurrent writers (cadence agents), so even if implemented it would false-fail; 'skipped when down' lets it pass without proof.",
+      "suggested_fix": "Drop the live-service read from the gate. Instead assert (inside run-memory-envelope.sh) that SURREAL_MEMORY_URL points at the scratch port, and that the compiled test refuses a URL equal to 127.0.0.1:23001. Add an explicit pgrep -f '<scratch dir>' assertion to the verify block or to the three tests via the library's stop function."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-tlh-02-codex-memories-install-and-doctor/verification.md",
+      "line": 14,
+      "claim": "The codex prompt-input criterion symlinks the operator's real ~/.codex/auth.json into the scratch CODEX_HOME, so the gate touches (and codex may rewrite) real credentials.",
+      "evidence": "'codex debug prompt-input under the scratch CODEX_HOME (auth.json symlinked, never copied)'. A symlink to the real auth.json means any token refresh codex performs writes through to the operator's real ~/.codex. Task 4 repeats it. Also the gate has no test that install_to_codex() itself completes with a warning on failure (criterion 3: 'the installer still completes with a warning') - test-codex-memories-config.sh exercises only the script, and scripts/install-skills-flat.sh (task 2) has no gated test.",
+      "suggested_fix": "Run prompt-input without credentials (it is a local prompt assembly; if it needs auth, mark that step BLOCKED) or copy a read-only dummy auth stub. Add a gated case that runs install_to_codex() (or install-skills-flat.sh with a scratch HOME) with the script made to fail and asserts exit 0 plus a warning."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-06-ledger-reconciliation/spec.md",
+      "line": 7,
+      "claim": "Dependency on change 03 is declared but nothing guarantees the worktree contains it; verify.sh would fail with a missing-file error (exit 1/127) instead of BLOCKED.",
+      "evidence": "Base branch: 'off origin/main ... at or after e421715'; verify.sh checks only `merge-base --is-ancestor e421715 HEAD`. Change 06 edits skills/process/delivery-cadence/procedures/refresh-skill-pack.sh and runs test-cadence-refresh-procedure.sh, both created by 03 (not on origin/main at e421715). Same pattern for change 08 -> 04 (shared/scripts/tests/lib/scratch-surreal.sh).",
+      "suggested_fix": "State the base as 'origin/main after change 03 (resp. 04) is merged, or a branch stacked on it', and add a verify.sh guard: test -f <dependency file> || exit 2 (BLOCKED: dependency change not present)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-06-ledger-reconciliation/verification.md",
+      "line": 15,
+      "claim": "The reconcile test runs against the operator's installed `prometheus kbd` runtime without a scratch HOME/state constraint, so ledger writes may land in real ~/.prometheus state.",
+      "evidence": "'The test runs against the installed prometheus kbd runtime in a scratch project, never this repository's .kbd-orchestrator.' Only the project dir is scratch; the common 'scratch HOME' constraint is not restated and the runtime ledger location (per-project vs ~/.prometheus) is never specified. The spec also never says where the 'phase plan' change list and the 'canonical runtime ledger' are read from.",
+      "suggested_fix": "Require HOME and PROMETHEUS_* state roots to be scratch in the test, assert real ~/.prometheus mtime unchanged, and name the plan source (change-index.json/plan.md) and the ledger file/CLI that reconcile reads."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-05-query-embedding-cache/verification.md",
+      "line": 11,
+      "claim": "Several spec commitments are unproven or provable-by-vacuity: latency evidence content/ordering, the idle-p95 > 2.0 s stop rule, the 1.10.1 bump, and the hit/miss stats exposure.",
+      "evidence": "Gate has only `test -s docs/perf/query-embedding-latency.md` (any non-empty file passes; the #[ignore] latency test never runs; 'committed before the cache code' is unobservable). A doc showing idle p95 > 2.0 s would still pass although spec says the change must stop. No command checks version 1.10.1 in Cargo.toml/Cargo.lock/openapi. 'Expose cache hits/misses in the existing stats or metrics output' has no acceptance criterion, and no scope file is named for it (grep of origin/main finds no stats surface beyond src/operations.rs OperationStats and palace/adapter.rs; neither is in Scope).",
+      "suggested_fix": "Add grep gates for 'p95' rows and an idle-p95 <= 2.0 parse, version grep for 1.10.1 in the three files, and a test asserting hit/miss counters; name the stats file in Scope and tasks."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-07-cortex-mirror-real-service/spec.md",
+      "line": 21,
+      "claim": "Spec requires both 'locate Cortex via the same discovery as cortex_command' and 'HOME pointing at scratch directories', but cortex_command discovers via Path.home(), so discovery returns [] under scratch HOME.",
+      "evidence": "learning_write.py::cortex_command globs `Path.home()/.claude/plugins/cache/cortex/cortex/*/dist/mcp-server.js` (origin/main:shared/scripts/lib/learning_write.py:342). With HOME scratch the mirror is silently disabled. Criteria 2 and 3 of verification.md (memory.db mtime/size unchanged, nothing under ~/.claude/plugins/cache, exit 2 when model cache absent) are also not in the verify block nor in 'What Changes', and verify.sh itself reads the real ~/.claude/plugins/cache.",
+      "suggested_fix": "Resolve the server path before switching HOME and pass it via PROMETHEUS_CORTEX_MCP; add the before/after memory.db and plugin-cache checks and the absent-model-cache case to the test and spec; document the model-cache probe path."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-08-recall-scoping-and-eval/spec.md",
+      "line": 17,
+      "claim": "The acceptance criterion 'a current-project untagged pk entry is still recalled' has no fixture entry or assertion, and the 'project' scope rule may admit the very foreign ingests it targets.",
+      "evidence": "Fixture description lists 'project lessons, foreign-project untagged entries and global feedback' - no current-project untagged pk entry - while verification.md criterion 2 requires it. pk_allowed admits untagged entries when 'pk scope is project'; assessment finding 4 says the off-topic KnowMe/avatars/Actix entries are legacy ingests, but nowhere is it shown they are not in the project-scope KB. Also 'carry the current project or role scope' is undefined for pk entries, and a threshold set from a fixture the same change authors makes the gate partly circular.",
+      "suggested_fix": "Add a current-project untagged pk entry to the fixture with its own assertion; place the foreign entries in the scope(s) where they actually live and cite where; define the scope-match predicate precisely."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-09-rebase-regenerate/spec.md",
+      "line": 22,
+      "claim": "The shared generated-path set is derived from generate-harness-adapters.js and build:codex outputs, but those scripts are not in Scope/tasks files, and the 'uses the shared set' criterion has no proving command.",
+      "evidence": "Scope lists only generate-skill-system-distribution.js; spec says the set comes from 'the output list of generate-harness-adapters.js, and the build:codex outputs'. On origin/main package.json, build:codex == `node scripts/generate-skill-system-distribution.js` (so spec step 'run generate-skill-system-distribution.js and npm run build:codex' is the same command twice, and validate:codex is its --check), and scripts/build-codex-plugin.js is separate. Verification criterion 4 ('check:distribution ... uses the shared generated-path set') is checked only by running check:distribution, which passes with or without sharing. The temp-clone test's source (this repo? network?) and node_modules availability for running generators are unspecified.",
+      "suggested_fix": "Add generate-harness-adapters.js (and whichever script owns the codex outputs) to Scope/tasks, or have generated-paths.mjs read their emitted manifests; add a grep/import assertion for the sharing criterion; specify the clone source (local path, no network) and how node_modules is provided."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-02-codex-memories-install-and-doctor/spec.md",
+      "line": 19,
+      "claim": "The install hook is added only to install-skills-flat.sh's install_to_codex(), but the primary Node installer (scripts/install-system.js, which analysis.md names as 'the installer') does not call it, so a fresh `prometheus setup` may never apply the setting.",
+      "evidence": "analysis.md: 'The installer is Node (scripts/install-system.js)'. On origin/main install_to_codex is defined/called only in scripts/install-skills-flat.sh, and install-system.js/prometheus-cli do not reference install-skills-flat. Goal 1 is 'install-time automation'; the doctor check would then be Yellow on fresh machines.",
+      "suggested_fix": "Confirm which path `prometheus setup --full` runs and wire the script there too (or document that the doctor Yellow is the sole fallback), with a gated test."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-03-versioned-cadence-refresh-procedure/spec.md",
+      "line": 19,
+      "claim": "Test seams REFRESH_UPDATE_CMD/REFRESH_INSTALL_CMD/REFRESH_KICKSTART_CMD exist only in verification.md; spec 'What Changes' never defines them, and 'verify mode changes nothing', the JSON summary fields, and where the 'installed copy' the shim exec's lives are untested/unspecified.",
+      "evidence": "Spec inputs: `--deploy --state --mode --services` only; verification: 'replaced by recording stubs through REFRESH_*_CMD env overrides'. A real run that inherits stray REFRESH_* env would run arbitrary commands. Shim 'exec's the installed copy' without naming the path. Local-file submodule in the test also needs `-c protocol.file.allow=always` on modern git.",
+      "suggested_fix": "Specify the three override variables (and that they are honoured only when a documented test flag is set), add a verify-mode no-change assertion and a JSON-summary shape assertion, name the installed path, and note the protocol.file.allow handling."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-01-ranked-memory-partition/spec.md",
+      "line": 31,
+      "claim": "No task regenerates dist/plugins/** although every gate runs `npm run check:distribution`, which fails on stale generated output; the same gap applies to changes 02, 03, 04, 06, 07, 08.",
+      "evidence": "Constraints say 'regenerated, never hand-edited' and `dist/plugins/**` appears in Scope/files of the last task, but no task text says 'run npm run build:codex'. Change 01 edits scripts/memory-index-partition.py, which is not obviously mirrored into dist, so the check may be vacuous there while other changes will fail it until built.",
+      "suggested_fix": "Add 'run npm run build:codex and commit dist' to the final task title of each change that touches distributed sources."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlh-01-ranked-memory-partition/spec.md",
+      "line": 14,
+      "claim": "Ranking spec is ambiguous in two spots: 'newest-last within rank 2' versus 'newer first' ordering, and the rank-0 'no phase' behaviour.",
+      "evidence": "'Move lines ... highest-rank-number first, newest-last within rank 2' while rank 2 is 'newer first by date'; 'no phase = rank 0 empty'; kept lines are 'file order within a rank' which contradicts newest-first for rank 2 in the written output. The criteria in verification.md do not pin the rank-2 order.",
+      "suggested_fix": "State move order and output order for rank 2 separately and add a rank-2 ordering assertion to the fixture."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlh-03-versioned-cadence-refresh-procedure/spec.md",
+      "line": 29,
+      "claim": "A new `procedures/` directory is introduced under a skill whose standard layout is scripts/references/assets; validate:strict or distribution may not copy or accept it.",
+      "evidence": "delivery-cadence on origin/main has assets, examples, references, schemas, scripts; no procedures. Spec Scope adds skills/process/delivery-cadence/procedures/refresh-skill-pack.sh.",
+      "suggested_fix": "Put it under scripts/ or confirm distribution and validators include procedures/."
+    }
+  ]
+}

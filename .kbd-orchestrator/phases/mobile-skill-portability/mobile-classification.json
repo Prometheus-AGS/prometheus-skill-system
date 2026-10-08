@@ -386,7 +386,7 @@
       "needs_capabilities": false
     },
     {
-      "skill": "skills/process/zeespec-interrogator",
+      "skill": "skills/process/spec-gate",
       "scripts": 6,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",

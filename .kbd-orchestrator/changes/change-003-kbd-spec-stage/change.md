@@ -19,7 +19,7 @@ scope:
 
 The canonical lifecycle has a Spec stage between Analyze and Plan, but no skill
 owns it; changes are created ad hoc during planning. kbd-spec formalizes change
-creation and is where zeespec coverage gates the lifecycle.
+creation and is where spec-gate coverage gates the lifecycle.
 
 ## Scope
 
@@ -30,9 +30,9 @@ In:
   - Creates native changes (`spec.md` + `tasks.json` + `verification.md` per the
     native-backend layout from change-001) OR emits `/opsx:new <id>` when the
     active backend is openspec.
-  - Reads zeespec coverage when `.zeespec/` exists; records the GO/CAUTION/NO-GO
+  - Reads spec-gate coverage when `.spec-gate/` exists; records the GO/CAUTION/NO-GO
     verdict in its handoff. NO-GO → instruct the operator to run
-    `/zeespec-interrogate` before proceeding (spec→plan gate remediation).
+    `/spec-gate` before proceeding (spec→plan gate remediation).
   - Stage gate (`kbd_stage_gate spec`) + handoff write
     (`kbd_stage_handoff_write spec ...`).
   - Declares Progress Signals (Starting/Completed kbd-spec).
@@ -42,7 +42,7 @@ Out: native backend itself (change-001), analyze stage (change-004).
 
 ## Tasks
 
-- [x] 1. Write kbd-spec/SKILL.md (creation + zeespec gate + stage gate/handoff + signals)
+- [x] 1. Write kbd-spec/SKILL.md (creation + spec-gate gate + stage gate/handoff + signals)
 - [x] 2. Register in KBD SKILL.md lifecycle + Quick Start
 - [x] 3. validate:strict + validate:signals green for the new skill
 

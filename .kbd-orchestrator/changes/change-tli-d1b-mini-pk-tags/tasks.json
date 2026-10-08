@@ -1,0 +1,31 @@
+{
+  "changeId": "change-tli-d1b-mini-pk-tags",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[D1b] Pass --type/--tag from the envelope in deliverToPk when pk ≥ 1.10.0",
+      "done": true,
+      "doneAt": "2026-10-04T22:42:35Z",
+      "doneBy": "claude-code",
+      "files": [
+        "lib/karpathy/transport.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[D1b] Extend transport.test.mjs for both pk versions",
+      "done": true,
+      "doneAt": "2026-10-04T22:43:02Z",
+      "doneBy": "claude-code",
+      "files": [
+        "lib/karpathy/transport.test.mjs",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-d1b-mini-pk-tags/verify.sh",
+      "notes": null
+    }
+  ]
+}

@@ -23,7 +23,7 @@
           "description": "Minimal seeds the caller has — used to seed the research option even when the user is unsure."
         },
         "criticality": { "enum": ["low", "medium", "high", "blocking"] },
-        "caller": { "type": "string", "description": "Stage/skill that raised the request (e.g. kbd-analyze, zeespec-interrogate)." },
+        "caller": { "type": "string", "description": "Stage/skill that raised the request (e.g. kbd-analyze, kbd-plan)." },
         "write_back_path": { "type": "string", "description": "Where the resolved answer should be written by the caller." }
       },
       "additionalProperties": false

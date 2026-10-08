@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-05T15:13:04.183717+00:00",
+  "kind": "owner-selected-source-pin",
+  "selectedRepository": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+  "selectedCommit": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "candidateBase": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "remoteMain": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "selectedSubject": "Merge pull request #158 from Prometheus-AGS/codex/uar-task-acceptance-schema",
+  "selectedPinPreserved": true,
+  "scope": "Companion four Cargo.toml pack git dependencies and planning baseline; not memory-server pin, protected versions approval, completed candidate or deployment proof",
+  "protectedVersionsApproval": "pending explicit patch approval",
+  "sourceStatus": "implementation ongoing; original MAIN dirty and behind is preserved"
+}

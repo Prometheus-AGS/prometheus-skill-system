@@ -79,7 +79,7 @@
 |------|----------|----------|----------------------|
 | `forge package-librefang` Rust subcommand is specified but not compiled | **Medium** | `tools/forge-rs/` spec; stage 6 of `/start-business-build` prints manual fallback | Implement in `phase-librefang-wasm-onramp` (first P0 there) |
 | Old opencode tools (evolve/gitops/kbd) use JSON-schema `parameters` shape, not Zod `tool()` | **Low** | `.opencode/tools/*.ts` | Migrate to `tool()` helper in a future pass; plugin.ts wrappers are a sound bridge |
-| `zeespec-interrogator` scripts are not `chmod +x` | **Low** | `skills/process/zeespec-interrogator/scripts/` | `chmod +x` on first use or add to install script |
+| `spec-gate` scripts are not `chmod +x` | **Low** | `skills/process/spec-gate/scripts/` | `chmod +x` on first use or add to install script |
 | `artifact-refiner` and its sub-skills lack `license:` frontmatter | **Low** | `skills/imported/artifact-refiner/` | Upstream PR to artifact-refiner repo |
 | B2 (native `commands/` dir for slash-commands) deferred | **Low** | `scripts/register-slash-commands.sh` | Target `phase-developer-ux` |
 

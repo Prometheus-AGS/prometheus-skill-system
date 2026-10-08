@@ -1,0 +1,31 @@
+{
+  "changeId": "change-tlh-01-ranked-memory-partition",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[01] Implement rank classification and rank-ordered moving and writing in memory-index-partition.py",
+      "done": true,
+      "doneAt": "2026-10-05T04:45:56Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/memory-index-partition.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[01] Extend test-memory-partition.sh with a ranked fixture (active phase entry last in file, archives first) and an idempotence run",
+      "done": true,
+      "doneAt": "2026-10-05T04:46:31Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/tests/test-memory-partition.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-01-ranked-memory-partition/verify.sh",
+      "notes": null
+    }
+  ]
+}

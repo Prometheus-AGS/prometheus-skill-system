@@ -1,0 +1,7 @@
+# Goals
+
+- Inventory every memory and learning read/write path (surreal-memory, pk scopes, Karpathy session logs, learning log, candidate queues) and the agent identity available at each point in Claude Code and Codex: SubagentStart/SubagentStop/Stop/PreToolUse inputs, agent_type, and the mapping to agent-team roles (.agent-team/<team>/team.json role ids, owns globs, skills)
+- Design a learning envelope that every write carries: project, team, role or agent, owned paths touched, KBD stage, and visibility (agent-private, role, team, project, user, global), mapped onto surreal-memory (user_id, agent_id, categories), pk entries and Karpathy logs
+- Design per-agent recall so each agent receives only the lessons directed to it within a bounded budget, with explicit delivery points (SessionStart, SubagentStart, KBD stage start, prompt) and the surreal-memory -> pk -> file fallback, measured as context bytes per agent versus today
+- Design agent-attributed writes and cross-agent awareness: how an agent's lessons are recalled for that agent next time, and how relevant ones reach other roles or the team lead (digests, routing by owned paths) without flooding every agent
+- Produce the revised implementation plan for PRs 4-13 (memory loop, scopes and promotion, Feynman gaps, skill discovery, cross-team requests) built on this design, with integration gates proving per-agent targeting end to end in both harnesses

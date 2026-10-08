@@ -1,0 +1,79 @@
+[
+  {
+    "name": "prometheus-ui-ux-skills",
+    "path": "skills/ui-ux",
+    "from": "1.0.0",
+    "proposed": "1.0.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "prometheus-react-skills",
+    "path": "skills/react/prometheus-entity-skills",
+    "from": "1.5.0",
+    "proposed": "1.5.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "prometheus-process-skills",
+    "path": "skills/process",
+    "from": "1.7.0",
+    "proposed": "1.7.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "prometheus-devops-skills",
+    "path": "skills/devops",
+    "from": "1.5.0",
+    "proposed": "1.5.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "prometheus-testing-skills",
+    "path": "skills/testing",
+    "from": "1.5.0",
+    "proposed": "1.5.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "learn",
+    "path": "skills/learn",
+    "from": "1.6.0",
+    "proposed": "1.6.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "prometheus-librefang-skills",
+    "path": "skills/rust/librefang-wasm-skill",
+    "from": "1.5.0",
+    "proposed": "1.5.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "cowork-management",
+    "path": "skills/process/cowork-management",
+    "from": "1.0.0",
+    "proposed": "1.0.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "disk-space-guardian",
+    "path": "skills/devops/disk-space-guardian",
+    "from": "1.0.0",
+    "proposed": "1.0.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "prometheus-research-skills",
+    "path": "skills/research",
+    "from": "1.1.0",
+    "proposed": "1.1.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  },
+  {
+    "name": "prometheus-research-server",
+    "path": "substrate/prometheus-research",
+    "from": "1.7.0",
+    "proposed": "1.7.1",
+    "basis": "owned marketplace payload refreshed with umbrella source; independent API/binary versions remain separate"
+  }
+]

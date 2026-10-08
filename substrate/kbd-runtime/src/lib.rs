@@ -577,7 +577,6 @@ pub enum BoundaryKind {
     Task,
     Change,
     Phase,
-    Zeespec,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]

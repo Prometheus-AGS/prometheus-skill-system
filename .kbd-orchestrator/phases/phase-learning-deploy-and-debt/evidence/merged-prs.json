@@ -1,0 +1,18 @@
+[
+  {
+    "mergeCommit": {
+      "oid": "c80baa03887e2e110a9d825de5092d3e65568372"
+    },
+    "mergedAt": "2026-10-05T12:23:19Z",
+    "state": "MERGED",
+    "url": "https://github.com/Prometheus-AGS/prometheus-skill-system/pull/157"
+  },
+  {
+    "mergeCommit": {
+      "oid": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61"
+    },
+    "mergedAt": "2026-10-05T12:25:24Z",
+    "state": "MERGED",
+    "url": "https://github.com/Prometheus-AGS/prometheus-skill-system/pull/158"
+  }
+]

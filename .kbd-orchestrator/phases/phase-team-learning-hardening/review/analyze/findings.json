@@ -1,0 +1,71 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "claude-sonnet (harness-native)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-family-harness-native",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "G2b embedding counts are overstated and the fix is never sized against a measured single-embedding latency.",
+      "evidence": "Analysis says 'one SubagentStart pays for 5 embeddings in series' and option C turns 5 into 3. build_view (learning_recall.py origin/main) issues 'search' for role, lead (lead only), project, user, global and a non-embedding 'recent' GET for team; a non-lead SubagentStart does 4 searches, so C gives 2, not 3. No latency number for one embedding is given, so it is not shown that 1 embedding fits the 2.8 s deadline under load. Option B is rejected as 'unproven' on the same evidence standard.",
+      "suggested_fix": "State per-role embedding counts, measure one query embedding under load on the supervised executor, and make 'SubagentStart meets watchdog' an acceptance measurement rather than an inference from cache hits."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "Option C (user/global scopes via lexical GET) conflicts with goal G3b (recall quality) and is unbounded.",
+      "evidence": "C replaces semantic search for @user/@global (the cross-project GLOBAL lessons) with 'recency plus lexical'. The 'recent' path calls GET /api/v1/memory?user_id&agent_id and sorts client-side, i.e. fetches the whole scope; surreal.rs search_memories carries a comment that fetching the whole scope and ranking client-side 'made the response grow'. The analysis cites no scope-size data for @global/@user.",
+      "suggested_fix": "Make C conditional (only when the server lacks the cache, or only on deadline pressure), bound the GET, and include user/global scopes in the G3b evaluation fixture."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "cand-001 adoption omits async/stampede and key-correctness considerations, and the 0.7.0 'current' claim is unverified.",
+      "evidence": "quick_cache is a sync cache used inside async embed_text; the candidate lists no check of its async guard API for concurrent identical misses. Key '(model id, text)' ignores any query-vs-document prefix and the trait's plan/embed_for_operation path. Evidence is a 'cargo search' string; the date '2026-10' for 0.7.0 is not backed by a source in the packet. Also 'adopt at ^0.6' pins to an old minor while naming 0.7.0 as current.",
+      "suggested_fix": "Add criteria: async miss de-duplication, query-only keying (writes must not populate it), capacity/TTL, and cite the crates.io metadata."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "G1b 'inert' conclusion rests on one prompt-input probe and does not show the summary stays absent.",
+      "evidence": "'the leftover 180 KB MEMORY.md ... are therefore inert: Codex reaches them only through the summary' is drawn from `codex debug prompt-input` with the summary already archived. Nothing shows that generate_memories=false stops Codex consolidating raw_memories.md back into memory_summary.md, or that the model has no tool path to read ~/.codex/memories. cand-006 is verdict 'adopt' with coverage 1.0 on that single probe.",
+      "suggested_fix": "Verify over a real session (summary absent after a run) or cite Codex docs/source for the consolidation trigger; lower coverage_estimate until then."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "Build-vs-adopt gaps: no TOML round-trip editor evaluated for G1b, and no git-native alternatives for G3c.",
+      "evidence": "G1b requires 'merging, never clobbering' ~/.codex/config.toml in a bash 3.2 installer; build_required says 'no external library or tool covers it', but tomlkit/toml_edit/dasel (comment-preserving editors) are not listed or rejected. For G3c only npm-merge-driver is listed; git rerere, .gitattributes merge drivers/`-X` strategies and `git merge-file` are not evaluated. Every build_required entry carries the identical boilerplate 'tier 1 and 3 searched' although tier1 used 1 query and tier3 3 (npm, crates x2) across 9 gaps.",
+      "suggested_fix": "Add candidates with verdicts for comment-preserving TOML editing and git rerere/gitattributes drivers, and replace boilerplate with the actual queries per build item."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "G3c 'take theirs (main)' is wrong for rebase and the generated-path set has no stated source of truth.",
+      "evidence": "'During a conflicted rebase or merge it ... takes \"theirs\" (main)': in `git rebase`, --ours is the upstream (main) and --theirs is the replayed commit; in merge the meaning is reversed. Also 'The set comes from the generators' own output manifests' is asserted without naming a manifest that enumerates all of dist/**, hook bundles, harness manifests.",
+      "suggested_fix": "Specify side semantics per operation (or skip taking a side and regenerate from sources), and name/derive the generated-path list from a concrete file or from the generators' write sets."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "G2a 'adapt' hides that the existing harness needs the MLX executor and is a bash script, and the .mts default port claim is the only part verified.",
+      "evidence": "test-kbd-memory-loop.sh blocks unless /usr/local/bin/surreal-memory-mlx-executor exists and the server is >= 1.10.0, and its server-start logic is inline bash, not an importable helper. Analysis offers 'either uses that harness from a small Node helper or is launched by a wrapper' without picking one, and the new rule 'exits BLOCKED (2) when the binary is absent' makes the envelope suite non-runnable where the executor is absent. memory-envelope.integration.mts does default to :23001 (confirmed).",
+      "suggested_fix": "Pick the wrapper approach, extract the scratch-server start into a shared sourced lib, and state the BLOCKED conditions (executor, version) as acceptance criteria."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "claim": "Constraint coverage: C-05 and the installer-never-aborts rule are not applied to the new scripts.",
+      "evidence": "G1b installer merge, G1c procedure and G3c script are all shell; analysis mentions 'set -euo pipefail' for G1c but not bash 3.2 compatibility (C-05) or the CLAUDE.md rule that an install-step failure must warn, not abort (only the doctor check is said to 'never fail the install').",
+      "suggested_fix": "Add C-05 and a guarded-failure requirement to the G1b/G1c/G3c decisions."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

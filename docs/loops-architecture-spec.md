@@ -262,7 +262,7 @@ Three guards keep it bounded: `max_ticks` (hard ceiling), `max_no_progress_ticks
 
 **Goal:** turn a vague project idea into a structured specification document, with the loop doing the divergent exploration and convergent structuring.
 
-**Topology:** L2 evolver in `research`/`generic` domain (no code execute backend), composing `ideation-mindmap` + `zeespec-interrogator` + `pmpo-elicit`.
+**Topology:** L2 evolver in `research`/`generic` domain (no code execute backend), composing `ideation-mindmap` + `pmpo-elicit`.
 
 **Construction:**
 
@@ -270,8 +270,8 @@ Three guards keep it bounded: `max_ticks` (hard ceiling), `max_no_progress_ticks
 # 1. Diverge: build the idea space as a mindmap (process/ideation-mindmap)
 #    generate_ideation_mindmap / add_mindmap_node|edge via surreal-memory; export to markdown
 
-# 2. Interrogate to remove under-constraint (process/zeespec-interrogator + pmpo-elicit)
-#    the interrogator asks the questions that turn "an app for X" into measurable_criteria
+# 2. Converge to remove under-constraint (process/pmpo-elicit)
+#    elicitation asks the questions that turn "an app for X" into measurable_criteria
 
 # 3. Run the evolver in research domain — landscape analysis feeds the spec
 /evolve "hotseater-v2-ideation"   # domain=research|generic
@@ -450,7 +450,7 @@ A practical daily setup once loops are the default unit of work.
 /evolve "<name>" domain=software phase=full
 
 # Ideation spec
-/evolve "<name>" domain=research        # + ideation-mindmap + zeespec-interrogator + pmpo-elicit
+/evolve "<name>" domain=research        # + ideation-mindmap + pmpo-elicit
 
 # Headless tick (any harness)
 claude  -p "/loop-tick <name>" --max-turns 40 --max-budget-usd 2 --permission-mode dontAsk

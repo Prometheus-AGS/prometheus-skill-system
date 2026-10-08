@@ -1,0 +1,59 @@
+{
+  "changeId": "change-tli-b2-namespaced-subagent-matchers",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[B2] Capture a real Claude SubagentStop payload for an installed iterative-evolver agent in a scratch HOME and commit it as evidence",
+      "done": true,
+      "doneAt": "2026-10-04T04:03:30Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".kbd-orchestrator/phases/team-aware-learning-memory-impl/evidence/b2-claude-iterative-evolver-payload.json"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[B2] Anchor the five Claude groups, add five Codex copies with new ids, and add team-role-guard.sh",
+      "done": true,
+      "doneAt": "2026-10-04T04:04:12Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/harnesses/hook-contract.json",
+        "shared/scripts/team-role-guard.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[B2] Regenerate adapters and dist for the matcher changes",
+      "done": true,
+      "doneAt": "2026-10-04T04:04:52Z",
+      "doneBy": "claude-code",
+      "files": [
+        "hooks/hooks.json",
+        "hooks/codex-hooks.json",
+        "shared/harnesses/generated/*",
+        "shared/scripts/generated/hook-dispatch-v1.sh",
+        "dist/plugins/**"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[B2] Write subagent-matchers.test.mjs (no bare-role match, args preserved, guard behaviour both harnesses)",
+      "done": true,
+      "doneAt": "2026-10-04T04:05:20Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/tests/subagent-matchers.test.mjs"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-b2-namespaced-subagent-matchers/verify.sh",
+      "notes": null
+    }
+  ]
+}

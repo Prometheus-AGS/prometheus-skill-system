@@ -1,0 +1,3061 @@
+[
+  {
+    "path": "/Users/gqadonis/.codex/skills/async-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/async-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/convert-htmx-react",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/convert-htmx-react"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-entity-skills",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/prometheus-entity-skills"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/ui-ux-pro-max",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/ui-ux-pro-max"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-04-collect",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-04-collect"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-plan",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-realtime-surreal-live",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-realtime-surreal-live"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/clone-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/clone-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-retain",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-retain"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/spec-gate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/spec-gate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/native-agent",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/native-agent"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/pyo3-bridge",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/pyo3-bridge"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-child-exit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-child-exit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-evolve",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-evolve"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kreuzberg",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kreuzberg"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-03-retrieve",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-03-retrieve"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-memory-recall",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-memory-recall"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/error-handling",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/error-handling"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/rust-mcp-server-generator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/rust-mcp-server-generator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-grade",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-grade"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/better-interface",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/better-interface"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-status",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/delivery-cadence",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/delivery-cadence"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-apply",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-apply"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/spec-gate-score",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/spec-gate-score"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/spec-gate-status",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/spec-gate-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/bdd-lifecycle-loop",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/bdd-lifecycle-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/gitops-transform",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/gitops-transform"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-survey",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-survey"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/feynman-loop",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/feynman-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-pause",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-pause"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/validate-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/validate-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/evolve-assess",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/evolve-assess"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flutter-build-responsive-layout",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flutter-build-responsive-layout"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-spec",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-spec"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-a2ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flint-sdk-ts",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flint-sdk-ts"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/vercel-react-native-skills",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/vercel-react-native-skills"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-ui-ux",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/prometheus-ui-ux"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/actor-model",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/actor-model"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-rust-auditor",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/prometheus-rust-auditor"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/explain-interface",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/explain-interface"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/artifact-refiner",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/artifact-refiner"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-resume",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-resume"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-doctor",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-doctor"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/agent-team-models",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/agent-team-models"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/impeccable",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-06-resolve",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-06-resolve"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/full-output-enforcement",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/full-output-enforcement"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-plan",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/design-taste-frontend-v1",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/design-taste-frontend-v1"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-init",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-init"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-gql-hooks",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-gql-hooks"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/argocd-multicloud",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/argocd-multicloud"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/validate-idea",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/validate-idea"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/web-design-guidelines",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/web-design-guidelines"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-context-bootstrap",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/prometheus-context-bootstrap"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-harness",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-harness"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/pmpo-elicit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/pmpo-elicit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-init",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-init"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-next-child",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-next-child"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-09-report",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-09-report"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/karpathy-tokenizer",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/karpathy-tokenizer"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/pmpo-skill-creator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/pmpo-skill-creator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-prisma-generator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-prisma-generator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/scaffold-react-vite-tauri",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/scaffold-react-vite-tauri"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-new-child",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-new-child"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/iterative-evolver",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/iterative-evolver"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/android-edge-to-edge",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/android-edge-to-edge"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/scaffold-react-vite",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/scaffold-react-vite"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-process-orchestrator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/interface-review",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/interface-review"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-gc",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-gc"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/deep-research",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/deep-research"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/mcp-server",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/mcp-server"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/better-colors",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/better-colors"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/spec-gate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/spec-gate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/go-base-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/go-base-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/pmpo-evolver",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/pmpo-evolver"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/rust-best-practices",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/rust-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-cancel",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-cancel"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flutter-rust-ffi",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flutter-rust-ffi"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-realtime-local-first",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-realtime-local-first"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/ideation-mindmap",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/ideation-mindmap"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/better-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/better-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-ui-review",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/prometheus-ui-review"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-optimize",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-optimize"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/extend-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/extend-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/evolve-report",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/evolve-report"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stitch-design-taste",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stitch-design-taste"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/evolve-plan",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/evolve-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flint-sdk-csharp",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flint-sdk-csharp"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/better-typography",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/better-typography"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-mcp-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-mcp-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/convert-md-to-htmx",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/convert-md-to-htmx"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/karpathy-progress-memory",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/karpathy-progress-memory"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/scaffold-react-vite-agui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/scaffold-react-vite-agui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/disk-space-guardian",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/disk-space-guardian"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-realtime-channel",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-realtime-channel"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/industrial-brutalist-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/industrial-brutalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-rust-workspace",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/prometheus-rust-workspace"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/bdd-video-proof",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/bdd-video-proof"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/evolve",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/evolve"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/swiftui-pro",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/swiftui-pro"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/librefang-wasm-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/librefang-wasm-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/android-compose-adaptive",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/android-compose-adaptive"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/htmx-alpine-lit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/htmx-alpine-lit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/better-accessibility",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/better-accessibility"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/bdd-testing",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/bdd-testing"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-reflect",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-reflect"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-goal-check",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-goal-check"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/adversarial-review",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/adversarial-review"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-perf",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-perf"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/sync-push",
+    "generation": "176ae56abed4aab8ea15b2c91b7a692ca326565b91f7d452ac4c69e4b3db3ab4",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/sync-push"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/expo-design-system",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/expo-design-system"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-graphql",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-graphql"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-moodboard",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-moodboard"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/ui-surface",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/ui-surface"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flutter-setup-declarative-routing",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flutter-setup-declarative-routing"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/agent-team-handoff",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/agent-team-handoff"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/expo-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/expo-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/better-layout",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/better-layout"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-gql-subscription",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-gql-subscription"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flint-sdk-dart",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flint-sdk-dart"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/rust-async-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/rust-async-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-prisma-setup",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-prisma-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/bdd-cucumber-rs",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/bdd-cucumber-rs"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/scaffold-react-vite-a2ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/scaffold-react-vite-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-practice",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-practice"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-crud-form",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-crud-form"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-crud-relations",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-crud-relations"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/create-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/create-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flint-sdk-swift",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flint-sdk-swift"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/expo-animation",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/expo-animation"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-crud-page",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-crud-page"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-07-graph",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-07-graph"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-10-export",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-10-export"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-setup",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/pmpo-outer-loop",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/pmpo-outer-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/cowork-management",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/cowork-management"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-analyze",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-analyze"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-new-phase",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-new-phase"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/rebrand-artifact",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/rebrand-artifact"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/workspace-structure",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/workspace-structure"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flutter-fix-layout-issues",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flutter-fix-layout-issues"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-01-planner",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-01-planner"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/bdd-cucumber-js",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/bdd-cucumber-js"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-image",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-image"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/evolve-analyze",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/evolve-analyze"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/design-taste-frontend",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/design-taste-frontend"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-realtime-setup",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-realtime-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-audit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-audit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-validate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-validate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-migrate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-migrate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/fabric-integration",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/fabric-integration"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/convert-htmx-pdf",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/convert-htmx-pdf"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/llm-wiki",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/llm-wiki"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-crud-table",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-crud-table"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-05-verify",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-05-verify"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-goal",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-goal"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/variant",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/variant"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-gql-setup",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-gql-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-loop",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-next-phase",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-next-phase"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-detect",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-detect"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/liter-llm-bridge",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/liter-llm-bridge"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/expo-native-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/expo-native-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flint-sdk-kotlin",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flint-sdk-kotlin"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/agent-team-creator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/agent-team-creator"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-certify",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-certify"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/sync-peers",
+    "generation": "176ae56abed4aab8ea15b2c91b7a692ca326565b91f7d452ac4c69e4b3db3ab4",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/sync-peers"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/typescript-base-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/typescript-base-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/create-native-agent",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/create-native-agent"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-02-search",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-02-search"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kustomize-overlay",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kustomize-overlay"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/better-writing",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/better-writing"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-realtime",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-realtime"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-inject-agent-rules",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-inject-agent-rules"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-about-system",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-about-system"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/minimalist-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/minimalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/break",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/break"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/gpt-taste",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/gpt-taste"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-kb",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-kb"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/design-svg-logo",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/design-svg-logo"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/vercel-react-best-practices",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/vercel-react-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/high-end-visual-design",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/high-end-visual-design"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/clean-architecture",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/clean-architecture"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/performance",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/performance"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/tauri-react-vite",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/tauri-react-vite"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/evolve-execute",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/evolve-execute"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/react-vite-stack",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/react-vite-stack"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/axum-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/axum-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-prisma-api",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-prisma-api"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/evolve-status",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/evolve-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-status",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-logo",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-logo"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/expo-router",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/expo-router"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/sync-status",
+    "generation": "176ae56abed4aab8ea15b2c91b7a692ca326565b91f7d452ac4c69e4b3db3ab4",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/sync-status"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/refine-content",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/refine-content"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/vercel-composition-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/vercel-composition-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/redesign-existing-projects",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/redesign-existing-projects"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-prisma",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-prisma"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/gitops-bootstrap",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/gitops-bootstrap"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/upload-to-bossfang",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/upload-to-bossfang"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-execute",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-execute"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-graph-crud",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-graph-crud"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-assess",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-assess"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flutter-setup-localization",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flutter-setup-localization"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/flint-sdk-go",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/flint-sdk-go"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/agent-team-manage",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/agent-team-manage"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/scaffold-flutter-a2ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/scaffold-flutter-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/start-business-build",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/start-business-build"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-audit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-audit"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/stage-08-cite",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/stage-08-cite"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/sycophancy-correction",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/sycophancy-correction"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/kbd-bottleneck-detector",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/kbd-bottleneck-detector"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/entity-prisma-migrate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/entity-prisma-migrate"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/learn-goal",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/learn-goal"
+  },
+  {
+    "path": "/Users/gqadonis/.codex/skills/prometheus-impeccable-core",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.codex/skills/prometheus-impeccable-core"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/async-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/async-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/convert-htmx-react",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/convert-htmx-react"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-entity-skills",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/prometheus-entity-skills"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/ui-ux-pro-max",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/ui-ux-pro-max"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-04-collect",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-04-collect"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-plan",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-realtime-surreal-live",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-realtime-surreal-live"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/clone-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/clone-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-retain",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-retain"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/spec-gate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/spec-gate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/native-agent",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/native-agent"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/pyo3-bridge",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/pyo3-bridge"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-child-exit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-child-exit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-evolve",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-evolve"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kreuzberg",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kreuzberg"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-03-retrieve",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-03-retrieve"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-memory-recall",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-memory-recall"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/error-handling",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/error-handling"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/rust-mcp-server-generator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/rust-mcp-server-generator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-grade",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-grade"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/better-interface",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/better-interface"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-status",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-status"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/delivery-cadence",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/delivery-cadence"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-apply",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-apply"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/spec-gate-score",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/spec-gate-score"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/spec-gate-status",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/spec-gate-status"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/bdd-lifecycle-loop",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/bdd-lifecycle-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/gitops-transform",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/gitops-transform"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-survey",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-survey"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/feynman-loop",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/feynman-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-pause",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-pause"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/validate-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/validate-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/evolve-assess",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/evolve-assess"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flutter-build-responsive-layout",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flutter-build-responsive-layout"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-spec",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-spec"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-a2ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flint-sdk-ts",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flint-sdk-ts"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/vercel-react-native-skills",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/vercel-react-native-skills"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-ui-ux",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/prometheus-ui-ux"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/actor-model",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/actor-model"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-rust-auditor",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/prometheus-rust-auditor"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/explain-interface",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/explain-interface"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/artifact-refiner",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/artifact-refiner"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-resume",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-resume"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-doctor",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-doctor"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/agent-team-models",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/agent-team-models"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/impeccable",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/impeccable"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-06-resolve",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-06-resolve"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/full-output-enforcement",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/full-output-enforcement"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-plan",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/design-taste-frontend-v1",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/design-taste-frontend-v1"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-init",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-init"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-gql-hooks",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-gql-hooks"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/argocd-multicloud",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/argocd-multicloud"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/validate-idea",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/validate-idea"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/web-design-guidelines",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/web-design-guidelines"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-context-bootstrap",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/prometheus-context-bootstrap"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-harness",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-harness"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/pmpo-elicit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/pmpo-elicit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-init",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-init"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-next-child",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-next-child"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-09-report",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-09-report"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/karpathy-tokenizer",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/karpathy-tokenizer"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/pmpo-skill-creator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/pmpo-skill-creator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-prisma-generator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-prisma-generator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/scaffold-react-vite-tauri",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/scaffold-react-vite-tauri"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-new-child",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-new-child"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/iterative-evolver",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/iterative-evolver"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/android-edge-to-edge",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/android-edge-to-edge"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/scaffold-react-vite",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/scaffold-react-vite"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-process-orchestrator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-process-orchestrator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/interface-review",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/interface-review"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-gc",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-gc"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/deep-research",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/deep-research"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/mcp-server",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/mcp-server"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/better-colors",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/better-colors"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/spec-gate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/spec-gate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/go-base-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/go-base-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/pmpo-evolver",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/pmpo-evolver"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/rust-best-practices",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/rust-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-cancel",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-cancel"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flutter-rust-ffi",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flutter-rust-ffi"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-realtime-local-first",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-realtime-local-first"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/ideation-mindmap",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/ideation-mindmap"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/better-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/better-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-ui-review",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/prometheus-ui-review"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-optimize",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-optimize"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/extend-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/extend-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/evolve-report",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/evolve-report"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stitch-design-taste",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stitch-design-taste"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/evolve-plan",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/evolve-plan"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flint-sdk-csharp",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flint-sdk-csharp"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/better-typography",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/better-typography"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-mcp-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-mcp-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/convert-md-to-htmx",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/convert-md-to-htmx"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/karpathy-progress-memory",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/karpathy-progress-memory"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/scaffold-react-vite-agui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/scaffold-react-vite-agui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/disk-space-guardian",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/disk-space-guardian"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-realtime-channel",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-realtime-channel"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/industrial-brutalist-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/industrial-brutalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-rust-workspace",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/prometheus-rust-workspace"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/bdd-video-proof",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/bdd-video-proof"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/evolve",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/evolve"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/swiftui-pro",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/swiftui-pro"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/librefang-wasm-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/librefang-wasm-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/android-compose-adaptive",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/android-compose-adaptive"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/htmx-alpine-lit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/htmx-alpine-lit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/better-accessibility",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/better-accessibility"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/bdd-testing",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/bdd-testing"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-reflect",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-reflect"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-goal-check",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-goal-check"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/adversarial-review",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/adversarial-review"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-perf",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-perf"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/expo-design-system",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/expo-design-system"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-graphql",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-graphql"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-moodboard",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-moodboard"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/ui-surface",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/ui-surface"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flutter-setup-declarative-routing",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flutter-setup-declarative-routing"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/agent-team-handoff",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/agent-team-handoff"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/expo-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/expo-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/better-layout",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/better-layout"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-gql-subscription",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-gql-subscription"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flint-sdk-dart",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flint-sdk-dart"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/rust-async-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/rust-async-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-prisma-setup",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-prisma-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/bdd-cucumber-rs",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/bdd-cucumber-rs"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/scaffold-react-vite-a2ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/scaffold-react-vite-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-practice",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-practice"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-crud-form",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-crud-form"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-crud-relations",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-crud-relations"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/create-skill",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/create-skill"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flint-sdk-swift",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flint-sdk-swift"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/expo-animation",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/expo-animation"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-crud-page",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-crud-page"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-07-graph",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-07-graph"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-10-export",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-10-export"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-setup",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/pmpo-outer-loop",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/pmpo-outer-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/cowork-management",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/cowork-management"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-analyze",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-analyze"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-new-phase",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-new-phase"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/rebrand-artifact",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/rebrand-artifact"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/workspace-structure",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/workspace-structure"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flutter-fix-layout-issues",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flutter-fix-layout-issues"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-01-planner",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-01-planner"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/bdd-cucumber-js",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/bdd-cucumber-js"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-image",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-image"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/evolve-analyze",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/evolve-analyze"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/design-taste-frontend",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/design-taste-frontend"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-realtime-setup",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-realtime-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-audit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-audit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-validate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-validate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-migrate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-migrate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/fabric-integration",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/fabric-integration"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/convert-htmx-pdf",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/convert-htmx-pdf"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/llm-wiki",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/llm-wiki"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-crud-table",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-crud-table"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-05-verify",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-05-verify"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-goal",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-goal"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/variant",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/variant"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-gql-setup",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-gql-setup"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-loop",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-loop"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-next-phase",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-next-phase"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-detect",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-detect"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/liter-llm-bridge",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/liter-llm-bridge"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/expo-native-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/expo-native-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flint-sdk-kotlin",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flint-sdk-kotlin"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/agent-team-creator",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/agent-team-creator"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-certify",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-certify"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/typescript-base-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/typescript-base-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/create-native-agent",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/create-native-agent"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-02-search",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-02-search"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kustomize-overlay",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kustomize-overlay"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/better-writing",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/better-writing"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-realtime",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-realtime"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-inject-agent-rules",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-inject-agent-rules"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-about-system",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-about-system"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/minimalist-ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/minimalist-ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/break",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/break"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/gpt-taste",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/gpt-taste"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-kb",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-kb"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/design-svg-logo",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/design-svg-logo"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/vercel-react-best-practices",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/vercel-react-best-practices"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/high-end-visual-design",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/high-end-visual-design"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/clean-architecture",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/clean-architecture"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/performance",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/performance"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/tauri-react-vite",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/tauri-react-vite"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/evolve-execute",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/evolve-execute"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/react-vite-stack",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/react-vite-stack"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/axum-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/axum-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-prisma-api",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-prisma-api"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/evolve-status",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/evolve-status"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-status",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-status"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-logo",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-logo"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/expo-router",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/expo-router"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/refine-content",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/refine-content"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/vercel-composition-patterns",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/vercel-composition-patterns"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/redesign-existing-projects",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/redesign-existing-projects"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-prisma",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-prisma"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/gitops-bootstrap",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/gitops-bootstrap"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/upload-to-bossfang",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/upload-to-bossfang"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-execute",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-execute"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-graph-crud",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-graph-crud"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-assess",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-assess"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flutter-setup-localization",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flutter-setup-localization"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/flint-sdk-go",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/flint-sdk-go"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/agent-team-manage",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/agent-team-manage"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/scaffold-flutter-a2ui",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/scaffold-flutter-a2ui"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/start-business-build",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/start-business-build"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-audit",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-audit"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/stage-08-cite",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/stage-08-cite"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/sycophancy-correction",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/sycophancy-correction"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/kbd-bottleneck-detector",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/kbd-bottleneck-detector"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/entity-prisma-migrate",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/entity-prisma-migrate"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/learn-goal",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/learn-goal"
+  },
+  {
+    "path": "/Users/gqadonis/.minimax/skills/prometheus-impeccable-core",
+    "generation": "818cfdbf6cb02f77ef62400f6a9f8de989e04980bba6dabdd3446ff6d51a265c",
+    "matches_owner": true,
+    "differences": [],
+    "archived": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/skill-copies/.minimax/skills/prometheus-impeccable-core"
+  }
+]

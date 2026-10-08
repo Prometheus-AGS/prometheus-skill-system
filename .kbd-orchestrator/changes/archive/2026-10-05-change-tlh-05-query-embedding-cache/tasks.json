@@ -1,0 +1,51 @@
+{
+  "changeId": "change-tlh-05-query-embedding-cache",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[05] Write the ignored latency integration test, run it on this machine, and commit docs/perf/query-embedding-latency.md (stop and report if idle p95 > 2.0 s)",
+      "done": true,
+      "doneAt": "2026-10-05T05:14:54Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/surreal-memory/tests/query_embedding_latency.rs",
+        "docs/perf/query-embedding-latency.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[05] Add the bounded query-path embedding cache with miss de-duplication and hit/miss stats",
+      "done": true,
+      "doneAt": "2026-10-05T06:36:44Z",
+      "doneBy": "claude-code",
+      "files": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "crates/surreal-memory/Cargo.toml",
+        "crates/surreal-memory/src/storage/surreal.rs",
+        "src/operations.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[05] Add the query_embedding_cache and root query_embed_cache_stats integration tests and bump to 1.10.1 (Cargo.toml, Cargo.lock, openapi)",
+      "done": true,
+      "doneAt": "2026-10-05T06:37:19Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/surreal-memory/tests/query_embedding_cache.rs",
+        "tests/query_embed_cache_stats.rs",
+        "Cargo.toml",
+        "Cargo.lock",
+        "openapi/surreal-memory-v2.openapi.json"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-05-query-embedding-cache/verify.sh",
+      "notes": null
+    }
+  ]
+}

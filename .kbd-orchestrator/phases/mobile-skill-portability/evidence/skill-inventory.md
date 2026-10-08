@@ -47,7 +47,7 @@ Command: find skills -name SKILL.md -not -path '*/tests/*' -not -path '*/fixture
 - skills/process/pmpo-evolver (8 scripts)
 - skills/process/pmpo-outer-loop (1 scripts)
 - skills/process/pmpo-skill-creator (6 scripts)
-- skills/process/zeespec-interrogator (6 scripts)
+- skills/process/spec-gate (6 scripts)
 - skills/react/prometheus-entity-skills/entity-graph-crud (2 scripts)
 - skills/react/prometheus-entity-skills/entity-graph-graphql (2 scripts)
 - skills/react/prometheus-entity-skills/entity-graph-optimize (2 scripts)

@@ -81,7 +81,7 @@ Three Rust skills exist specifically so that the things the pack generates are t
 - **workspace-structure** encodes the multi-crate layout (`*-core`/`*-store`/`*-librarian`/`*-mcp`/`*-cli`) that every generated tool workspace uses.
 - **librefang-wasm-skill** encodes the WASM-ABI skill shape for sandboxed, capability-checked execution.
 
-The result is a closed loop at the toolchain level: the pack uses Rust skills to generate Rust tools that the loops depend on, audits them with `prometheus-rust-auditor`, and — when a generated skill proves useful — promotes it through the human-gated update flow. The `start-business-build` pipeline chains the whole sequence: ideation-mindmap → zeespec-interrogator → skill/agent generation → validation. That is dynamic creation of agents, skills, and native tools, end to end.
+The result is a closed loop at the toolchain level: the pack uses Rust skills to generate Rust tools that the loops depend on, audits them with `prometheus-rust-auditor`, and — when a generated skill proves useful — promotes it through the human-gated update flow. The `start-business-build` pipeline chains the whole sequence: ideation-mindmap → iterative-evolver → skill/agent generation → validation. That is dynamic creation of agents, skills, and native tools, end to end.
 
 ## Generation ends before evidence-producing execution
 

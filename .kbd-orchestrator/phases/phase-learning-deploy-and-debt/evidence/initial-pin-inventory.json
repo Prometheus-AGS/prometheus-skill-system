@@ -1,0 +1,74 @@
+[
+  {
+    "repository": "full",
+    "path": "skills/imported/artifact-refiner",
+    "committed_pin": "18d000f3e46952418f682159b227dbf71ce61dcb",
+    "local_origin_main": "18d000f3e46952418f682159b227dbf71ce61dcb"
+  },
+  {
+    "repository": "full",
+    "path": "skills/imported/prometheus-entity-management",
+    "committed_pin": "d1588d8c93cc267774d1911e8bd53bd3918a7f12",
+    "local_origin_main": "d1588d8c93cc267774d1911e8bd53bd3918a7f12"
+  },
+  {
+    "repository": "full",
+    "path": "skills/imported/sycophancy-correction",
+    "committed_pin": "bc348fffb4b622c142c1082b281dd2f44b74d37b",
+    "local_origin_main": "bc348fffb4b622c142c1082b281dd2f44b74d37b"
+  },
+  {
+    "repository": "full",
+    "path": "tools/cowork-skills",
+    "committed_pin": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+    "local_origin_main": "77edcf8a49237dc9b8f6733e794c48fa4e6da832"
+  },
+  {
+    "repository": "full",
+    "path": "tools/disk-space-guardian",
+    "committed_pin": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+    "local_origin_main": "26487db64d5c44b00b57d19a649a82632dfe94d3"
+  },
+  {
+    "repository": "full",
+    "path": "tools/liter-llm",
+    "committed_pin": "12a2fae9675e34b88e9373caa2bca9959f416493",
+    "local_origin_main": "12a2fae9675e34b88e9373caa2bca9959f416493"
+  },
+  {
+    "repository": "full",
+    "path": "tools/openai-proxy",
+    "committed_pin": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
+    "local_origin_main": "ad32f5dc1f676dc1b40b01de8a4f043a6ee6928d"
+  },
+  {
+    "repository": "full",
+    "path": "tools/prometheus-knowledge",
+    "committed_pin": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+    "local_origin_main": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef"
+  },
+  {
+    "repository": "full",
+    "path": "tools/surreal-memory-server",
+    "committed_pin": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+    "local_origin_main": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1"
+  },
+  {
+    "repository": "mini",
+    "path": "tools/liter-llm",
+    "committed_pin": "12a2fae9675e34b88e9373caa2bca9959f416493",
+    "local_origin_main": "12a2fae9675e34b88e9373caa2bca9959f416493"
+  },
+  {
+    "repository": "mini",
+    "path": "tools/prometheus-knowledge",
+    "committed_pin": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+    "local_origin_main": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef"
+  },
+  {
+    "repository": "mini",
+    "path": "tools/surreal-memory-server",
+    "committed_pin": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+    "local_origin_main": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1"
+  }
+]

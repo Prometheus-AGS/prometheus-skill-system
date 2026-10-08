@@ -26,7 +26,7 @@ Goals G1 and G2 are **partially met**. Goals G3, G4, and G5 are **not met**.
 | Artifact | Status | Notes |
 |----------|--------|-------|
 | `SKILL.md` | EXISTS — solid | 4 option classes, budget guards, inline-fallback mode, progress signals. Passes `validate:strict` clean. |
-| `references/integration-contract.md` | EXISTS | Documents caller protocol (kbd-analyze, zeespec-interrogate, kbd-capability). Caller → `request.json`; pmpo-elicit → `result.json`. |
+| `references/integration-contract.md` | EXISTS | Documents caller protocol (kbd-analyze, spec-gate, kbd-capability). Caller → `request.json`; pmpo-elicit → `result.json`. |
 | `references/schemas/elicitation.schema.json` | EXISTS | Complete: request + result, provenance enum (user/source/research/implicit), confidence, evidence, cost fields. |
 | `references/schemas/elicit.schema.json` | MISSING | `current-waypoint.json → scoped_paths` expected this name; `elicitation.schema.json` exists instead. Not a blocker — name in SKILL.md matches existing file. |
 | `references/escalation-points.md` | MISSING | Platform-agnostic guide for when each KBD stage triggers elicitation. Not created yet. |

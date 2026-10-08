@@ -211,10 +211,10 @@ Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8m
 Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/vercel-react-native-skills: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
 Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/web-design-guidelines: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
 Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/workspace-structure: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
-Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/zeespec-interrogate: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
-Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/zeespec-interrogator: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
-Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/zeespec-score: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
-Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/zeespec-status: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
+Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/spec-gate: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
+Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/spec-gate: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
+Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/spec-gate-score: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
+Preserving unverified copy /private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/codex/skills/spec-gate-status: ENOENT: no such file or directory, lstat '/private/tmp/ldd-local-o6r1eblg/hook-bytecode-q1yyq8mj/store-codex/generations/9a89dd41f75557e1eb14007dfd168f5fddfba2d69fe5d110903dd65bca9f9edc'
 
 install-plugin-generation: 217 skill(s) could not be installed at their canonical name.
 These skills are on disk under a "prometheus-" prefix and are NOT reachable
@@ -859,18 +859,18 @@ at the name tools search for.
   COLLISION  ~/../codex/skills/workspace-structure
             occupied by: unowned directory, mtime 2026-10-05
             installed as: prometheus-workspace-structure
-  COLLISION  ~/../codex/skills/zeespec-interrogate
+  COLLISION  ~/../codex/skills/spec-gate
             occupied by: unowned directory, mtime 2026-10-05
-            installed as: prometheus-zeespec-interrogate
-  COLLISION  ~/../codex/skills/zeespec-interrogator
+            installed as: prometheus-spec-gate
+  COLLISION  ~/../codex/skills/spec-gate
             occupied by: unowned directory, mtime 2026-10-05
-            installed as: prometheus-zeespec-interrogator
-  COLLISION  ~/../codex/skills/zeespec-score
+            installed as: prometheus-spec-gate
+  COLLISION  ~/../codex/skills/spec-gate-score
             occupied by: unowned directory, mtime 2026-10-05
-            installed as: prometheus-zeespec-score
-  COLLISION  ~/../codex/skills/zeespec-status
+            installed as: prometheus-spec-gate-score
+  COLLISION  ~/../codex/skills/spec-gate-status
             occupied by: unowned directory, mtime 2026-10-05
-            installed as: prometheus-zeespec-status
+            installed as: prometheus-spec-gate-status
 
 Remediation — move each occupant aside, then reinstall:
   mv ~/../codex/skills/actor-model{,.foreign-$(date +%Y%m%d)}
@@ -1086,10 +1086,10 @@ Remediation — move each occupant aside, then reinstall:
   mv ~/../codex/skills/vercel-react-native-skills{,.foreign-$(date +%Y%m%d)}
   mv ~/../codex/skills/web-design-guidelines{,.foreign-$(date +%Y%m%d)}
   mv ~/../codex/skills/workspace-structure{,.foreign-$(date +%Y%m%d)}
-  mv ~/../codex/skills/zeespec-interrogate{,.foreign-$(date +%Y%m%d)}
-  mv ~/../codex/skills/zeespec-interrogator{,.foreign-$(date +%Y%m%d)}
-  mv ~/../codex/skills/zeespec-score{,.foreign-$(date +%Y%m%d)}
-  mv ~/../codex/skills/zeespec-status{,.foreign-$(date +%Y%m%d)}
+  mv ~/../codex/skills/spec-gate{,.foreign-$(date +%Y%m%d)}
+  mv ~/../codex/skills/spec-gate{,.foreign-$(date +%Y%m%d)}
+  mv ~/../codex/skills/spec-gate-score{,.foreign-$(date +%Y%m%d)}
+  mv ~/../codex/skills/spec-gate-status{,.foreign-$(date +%Y%m%d)}
   node scripts/install.js --scope user
 
 install-plugin-generation: 217 skill(s) not installed at canonical name

@@ -1,0 +1,19 @@
+--check exits non-zero and names the stale output once a packaged file is tampered with
+--check mode (check: true) reports no drift against output it just wrote and writes nothing new
+--check mode detects drift when the packaged output differs from a fresh build
+a hooks.json referencing a file that does not exist fails the build rather than shipping a broken hook
+an .mcp.json containing a literal Tavily API key fails the build
+an .mcp.json containing the source root as a literal path fails the build
+detectBackend scoped to a change resolves openspec only when the openspec CLI is present
+generateDistribution writes both plugin packages with the skill payload and manifests
+hooks.json and every file it references are copied into the Claude package only
+marketplace.json files carry a single self-referencing plugin entry with the release version
+running the generator against a clean fixture, then --check, exits 0 with no drift reported
+the CLI runs through the current node executable with no shell
+the CLI runs with an emptied PATH, proving no global install is used
+the Claude manifest has no hooks field and points skills/mcpServers at relative paths
+the Codex manifest carries an interface block and no hooks field
+the OpenSpec CLI is pinned to an exact version and is the only dependency
+the default spawner runs the local OpenSpec through its JavaScript entry, with no PATH
+the pinned OpenSpec CLI runs from its JavaScript entry without a global install
+validation passes on this repository and reports the totals

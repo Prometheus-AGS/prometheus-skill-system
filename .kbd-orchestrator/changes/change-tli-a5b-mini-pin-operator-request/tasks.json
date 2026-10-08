@@ -1,0 +1,38 @@
+{
+  "changeId": "change-tli-a5b-mini-pin-operator-request",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[A5b] Write the operator pin request with exact commits and versions.toml diff",
+      "done": true,
+      "doneAt": "2026-10-04T22:24:26Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".kbd-orchestrator/phases/team-aware-learning-memory-impl/evidence/a5b-pin-request.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[A5b] File the request as an operator-labelled issue in prometheus-skills-mini (after user confirmation)",
+      "done": true,
+      "doneAt": "2026-10-04T22:24:53Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[A5b] Operator lands the mini pin commit (owner: operator; agent re-checks)",
+      "done": true,
+      "doneAt": "2026-10-04T22:25:29Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-a5b-mini-pin-operator-request/verify.sh",
+      "notes": null
+    }
+  ]
+}

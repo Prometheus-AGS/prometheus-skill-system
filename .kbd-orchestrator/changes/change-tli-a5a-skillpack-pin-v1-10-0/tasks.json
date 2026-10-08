@@ -1,0 +1,53 @@
+{
+  "changeId": "change-tli-a5a-skillpack-pin-v1-10-0",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[A5a] Bump versions to 1.10.0 and tag v1.10.0 in prometheus-knowledge-rs and surreal-memory-server after A1-A4 merge (confirm before pushing tags)",
+      "done": true,
+      "doneAt": "2026-10-04T11:11:58Z",
+      "doneBy": "claude-code",
+      "files": [
+        "prometheus-knowledge-rs:Cargo.toml",
+        "prometheus-knowledge-rs:Cargo.lock",
+        "surreal-memory-server:Cargo.toml",
+        "surreal-memory-server:Cargo.lock"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[A5a] Move the two gitlinks, skill-system.json import commits and pk-* Cargo tag pins to v1.10.0",
+      "done": true,
+      "doneAt": "2026-10-04T13:06:38Z",
+      "doneBy": "claude-code",
+      "files": [
+        "tools/prometheus-knowledge",
+        "tools/surreal-memory-server",
+        "skill-system.json",
+        "tools/prometheus-cli/Cargo.toml",
+        "tools/prometheus-cli/Cargo.lock",
+        "tools/forge-rs/Cargo.toml",
+        "tools/forge-rs/Cargo.lock"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[A5a] Update the release version matrix and installation docs to 1.10.0",
+      "done": true,
+      "doneAt": "2026-10-04T13:07:40Z",
+      "doneBy": "claude-code",
+      "files": [
+        "config/release-version-matrix.json",
+        "docs/guide/19-installation.md",
+        "site/docs/operations/installation-and-upgrades.md"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-a5a-skillpack-pin-v1-10-0/verify.sh",
+      "notes": null
+    }
+  ]
+}

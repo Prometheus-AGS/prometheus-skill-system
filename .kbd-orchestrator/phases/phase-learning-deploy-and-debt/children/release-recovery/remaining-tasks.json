@@ -1,0 +1,86 @@
+[
+  {
+    "phase": "control-plane-to-companion",
+    "change": "change-cpc-008-sync-skills-plugin",
+    "task": "2",
+    "title": "Add the Companion installer step that registers the MCP stdio binary and skills per the declaration",
+    "status": "pending"
+  },
+  {
+    "phase": "control-plane-to-companion",
+    "change": "change-cpc-009-pack-removal",
+    "task": "4",
+    "title": "Update site/docs, docs/codex-plugin.md, and CLAUDE.md; regenerate plugin surfaces; run validate:codex and the footprint check",
+    "status": "in_progress"
+  },
+  {
+    "phase": "deep-research-onyx-parity",
+    "change": "change-drt-003-director-worker-agents",
+    "task": "6",
+    "title": "Regenerate the distribution after editing run-research.sh and pass check:distribution and validate:codex in this change (C-01; a desynced driver is defect D-B)",
+    "status": "pending"
+  },
+  {
+    "phase": "deep-research-onyx-parity",
+    "change": "change-drt-004-deterministic-merge",
+    "task": "1",
+    "title": "Implement scripts/merge-threads.sh: union sources by canonical URL into the existing stage 02/04 shapes, chunks into stage 03, claims by content-addressed id, and write citation-map.json",
+    "status": "in_progress"
+  },
+  {
+    "phase": "deep-research-onyx-parity",
+    "change": "change-drt-006-bench-and-metrics",
+    "task": "1",
+    "title": "Vendor the adopted criteria, English criteria prompt, and a 10-task query subset pinned at upstream commit 469cce54; write ATTRIBUTION.md per Apache-2.0",
+    "status": "in_progress"
+  },
+  {
+    "phase": "phase-learning-deploy-and-debt",
+    "change": "change-ldd-03-published-memory-pins",
+    "task": "2",
+    "title": "Freeze exact compatible release identities and obtain protected-edit and tag approvals",
+    "status": "in_progress"
+  },
+  {
+    "phase": "phase-learning-deploy-and-debt",
+    "change": "change-ldd-03-published-memory-pins",
+    "task": "3",
+    "title": "Apply approved final gitlinks and coherent version declarations",
+    "status": "in_progress"
+  },
+  {
+    "phase": "phase-learning-deploy-and-debt",
+    "change": "change-ldd-12-integration-rollout",
+    "task": "2",
+    "title": "Run the consolidated local product services sites and fresh-clone release gates",
+    "status": "in_progress"
+  },
+  {
+    "phase": "phase-learning-deploy-and-debt",
+    "change": "change-ldd-12-integration-rollout",
+    "task": "3",
+    "title": "Complete independent cumulative review and confirm any batched fixes",
+    "status": "pending"
+  },
+  {
+    "phase": "phase-learning-deploy-and-debt",
+    "change": "change-ldd-12-integration-rollout",
+    "task": "4",
+    "title": "Publish certified source including Companion and hand PRs to the user for merge",
+    "status": "pending"
+  },
+  {
+    "phase": "phase-learning-deploy-and-debt",
+    "change": "change-ldd-12-integration-rollout",
+    "task": "5",
+    "title": "Apply approved machine rollout and publish certified documentation sites",
+    "status": "pending"
+  },
+  {
+    "phase": "phase-learning-deploy-and-debt",
+    "change": "change-ldd-12-integration-rollout",
+    "task": "6",
+    "title": "Close evidenced historical obligations and record maintenance readiness with safe worktree cleanup",
+    "status": "pending"
+  }
+]

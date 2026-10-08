@@ -23,7 +23,6 @@ frontend/.cache/
 
 # Development tools
 .forge/
-.zeespec/
 .evolver/
 .refiner/
 

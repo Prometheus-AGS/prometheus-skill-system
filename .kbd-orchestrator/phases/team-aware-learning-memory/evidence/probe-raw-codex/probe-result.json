@@ -1,0 +1,65 @@
+{
+  "nonce": "TLM-NONCE-5e611cd12f6c",
+  "runs": [
+    {
+      "harness": "codex",
+      "label": "multi-agent-v1",
+      "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tlm-probe.jTbEc9/codex-proj",
+      "before": {
+        "~/.claude.json": "68ed59db9b0ecf8751deea460bd949d9b7f0ee47112f5bb9114459d02850eca9",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b1f3aed06b53b6b9945a47c46b1045b81f7958ba21930f9735447b6c15f84de7",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "after": {
+        "~/.claude.json": "68ed59db9b0ecf8751deea460bd949d9b7f0ee47112f5bb9114459d02850eca9",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b1f3aed06b53b6b9945a47c46b1045b81f7958ba21930f9735447b6c15f84de7",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e00e8f5872b90a6eed17c9249527f692dc0fbd3a5da137b6daf1e5ef890b2bfb",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "stdout": "NONE\nNONE\n",
+      "expected_memory_next_line": "  - learnings: PatientGPT implementation was not observed; submitted Xberg application did not establish dashboard access. [skysight memory]",
+      "hook_events": []
+    },
+    {
+      "harness": "codex",
+      "label": "multi-agent-v2",
+      "cwd": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/tlm-probe.jTbEc9/codex-proj",
+      "before": {
+        "~/.claude.json": "68ed59db9b0ecf8751deea460bd949d9b7f0ee47112f5bb9114459d02850eca9",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b1f3aed06b53b6b9945a47c46b1045b81f7958ba21930f9735447b6c15f84de7",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e00e8f5872b90a6eed17c9249527f692dc0fbd3a5da137b6daf1e5ef890b2bfb",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "after": {
+        "~/.claude.json": "39bc298a7594045c899710337ce79a306ac5481a8c3b02b59a6f90b6e5532a06",
+        "~/.claude/settings.json": "cc66bc330cda9c287d79995754bf21a56aa2d240a97c50294fef1e4424d5b472",
+        "~/.codex/config.toml": "b1f3aed06b53b6b9945a47c46b1045b81f7958ba21930f9735447b6c15f84de7",
+        "~/.codex/hooks.json": "9e184236aaec1fc2d7c403bc762c6814b10b9c670b83e5e4a1bf20fc1f9378ab",
+        "~/.codex/memories/MEMORY.md": "85dae970e6fdcbb284042e2745f0183859bc439c0e197e8cb3acc3cb1deb5722",
+        "~/.codex/memories/memory_summary.md": "dca2502d2aa14f61031aa94be33bc7462116f13ae48eee833138b914687eda06",
+        "~/.prometheus/learning-queue/memory/pending": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "~/.prometheus/learning-queue/pending": "e00e8f5872b90a6eed17c9249527f692dc0fbd3a5da137b6daf1e5ef890b2bfb",
+        "~/.prometheus/plugins/prometheus-skill-pack/pointers/current": "4ff30f702e1773c93fd0ac01d13756a0dc987865e48648bcb2d2a02fa5a66c3b"
+      },
+      "stdout": "NONE\nNONE\n",
+      "expected_memory_next_line": "  - learnings: PatientGPT implementation was not observed; submitted Xberg application did not establish dashboard access. [skysight memory]",
+      "hook_events": []
+    }
+  ]
+}

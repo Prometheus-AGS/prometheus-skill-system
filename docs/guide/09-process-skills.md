@@ -9,7 +9,6 @@ for the distinction between standing-loop instructions and executable helpers.
 
 | Skill | Request | Responsibility |
 |---|---|---|
-| ZeeSpec | `/zeespec-interrogate "<subject>"` | Record unanswered constraints and an evidence-backed recommendation. |
 | Iterative evolver | `/evolve "<name>"` | Organize assess, analyze, plan, execute and reflect for a domain. |
 | KBD | `/kbd-init`, `/kbd-plan`, `/kbd-execute`, `/kbd-apply <change>` | Coordinate canonical engineering tasks and their receipts. |
 | Elicitation | `/pmpo-elicit "<question>"` | Resolve an unknown from a user, source, bounded research or recorded assumption. |

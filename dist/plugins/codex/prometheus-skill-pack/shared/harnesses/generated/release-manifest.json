@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.11.3",
+  "sourceVersion": "1.12.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -202,6 +202,46 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/lib/__pycache__/agent_identity.cpython-311.pyc",
+      "sha256": "9f75181ecb13db12185bb7fabc815fc29dda1fc7edef1ed34d23b1d06bd7298a",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/__pycache__/agent_identity.cpython-312.pyc",
+      "sha256": "f29d250819a146fcb71beee276a78a6b315be69689e86ac8d9fcfcb9b16db885",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/__pycache__/learning_recall.cpython-311.pyc",
+      "sha256": "5f626e013e6887e2a5e8491b9e83d0220f1337d5888f138111f8fbb806514cc3",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/__pycache__/learning_route.cpython-311.pyc",
+      "sha256": "a14f2cc9df9ddf0d67fcd9e5b8f0f915edf4b4c324adb740993b04888b5d041a",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/__pycache__/learning_route.cpython-312.pyc",
+      "sha256": "62a330a9b9ab822c6a4f3a96941d08461bc47f486f137da59e16f44a47c1b489",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/__pycache__/project_id.cpython-311.pyc",
+      "sha256": "299f892abe95a3464a96e9a40df51ac485206d02e587207a7d39d202eeffa9d4",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/__pycache__/project_id.cpython-312.pyc",
+      "sha256": "2b95356c267feaf5a917f6241e674d67a8bff95b48dbe93d0f294f639d9098a8",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/__pycache__/prompt_gap.cpython-311.pyc",
+      "sha256": "a773011245ec8d79b4a24a54bea32b1ebf16a00fb9c3226e2c9e3d89beb3025e",
+      "executable": false
+    },
+    {
       "path": "shared/scripts/lib/agent_identity.py",
       "sha256": "3dea8c5591f3f32739cb7efdec4db358071b3d5011bbae12d71cc4181938b261",
       "executable": true
@@ -397,6 +437,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/spec-engine-info.mjs",
+      "sha256": "96cfe6c2ab1efb3cda74eb4f0f3783f422b7cb1d373ec360bf9da0a11b7e6bb5",
+      "executable": false
+    },
+    {
       "path": "shared/scripts/subagent-checkpoint-fallback.sh",
       "sha256": "0fa72bd9815677a3a071c3ba1d6da8e054cc779e3b4b6d61e5f99dc484f6abfa",
       "executable": true
@@ -492,5 +537,5 @@
       "executable": true
     }
   ],
-  "bundleId": "fc2297bd674cf35459633ba43a7f5c06d6ac4ae6fb748a2e56a11a130f22d7d7"
+  "bundleId": "0d4f2720d771577d3a47de89452dd349024e1dfadfe1f6fcbfc88d02856af47b"
 }

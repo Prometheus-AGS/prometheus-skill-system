@@ -1,0 +1,60 @@
+{
+  "changeId": "change-tli-b3-envelope-write-library",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[B3] Write learning_write.py (envelope build, validation, surreal-memory encoding, audience copies, dedupe, pk ingest, Karpathy append, outbox fallback)",
+      "done": true,
+      "doneAt": "2026-10-04T13:22:59Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/learning_write.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[B3] Delegate memory-bridge mem_add_memory to learning_write",
+      "done": true,
+      "doneAt": "2026-10-04T13:23:34Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/memory-bridge.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[B3] Add the subagentstop-learning hook to the contract and regenerate",
+      "done": true,
+      "doneAt": "2026-10-04T13:24:07Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/subagentstop-learning.sh",
+        "shared/harnesses/hook-contract.json"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[B3] Write test-learning-write.sh against live surreal-memory and real pk",
+      "done": true,
+      "doneAt": "2026-10-04T13:24:38Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-learning-write.sh",
+        "hooks/hooks.json",
+        "hooks/codex-hooks.json",
+        "shared/harnesses/generated/*",
+        "shared/scripts/generated/hook-dispatch-v1.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-b3-envelope-write-library/verify.sh",
+      "notes": null
+    }
+  ]
+}

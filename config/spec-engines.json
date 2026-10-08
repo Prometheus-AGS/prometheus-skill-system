@@ -1,0 +1,31 @@
+{
+  "default": "openspec",
+  "engines": {
+    "openspec": {
+      "cli": "openspec",
+      "pinnedVersion": "1.14.0",
+      "pinSource": "package.json devDependencies @fission-ai/openspec (exact)",
+      "rationale": "Exact pin per the repo dependency-pin discipline; version matches package.json. See docs/guide/spec-engines.md.",
+      "adapter": "os_* in skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh"
+    },
+    "speckit": {
+      "cli": "specify",
+      "pinnedVersion": "1.1.2",
+      "pinSource": "github/spec-kit latest release",
+      "rationale": "Exact pin per the repo dependency-pin discipline; adapter verified against v1.x specs/ layout. See docs/guide/spec-engines.md.",
+      "adapter": "sk_* in skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+      "upstream": "github/spec-kit",
+      "notes": "install: uv tool install specify-cli; artifacts under .specify/ and specs/<slug>/{spec.md,plan.md,tasks.md}"
+    },
+    "native-kbd": {
+      "cli": "prometheus kbd",
+      "pinnedVersion": null,
+      "rationale": "Pack-owned backend; version tracks this repo, no external pin. See docs/guide/spec-engines.md.",
+      "adapter": "nk_* in skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+      "notes": "source of truth .kbd-orchestrator/changes/<change>/tasks.json"
+    }
+  },
+  "customEngines": {
+    "hint": "To plug in another spec engine, implement the five adapter ops (list/progress/mark_done/verify/archive) as <prefix>_* functions in kbd-apply.sh, add its detection shape to backend_detect and the pin value to the specBackend case, then register its metadata here. See docs/guide/spec-engines.md."
+  }
+}

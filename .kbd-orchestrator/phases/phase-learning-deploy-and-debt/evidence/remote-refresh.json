@@ -1,0 +1,134 @@
+{
+  "at": "2026-10-05T12:21:37.140914+00:00",
+  "results": [
+    {
+      "name": "full",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "f35fe2ad33ab96706e1bf83f3937bbdc7bd3d837",
+      "tags": [
+        "wip/preserve-kbd-drift-cleanup",
+        "wip/preserve-final-main-convergence",
+        "wip/pem-302-repin",
+        "v1.10.0",
+        "v1.8.0",
+        "v1.7.0"
+      ],
+      "diagnostic": ""
+    },
+    {
+      "name": "mini",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "6044ecdeb5c8c957646fef422d886a4568212888",
+      "tags": [
+        "archive/20261005/codex/liter-llm-2.1-pin-mini",
+        "archive/20261005/codex/hma-adjacent-plugin",
+        "archive/20261005/codex/delivery-cadence-recovery",
+        "archive/20261005/codex/agent-fabric-convergence",
+        "archive/20261005/codex/afc-c03-team-authoring"
+      ],
+      "diagnostic": ""
+    },
+    {
+      "name": "surreal-memory",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "0cf8c7e19b52a0f0b6f8fad0f92448bc8f3561d1",
+      "tags": [
+        "v1.10.1",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ],
+      "diagnostic": ""
+    },
+    {
+      "name": "knowledge",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+      "tags": [
+        "v1.11.0",
+        "v1.10.0",
+        "v1.9.0",
+        "v1.8.0"
+      ],
+      "diagnostic": "From github.com:Prometheus-AGS/prometheus-knowledge-rs\n   1bbaecc..4b3a674  main                 -> origin/main\n * [new branch]      chore/release-1.11.0 -> origin/chore/release-1.11.0\n * [new branch]      feat/promotion-candidates -> origin/feat/promotion-candidates\n * [new branch]      feat/skill-discovery -> origin/feat/skill-discovery\n * [new branch]      fix/workspace-gate-regressions -> origin/fix/workspace-gate-regressions\n * [new tag]         v1.11.0              -> v1.11.0\n * [new tag]         v1.10.0              -> v1.10.0\n"
+    },
+    {
+      "name": "companion",
+      "status": "no-remote"
+    },
+    {
+      "name": "uar",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "4c141dfedfb253fb7f66fc628f0fec7dbb005edc",
+      "tags": [
+        "v1.0.0-rc.9",
+        "v1.0.0-rc.8",
+        "v1.0.0-rc.7",
+        "v1.0.0-rc.6",
+        "v1.0.0-rc.5",
+        "v1.0.0-rc.4"
+      ],
+      "diagnostic": ""
+    },
+    {
+      "name": "liter-llm",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "12a2fae9675e34b88e9373caa2bca9959f416493",
+      "tags": [
+        "v1.1.1",
+        "v1.1.0",
+        "v1.0.0-rc.9",
+        "v1.0.0-rc.8",
+        "v1.0.0-rc.7",
+        "v1.0.0-rc.6"
+      ],
+      "diagnostic": ""
+    },
+    {
+      "name": "openai-proxy",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "ad32f5dc1f676dc1b40b01de8a4f043a6ee6928d",
+      "tags": [
+        "v0.1.0"
+      ],
+      "diagnostic": ""
+    },
+    {
+      "name": "cowork",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+      "tags": [
+        "v0.2.0",
+        "v0.1.5",
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2",
+        "v0.1.1"
+      ],
+      "diagnostic": ""
+    },
+    {
+      "name": "disk-space-guardian",
+      "status": "fetched",
+      "exit": 0,
+      "origin_main": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+      "tags": [
+        "wip/preserve-codex-merge-base-rules-v3-main",
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2",
+        "v0.1.1",
+        "v0.1.0"
+      ],
+      "diagnostic": ""
+    }
+  ]
+}

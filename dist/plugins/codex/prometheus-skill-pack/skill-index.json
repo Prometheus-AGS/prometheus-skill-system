@@ -1,5 +1,5 @@
 {
-  "releaseVersion": "1.11.3",
+  "releaseVersion": "1.12.0",
   "schemaVersion": "prometheus-distribution-skill-index-v1",
   "skills": [
     {
@@ -853,22 +853,6 @@
     {
       "name": "workspace-structure",
       "path": "skills/workspace-structure"
-    },
-    {
-      "name": "zeespec-interrogate",
-      "path": "skills/zeespec-interrogate"
-    },
-    {
-      "name": "zeespec-interrogator",
-      "path": "skills/zeespec-interrogator"
-    },
-    {
-      "name": "zeespec-score",
-      "path": "skills/zeespec-score"
-    },
-    {
-      "name": "zeespec-status",
-      "path": "skills/zeespec-status"
     }
   ]
 }

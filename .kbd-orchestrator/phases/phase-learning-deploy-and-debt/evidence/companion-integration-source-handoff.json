@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-05T19:25:03.128525+00:00",
+  "phase": "phase-learning-deploy-and-debt",
+  "change": "change-ldd-14-companion-publication-preparation",
+  "taskId": "2",
+  "taskTitle": "Finish Companion integration packaging and replace starter documentation",
+  "relatedSourceSubset": {
+    "change": "change-ldd-18-stability-legacy-closure",
+    "taskId": "2",
+    "scope": "existing Companion connected control contracts"
+  },
+  "actualModel": "gpt-6.1-sol",
+  "actualReasoning": "xhigh",
+  "actualRoute": "native OpenAI Codex implementation worker /root/source_inventory; no inference or critic/reviewer route",
+  "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final",
+  "candidateHead": "773aa5e33b2217135bc423e526c497cceb0e7058",
+  "baseKind": "private local staging mirror origin/main; not a published GitHub remote",
+  "sourceOnly": true,
+  "canonicalCompletionClaim": false,
+  "certificationClaim": false,
+  "admission": {
+    "path": "/tmp/ldd-task14-2-begin.log",
+    "sha256": "d7bfe877f4d712155d8258173633dc0b55028bbce020e32e6ba2c77b0cfa5e3f",
+    "revision": 2337
+  },
+  "selectedFullRevision": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "ownedChangedFiles": [
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/Cargo.toml",
+      "relativePath": "Cargo.toml",
+      "sha256": "534775b5de313980fd88a9c317b8ab6e44841a19ed3377a8eaf3c788f0abc123",
+      "bytes": 4007
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/README.md",
+      "relativePath": "README.md",
+      "sha256": "3d19a422730c5f0fc6c539b83eba11e77b6f077a0b39bc0b6833a4a410296618",
+      "bytes": 4916
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/identity.rs",
+      "relativePath": "crates/prometheus-substrate/src/identity.rs",
+      "sha256": "753d414a044bd6f96304f7a9e2fa53b88c11db41166ac459c715923bd8a99786",
+      "bytes": 9141
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/paths.rs",
+      "relativePath": "crates/prometheus-substrate/src/paths.rs",
+      "sha256": "80dc206021d05a5b9d8c470e24309fcf9352324dd61ab74a71e1c178b735a549",
+      "bytes": 5035
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/node.rs",
+      "relativePath": "crates/prometheus-substrate/src/node.rs",
+      "sha256": "df3b946558bd2be47a242283eee75819abca2b5f38763afc5d360f9d03097499",
+      "bytes": 7582
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/lib.rs",
+      "relativePath": "crates/prometheus-substrate/src/lib.rs",
+      "sha256": "2e757e727cfdc4bcb6416f8ab7749e5b37c40492c3ee5b92745a120858baac0a",
+      "bytes": 3854
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/prometheus-substrate/src/bin/prometheus-companion-headless.rs",
+      "relativePath": "crates/prometheus-substrate/src/bin/prometheus-companion-headless.rs",
+      "sha256": "150910fd334f7672f9f60dbf7f9f6955040cd9b38ade8344d2c3c4585b9b1221",
+      "bytes": 2568
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/Cargo.toml",
+      "relativePath": "crates/sovereign-sync/Cargo.toml",
+      "sha256": "fa280914f90c7ba43fa9a7863d61649a63f3adcd30ceecd700719bbbdaa7bfcb",
+      "bytes": 2629
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+      "relativePath": "crates/sovereign-sync/src/config.rs",
+      "sha256": "7852f83a1b4b1b9ac89d022a0237697efe444beec933f81bce01156024348374",
+      "bytes": 5666
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+      "relativePath": "crates/sovereign-sync/src/main.rs",
+      "sha256": "e8111332e1104712e38da03c85698598ea3b15891b4f8e26f3daa565bbef9f6a",
+      "bytes": 15989
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/p2p.rs",
+      "relativePath": "crates/sovereign-sync/src/p2p.rs",
+      "sha256": "eed7dc9306e8cf4b87f6152484c0eadc670ab49714e317f2f20c5801cfc735fa",
+      "bytes": 50605
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+      "relativePath": "crates/sovereign-sync/src/mcp_server.rs",
+      "sha256": "702711cf0a8b66b7f8e7d9cf89383e4881c2e4939092e9184052f85efddd6c9d",
+      "bytes": 31126
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+      "relativePath": "crates/sovereign-client/src/client.rs",
+      "sha256": "43937d2b90575c281b757bdf1fb3acab4d5e62abbd3a899c0ac78e817d4c9830",
+      "bytes": 10981
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/src-tauri/src/lib.rs",
+      "relativePath": "src-tauri/src/lib.rs",
+      "sha256": "8240b813f3ca2c86d32234b37c01a4cf8e0f9e015de0ce0486ae1e2cded15200",
+      "bytes": 2839
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.sh",
+      "relativePath": "scripts/install-skill-package.sh",
+      "sha256": "ae6a2c682f7e3f331e436d6dff3f201a52be19ebfcd0ded3969ee33eb08e8a7b",
+      "bytes": 314
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs",
+      "relativePath": "scripts/install-skill-package.mjs",
+      "sha256": "41459486715c82663b2461244b314d83f52d1f5d53ef510a08286debbbc02a52",
+      "bytes": 14596
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+      "relativePath": "scripts/install-companion-service.sh",
+      "sha256": "e3bda3075015a0d71474a2dded2e5db9f6ac8c92638b30364b75045afe2da2a5",
+      "bytes": 4649
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/render-companion-plist.mjs",
+      "relativePath": "scripts/render-companion-plist.mjs",
+      "sha256": "a789d116c62070ce086c9e2a3e957fcb6eb8a1ec2575ba73eb9e214aa2f3e0a1",
+      "bytes": 1965
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/shared/launchd/ai.prometheus.companion.plist.tmpl",
+      "relativePath": "shared/launchd/ai.prometheus.companion.plist.tmpl",
+      "sha256": "0d45727c812e66ccb60013220d989406457bf2a5ef7b4deea3eb8f3479b21945",
+      "bytes": 2654
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+      "relativePath": "docs/installation.md",
+      "sha256": "3fb313f38029a9aa6fa94aa65f48d628b4a008075501c31dd065d0bbc8b5e6ac",
+      "bytes": 8325
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+      "relativePath": "docs/control-api.md",
+      "sha256": "7b2dd203ec58f04dc57a1404b5b181e696f5a2283d17cf6fcd9eae4070f0bbd5",
+      "bytes": 6128
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/maintenance.md",
+      "relativePath": "docs/maintenance.md",
+      "sha256": "9ff06a7f256f32353d74364dbf58d061b9a0cfc0682c0e9be0215a30dc97d281",
+      "bytes": 7648
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/00-architecture-and-implementation-plan.md",
+      "relativePath": "docs/00-architecture-and-implementation-plan.md",
+      "sha256": "2c147834853fbadd0a2d9af6d600d15bc38e2919d3ad27f7b69fbba8b7af4157",
+      "bytes": 189877
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/ui/README.md",
+      "relativePath": "docs/ui/README.md",
+      "sha256": "149f664e7eb2d7afabdd3dda04402b65b807f630eedccc4d179b03ddebede5cf",
+      "bytes": 4484
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/README.md",
+      "relativePath": "crates/sovereign-sync/README.md",
+      "sha256": "17e0852443871dae578563dc3b2901fcc33c921ab2342dcf9af212cdfa7b7de2",
+      "bytes": 1862
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/README.md",
+      "relativePath": "crates/sovereign-client/README.md",
+      "sha256": "9b575911ea9e864bdbe459c7c531fc7f48c439c42a1cf1344ea2bef5dbefaf07",
+      "bytes": 1772
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/kbd-mobile/README.md",
+      "relativePath": "crates/kbd-mobile/README.md",
+      "sha256": "9a47e762531aac67a84cba63be577cf393365bba7908ff44c5d6cbe1e6f06e13",
+      "bytes": 1795
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/iroh-docs-adapter/README.md",
+      "relativePath": "crates/iroh-docs-adapter/README.md",
+      "sha256": "871ab62f25e0289800b075e3435fd5820163db1739e7d50876eb6ad3c629ef8c",
+      "bytes": 1889
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/skills/sync-status/SKILL.md",
+      "relativePath": "skills/sync-status/SKILL.md",
+      "sha256": "3b0eb869a5fcc8049bbbef6e04d9e1f6e238fe2f6047b3cfd64d48617389d1ed",
+      "bytes": 2527
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/skills/sync-peers/SKILL.md",
+      "relativePath": "skills/sync-peers/SKILL.md",
+      "sha256": "960388ca43a23c01f088428814050b5a5cb8c633f230751be2015384f93ecae4",
+      "bytes": 3001
+    },
+    {
+      "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/skills/sync-push/SKILL.md",
+      "relativePath": "skills/sync-push/SKILL.md",
+      "sha256": "8546a1638e3a75d58b9516f66aa5d093b3691afce2562e5d7f7e8f4587319b5d",
+      "bytes": 3352
+    }
+  ],
+  "sourceChanges": [
+    "Aligned four workspace full-pack git consumers to exact owner-selected ba5; protected versions.toml and Cargo.lock untouched.",
+    "Replaced obsolete direct Claude config writes with user-scope CLI add-json/remove, explicit installed binary/Claude CLI, CLAUDE_CONFIG_DIR handling, private receipt/backup ownership and unrelated-entry checks; dry-run returns before writes/CLI calls.",
+    "Launchd dry-run renders only; XML path values escaped; explicit runtime/key/socket/config overrides included; staged apply preserves previous plist and owns only Companion service label.",
+    "Headless identity preflight rejects invalid explicit override, symlink/nonregular/unreadable key and group/other access; no fabricated enrollment and no alternate identity fallback.",
+    "Node owns configured P2PSupervisor and authenticated incoming production consumer after local authority installation; selected discovery/peer/identity preserved across retries; explicit p2p_enabled=false creates no endpoint/identity; failures become failed transport, not eternal pending.",
+    "NodeHandle Drop requests cancellation instead of detaching Tokio tasks; explicit async shutdown stops HTTP acceptance, supervisor/P2P, bounded incoming drain and HTTP join. Headless handles SIGTERM/interrupt and unexpected listener exit.",
+    "Connected MCP tools use existing local sovereign-client Unix REST client for host status/peers, signed v2 pushes and receipt lookup; no separate disabled AppState/receipt host. --socket and SOVEREIGN_SYNC_SOCKET honored; TCP/proxy/redirect fallback disabled.",
+    "MCP signed push intent fsynced privately before POST; exact request/endpoint retained for process-interruption recovery; signed_request supports exact authorized replay; errors return uncertainty or not-submitted with original ID/body. No new canonical events/acceptance receipts.",
+    "Unsupported prefix aliases and UAR passthrough fail explicitly instead of falsely advertising renamed/filtered tool execution.",
+    "Starter root README replaced with actual build/install/control/tray/support/license scope; three connected skills rewritten for real MCP/v2 semantics; current install/API/maintenance docs added; authored architecture/UI and relocation provenance preserved with current status banners."
+  ],
+  "operationalContracts": {
+    "packOptional": true,
+    "packReverseDependency": false,
+    "requiredPackContract": "1.0.0",
+    "signedPushSchema": "1.7",
+    "hostChoices": [
+      "prometheus-companion-headless",
+      "Tauri-hosted node",
+      "sovereign-sync --mode daemon"
+    ],
+    "oneSocketOwner": true,
+    "serverMode": "local control with disabled P2P",
+    "mcpMode": "stdio bridge to selected existing Unix host for sync tools",
+    "socketResolution": "CLI --socket for sovereign-sync > SOVEREIGN_SYNC_SOCKET > data_local_dir()/prometheus/run/sovereign-sync.sock; independent of PROMETHEUS_DATA_DIR",
+    "configResolution": "CLI --config > SOVEREIGN_SYNC_CONFIG > XDG_CONFIG_HOME/sovereign-sync/config.toml > ~/.config/sovereign-sync/config.toml; explicit missing config fails",
+    "claudeUserConfig": "~/.claude.json by default; CLAUDE_CONFIG_DIR/.claude.json with override; CLI owned user registration only",
+    "skillReceipt": "<Claude config directory>/.prometheus-companion/skill-package-receipt.json",
+    "p2p": "selected node.p2p_identity_file; explicit p2p_enabled false; configured bootstrap EndpointIds; mDNS address discovery on by default; DHT publication opt-in; private bidirectional ticket enrollment/restart; project signing authorization remains separate",
+    "syncIntent": "<PROMETHEUS_DATA_DIR or platform data-local root>/prometheus/companion/mcp-push-outbox/<request UUID>.json; private exact signed request and endpoint, fsynced before submission",
+    "uncertainty": "retain requestId/signedRequest/endpoint/intentPath; original-host receipt lookup before exact authorized replay; no new ID to settle response loss; broadcast != peer application",
+    "tray": "five-state service-health observation only, starter main window retained; no control menu/dashboard/pairing UI promised",
+    "services": "reads selected PROMETHEUS_PACK_ROOT/shared/services.manifest.json; no installer/adoption of an unrelated service set; missing supervisor reports []",
+    "shutdown": "headless explicit async bounded drain; Drop cancellation request only, desktop awaited exit acceptance still pending"
+  },
+  "documentation": [
+    "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/README.md",
+    "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+    "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+    "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/maintenance.md"
+  ],
+  "context7Used": [
+    {
+      "library": "Claude Code",
+      "id": "/websites/code_claude",
+      "concept": "user-scoped MCP add-json/remove and CLAUDE_CONFIG_DIR current config location",
+      "sources": [
+        "https://code.claude.com/docs/en/mcp",
+        "https://code.claude.com/docs/en/settings"
+      ]
+    },
+    {
+      "library": "Tokio",
+      "id": "/websites/rs_tokio_tokio",
+      "concept": "JoinHandle Drop detaches, abort/join shutdown and Unix SIGTERM"
+    },
+    {
+      "library": "reqwest",
+      "id": "/websites/rs_reqwest",
+      "concept": "ClientBuilder Unix socket, timeout, no proxy, no redirects; existing reqwest 0.12 dependency retained; compiler compatibility pending"
+    }
+  ],
+  "requirementsSources": [
+    "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-ldd-14-companion-publication-preparation/spec.md",
+    "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-ldd-18-stability-legacy-closure/spec.md",
+    "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-cpc-011-integration-evidence/spec.md",
+    "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-cpc-013-pack-standalone-certification/spec.md"
+  ],
+  "deferredAndRemaining": [
+    {
+      "owner": "root/owner approvals then change12",
+      "item": "Exact protected versions.toml proposal, dependency lock resolution, remotely resolvable full dependency selection/freeze and permitted release metadata sequencing; no protected pin file or lock generation done here."
+    },
+    {
+      "owner": "change12",
+      "item": "Compilation including existing reqwest Unix API compatibility; actual clean/scratch install ownership and read-only dry-run checks; malformed/symlink/concurrent writer/interruption recovery cases; no checks performed."
+    },
+    {
+      "owner": "change12",
+      "item": "Real two-headless-node enrollment/discovery, signed KBD command observed on peer with matching receipt/frontier, v2 uncertainty/replay, disabled/network-failure negative controls and privacy boundaries."
+    },
+    {
+      "owner": "change12",
+      "item": "Actual SIGTERM/crash/launchd recovery, socket ownership, credential/key preflight and signed-state continuity; source Drop cancellation is not demonstrated clean drain."
+    },
+    {
+      "owner": "change14/task3 and change12",
+      "item": "Real private remote, approved source/license/dependency notice inventory, commit/push, installed artifact hashes and approval-based tags; initial origin remains local only. Root-added LICENSE preserved and excluded from worker ownership."
+    },
+    {
+      "owner": "change17 and change18/task3",
+      "item": "Crosslink these actual operational contracts and reconcile exact approved platform/harness/source/artifact freeze before maintenance-readiness can finish."
+    },
+    {
+      "owner": "finite release contract",
+      "item": "Linux service installer/native Windows/other harness installers/mobile application/dashboard/pairing UI are not delivered. Desktop async joined exit is not a certified contract; supported headless exit path has explicit shutdown."
+    },
+    {
+      "owner": "operator maintenance",
+      "item": "Pair ticket CLI argument is an existing explicit enrollment interface with history/process exposure; tickets stay private and are never included in evidence. Import replaces group secret; restore/enrollment decisions remain explicit."
+    },
+    {
+      "owner": "operator maintenance",
+      "item": "Installer lock serializes only this installer. Stop external config writers; stale locks/pending receipt/orphan temporary links require owner reconciliation, not automatic cleanup."
+    }
+  ],
+  "validation": {
+    "performed": [],
+    "notRun": [
+      "tests",
+      "test authoring",
+      "cargo/rustc",
+      "build/check/lint",
+      "formatting",
+      "generators",
+      "validators/reviewers",
+      "installer/dry-run execution",
+      "HTTP/MCP/P2P probes",
+      "migration",
+      "live home or :23001 access",
+      "commit/push/publication"
+    ],
+    "method": "production implementation and static source reading only; source hashes are provenance, not gate evidence"
+  },
+  "protectedAndOthersPreserved": [
+    "original /Users/gqadonis/Projects/prometheus/prometheus-companion",
+    "protected deploy-main/deploy/main",
+    "versions.toml",
+    "Cargo.lock",
+    "tags",
+    "root-owned LICENSE/publication files",
+    "full/mini/memory source",
+    "KBD canonical phase/ledger/evidence",
+    "all existing tests/generated outputs",
+    "real runtime homes"
+  ]
+}

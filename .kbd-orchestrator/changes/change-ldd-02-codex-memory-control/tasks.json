@@ -1,0 +1,35 @@
+{
+  "changeId": "change-ldd-02-codex-memory-control",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement lossless feature-gated memory configuration through installer dispatch",
+      "done": true,
+      "doneAt": "2026-10-05T13:41:18Z",
+      "doneBy": "codex",
+      "files": [
+        "shared/scripts/codex-memories-config.sh",
+        "scripts/install-system.js",
+        "scripts/install-skills-flat.sh"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    },
+    {
+      "id": "2",
+      "title": "Align doctor predicate and operator documentation with consolidation behavior",
+      "done": true,
+      "doneAt": "2026-10-05T13:55:16Z",
+      "doneBy": "codex",
+      "files": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+        "docs/codex-plugin.md",
+        "docs/guide/memory-tiers.md",
+        "CLAUDE.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

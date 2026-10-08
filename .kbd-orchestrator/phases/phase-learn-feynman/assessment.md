@@ -272,7 +272,7 @@ As stated in §1b: it is structurally impossible to prevent an operator with an 
 **Outputs:**
 - `survey-result.json`: `{concepts_probed: [...], mastery_priors: {[concept_id]: float}, misconceptions_detected: [...], recursion_floor: [concept_id], learner_model_seed: <JSON for learner-model>}`
 **Consumes:** `ui-surface` (Tier 1 preferred for interactive survey, Tier 0 fallback as checklist file), `learner-model` (write cold-start priors), `content-grounding` (grounding corpus for misconception detection)
-**Extends:** `pmpo-elicit` (research loop for subject-scoped objective items), `zeespec-interrogator` (structured interrogation pattern)
+**Extends:** `pmpo-elicit` (research loop for subject-scoped objective items), `spec-gate` (structured interrogation pattern)
 **Critical output:** `recursion_floor` = set of concept IDs the learner demonstrably owns. `feynman-loop` never recurses into these.
 
 #### `learn-plan`

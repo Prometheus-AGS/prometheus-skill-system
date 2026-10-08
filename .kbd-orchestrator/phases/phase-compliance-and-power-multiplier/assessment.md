@@ -27,7 +27,7 @@
 
 | Domain | Skills |
 |---|---|
-| **process/** (orchestration) | `native-agent`, `zeespec-interrogator`, `iterative-evolver`, `kbd-process-orchestrator`, `pmpo-skill-creator`, `liter-llm-bridge` |
+| **process/** (orchestration) | `native-agent`, `spec-gate`, `iterative-evolver`, `kbd-process-orchestrator`, `pmpo-skill-creator`, `liter-llm-bridge` |
 | **architecture/** | `clean-architecture` |
 | **rust/** | `axum-patterns`, `error-handling`, `async-patterns`, `workspace-structure`, `mcp-server`, `actor-model`, `performance` |
 | **react/** | `react-vite-stack`, `prometheus-entity-skills` (+6 nested entity-graph sub-skills) |
@@ -273,7 +273,7 @@ The pack already has every layer; the problem is **discoverability and a single 
 | Stage | Current Tooling | Gap |
 |---|---|---|
 | **Ideation** | None — user begins cold | **Gap #H1** Add `skills/process/ideation-mindmap/` that uses surreal-memory `generate_ideation_mindmap` to expand a one-line concept into a structured exploration tree |
-| **Constraint capture** | `zeespec-interrogator` (Zachman 5W1H, GO/NO-GO manifest) | ✅ |
+| **Constraint capture** | `spec-gate` (Zachman 5W1H, GO/NO-GO manifest) | ✅ |
 | **Strategic planning** | `iterative-evolver` (Assess→Analyze→Plan→Execute→Reflect) | ✅ |
 | **Tactical planning** | `kbd-process-orchestrator` | ✅ |
 | **Spec change-management** | `openspec/` (Layer 3) | ⚠️ The pack documents this but doesn't enforce it via a hook |
@@ -290,7 +290,7 @@ The pack already has every layer; the problem is **discoverability and a single 
 **Gap #H4 — Add `/start-business-build`**, a top-level orchestrator that:
 
 1. Runs `ideation-mindmap` (new — see Gap #H1) to expand the user's concept.
-2. Pipes the mindmap into `zeespec-interrogator` to capture constraints.
+2. Pipes the mindmap into `spec-gate` to capture constraints.
 3. Hands constraints to `iterative-evolver` which produces an OpenSpec change set.
 4. For each change, calls `forge enrich` then dispatches to the implementing AI tool of choice (Claude/Codex/Cursor).
 5. On completion, runs `forge reflect` → `pk ingest` (closing the loop).
@@ -348,7 +348,7 @@ Independent research is converging on a clear pattern: AI coding assistants help
 Three properties of this pack address every weak spot in the research literature:
 
 1. **Adversarial reflection at every phase** (the `sycophancy-correction` skill is a nuclear option for the *"AI agreed with my bad plan"* failure mode that the productivity-paradox studies repeatedly identify). When an evolver phase says "the execution completed successfully, with minor edge cases remaining" the sycophancy detector forces it to restate as "the execution deviated in these three ways…".
-2. **Mandatory grounding** (zeespec → openspec → forge enrich) injects a constraint manifest into every implementation step, addressing the *"AI generates plausible-but-wrong code"* failure mode that drives the 1.7× issue-rate finding.
+2. **Mandatory grounding** (spec-gate → openspec → forge enrich) injects a constraint manifest into every implementation step, addressing the *"AI generates plausible-but-wrong code"* failure mode that drives the 1.7× issue-rate finding.
 3. **Persistent learning** (Karpathy `pk ingest` after every reflect) means the next iteration starts from a corrected base. Most teams using AI assistants today have **no learning loop at all** — every session starts from zero.
 
 ### 7.3 Quantitative impact projection

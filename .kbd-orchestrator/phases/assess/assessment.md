@@ -251,7 +251,7 @@ A semantic alternative via `surreal-memory` `hybrid_search_memories` is availabl
 **❌ Codex pk-as-MCP (gap K-6):** pk not exposed as an MCP tool in `.codex/config.toml`.
 
 **❌ ideation→spec→dev→deploy spanning loop:** The spec (§5.2) describes a full ideation
-loop using `ideation-mindmap` + `zeespec-interrogator` + evolver in research domain. These
+loop using `ideation-mindmap` + `spec-gate` + evolver in research domain. These
 skills exist individually but no pre-built loop topology wires them together with the termination
 predicate "open questions = 0 AND all measurable_criteria stated."
 
@@ -289,7 +289,7 @@ Ranked by impact × effort (high impact, lower effort first):
 
 | # | Gap | What to build | Effort |
 |---|-----|--------------|--------|
-| P2-1 | Ideation loop topology | Wire `ideation-mindmap` + `zeespec-interrogator` + `pmpo-elicit` into a pre-built L2 evolver config with termination predicate | Medium |
+| P2-1 | Ideation loop topology | Wire `ideation-mindmap` + `spec-gate` + `pmpo-elicit` into a pre-built L2 evolver config with termination predicate | Medium |
 | P2-2 | Deploy loop | Extend L3 topology with a post-execute deploy phase (gitops-bootstrap → argocd-multicloud) gated by test green | Medium |
 | P2-3 | Cross-tool loop registry | Build `.kbd-orchestrator/loops/<name>/loop.json` as a shared registry that any harness reads | Small |
 

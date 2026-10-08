@@ -1,6 +1,6 @@
 ---
 name: start-business-build
-description: Top-level orchestrator that takes a one-line business concept ("track competitor pricing", "summarize support tickets nightly") and chains every Prometheus pipeline stage end-to-end — ideation expansion, zeespec constraint capture, iterative-evolver assess+plan, OpenSpec change generation, forge enrich, AI implementation dispatch, forge reflect, pk ingest — and optionally finishes by packaging the result as a LibreFang WASM skill and offering /upload-to-bossfang. Single command from concept to deployable skill.
+description: Top-level orchestrator that takes a one-line business concept ("track competitor pricing", "summarize support tickets nightly") and chains every Prometheus pipeline stage end-to-end — ideation expansion, iterative-evolver assess+plan, OpenSpec change generation, forge enrich, AI implementation dispatch, forge reflect, pk ingest — and optionally finishes by packaging the result as a LibreFang WASM skill and offering /upload-to-bossfang. Single command from concept to deployable skill.
 license: MIT
 version: '1.0.0'
 authors:
@@ -46,20 +46,17 @@ End-to-end execution through all four pipeline layers.
     ▼ Stage 1: Ideation Mindmap — /ideation-mindmap $CONCEPT
     │   surreal-memory generate_ideation_mindmap → 6-branch concept tree
     │
-    ▼ Stage 2: ZeeSpec Constraint Interrogation (Layer 1)
-    │   Zachman 5W1H × 60 questions → constraint manifest with GO/CAUTION/NO-GO
-    │
-    ▼ Stage 3: Iterative-Evolver Strategic Plan (Layer 2)
+    ▼ Stage 2: Iterative-Evolver Strategic Plan
     │   Assess → Analyze → Plan → ordered change list
     │
-    ▼ Stage 4: OpenSpec Change Set (Layer 3)
+    ▼ Stage 3: OpenSpec Change Set
     │   For each change: GIVEN/WHEN/THEN proposals, audit trail
     │
-    ▼ Stage 5: forge enrich + AI implementation (Layer 4)
+    ▼ Stage 4: forge enrich + AI implementation
     │   Per change: forge enrich → dispatch to Claude/Codex → forge reflect
     │   pk ingest after each reflect (Karpathy loop closes)
     │
-    ▼ Stage 6 (optional): Package + deploy
+    ▼ Stage 5 (optional): Package + deploy
     │   forge package-librefang → <name>.lf-skill.zip
     │   Offer /upload-to-bossfang <url> interactively
     │
@@ -104,19 +101,18 @@ resumes from the last successful checkpoint.
 | Stage | Failure | Recovery |
 |---|---|---|
 | 1 (ideation) | mindmap generation failed | retry up to 3× with backoff; on persistent failure, fall through with concept text only |
-| 2 (zeespec) | constraint manifest empty | abort — usually means concept is too vague; suggest user refine |
-| 3 (evolver) | plan empty or contradictory | abort with the evolver's diagnostic; usually means contradictory zeespec constraints |
-| 4 (openspec) | OpenSpec absent | fall back to native KBD change format |
-| 5 (forge/AI) | per-change enrichment fails | log, skip, continue; report skipped changes at end |
-| 5 (forge/AI) | implementer rejects task | reflect with `rejected` status; pk ingest captures the lesson |
-| 6 (package) | wasm build fails | log, skip deploy, prompt user to fix |
-| 6 (upload) | /upload-to-bossfang fails | the upload's own failure modes apply (see that skill) |
+| 2 (evolver) | plan empty or contradictory | abort with the evolver's diagnostic |
+| 3 (openspec) | OpenSpec absent | fall back to native KBD change format |
+| 4 (forge/AI) | per-change enrichment fails | log, skip, continue; report skipped changes at end |
+| 4 (forge/AI) | implementer rejects task | reflect with `rejected` status; pk ingest captures the lesson |
+| 5 (package) | wasm build fails | log, skip deploy, prompt user to fix |
+| 5 (upload) | /upload-to-bossfang fails | the upload's own failure modes apply (see that skill) |
 
 ## Acceptance / Done Criteria
 
 The orchestrator declares success when:
 
-1. Every stage 5 change has either `accepted` or `rejected` status (no `pending`).
+1. Every stage 4 change has either `accepted` or `rejected` status (no `pending`).
 2. `pk ingest` ran for every accepted change.
 3. If `target ∈ {librefang-wasm, both}` and `--skip-deploy` was NOT set:
    `<name>.lf-skill.zip` exists at the working dir.
@@ -131,15 +127,14 @@ The orchestrator declares success when:
 $ /start-business-build "track shipping-cost trends across our top 5 carriers"
 
 Stage 1: Ideation mindmap...                            ✅
-Stage 2: ZeeSpec — 60 questions answered, 4 NO-GO       ✅ (manifest at .prometheus/.../zeespec.md)
-Stage 3: Evolver plan — 3 changes ordered               ✅
-Stage 4: OpenSpec changes generated                     ✅
-Stage 5: change-001 (carrier-data-scraper)              ✅ accepted
-Stage 5: change-002 (price-trend-analyzer)              ✅ accepted
-Stage 5: change-003 (alert-dispatch)                    ⚠ rejected (carrier API rate limits)
+Stage 2: Evolver plan — 3 changes ordered               ✅
+Stage 3: OpenSpec changes generated                     ✅
+Stage 4: change-001 (carrier-data-scraper)              ✅ accepted
+Stage 4: change-002 (price-trend-analyzer)              ✅ accepted
+Stage 4: change-003 (alert-dispatch)                    ⚠ rejected (carrier API rate limits)
         pk ingest captured: "carrier API rate limits force alerting to be daily, not realtime"
-Stage 6: forge package-librefang ./shipping-cost-watch  ✅ → shipping-cost-watch.lf-skill.zip (78 KB)
-Stage 6: /upload-to-bossfang? (Y/n)                     y
+Stage 5: forge package-librefang ./shipping-cost-watch  ✅ → shipping-cost-watch.lf-skill.zip (78 KB)
+Stage 5: /upload-to-bossfang? (Y/n)                     y
         URL: https://bossfang.example.com               ✅
         Skill installed and verified.
 
@@ -153,11 +148,10 @@ $ /start-business-build "track shipping costs" --dry-run
 
 Would execute:
   Stage 1: Ideation mindmap (~30s, 1 frontier-model call)
-  Stage 2: ZeeSpec interrogation (~2m, 12 frontier calls)
-  Stage 3: Evolver plan (~1m, 4 frontier calls)
-  Stage 4: OpenSpec generation (~30s, 3 frontier calls)
-  Stage 5: forge enrich+implement+reflect × 3 changes (~15m, mixed model classes)
-  Stage 6: package-librefang + offer upload (~30s, no model calls)
+  Stage 2: Evolver plan (~1m, 4 frontier calls)
+  Stage 3: OpenSpec generation (~30s, 3 frontier calls)
+  Stage 4: forge enrich+implement+reflect × 3 changes (~15m, mixed model classes)
+  Stage 5: package-librefang + offer upload (~30s, no model calls)
 
 Estimated cost: $4.20 (frontier) + $0.80 (tiered)
 Estimated wall time: 20m
@@ -168,11 +162,10 @@ Estimated wall time: 20m
 - [`scripts/orchestrate.sh`](scripts/orchestrate.sh) — the implementation.
 - Each stage script lives in its parent skill:
   - Stage 1: `skills/process/ideation-mindmap/` (`/ideation-mindmap`)
-  - Stage 2: `skills/process/zeespec-interrogator/`
-  - Stage 3: `skills/process/iterative-evolver/`
-  - Stage 4: `openspec/` integration in `skills/process/kbd-process-orchestrator/`
-  - Stage 5: `tools/forge-rs/` (`forge enrich` / `forge reflect`)
-  - Stage 6: `forge package-librefang` (queued for phase-librefang-wasm-onramp)
+  - Stage 2: `skills/process/iterative-evolver/`
+  - Stage 3: `openspec/` integration in `skills/process/kbd-process-orchestrator/`
+  - Stage 4: `tools/forge-rs/` (`forge enrich` / `forge reflect`)
+  - Stage 5: `forge package-librefang` (queued for phase-librefang-wasm-onramp)
             + `/upload-to-bossfang` (this same change, sibling sub-skill)
 
 ## Notes for Implementing AI

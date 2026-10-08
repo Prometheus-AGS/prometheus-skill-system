@@ -1,0 +1,63 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "claude-sonnet (harness-native)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-family-harness-native",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "The assessment never mentions that shared/scripts and skills sources are mirrored into tracked generated trees under dist/plugins/, so every G1b/G2b/G3 change triggers constraint C-01 regeneration work.",
+      "evidence": "git ls-files dist lists dist/plugins/claude/... and dist/plugins/codex/...; dist/plugins/*/prometheus-skill-pack/shared/scripts/lib/learning_recall.py and tests/test-cortex-mirror.sh are copies of the shared/ sources. constraints.md C-01 requires regenerating and committing generated outputs in the same phase.",
+      "suggested_fix": "Add an Additional finding: edits to shared/scripts/lib/learning_recall.py, memory-envelope test and agent-team-creator runtime require regeneration of dist/plugins and the plugin generation; plan one named reconciliation change."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "G1b says generate_memories appears only in scratch test configs, but the pack already sets memories.generate_memories=false per Codex agent in agent-team-creator's exporter.",
+      "evidence": "skills/process/agent-team-creator/runtime/src/adapters-local.mts:26 emits memories: { generate_memories: false }; scripts/adapters-local.mjs:22 likewise; references/manifest.md:57 documents it; export.integration.mts:79-91 asserts it. Also shared/scripts/tests/probe-subagent-identity.sh:218.",
+      "suggested_fix": "Reword G1b: the per-agent export already sets it; what is missing is the user-level ~/.codex/config.toml [memories] setting plus a doctor check. Avoid duplicating or conflicting with the exporter."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "G2b asserts each search call makes the server embed the query again and that this is why recall misses the watchdog; nothing on main supports either part.",
+      "evidence": "learning_recall.py:272 only issues POST /api/v1/search; the server lives in the tools/surreal-memory-server submodule and was not inspected. No timing data shows the 2.8s deadline is consumed by embedding rather than by the per-request 2.0s timeout, pk context (PK_TIMEOUT 1.5s) or load.",
+      "suggested_fix": "Mark the embedding cause as a hypothesis; add a measurement step (per-scope latency under load) to analyze before choosing between precomputed embedding, multi-scope query or parallel requests."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "Several evidence line citations are slightly off or point at the wrong construct.",
+      "evidence": "G2b cites learning_recall.py:286-300 (that is surreal_candidates; the POST is at :272, queries built at :222-230). test-team-awareness.sh generate_memories is on :522 and test-subagent-delivery.sh on :290, not :521/:289. kbd-apply.sh is under skills/process/kbd-process-orchestrator/skills/kbd-apply/ (mark-done at :681-683, correct). Role and lead queries can both be present, so up to 5 POSTs is correct; the team scope is a GET.",
+      "suggested_fix": "Correct the cited lines and give the full kbd-apply.sh path."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "G3b treats the pk knowledge block as unfiltered by project, but the assessment does not show where the filter is missing; pk_allowed only applies role/team visibility.",
+      "evidence": "learning_recall.py:401-417 pk_allowed has no project check; untagged entries return True (:404), which explains the off-topic KnowMe/Actix entries. This root cause is verifiable and not stated.",
+      "suggested_fix": "Record that untagged pk entries bypass any project scoping (pk_allowed :404) as the likely cause of the 4 off-topic entries."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "Reviewer mandate file named in the dispatch does not exist, so the review applied output-contract.md only.",
+      "evidence": "skills/process/adversarial-review/references/ contains only isolation-and-routing.md, model-configuration.md, output-contract.md (checked in both the repo and the origin/main worktree); reviewer-mandate-artifact.md is absent.",
+      "suggested_fix": "Add reviewer-mandate-artifact.md or fix the dispatcher path; the vet ran without its intended mandate."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

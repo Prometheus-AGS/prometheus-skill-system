@@ -26,7 +26,7 @@ No `ideation-mindmap` skill exists. The `surreal-memory` MCP exposes `generate_i
 
 - [ ] Create `skills/process/ideation-mindmap/` directory
 - [ ] Write `SKILL.md` with full frontmatter (name, description, license, version, authors, metadata.tags, triggers)
-- [ ] Body: MCP invocation, 6-branch output format, handoff prompt to `/zeespec-interrogate`
+- [ ] Body: MCP invocation, 6-branch output format, handoff prompt to `/spec-gate`
 - [ ] Edit `start-business-build/SKILL.md` Stage 1 to name `/ideation-mindmap $CONCEPT`
 - [ ] `npm run validate:skill skills/process/ideation-mindmap` → 0 errors
 - [ ] `npm run validate:strict skills/process/ideation-mindmap` → 0 errors

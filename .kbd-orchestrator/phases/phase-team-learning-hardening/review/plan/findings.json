@@ -1,0 +1,73 @@
+{
+  "mode": "artifact",
+  "target": "plan",
+  "phase": "phase-team-learning-hardening",
+  "verdict": "PASS",
+  "judge_model": "claude-sonnet (harness-native)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-family-harness-native",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 36,
+      "claim": "The outward-facing approval list omits opening the nine PRs (branch pushes) and several live-machine side effects the specs describe.",
+      "evidence": "plan.md:37 lists only 'the surreal-memory-server v1.10.1 tag push, any version pin bump in the skill pack, and PR merges'. Every spec says 'Delivered through a pull request; the user merges', and the change-02 spec says the installer writes ${CODEX_HOME:-$HOME/.codex}/config.toml and archives memory_summary.md. Neither the PR push nor a real-HOME install is gated.",
+      "suggested_fix": "Add to the approval list: pushing tlh-NN branches and opening PRs, and any run of the 02 installer/doctor fix against the real ~/.codex. State that gates run only against scratch dirs."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 40,
+      "claim": "Two steps the specs describe have no owning task or approval, and one phase-boundary step has no prerequisite step.",
+      "evidence": "change-tlh-03 spec says 'The local .prometheus/cadence/procedures/refresh-skill-pack.sh becomes a shim that exec's ...'. That file is git-ignored and untracked, and it is in no tasks.json files list, so an executor may rewrite the live cadence procedure unasked. plan.md:73 reruns 'the live doctor run' on merged main, but nothing builds and installs the new prometheus-cli (a cargo build plus install-binaries) to make the 02 doctor check exist on PATH. 06's verify.sh also requires a PATH 'prometheus'.",
+      "suggested_fix": "Make the live shim swap an explicit operator-approved post-merge step. Add a phase-boundary step 'build and install prometheus-cli after 02 merges (cargo-serialised, operator-approved)' before the live doctor run."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 22,
+      "claim": "05's 'idle' latency stop-rule measurement and 07's real-embedding Cortex run are scheduled concurrently with five parallel round-1 worktrees and Sonnet workers, so the measurement is not idle and the gate cannot tell.",
+      "evidence": "plan.md:22 'Round 2 runs alongside round 1'. 05 verify.sh checks only that docs/perf/query-embedding-latency.md contains IDLE_P95_SECONDS<=2.0. The plan has no step that quiesces the machine or records load.",
+      "suggested_fix": "Run 05 task 1 (and 07's real case) when no worker agents are running, or require the perf doc to record load average and concurrent processes. Treat a noisy run as inconclusive, not as a pass or stop."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 22,
+      "claim": "The claim that round 2 is 'in other repositories and crates' is wrong for change 02.",
+      "evidence": "change-02 scope is prometheus-skill-system: scripts/install-system.js, scripts/install-skills-flat.sh, docs/guide/06-memory-and-learning.md, tools/prometheus-cli (in-repo, tracked tree). Only 05 is another repo (surreal-memory-server). 02 is disjoint from round 1 on source files, so the parallel-run conclusion holds, but for a different reason.",
+      "suggested_fix": "Reword: round 2 is disjoint from round 1 by source files (02) or repository (05); only dist/plugins/** is shared."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 18,
+      "claim": "The cargo serialization claim holds for the nine changes but is enforced only at verify time; nothing gates ad-hoc worker compiles.",
+      "evidence": "Only 02 and 05 invoke cargo in verify.sh (checked all nine). The pgrep guard sits in verify.sh only. Workers are Sonnet subagents that may run 'cargo check' at any time, and 'run after 05's builds finish' has no stated gate.",
+      "suggested_fix": "State that 02's worker is launched only after the lead confirms 05's cargo/rustc has exited (pgrep clear), and that workers in 02/05 get no cargo allowance outside the lead-announced window."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 10,
+      "claim": "The Why-here rationales imply a merge order the plan cannot control, and there is no fallback if the user delays merging 03 or 04.",
+      "evidence": "'06 extends its script, so it must merge first' and '09 ... Landing it early means the round 1 PRs can use it' for changes that all run in parallel in round 1. Merging is the user's. 06 and 08 verify.sh exit 2 BLOCKED if 03/04 are absent from the base, so round 3 stalls silently.",
+      "suggested_fix": "Say round 3 starts only on operator confirmation of the merge, and give the stacked-branch alternative (base 06 on 03's branch, retarget after merge). Drop the 'use it for their own rebases' benefit for 09, or order 09 first and gate others' rebases on it."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 64,
+      "claim": "Task-assignment rows for change 02 tasks 1, 2, 4 mislabel requirements and rationale as Rust.",
+      "evidence": "Rows 64, 65, 67 say 'Rust, cargo (one build at a time), integration test' and 'Rust in an existing crate ... borrow and async work within one module'. Their files are shared/scripts/codex-memories-config.sh, scripts/install-system.js, install-skills-flat.sh, a bash test and docs. Only task 3 (doctor.rs) is Rust. Row 63 (05 task 3) is likewise a test plus a version bump.",
+      "suggested_fix": "Relabel those rows bash/JS/docs. Per CLAUDE.md, load prometheus-rust-workspace only for 02/3 and 05/2-3. The row set otherwise matches tasks.json exactly (24 of 24, no stale rows)."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

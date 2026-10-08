@@ -2,7 +2,7 @@
   "stage": "spec",
   "phase": "kimi-desktop-extensibility",
   "backend": "native-kbd",
-  "zeespec_verdict": "n/a (no .zeespec/ for this subject \u2014 gate inactive, opt-in)",
+  "spec-gate_verdict": "n/a (no .spec-gate/ for this subject \u2014 gate inactive, opt-in)",
   "changes_created": 5,
   "changes": [
     ".kbd-orchestrator/changes/kde-000-skillinstructions-decision",

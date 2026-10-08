@@ -2,7 +2,7 @@
 
 ## Delivered
 
-- Added signed task, phase, ZeeSpec boundary receipts and compiler,
+- Added signed task, phase, spec-gate boundary receipts and compiler,
   integration, and certification gate receipts to the canonical KBD runtime.
 - Added `prometheus kbd guard evaluate`, `prometheus kbd gate run`, the
   `/kbd-bottleneck-detector` skill, lifecycle adapters, Claude
@@ -19,7 +19,7 @@
 - `cargo test --manifest-path tools/prometheus-cli/Cargo.toml -p prometheus-cli --test kbd --locked`:
   6 passed, including ordered/missing/duplicate boundaries, projection repair,
   signed gate receipts, Rust contention refusal, and fail-closed recovery.
-- OpenSpec, native KBD, phase/child lifecycle, ZeeSpec checkpoint, Claude
+- OpenSpec, native KBD, phase/child lifecycle, spec-gate checkpoint, Claude
   `TaskCompleted`, and harness adapter shell scenarios passed locally.
 - 100 fresh-process hot-path evaluations: median 48.488 ms, p95 69.223 ms,
   maximum 143.639 ms, with a 1 second hard timeout.

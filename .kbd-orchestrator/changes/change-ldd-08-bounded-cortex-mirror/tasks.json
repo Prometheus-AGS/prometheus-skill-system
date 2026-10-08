@@ -1,0 +1,32 @@
+{
+  "changeId": "change-ldd-08-bounded-cortex-mirror",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement bounded cross-process admission and feeder lifetime ownership",
+      "done": true,
+      "doneAt": "2026-10-05T13:49:15Z",
+      "doneBy": "codex",
+      "files": [
+        "shared/scripts/lib/learning_write.py",
+        "shared/scripts/lib/cortex_feed_slots.py"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    },
+    {
+      "id": "2",
+      "title": "Expose optional-mirror outcomes and document saturation and isolation",
+      "done": true,
+      "doneAt": "2026-10-05T13:58:02Z",
+      "doneBy": "codex",
+      "files": [
+        "shared/scripts/lib/learning_write.py",
+        "docs/guide/memory-tiers.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

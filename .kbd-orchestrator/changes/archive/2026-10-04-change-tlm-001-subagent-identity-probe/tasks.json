@@ -1,0 +1,54 @@
+{
+  "changeId": "change-tlm-001-subagent-identity-probe",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write probe-subagent-identity.sh (scratch project, project-local agent and hooks, nonce injection, stdin capture, isolation flags, before/after hashes of config, queues and memory stores)",
+      "done": true,
+      "doneAt": "2026-10-04T00:30:49Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/probe-subagent-identity.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Run the Claude Code probe and record behaviours 1, 2 and the Claude half of 5, with fallbacks",
+      "done": true,
+      "doneAt": "2026-10-04T00:32:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".kbd-orchestrator/phases/team-aware-learning-memory/evidence/subagent-identity-probe.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Run the Codex probe and record behaviours 3, 4 and the Codex half of 5, with fallbacks",
+      "done": true,
+      "doneAt": "2026-10-04T00:48:07Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".kbd-orchestrator/phases/team-aware-learning-memory/evidence/subagent-identity-probe.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Inspect Codex per-thread memory controls (behaviour 6) from codex --help, the config schema and the binary, and record verdicts plus residual side effects and hash comparison",
+      "done": true,
+      "doneAt": "2026-10-04T00:49:38Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".kbd-orchestrator/phases/team-aware-learning-memory/evidence/subagent-identity-probe.md"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlm-001-subagent-identity-probe/verify.sh",
+      "notes": null
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "changeId": "change-ldd-11-entrypoint-spec-contract",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add and route the production-entry-point acceptance template",
+      "done": true,
+      "doneAt": "2026-10-05T14:04:59Z",
+      "doneBy": "codex",
+      "files": [
+        "skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md",
+        "skills/process/kbd-process-orchestrator/references/native-backend.md",
+        "skills/process/kbd-process-orchestrator/references/spec-backend-interface.md",
+        "skills/process/kbd-process-orchestrator/references/templates/acceptance.template.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

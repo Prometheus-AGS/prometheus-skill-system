@@ -21,7 +21,7 @@ scope:
 ## Context
 
 The user's lost-place problem is rooted in fragmented state: waypoint +
-per-phase progress.json + foreign `.evolver/`/`.zeespec/` dirs, with no single
+per-phase progress.json + foreign `.evolver/`/`.spec-gate/` dirs, with no single
 machine-readable tree. position.json is DERIVED (never accumulated) so it can
 be stale by at most one write but can never diverge.
 
@@ -33,7 +33,7 @@ In:
   - Rebuilds `.kbd-orchestrator/position.json` from waypoint (+ childPointer),
     each node's progress.json, and the active change's task surface when
     available. Atomic write.
-  - Read-only ingest adapters: if `.evolver/` or `.zeespec/` exist, attach
+  - Read-only ingest adapters: if `.evolver/` or `.spec-gate/` exist, attach
     `annotations[]` entries (source, ref, one-line summary). Never writes there.
   - `cursor[]` = flattened active path (phase[, child][, change][, task:i]).
 - New `KBD/references/schemas/position.schema.json`.

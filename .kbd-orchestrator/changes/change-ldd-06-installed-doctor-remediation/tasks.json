@@ -1,0 +1,19 @@
+{
+  "changeId": "change-ldd-06-installed-doctor-remediation",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Resolve and quote a verified installed helper in doctor diagnostics",
+      "done": true,
+      "doneAt": "2026-10-05T14:11:52Z",
+      "doneBy": "codex",
+      "files": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+        "docs/codex-plugin.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

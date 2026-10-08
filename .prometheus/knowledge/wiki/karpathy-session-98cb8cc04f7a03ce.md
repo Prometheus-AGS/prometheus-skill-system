@@ -25,7 +25,7 @@ Completed kbd-spec — kimi-desktop-extensibility
 | `kde-002-session-start` | Emit `sessionStart` → `kbd-status` |
 | `kde-003-hooks-probe` | Throwaway probe for `hooks` / `systemPrompt` |
 
-ZeeSpec gate inactive (no `.zeespec/` — opt-in). Backend resolved to native-kbd.
+spec-gate gate inactive (no `.spec-gate/` — opt-in). Backend resolved to native-kbd.
 
 ## Acting on the judge's warning changed the spec
 

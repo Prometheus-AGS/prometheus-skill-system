@@ -1,0 +1,147 @@
+{
+  "mode": "artifact",
+  "target": "spec",
+  "round": 2,
+  "verdict": "PASS",
+  "judge_model": "claude-sonnet (harness-native)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-family-harness-native",
+  "round1_resolution": [
+    {
+      "finding": "CRITICAL 06 criterion 3 (--reconcile-phase reconcile field, cadence.mjs never called) unproven",
+      "status": "resolved"
+    },
+    {
+      "finding": "CRITICAL 04 live :23001 read / no-surviving-server check missing from gate",
+      "status": "resolved"
+    },
+    {
+      "finding": "CRITICAL 02 real ~/.codex/auth.json symlinked into scratch CODEX_HOME; install_to_codex failure path ungated",
+      "status": "resolved"
+    },
+    {
+      "finding": "WARNING 06->03 and 08->04 dependency not guaranteed in base",
+      "status": "resolved"
+    },
+    {
+      "finding": "WARNING 06 reconcile test lacks scratch HOME / unspecified inputs",
+      "status": "resolved"
+    },
+    {
+      "finding": "WARNING 05 latency evidence, idle-p95 stop rule, 1.10.1 bump, hit/miss stats unproven",
+      "status": "partially resolved"
+    },
+    {
+      "finding": "WARNING 07 scratch HOME vs cortex_command discovery; missing assertions",
+      "status": "resolved"
+    },
+    {
+      "finding": "WARNING 08 current-project untagged fixture, scope predicate, circular threshold",
+      "status": "partially resolved"
+    },
+    {
+      "finding": "WARNING 09 generated-path set sources not in scope; sharing criterion unproven",
+      "status": "resolved"
+    },
+    {
+      "finding": "WARNING 02 install hook only in install-skills-flat.sh, not install-system.js",
+      "status": "resolved"
+    },
+    {
+      "finding": "WARNING 03 REFRESH_* seams undefined, verify mode and JSON shape untested",
+      "status": "resolved"
+    },
+    {
+      "finding": "WARNING dist/plugins regeneration not tasked",
+      "status": "resolved"
+    },
+    {
+      "finding": "SUGGESTION 01 rank-2 ordering ambiguity",
+      "status": "resolved"
+    },
+    {
+      "finding": "SUGGESTION 03 procedures/ directory",
+      "status": "resolved"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-05-query-embedding-cache/verification.md",
+      "line": 99,
+      "claim": "The stats criterion cannot be proven where the spec puts the test: crates/surreal-memory/tests cannot reach the HTTP router that lives in the root crate.",
+      "evidence": "Criterion: 'asserted in the cache integration test through the HTTP router'; the test file is crates/surreal-memory/tests/query_embedding_cache.rs and the gate runs `cargo test -p surreal-memory`. On origin/main the router and OperationStats are in the root crate (src/operations.rs:152, :2034, :2136), which depends on the library crate, so the library's integration tests cannot import it. No root tests/ file is in Scope or tasks.json.",
+      "suggested_fix": "Put the stats assertion in src/operations.rs's existing #[cfg(test)] router tests, or add a root tests/ file to Scope and tasks and run `cargo test -p surreal-memory-server` in the gate."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-05-query-embedding-cache/verify.sh",
+      "line": 127,
+      "claim": "The latency-evidence gate still passes if idle p95 exceeds 2.0 s, and the 1.10.1 bump is checked only in Cargo.toml.",
+      "evidence": "The spec says the change 'stops and reports' when idle p95 > 2.0 s, but the gate only greps for the words idle/p50/p95/loaded. The spec bumps Cargo.toml, Cargo.lock and openapi/surreal-memory-v2.openapi.json; verify.sh greps only Cargo.toml.",
+      "suggested_fix": "Parse the idle p95 value from the doc and fail above 2.0 s. Grep 1.10.1 in the openapi file, and in Cargo.lock for the root package entry."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-04-scratch-surreal-for-envelope-test/verification.md",
+      "line": 14,
+      "claim": "The gate runs the committed .mjs with SURREAL_MEMORY_URL unset, so if the .mjs was not rebuilt it still has the :23001 default and would run against, and write into, the operator's live store.",
+      "evidence": "verify.sh: `( cd .../runtime && unset SURREAL_MEMORY_URL; node ../tests/memory-envelope.integration.mjs; test $? -eq 2 )`. Nothing checks that the .mjs matches the edited .mts. A stale .mjs with `?? 'http://127.0.0.1:23001'` that finds the service up runs the full suite and writes records. The check then fails on exit 0, but the writes have already happened.",
+      "suggested_fix": "Add `! grep -q 23001 skills/process/agent-team-creator/tests/memory-envelope.integration.mjs` (and the .mts) before any node invocation. Add a staleness check that rebuilds the tests and diffs the .mjs. Also state the 23001 refusal and the stop-time process check in spec 'What Changes', where only verification.md has them."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-06-ledger-reconciliation/spec.md",
+      "line": 154,
+      "claim": "Goal 2 asks for a ledger/tasks reconciliation check in the cadence iteration, but the change only adds an optional --reconcile-phase flag that nothing invokes.",
+      "evidence": "goals.md: 'add a ledger/tasks reconciliation check to the cadence iteration'. The spec adds the flag to refresh-skill-pack.sh; the profile that calls the procedure is the untracked local .prometheus/cadence file, which no task edits. No file in Scope makes the cadence iteration pass the flag. The kbd-reflect step is covered, the cadence step is not.",
+      "suggested_fix": "Document the profile line that passes --reconcile-phase, in references/profile.md and the committed shim example. Or state that the cadence leg of the goal is delivered by the flag plus the operator's profile edit, and add a verification line for it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-02-codex-memories-install-and-doctor/verification.md",
+      "line": 18,
+      "claim": "The unauthenticated prompt-input step can leave this gate BLOCKED permanently, and how the install-system.js Codex step is run in isolation is unspecified.",
+      "evidence": "Criterion 5: 'if prompt-input refuses to run unauthenticated, that step reports BLOCKED (exit 2)'. Because the test script exits 2 mid-run, the later cases are skipped and verify.sh stops before cargo test. Criterion 6 requires the install-system.js Codex memories step to run 'under a scratch HOME', but install-system.js is a full installer and no entry point or flag for running just that step is named.",
+      "suggested_fix": "Run every deterministic case first and emit BLOCKED only at the end, so one blocked case does not hide the others. Name the function or flag that runs only the memories step, or spawn the helper through the same call that install-system.js uses."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlh-08-recall-scoping-and-eval/spec.md",
+      "line": 22,
+      "claim": "'Carry the current project or role scope' is still undefined for pk entries, and the scratch pk root and working directory are not specified.",
+      "evidence": "The assertion is '>= 3 of the top 5 recalled items carry the current project or role scope'. For pk candidates the scope is the pk:<scope> label. `_wiki_entry` also reads PK_KB_DIR for every scope, and the project root is found by walking up from cwd, so the test passes isolation only if cwd and HOME are scratch. verification.md says only 'a scratch pk root'. The threshold is tuned on 2 queries.",
+      "suggested_fix": "Define the predicate as 'candidate scope in {role, lead, team, project, pk:project}'. Require cwd to be the scratch project and HOME the scratch home when calling learning_recall. Assert the held-out set is not empty of foreign entries."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlh-09-rebase-regenerate/tasks.json",
+      "line": 25,
+      "claim": "The rebase test clones the worktree with `git clone --local`, which carries only committed state, so uncommitted implementation files at gate time are absent from the clone.",
+      "evidence": "Task 3: 'temp clone via `git clone --local` of the worktree with node_modules symlinked'. The gate runs before any commit is guaranteed, and rebase-regenerate.sh, generated-paths.mjs and the edited generators would be missing from the clone unless the test copies them in.",
+      "suggested_fix": "State that the test copies scripts/ from the working tree into the clone after cloning, or that the implementation is committed before the gate runs."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlh-03-versioned-cadence-refresh-procedure/spec.md",
+      "line": 280,
+      "claim": "The REFRESH_*_CMD overrides are honoured unconditionally, so a stray variable in the environment of a real refresh would run arbitrary commands.",
+      "evidence": "'REFRESH_UPDATE_CMD, REFRESH_INSTALL_CMD and REFRESH_KICKSTART_CMD override the update, install and kickstart commands' with no guard flag. The round-1 suggestion to honour them only behind a documented test flag was not adopted.",
+      "suggested_fix": "Honour the overrides only when REFRESH_TEST_MODE=1 is set, or print a warning naming the override when one is active."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlh-07-cortex-mirror-real-service/verification.md",
+      "line": 8,
+      "claim": "The criterion names Cortex 2.0.3, but the gate's precondition globs any installed version and nothing asserts the version.",
+      "evidence": "'passes against Cortex 2.0.3', while verify.sh checks `ls ~/.claude/plugins/cache/cortex/cortex/*/dist/mcp-server.js`. The doc change then claims the mirror is verified against 2.0.3. The new site/docs/memory/cortex-mirror.md page also has no sidebar registration in Scope.",
+      "suggested_fix": "Have the test read the version from the plugin directory name or package.json and fail or BLOCK on a mismatch. Add the docs sidebar file to Scope if the site requires registration."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

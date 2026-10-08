@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-05T14:51:35.101344+00:00",
+  "purpose": "source/provenance correspondence; no benchmark run, acceptance gate or completion claim",
+  "upstreamRepository": "https://github.com/Ayanami0730/deep_research_bench",
+  "upstreamCommit": "469cce54ea7f6a63c163d3d9fec879cf289ec484",
+  "upstreamNoticeAtRepositoryRoot": false,
+  "files": [
+    {
+      "path": "LICENSE",
+      "url": "https://github.com/Ayanami0730/deep_research_bench/blob/469cce54ea7f6a63c163d3d9fec879cf289ec484/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "gitBlobSha1": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "bytes": 11357
+    },
+    {
+      "path": "data/criteria_data/criteria.jsonl",
+      "url": "https://github.com/Ayanami0730/deep_research_bench/blob/469cce54ea7f6a63c163d3d9fec879cf289ec484/data/criteria_data/criteria.jsonl",
+      "sha256": "4dbd2451bc487647b3588193e52b00be1fbe5540174da3b3707db57197697edb",
+      "gitBlobSha1": "fa262defc40a3d159603eb46a71645fa4ae86e9a",
+      "bytes": 1005787
+    },
+    {
+      "path": "data/prompt_data/query.jsonl",
+      "url": "https://github.com/Ayanami0730/deep_research_bench/blob/469cce54ea7f6a63c163d3d9fec879cf289ec484/data/prompt_data/query.jsonl",
+      "sha256": "62b197a264a027fd4e2e795ff322a82dd6d566f5e350596ccc7572539ec987d1",
+      "gitBlobSha1": "20a0c689704c364c9e85b5eb30c1fc139a73f86e",
+      "bytes": 38080
+    },
+    {
+      "path": "prompt/score_prompt_en.py",
+      "url": "https://github.com/Ayanami0730/deep_research_bench/blob/469cce54ea7f6a63c163d3d9fec879cf289ec484/prompt/score_prompt_en.py",
+      "sha256": "7a63dac448e3ade2b577bcca5e455b46849930c1c2c0c664b287abdfa9b1b813",
+      "gitBlobSha1": "de186abf49eb2c0900478daac95b213ef305dfad",
+      "bytes": 16352
+    }
+  ],
+  "observations": [
+    {
+      "local": "queries/subset-10.jsonl",
+      "ids": [
+        51,
+        58,
+        66,
+        71,
+        75,
+        79,
+        81,
+        83,
+        85,
+        87
+      ],
+      "allRowsEqualToPinnedUpstream": true,
+      "upstreamRows": 100,
+      "localSha256": "526298bfc84f7cd349cc535e816c856a5be62ca1bc2f25f719024a639f9b0b39"
+    },
+    {
+      "local": "criteria/subset-10-criteria.jsonl",
+      "ids": [
+        51,
+        58,
+        66,
+        71,
+        75,
+        79,
+        81,
+        83,
+        85,
+        87
+      ],
+      "allRowsEqualToPinnedUpstream": true,
+      "upstreamRows": 100,
+      "localSha256": "f2b2c0127f6166d8ec8e5f9d6fb6923171972368582ed576eae048917088c061"
+    },
+    {
+      "local": "criteria/score_prompt_en.py",
+      "bytesEqualToPinnedUpstream": true
+    }
+  ],
+  "retrieval": "GitHub git-tree/blob API; local Python TLS trust failed, no trust disabling or configuration change"
+}

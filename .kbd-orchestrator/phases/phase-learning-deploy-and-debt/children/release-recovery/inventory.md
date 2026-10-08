@@ -1,0 +1,41 @@
+# Release recovery: minimum closure inventory
+
+Read-only assessment, 2026-10-05. Sources: recovery baseline revision2377; parent plan/verification contract/historical map; candidate batch receipts `initial-20261005T210725Z` (37m36s) and `initial-20261005T215759Z` (22m26s). No tests, builds, product edits, KBD transitions, live-home operations or publication performed.
+
+Baseline is exactly **325 complete, 12 unfinished, one cancelled task, plus three taskless changes**. Five unfinished tasks are historical and seven belong to the parent. Preserve cancelled `kbd-control-plane-recovery/reconcile-kbd-control-plane-projections/8` as terminal: sovereign-sync launchd restarts were superseded, not forgotten acceptance.
+
+Paths: F=`/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt`; M=`../ldd-mini-final`; S=`../ldd-memory-final`; C=`../ldd-companion-final` (siblings of F). Evidence E=F's `.kbd-orchestrator/phases/phase-learning-deploy-and-debt/evidence`; latest L=`E/local-integration/initial-20261005T215759Z`.
+
+## Exact outstanding mapping
+
+| Canonical item | Minimum existing path/evidence and remaining action |
+|---|---|
+| `control-plane-to-companion/change-cpc-008-sync-skills-plugin/2` | Existing C installer plus declaration; scratch actual registration/install/repeat/remove evidence. L's `real-companion-connected` proves MCP invocation, **not installer registration**. No installer acceptance found in the supplied batches; inspect existing installer evidence before creating anything. |
+| `control-plane-to-companion/change-cpc-009-pack-removal/4` | Reuse L `full-distribution` and `full-docs-sync` after scoped identity match; direct `node scripts/generate-skill-system-distribution.js --check` is also `validate:codex`. Retain final footprint/source-disposition inspection and successful site evidence. No second generator needed. |
+| `deep-research-onyx-parity/change-drt-003-director-worker-agents/6` | Same generated-distribution receipt, matching canonical and packaged driver hashes. Avoid broad `npm run check:distribution`: it adds multiple suites beyond its direct drift check. Existing production install evidence must cover payload activation. |
+| `deep-research-onyx-parity/change-drt-004-deterministic-merge/1` | Existing `bash F/skills/research/deep-research/tests/merge-threads.sh`; L is BLOCKED, not PASS. Reuse passing neighboring `report-assembly.sh` only for its actual report contract. Diagnose the merge process exit before changing production. |
+| `deep-research-onyx-parity/change-drt-006-bench-and-metrics/1` | Existing `tests/bench` criteria/prompt/10 queries/ATTRIBUTION and source-disposition receipts. Check exact upstream469cce54 provenance, subset and notices; this task does **not** require a new inference benchmark or performance claim. Historical map is an earlier source observation, not current acceptance. |
+| `phase-learning-deploy-and-debt/change-ldd-03-published-memory-pins/2` | Existing release proposal/approval plus source graph. Freeze actual certified dependency identities; obtain remaining exact mini SHA/protected metadata approval. Earlier approval does not invent the final SHA. |
+| `phase-learning-deploy-and-debt/change-ldd-03-published-memory-pins/3` | Apply only final approved gitlinks/version substitutions; direct release matrix check and final remote install graph. Already-approved initial metadata is reusable; final identity substitution remains. |
+| `phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/2` | Existing `scripts/tests/test-learning-deploy-and-debt.sh`/Python coordinator, explicit four candidates and inputs. Repair observed narrow defects; use existing `--cases` and provenance-bound `--no-build` for affected confirmations. Then required final integration/fresh-clone certification; neither supplied batch passes. |
+| `phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/3` | One independent cumulative review with exposed distinct model identity; existing diff/evidence. No new review platform. Recovery analysis is not that review. |
+| `phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/4` | Publish certified dependencies/Companion and reviewable PRs; user merges. No hosted validation. |
+| `phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/5` | Approved existing machine rollout and Pages packaging/publication, with installed identity/health. Wait for approved source/merges; do not touch protected deploy-main. |
+| `phase-learning-deploy-and-debt/change-ldd-12-integration-rollout/6` | Existing historical map + actual receipts, typed original-ID closure; retain ambiguous/missing starts. Maintenance readiness follows delivery. Only proven idle/merged worktrees may be removed. |
+| Taskless `control-plane-to-companion/change-cpc-010-kbd-state-migration` | Existing projection migration production CLI and `E/projection-migration-source-handoff.json`; scratch `prometheus kbd --path <project> migrate --projections --dry-run` and projection-only apply, seven adoption/archive receipts, unchanged signed state. No executed migration case found in coordinator; source handoff cannot close it. |
+| Taskless `control-plane-to-companion/change-cpc-011-integration-evidence` | Reuse L `companion-connected-result.json`/`real-companion-connected`: actual two hosts, signed state/MCP. Compare scoped source/binary identities first; preserve recorded limitations. |
+| Taskless `control-plane-to-companion/change-cpc-013-pack-certification-without-companion` | Reuse connected target's standalone doctor assertion only for that assertion. Fresh standalone installation/KBD/skill paths and committed protected integrity remain; no full standalone receipt found. |
+
+## Stop / reuse / do
+
+**Stop:** new harnesses, broad audits, unrelated source fixes, new performance benchmarks, full rebuilds solely because aggregate bookkeeping changed, repeated generation of unchanged outputs, and resurrecting cancelled restart acceptance. Stop treating receipt-wrapper failures as production defects.
+
+**Reuse conditionally:** L passes native/hook/memory/Companion builds, hook bytecode, distribution/docs sync, report assembly, rebase ownership, real Companion integration, mini build and generated bytes/modes. Earlier batch passes partition/harness/version/workflow checks. These are scoped receipts, not whole-release acceptance. Current matching hashes were not independently recomputed in this bounded inventory; compare relevant production/generator/test inputs and binary hashes before crediting them. Build success alone is not runtime evidence.
+
+**Do narrowly:** cache test `tests/query_cache_production.rs:95` fails E0277 (`LowerHex` on digest); Codex-memory test has unmatched `)`; mini expects `no memory endpoint configured` but receives `missing_project_id` (investigate intended production contract); codex-home install exits1; merge case exits BLOCKED; full site has unresolved `../production-readiness-report.md`. Protected-candidate wrapper fails during scratch Git operation; retain mandated `scripts/verify-protected-tests.mjs` from committed state, not an unnecessary wrapper architecture.
+
+The mini crawler's literal `handoff` substring assertion is an author-selected proxy, not an approved exact acceptance rule. Replace its interpretation with actual handbook/navigation evidence; do not weaken required content coverage. Requested-case coverage bookkeeping is not another product gate. Conversely real Cortex, Codex consolidation, cache/process behavior, migration and final remote install evidence are explicit parent requirements; their absence cannot be silently waived.
+
+## Sixty-minute verdict
+
+**End-to-end completion is not defensibly promised.** The latest partial batch alone took22m26s; earlier took37m36s and neither passed. Untimed repair, distinct-model review, user-only merges, exact pin approval, final clone, rollout and historical disposition remain. A 60-minute bounded attempt can freeze reuse (0–10), make one justified repair batch (10–25), run affected existing cases (25–45), and prepare review/publication handoff (45–60). Human-dependent release steps have no demonstrated upper bound. At minute60 report exact remaining obligations; do not label pending merges/rollout or missing acceptance complete.

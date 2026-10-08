@@ -12,7 +12,7 @@
 #   . shared/lib/position.sh
 #   kbd_position_sync            # writes <root>/.kbd-orchestrator/position.json
 #
-# Foreign state (.evolver/, .zeespec/) is ingested READ-ONLY as annotations —
+# Foreign state (.evolver/) is ingested READ-ONLY as annotations —
 # this lib never writes outside .kbd-orchestrator/position.json.
 
 _progress_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/progress.sh"
@@ -87,12 +87,6 @@ _pos_annotations() { # <root>
     evos="$(ls "$root/.evolver/evolutions" 2>/dev/null | head -3 | tr '\n' ',' | sed 's/,$//')"
     ann="$(printf '%s' "$ann" | jq -c --arg ref ".evolver/" --arg s "evolutions: ${evos:-none}" \
       '. + [{source:"evolver", ref:$ref, summary:$s}]')"
-  fi
-  if [ -d "$root/.zeespec" ]; then
-    local subjects
-    subjects="$(ls "$root/.zeespec" 2>/dev/null | head -3 | tr '\n' ',' | sed 's/,$//')"
-    ann="$(printf '%s' "$ann" | jq -c --arg ref ".zeespec/" --arg s "subjects: ${subjects:-none}" \
-      '. + [{source:"zeespec", ref:$ref, summary:$s}]')"
   fi
   printf '%s' "$ann"
 }

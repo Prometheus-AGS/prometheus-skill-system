@@ -1,0 +1,64 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "claude (harness-native subagent)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-model-collision",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 63,
+      "claim": "The Round-1 gate for change-tlm-001 (on which tlm-002 and tlm-003 depend) cannot pass under the plan's own execution model, because its verify step compares the probe's 'before' hashes against live state at verify time, including files the executing session itself rewrites.",
+      "evidence": "The tlm-001 spec hashes '~/.claude.json', 'listings of ~/.prometheus/learning-queue/{pending,memory/pending} and ~/.prometheus/memory-outbox*', and '~/.codex/memories/{memory_summary.md,MEMORY.md}' into the 'before' block. verification.md then runs 'changed=[k for k in before if before[k]!=h(k)]; assert not changed'. That compares against current live state, not against the probe's own 'after' block. The plan's task table says 'current agent executes the task in this session' (Claude Code 2.1.289, native). That session updates ~/.claude.json, and its pack Stop hooks enqueue learning jobs, so these keys drift for reasons that have nothing to do with the probe. The acceptance criteria name only 4 files as byte-identical; the verify script checks every key. The likely outcomes are that the gate blocks 002 and 003, or that the executor quietly prunes the evidence block to get past it.",
+      "suggested_fix": "Make the verify compare the probe's recorded 'before' and 'after' JSON blocks, both taken by the script around each run. Re-hash live state only for the 4 config files named in the acceptance criteria. List volatile paths (~/.claude.json, the learning queue, the outbox) as observed-with-attribution, not as part of the byte-identical gate."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 48,
+      "claim": "The task-model table has exactly one row per task (13 rows: 004×3, 001×4, 002×3, 003×3, matching tasks.json), but each row's rationale contradicts the plan's own model-class assignment, and all 13 rows are identical boilerplate.",
+      "evidence": "Change list: tlm-004 'Model class: medium' (line 14) and tlm-001 'Model class: medium' (line 23). Every table row, including the 004 rows marked 'low uncertainty; mechanical contract edit', gives the rationale 'frontier class required by kbd-plan for design tasks' and 'session default (high)'. tlm-004 is not a design task. The 'Rationale and dated evidence' column is copy-pasted, not derived from each task's requirements.",
+      "suggested_fix": "Either assign a medium-class model or route for tlm-004 and tlm-001 rows, or change their Model class to frontier and state why. Give per-task rationale that reflects the Requirements column."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 37,
+      "claim": "change-tlm-003 consumes work deferred from change-tlm-004 but does not declare it as a dependency; the order holds only by accident of rounds.",
+      "evidence": "tlm-003 spec: 'SubagentStop matcher namespacing (deferred from change-tlm-004)' and 'the prometheus-skills-mini hook-timeout fix (deferred from change-tlm-004)'. tlm-003's mini fix and the ≤5 s delivery-hook timeouts in tlm-002 section 5 also assume 004's seconds semantics and its 1–600 generator bound. plan.md line 37 lists only 'Depends on: change-tlm-002-team-aware-learning-design'. If tlm-004 blocks or is revised, tlm-003 can still proceed and will encode a timeout contract that never landed.",
+      "suggested_fix": "Add change-tlm-004-hook-timeout-seconds to tlm-003's Depends on. Optionally add it to tlm-002 as well, since section 5's 5 s timeout assumes seconds."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 75,
+      "claim": "Goal 3's 'measured as context bytes per agent versus today' and goal 5's 'integration gates proving per-agent targeting end to end' are met only as specifications. The plan's scope cut acknowledges design-only work in general, but it does not say which goal acceptance conditions are being deferred.",
+      "evidence": "Goals: '...measured as context bytes per agent versus today' and '...with integration gates proving per-agent targeting end to end in both harnesses'. tlm-002 section 10 promises 'Bytes per agent before and after', but no change measures an 'after'. tlm-002's verify checks only for strings such as '8,000' and 'total per-subagent'. tlm-003 only writes the gates down. The trade-off line says 'This phase designs; it does not implement' but never maps that onto goals 3 and 5, so reflect may score them MET on documents alone.",
+      "suggested_fix": "Add a goal-to-change traceability block. State explicitly that goals 3 and 5 are satisfied by a measured baseline (today) plus specified gates, and that the 'after' measurement and gate execution are owned by named PRs in the revised plan."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 1,
+      "claim": "No change in the plan covers goal 1 (inventory of every memory/learning read/write path and of the identity available at each hook point). The plan does not state where that goal is satisfied.",
+      "evidence": "Goal 1: 'Inventory every memory and learning read/write path (surreal-memory, pk scopes, Karpathy session logs, learning log, candidate queues) and the agent identity available at each point...'. The four changes are a timeout fix, a runtime probe of 6 behaviours, a design document and a plan. tlm-002 section 1 covers identity sources but not a read/write path inventory, and no verify command checks for one. The assess handoff implies assessment.md did the inventory, but plan.md never says so."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 63,
+      "claim": "Round 1 is labelled parallel, but every task-table row assigns the single current agent in this session; there is no second worker, launch or handoff defined.",
+      "evidence": "'Round 1 (parallel): change-tlm-004..., change-tlm-001...' versus each row's 'current agent executes the task in this session'. In practice the round is sequential. If it were run in parallel, 004's regeneration and validation commands would share the session with the tlm-001 probe while that probe takes live-state hashes.",
+      "suggested_fix": "Either declare Round 1 sequential (run 001 first, since it is the critical path) or define a separate worker for one of the changes."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "Some verify predicates are fragile and can pass or fail on wording rather than substance.",
+      "evidence": "tlm-003 verify uses idx('pin'), which matches the first PR heading containing the substring 'pin' (for example 'mapping' or 'pipeline'), so the order assertion idx('pk')<idx('pin')<idx('identity') can be satisfied by an unrelated heading. tlm-004 verify runs '! grep -n -i -E \"milliseconds|...\" docs/codex-plugin.md', which bans the word entirely, including a correct sentence such as 'Codex does not use milliseconds' or a description of Kimi's controlTimeoutMs.",
+      "suggested_fix": "Anchor the pin check to a word boundary or exact heading, e.g. r'\\bpin bump\\b'. Narrow the docs grep to the specific wrong claim, e.g. 'Codex.*milliseconds' without a negation."
+    }
+  ]
+}

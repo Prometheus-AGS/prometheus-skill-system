@@ -119,7 +119,7 @@ A tick reads the definition and current counters, evaluates declared feedback, t
 
 **Termination** is bounded three ways: `goal_satisfied` (the success path), `max_ticks` (a hard ceiling, default 20, that terminates regardless), and `max_no_progress_ticks` (default 2, a stall detector that escalates rather than spinning).
 
-**Escalation** routes through `/pmpo-elicit`, the elicitation primitive, which offers the operator a bounded set of choices — continue, re-plan, or stop. Escalation is triggered only at declared decision points: a regression in feedback, a stall, a ZeeSpec NO-GO, a capability gap that failed. This is not a limitation of the loop. It is the correct division of cognitive labor.
+**Escalation** routes through `/pmpo-elicit`, the elicitation primitive, which offers the operator a bounded set of choices — continue, re-plan, or stop. Escalation is triggered only at declared decision points: a regression in feedback, a stall, a spec coverage NO-GO, a capability gap that failed. This is not a limitation of the loop. It is the correct division of cognitive labor.
 
 ## The cadence options
 

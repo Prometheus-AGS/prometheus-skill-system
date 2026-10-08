@@ -1,0 +1,45 @@
+{
+  "changeId": "change-tlh-09-rebase-regenerate",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[09] Add scripts/generated-paths.mjs (with output-list exports from both generators) and use it from the distribution check",
+      "done": true,
+      "doneAt": "2026-10-05T04:52:17Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/generated-paths.mjs",
+        "scripts/generate-skill-system-distribution.js",
+        "scripts/generate-harness-adapters.js"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[09] Write scripts/rebase-regenerate.sh and document it in CONTRIBUTING.md",
+      "done": true,
+      "doneAt": "2026-10-05T04:52:49Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/rebase-regenerate.sh",
+        "docs/CONTRIBUTING.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[09] Add test-rebase-regenerate.sh (temp repo built from the worktree's current files including uncommitted ones (copied excluding .git and node_modules, then `git init` + commit), `node_modules` symlinked: two branches editing one skill's SKILL.md so dist/ conflicts; rebase; helper resolves and validators pass; a real source conflict is refused with exit 1)",
+      "done": true,
+      "doneAt": "2026-10-05T04:53:22Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/tests/test-rebase-regenerate.sh"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlh-09-rebase-regenerate/verify.sh",
+      "notes": null
+    }
+  ]
+}

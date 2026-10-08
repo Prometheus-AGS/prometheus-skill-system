@@ -1,0 +1,46 @@
+{
+  "recordedAt": "2026-10-05T23:27:43.796888+00:00",
+  "scope": "Owner-authorized existing source publication and local documentation visual validation only",
+  "repositories": [
+    {
+      "repository": "prometheus-skill-system",
+      "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/learning-deploy-and-debt",
+      "branch": "codex/learning-deploy-and-debt",
+      "commit": "18f9a72ab7542058887733b66540c724f871345a",
+      "pushedCommit": "18f9a72ab7542058887733b66540c724f871345a",
+      "pullRequest": "https://github.com/Prometheus-AGS/prometheus-skill-system/pull/161",
+      "remainingTrackedChanges": [],
+      "localUntrackedEntryCount": 96
+    },
+    {
+      "repository": "prometheus-skills-mini",
+      "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-mini-final",
+      "branch": "codex/ldd-mini-final",
+      "commit": "4a7119539a019d950c610c475edecc788b28e795",
+      "pushedCommit": "4a7119539a019d950c610c475edecc788b28e795",
+      "pullRequest": "https://github.com/Prometheus-AGS/prometheus-skills-mini/pull/43",
+      "remainingTrackedChanges": [],
+      "localUntrackedEntryCount": 0
+    },
+    {
+      "repository": "surreal-memory-server",
+      "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-memory-final",
+      "branch": "codex/ldd-memory-final",
+      "commit": "a2087ab680f540894c0ef9dd7a4e428ce0f3246e",
+      "pushedCommit": "a2087ab680f540894c0ef9dd7a4e428ce0f3246e",
+      "pullRequest": "https://github.com/Prometheus-AGS/surreal-memory-server/pull/47",
+      "remainingTrackedChanges": [],
+      "localUntrackedEntryCount": 0
+    },
+    {
+      "repository": "prometheus-companion",
+      "worktree": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final",
+      "branch": "codex/ldd-companion-final",
+      "commit": "4fc0c04bae9c05f69b0036ba68d6ac6a6e8bed4e",
+      "pushedCommit": "4fc0c04bae9c05f69b0036ba68d6ac6a6e8bed4e",
+      "pullRequest": "https://github.com/Prometheus-AGS/prometheus-companion/pull/1",
+      "remainingTrackedChanges": [],
+      "localUntrackedEntryCount": 0
+    }
+  ]
+}

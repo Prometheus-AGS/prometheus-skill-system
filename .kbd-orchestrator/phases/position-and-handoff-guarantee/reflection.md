@@ -23,7 +23,7 @@ Gate: sycophancy-correction analyze_reflect_phase — score 0.0, S-08 not detect
 1. House rule for hook/renderer bash: any jq read over a possibly-absent key uses `//` chaining, never conditionals; every new key fallback gets a fixture test in the same change. Applied already in this phase's tests; carry into Phase 2 scripts.
 2. When the scope guard ships (Phase 3), kbd-plan instructions must require listing companion artifacts (baselines, generated state, lockfiles) in scope at plan time; until then, record expansions in change.md as done here.
 3. First action of the next session: confirm the position block is injected on prompt and the Stop gate fires on a footer-less reply; record the result in the next phase's assessment. Add a rollout note to the phase handoff.
-4. Burn down the 23-entry baseline opportunistically in Phases 2–6: every phase that edits an evolver/zeespec/creator skill must also add its Progress Signals section and shrink the baseline in the same change.
+4. Burn down the 23-entry baseline opportunistically in Phases 2–6: every phase that edits an evolver/spec-gate/creator skill must also add its Progress Signals section and shrink the baseline in the same change.
 5. Phase 2's native-backend change must add kbd_position_sync to kbd-apply end-task and the waypoint write helper — tracked as an explicit task in that phase's plan, not a doc note.
 
 ## Recommended Next Phase

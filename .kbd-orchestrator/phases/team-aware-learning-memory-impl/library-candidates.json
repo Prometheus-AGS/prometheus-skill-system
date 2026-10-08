@@ -1,0 +1,127 @@
+{
+  "phase": "team-aware-learning-memory-impl",
+  "generated_at": "2026-10-04T02:45:16.597028+00:00",
+  "gaps_addressed": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B3",
+    "B5",
+    "D2"
+  ],
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1": 9,
+      "tier2": 0,
+      "tier3": 1,
+      "tier4": 0
+    }
+  },
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "Incumbent agent-team-creator memory writer (runtime/src/memory.mts queueMemory/publishMemory)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "B3 attributed writes: already has explicit agent_id, digest ids, outbox, categories; envelope differs from learning-envelope.schema.json",
+      "verdict": "adapt",
+      "coverage_estimate": 0.5,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "git show origin/main:skills/process/agent-team-creator/runtime/src/memory.mts",
+          "claim": "queueMemory :21, publishMemory :102, body {content, agent_id, user_id, session_id, categories:['agent-team', scope]} :66"
+        }
+      ]
+    },
+    {
+      "id": "cand-002",
+      "name": "Codex native SubagentStart hook with additionalContext",
+      "kind": "framework",
+      "registry": "none",
+      "fit_for_gap": "B5/alpha gate Codex leg: per-subagent delivery",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "evidence/codex-subagentstart-spike/subagentstart-payload.json",
+          "claim": "codex-cli 0.158.0 fired SubagentStart with agent_type=tlm_spike_role and agent_id; subagent replied NONCE:SPIKE-7f3a from injected additionalContext (trusted project in scratch CODEX_HOME, [features].hooks=true, --dangerously-bypass-hook-trust)"
+        }
+      ]
+    },
+    {
+      "id": "cand-003",
+      "name": "Claude Code SubagentStart additionalContext",
+      "kind": "framework",
+      "registry": "none",
+      "fit_for_gap": "B5 Claude leg",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "proprietary",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "../team-aware-learning-memory/evidence/subagent-identity-probe.md",
+          "claim": "behaviour 1 CONFIRMED: additionalContext reaches the subagent; agent_type is name or plugin:name"
+        }
+      ]
+    },
+    {
+      "id": "cand-004",
+      "name": "python jsonschema (Draft 2020-12) for envelope validation in learning_write.py",
+      "kind": "library",
+      "registry": "pypi",
+      "fit_for_gap": "B3 envelope validation before write",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "https://pypi.org/project/jsonschema/",
+          "claim": "4.26.0 installed locally; already used by change-tlm-002 verify; optional import, hook degrades to structural checks when absent"
+        }
+      ]
+    },
+    {
+      "id": "cand-005",
+      "name": "mem0 / CrewAI / Letta scoping and scoring patterns (carried from phase team-aware-learning-memory cand-001..013)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "B4 recall scoring (semantic 0.5 + recency 0.3 + importance 0.2) and scope keys",
+      "verdict": "reference",
+      "coverage_estimate": 0.3,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "../team-aware-learning-memory/library-candidates.json",
+          "claim": "Researched and decided in prior analyze (D-5): copy patterns, adopt no external memory runtime"
+        }
+      ]
+    },
+    {
+      "id": "cand-006",
+      "name": "External memory runtimes (mem0 server, Graphiti, LangMem) as replacement store",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "replace surreal-memory/pk",
+      "verdict": "reject",
+      "coverage_estimate": 0.6,
+      "license": "Apache-2.0",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "../team-aware-learning-memory/analysis.md",
+          "claim": "Rejected in D-5: duplicates two working stores and adds a service the pack must not depend on"
+        }
+      ]
+    }
+  ]
+}

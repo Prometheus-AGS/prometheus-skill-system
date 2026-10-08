@@ -138,9 +138,33 @@ refresh procedure runs it every iteration.
 
 ## Backends
 
+Three spec engines are supported; **`openspec` is the default**:
+
+| Engine | Artifacts | Adapter |
+|---|---|---|
+| `openspec` (default) | `openspec/changes/<change>/{proposal.md,tasks.md}` | `os_*` in `kbd-apply.sh` |
+| `speckit` (GitHub Spec Kit v1.x) | `.specify/` + `specs/<change>/{spec.md,plan.md,tasks.md}` | `sk_*` in `kbd-apply.sh` |
+| `native-kbd` | `.kbd-orchestrator/changes/<change>/tasks.json` | `nk_*` in `kbd-apply.sh` |
+
+### Detection and pinning
+
+Backend resolution is change-scoped first, then repo-wide:
+
+1. `.kbd-orchestrator/project.json` `specBackend` pins the backend
+   (`"openspec"`, `"speckit"`, `"native-kbd"`, or `"auto"`). A pin always wins.
+2. Change-scoped: `.kbd-orchestrator/changes/<c>/{tasks.json,change.md}` →
+   `native-kbd`; `openspec/changes/<c>/{proposal.md,tasks.md}` → `openspec`;
+   `specs/<c>/{tasks.md,spec.md,plan.md}` → `speckit`.
+3. Repo-wide: `openspec/` dir → `openspec`; `.specify/` dir or
+   `specs/*/tasks.md` → `speckit`; `.kbd-orchestrator/changes/*/tasks.json|change.md`
+   → `native-kbd`.
+
+Engine metadata (CLI, pinned versions, adapter pointers) lives in
+[`config/spec-engines.json`](../../../../config/spec-engines.json); the full
+guide — including the adapter contract and how to add or update an engine — is
+[`docs/guide/spec-engines.md`](../../../../docs/guide/spec-engines.md).
 See `references/spec-backend-interface.md` for the full `SpecBackend` contract
-and the verified OpenSpec command/JSON mappings. The OpenSpec adapter is
-implemented; the Spec Kit adapter is delivered by change-007.
+and the verified OpenSpec command/JSON mappings.
 
 ## Progress Signals (MANDATORY)
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # /start-business-build — the headline pipeline orchestrator.
 #
-# Chains every layer of the Prometheus pipeline:
-#   Layer 1: ZeeSpec constraint interrogation
-#   Layer 2: iterative-evolver strategic plan + kbd-process-orchestrator tactical
-#   Layer 3: OpenSpec change set
-#   Layer 4: forge enrich + AI implementation + forge reflect (Karpathy loop)
+# Chains every stage of the Prometheus pipeline:
+#   Stage 1: ideation-mindmap concept expansion
+#   Stage 2: iterative-evolver strategic plan (assess + plan)
+#   Stage 3: OpenSpec change set
+#   Stage 4: forge enrich + AI implementation + forge reflect (Karpathy loop)
 #   Then optionally: forge package-librefang + /upload-to-bossfang
 #
 # This script is the v1 shell-driven implementation. The Rust-based
@@ -110,11 +110,10 @@ if $DRY_RUN; then
     cat <<EOF
 [Dry run] Pipeline plan for slug '$SLUG':
   Stage 1: Ideation mindmap (stub in v1)
-  Stage 2: ZeeSpec interrogation
-  Stage 3: Iterative-Evolver assess+plan
-  Stage 4: OpenSpec / native-KBD change generation
-  Stage 5: forge enrich + AI implement + forge reflect per change
-  Stage 6: forge package-librefang + offer /upload-to-bossfang
+  Stage 2: Iterative-Evolver assess+plan
+  Stage 3: OpenSpec / native-KBD change generation
+  Stage 4: forge enrich + AI implement + forge reflect per change
+  Stage 5: forge package-librefang + offer /upload-to-bossfang
            (skipped: $([ "$SKIP_DEPLOY" = true ] && echo yes || echo no))
   Target: $TARGET
   Bossfang URL: ${BOSSFANG_URL:-(prompt at end)}
@@ -158,36 +157,21 @@ Concept: $CONCEPT
 EOF
 }
 
-stage_2_zeespec() {
-    # Hand the mindmap to zeespec. The actual zeespec entry-point is
-    # /zeespec-interrogate <input-file>; in v1 we delegate the prompt
-    # construction to the calling AI tool by leaving a sentinel file.
-    cat >"$STATE_DIR/zeespec-input.md" <<EOF
-# ZeeSpec Interrogation Input
-
-$CONCEPT
-
-(Stage-2 runner: invoke /zeespec-interrogate $STATE_DIR/zeespec-input.md
- and write the constraint manifest to $STATE_DIR/zeespec.md)
-EOF
-    # Sentinel so the next stage knows constraints are expected to be filled.
-    : > "$STATE_DIR/.zeespec.expected"
-}
-
-stage_3_evolver() {
-    # Hand zeespec output to iterative-evolver. Same delegation pattern.
-    cat >"$STATE_DIR/evolver-input.md" <<EOF
+stage_2_evolver() {
+    # Hand the concept mindmap to iterative-evolver. Same delegation pattern
+    # as stage 1: leave an input file the calling AI tool acts on.
+    cat >"$STATE_DIR/evolver-input.md" <<EVO-EOL
 # Iterative Evolver Input
 
-Constraints in: $STATE_DIR/zeespec.md
-Working dir:    $STATE_DIR
+Concept mindmap in: $STATE_DIR/mindmap.md
+Working dir:       $STATE_DIR
 
-(Stage-3 runner: invoke /evolve-assess and /evolve-plan; write the change list
+(Stage-2 runner: invoke /evolve-assess and /evolve-plan; write the change list
  to $STATE_DIR/evolver-plan.md)
-EOF
+EVO-EOL
 }
 
-stage_4_changes() {
+stage_3_changes() {
     # If openspec/ exists at repo root, emit OpenSpec proposals; else native KBD.
     if [ -d "$(git rev-parse --show-toplevel 2>/dev/null)/openspec" ]; then
         echo "OpenSpec backend selected" > "$STATE_DIR/changes.backend"
@@ -196,7 +180,7 @@ stage_4_changes() {
     fi
 }
 
-stage_5_forge() {
+stage_4_forge() {
     # forge enrich + AI dispatch + forge reflect per change. The dispatch
     # itself is what the orchestrator AI tool drives; this stage prepares
     # the per-change directories and seeds the forge cache.
@@ -206,7 +190,7 @@ stage_5_forge() {
     : >"$STATE_DIR/.forge.ready"
 }
 
-stage_6_package() {
+stage_5_package() {
     if $SKIP_DEPLOY; then
         emit 6 "skip" "--skip-deploy set"
         return 0
@@ -243,11 +227,10 @@ EOF
 }
 
 run_stage 1 ideation     stage_1_ideation
-run_stage 2 zeespec      stage_2_zeespec
-run_stage 3 evolver      stage_3_evolver
-run_stage 4 changes      stage_4_changes
-run_stage 5 forge        stage_5_forge
-run_stage 6 package      stage_6_package
+run_stage 2 evolver      stage_2_evolver
+run_stage 3 changes      stage_3_changes
+run_stage 4 forge        stage_4_forge
+run_stage 5 package      stage_5_package
 
 emit 99 "done" "all stages complete; state at $STATE_FILE"
 echo ""

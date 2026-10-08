@@ -1,0 +1,1 @@
+{"name":"tlmspike-mkt","owner":{"name":"probe"},"plugins":[{"name":"tlmspike","source":"./plugins/tlmspike","description":"probe"}]}

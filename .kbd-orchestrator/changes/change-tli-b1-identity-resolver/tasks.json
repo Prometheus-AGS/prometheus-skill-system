@@ -1,0 +1,59 @@
+{
+  "changeId": "change-tli-b1-identity-resolver",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[B1] Write project_id.py and the bash 3.2 project-id.sh wrapper with the four-level precedence and userScope",
+      "done": true,
+      "doneAt": "2026-10-04T03:45:24Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/project_id.py",
+        "shared/scripts/lib/project-id.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[B1] Write agent_identity.py (prefix strip, Codex underscore map, manifest/owns-glob role match, --is-team-role)",
+      "done": true,
+      "doneAt": "2026-10-04T03:45:24Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/agent_identity.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[B1] Switch memory-bridge, kbd-memory-recall, evaluate-session and enqueue-learning-job to the resolvers; regenerate dist",
+      "done": true,
+      "doneAt": "2026-10-04T03:45:24Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/memory-bridge.sh",
+        "skills/process/kbd-process-orchestrator/skills/kbd-memory-recall/kbd-memory-recall.sh",
+        "shared/scripts/evaluate-session.sh",
+        "shared/scripts/enqueue-learning-job.py"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[B1] Write test-identity.sh (real git repo with two worktrees, payload fixtures for both harnesses)",
+      "done": true,
+      "doneAt": "2026-10-04T03:45:24Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-identity.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-b1-identity-resolver/verify.sh",
+      "notes": null
+    }
+  ]
+}

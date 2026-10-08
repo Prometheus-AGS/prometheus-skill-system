@@ -1,0 +1,58 @@
+{
+  "recordedAt": "2026-10-05T13:30:56.136134+00:00",
+  "initialCheckpoint": "/tmp/ldd-cadence-checkpoint-build-1.json",
+  "failedReason": "Claude registration resolved older protected deployment source (registry1.11.1 vs source1.11.2)",
+  "authority": "owner-goal-20261005-machine-deploy",
+  "protectedCheckout": "No checkout change or traversal requested; obsolete registration replaced through supported native CLIs",
+  "sourceRoot": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main",
+  "durableBranch": "codex/runtime/main",
+  "sourceCommit": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "remediation": [
+    "Codex same-name add explicitly rejected different source; used supported remove/add",
+    "Claude user-scope remove/add then restore original two plugins",
+    "Restore both full and process plugins through native install/add CLIs"
+  ],
+  "claude": [
+    {
+      "id": "prometheus-process-skills@prometheus-skill-pack",
+      "version": "1.7.0",
+      "enabled": true,
+      "scope": "user",
+      "source": null,
+      "installPath": "/Users/gqadonis/.claude/plugins/cache/prometheus-skill-pack/prometheus-process-skills/1.7.0"
+    },
+    {
+      "id": "prometheus-skill-pack@prometheus-skill-pack",
+      "version": "1.11.2",
+      "enabled": true,
+      "scope": "user",
+      "source": null,
+      "installPath": "/Users/gqadonis/.claude/plugins/cache/prometheus-skill-pack/prometheus-skill-pack/1.11.2"
+    }
+  ],
+  "codex": [
+    {
+      "pluginId": "prometheus-skill-pack@prometheus-skill-pack",
+      "version": "1.11.2",
+      "enabled": true,
+      "scope": null,
+      "source": {
+        "source": "local",
+        "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main/dist/plugins/codex/prometheus-skill-pack"
+      },
+      "installPath": null
+    },
+    {
+      "pluginId": "prometheus-process-skills@prometheus-skill-pack",
+      "version": "1.7.0",
+      "enabled": true,
+      "scope": null,
+      "source": {
+        "source": "local",
+        "path": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-machine-main/skills/process"
+      },
+      "installPath": null
+    }
+  ],
+  "status": "native-source-repointed; full-refresh-retry-pending"
+}

@@ -1,0 +1,65 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "claude (harness-native subagent)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-model-collision",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 35,
+      "claim": "Only the role scope can be filtered in the database. The team, project, user and global scopes the recall merges have no agent_id/user_id key that surreal-memory can filter on, so a project-scope query leaks every role's private lessons and cannot pick out the legacy null-agent records.",
+      "evidence": "Row D says \"Query role scope, then team, then project, then user/global\" and \"Recall then stays a database-filtered agent_id query\". Legacy records are \"reachable only by the project-scope query\", and D-3 makes `agent` (author-private) the default. Read-only check of surreal-memory-server @777cf72, crates/surreal-memory/src/storage/surreal.rs:2113-2114, 2424, 2541: agent_id is filtered only by equality and only `if agent_id.is_some()`. No `agent_id IS NONE` filter exists. A project-scope query must therefore omit agent_id. It then returns all roles' agent-private records under that user_id, which breaks private-by-default and fills the top-k with role records that client filtering then discards. Row G also says \"recall always filters both\" user_id = projectId, yet user/global records cannot have user_id = projectId (CLAUDE.md uses user_id=\"global\").",
+      "suggested_fix": "Give every visibility level a filterable key. For example, use sentinel agent_ids such as `<team>/_team` and `_project` for team and project records, and a separate user_id for user and global records. Then either backfill the null-agent legacy records to `_project` or put an upstream `agent_id IS NONE` / category filter on the prerequisite list. State that recall issues one equality-filtered query per scope."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 80,
+      "claim": "Codex native memories are treated only as an injected read tier. Codex also generates memories from every thread, including subagent threads in team projects, into one user-level store. That is an unattributed learning writer outside the envelope, and Goal 1's write-path inventory does not cover it. The config levers that control it are not listed either.",
+      "evidence": "D-2a says the summary is \"consolidated by Codex itself\" and frames the work as \"reducing or partitioning that tier\". Read-only check of the codex 0.158.0 binary strings: config keys `generate_memories`, `use_memories`, `no_memories_if_mcp_or_web_search` and `disable_on_external_context`; a per-thread `threads.memory_mode` column with `UPDATE threads SET memory_mode = ?`; thread sources `subagent:thread_spawn` and `internal:memory_consolidation`; consolidation selects threads `WHERE threads.memory_mode = 'enabled'`. Goal 1 requires inventorying \"every memory and learning read/write path\". D-2a's options (i)/(ii) are both Claude-only, so no Codex option is given.",
+      "suggested_fix": "Add Codex native memory generation to the write inventory. Give D-2a explicit Codex options: `use_memories=false` or `generate_memories=false` per project or profile, setting memory_mode off for subagent threads, or keeping it and accepting a user-level untargeted tier. Add to change-tlm-001 a check on whether subagent rollouts are consolidated."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 87,
+      "claim": "Goal 3 asks for context bytes per agent compared with today, but the analysis sets only per-channel caps. The total per subagent (file tier plus every SubagentStart hook) has no budget, and the stated reason for the 8,000-char figure does not hold.",
+      "evidence": "Row B: \"budget against the per-hook cap (Claude 10,000 chars per hook output), staying at or under 8,000 so other plugins' SubagentStart hooks have room\". If the cap applies per hook, this hook's size does not leave or take room from other hooks, and the subagent's total is unbounded. D-2a puts file-tier reduction (about 14 KB Claude, about 10.8 KB Codex) on an equal footing but sets no target. D-4 lists only the SubagentStart and UserPromptSubmit caps. Round-1 asked for \"the budget as a total across all SubagentStart hooks per subagent\". That part was not adopted.",
+      "suggested_fix": "Define a per-subagent total budget: file tier plus pack SubagentStart, with a target below today's about 14 KB. Use it as the Goal 3 metric. Correct the per-hook reasoning."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 51,
+      "claim": "The Cortex reconciliation covers only lookups. CLAUDE.md also requires agents to write memories to Cortex after every task, and those unscoped writes keep bypassing the envelope. No CLAUDE.md change is scheduled.",
+      "evidence": "Row N: \"Cortex stays an agent-level fallback for interactive lookups; the pack's automated pipeline uses surreal-memory, then pk, then file.\" CLAUDE.md, \"Write memories after every feature or bug fix\": \"immediately create memories\", with a scope table that includes a Cortex column (`projectId=\"prometheus-skill-pack\"`, `global=true`). Agents on the Cortex path write with no team/role. Round-1 suggested scheduling the doc change. The analysis does not.",
+      "suggested_fix": "Either restrict Cortex to read-only in the CLAUDE.md memory section, or require the envelope fields on Cortex writes. Name the change that edits CLAUDE.md."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "line": 50,
+      "claim": "The gap E row still does not name the single project-id resolver or its precedence. Every key (user_id = projectId) and the G row depend on it.",
+      "evidence": "\"Unify the four project-id derivations into one resolver.\" It gives no source order (for example `PROMETHEUS_PROJECT_ID` > `.prometheus/project.json` > git toplevel basename) and no handling for worktrees. origin/main shared/scripts/lib/memory-bridge.sh:16 currently defaults to the literal `prometheus-skill-pack`. Worktrees of one repo must resolve to the same id, or role recall splits across them.",
+      "suggested_fix": "Name the resolver, its precedence, and the worktree rule (resolve to the main checkout's id)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "line": 44,
+      "claim": "The team digest is a project-local file, ignored by git in this repo, so each worktree gets its own digest and they diverge. The surreal-memory mirror then becomes the only shared copy, but the analysis does not say which copy is authoritative.",
+      "evidence": "\"Store: an append-only JSONL file at `.prometheus/team-digest/<team>.jsonl` in the project ... Mirrored as surreal-memory records\". The `git check-ignore` result is `.gitignore:94:.prometheus/*`. This repo runs agents from several worktrees (`.worktrees/`, `.claude/worktrees`).",
+      "suggested_fix": "Resolve the digest path to the main checkout (git common dir) or a per-project path under ~/.prometheus, and name the authoritative copy."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "library-candidates.json",
+      "claim": "`gaps_addressed` is stale compared with the revised analysis. Three queue producers that are still missing get no verdict.",
+      "evidence": "gaps_addressed lists only A, B, C, D, F and J. The analysis now has rows for E, G, K, N and Goal 5, and cand-012 and cand-013 cite N. Assessment J says the promotion, new-skill and knowledge-gap queues have producer \"none\". Row J only adds audience fields and a rename. The Goal 5 row defers verdicts (\"Verdicts per feature are carried in the revised plan\").",
+      "suggested_fix": "Update gaps_addressed. Give the missing producers (promotion, skill-proposals, knowledge-gaps) a build verdict and owner, or explicitly defer them."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "stage": "reflect",
+  "completedAt": "2026-10-04T22:43:47Z",
+  "outputs": [
+    "reflection.md"
+  ],
+  "nextStage": null,
+  "summaryForNext": "25/25 changes delivered, all goals MET. Deltas: ledger drift from mark-done, generated-file rebase churn (6 PRs), a stale-head merge (mini #34), live-only defects (doctor hook parsing, missing team label, Codex parent-context forking), cadence freeze/parity friction. Corrective actions and 13 lessons recorded; next phase seed: phase-team-learning-hardening.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -1,0 +1,98 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "claude (harness-native subagent)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-model-collision",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "change-tlm-001-subagent-identity-probe/spec.md",
+      "line": 32,
+      "claim": "The Codex isolation flag `-c features.memories=false` turns off the feature that behaviour 5 is meant to observe. The Codex half of behaviour 5 will therefore always come back as 'not received', and fallback 5 turns that result into 'no reduction work' for change-tlm-002 D-2a.",
+      "evidence": "spec line 17: behaviour 5 asks 'Whether a Codex subagent receives the native `memory_summary.md`'. Line 32: 'codex exec --ephemeral -c features.memories=false'. `codex features list` (0.158.0) shows `memories  stable  true`, and ~/.codex/config.toml [features] sets memories = true, so the user's real configuration injects memories and the probe configuration does not. Line 49, fallback 5: 'Not reaching them means there is no reduction work.' The probe would record an artefact of its own configuration as a harness behaviour, and the design would drop Codex file-tier reduction because of it. Planting a token is also impossible here, because the Codex store lives under CODEX_HOME=~/.codex, which the spec forbids touching.",
+      "suggested_fix": "Either run a separate Codex behaviour-5 sub-probe with memories enabled and only generation disabled (the behaviour-6 keys, e.g. -c memories.generate_memories=false, once task 4 confirms they exist), detecting injection from the subagent's self-report or `--json` events, or require behaviour 5 (Codex) to be recorded UNVERIFIABLE whenever memories are disabled. Also make fallback 5 say that UNVERIFIABLE means the reduction is kept in scope, not that there is no reduction work."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-001-subagent-identity-probe/spec.md",
+      "line": 33,
+      "claim": "The declared residual side effects leave out the enabled Codex plugin hooks, which `--dangerously-bypass-hook-trust` runs. Two persistent user stores are also not hashed: ~/.claude.json and the Codex CODEX_HOME state, logs and SQLite.",
+      "evidence": "Line 33 declares only 'ghostex notify and impeccable' as residual. ~/.codex/config.toml enables `prometheus-skill-pack@prometheus-skill-pack` and `hybrid-mobile-architecture@knowme-builder` among about 35 plugins. The pack plugin bundles SessionStart kbd-control, memory-outbox-flush, pk-health, PostToolUse memory-writeback, SubagentStop and Stop hooks (hook-contract.json). `codex exec --help`: the bypass flag runs 'enabled hooks without requiring persisted hook trust'. With HOME=scratch the file writes go to scratch, but any localhost REST or daemon writes (surreal-memory, the KBD runtime) still reach the user's real stores. Those plugin hooks also fire SubagentStart/SubagentStop alongside the probe's own hooks, which can confound the injected-context evidence. `claude -p` in a new directory writes a project entry to ~/.claude.json, and that file is not in the hash list. Round-1 finding 1 asked for ~/.claude.json to be hashed.",
+      "suggested_fix": "Add `--ignore-user-config` to the Codex run (`codex exec --help`: auth still uses CODEX_HOME), so enabled plugins are not loaded, and re-check which user hooks remain. List every hook that still fires as residual. Add ~/.claude.json to the hashed set, or declare its project-entry write as residual."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-001-subagent-identity-probe/spec.md",
+      "line": 17,
+      "claim": "For the Claude half of behaviour 5, the only 'scratch-only memory location' is the auto-memory directory under ~/.claude/projects/<scratch-slug>/memory. Planting a token there changes a hashed item, so it either fails the probe's own gate or has to be declared residual. No cleanup is specified.",
+      "evidence": "Line 17: 'planting a unique token in a scratch-only memory location where the harness allows it'. Line 39 hashes 'the file count of `~/.claude/projects/<scratch-slug>`', and line 41: 'Any difference outside the declared residuals fails the probe'. A scratch project's auto-memory is empty unless planted, so without a plant the subagent cannot be shown to receive the 14 KB project MEMORY.md that the behaviour names. Planting writes into ~/.claude, which the stage focus treats as a persistent user modification.",
+      "suggested_fix": "Specify the plant explicitly: path, creation, and removal in a trap. Declare the slug directory as a residual that must be absent after the run, and verify that absence mechanically. Alternatively, say that the Claude half of behaviour 5 is inferred only and recorded UNVERIFIABLE."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-001-subagent-identity-probe/verification.md",
+      "line": 20,
+      "claim": "The verify step is still partly self-certifying. It collapses verdicts to one per behaviour number instead of one per harness, and it accepts any key the producer lists in the self-written `json residual` block.",
+      "evidence": "`rows={int(m.group(1)) ...}` is a set, so behaviour 5, which has a Claude half and a Codex half, passes with a single row. The fallback check uses `re.search` and inspects only the first row for each number. `assert set(diff)<=set(allowed)`, where `allowed` is parsed from the evidence file the producer writes, so declaring a key residual excuses any change to it. The verify step also never re-hashes the live files to confirm the recorded 'after' block. Round-1 finding 3 is only partly resolved.",
+      "suggested_fix": "Key the verdicts by (harness, behaviour) and require the expected set, e.g. {(claude,1),(claude,2),(claude,5),(codex,3),(codex,4),(codex,5),(codex,6)}. Pin `allowed` to a constant list in the verify script that matches the spec's declared residuals. Re-hash the user files in the verify step and compare them with the recorded 'before' block."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-004-hook-timeout-seconds/verification.md",
+      "line": 20,
+      "claim": "The C-04 idempotency check compares `git status --porcelain` output across two generator runs. That output is identical for any already-modified file whatever its bytes are, so the check passes vacuously.",
+      "evidence": "Both runs execute after the change has modified hooks/*.json, shared/harnesses/generated/*, dist/*. Each run prints ` M <path>` for every such file no matter what it contains, so non-deterministic output, such as an unstable bundleId or key order, is invisible to the check. The acceptance criterion says 'Generation run twice yields identical hashes'. Round-1 finding 9 asked for double-run hashing, and this fix is incomplete.",
+      "suggested_fix": "Hash the content instead: `git ls-files -m -o --exclude-standard hooks shared/harnesses/generated shared/scripts/generated dist | sort | xargs shasum -a 256 > /tmp/a`, rerun both generators, and diff the second hash list against the first."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-tlm-004-hook-timeout-seconds/verification.md",
+      "line": 17,
+      "claim": "change-tlm-004 imposes a 10-second minimum on generated hook timeouts, which conflicts with change-tlm-002's rule that every delivery hook carries an explicit timeout of at most 5 s.",
+      "evidence": "004 verify: `if(t!==undefined&&(t>600||t<10))process.exit(1)` for every hook. 004 spec: 'max(10, ceil(value / 1000))', with the floor justified by hook-entry.mjs startup. 002 spec section 5: 'every delivery hook carries an explicit timeout of at most 5 s'. If task 2's dispatch test or the generator encodes the 10 s floor as an invariant, the SubagentStart delivery PRs in change-tlm-003 cannot satisfy both rules. Neither spec says whether the floor is a one-time conversion rule or a standing contract invariant.",
+      "suggested_fix": "State in 004 that the 10 s floor applies only to the migration of existing values, and that the standing invariant is 1..600. Use `t<1` in the verify step, or reconcile 002's delivery-hook ceiling with the 10 s floor."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlm-003-revised-implementation-plan/tasks.json",
+      "line": 35,
+      "claim": "Task 3 still edits a file in ~/.claude, with no backup or before-hash, and the verify step hardcodes a machine-specific absolute path.",
+      "evidence": "files: '/Users/gqadonis/.claude/plans/yes-fix-it-in-logical-mccarthy.md'. verify: `grep -q ... /Users/gqadonis/.claude/plans/...`. The spec now limits the edit to a pointer section and declares the path, which resolves most of round-1 finding 7, but the edit is unversioned and the verify step fails on any other machine.",
+      "suggested_fix": "Record the file's sha256 before editing, append only, and record the after-hash in change evidence. Use $HOME in the verify step."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlm-003-revised-implementation-plan/verification.md",
+      "line": 31,
+      "claim": "Several required terms in the 002 and 003 verify steps pass vacuously: plain substring greps match words that the documents will contain anyway.",
+      "evidence": "003: 'mini' matches the repo name 'prometheus-skills-mini', which the plan must list, and 'matcher' matches any delivery text. Neither check confirms that a dedicated PR exists for matcher namespacing, the mini timeout fix or the CLAUDE.md/Cortex update. 002: the mapping-table regex only checks for one header row naming the stores, not that every schema property appears in it, so the criterion 'maps every envelope field' goes unchecked. The invalid example can be invalid for a trivial reason such as an empty object.",
+      "suggested_fix": "003: assert that a '### PR' heading matches each of /matcher/, /mini.*timeout/ and /CLAUDE\\.md|Cortex/. 002: load schema['properties'] and assert each key appears as a row in the mapping table. Require the invalid example to differ from the valid one in exactly one property, such as visibility."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlm-001-subagent-identity-probe/spec.md",
+      "line": 14,
+      "claim": "Behaviour 2's plugin-agent form (`<plugin>:<name>`) cannot be observed, because the probe defines only a project-local agent and `--setting-sources project,local` disables user-enabled plugins.",
+      "evidence": "Line 25 defines only `.claude/agents/tlm-probe-role.md`. `claude --help` offers `--plugin-dir <path>`: 'Load a plugin from a directory or .zip for this session only', which would test the plugin form without persisting anything.",
+      "suggested_fix": "Add a scratch plugin loaded with --plugin-dir that contains the same agent, and record both agent_type forms."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlm-004-hook-timeout-seconds/verification.md",
+      "line": 22,
+      "claim": "The docs and code checks miss millisecond wording left in other places: the 'ms floor' sentence in CLAUDE.md and the docstring of the constant being removed.",
+      "evidence": "CLAUDE.md line 1029 on origin/main reads 'so Codex timeouts have a 5000 ms floor', and the verify step greps only for 'reads `timeout` as milliseconds'. In scripts/lib/hook-config.js, lines 91-93 ('Codex reads `timeout` as milliseconds') sit apart from the constant name, so `! grep CODEX_MIN_HOOK_TIMEOUT_MS` passes even if that docstring survives.",
+      "suggested_fix": "Add `! grep -rn -i 'millisecond\\|ms floor' scripts/lib/hook-config.js docs/codex-plugin.md`, and scope a CLAUDE.md grep for 'ms floor' to the Codex hooks section."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-tlm-001-subagent-identity-probe/spec.md",
+      "line": 43,
+      "claim": "What Changes still says evidence is recorded 'For each harness and behaviour 1–4', which contradicts the tasks and acceptance criteria that cover behaviours 1–6.",
+      "evidence": "Line 43: 'For each harness and behaviour 1–4: CONFIRMED / REFUTED / UNVERIFIABLE'. tasks 2-4 and verification cover behaviours 5 and 6.",
+      "suggested_fix": "Change '1–4' to '1–6 (where applicable)'."
+    }
+  ]
+}

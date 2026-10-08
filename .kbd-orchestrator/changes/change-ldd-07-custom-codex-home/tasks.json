@@ -1,0 +1,40 @@
+{
+  "changeId": "change-ldd-07-custom-codex-home",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Route installer subprocesses and projections through one effective Codex root",
+      "done": true,
+      "doneAt": "2026-10-05T14:20:05Z",
+      "doneBy": "codex",
+      "files": [
+        "scripts/install-system.js",
+        "scripts/install-plugin-generation.js",
+        "scripts/install-skills-flat.sh",
+        "scripts/configure-mcp-all-tools.sh",
+        "shared/scripts/codex-memories-config.sh",
+        "scripts/lib/store-paths.js",
+        "scripts/lib/plugin-source-topology.js",
+        "scripts/codex-provision-mcp-env.sh"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    },
+    {
+      "id": "2",
+      "title": "Align uninstall rollback pruning and doctor with custom-home ownership",
+      "done": true,
+      "doneAt": "2026-10-05T14:31:41Z",
+      "doneBy": "codex",
+      "files": [
+        "scripts/install-plugin-generation.js",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+        "docs/codex-plugin.md",
+        "CLAUDE.md"
+      ],
+      "verify": null,
+      "notes": "Production only; tests and generated certification deferred to change-ldd-12-integration-rollout."
+    }
+  ]
+}

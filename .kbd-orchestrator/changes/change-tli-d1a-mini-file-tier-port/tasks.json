@@ -1,0 +1,47 @@
+{
+  "changeId": "change-tli-d1a-mini-file-tier-port",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[D1a] Carry the envelope schema and port the identity resolver",
+      "done": true,
+      "doneAt": "2026-10-04T22:38:24Z",
+      "doneBy": "claude-code",
+      "files": [
+        "lib/learning/learning-envelope.schema.json",
+        "lib/learning/identity.mjs",
+        "lib/learning/identity.test.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[D1a] Attach the envelope to Karpathy records before deliverToPk",
+      "done": true,
+      "doneAt": "2026-10-04T22:38:50Z",
+      "doneBy": "claude-code",
+      "files": [
+        "lib/karpathy/record.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[D1a] Add the file-tier SubagentStart hook and its test; regenerate distribution",
+      "done": true,
+      "doneAt": "2026-10-04T22:39:15Z",
+      "doneBy": "claude-code",
+      "files": [
+        "hooks/subagentstart-learning.mjs",
+        "hooks/subagentstart-learning.test.mjs",
+        "hooks/hooks.json",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-d1a-mini-file-tier-port/verify.sh",
+      "notes": null
+    }
+  ]
+}

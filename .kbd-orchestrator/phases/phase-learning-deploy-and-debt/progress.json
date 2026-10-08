@@ -1,0 +1,288 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 2422,
+  "derivedRevision": 2422,
+  "frontier": {
+    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
+  },
+  "conflictCount": 0,
+  "phase": "phase-learning-deploy-and-debt",
+  "phaseId": "phase-learning-deploy-and-debt",
+  "parentPhase": null,
+  "last_updated": "2026-10-05T23:00:25.251624Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 18,
+  "changes_completed": 18,
+  "implementation_total": 18,
+  "implementation_completed": 18,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 18,
+      "total": 18,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 101,
+      "total": 104,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-ldd-13-source-convergence",
+      "title": "Reconcile outstanding source across full mini and dependency worktrees",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Converge relevant dependency source and record final candidate provenance",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-01-hook-bytecode",
+      "title": "Prevent Python bytecode in immutable hook generations",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Preserve suppression across writer subprocesses and document packaged execution",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-02-codex-memory-control",
+      "title": "Stop Codex startup consolidation through the feature gate",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Align doctor predicate and operator documentation with consolidation behavior",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-04-cache-identity-accounting",
+      "title": "Honor embedding model identity and consistent query-cache accounting",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Correct attempt/reuse counters and explicit stats error behavior",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-05-generated-output-ownership",
+      "title": "Replace the self-confirming generated-path assertion",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Implement independent materialized-output ownership and consumer checks",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-06-installed-doctor-remediation",
+      "title": "Resolve Codex repair instructions from a verified installation",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Resolve and quote a verified installed helper in doctor diagnostics",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-07-custom-codex-home",
+      "title": "Honor one effective Codex home throughout installation lifecycle",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Align uninstall rollback pruning and doctor with custom-home ownership",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-08-bounded-cortex-mirror",
+      "title": "Bound optional Cortex feeders without weakening durable lesson writes",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Expose optional-mirror outcomes and document saturation and isolation",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-09-partition-footer",
+      "title": "Make partition footer budgeting exact and idempotent",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Compute the exact stable footer budget and preserve partition idempotence",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-10-mini-executable-modes",
+      "title": "Preserve executable intent in mini distribution packages",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Preserve packaged executable modes and detect mode drift in mini CLI",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-11-entrypoint-spec-contract",
+      "title": "Require production entry points in KBD acceptance templates",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Add and route the production-entry-point acceptance template",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-14-companion-publication-preparation",
+      "title": "Recover document and prepare the Companion repository for publication",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Prepare explicit commit inventory remote destination and publication procedure",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-18-stability-legacy-closure",
+      "title": "Finish historical delivery obligations and define maintenance readiness",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Write supported-product maintenance upgrade rollback and recovery contract",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-03-published-memory-pins",
+      "title": "Freeze and apply owner-approved final release pins across full mini and services",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Prepare the all-repository pin and release candidate manifest",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-15-readme-content-renewal",
+      "title": "Rewrite full and mini READMEs and audit all owned reader-facing content",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Rewrite mini onboarding and reconcile both README families with final product state",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-16-agent-team-handbook",
+      "title": "Publish complete agent-team and model-operation documentation in both sites",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Document model assignment policy discovery budgets and harness limitations",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-17-service-sites-current",
+      "title": "Refresh service architecture operations and all Docusaurus content",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Reconcile all site content canonical guides navigation redirects and catalogs",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-ldd-12-integration-rollout",
+      "title": "Reconcile generated outputs certify locally and hand off approved rollout",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Close evidenced historical obligations and record maintenance readiness with safe worktree cleanup",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {
+    "release-recovery": {
+      "status": "SKIPPED",
+      "changes_completed": 0,
+      "changes_total": 0,
+      "implementation_completed": 0,
+      "implementation_total": 0,
+      "certification_status": "NOT_TRACKED",
+      "handoff": null,
+      "completed_at": null
+    }
+  },
+  "migrationStatus": null
+}

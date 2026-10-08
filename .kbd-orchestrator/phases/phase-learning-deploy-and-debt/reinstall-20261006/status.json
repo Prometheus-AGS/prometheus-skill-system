@@ -1,0 +1,13 @@
+{
+  "sourceFull": "3e8a891bcd472e18cc1c097c04b208cb93f7f78f",
+  "sourceMemory": "bfb6d49a7fe25d82ef4ad55f49c8f97e6e82c54a",
+  "tasks": {
+    "1": "complete",
+    "2": "complete",
+    "3": "complete",
+    "4": "complete"
+  },
+  "backupRoot": "/Users/gqadonis/.prometheus/backups/reinstall-20261006",
+  "generation": "2e4cfa6e7e3803615602384e2b7c33522eee428974700870bf9374c1174b34ae",
+  "completedAt": "2026-10-06T08:57:42.125358+00:00"
+}

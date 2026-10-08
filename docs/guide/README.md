@@ -17,7 +17,7 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 | 01 | [Introduction](01-introduction.md) | What the skill pack is, who it is for, the autonomy ladder, and the loop posture |
 | 02 | [Metaprompting, PMPO, and KBD](02-metaprompting-pmpo-kbd.md) | The methodology: metaprompting, Prometheus Meta-Prompting Orchestration, Knowledge-Based Development, and the theory behind them |
 | 03 | [Loop Architecture](03-loop-architecture.md) | The L0–L3 loop levels, nested loops, `loop.json`, the `loop-tick.sh` exit-code contract, feedback sources, escalation, and autonomy gates |
-| 04 | [The Four-Layer Pipeline](04-four-layer-pipeline.md) | ZeeSpec → PMPO → OpenSpec → forge-rs, with C4 container diagrams |
+| 04 | [The Pipeline](04-four-layer-pipeline.md) | PMPO → OpenSpec → forge-rs, with C4 container diagrams |
 
 ### The substrate — what makes loops compound
 
@@ -32,7 +32,7 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 | # | Page | What it covers |
 |---|------|----------------|
 | 08 | [Skills Overview](08-skills-overview.md) | The skills model, discovery, the AgentSkills.io standard, and the full category index |
-| 09 | [Process & Orchestration Skills](09-process-skills.md) | ZeeSpec, iterative-evolver, the KBD orchestrator and its child skills, pmpo-elicit, pmpo-outer-loop, pmpo-skill-creator, native-agent, liter-llm-bridge, ideation-mindmap, kbd-evolve |
+| 09 | [Process & Orchestration Skills](09-process-skills.md) | iterative-evolver, the KBD orchestrator and its child skills, pmpo-elicit, pmpo-outer-loop, pmpo-skill-creator, native-agent, liter-llm-bridge, ideation-mindmap, kbd-evolve |
 | 10 | [Learn Domain Skills](10-learn-skills.md) | The 12 learn skills (ui-surface, learn-goal, learn-survey, learn-plan, feynman-loop, learn-grade, learn-retain, learn-practice, learn-certify, learn-kb, learn-about-system, learn-harness), FSRS-6 spaced retrieval, KB adapters, and meta-learning for the Prometheus stack |
 | 10 | [Language & Domain Skills](10-language-skills.md) | Rust, React, Flutter, Tauri, HTMX, TypeScript, Go, Python, architecture, testing, DevOps, document extraction, and the Flint SDK skills |
 | 11 | [The Artifact Refiner](11-artifact-refiner.md) | The artifact-centric refinement engine and all fifteen of its commands |
@@ -46,6 +46,7 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 | 14 | [The Rust Toolchain & Dynamic Generation](14-rust-toolchain.md) | Why Rust, how the binaries are built, and how the pack generates new skills, CLIs, and MCP servers |
 | 15 | [Hooks & Lifecycle](15-hooks-and-lifecycle.md) | Lifecycle observations, scoped learning, progress signals and protected-test integrity |
 | 16 | [CLI & Scripts Reference](16-cli-and-scripts.md) | Every installer, validator, and runtime script, plus the npm script surface |
+| 16a | [Spec Engines](spec-engines.md) | OpenSpec (default), Spec Kit, native-kbd: detection, pinning, the five-op adapter contract, and how to add or update an engine |
 
 ### Deployment — install, run, update, contribute
 

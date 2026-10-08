@@ -32,10 +32,10 @@ Phase 2 of the approved framework-evolution plan. Builds on Phase 1
 | G2 | No PMPO-native spec backend — only openspec/speckit; native change.md has no kbd-apply adapter (dies "no backend detected"). | Phase 2.3 |
 | G3 | No Spec stage skill; changes are created ad hoc inside planning. | Phase 2.2 |
 | G4 | position.json goes stale during execution — kbd_position_sync is manual only. | Phase 2 (CF-5) |
-| G5 | No ask-or-research elicitation primitive; zeespec silently marks unanswered questions implicit. | Phase 2.4 |
+| G5 | No ask-or-research elicitation primitive; spec-gate silently marks unanswered questions implicit. | Phase 2.4 |
 
 ## Verdict
 
 GO. G2/G4 are mechanical extensions of a clean dispatcher. G1/G3/G5 are new
 skills composing existing infrastructure (research tools already in-session;
-zeespec/evolver already exist). No rewrites.
+spec-gate/evolver already exist). No rewrites.

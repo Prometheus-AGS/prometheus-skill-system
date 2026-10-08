@@ -1,0 +1,61 @@
+{
+  "changeId": "change-tli-b5-subagentstart-delivery-alpha",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[B5] Write subagentstart-learning.sh (identity, budgeted recall, untrusted fencing, watchdog, silent absence)",
+      "done": true,
+      "doneAt": "2026-10-04T22:26:09Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/subagentstart-learning.sh"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[B5] Add the subagentstart-learning contract group and regenerate both harness bundles",
+      "done": true,
+      "doneAt": "2026-10-04T22:26:41Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/harnesses/hook-contract.json",
+        "hooks/hooks.json",
+        "hooks/codex-hooks.json"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[B5] Document Codex hook trust and the hooks feature flag",
+      "done": true,
+      "doneAt": "2026-10-04T22:27:13Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/codex-plugin.md",
+        "CLAUDE.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[B5] Write the alpha gate test-subagent-delivery.sh for Claude Code and Codex, recording the Codex trust-path evidence",
+      "done": true,
+      "doneAt": "2026-10-04T22:27:45Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/tests/test-subagent-delivery.sh",
+        ".kbd-orchestrator/phases/team-aware-learning-memory-impl/evidence/b5-codex-trust-path.md",
+        "shared/harnesses/generated/*",
+        "shared/scripts/generated/hook-dispatch-v1.sh",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-b5-subagentstart-delivery-alpha/verify.sh",
+      "notes": null
+    }
+  ]
+}

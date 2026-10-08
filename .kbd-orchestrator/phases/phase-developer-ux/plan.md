@@ -86,7 +86,7 @@
   ```yaml
   ---
   name: ideation-mindmap
-  description: Stage-zero onramp for /start-business-build. Takes a one-line business concept and generates a 6-branch concept mindmap via surreal-memory, structuring raw ideas into actionable branches ready for zeespec constraint capture.
+  description: Stage-zero onramp for /start-business-build. Takes a one-line business concept and generates a 6-branch concept mindmap via surreal-memory, structuring raw ideas into actionable branches ready for spec-gate constraint capture.
   license: MIT
   version: '1.0.0'
   authors:
@@ -106,10 +106,10 @@
   ---
   ```
 - [ ] Write body content covering:
-  - **When to invoke**: any time user has a raw business concept and needs it structured before `/zeespec-interrogate`
+  - **When to invoke**: any time user has a raw business concept and needs it structured before `/spec-gate`
   - **MCP call**: `generate_ideation_mindmap(topic: $ARGUMENTS, branches: 6)`
   - **Output format**: numbered branch list (Branch 1–6) with 3–5 sub-bullets per branch describing concept clusters
-  - **Handoff**: after output, prompt user "Which branches resonate? Accept all 6 or select a subset for `/zeespec-interrogate`"
+  - **Handoff**: after output, prompt user "Which branches resonate? Accept all 6 or select a subset for `/spec-gate`"
   - **Integration note**: `/start-business-build` Stage 1 invokes this skill automatically; can also be invoked standalone
 - [ ] Edit `start-business-build/SKILL.md` Stage 1 section to explicitly call `/ideation-mindmap $CONCEPT` (currently Stage 1 is described as "ideation expansion" without naming a skill)
 - [ ] Run `npm run validate:skill skills/process/ideation-mindmap` → 0 errors

@@ -1,0 +1,44 @@
+{
+  "changeId": "change-tli-a3-pk-tags-and-type",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[A3] Add --type and repeatable --tag to pk ingest and stop overwriting a provided type in the librarian and store",
+      "done": true,
+      "doneAt": "2026-10-04T04:17:12Z",
+      "doneBy": "claude-code",
+      "files": [
+        "pk-cli/src/main.rs",
+        "pk-librarian/src/librarian.rs",
+        "pk-store/src/store.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[A3] Add repeatable all-of --tag filtering to pk context before scoring",
+      "done": true,
+      "doneAt": "2026-10-04T04:17:41Z",
+      "doneBy": "claude-code",
+      "files": [
+        "pk-cli/src/main.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[A3] Add the tags_and_type integration test",
+      "done": true,
+      "doneAt": "2026-10-04T04:18:09Z",
+      "doneBy": "claude-code",
+      "files": [
+        "pk-cli/tests/tags_and_type.rs"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-a3-pk-tags-and-type/verify.sh",
+      "notes": null
+    }
+  ]
+}

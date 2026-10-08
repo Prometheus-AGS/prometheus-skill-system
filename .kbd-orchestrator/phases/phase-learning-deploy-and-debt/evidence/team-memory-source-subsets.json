@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-05T15:14:44.256581+00:00",
+  "change": "change-ldd-18-stability-legacy-closure",
+  "task": "2",
+  "status": "production-subsets-only",
+  "acceptance": "pending completed-phase boundary change12",
+  "sourceFiles": [
+    {
+      "repository": "full",
+      "path": "shared/scripts/lib/learning_recall.py",
+      "sha256": "bfb2efa0de05ddfc4bc92c9e7d9b5021be8fa5b4946be639cb20f86ab8d6e7b8"
+    },
+    {
+      "repository": "full",
+      "path": "shared/scripts/sessionstart-learning.sh",
+      "sha256": "f6a242fe65379318c6372e56ff1c247a5730293a056fe5916e81465115db0edc"
+    },
+    {
+      "repository": "mini",
+      "path": "skills/agent-team-creator/runtime/src/memory.mts",
+      "sha256": "ed5dc40556483a24e56eacf254682890a71bd572179a67de4d737ad44a987b9c"
+    },
+    {
+      "repository": "mini",
+      "path": "skills/agent-team-creator/runtime/src/types.mts",
+      "sha256": "ac4277b61152cf2cd6883804ae59c394dc80b87623af85e21eab49b37b2b4e03"
+    },
+    {
+      "repository": "mini",
+      "path": "skills/agent-team-creator/runtime/src/cli.mts",
+      "sha256": "3cce6666409032f5ec6d8a71859d072e078f620bc8345ee37eb2e2271ed13ad8"
+    }
+  ],
+  "fullCodex": "digest-only local metadata retrieval before merging; no lesson stores or knowledge gaps; normal recall default preserved",
+  "miniLearning": "canonical endpoint and project-scoped compatible envelope; durable missing-project queue diagnostic; no implicit attempt migration",
+  "remainingTaskSource": [
+    "pack projection migration",
+    "Companion control contracts after isolated source recovery"
+  ]
+}

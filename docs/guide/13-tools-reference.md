@@ -46,7 +46,7 @@ forge constitution <lang>                        # show/edit the language consti
 
 **Security.** `task_path` in `forge_enrich` is canonicalized via `std::fs::canonicalize()` and verified with `starts_with()` to be inside the working directory before any file read — path traversal is rejected with a 400 error. No API keys or credentials are stored in source code; `TAVILY_API_KEY` and `FIRECRAWL_API_KEY` must be provided as environment variables.
 
-**Environment & state.** `PK_MCP_URL`, `LITER_LLM_URL`, `FORGE_SKILLS_ROOT`, `ZEESPEC_STATE_DIR`, `EDITOR`. Writes to `.forge/` (`constitution/`, `enriched/<id>.context.md`, `memory/iterations/`, `memory/drift/`, `skills/`). Supported languages with per-language constitutions: Rust, TypeScript, React 19, Flutter, HTMX, Tauri, Go, Python. **Build:** `cargo build --release -p forge-cli`.
+**Environment & state.** `PK_MCP_URL`, `LITER_LLM_URL`, `FORGE_SKILLS_ROOT`, `EDITOR`. Writes to `.forge/` (`constitution/`, `enriched/<id>.context.md`, `memory/iterations/`, `memory/drift/`, `skills/`). Supported languages with per-language constitutions: Rust, TypeScript, React 19, Flutter, HTMX, Tauri, Go, Python. **Build:** `cargo build --release -p forge-cli`.
 
 ---
 

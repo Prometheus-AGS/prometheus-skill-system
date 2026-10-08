@@ -26,5 +26,5 @@ Resume `kbd-control-plane-recovery` at its first incomplete change:
 
 `/kbd-apply repair-kbd-memory-rest-contract`
 
-Retain the child’s detector on every subsequent KBD/OpenSpec/ZeeSpec boundary.
+Retain the child’s detector on every subsequent KBD/OpenSpec/spec-gate boundary.
 Do not infer historical receipts for direct commands that predate the detector.

@@ -1,0 +1,93 @@
+{
+  "changeId": "change-ldd-12-integration-rollout",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Reconcile all generated outputs then author isolated product and documentation integration scenarios",
+      "done": true,
+      "doneAt": "2026-10-05T21:04:58Z",
+      "doneBy": "codex",
+      "files": [
+        "full:generated outputs",
+        "mini:generated outputs",
+        "full:scripts/tests/test-learning-deploy-and-debt.sh",
+        "full:scripts/tests/test-hook-bytecode-integration.sh",
+        "full:scripts/tests/test-codex-memory-integration.sh",
+        "full:scripts/tests/test-codex-home-integration.sh",
+        "full:shared/scripts/tests/test-cortex-mirror.sh",
+        "full:scripts/tests/test-memory-partition.sh",
+        "full:scripts/tests/test-rebase-regenerate.sh",
+        "mini:scripts/tests/learning-deploy-integration.test.mjs",
+        "surreal-memory:tests/query_cache_production.rs"
+      ],
+      "verify": null,
+      "notes": "Final boundary only after all production changes 01-11 and 13-18 are complete; approvals and missing prerequisites remain BLOCKED, never passed."
+    },
+    {
+      "id": "2",
+      "title": "Run the consolidated local product services sites and fresh-clone release gates",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "phase:evidence/**",
+        "phase:execution.md"
+      ],
+      "verify": null,
+      "notes": "Final boundary only after all production changes 01-11 and 13-18 are complete; approvals and missing prerequisites remain BLOCKED, never passed."
+    },
+    {
+      "id": "3",
+      "title": "Complete independent cumulative review and confirm any batched fixes",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "phase:review/**",
+        "phase:execution.md"
+      ],
+      "verify": null,
+      "notes": "Final boundary only after all production changes 01-11 and 13-18 are complete; approvals and missing prerequisites remain BLOCKED, never passed."
+    },
+    {
+      "id": "4",
+      "title": "Publish certified source including Companion and hand PRs to the user for merge",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "phase:evidence/pr-and-merge-ledger.md"
+      ],
+      "verify": null,
+      "notes": "Final boundary only after all production changes 01-11 and 13-18 are complete; approvals and missing prerequisites remain BLOCKED, never passed."
+    },
+    {
+      "id": "5",
+      "title": "Apply approved machine rollout and publish certified documentation sites",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "phase:evidence/deployment.md",
+        "phase:execution.md"
+      ],
+      "verify": null,
+      "notes": "Final boundary only after all production changes 01-11 and 13-18 are complete; approvals and missing prerequisites remain BLOCKED, never passed."
+    },
+    {
+      "title": "Close evidenced historical obligations and record maintenance readiness with safe worktree cleanup",
+      "files": [
+        "phase:historical-closure-map.md",
+        "phase:maintenance-readiness.md",
+        "phase:evidence/closure.md"
+      ],
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "verify": null,
+      "notes": "Final evidence only; do not fabricate receipts or close unresolved approval/publication work.",
+      "id": "6"
+    }
+  ]
+}

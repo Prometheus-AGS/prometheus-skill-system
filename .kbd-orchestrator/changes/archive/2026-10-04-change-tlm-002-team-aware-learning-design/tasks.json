@@ -1,0 +1,44 @@
+{
+  "changeId": "change-tlm-002-team-aware-learning-design",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write the learning-envelope JSON Schema with valid and invalid examples",
+      "done": true,
+      "doneAt": "2026-10-04T00:50:30Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/schemas/learning-envelope.schema.json",
+        "shared/schemas/examples/learning-envelope.valid.json",
+        "shared/schemas/examples/learning-envelope.invalid.json"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Write design sections 1-5 (identity, envelope, visibility, recall, delivery incl. file tier and probe fallbacks)",
+      "done": true,
+      "doneAt": "2026-10-04T00:54:53Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/design/team-aware-learning-memory.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Write design sections 6-10 (attributed writes, cross-agent awareness, upstream prerequisites, mini scope, measurement)",
+      "done": true,
+      "doneAt": "2026-10-04T00:56:24Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/design/team-aware-learning-memory.md"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlm-002-team-aware-learning-design/verify.sh",
+      "notes": null
+    }
+  ]
+}

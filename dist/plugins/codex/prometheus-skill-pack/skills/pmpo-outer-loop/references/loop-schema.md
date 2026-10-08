@@ -78,7 +78,7 @@ Conditions that pause the loop and consult the human via `/pmpo-elicit`:
 
 ```json
 [
-  "zeespec NO-GO on a capability",
+  "spec coverage NO-GO on a capability",
   "feedback regression (metric worse than prior tick)",
   "capability gap FAILED after 2 retries",
   "max_no_progress_ticks reached",

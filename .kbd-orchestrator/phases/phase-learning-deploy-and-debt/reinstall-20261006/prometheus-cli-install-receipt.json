@@ -1,0 +1,7 @@
+{
+  "sourceCommit": "3e8a891bcd472e18cc1c097c04b208cb93f7f78f",
+  "path": "/Users/gqadonis/.local/bin/prometheus",
+  "version": "prometheus 1.11.3",
+  "sha256": "f0c0faa294e2cc6296c0ed8798d11d78ba950b4b9e81a6c71decaa0cbbc071d3",
+  "backup": "/Users/gqadonis/.prometheus/backups/reinstall-20261006/home-local-prometheus"
+}

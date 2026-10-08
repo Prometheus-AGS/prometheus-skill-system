@@ -1,6 +1,6 @@
 ---
 name: ideation-mindmap
-description: Stage-zero onramp for /start-business-build. Takes a one-line business concept and generates a 6-branch concept mindmap via surreal-memory, structuring raw ideas into actionable branches ready for zeespec constraint capture.
+description: Stage-zero onramp for /start-business-build. Takes a one-line business concept and generates a 6-branch concept mindmap via surreal-memory, structuring raw ideas into actionable branches ready for the spec engine.
 license: MIT
 version: '1.0.0'
 authors:
@@ -24,12 +24,12 @@ triggers:
 
 # /ideation-mindmap
 
-Stage-zero onramp for the Prometheus build pipeline. Turns a one-line concept into a 6-branch concept tree using `surreal-memory`'s `generate_ideation_mindmap` tool. Output is formatted for immediate handoff to `/zeespec-interrogate`.
+Stage-zero onramp for the Prometheus build pipeline. Turns a one-line concept into a 6-branch concept tree using `surreal-memory`'s `generate_ideation_mindmap` tool. Output is formatted for immediate handoff to the spec engine (default OpenSpec, e.g. `/opsx propose`).
 
 ## When to Use
 
 - Standalone: user has a raw business idea and wants to see structured branches before committing to specification
-- Auto-invoked: `/start-business-build` calls this as Stage 1 before `/zeespec-interrogate`
+- Auto-invoked: `/start-business-build` calls this as Stage 1 before the iterative-evolver stage
 
 ## MCP Dependency
 
@@ -166,7 +166,7 @@ After displaying all branches with their counts and scores, ask:
 > - **Select branches** — name the numbers (e.g., "1, 3, 5") to narrow focus
 > - **Refine** — describe what's missing and I'll regenerate
 >
-> When ready, proceed to `/zeespec-interrogate` with the selected branches.
+> When ready, proceed to the spec engine (default OpenSpec, e.g. `/opsx propose`) with the selected branches.
 
 ### Step 5 — Handoff
 

@@ -1,7 +1,7 @@
 {
   "name": "prometheus-testing-skills",
   "description": "BDD integration testing with Cucumber.js, Playwright, and video recording",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "author": {
     "name": "Travis James",
     "url": "https://travisjames.ai"
@@ -11,5 +11,10 @@
     "./bdd-testing",
     "./bdd-video-proof"
   ],
-  "keywords": ["bdd", "testing", "cucumber", "playwright"]
+  "keywords": [
+    "bdd",
+    "testing",
+    "cucumber",
+    "playwright"
+  ]
 }

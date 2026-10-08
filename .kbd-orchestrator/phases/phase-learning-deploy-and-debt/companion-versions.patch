@@ -1,0 +1,20 @@
+--- a/versions.toml
++++ b/versions.toml
+@@ -7,6 +7,17 @@
+ 
+ [pins]
+ # name = "x.y.z"
++keyring = "=3.6.3"
++iroh                         = "1.0.3"
++iroh_gossip                  = "0.101"
++iroh_mdns_address_lookup     = "0.5.0"
++iroh_mainline_address_lookup = "0.5.0"
++loro                         = "1.13"
++redb                         = "2"
++axum                         = "0.8"
++rmcp                         = "1.8"
++dirs_next                    = "2"
++tauri_plugin_stronghold      = "2.3.2"
+ 
+ [decisions]
+ # id = "rationale"

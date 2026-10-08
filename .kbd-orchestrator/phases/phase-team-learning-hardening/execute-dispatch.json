@@ -1,0 +1,9 @@
+{
+  "phase": "phase-team-learning-hardening",
+  "dispatchedAt": "2026-10-05T00:10:00Z",
+  "backend": "native-tool",
+  "harness": "claude-code-desktop",
+  "assigned": ["change-tlh-01-ranked-memory-partition","change-tlh-02-codex-memories-install-and-doctor","change-tlh-03-versioned-cadence-refresh-procedure","change-tlh-04-scratch-surreal-for-envelope-test","change-tlh-05-query-embedding-cache","change-tlh-07-cortex-mirror-real-service","change-tlh-09-rebase-regenerate"],
+  "pending": ["change-tlh-05-query-embedding-cache","change-tlh-06-ledger-reconciliation","change-tlh-08-recall-scoping-and-eval"],
+  "waitingOn": {"change-tlh-06-ledger-reconciliation": "PR #146 merge", "change-tlh-08-recall-scoping-and-eval": "PR #147 merge"}
+}

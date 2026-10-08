@@ -1,0 +1,2879 @@
+{
+  "kind": "author-source-disposition",
+  "acceptance": "none",
+  "rows": [
+    {
+      "pack": "full",
+      "path": "CONTRIBUTING.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "package.json"
+      ],
+      "notes": "All phase production before local integration/review; protected BDD signed approval and owner merge/publication boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c98f521a06a747db571188b44ace3d515b8ce88b141885dd1abf049235bb57ce"
+    },
+    {
+      "pack": "full",
+      "path": "SKILLS.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "7619ba97d05a9d63ac167a9ef31161586bfa6d9ef38444b2eaba1033f28ee8cf"
+    },
+    {
+      "pack": "full",
+      "path": "docs/CONTRIBUTING.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "package.json"
+      ],
+      "notes": "All phase production before local integration/review; protected BDD signed approval and owner merge/publication boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "3a0996ced43c5cefbe4343c2ed39db543209a5fee2c0f45c941f5d1d40bc97a0"
+    },
+    {
+      "pack": "full",
+      "path": "docs/IMPORTING_SKILLS.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5b817a46353b2fe3b889340b37a9c5ddbaaa6f376edb371a7848ce2d960986d2"
+    },
+    {
+      "pack": "full",
+      "path": "docs/QUICK_REFERENCE.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ed525b25d0e8ca2c15fd54713aea39155336e1dd0ecf921e29aac2af44abd6a6"
+    },
+    {
+      "pack": "full",
+      "path": "docs/QUICK_START.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "423f20e0c96db2b61f3ff9611eb868aebea2c77e69ea3be301d2b257542547bc"
+    },
+    {
+      "pack": "full",
+      "path": "docs/SKILL_TEMPLATE.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "2f9fe712b102efea156c053781a0427e1daad6185ebb11b55912121a79f5d569"
+    },
+    {
+      "pack": "full",
+      "path": "docs/SUBMODULES.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "cece16ca0e993f9d01545ee310516ce0c7c8e7c264522f0d812bee2ad3200a78"
+    },
+    {
+      "pack": "full",
+      "path": "docs/UPDATE_CONSIDERATIONS.md",
+      "disposition": "retained-historical-evidence",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Recorded incident/release/operation facts scoped to their original date/commit; no fresh installed or release acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "909d63fed34d19c7fa511b81a6f8090c71904e53c6f9444f18f4b8c14c32d0c3"
+    },
+    {
+      "pack": "full",
+      "path": "docs/agent-teams.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts"
+      ],
+      "notes": "Previously reconciled change16 lifecycle/model/memory source contracts; UAR direct coordinator acceptance is schema support, not a new local command.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5b04ffeedf506775e55a4b8ca28a1296007f7643ea6ac3e5759c25d8cac0424a"
+    },
+    {
+      "pack": "full",
+      "path": "docs/codex-plugin.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "scripts/install-plugin-generation.js",
+        "scripts/lib/store-paths.js",
+        "scripts/lib/plugin-source-topology.js"
+      ],
+      "notes": "Signed logical receipts distinguished from actual normalized selected CODEX_HOME projections; lifecycle ownership and cached-session limits retained.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "090b63c3b5e8a1c5acb764f3a2bdcfb6ba83315777b1ba8ac81608b48cc8e0a5"
+    },
+    {
+      "pack": "full",
+      "path": "docs/deployment-modes.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b607223223354d4c67fe8797b845db65c9ee0074a86f84235a18e545c75f8d47"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/00-quick-start.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "d4f4d181f511b58b83cb6e16298315486116bcdc7bafe5bf2a35c1b0fc07c5cd"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/01-introduction.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "afb5c544cef9eb6a62e2516d82e68d1e077b65dc26de7c86f0daf1527c0a847c"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/02-metaprompting-pmpo-kbd.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "efe3364a9a57d74dc4debe74293bece0589e3cf398cc8433a9c04421f816121c"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/03-loop-architecture.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/pmpo-outer-loop/scripts/loop-tick.sh"
+      ],
+      "notes": "Runner records feedback/counters/outcome; it does not invoke an evolver/scheduler or parse criterion prose. Exit2 ceiling is not goal proof.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a6242d03232f5084187c533dede7d6931508fc443702967e5598ce95cdcec149"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/04-four-layer-pipeline.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "e8ca0ebf3d1fe057a5c789a29516eab9bd203d880c619b556ec047c138541713"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/05-mcp-substrate.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "07f254864207d3584ff12619765ca8f85c7ec86b5a5ff1e8788f2c03c0bb7745"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/06-memory-and-learning.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "56dc917b868d51dbe81cd68dc3bb0cc58d17ec6c9b404337b2c1a34dfd89da4f"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/07-sycophancy-correction.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/lib/sycophancy.sh",
+        "shared/scripts/sycophancy-check-artifact.sh",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/sycophancy.rs"
+      ],
+      "notes": "Pack content diagnostic/manual correction behavior; PostToolUse cannot undo a write; imported selected capabilities remain separate.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "bbedfa63a2f02b86e385530e7d4fae216a9a902a29795fbb74a71294b9923f19"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/08-skills-overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "80d65fca05dcc163d17981e374923416e4c47175e72dc82518b6f7b86ee7d319"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/09a-adversarial-review.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "d1519040e30a4f6f8ff33facc0d2f0cc8abdc50ae39c7e0ce108404e33c93c8b"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/10-language-skills.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "69ab94400c65699a30a2a2aaec9c91f84f72f89966570adf056a2142b03347ac"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/10-learn-skills.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/content-grounding-kb.sh",
+        "substrate/surface-bridge/src/main.rs"
+      ],
+      "notes": "Three selected KB grounding adapters, no automatic web waterfall or unconditional privacy guarantee; configured endpoint and UI hints bounded.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c8bae4b4d9d8f5488155c2933e34def60180495e31f82580cbe9d6b838f57d8a"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/13-tools-reference.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "91df4a1e11ac0caab83b9f872b30686a3037c2b6e41edddd453d12ab567f9b86"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/14-rust-toolchain.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b853ab3a27b3541f6be0a7efd747b89f90fd464e906aae0f4f89692517f1c6a8"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/14a-forge-rs.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "05a63bbc4d5af7c6d2bf292b266852fa8e33108afa533066b9ea6b0d480b0c67"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/16-cli-and-scripts.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0eb9ad7f4ab74f78fa4529f722dc6da086115b61f6686a0aa9b4a0e5a7f7cf8e"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/16a-cowork.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "147f074111ea8c44588ad61b96b7004e28050e76b35111ad4ebf2fd367c465ae"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/17-platform-support.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b6ddc0535723c5d7a9e74d40f7d99e74c3b44f1c68d17ad85eafe12208046efb"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/18-plugins-and-marketplace.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0ef820586db4ab76a9e568402b1bca59b04f15c6a3fa01f19666a6b66064b6ea"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/19-installation.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b12a04e20187ef03b0dee8aac8524313c9136a325e8ca419f0f50aab70ad6a34"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/20-updating.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ace0583f597d481db76c57045a0fa5b0ea9ffd3360fae1646634d6e4a1a52e46"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/21-contributing.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "package.json"
+      ],
+      "notes": "All phase production before local integration/review; protected BDD signed approval and owner merge/publication boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "21602320115bcbfdfc91365cf4523ce4257c3aebcd562aa0f32b97c353b8a627"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/22-advantages-and-impact.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "95fd5fb50d2931b1a4c6d6135635668b74d5b45dc2d3119f7ac9abc39a37f52a"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/22a-self-extending-agents.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5a7698d38bc66ca54bc9eed0cf9227155729d670fd5b1a78c169645c4d64489c"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/23-glossary.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0cc074aee341779b822415a40bb1e3c5c732db14937aab9b8bb5a4d12f2e61d6"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/24-agent-teams.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts"
+      ],
+      "notes": "Previously reconciled change16 lifecycle/model/memory source contracts; UAR direct coordinator acceptance is schema support, not a new local command.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c1e3d14680a46e2244e3610b06c2ca64d7f7942d3d112c6a30e34a2948a524ca"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/25-ui-ux-routing.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "3a749e6701c9b431ac20f9a6bd7e26ddbdfec7c38cfcec51b1231a2aacf663ee"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/26-service-operations.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "e88db9051038e7d7d87a662082694dd37201f89eb8599b81188cf2eb4f723c29"
+    },
+    {
+      "pack": "full",
+      "path": "docs/integration-contract.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4edaa7ae3d28290036d4e1954a1c72efbf1d8b28c2d2401038f292bedfa1169a"
+    },
+    {
+      "pack": "full",
+      "path": "docs/learn/kb-adapter-guide.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/content-grounding-kb.sh",
+        "substrate/surface-bridge/src/main.rs"
+      ],
+      "notes": "Three selected KB grounding adapters, no automatic web waterfall or unconditional privacy guarantee; configured endpoint and UI hints bounded.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0dde669e2b8805bf72d8f5beb930de2719c483c449d9d5b954d53a44e87ed9f4"
+    },
+    {
+      "pack": "full",
+      "path": "docs/learn/surface-tier-detection.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Cursor/Zed file-pair mapping matches source; environment and PID detection do not prove rendering.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "05032adeb9b1517cea4a4bc21cda0825ff47c7e4e45083e549506ab7ebe86370"
+    },
+    {
+      "pack": "full",
+      "path": "docs/plugin-authoring.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "baf7786c238d01788f64d9238f79fe1bb581d1cf004bf34f78a6c94d662b50dc"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-context/harness-support.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap-v4.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/verify.sh"
+      ],
+      "notes": "Actual legacy/v4 layout and bounded diagnostic behavior; removed unconditional hook/loading/model claims and hosted gate advice.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "efbd104a1dbdbab492baf57c46c6cb091c911c4d3776acce7b142a19a32df43e"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-context/model-profiles.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap-v4.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/verify.sh"
+      ],
+      "notes": "Actual legacy/v4 layout and bounded diagnostic behavior; removed unconditional hook/loading/model claims and hosted gate advice.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "fb3a0305655b1da4b331663cc6c550b88e01754c83f4ca0c1cc14d866d5b9f15"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-context/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap-v4.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/verify.sh"
+      ],
+      "notes": "Actual legacy/v4 layout and bounded diagnostic behavior; removed unconditional hook/loading/model claims and hosted gate advice.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c7021c3640112e7a4884f36a0cbcabeb29db3bd1a88f7027e71a1424b5d90f87"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-context/quick-start.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap-v4.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/verify.sh"
+      ],
+      "notes": "Actual legacy/v4 layout and bounded diagnostic behavior; removed unconditional hook/loading/model claims and hosted gate advice.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "9f9c0715d96acadc056627042c49384e9d37d9f4082cdbefb6b6982643ded9d9"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-context/skill-budget.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap-v4.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/verify.sh"
+      ],
+      "notes": "Actual legacy/v4 layout and bounded diagnostic behavior; removed unconditional hook/loading/model claims and hosted gate advice.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "bdcfa625425dba13c897e05846cb3c5386106c55d9cfcf381236518beed83db1"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-context/theory-and-sources.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap-v4.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/verify.sh"
+      ],
+      "notes": "Actual legacy/v4 layout and bounded diagnostic behavior; removed unconditional hook/loading/model claims and hosted gate advice.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "90218adf837c50629f96627aba2271e7a4df7e24dec63c598ca43e81efbe455f"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-context/use-cases.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/bootstrap-v4.sh",
+        "skills/process/prometheus-context-bootstrap/scripts/verify.sh"
+      ],
+      "notes": "Actual legacy/v4 layout and bounded diagnostic behavior; removed unconditional hook/loading/model claims and hosted gate advice.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c6ac9bdf30b60fc1993c0043ffec387825f22bbbb763fe19df1692b2e4980d6a"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/agent-teams/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts"
+      ],
+      "notes": "Previously reconciled change16 lifecycle/model/memory source contracts; UAR direct coordinator acceptance is schema support, not a new local command.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5220367e90cc81bc3602334e5e3d96c5856fb13f999e148afd74094348a46c50"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/bash-mutation-guard.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b644b5488fe1ce97df2190f9ef50e926bdca8c9dbced0417cdd5d95abd2e387d"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/control-plane.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c920c55b7bc4e22095b83ba772637b534c1922eace12a639449251a5bd9dcc17"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/integration-contract.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0f5d8c4817eeb7464738bbf5c78aa3a8f6014501c8bac7203605eb4c5602ff87"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/quality-gates.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "package.json"
+      ],
+      "notes": "All phase production before local integration/review; protected BDD signed approval and owner merge/publication boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "00ac98691d8f31fb99fdb8196ffea58e5bec60ed743ee208ba6cf2da8e469fcb"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/task-model-assignments.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts",
+        "skills/process/agent-team-creator/runtime/src/types.mts"
+      ],
+      "notes": "Previously reconciled change16 lifecycle/model/memory source contracts; UAR direct coordinator acceptance is schema support, not a new local command.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "206e907600cad86805d08e3a4028f34ed90d93a46cc2de46678dace6ed1d4a47"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/tokens-and-authentication.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "9908d8522fe4c2857c6a54bfc1777fe2a4f7c0143edb0b81234ab2f531bf277b"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/troubleshooting.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5d82f29b93589b1d966619d15fcf400754142844037a1002ccd77ad07dd2a6e4"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/kb-adapters.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "2ae4c02868023034f1d3827453f9648b0ae695a57fdca825b526da1ffd07109c"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "af62ec0655118aa9b10d80d60cb9d29f04a5d966459d7ba708d3ec30bce0de66"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/memory/cortex-mirror.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/cortex-scope-helper.sh",
+        "shared/scripts/lib/learning_write.py"
+      ],
+      "notes": "Bounded optional feeder and durable queue outcomes separated from remotely accepted or recalled memory.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "de98c105ff370f52ca10f458efeabdf2b6f8815867dbec3eeace224645784ea0"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/mobile/execution-classes.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "substrate/skill-ffi/src/lib.rs",
+        "substrate/skill-index/src/lib.rs"
+      ],
+      "notes": "Caller-provided index bytes, generic Unsupported FFI host path, separate Exec/component boundaries and historical classification evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a4ce873f550b575ba041b696cdfeea535502939943019622cc83a8987340d06d"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/mobile/native-ffi.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "substrate/skill-ffi/src/lib.rs",
+        "substrate/skill-index/src/lib.rs"
+      ],
+      "notes": "Caller-provided index bytes, generic Unsupported FFI host path, separate Exec/component boundaries and historical classification evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "09fda3dc2d0e9de452dba554a541c7dd6d54b3fd10d08ac6d72aeeb0e9319795"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/mobile/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "substrate/skill-ffi/src/lib.rs",
+        "substrate/skill-index/src/lib.rs"
+      ],
+      "notes": "Caller-provided index bytes, generic Unsupported FFI host path, separate Exec/component boundaries and historical classification evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b453ecd3718d239679a164f2605646eec0f4ae53146167d2a0951085d6dff571"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/mobile/uar-skill-database.md",
+      "disposition": "historical-not-onboarding",
+      "sourceEvidence": [
+        "substrate/skill-ffi/src/lib.rs",
+        "substrate/skill-index/src/lib.rs"
+      ],
+      "notes": "Caller-provided index bytes, generic Unsupported FFI host path, separate Exec/component boundaries and historical classification evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "3067658afbf95a5462d2aef57de39d281e277955bfe39997d4e0be89308574ec"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/mobile/wasm-components.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "substrate/skill-ffi/src/lib.rs",
+        "substrate/skill-index/src/lib.rs"
+      ],
+      "notes": "Caller-provided index bytes, generic Unsupported FFI host path, separate Exec/component boundaries and historical classification evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6748374ce132620ec37a61e059e2171d4c09cff52ae77ffa60a2af80e88e5592"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/operations/doctors-and-mac-certification.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "71e757e43dde63e273ecf721056cf8b7582a210f247c6677ea7cd79f81a7f1fc"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/operations/installation-and-upgrades.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "9ae8aad8c229db773ae841e042443be1cc1e68b1d4e32b2ed2a0cf7b6a35d7b4"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/operations/local-validation-and-docs-automation.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "96b4b9e749cabb7ebd85f7743331745261f661e91a163223145e87676f40d15f"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/operations/plugin-sources-and-hook-failures.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "31b14a234f2f55a6f9886632a7a582baea18f76509ff12d8e08723e5f141253e"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/plugin-distribution/activation-rollback-uninstall.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "scripts/install-plugin-generation.js",
+        "scripts/lib/store-paths.js",
+        "scripts/lib/plugin-source-topology.js"
+      ],
+      "notes": "Signed logical receipts distinguished from actual normalized selected CODEX_HOME projections; lifecycle ownership and cached-session limits retained.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a053ce127b147832b35a4c0e2769b4f5b484ffade16401a71cbc5033f978b0a1"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/plugin-distribution/immutable-generations.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "scripts/install-plugin-generation.js",
+        "scripts/lib/store-paths.js",
+        "scripts/lib/plugin-source-topology.js"
+      ],
+      "notes": "Signed logical receipts distinguished from actual normalized selected CODEX_HOME projections; lifecycle ownership and cached-session limits retained.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0f9af71adec4f3718f8edab2685ed759ee363080f6d844cfb69312cfd224eab9"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/plugin-distribution/signing-index-and-receipts.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "scripts/install-plugin-generation.js",
+        "scripts/lib/store-paths.js",
+        "scripts/lib/plugin-source-topology.js"
+      ],
+      "notes": "Signed logical receipts distinguished from actual normalized selected CODEX_HOME projections; lifecycle ownership and cached-session limits retained.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "38c94a8800b8ca03337a45723333edf773301b1f25f1105bb3acdd46a20702c5"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/plugin-distribution/targets-and-dispatchers.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "scripts/install-plugin-generation.js",
+        "scripts/lib/store-paths.js",
+        "scripts/lib/plugin-source-topology.js"
+      ],
+      "notes": "Signed logical receipts distinguished from actual normalized selected CODEX_HOME projections; lifecycle ownership and cached-session limits retained.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "124506b9b034d21680265fed03fe0706341c86ad17ce9bceef4dd5cba4c8c123"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/ag-ui-sse.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "53f042e364ba7e9f00c83205615ec59d5bdaf090baa58bf87a878b6f3aa6075e"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/architecture.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "bef584aa59286193c7287df934ee66c348ebfb00f093ba8bea3abe4e36e749d0"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/data-scope.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "bc0ac77690b6d76f4e73f4d0d3af0a907560c616d7e3294df4f82b8fda0b721c"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/installation.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ea57471a9f681ac244ac5c5462e11ca6c821074bd16b1d2a5b1a72157fd051dc"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/mcp-tools.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "857310dbc95238307e90431cc5e781e516446e51b22aa7ee58ef3cc73216a063"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/overview.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5430cc656ed675de90098048bf2f4de90653955fa499dcb00b29afdcbaf71077"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/p2p-network.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "82ef893f12312655fbc5fe7649729c3beebf386befa57df7dbf41571a7097d53"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/pair-two-machines.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5df461528ac0db8b6fcedd20da525ad69493450562dbd759c1da06aa03a3e7b7"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/privacy-model.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "458c9567a8b9ce717e1fbf6f89f47d26867eb30bedf16109190b9adb9bdbc221"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/rest-api.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "e56578fe636b0f60dd362dc8ded519784eac8591e687ffa720ec1572bb91255e"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/rust-sdk.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1976eb4981860ace1ed0f3c7388ed56c7dff71a72e4c72886f4370cd8408ad90"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/signed-pushes-and-receipts.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6ca3fa4879797f507a54bdae4e118776d09f490621beb966f1379a940d3a52c6"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/sync-peers-skill.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "3a4216d7279700c55c61f43eece402ced3b9f7bf2b5fc1863fbc030f1702600b"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/sync-push-skill.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5a4dc426e6babdccc7d4c269e8b5af2320254d60980d943545d717bd3a75c863"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/sync-status-skill.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "79636c62d37d2d62179b8123a53fdb0dad85b75bf4ab4c9ae167ffe619aa92aa"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/sovereign-sync/use-cases.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1a43eabecae10d523a29e2ca485e60591a17dc36656bcf3f9dd427367a8af197"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/substrate/index.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "62b4b62429d2caa34f4c81f869d27a98127c45550dca360b86ac86421c1864db"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/substrate/kbd-runtime.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "92400dab955530bd93104265ba037b7385d793fe6663f29f23466af236277cd9"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/substrate/learner-model.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4591e43485da8cad637ac49da2325ef6f1cdece28e81bf2a74c6e687c321aa52"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/substrate/prometheus-research.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "substrate/prometheus-research/src/main.rs",
+        "scripts/install-binaries.sh",
+        "shared/launchagents/com.prometheus.research.plist"
+      ],
+      "notes": "Component-specific installation/platform/data ownership, native memory/mcp versus mini memory/main_local_384; conditional research outside eleven-label manifest.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5de08f05943530f507a0e1f8fd850812d42a28a0d440767f7496047efe626948"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/substrate/sovereign-client.md",
+      "disposition": "retained-relocation-route",
+      "sourceEvidence": [
+        "docs/integration-contract.md",
+        "docs/guide/26-service-operations.md",
+        "substrate/storage-provider/src/lib.rs"
+      ],
+      "notes": "Retained URL explains relocated Companion ownership; no fabricated public repository or pack daemon/API install instructions.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "336f9bfc2cbafa22cb9d7fa4602c8e36aa90d6f2ed64278c60fa11b2eab241ef"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/substrate/storage-provider.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1b56bb035b8906eef253ea6820cbe22c5fb358c71798cc153b8bbcad6368a0a9"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/substrate/surface-bridge.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6330ad3f39494ef3dacfc65fc442e261a4092cd5feb12a869a6db6fb65d86d73"
+    },
+    {
+      "pack": "full",
+      "path": "site/docusaurus.config.js",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ca8421a19ce6349066da1766d999e51e23e1a7491a3cc6e3e0ae1313e7beb490"
+    },
+    {
+      "pack": "full",
+      "path": "site/src/pages/index.js",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4c698d23fd55375bb15fec437aa71aed19659e7b3babf304e0f951563c916ab2"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/agent-teams.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts"
+      ],
+      "notes": "Previously reconciled change16 lifecycle/model/memory source contracts; UAR direct coordinator acceptance is schema support, not a new local command.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "9a6954e3affb4dd7c5ee724133fc0d1ee195b970b541e369e1bb984f46b0542e"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/bundled-rust-skills.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1eedd9dae3f9d7eb2f97e7f065000c380b21fae06029760bd22ac57160cc6ab1"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/delivery-cadence-1.2.0-release.md",
+      "disposition": "retained-historical-evidence",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Recorded incident/release/operation facts scoped to their original date/commit; no fresh installed or release acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ce173089abe4d70ce6e2b70f1fbcfda93652a715d8509c7753b4ad8064e1ed8a"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/delivery-cadence-pipeline-operation.md",
+      "disposition": "retained-historical-evidence",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Recorded incident/release/operation facts scoped to their original date/commit; no fresh installed or release acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1d3fa225e4b24054ca68b4a7742ea442268c5cf04f57e2798aef868077bc7fb6"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/distribution.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1c725170f567ddb54fca08b38b79b4eaa330cb96b0ed2b62b05aa328e852b654"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/service-operations.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4315afa580e40e6bd4d47c5e9f927e508f19cfbbd6a1707cd055ac75ba508aea"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/ui-ux-routing.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "f514e5248c0d4652d8b84c1ebe9ab42f00c453b9720ebebf483218db8187cb19"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/versions-toml.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c9cd209a75433f68c70c978c30467c4b2ac391e732d7ec85d4c245cb69ffc337"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/agent-teams/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts"
+      ],
+      "notes": "Previously reconciled change16 lifecycle/model/memory source contracts; UAR direct coordinator acceptance is schema support, not a new local command.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0aa1025c9a811e852891c06195edd0ba5761314f1ec089fc7a1cd260e8880642"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/artifact-refinement/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c2054818b5eead86df9188f218dee3cb1064c264884ff28becbc8671e8b4b6d9"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/context/prometheus-context-bootstrap.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "31f9689e909b0df97742b933f7b5c97d2a46b79bcb2986c3b3b47624eba7e9f8"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/conversion/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "412f68cd7749dae66864d488638f2c1ddd73325b87af29fc23f0d8632a1bd3dc"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/distribution/plugin-marketplace.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "8bf7c1a1e3c69e7ea2ae702398f212815e98cab809301e4ba94f1774adc43dc7"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/getting-started/installation.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4c27dfb391cb0d8af927e36b89ce618f71a00122f4376b170cca501055feea35"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/getting-started/npm-scripts.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "e2135f157d0b577d968215032954d87c8030480531e94e8e3c95c93a351fa919"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/ideation/ideation-mindmap.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "62c244cdbd2465bbd918a7af187646dbb6f9649b015b5fcb79e6b597121c9f33"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/intro.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "9dcbaeb7b859c0d52f7f178ba7fa3551bdaad2311fbb6311cf8d3b8ea9a5340f"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/karpathy/progress-memory.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "80d99a6a2b89020f35ea85bc990a90b3fe3982e0414f7d26c48f7aa07a1ab494"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/kbd/openspec-lifecycle.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "38093bc0e92f4d5e698afe694cbe581c83681c5ba2eddc3132aa2056483f9df4"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/kbd/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "123bc24e2fdc19225d633c5f19547f10cbca0a51b73313792b2890346dc79395"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/kbd/skills.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "e5dca83fe120af37d21f8dd5e4ea88c6d38be7fde97699ce82b52e43416126b7"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/kbd/task-model-assignments.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/agent-team-creator/runtime/src/cli.mts",
+        "skills/agent-team-creator/runtime/src/types.mts"
+      ],
+      "notes": "Previously reconciled change16 lifecycle/model/memory source contracts; UAR direct coordinator acceptance is schema support, not a new local command.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1e0a4a2b5b447f5c3e7490210aa4a5c205cf36f8e551090df522442c4936f36f"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/platform/doctor.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6fb2880de38f04fd39ff4757b9620ac62ab63578e27f4071f4ed33da905d4880"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/platform/windows-constraints.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "f4966dab7363a9f24b2ae5226fe4014c2df7c6a1cc060639a237c4ae0da02319"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/reference/comparison-with-full-pack.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "3ff785e5cf008466e8cde79d0ff6d2ef91a6b0b164eda49ac9ade28df9bf6977"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/review/adversarial-review.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "d22d90712b1ae9b2509d3b5116bfd3823fe49999af2cb1c8ca0e90229471f56b"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/rust/prometheus-rust-workspace.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "becc913549f07c96bca1da2d606065a67ccd85e86e26097010172fb9e05a70a7"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/scaffolding/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "2193a91b9e4010eacac1cae8fe6fc986879c1534fdfd52e01f8957ec2848c727"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/services/docker-services.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/installation.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/docs/control-api.md",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/main.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/mcp_server.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/rest_api.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-sync/src/config.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/crates/sovereign-client/src/client.rs",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-companion-service.sh",
+        "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final/scripts/install-skill-package.mjs"
+      ],
+      "notes": "Current operations docs describe recovered Companion selected Unix socket/one host owner, private identity/config/data selection, pre-POST fsynced MCP intent, same-host receipt lookup and uncertain replay, optional P2P supervision, separate registration ownership and non-parity of full memory/mcp versus mini memory/main_local_384. No fabricated public Companion URL or live delivery claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "997c18c99d4c61ce3b1479dd51bb5f94d12989dde74042cc9c427c00e86098ed"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/specs/openspec-integration.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "10cb809132f49825c4ec6d4fe94d91347f8265d69e100c24e38ee929433a406d"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docs/ui-ux/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a0e950a35d96537105964741961ee52191c319515c3ef0ed17fd7ea1e16494ea"
+    },
+    {
+      "pack": "mini",
+      "path": "site/docusaurus.config.js",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "01d58193fc78cb27b38af5062cbf257952abbe87086804be5af1983deebab2f5"
+    },
+    {
+      "pack": "mini",
+      "path": "site/src/pages/index.js",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "package.json",
+        "skill-system.json"
+      ],
+      "notes": "Editorial production source reconciliation; generated outputs and installed acceptance remain deferred. Historical evidence is limited to its recorded boundary.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "67a3dab8339f0506c418c953549ca42b69edc7cdd798ea504565a03cbf11255b"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/feynman-loop.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a09a837a9bc5a1c3246d6eb9dd63a7741fb234e76695ea09080bc56baa418f91"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/anti-sycophancy.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5294e42f3397154501663174a4b7a3d81ae1ddbdba0718a12636aa3606c9a6b0"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/mastery-criterion.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "7ab6fedf25047c0adb5f1340e44b567143fa56a46ba0d23f1d776dbd027c4ffb"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-retain.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "504d1e40da003913b823c4ed966808ffdfa37fb56b82c8c8adc4d2900588d452"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-grade.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "58469ef6ce42172c9e3e52bdc31746e09a2f89b97010e0bb95ec1126b761879e"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-survey.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "34b7901aa8de5502377ee50b8366d1fa0a1223818930a5131c2d856ab86e953f"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-practice.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "f1dd7ed14d6824163ec30bc0e2e134d0a732a256c27901197e89feb7de3b86a3"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-kb.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "22f4f038c5180acba4d75c228bcad5773aaca30e21cb33c28752256e75905716"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-harness.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "38551be31eee60796a8051d21d69c19802b947c794fdfffb77cc0a440443b31f"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-plan.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a6c76ee54066cdc2545cd59f122dc78a0d17871056cbfcdb1056d801e9a88cfa"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-goal.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "41042789b2edbc953043710ebf9053da483160423636a02746450a46baf5ce64"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-about-system.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "16d0ebab0ac6ef6b40fc275689f9984fa569672adaf34c9a83d2edb8b3ce2ef5"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/learn/skills/learn-certify.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/learn",
+        "shared/scripts/detect-surface-tier.sh"
+      ],
+      "notes": "Reviewed skill request interfaces, corpus/goal identity, evidence and screening limits; no automatic credential wallet/signature or privacy guarantee.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ac1b27321c6d7f25246c87cf709fce73a5579314c5bdee8e7a37780f6bb41bce"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/platform-and-evidence-status.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "3695e5ec81adc902f658cebd252aee84aa715dc60a39cfc1b14a73701733d79f"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/use-case-cookbook.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "2bf3ca7fb02cbdc90045cfd9c4d9814fd8497da2584ddc70e25b198f35aa7eba"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/receipts-verification-and-certification.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "01cbdcd26de06447b07ae76fa984998491313e6d20f6a46511741c538dc6d8c1"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/remote-dispatch-and-reconciliation.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c68f5d4e2b10699aace05219694d5cadf7f8a7f535dda2e1536d558aa75ef96e"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/architecture-and-tiers.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "91d4a7fb77b5af051f1474e240b68346c8098e352922529b57a79bb347ddda18"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/tier-w-portable-components.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "8c66cefdf77a4ab13178a25773f011fbc3a0b1947577bf9de2a6f8ee68dd8fd0"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/tier-p-native-processes.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4aa77c11dca0ec3da4e797041fdd89ac1d42e2386a595e5275a6bf77cc47b0bc"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/choosing-the-right-capability.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6b5ea4c91769613d5fda77d4c31f7a6d70d24b5289477bace4100a37b878351f"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/security-and-trust.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "18265477342addcbed8dd7683b1600a34e313e931e64880522d274b81abaf871"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/installation-doctor-and-recovery.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "afe45752d4d76cb4afdf296222bfc0d54092e9bf2962781ca84f2460a9fc32fd"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/closed-loop-architecture.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "108e91511bcd347bd16c7c822117f0ae7807d875cceea1ad53066b8af40c0dff"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/local-api-cli-and-mcp.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b4e9636e44e0bc173d112a2db9cb86694809fcceffc7e8bfac3382fe6805c8d4"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/generating-programs.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "405309d2c5231c7abb78c5fb907984e08e10264402d210594623272e3cac07ab"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/execution/overview-and-use-cases.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "crates/prometheus-exec/src/main.rs",
+        "substrate",
+        "scripts/build-prometheus-exec.sh",
+        "scripts/install-prometheus-exec.sh",
+        "config/prometheus-exec-binary.json"
+      ],
+      "notes": "Reviewed actual CLI and execution contract; recorded Exec platform baseline distinct from current candidate gates; independent version and platform service boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "42df4045eb6e862a6956d583960ac4329c5fafe7a4b27fd5aaf4bc8e30a91ccf"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/knowledge-learning/migration-and-troubleshooting.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/enqueue-learning-job.py",
+        "shared/scripts/enqueue-memory-operation.py",
+        "shared/launchagents/ai.prometheus.learning-worker.plist"
+      ],
+      "notes": "Reviewed Stop-job versus role lesson hook/worker boundaries, queue uncertainty, scoped publication and immutable evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "48b6ca824b7b86a9f58b5d6efa6c871eb79f6ed6f62c5f10b2f47891ce8dc0ab"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/knowledge-learning/snapshots-and-context.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/enqueue-learning-job.py",
+        "shared/scripts/enqueue-memory-operation.py",
+        "shared/launchagents/ai.prometheus.learning-worker.plist"
+      ],
+      "notes": "Reviewed Stop-job versus role lesson hook/worker boundaries, queue uncertainty, scoped publication and immutable evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "277330afcafc652e02a1d2a8b7f95b4dce7bedf12a685524bd0a8e514e206a9f"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/knowledge-learning/hooks-worker-and-receipts.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/enqueue-learning-job.py",
+        "shared/scripts/enqueue-memory-operation.py",
+        "shared/launchagents/ai.prometheus.learning-worker.plist"
+      ],
+      "notes": "Reviewed Stop-job versus role lesson hook/worker boundaries, queue uncertainty, scoped publication and immutable evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4a010f3f416ca1550c149c056bc3631aff8111d02c4d1d7011f61aa540350fba"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/knowledge-learning/loro-evidence-and-migration.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/enqueue-learning-job.py",
+        "shared/scripts/enqueue-memory-operation.py",
+        "shared/launchagents/ai.prometheus.learning-worker.plist"
+      ],
+      "notes": "Reviewed Stop-job versus role lesson hook/worker boundaries, queue uncertainty, scoped publication and immutable evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "43daf1ef91a00a68207e3e2f0da899999741477300ce5c751320c1fef75d5384"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/memory/executor-and-recovery.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "site/static/openapi/surreal-memory-v2.openapi.json",
+        "shared/scripts/enqueue-memory-operation.py"
+      ],
+      "notes": "Reviewed durable v2 request and receipt contract; separate reduced mini v1 publication and no inferred current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ee536bf9b077125dbbebcd18405fbf35b9aa990847c0bcd16bafafcc2d869467"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/memory/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "site/static/openapi/surreal-memory-v2.openapi.json",
+        "shared/scripts/enqueue-memory-operation.py"
+      ],
+      "notes": "Reviewed durable v2 request and receipt contract; separate reduced mini v1 publication and no inferred current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4f64d1befbb30b24f71a7007c0201a2370a437ab294d75d509699dd738958ce5"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/memory/operation-api.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "site/static/openapi/surreal-memory-v2.openapi.json",
+        "shared/scripts/enqueue-memory-operation.py"
+      ],
+      "notes": "Reviewed durable v2 request and receipt contract; separate reduced mini v1 publication and no inferred current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "878fde83bde31b948aa437f7f0f75c008e85bb473d0f9328584108164220f4b5"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/09-process-skills.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process",
+        "shared/harnesses/hook-contract.json",
+        "AGENTS.md"
+      ],
+      "notes": "Removed automatic activation/delivery guarantees and stale composition; explicit source prompt versus executable helper and phase-final gate boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "51a06f640595d7d76fc4cf7882daea661093e86728a5fe575e631c4d10172115"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/09b-liter-llm.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process",
+        "shared/harnesses/hook-contract.json",
+        "AGENTS.md"
+      ],
+      "notes": "Removed automatic activation/delivery guarantees and stale composition; explicit source prompt versus executable helper and phase-final gate boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "f5dc40a094f83e67a3491648ec56b6ca367477d3215caa99a7ff9f703dfe02fa"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/11-artifact-refiner.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process",
+        "shared/harnesses/hook-contract.json",
+        "AGENTS.md"
+      ],
+      "notes": "Removed automatic activation/delivery guarantees and stale composition; explicit source prompt versus executable helper and phase-final gate boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "3f4ffb34f55954954ee640c497c24849fc63a8b8975dc8020865be422631592a"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/12-native-agent-generator.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process",
+        "shared/harnesses/hook-contract.json",
+        "AGENTS.md"
+      ],
+      "notes": "Removed automatic activation/delivery guarantees and stale composition; explicit source prompt versus executable helper and phase-final gate boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c42399ef0e0bab5fdb80a9c121557b7b241496f92e826f51c99ad631eb28da23"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/12a-pmpo-skill-creator.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process",
+        "shared/harnesses/hook-contract.json",
+        "AGENTS.md"
+      ],
+      "notes": "Removed automatic activation/delivery guarantees and stale composition; explicit source prompt versus executable helper and phase-final gate boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "d47c42d301a4496b2de13eaa526e9abb75ac2aff36880df772988c81ef2fcfd3"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/15-hooks-and-lifecycle.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/process",
+        "shared/harnesses/hook-contract.json",
+        "AGENTS.md"
+      ],
+      "notes": "Removed automatic activation/delivery guarantees and stale composition; explicit source prompt versus executable helper and phase-final gate boundaries.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b6929506dcf3a18ef33127f40a9ed873f6cba7a9d820a4185d9764cfe8eb032e"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/checkpoints-compaction-recovery.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "skills/process/kbd-process-orchestrator"
+      ],
+      "notes": "Reviewed local canonical authority, projections, causal CLI contracts, completion-receipt and optional replication boundary; no mutation tool guard.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "423b516e08d65cab1dcff8ca4eea56c55bca30f41ff4a8b0c3ddc5414063fe75"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/control-plane-recovery.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "skills/process/kbd-process-orchestrator"
+      ],
+      "notes": "Reviewed local canonical authority, projections, causal CLI contracts, completion-receipt and optional replication boundary; no mutation tool guard.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "02a9f9f6735f5a5d7755fb7fba65a11326abf5e1bcc0b60a7e3f6abd659dbdf8"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/hooks-and-waypoints.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "skills/process/kbd-process-orchestrator"
+      ],
+      "notes": "Reviewed local canonical authority, projections, causal CLI contracts, completion-receipt and optional replication boundary; no mutation tool guard.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "27c07634f497a325d1d4bf92be559099ea953a23dd3232f31837511d2a4777fe"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/migration-and-rollout.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "skills/process/kbd-process-orchestrator"
+      ],
+      "notes": "Reviewed local canonical authority, projections, causal CLI contracts, completion-receipt and optional replication boundary; no mutation tool guard.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5a1c34c61e0f07e6cba129138812a455a918538169480a3b9313c067260974d5"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/openspec-lifecycle.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "skills/process/kbd-process-orchestrator"
+      ],
+      "notes": "Reviewed local canonical authority, projections, causal CLI contracts, completion-receipt and optional replication boundary; no mutation tool guard.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "13fd86ad70cc00f574d8e9dbd6b38565a3699ffe3730c443a5cfdd9f385049d0"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/operator-controls.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "skills/process/kbd-process-orchestrator"
+      ],
+      "notes": "Reviewed local canonical authority, projections, causal CLI contracts, completion-receipt and optional replication boundary; no mutation tool guard.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4bfacba0c4fc4c7eb4d0b1404134b2219bfbf72284095dbc17bd1ab4acf435f8"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/overview.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "skills/process/kbd-process-orchestrator"
+      ],
+      "notes": "Reviewed local canonical authority, projections, causal CLI contracts, completion-receipt and optional replication boundary; no mutation tool guard.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ae7e1dec3ded98cae2cfb23692b79109e841884f9891d970e7ea38abc4b0d31f"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/kbd/stages.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+        "skills/process/kbd-process-orchestrator"
+      ],
+      "notes": "Reviewed local canonical authority, projections, causal CLI contracts, completion-receipt and optional replication boundary; no mutation tool guard.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "e56b22427a4976a5f5dc1ca4f73e8a929bcf9c94f448ff63450f8280a86b6f24"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/operations/logs-recovery-and-failures.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "shared/config/logrotate.d/prometheus-hooks",
+        "shared/launchagents/ai.prometheus.hooks-logrotate.plist"
+      ],
+      "notes": "Source and historical certification distinct; preserve queue/receipt/recovery data.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "43228eec5ad98134d861aadf1aa6ed1006852bb5f789301ae24a4edd42fa33b4"
+    },
+    {
+      "pack": "full",
+      "path": "site/docs/research/deep-research.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "skills/research/deep-research/scripts/run-research.sh"
+      ],
+      "notes": "Reviewed ten-stage driver/checkpoint/review outcomes; missing judge explicit; dated benchmark retained without current proof.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0bad1ab2145eb3a4a9b6c79418c88008639e73eb858955aa539769b0055b2c1f"
+    },
+    {
+      "pack": "full",
+      "path": "docs/BUG-FIX-LEDGER.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/BUG-FIX-LEDGER.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "27fe06c197774c36f209da490958b0ca25b9050c63416d756c971abb2ae9bbed"
+    },
+    {
+      "pack": "full",
+      "path": "docs/articles/OUTLINE-loops-that-lie.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/articles/OUTLINE-loops-that-lie.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a91674dfc017f2f76243cba90a8449254c9484cfadb4324fb24a94d05b7706d1"
+    },
+    {
+      "pack": "full",
+      "path": "docs/articles/autonomous-loops-prometheus-skill-pack.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/articles/autonomous-loops-prometheus-skill-pack.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "cbf977f8573324c10b52e6cb98336d26f9fefd3a847dc1e4e3bf966d738d4f60"
+    },
+    {
+      "pack": "full",
+      "path": "docs/deep-research-skill-playbook.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/deep-research-skill-playbook.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "bbee3cb60e8fc983a15cb8587c0eebe85b5c1a8a5e151f31f15d675bdb626150"
+    },
+    {
+      "pack": "full",
+      "path": "docs/deep-research/index.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/deep-research/index.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a163b07d67d2ad8c5ebce88ccd960472d5c3b263f2b80d467dfc5b5cf5efa874"
+    },
+    {
+      "pack": "full",
+      "path": "docs/deep-research/plan.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/deep-research/plan.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c34b5e2cf8841e054d660a36c3a62e920fc9cf05f67204851c6445d44cbad6e7"
+    },
+    {
+      "pack": "full",
+      "path": "docs/deep-research/fable5-comparison.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/deep-research/fable5-comparison.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "8d704b9140401ab2d7d05dcaa77e36c4ff17dc352fb924125cde874b7d728487"
+    },
+    {
+      "pack": "full",
+      "path": "docs/deep-research/deep-research-skill-vs-onyx-report.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/deep-research/deep-research-skill-vs-onyx-report.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "bbad8e1e870df101c84cae1a89d11405446e72954ca864955cd01acbc165639b"
+    },
+    {
+      "pack": "full",
+      "path": "docs/features/goals/compass_artifact_wf-69df91d9-86bb-54f0-86ee-e627b12a4796_text_markdown.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/features/goals/compass_artifact_wf-69df91d9-86bb-54f0-86ee-e627b12a4796_text_markdown.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "4b4ca40d8bcf9792720781f728cc626a6d0be78cd98839dcb2dbb78fc3967274"
+    },
+    {
+      "pack": "full",
+      "path": "docs/features/skills/PAGS-SPEC-PSP-IP-002-rev1.1-skill-router.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/features/skills/PAGS-SPEC-PSP-IP-002-rev1.1-skill-router.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "8faadb9d9287a7b905c4db1f774e36654f7bfc74b744ba2f2124e74145af904b"
+    },
+    {
+      "pack": "full",
+      "path": "docs/features/skills/compass_artifact_wf-59b3b094-72c1-5bec-ba09-c02bb263a218_text_markdown.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/features/skills/compass_artifact_wf-59b3b094-72c1-5bec-ba09-c02bb263a218_text_markdown.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "3c5701f728b4a7ff0d30e90869ba7936d0fed4630ab29262e903726ea81493a5"
+    },
+    {
+      "pack": "full",
+      "path": "docs/loops-architecture-spec.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/loops-architecture-spec.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1fa27aa99e227bdd1e3220532742e76bda6d5da9ab003b144cabc5763fe44a56"
+    },
+    {
+      "pack": "full",
+      "path": "docs/psp-instruction-plane-spec-2026-07-28.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/psp-instruction-plane-spec-2026-07-28.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6cbfa9f0e86020524fe19bb0bc88c7203a6a12daca5bde0f9ccea0b21e17f67d"
+    },
+    {
+      "pack": "full",
+      "path": "docs/integration/all-tools-reinstall-20260823.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/integration/all-tools-reinstall-20260823.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "9ffe4d446eae645d78dd350bae1c2dbdd046a845888a5c9d3e655457408e1ba2"
+    },
+    {
+      "pack": "full",
+      "path": "docs/integration/prometheus-knowledge-semantic-port.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/integration/prometheus-knowledge-semantic-port.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "b3b0519c71afd1962f9787024cc75faf63549f3467993c459de7ca59a72018c3"
+    },
+    {
+      "pack": "full",
+      "path": "docs/reports/2026-07-18-cross-tool-learning-validation.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/reports/2026-07-18-cross-tool-learning-validation.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "f49c549eb35002a5585abaa7a9258f3418f8bc10994e8fc53f6a228d3d87e3eb"
+    },
+    {
+      "pack": "full",
+      "path": "docs/reports/2026-08-02-kbd-startup-isolation-artifact-review.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/reports/2026-08-02-kbd-startup-isolation-artifact-review.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "d57b4d5912a32e2fedea93ba1b343cc36dfb0ab578623c829701eb19e12f4e8b"
+    },
+    {
+      "pack": "full",
+      "path": "docs/research-agent-hardening-evidence.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/research-agent-hardening-evidence.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "a13aecd2e033f9f55d7dd7f7a2f26a77e07f860935593954c04e16852392bc6f"
+    },
+    {
+      "pack": "full",
+      "path": "docs/superpowers/plans/2026-07-17-global-skill-system-repair.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/superpowers/plans/2026-07-17-global-skill-system-repair.md",
+        "AGENTS.md",
+        "docs/guide/03-loop-architecture.md",
+        "docs/guide/26-service-operations.md"
+      ],
+      "notes": "Reviewed declared purpose, body contract claims, proposed changes, outcomes and limitations. Historical/proposed results retained beneath explicit non-onboarding boundary and current-guide link; not current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "14616586022cbeadd588b06e8ea599b65a5467d142d816fa670609472af1798c"
+    },
+    {
+      "pack": "full",
+      "path": "docs/learn/crdt-conflict-semantics.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "substrate/learner-model/src/store.rs",
+        "substrate/learner-model/src/types.rs"
+      ],
+      "notes": "Superseded Automerge/LWW policy replaced by actual Loro keyed-observation fold, session dedupe, priors and recoverable schema1.1 migration.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "e002e085c3867a8d1944d29085097aee948b8aebd6eee1246c85a99944ba82ea"
+    },
+    {
+      "pack": "full",
+      "path": "docs/skill-authoring-guide.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "scripts/validate-skills.js",
+        "config/codex-catalog.txt",
+        "skills/process/native-agent"
+      ],
+      "notes": "Removed universal description-only algorithm, fixed budget/count and guaranteed activation claims; preserves bounded authoring rules and final structural gate.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6a2e5498e9f52b39f8d722e438bb0f6bcdea42b96acc97eca6ddd0e196e6f9d5"
+    },
+    {
+      "pack": "full",
+      "path": "docs/production-readiness-report.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "docs/releases/1.7.0",
+        "AGENTS.md"
+      ],
+      "notes": "Recorded Exec baseline separate from current candidate; no unit/property acceptance or umbrella version claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1eabe28912df2e80384bd91141266ba30dcce8243990703986f041d6374921fa"
+    },
+    {
+      "pack": "full",
+      "path": "docs/reference/ui-ux-routing.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "skills/ui-ux/prometheus-ui-ux/references/runtime-api.md",
+        "skills/process/agent-team-creator/references/project-installation.md"
+      ],
+      "notes": "Reviewed Node22 route/install request fields and limits; phase-boundary executed:false, preserved native discovery/role selection and advisory retrieval.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6c614d16d00ee22ee7c22c2ab33e27fab356baf98b016f9c173547713ee92a72"
+    },
+    {
+      "pack": "full",
+      "path": "docs/delivery-cadence-1.2.0-release.md",
+      "disposition": "retained-bounded-history",
+      "sourceEvidence": [
+        "docs/delivery-cadence-1.2.0-release.md"
+      ],
+      "notes": "Reviewed September30 source/operation and operator-skipped Windows boundary, synthetic URL and Boss publisher limitations. Dated results retained, no current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "ce173089abe4d70ce6e2b70f1fbcfda93652a715d8509c7753b4ad8064e1ed8a"
+    },
+    {
+      "pack": "full",
+      "path": "docs/delivery-cadence-pipeline-operation.md",
+      "disposition": "retained-bounded-history",
+      "sourceEvidence": [
+        "docs/delivery-cadence-pipeline-operation.md"
+      ],
+      "notes": "Reviewed September30 source/operation and operator-skipped Windows boundary, synthetic URL and Boss publisher limitations. Dated results retained, no current acceptance.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "1d3fa225e4b24054ca68b4a7742ea442268c5cf04f57e2798aef868077bc7fb6"
+    },
+    {
+      "pack": "full",
+      "path": "docs/delivery-cadence-distribution.md",
+      "disposition": "updated-source-reference",
+      "sourceEvidence": [
+        "scripts/distribute-delivery-cadence.mjs"
+      ],
+      "notes": "Reviewed targeted six-copy installer, receipt/hash preflight/backups and support closure. Explicitly names its separate --home Codex contract, which does not read CODEX_HOME.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "84470e620dae3df8a0de39c8cde0892070e2d248736c17de3c47845f3af7184e"
+    },
+    {
+      "pack": "full",
+      "path": "docs/research/ui-ux-routing/DELIVERY.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/research/ui-ux-routing/DELIVERY.md"
+      ],
+      "notes": "Reviewed bounded routing findings, author/catalog self-review distinction, explicit native-platform and research-export gaps; prior counts and Boss state retained only as recorded evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6bea938d427b47a9366aaf34d9c8900b87025200065b8dafc643fe370f684561"
+    },
+    {
+      "pack": "full",
+      "path": "docs/research/ui-ux-routing/independent-review.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/research/ui-ux-routing/independent-review.md"
+      ],
+      "notes": "Reviewed bounded routing findings, author/catalog self-review distinction, explicit native-platform and research-export gaps; prior counts and Boss state retained only as recorded evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0386d4b4c8ed55055be1bfa88c5a101f1c721e4909c8569e9ebeb8ccbf629203"
+    },
+    {
+      "pack": "full",
+      "path": "docs/research/ui-ux-routing/report.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/research/ui-ux-routing/report.md"
+      ],
+      "notes": "Reviewed bounded routing findings, author/catalog self-review distinction, explicit native-platform and research-export gaps; prior counts and Boss state retained only as recorded evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5013905996d854d65fadcada2ef77473f61e9fb1ac57dace7903cebd5d4169c1"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/research/ui-ux-routing/DELIVERY.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/research/ui-ux-routing/DELIVERY.md"
+      ],
+      "notes": "Reviewed bounded routing findings, author/catalog self-review distinction, explicit native-platform and research-export gaps; prior counts and Boss state retained only as recorded evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "6bea938d427b47a9366aaf34d9c8900b87025200065b8dafc643fe370f684561"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/research/ui-ux-routing/independent-review.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/research/ui-ux-routing/independent-review.md"
+      ],
+      "notes": "Reviewed bounded routing findings, author/catalog self-review distinction, explicit native-platform and research-export gaps; prior counts and Boss state retained only as recorded evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "0386d4b4c8ed55055be1bfa88c5a101f1c721e4909c8569e9ebeb8ccbf629203"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/research/ui-ux-routing/report.md",
+      "disposition": "preserved-labeled-history",
+      "sourceEvidence": [
+        "docs/research/ui-ux-routing/report.md"
+      ],
+      "notes": "Reviewed bounded routing findings, author/catalog self-review distinction, explicit native-platform and research-export gaps; prior counts and Boss state retained only as recorded evidence.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "5013905996d854d65fadcada2ef77473f61e9fb1ac57dace7903cebd5d4169c1"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/agent-team-creator-c094.md",
+      "disposition": "retained-bounded-source-record",
+      "sourceEvidence": [
+        "docs/agent-team-creator-c094-distribution.json",
+        "skills/agent-team-creator/vendor/uar/consumer-source-receipt.json"
+      ],
+      "notes": "Reviewed original copied payload pin versus later mirrored UAR contract; distribution receipt does not prove installed activation, compiled candidate or platform certification.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "9c8045f73647357ecec25f4d4d51b616bcac59a3f3c05fd3e7e8f10a437dfbd2"
+    },
+    {
+      "pack": "mini",
+      "path": "docs/skill-routing.md",
+      "disposition": "defer-to-generator",
+      "sourceEvidence": [
+        "rules/build.mjs"
+      ],
+      "notes": "Generated entrypoint policy prose: preserve generated bytes now; final12 regenerates from producing source. Machine discovery claims cannot certify another installation.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "e9ab0dbcd601592031a9b12e7cc232098ef4db3a33906359aff7cd94402510ef"
+    },
+    {
+      "pack": "full",
+      "path": "docs/guide/memory-tiers.md",
+      "disposition": "other-owner-source-reference",
+      "sourceEvidence": [
+        "shared/scripts/lib/learning_write.py",
+        "shared/scripts/lib/learning_recall.py"
+      ],
+      "notes": "Root/change08 has active ownership; preserve its exact source edits and final handoff. Existing16 scoped memory references compose with this canonical page.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "c0ddded10eeeb78104f749b7378c9463c8657a84779b6f8326aefc0520a67f92"
+    },
+    {
+      "pack": "full",
+      "path": "docs/generated-output-ownership.md",
+      "disposition": "retained-bounded-source-reference",
+      "sourceEvidence": [
+        "scripts/generate-skill-system-distribution.js",
+        "scripts/generated-paths.mjs",
+        "scripts/rebase-regenerate.sh"
+      ],
+      "notes": "Reviewed change05 ownership observer/source-gitlink requirements and explicit acceptance deferred12. Preserved concurrent generator owner copy; no execution claim.",
+      "acceptance": "not-run; whole-phase boundary deferred",
+      "editorialSourceSha256": "d56489835a3f8ce6b25e6688e548eea9864b8df5fd91e420547b087fae619ca1"
+    }
+  ],
+  "pendingInventoryPages": [],
+  "limits": [
+    "Static editorial source work only; no validation, generation, builds, reviewers, runtime probes or live-home mutations.",
+    "All inventoried owned reader pages have editorial source dispositions. Task17/2 remains incomplete pending root release/source values and actual Companion links; current-runtime acceptance is deferred.",
+    "README, maintenance, generated catalog/rules and phase evidence ownership excluded."
+  ],
+  "remaining": "Source editorial work complete; root owns final approved release/source values and actual remote links; all runtime/generated/final local acceptance remains deferred."
+}

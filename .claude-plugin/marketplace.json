@@ -11,73 +11,73 @@
       "description": "Complete Prometheus skill system: process orchestration, React, GitOps, testing, research, learning, and portable agent tooling.",
       "name": "prometheus-skill-pack",
       "source": "./dist/plugins/claude/prometheus-skill-pack",
-      "version": "1.11.3"
+      "version": "1.12.0"
     },
     {
       "category": "frontend",
       "name": "prometheus-ui-ux-skills",
       "source": "./skills/ui-ux",
-      "version": "1.0.1"
+      "version": "1.0.2"
     },
     {
       "category": "frontend",
       "name": "prometheus-react-skills",
       "source": "./skills/react/prometheus-entity-skills",
-      "version": "1.5.1"
+      "version": "1.5.2"
     },
     {
       "category": "productivity",
       "name": "prometheus-process-skills",
       "source": "./skills/process",
-      "version": "1.7.1"
+      "version": "1.7.2"
     },
     {
       "category": "devops",
       "name": "prometheus-devops-skills",
       "source": "./skills/devops",
-      "version": "1.5.1"
+      "version": "1.5.2"
     },
     {
       "category": "testing",
       "name": "prometheus-testing-skills",
       "source": "./skills/testing",
-      "version": "1.5.1"
+      "version": "1.5.2"
     },
     {
       "category": "productivity",
       "name": "learn",
       "source": "./skills/learn",
-      "version": "1.6.1"
+      "version": "1.6.2"
     },
     {
       "category": "productivity",
       "name": "prometheus-librefang-skills",
       "source": "./skills/rust/librefang-wasm-skill",
-      "version": "1.5.1"
+      "version": "1.5.2"
     },
     {
       "category": "productivity",
       "name": "cowork-management",
       "source": "./skills/process/cowork-management",
-      "version": "1.0.1"
+      "version": "1.0.2"
     },
     {
       "category": "devops",
       "name": "disk-space-guardian",
       "source": "./skills/devops/disk-space-guardian",
-      "version": "1.0.1"
+      "version": "1.0.2"
     },
     {
       "category": "productivity",
       "name": "prometheus-research-skills",
       "source": "./skills/research",
-      "version": "1.1.1"
+      "version": "1.1.2"
     },
     {
       "category": "productivity",
       "name": "prometheus-research-server",
       "source": "./substrate/prometheus-research",
-      "version": "1.7.1"
+      "version": "1.7.2"
     },
     {
       "category": "productivity",
@@ -102,5 +102,5 @@
       "strict": false
     }
   ],
-  "version": "1.11.3"
+  "version": "1.12.0"
 }

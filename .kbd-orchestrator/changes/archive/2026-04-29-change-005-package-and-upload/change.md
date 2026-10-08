@@ -47,7 +47,7 @@ In:
     refuses unknown destinations unless `--insecure` is passed.
 - New slash-command `/start-business-build "<concept>"`:
   1. (Stub) call ideation-mindmap if available, otherwise pass concept directly.
-  2. Run `zeespec-interrogator` with the concept → constraint manifest.
+  2. Run `spec-gate` with the concept → constraint manifest.
   3. Run `iterative-evolver assess + plan` → OpenSpec change set (or KBD
      equivalent if openspec/ is absent).
   4. For each change: `forge enrich` → dispatch to AI implementer (Claude/Codex)

@@ -181,7 +181,7 @@ Six ideation-adjacent skills already ship:
 | `ideation-mindmap` | divergent generation |
 | `validate-idea` | convergent gating |
 | `kbd-idea-critic` | **already a separate-model critic with a 4-dimension rubric** (`feasibility`, `pain_addressed`, `stack_fit`, `buildability`) |
-| `zeespec-interrogator` | 60-question pre-spec interrogation with NO-GO verdicts |
+| `spec-gate` | 60-question pre-spec interrogation with NO-GO verdicts |
 | `learn-goal` / `feynman-loop` | learn-what-you-don't-know, with a hostile mastery criterion |
 | `pmpo-evolver` | strategy router incl. strategic dreaming |
 

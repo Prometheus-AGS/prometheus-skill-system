@@ -1,0 +1,1830 @@
+{
+  "schemaVersion": 1,
+  "kind": "companion-publication-source-inventory",
+  "observedAt": "2026-10-05T18:51:01.724714+00:00",
+  "candidateRoot": "/Users/gqadonis/Projects/prometheus/worktrees/ldd-companion-final",
+  "baseCommit": "773aa5e33b2217135bc423e526c497cceb0e7058",
+  "branch": "codex/ldd-companion-final",
+  "bootstrapOrigin": "/Users/gqadonis/Projects/prometheus/worktrees/.ldd-companion-bootstrap.git",
+  "ownerSelectedPackDependency": "ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61",
+  "remoteDestination": {
+    "preferredOwner": "Prometheus-AGS",
+    "name": "prometheus-companion",
+    "visibility": "private",
+    "status": "proposed-not-created",
+    "fallback": "authenticated owner private repository if organization creation is unavailable; record resolved owner before publication"
+  },
+  "existingTrackedFiles": 148,
+  "recoveredNewFiles": 112,
+  "paths": [
+    {
+      "path": ".agents/skills/.openspec-target",
+      "sourceClass": "existing-committed-history",
+      "sha256": "243b0dc9b847e66c440dca985e10fe0ce9e29c379b018ddd5747ba8948f84cc8",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-apply-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "9a8c4451009e64f6b8ad0e8e382afb5ad0ff74e262be9e6486ae4d9cc67827cb",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-archive-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "c6bedae20cf8de2af4c76b742a09782d820e9f586a9c0b41bbbbf4483361286c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-bulk-archive-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "53ab266cd065c52fbbbb0991d7d7f6d56259dc4a05a893e29deea1dcd3720449",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-continue-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "549503cb157f535fc724945b30bcd5c6eb1ff8898b7edb58560acffacf6e9e8c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-explore/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "e30095eb3baa9870935826f752204ea72e0b1e76bf06952f555287423a2c601b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-ff-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d59bb4f34c3413e324430e71b4222615d7a69dd43b99e5b797ed0523584fb3a7",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-new-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "66cc35916fdef4e4d60312578ad6fe3e464e8516c229b7c2c72f3d26a9f1028e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-onboard/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "62a75cacd0a5ce29c8fd3ac4faedf5555270ede8c73c37a950d9b7077384dcef",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-sync-specs/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "169a351444e4039e52c95790c47e5c84d70bf37165e0b4e09fe528e58a56b899",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".agents/skills/openspec-verify-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "8157f509f8c22673fd91c38fea170ea6f68e3c3ff84ea3305e78f697eb545749",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/agents/artifact-critic.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "738168e47be0473d304c4693eef75606ad8d231f89bf3eb6f18a03b9cc52cdf4",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/apply.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "6e6c33442d74aca44bcbcbee71deccdc28efaa6c3484b5877d62bbbea460f315",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/archive.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "ec3ebf753601ab1107a77e88decabc87b971e61896292ec7dfb252db51998c72",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/bulk-archive.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "7d662769abbde7c55e1c5329fe1322171c036e558c0bb11fa4f4f7eb222e37ad",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/continue.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "53be942f423456507e6f2e056ece77b1f2cfa068dd8de166b1bd2ae4a3b1e3e6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/explore.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "386041eaffb09c1efbc080ca390bccd2112a95d3692b72223765582d6d1cb58d",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/ff.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "a5cd67fe269beb3bc5f270c812cc86cbb5d76ee66335c56bf3e6075107c2ebb5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/new.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "ad41146dfcf226fcbcdcae6f1ff48371eb1eed41bedd8d2353e7f276687e8813",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/onboard.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "9687c3950d8b7d8dacaef944bc9eec913f90f47bb044df8a7de5d9c222b978f6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/sync.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "f2d9729161cd9f6f8abf813e91b52ec533e96acd7d8adf04b308c0b14d7db47a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/commands/opsx/verify.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "983ab3a191827bc2d9d43544a283b2725c8c9b810afe9d367d38d48ed646eab9",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/hooks/reanchor.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "6325d1d9606f723063116263865f296f9cef3b7efd1ea6d214522088c2e01088",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/hooks/single-writer.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "8789f8e2b682d05064423e68ce1377e98aea2c8957971f92d048c0ff2f11ef74",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/hooks/sycophancy-gate.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "86c4bc731ceecaf232b0b9bce8c993cd76a9b9006cbaeb1a0b2bb58abce151ca",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/hooks/tier-guard.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "25357a4805a749bb5f30f4200ce3e40702a5956b4f9afbc5257732836b704f00",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/rules/typescript.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d09f221609f7f91dd9fa746d57aff705fc58e387c894f65e94236c0940699b5f",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/settings.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "847a7a7246957ee409e8e943ee5653d563dbf79e35bf1a7ade551fac7d8562f6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-apply-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d988fc94a0b5272f283fad6a4b5b8c32dd242f39185a1463c2e36618357e7593",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-archive-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "3ead2658603c3f703d8368c3a67103198d3a0271b916775a5c0ccb437353f3b1",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-bulk-archive-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "53ab266cd065c52fbbbb0991d7d7f6d56259dc4a05a893e29deea1dcd3720449",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-continue-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "643eeebe87e1d6087a3110177a752664d8ac578b24715f6b36cc12fb34682c58",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-explore/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "8dca1ef60755467a6e8b7c99b64b7f8eae013b51346db11b9b3eaa2a50a2719e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-ff-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "5d6ad7e7986b2156649357c1d9cbeb19fa17a0c3399d8c681832b88bbb4f3ddb",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-new-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "66cc35916fdef4e4d60312578ad6fe3e464e8516c229b7c2c72f3d26a9f1028e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-onboard/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "ca1beb4659433a03cca8adb28405d1ee48bf34d1004ec02867b69060ec662008",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-sync-specs/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "ad132986ec76ddf9341f52c693e6b91e0de352e1f4bd47b8050f9c2553505abd",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".claude/skills/openspec-verify-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "09351af5026eb06a293b499229b451c27d092d03484ef5bca9b255b69e8c7696",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".gitignore",
+      "sourceClass": "existing-committed-history",
+      "sha256": "e1f15ba625b151edb97636442efa2d580d11fce4dacf7003b68ac30a00ea3596",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kbd-orchestrator/constraints.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "3241f895976d2f0392786a8bcf42f99805ca5e91d25fcad3273cc40a7de6bf8f",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kbd-orchestrator/current-waypoint.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "2094a08c9d2d060fb1bcb40d62d6358304a07d527f945c81086e208242c932e8",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kbd-orchestrator/project.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "a1404bb1c9ecb45cb2f6cd77973f4226599ce30dcdd4c6ceab4bd87915317cc5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-apply-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "5c2002b55c0f5c6f13f0c508c0749f4f007c3d5a83bf897e2dcb8793b14ca7a5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-archive-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "8cd85bdaf3e3be2c493995319f140e14af3e879bda8fbcf441c63ee2e5426e6c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-bulk-archive-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "53ab266cd065c52fbbbb0991d7d7f6d56259dc4a05a893e29deea1dcd3720449",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-continue-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "453faa61e51b704ab66283db4fccd25c950ac6418894926675d975b4ab16ae93",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-explore/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "93665926a0483246400822df128bd1664a91ae2da65b6eedc57e9a0699f7d882",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-ff-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "3911a16afbc2c62ac1d37157224f463f3055878f829d19bdbe6125e2d9452145",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-new-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "66cc35916fdef4e4d60312578ad6fe3e464e8516c229b7c2c72f3d26a9f1028e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-onboard/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "9a83d65a7cea2b914a4e55f669227fcd7cf1f8b723920bc5b5b26c11c8061d0a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-sync-specs/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "022941ea9afd3abf32c3da7e8b592878ed027a5313b33ef7302fd9c81bb6782a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".kimi-code/skills/openspec-verify-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "39531ad2b620a000080b24e2cfd975b8889daadcd192d896c32eadace28d2b9d",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-apply.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "204af2b352d1f81bd065408645abdc4ca9ad03edc9b2a22dd18f3f25412d81db",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-archive.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "abddc58eff5cbb50dba1479798d1ff54f6ad590af3ec698d96ae5e79880f4a71",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-bulk-archive.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "14778433f9fe269d973b1c08be738454a9eed3b5c06a9bb44c152c9ee25add0e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-continue.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "16556ad82cff3a5ea6f6913496b4ce8633cdc7407799e4e571d5c7716558e99e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-explore.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "bf1b91c389ed1b17c03f2fb1f5e5084ccf1ae882c7b16c44e68890c2d301060a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-ff.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "45327466d05a97a4d6a24d299da77758ae260f97f1e42dea0ff512a436dbae77",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-new.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "269a52b27834311bfff851265453b0a4cea30ab425d1a15a04821568d0aa9034",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-onboard.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "a6dcd4a9030b36cb9b2cdcaae319a241fd83c140d64a9645b1858fd45ab36974",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-sync.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "78c7e600b3f1cc33ab8ccf1d7a98d810ca10ddfa4c733347dfb8a238f8b5812c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/commands/opsx-verify.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "58362caff668d82d275cb3f342fd33d9e624e80375b0668aedf61f3c1ff6a4fc",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-apply-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "dc504c381039414b28a4eb93a603b8baaa7bcffd0bfa55febbd6e0477b1a90e6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-archive-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d7ac14b6dda522650327d7ec33cf03298a831a892ca24470ca7ba1f4eb375656",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-bulk-archive-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "53ab266cd065c52fbbbb0991d7d7f6d56259dc4a05a893e29deea1dcd3720449",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-continue-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "ff2f7c26afd209468ce7cf44ec7313474369117811e6fd2553a99b9a78caa058",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-explore/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "e58e3b86ed24f2b1f2c3efadcb7287670f7c0eed87a40b1154779c9b239e80e6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-ff-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "04c9955d21ed1bba89853b5ea7fd934db9406dba279f441870be66bc8828f648",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-new-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "66cc35916fdef4e4d60312578ad6fe3e464e8516c229b7c2c72f3d26a9f1028e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-onboard/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "efc0a64987acdb074253a7410e8a38255a8b97f6a9d2c7f121d272964e305ba4",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-sync-specs/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "7072274754abff79bde9de165f375d7565be3c221a6468fe0290f922245be917",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".opencode/skills/openspec-verify-change/SKILL.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "4b1289836722671f611be2e299f4800750591b1d1fcaa585314dd51bf4ce15da",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/decisions.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "59ad49aecb42a4d9dfceed0ae1aa3e193e9c4b3d0afe8031630e8dd994a8f3f5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/events.jsonl",
+      "sourceClass": "existing-committed-history",
+      "sha256": "674f7076ea7f60ce2f0f0b4badb9b5745158a05e7496f4a7312059973957793a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/gotchas.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "896bc4e3515f276ddd0a4ff0002db57734e0b74bfb454244e82278fd20165445",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/.prompt-snapshots/project/current",
+      "sourceClass": "existing-committed-history",
+      "sha256": "89c9a3a025511845c97ddab2eabc6ae3361a930c9588b825e03938e40dc5ea92",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/.prompt-snapshots/project/generations/22ca0abb2a719f7218724e68a830ed8778d6fa33c393f4906107fb21873c3643.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "5e61668246b2f84941d0b24d7a8abbc26180e1d57365a3e536b11d78bf71bbaa",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/executor-session-completed-in-spec-phase-without-change-id.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "3defb23b6020a26a4ec29ff73b470336218295da62eeda6e5982ccf74dcbcec5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/index.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "6d404e6d2c747eca54970da01235fefd96d01461f990dc8fbdd4c128c13a6f6f",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/karpathy-session-077e404ce64fc08b.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "bd589ed595b6ea0ae6d83824ff6c5afa068905dae269d4ab348989a67eff8390",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/karpathy-session-4bdf05929c37ebcc.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "f6dad7d3eafd6685721772e2af25fb23a34904db843250da090d7feca2ecd277",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/karpathy-session-5142d03853479010.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "f0950b02265d944f15615e41c596cc95fc3a1acdf8b825164af8ba69bd853538",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/karpathy-session-9d60e2439a301d72.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "74d72db81d53ad9e85e7d1d03aafe79d8a29c665f8a510ea089757aa355f0382",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/karpathy-session-a913bee1caf2174f.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "5b599911e4c3001709a791821d3744d43ef6a1c95b23e1f4f69377ab29fb49c5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/karpathy-session-c8e731a705f4f4c9.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "c3d48a9a11ac33650b12eb62b9d082a5b719fd169631bc7b5ab6f545d98b33a1",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/karpathy-session-d98cf9a10daee4b9.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "0f3d8a7390e73e27f6f6e7d09a2625524497d217f705b503bedf270700aa36ef",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/karpathy-session-e2f9ae4f016ec55e.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "9d83c283445737145eedea7c46bb751ca22a9708d27ed38d531b3684e31c1182",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/knowledge/wiki/log.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "776bf2f4cd2e0b8be96e1761603bfedc988f60718b9e6fb0f95a9ee189614620",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/model-fleet.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "ad2511e26d5eda1f029d94bbdec53b925d474e21751d7419f9c029b9c2931a0e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".prometheus/session-log.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "fd593365189fd4dc6f06afe80f6a853d713ca351f767e4c092c777adb795ddda",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": ".vscode/extensions.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "8988c707a30230dcaa815dc690caab61f43c57b13fb42e2d632e06a794b58454",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "AGENTS.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "88ba1e6c52253d091a99ab4a46675e174b099d8317911b3ddca5a9efc5cdd9b7",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "4445a039883844d62d027a9f8e3d185e6ca8e7e13f7c7ee53efb81a87f1e7b88",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "Cargo.lock",
+      "sourceClass": "recovered-production-source",
+      "sha256": "8aaba61df3b9b389dac49af6c8b98a1de77c0b24f37d5654476fd15c83fb6026",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "Cargo.toml",
+      "sourceClass": "recovered-production-source",
+      "sha256": "534775b5de313980fd88a9c317b8ab6e44841a19ed3377a8eaf3c788f0abc123",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "LICENSE",
+      "sourceClass": "declared-MIT-notice-preserved-from-full-source",
+      "sha256": "b164a95706dd6b691be8419873b721f5ac5ee38db381ebda1759ea8b0f71091d",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "README.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "3d19a422730c5f0fc6c539b83eba11e77b6f077a0b39bc0b6833a4a410296618",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/iroh-docs-adapter/Cargo.toml",
+      "sourceClass": "recovered-production-source",
+      "sha256": "df1dab736c677341fa184d8049aa1878b746fec6a963e682a2c4eaf5034de39b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/iroh-docs-adapter/README.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "871ab62f25e0289800b075e3435fd5820163db1739e7d50876eb6ad3c629ef8c",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/iroh-docs-adapter/src/lib.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "553ce9e41bed7a6014496d8101b6c3149e49e91ac01e8b3f25846a1d7e8a0bc4",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/kbd-mobile/Cargo.toml",
+      "sourceClass": "recovered-production-source",
+      "sha256": "ff88df355822b39bd4fcd55ccd3c0d8575436417019e35b116f107b85512547b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/kbd-mobile/README.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "9a47e762531aac67a84cba63be577cf393365bba7908ff44c5d6cbe1e6f06e13",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/kbd-mobile/src/lib.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "1f4a69d284524515f8b1420738f51310dd250d2fb1c3cef05785cf731c2a46a9",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/kbd-mobile/tests/wire_compat.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "45abf1bfe20859b2f4b2d88541f00744169de89f2b49495e664d37d738617cad",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/prometheus-substrate/Cargo.toml",
+      "sourceClass": "recovered-production-source",
+      "sha256": "335b669b4e5a77429dcbe0f367b160c72bc7ef2cfa8e336636a1a99b2c2baad8",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/bin/prometheus-companion-headless.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "150910fd334f7672f9f60dbf7f9f6955040cd9b38ade8344d2c3c4585b9b1221",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/health.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "bfc505c05ce4920264b2e2d264b141f32ae44532f891fd410824831527e9d4cb",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/identity.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "753d414a044bd6f96304f7a9e2fa53b88c11db41166ac459c715923bd8a99786",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/lib.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "2e757e727cfdc4bcb6416f8ab7749e5b37c40492c3ee5b92745a120858baac0a",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/node.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "df3b946558bd2be47a242283eee75819abca2b5f38763afc5d360f9d03097499",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/pairing.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "e9387134c8d078e66908fb4fdf5ae5df31e15001391badeffa94446f60a9639b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/paths.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "80dc206021d05a5b9d8c470e24309fcf9352324dd61ab74a71e1c178b735a549",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/services.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "aea11d71be4de78eea371e71aaea114c912b062792a2c4cf0c1cda611b2f26fb",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/supervisor.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "ff76e02c12beb995d8440ad11a9c32565d41e7b25da9a8c65ccc0b1bb88ab5d6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/prometheus-substrate/tests/continuity.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "75299c8f5511b67e266e850692af98a5f34e0a8596f68f26ea4a26fff0a43217",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/prometheus-substrate/tests/supervision.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "c3b5705ac9dc87f7ce3f5e8cbbfb01a080f5308d754b886e02ba186e82a5341b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-client/Cargo.toml",
+      "sourceClass": "recovered-production-source",
+      "sha256": "1123350227366c592b4064ad555287bb8208241613cdfb5e7bc5d52684db9229",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-client/README.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "9b575911ea9e864bdbe459c7c531fc7f48c439c42a1cf1344ea2bef5dbefaf07",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/sovereign-client/src/client.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "43937d2b90575c281b757bdf1fb3acab4d5e62abbd3a899c0ac78e817d4c9830",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/sovereign-client/src/error.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "a337acc1c08e129412c266e35cb79d6b91bf5a748f8695d8adcc8b66f326b568",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-client/src/lib.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "0ff1d04e22b8d05d2833a44b5a9cc9099f5c4b7ec3baf6ca265d405030366d09",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-client/src/types.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "0488f096b7159255c3d2781c70a740f99c58fe5ebacbda9c6c35a3f922096e4e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/Cargo.toml",
+      "sourceClass": "recovered-production-source",
+      "sha256": "fa280914f90c7ba43fa9a7863d61649a63f3adcd30ceecd700719bbbdaa7bfcb",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/sovereign-sync/README.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "17e0852443871dae578563dc3b2901fcc33c921ab2342dcf9af212cdfa7b7de2",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/sovereign-sync/src/ag_ui.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "bd9aa5ef32d11deb6d501c3ef1c680907e6ff3f4848b7fdd8c6e59e99d84801b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/config.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "7852f83a1b4b1b9ac89d022a0237697efe444beec933f81bce01156024348374",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/sovereign-sync/src/crdt.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "37b765070edbadc914bf08091bb5f309b4b465a61f7630b04d7c0299343be6f3",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/domains.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "c721df40b29f0292a76cdf09c6550251d8f23f17d41fa5957f8615e112049d59",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/error.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "2e4e766f7cd48f1fdc2ef2b65a5457b6483ac70ead50c4d7535e99f52f969fe0",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/health_check.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "bf36c5262afff17a54924dc7231f3e6fd5d522d50b5dd0aa51a38779827ca15d",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/kbd_control.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "7fafbbec1ff65060ffd24da080f8d53e3a36648e180f3f114c92a2f0546cbb79",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/kbd_sync.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "126e6feaa7e53f96b7a3866bff7e2a87bfdda0a0aa839a164681746ac8276b95",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/lib.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "576594c59ef7b0707ffcb4cfb157231f164df42125da58c4d56b78ba8ba5398b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/main.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "e8111332e1104712e38da03c85698598ea3b15891b4f8e26f3daa565bbef9f6a",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/sovereign-sync/src/mcp_client_pool.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "182d80d5de44780990c96aae7ba3d6826f2aa6c303a7a9e8a097cac5a7c0c5fe",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/mcp_server.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "702711cf0a8b66b7f8e7d9cf89383e4881c2e4939092e9184052f85efddd6c9d",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/sovereign-sync/src/p2p.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "eed7dc9306e8cf4b87f6152484c0eadc670ab49714e317f2f20c5801cfc735fa",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "crates/sovereign-sync/src/rest_api.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "13a29277f7d9cf6822ac994c1414870246b557062aea9d8de3f7cd6dc0d05258",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/src/store.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "62dc76ecb423c6f16b1c6d6228bfb5fd33a96fd4b6159a144e883c3dea55ae80",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/tests/cli_socket_contract.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "a9ab4ac323a07c2d44a245b559f5b0475b3848f1141f09c921db19e96414dc0e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/tests/discovery.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "04ae9b6c8d450bd4c853b7a71042424a4fd8367f0e2bdbc1b2df255b871772d5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/tests/domain_sync.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "77c77952cb721fc35fc8e68b63a9c50489b603da6ae24b353b079f8c0bc8d7af",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "crates/sovereign-sync/tests/integration_tests.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "56e39fb1adfd9ec41b6c9a99d13f34bd42a6542f775b74fef7745d7a3bf05c87",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/00-architecture-and-implementation-plan.md",
+      "sourceClass": "existing-committed-history",
+      "sha256": "2c147834853fbadd0a2d9af6d600d15bc38e2919d3ad27f7b69fbba8b7af4157",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "docs/brand/01-branding-guide.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "3fadb5c647ff767a66ae7286ca66245f404996b6bc55466da36148442d587471",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/companion-appicon-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "51879b4b42fcc10a3dbd7bb35f419b96f981b7c32d731c72b468f8f9aacc1a15",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/companion-appicon-light.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "f60e15e730695b1361dc77ecb2305b2cae1f9f9bf193f27cb485180d27099f9a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/companion-lockup-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "d597fcbae93788de0c457e036c2501015459c8bb05184ab706fb35c55b802e36",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/companion-lockup-light.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "7ce5115e2d64b80113ed2706f9a7349e16b658d89797b59066c03cbd042109b1",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/companion-mark-indigo-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "9057396af821e0541174918c60e1f3644bdb38486392ba636ab41cd1e7965504",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/companion-mark-indigo.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "cabfc26f4449aceaeddab545fbfae20b27690f2d1d5af14a57cadbdff76d1ef3",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/companion-mark-mono-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "2c6dc46c8af8f9074353f95c73c000be9ebf1156021f375f3d81a731518cc987",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/companion-mark-mono-white.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "b9091bf2041ac2914b3329b9eaea2c69555d317fd796b062844dad1d21c1b649",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/favicon.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "86f6b0a8832ee2493954ec8650194dcabc492b26bc9ad5fab6f773afb17d02f0",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-degraded-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "b34b9d8c806c753d9db3a107982c17f4dd127e4bf1612ea543b07e58c505ba20",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-degraded-light.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "ebd24525e96f9bedc015d019ada6e9c331c1c51962d1baa3f565fe3d4b66b62e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-degraded-template.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "1199fc46031af2b3b840ba3e7fd707872d341b3cee2961764226008df96ed647",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-down-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "9621ea721b52d4d4cf00b76332e3bd110e53b5495830af8d0d7dc5cd467c88ce",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-down-light.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "cc847bdbdba634b3fedc15bbb4d0d8e0ad8d0ca20e9137035acdc20479197db7",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-down-template.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "273f8bdc86d6d8f2175c11acb52676bf58a5221e818640deb81474b17994c5c8",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-init-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "e7940f11f46bac4789a04b3fb3111463272023b8b473eb37970e357a1ce5aa69",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-init-light.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "b7b0c2fc16670797a7a314f1de0cd72fe242a55f99f98b403e50212cf97fbb2a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-init-template.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "ace2dda2895508bef43312e6c97b1960ed05b521c334d7f852dfaa5e728d96e6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-paused-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "0b180dfcea86c9662edc7ba352a3af9d8125a65e828f93ebc38ddda0a814879a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-paused-light.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "d08487fa45467a49f02bfd68dcf77cd242a5ffd3cf1177cd37977098865affb7",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-paused-template.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "b86dd9a75d1b858e64b78f6dffcf66409be5f0ddc3840d53225c5578e75cf2af",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-up-dark.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "2d295231502d968fd909b74e8be7125eefc9f93f19aa67a9608970c25cb078d8",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-up-light.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "0e841b34d6850dc14de6fde361083c5e095efed8faf9b1da0d24abfedbbca339",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/assets/tray-up-template.svg",
+      "sourceClass": "recovered-production-source",
+      "sha256": "b32748b9c336ac42f8c76ab460d1b2d1b9455015afdcf929749f505bf1a79072",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/brand/rules-patch.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "897ca0d4f003e9e8bd0b00939062fd27cdedc81024465755b8db64ab03fbc686",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/control-api.md",
+      "sourceClass": "admitted-task14-production",
+      "publicationState": "candidate-source-not-certified",
+      "sha256": "7b2dd203ec58f04dc57a1404b5b181e696f5a2283d17cf6fcd9eae4070f0bbd5",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "docs/decisions/versions-pins-proposal.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "2ff712c25b7f8a5bc34ecb3697080e26ec48d95dcf73a69edbf9150eab159cbd",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/installation.md",
+      "sourceClass": "admitted-task14-production",
+      "publicationState": "candidate-source-not-certified",
+      "sha256": "3fb313f38029a9aa6fa94aa65f48d628b4a008075501c31dd065d0bbc8b5e6ac",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "docs/maintenance.md",
+      "sourceClass": "admitted-task14-production",
+      "publicationState": "candidate-source-not-certified",
+      "sha256": "9ff06a7f256f32353d74364dbf58d061b9a0cfc0682c0e9be0215a30dc97d281",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "docs/ui/00-BUILD-PLAN.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "a76eb2b9319a40d0027da2d5f5c47e5bdc3accc23e3a9685b39fb745f392bb33",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/10-a2ui-component-spec.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "152f051dae0ce9da176cfa79eb59cf1228bd4fdf56e68f3b998c63805a715758",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/11-react-surfaces-spec.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "3e4dd6bbcc4f3cb420aadcad941de789d29ac760af8cc337af246003c40f3046",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/20-agui-agent-spec.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "3b72e1ea71850535c746961cce62cd6474a273040ddcedda101514415a0feac8",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/30-task-resolution-spec.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "f0118b9acdbd87ecbf42182868c482cee235415e729d3c40010349d0a3489ac0",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/40-adversarial-review-config.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "9710e74bce6cdea8f022ab0da492ab58c54917b29b26574c24c61727b0281e85",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/50-skills-manifest.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "6b973bc68563f76ba48bf7cc96a5acc11ffd7a1665bad3fdffbc31b0f47a7412",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/60-acceptance-tests.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "c56088e487d04159c5e3a654ac724255c73402929b05238c5006381d9b40fe1b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/README.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "149f664e7eb2d7afabdd3dda04402b65b807f630eedccc4d179b03ddebede5cf",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "docs/ui/prompts/00-orientation.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "c4c646620fe8922aa47710e9c2e3ca5ff61bf72da6e830a1082ad4d9e336ee47",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/prompts/01-a2ui-catalog.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "5751fd46791240cbd008c73b1092f051fa5c75ae3b9c3a4cd2a693286fa1d8b3",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/prompts/02-react-surfaces.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "d332f43f0c9d1d20e6e9854bf961a2c6ba5c3a00e05ec09f8aea348b0109bb76",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/prompts/03-agui-gateway.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "b07a82023ba8f9c26fc3e1a230fa19b186fb363cebf8afd347ab4620b53ba139",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/prompts/04-task-resolver.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "182c2a40cef729760f8ab700a8d3015bb003129e4b8be0638699edcfd3063bdb",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/prompts/05-settings-review.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "e4a8cc20677eb5b7bea6f3c6cb4c06b388d4a62ffcdfedcafb89a9be6319b54c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/prompts/06-verification.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "5892603d6724a19b787d4acd29e524032a60d0898cd0e3acf8638afed4c308a4",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/prompts/harness-notes.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "d1357749a61467cfadab974875db6e21c16d31cbc30f6cfd6273ec8d9c24c717",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/reference/agui-stream.example.jsonl",
+      "sourceClass": "recovered-production-source",
+      "sha256": "14722a442f8ad297b445fe97d78870d80d13918ed64aaf8c12e15f004386510e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/reference/capability-manifest.example.json",
+      "sourceClass": "recovered-production-source",
+      "sha256": "2bccfd29e1d528aecb39c799557cfba261e4850dcfa0e59537c4e628d4baaaf3",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/reference/resolution.ambiguous.example.json",
+      "sourceClass": "recovered-production-source",
+      "sha256": "b9ae1bc741adc5818d6676c6b4d8b91d91747b4bd58f6ebcf652a1ab570eef06",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/schemas/a2ui-catalog.schema.json",
+      "sourceClass": "recovered-production-source",
+      "sha256": "a5ac236a1ffb049d471f3be26f1d44adefce9a72fa71a066e36f11478de86dc7",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/schemas/agui-event.schema.json",
+      "sourceClass": "recovered-production-source",
+      "sha256": "9a4b68342b4511b5d4b63c608d621be760cdfab9fc9e0f4f2b1eb054e864643c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/schemas/capability-manifest.schema.json",
+      "sourceClass": "recovered-production-source",
+      "sha256": "7ae7bf10811b2d365d8249b6faa9b7c2137f922485e208a2de86db456a0578bb",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "docs/ui/schemas/resolution-trace.schema.json",
+      "sourceClass": "recovered-production-source",
+      "sha256": "cfbfe7f62562a48d492f8e63a12464863cafa3b33583283c975c2b445cb7399e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "index.html",
+      "sourceClass": "existing-committed-history",
+      "sha256": "15d08508752a498afcc492cb6ff81c21df7d1097fdb5b39d966692093a604ad3",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "openspec/config.yaml",
+      "sourceClass": "existing-committed-history",
+      "sha256": "2a791b0ccc50e2c2ebbb3ba28692a4ad0e4b6ab94ed2151375ac404d7056e89a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "package.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "3bdc33f90a3b4a05298b8e6ebe2b490b814cf6c0a2365edde86fe79579e2dc7f",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sourceClass": "existing-committed-history",
+      "sha256": "113e2f413c9283277cdc139def8095a496fee5c2e48e01788b5ff47060c8ff95",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "public/tauri.svg",
+      "sourceClass": "existing-committed-history",
+      "sha256": "e5d2738bbaa5543c4684001a558dc53165da9b636144827b28db1dcfacf81aa8",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "public/vite.svg",
+      "sourceClass": "existing-committed-history",
+      "sha256": "4a748afd443918bb16591c834c401dae33e87861ab5dbad0811c3a3b4a9214fb",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-a11y.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "31dc29c428c3c2a9f5aa6bf87f21ecb51f7e1007011fcc32979793462b5b8c36",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-all.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "5f412868d4af28f2b1eba9b3003b432039dd9267f556abf713637e332815a943",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-deps.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "f811d28638d42f18d09add40c5849adfc65dca60d1e2e1449ec490cdefbcded4",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-generated.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "0677cae62d14a6002205becccf01284a26cecc9eff4e6514a0830295791ed63d",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-layer.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "04bf3d118b25d9a0dae182fd3296876b770ddb9177145997ecefe45a902e0607",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-naming.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "38abfc36467045f44b034bd51ba46d6141f542e40e1bffdf14595e7bfedcdd63",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-progress.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "43e1b57ad090ac4a24d5e63a2f7b2fa4b26af8fb2eebbf113f5f2b31a310dcde",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-secret-leak.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "688492298dcb92623b1984588e07bfd710e91858b8453be45860f89bdcdd7f3b",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-skill-desc.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "c268ee2728c2d1afa1f03591f24be1ca1709ea0e8e49b7944e1f08168c0512d4",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-tokens.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "9989519ef76d357c50b86240529b9b8f12c73056a25fc5404d10586cd2e3baca",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/audit-ui.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d24ddbc144f30488fc5bfa0d5dbb31a7ce727a20f7592134cf06bf27417e0c26",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/gen-rule-files.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d5271331627bc0b98258ae004b4f7fc13f3aa8aa9fe3d8860c5285b2cc311bfc",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/install-companion-service.sh",
+      "sourceClass": "recovered-production-source",
+      "sha256": "e3bda3075015a0d71474a2dded2e5db9f6ac8c92638b30364b75045afe2da2a5",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "scripts/install-git-hooks.sh",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d4c3e457614194b7b59dc6162054eea4908173debcc420f96c32cbabee903998",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "scripts/install-skill-package.mjs",
+      "sourceClass": "admitted-task14-production",
+      "publicationState": "candidate-source-not-certified",
+      "sha256": "41459486715c82663b2461244b314d83f52d1f5d53ef510a08286debbbc02a52",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "scripts/install-skill-package.sh",
+      "sourceClass": "recovered-production-source",
+      "sha256": "ae6a2c682f7e3f331e436d6dff3f201a52be19ebfcd0ded3969ee33eb08e8a7b",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "scripts/render-companion-plist.mjs",
+      "sourceClass": "admitted-task14-production",
+      "publicationState": "candidate-source-not-certified",
+      "sha256": "a789d116c62070ce086c9e2a3e957fcb6eb8a1ec2575ba73eb9e214aa2f3e0a1",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "shared/launchd/ai.prometheus.companion.plist.tmpl",
+      "sourceClass": "recovered-production-source",
+      "sha256": "0d45727c812e66ccb60013220d989406457bf2a5ef7b4deea3eb8f3479b21945",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "skill-package.json",
+      "sourceClass": "recovered-production-source",
+      "sha256": "c71249cfd7a988a89ff52ef947737b4175759fb51ee847fc84d8a6585c135422",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "skills/sync-peers/SKILL.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "960388ca43a23c01f088428814050b5a5cb8c633f230751be2015384f93ecae4",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "skills/sync-push/SKILL.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "8546a1638e3a75d58b9516f66aa5d093b3691afce2562e5d7f7e8f4587319b5d",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "skills/sync-status/SKILL.md",
+      "sourceClass": "recovered-production-source",
+      "sha256": "3b0eb869a5fcc8049bbbef6e04d9e1f6e238fe2f6047b3cfd64d48617389d1ed",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "src-tauri/.gitignore",
+      "sourceClass": "existing-committed-history",
+      "sha256": "88707cda7ba4226eda3ffa91d8284f1a0d12b827f06fb9bc48425cc0d4af04af",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "sourceClass": "existing-committed-history",
+      "sha256": "fc5d43fe2820f90243f5fb5cd060f0108ac2585cf92f3acdf897e1d8f8e39437",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/build.rs",
+      "sourceClass": "existing-committed-history",
+      "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/capabilities/default.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "50e6561a0c5480e8f19379bb0f745c4ac48b8114a7127e614ecec24640cd74c0",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/128x128.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "1f3689f6374b0553996fdc99743799216703835070145d7f0e6ec11e6280139e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/128x128@2x.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "69194785eef4323955af73b0c03362ac0804db056c2424f9715076cabc0ed103",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/32x32.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d151f11e325f7502de0c739a2e51697aa569fd4701ae6e11fae1a3b4c7d5f157",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square107x107Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "fd8658ff0e2c177ce0779d11fea1574e9d7d82a52a3a9197038f37b07fe24475",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square142x142Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "c348fcf2d2f2f9714a41925184926f77f440676987d233ae1daf4fd94fda245f",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square150x150Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d46dc2bc568f911b9cb978de68b4a7e3ad458fbac15196597849c43c40f4b65a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square284x284Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "80d93a5257c89ea57023c30500c889b4df062430ffb0b4fed4ca4785d13e29ac",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square30x30Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "c3ce70e22ec2ed3ea2d0362a767d087e6cadb93ec71e80010649f892520175f4",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square310x310Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "624dd93ddb1f0d69f2a4aa7af0b0646ae3ae6347cbb42dab56ef88dba7f38d07",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square44x44Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "f9eca6f00dba41cfecfedbc9a6f88014b4ee0f9dbf016e202c7ede09c60107ef",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square71x71Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "66a6b51da8962a9472c9d29b1b08e3309561521bf7fbaac52b9f680df13ff487",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/Square89x89Logo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "fe8da53273722bb6fd66e98bf6810e8a7db22aeff27c6c1a096d57ba556b9ef4",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/StoreLogo.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "5412fce324344999aad82f6b69abcaa6c8792eac7b79a4b321aaaeacd0525eaf",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/icon.icns",
+      "sourceClass": "existing-committed-history",
+      "sha256": "3dc10493b7de48a61de58f768f8a5708d3a44a068c148cedf0502b9b9b71ba5d",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/icon.ico",
+      "sourceClass": "existing-committed-history",
+      "sha256": "e38ca88e1d5490f3dcbc3c3fa525f7fcb7b80fff3cb2f3a4eb1b2d018c0915c1",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/icon.png",
+      "sourceClass": "existing-committed-history",
+      "sha256": "b5d93c8ec365c08b11bd006e46a46e227c681d30bb295af3d017573bfc752a83",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/tray/degraded.png",
+      "sourceClass": "recovered-production-source",
+      "sha256": "672ecd594b017fd933b2d8d2117a6ac32e41a24c40a625901a481ba7696c4e2e",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/tray/down.png",
+      "sourceClass": "recovered-production-source",
+      "sha256": "0c865ef48b12d6939ae445a3390d2e95fcd0686ce18b753ef922823faf0a92bd",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/tray/init.png",
+      "sourceClass": "recovered-production-source",
+      "sha256": "2a55d04a8dc3fa97fe6aac8a0ad79ce66e025faa5e521911a4cb3c2b0113380a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/tray/paused.png",
+      "sourceClass": "recovered-production-source",
+      "sha256": "285c24c207639cab46875d9fb43997b7a568dd0af220d8c0e49a48732920cae6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/icons/tray/up.png",
+      "sourceClass": "recovered-production-source",
+      "sha256": "2a55d04a8dc3fa97fe6aac8a0ad79ce66e025faa5e521911a4cb3c2b0113380a",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/src/lib.rs",
+      "sourceClass": "existing-committed-history",
+      "sha256": "8240b813f3ca2c86d32234b37c01a4cf8e0f9e015de0ce0486ae1e2cded15200",
+      "publicationState": "candidate-source-not-certified",
+      "sourceHandoff": "companion-integration-source-handoff.json"
+    },
+    {
+      "path": "src-tauri/src/main.rs",
+      "sourceClass": "existing-committed-history",
+      "sha256": "2c4a6633d8f606fd12404dc087397d32992f6d53ce6e72eb6f6d46f55dbcb949",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/src/tray.rs",
+      "sourceClass": "recovered-production-source",
+      "sha256": "511a246b9c8fd742454b7b1b0102cec463166a8d262445c6749a17349508afd2",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src-tauri/tauri.conf.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "ec51f6f6cee4e92e913b5a9490bfeec602042eee50500d0a4cce192378c4bb41",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src/app.css",
+      "sourceClass": "existing-committed-history",
+      "sha256": "eb5874b63446b353c05c5a204fbd3978b88d476d3a99f9df7386dc189282e00c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src/app.tsx",
+      "sourceClass": "existing-committed-history",
+      "sha256": "101ce36422dcc4a1efdb6f5ac74490d5571ed41817db149e5f61d156cb5829f6",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src/assets/react.svg",
+      "sourceClass": "existing-committed-history",
+      "sha256": "35ef61ed53b323ae94a16a8ec659b3d0af3880698791133f23b084085ab1c2e5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src/main.tsx",
+      "sourceClass": "existing-committed-history",
+      "sha256": "93878eca0d221714f73a7dcb49718714979db392fbf591011d96666d268f132c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "sourceClass": "existing-committed-history",
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "templates/rules/agents.md.tmpl",
+      "sourceClass": "existing-committed-history",
+      "sha256": "88ba1e6c52253d091a99ab4a46675e174b099d8317911b3ddca5a9efc5cdd9b7",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "templates/rules/claude.md.tmpl",
+      "sourceClass": "existing-committed-history",
+      "sha256": "4445a039883844d62d027a9f8e3d185e6ca8e7e13f7c7ee53efb81a87f1e7b88",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "tsconfig.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "65c82e3009d033dba271b9ce83a712bb4b934aeded98cb9d3e33472dd4d5f49c",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "tsconfig.node.json",
+      "sourceClass": "existing-committed-history",
+      "sha256": "9e2abb169ea87b7190613a1d4da57ca608463a453bd4231fa3aeee5e308370dd",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "versions.toml",
+      "sourceClass": "existing-committed-history",
+      "sha256": "d42cf4c1f795f5ce53350c984473c4e1f9fb9aa21269066e22c8a75c7eb3a071",
+      "publicationState": "candidate-source-not-certified"
+    },
+    {
+      "path": "vite.config.ts",
+      "sourceClass": "existing-committed-history",
+      "sha256": "7275dd58de5c8e3be5398a950713417049ba46289f7577f24568afd7cf4ce524",
+      "publicationState": "candidate-source-not-certified"
+    }
+  ],
+  "pendingSourceOwner": "Final03 approved version/dependency metadata only; final12 refreshes completed source fingerprints and certifies the outbound graph before staging/push.",
+  "protectedVersions": "base tracked versions.toml preserved; exact coherent proposal/approval belongs03",
+  "excludedFromRecovery": [
+    "original dirty harness configuration",
+    "original dirty versions.toml",
+    "local KBD runtime state",
+    "knowledge/session generations",
+    "build outputs",
+    "credentials"
+  ],
+  "acceptance": "none; gates and private publication deferred12",
+  "historyPolicy": "Preserve committed provenance. Before any push, certify the entire outbound commit graph using the repository local release/security requirements; private remote does not bypass those gates.",
+  "licenseNoticeSource": {
+    "repository": "full",
+    "path": "LICENSE",
+    "sha256": "b164a95706dd6b691be8419873b721f5ac5ee38db381ebda1759ea8b0f71091d",
+    "copyright": "2026 Travis James",
+    "declaredCompanionLicense": "MIT"
+  },
+  "refreshedAt": "2026-10-05T19:32:58.397100+00:00",
+  "sourceBatchHandoff": {
+    "path": "companion-integration-source-handoff.json",
+    "sha256": "505424826a0fcd0d4c81e5f6777b43d52e3af45463854f681186c893d2c65597"
+  },
+  "sourceBatchDeltas": [
+    {
+      "path": "Cargo.toml",
+      "previousSha256": "695cf47cee19936a61da40e1d9bb82b1875d8ed888534c6c6ec425aef4afbd43",
+      "sha256": "534775b5de313980fd88a9c317b8ab6e44841a19ed3377a8eaf3c788f0abc123"
+    },
+    {
+      "path": "README.md",
+      "previousSha256": "133b8004135538586c776297f7c816e81bcae8c4e4df18553c3c719579442f8c",
+      "sha256": "3d19a422730c5f0fc6c539b83eba11e77b6f077a0b39bc0b6833a4a410296618"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/identity.rs",
+      "previousSha256": "41a950f44558eb141c9c859dff966596631ec872766c63b8363fd390418b84fc",
+      "sha256": "753d414a044bd6f96304f7a9e2fa53b88c11db41166ac459c715923bd8a99786"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/paths.rs",
+      "previousSha256": "4334aeab458f86bb5c2081a2a4b188a005e76d78a353b75385c10ccd3c88d6eb",
+      "sha256": "80dc206021d05a5b9d8c470e24309fcf9352324dd61ab74a71e1c178b735a549"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/node.rs",
+      "previousSha256": "476a32eea926ef7b48c74338b678256e6a288e3eb48942278af101039f208567",
+      "sha256": "df3b946558bd2be47a242283eee75819abca2b5f38763afc5d360f9d03097499"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/lib.rs",
+      "previousSha256": "7de9fffc1dcf8a51cd83694a70fa0326a33288d6a620a24e14208736967a0d26",
+      "sha256": "2e757e727cfdc4bcb6416f8ab7749e5b37c40492c3ee5b92745a120858baac0a"
+    },
+    {
+      "path": "crates/prometheus-substrate/src/bin/prometheus-companion-headless.rs",
+      "previousSha256": "90d4e99550c56f2a61983723d4225a87acccf71175d324953a39895b5a45c477",
+      "sha256": "150910fd334f7672f9f60dbf7f9f6955040cd9b38ade8344d2c3c4585b9b1221"
+    },
+    {
+      "path": "crates/sovereign-sync/Cargo.toml",
+      "previousSha256": "3e3bb3f6b926b9eb353739eb800b7b60f5223ed7bf9b74748d5550189552ecc8",
+      "sha256": "fa280914f90c7ba43fa9a7863d61649a63f3adcd30ceecd700719bbbdaa7bfcb"
+    },
+    {
+      "path": "crates/sovereign-sync/src/config.rs",
+      "previousSha256": "c742502e9902c449dc27ce24b8edba7307b33fb810d7e5e951e8838ece44512a",
+      "sha256": "7852f83a1b4b1b9ac89d022a0237697efe444beec933f81bce01156024348374"
+    },
+    {
+      "path": "crates/sovereign-sync/src/main.rs",
+      "previousSha256": "bd7d1944f526a278b8091ed72426e9a8f351e9614899b8c98e6c161940202ac4",
+      "sha256": "e8111332e1104712e38da03c85698598ea3b15891b4f8e26f3daa565bbef9f6a"
+    },
+    {
+      "path": "crates/sovereign-sync/src/p2p.rs",
+      "previousSha256": "5a5905c7ed732bb5121fff449f1bba975997aa827d2794a6ba44d2a90c04dbbc",
+      "sha256": "eed7dc9306e8cf4b87f6152484c0eadc670ab49714e317f2f20c5801cfc735fa"
+    },
+    {
+      "path": "crates/sovereign-sync/src/mcp_server.rs",
+      "previousSha256": "c51d56c97e19f7a247b68785a825927f2eb6e15c1bdb785680a4a53268bfc909",
+      "sha256": "702711cf0a8b66b7f8e7d9cf89383e4881c2e4939092e9184052f85efddd6c9d"
+    },
+    {
+      "path": "crates/sovereign-client/src/client.rs",
+      "previousSha256": "90b780b2f37310c5d79f3ff89db0cc6689cc8e70c71b5c9d249eba6060b62a95",
+      "sha256": "43937d2b90575c281b757bdf1fb3acab4d5e62abbd3a899c0ac78e817d4c9830"
+    },
+    {
+      "path": "src-tauri/src/lib.rs",
+      "previousSha256": "057b05e2850df976d8a460619b1b96b15bd4238c319919dcae379d0c4ca1ea3e",
+      "sha256": "8240b813f3ca2c86d32234b37c01a4cf8e0f9e015de0ce0486ae1e2cded15200"
+    },
+    {
+      "path": "scripts/install-skill-package.sh",
+      "previousSha256": "fde90d633a67bd17c2c3e39af9d3584b2c01a082d2a408ecb7d993044bf76ce5",
+      "sha256": "ae6a2c682f7e3f331e436d6dff3f201a52be19ebfcd0ded3969ee33eb08e8a7b"
+    },
+    {
+      "path": "scripts/install-skill-package.mjs",
+      "previousSha256": null,
+      "sha256": "41459486715c82663b2461244b314d83f52d1f5d53ef510a08286debbbc02a52"
+    },
+    {
+      "path": "scripts/install-companion-service.sh",
+      "previousSha256": "801a78400b367ee931949202e3af2c10368cddc7de2dfd03f9acb678021b063e",
+      "sha256": "e3bda3075015a0d71474a2dded2e5db9f6ac8c92638b30364b75045afe2da2a5"
+    },
+    {
+      "path": "scripts/render-companion-plist.mjs",
+      "previousSha256": null,
+      "sha256": "a789d116c62070ce086c9e2a3e957fcb6eb8a1ec2575ba73eb9e214aa2f3e0a1"
+    },
+    {
+      "path": "shared/launchd/ai.prometheus.companion.plist.tmpl",
+      "previousSha256": "5060ffcd0295a8c4afb9daf992f6f0ff9e3585a1b4ace680c9d4fc9b87c27df5",
+      "sha256": "0d45727c812e66ccb60013220d989406457bf2a5ef7b4deea3eb8f3479b21945"
+    },
+    {
+      "path": "docs/installation.md",
+      "previousSha256": null,
+      "sha256": "3fb313f38029a9aa6fa94aa65f48d628b4a008075501c31dd065d0bbc8b5e6ac"
+    },
+    {
+      "path": "docs/control-api.md",
+      "previousSha256": null,
+      "sha256": "7b2dd203ec58f04dc57a1404b5b181e696f5a2283d17cf6fcd9eae4070f0bbd5"
+    },
+    {
+      "path": "docs/maintenance.md",
+      "previousSha256": null,
+      "sha256": "9ff06a7f256f32353d74364dbf58d061b9a0cfc0682c0e9be0215a30dc97d281"
+    },
+    {
+      "path": "docs/00-architecture-and-implementation-plan.md",
+      "previousSha256": "03a8ef958364b975f0b4a48bbea178838130016484b3b35578a439ec8a304621",
+      "sha256": "2c147834853fbadd0a2d9af6d600d15bc38e2919d3ad27f7b69fbba8b7af4157"
+    },
+    {
+      "path": "docs/ui/README.md",
+      "previousSha256": "128d3f2ad33812b791459bd0bc58c2458ddaa8fada9be5a49417e675b4da0cd0",
+      "sha256": "149f664e7eb2d7afabdd3dda04402b65b807f630eedccc4d179b03ddebede5cf"
+    },
+    {
+      "path": "crates/sovereign-sync/README.md",
+      "previousSha256": "56277113632af9b084db2eaf494ed72129e3daf17b076f4612ac3fb29efbbdf7",
+      "sha256": "17e0852443871dae578563dc3b2901fcc33c921ab2342dcf9af212cdfa7b7de2"
+    },
+    {
+      "path": "crates/sovereign-client/README.md",
+      "previousSha256": "82b06fcb1663682d860a7494c09c4dd04448120605d61be2e41a307396d6c3fe",
+      "sha256": "9b575911ea9e864bdbe459c7c531fc7f48c439c42a1cf1344ea2bef5dbefaf07"
+    },
+    {
+      "path": "crates/kbd-mobile/README.md",
+      "previousSha256": "683201bad0b7f4b2b28c9540202e7a243fa7d6c7902d06c574e83af84c6770e5",
+      "sha256": "9a47e762531aac67a84cba63be577cf393365bba7908ff44c5d6cbe1e6f06e13"
+    },
+    {
+      "path": "crates/iroh-docs-adapter/README.md",
+      "previousSha256": "e336c49ca6728aa280173d79eed94e76a05fbb2aec04866beaac0c63badd1230",
+      "sha256": "871ab62f25e0289800b075e3435fd5820163db1739e7d50876eb6ad3c629ef8c"
+    },
+    {
+      "path": "skills/sync-status/SKILL.md",
+      "previousSha256": "fc85f9c866a81a96167f86aed788ad8c80ade0525a38b5d5e20f44736c3acf01",
+      "sha256": "3b0eb869a5fcc8049bbbef6e04d9e1f6e238fe2f6047b3cfd64d48617389d1ed"
+    },
+    {
+      "path": "skills/sync-peers/SKILL.md",
+      "previousSha256": "c2e8b9413bf5ff6af0d0ad2269668a87d004f60cff9bd297aab6dc5a3da0e730",
+      "sha256": "960388ca43a23c01f088428814050b5a5cb8c633f230751be2015384f93ecae4"
+    },
+    {
+      "path": "skills/sync-push/SKILL.md",
+      "previousSha256": "8dcb7868b0b8db19e9a0c74054b0b88b993e5c8418fe5448a5235364b7d54d8f",
+      "sha256": "8546a1638e3a75d58b9516f66aa5d093b3691afce2562e5d7f7e8f4587319b5d"
+    }
+  ],
+  "publicationAllowlistCount": 266
+}

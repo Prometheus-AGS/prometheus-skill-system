@@ -44,7 +44,7 @@ Execute the `docs/deep-research-skill-playbook.md` to create a production-ready 
 | `prometheus-entity-skills` | `skills/react/prometheus-entity-skills/` | Graph CRUD |
 | `sycophancy-correction` | `skills/imported/sycophancy-correction/` | Bias detection during synthesis |
 | `pmpo-elicit` | `skills/process/pmpo-elicit/` | Human escalation for low-confidence findings |
-| `zeespec-interrogator` | `skills/process/zeespec-interrogator/` | Requirement extraction from queries |
+| `spec-gate` | `skills/process/spec-gate/` | Requirement extraction from queries |
 | Feynman skills | `skills/learn/` | `learn-plan`, `learn-survey`, `learn-kb`, `learn-grade` |
 | `kreuzberg` | `skills/document-extraction/kreuzberg/` | Document extraction |
 | `iterative-evolver` | `skills/process/iterative-evolver/` | PMPO pattern reference |

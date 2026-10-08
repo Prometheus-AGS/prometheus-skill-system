@@ -8,7 +8,7 @@ Source: deep framework-evolution assessment (2026-06-11), sycophancy-gated at `s
 | ID | Gap | Evidence |
 |----|-----|----------|
 | F1 | Progress signaling is prose-only; nothing injects or verifies position per turn. User loses place in long sessions. | `references/per-turn-position-hook.md` documents an *optional* settings hook; `hooks/hooks.json` has no position hook. |
-| F2 | No machine-readable unified position model. Waypoint mixes legacy snake_case and camelCase keys; `.evolver/`/`.zeespec/` state invisible to KBD status. | `.kbd-orchestrator/current-waypoint.json` carries both `exact_next_command` (stale) and `exactNextCommand` (current). |
+| F2 | No machine-readable unified position model. Waypoint mixes legacy snake_case and camelCase keys; `.evolver/`/`.spec-gate/` state invisible to KBD status. | `.kbd-orchestrator/current-waypoint.json` carries both `exact_next_command` (stale) and `exactNextCommand` (current). |
 | F3 | Stage transitions have no handoff artifacts or precondition gates; pipeline-enforce.sh covers only execute/reflect ordering for Bash invocations. | `shared/scripts/pipeline-enforce.sh`; no `handoffs/` anywhere under `.kbd-orchestrator/phases/`. |
 | F4 | No CI verification that process skills declare progress signals. | `scripts/` has validate-skills.js only; signal rule lives in SKILL.md prose. |
 

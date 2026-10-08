@@ -225,7 +225,7 @@
       "fit_for_gap": "GOAL 1: stage-zero ideation onramp that structures a one-line concept into branches.",
       "verdict": "adapt",
       "coverage_estimate": 0.5,
-      "evidence": "Generates a 6-branch concept mindmap via surreal-memory, feeding /start-business-build and zeespec constraint capture.",
+      "evidence": "Generates a 6-branch concept mindmap via surreal-memory, feeding /start-business-build and spec-gate constraint capture.",
       "risks": "Generation is single-pass, so it inherits the diversity-collapse failure mode; no cross-model judging and no persistence of outcomes.",
       "decision_rationale": "Adapt rather than rebuild \u2014 enforce independent generation then pool, and route the result through the decision packet."
     },

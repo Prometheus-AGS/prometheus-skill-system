@@ -1,0 +1,43 @@
+{
+  "changeId": "change-tlm-003-revised-implementation-plan",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write the ordered PR list (upstream prerequisites, pin bump, identity, envelope, recall, delivery, file tier, awareness, promotion, gaps, discovery, teams, mini, matcher namespacing, mini timeouts, CLAUDE.md memory chain)",
+      "done": true,
+      "doneAt": "2026-10-04T00:58:33Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/plans/team-aware-learning-memory-implementation.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Specify per-agent end-to-end integration gates for Claude Code and Codex with byte budgets",
+      "done": true,
+      "doneAt": "2026-10-04T00:58:58Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/plans/team-aware-learning-memory-implementation.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Point the session plan at the revised plan",
+      "done": true,
+      "doneAt": "2026-10-04T00:59:24Z",
+      "doneBy": "claude-code",
+      "files": [
+        "/Users/gqadonis/.claude/plans/yes-fix-it-in-logical-mccarthy.md",
+        ".kbd-orchestrator/phases/team-aware-learning-memory/evidence/parent-plan.before.md"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tlm-003-revised-implementation-plan/verify.sh",
+      "notes": "edits ~/.claude/plans/yes-fix-it-in-logical-mccarthy.md (outside repo)"
+    }
+  ]
+}

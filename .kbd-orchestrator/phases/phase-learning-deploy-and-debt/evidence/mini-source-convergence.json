@@ -1,0 +1,15 @@
+{
+  "capturedAt": "2026-10-05T13:18:34.654589+00:00",
+  "targetBase": "6044ecdeb5c8c957646fef422d886a4568212888",
+  "acceptanceSchemaCommit": "62dc8243f34008e3e73dab48c910e418af7aef12",
+  "hookSourceCommit": "0e80cd5ca883d24c309b67a58ff49b2f2813a0dd",
+  "selectedProductionFiles": [
+    "lib/doctor/plugin-source.mjs",
+    "lib/doctor/registry.mjs",
+    "scripts/hook-entry.mjs"
+  ],
+  "patchSha256": "be6fb3faad985ce871af1e3b2c6c1e09ea711a3e1743735890bcf3d67e6d6622",
+  "deferred": "committed compatibility tests, README/site content, generated output and version declarations retained by original branch and reconciled at their owning final phase tasks; none discarded",
+  "candidateHead": "62dc8243f34008e3e73dab48c910e418af7aef12",
+  "originalCheckoutUntouched": true
+}

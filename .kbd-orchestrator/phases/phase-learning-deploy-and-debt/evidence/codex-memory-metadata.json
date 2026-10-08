@@ -1,0 +1,144 @@
+{
+  "observed_at": "2026-10-05T10:10:26.841259+00:00",
+  "method": "filesystem copies of databases and WAL; queried scratch copies; no live database connection",
+  "databases": {
+    "memories_1.sqlite": {
+      "stage1_outputs_count": 23,
+      "jobs_by_kind_status": [
+        [
+          "memory_consolidate_global",
+          "done",
+          1
+        ],
+        [
+          "memory_stage1",
+          "done",
+          24
+        ]
+      ],
+      "latest_jobs": [
+        [
+          "memory_consolidate_global",
+          "done",
+          1791178787,
+          1791179324,
+          null,
+          1791127614
+        ],
+        [
+          "memory_stage1",
+          "done",
+          1791157814,
+          1791157883,
+          null,
+          1791127614
+        ],
+        [
+          "memory_stage1",
+          "done",
+          1791147730,
+          1791147796,
+          null,
+          1791126045
+        ],
+        [
+          "memory_stage1",
+          "done",
+          1791089248,
+          1791089293,
+          null,
+          1791034226
+        ],
+        [
+          "memory_stage1",
+          "done",
+          1791089248,
+          1791089289,
+          null,
+          1791022689
+        ]
+      ]
+    },
+    "memories_v2_1.sqlite": {
+      "stage1_outputs_count": 19,
+      "jobs_by_kind_status": [
+        [
+          "memory_consolidate_global",
+          "done",
+          1
+        ],
+        [
+          "memory_stage1",
+          "done",
+          19
+        ]
+      ],
+      "latest_jobs": [
+        [
+          "memory_consolidate_global",
+          "done",
+          1791121281,
+          1791121420,
+          null,
+          1791034490
+        ],
+        [
+          "memory_stage1",
+          "done",
+          1791121295,
+          1791121307,
+          null,
+          1791022689
+        ],
+        [
+          "memory_stage1",
+          "done",
+          1791121259,
+          1791121281,
+          null,
+          1791034226
+        ],
+        [
+          "memory_stage1",
+          "done",
+          1791121259,
+          1791121280,
+          null,
+          1791034489
+        ],
+        [
+          "memory_stage1",
+          "done",
+          1791039564,
+          1791039579,
+          null,
+          1791014471
+        ]
+      ]
+    },
+    "state_5.sqlite": {
+      "threads_by_memory_mode": [
+        [
+          "disabled",
+          15
+        ],
+        [
+          "enabled",
+          1472
+        ]
+      ]
+    }
+  },
+  "archives": [
+    {
+      "name": "memory_summary-20261004T193148Z.md",
+      "bytes": 18047,
+      "mtime_utc": "2026-10-04T19:03:46.441710+00:00"
+    },
+    {
+      "name": "memory_summary-20261005T075503Z.md",
+      "bytes": 7812,
+      "mtime_utc": "2026-10-05T05:48:25.852782+00:00"
+    }
+  ]
+}

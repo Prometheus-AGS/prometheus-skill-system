@@ -1,0 +1,58 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "claude (harness-native subagent)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-model-collision",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 148,
+      "claim": "The constraint check reports constraints.md as absent, but it exists, is tracked on origin/main, and governs exactly the surfaces the assessment says must change.",
+      "evidence": "assessment.md:148 says 'constraints.md: N/A (absent).' The packet's file_tree lists ./.kbd-orchestrator/constraints.md, the packet's own `constraints` field contains its text, and `git cat-file -e origin/main:.kbd-orchestrator/constraints.md` succeeds. C-01 and C-04 cover shared/harnesses/hook-contract.json -> hooks/hooks.json + hooks/codex-hooks.json via scripts/generate-harness-adapters.js (CODEX_MIN_HOOK_TIMEOUT_MS is applied at generate-harness-adapters.js:317). C-03 requires docs/codex-plugin.md and the CLAUDE.md Codex section to be updated whenever hooks change. Findings H (matchers), I (timeout units) and B (a new SubagentStart hook) all edit that generator-fed, Codex-surface hook contract. A plan seeded from 'no constraints' will leave out the regenerate, validate:codex and docs gates, and those changes will then fail QA.",
+      "suggested_fix": "Replace the line with a real check against C-01..C-05. Map H, I and the proposed SubagentStart and PreToolUse hooks to C-01/C-03/C-04: regenerate hooks.json and codex-hooks.json, run `npm run validate:codex`, and update docs/codex-plugin.md. Map any new launchd-invoked script to C-05."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 151,
+      "claim": "Goal 1 is scored as an essentially complete inventory, but candidate queues, a read/write path family the goal names explicitly, are never inventoried.",
+      "evidence": "Goal 1 lists 'candidate queues' among the paths to inventory. assessment.md:151 says 'The inventory is complete in E1–E4' and lists only runtime confirmations as remaining. Yet the assessment never mentions ${PROMETHEUS_HOME}/promotion-candidates/pending, ${PROMETHEUS_HOME}/skill-candidates/pending, or the repeated knowledge-gaps list. All three are read and injected into the main thread by shared/scripts/kbd-open.sh:8-31,182-185 (origin/main). These queues are the substrate for the revised PRs 7 (promotion), 9 (Feynman/learn gaps) and 10/11 (skill candidates) that Goal 5 must re-plan. With no identity, envelope or delivery baseline for them, the envelope and recall design will leave them out.",
+      "suggested_fix": "Add a section for the candidate and gap queues: who writes each, who reads it (kbd-open, main thread, SessionStart), what identity or scope fields each record carries today, and how the visibility levels (agent/role/team/project/user/global) would apply to promotion and skill candidates."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 80,
+      "claim": "The read-path inventory leaves out existing surreal-memory and learning-store readers, so 'no reader' conclusions about recall are overstated.",
+      "evidence": "assessment.md:80 says no script calls /api/v1/search or search_memories, and the baseline table lists the surreal-memory payload as 'n/a (no reader)'. But shared/scripts/content-grounding.sh:219,243 and content-grounding-kb.sh:382,410 POST to ${SURREAL_MEMORY_URL}/api/v1/palace/recall (the learn domain's palace: KB adapter), and kbd-open.sh:245 reads learner-model ${LEARNER_MODEL_URL}/api/v1/due (FSRS/gap state, relevant to PR 9's Feynman gaps). The palace API already accepts settable scope and importance (surreal-memory src/mcp/handlers.rs:1917,1972; src/api/palace.rs:238). The assessment lists 'settable metadata/scope' as an upstream change to request without weighing this existing store. The assessment also never states what agent identity reaches the Stop hook (stop-karpathy-learning, the main learning write) or the PostToolUse posttool-memory-writeback hook, even though Goal 1 names Stop explicitly.",
+      "suggested_fix": "Add the palace recall/ingest, learner-model and content-grounding paths to the inventory. Evaluate palace scope/importance/wing as a candidate envelope carrier before asking for new surreal-memory fields. State the identity available at Stop, PostToolUse and TaskCompleted in both harnesses."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 86,
+      "claim": "'Four different project-id derivations exist' is asserted without naming them, and a second hard-coded project literal is missed.",
+      "evidence": "assessment.md:86 gives the count only. The envelope's `project` field (Goal 2) depends on choosing one derivation, so the plan cannot act on an unnamed list. Separately, shared/scripts/evaluate-session.sh:61-63 hard-codes `\"user_id\": \"prometheus-skill-pack\"` (not via MEM_PROJECT) and sends a `metadata` object. AddMemoryRequest (surreal-memory src/contracts.rs:93-102) has no metadata field, so that metadata is silently dropped. Section C should record this concrete drop, because it is a live example of the envelope being lost.",
+      "suggested_fix": "List each derivation with file:line, mark the canonical one, and record the evaluate-session.sh literal user_id and the silently dropped metadata."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 4,
+      "claim": "The codebase baseline leaves out the third ('MINI') repository, although Goal 5's PRs 4–13 include MINI ports.",
+      "evidence": "The baseline lists only skill-pack, surreal-memory-server and prometheus-knowledge. The approved plan cited at assessment.md:125 assigns PR 6 and PR 13 to MINI (ports of kbd-memory-recall, the reflect template and agent-team-creator) and notes that 'Mini's versions.toml disagrees with its own submodule commits'. The assessment records no state, identity capture or hook wiring for that repo, so the revised plan's gates for it have no baseline.",
+      "suggested_fix": "Add MINI's commit, pins and hook/recall wiring to the baseline, or explicitly descope MINI from this phase with a reason."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "line": 85,
+      "claim": "Unqualified path citations are ambiguous in a repo with many same-named files.",
+      "evidence": "'prompts/reflect.md' matches at least 9 tracked files (the relevant one is skills/process/kbd-process-orchestrator/prompts/reflect.md, headings at lines 140/144/148). 'adapters-local.mts:25-49' and 'hook-contract.json:118-251' also omit directories (skills/process/agent-team-creator/runtime/src/, shared/harnesses/). Generated dist/ copies exist for several of these files, and the packet's cited_paths check flagged prompts/reflect.md with 41 matches.",
+      "suggested_fix": "Use repo-relative paths for every file:line citation."
+    }
+  ]
+}

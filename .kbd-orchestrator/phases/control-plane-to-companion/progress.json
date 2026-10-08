@@ -2,26 +2,58 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1186,
-  "derivedRevision": 1186,
+  "sourceRevision": 2395,
+  "derivedRevision": 2395,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186
+    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2278,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
   },
   "conflictCount": 0,
   "phase": "control-plane-to-companion",
   "phaseId": "control-plane-to-companion",
   "parentPhase": null,
-  "last_updated": "2026-09-19T15:41:44.853555Z",
+  "last_updated": "2026-10-05T22:57:49.717991Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 13,
-  "changes_completed": 9,
+  "changes_completed": 10,
   "implementation_total": 13,
-  "implementation_completed": 9,
+  "implementation_completed": 10,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 9,
+      "completed": 10,
       "total": 13,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 100,
+      "total": 104,
       "status": "IN_PROGRESS"
     },
     "evidence": {
@@ -124,9 +156,9 @@
       "status": "DONE",
       "implementation_status": "COMPLETE",
       "tasks_total": 3,
-      "tasks_done": 2,
+      "tasks_done": 3,
       "last_task_completed": "Run the Companion audit gate",
-      "next_task_pending": "Add the Companion installer step that registers the MCP stdio binary and skills per the declaration",
+      "next_task_pending": null,
       "blockers": []
     },
     {
@@ -143,19 +175,19 @@
     {
       "id": "change-cpc-009-pack-removal",
       "title": "Remove relocated crates and daemon wiring",
-      "status": "IN_PROGRESS",
-      "implementation_status": "IN_PROGRESS",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
       "tasks_total": 3,
-      "tasks_done": 2,
+      "tasks_done": 3,
       "last_task_completed": "Re-derive and record the footprint; delete substrate/sovereign-sync, sovereign-client, kbd-mobile, storage-provider iroh_docs.rs and its feature; retire the four sovereign-sync OpenSpec main specs with a decision record; delete docs/SOVEREIGN_SYNC_TESTING.md; cut the estate-feature dependency in prometheus-exec/exec-remote",
-      "next_task_pending": "Update site/docs, docs/codex-plugin.md, and CLAUDE.md; regenerate plugin surfaces; run validate:codex and the footprint check",
+      "next_task_pending": null,
       "blockers": []
     },
     {
       "id": "change-cpc-010-kbd-state-migration",
       "title": "Migrate unmarked projections",
-      "status": "PENDING",
-      "implementation_status": "PENDING",
+      "status": "SKIPPED",
+      "implementation_status": "SKIPPED",
       "tasks_total": 0,
       "tasks_done": 0,
       "last_task_completed": null,
@@ -165,8 +197,8 @@
     {
       "id": "change-cpc-011-integration-evidence",
       "title": "Two-process integration evidence",
-      "status": "PENDING",
-      "implementation_status": "PENDING",
+      "status": "SKIPPED",
+      "implementation_status": "SKIPPED",
       "tasks_total": 0,
       "tasks_done": 0,
       "last_task_completed": null,
@@ -176,8 +208,8 @@
     {
       "id": "change-cpc-013-pack-certification-without-companion",
       "title": "Certify the pack without the Companion",
-      "status": "PENDING",
-      "implementation_status": "PENDING",
+      "status": "SKIPPED",
+      "implementation_status": "SKIPPED",
       "tasks_total": 0,
       "tasks_done": 0,
       "last_task_completed": null,

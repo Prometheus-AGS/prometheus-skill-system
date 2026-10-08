@@ -1,0 +1,45 @@
+{
+  "changeId": "change-ldd-13-source-convergence",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "title": "Complete worktree branch dirty-source and archive disposition inventory",
+      "files": [
+        "phase:source-disposition.md",
+        "phase:evidence/repository-inventory.json"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T13:17:31Z",
+      "doneBy": "claude-code",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "1"
+    },
+    {
+      "title": "Converge full and mini source including merged hook fixes and task acceptance parity",
+      "files": [
+        "full:disposition-owned source",
+        "mini:disposition-owned source"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T13:18:49Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "2"
+    },
+    {
+      "title": "Converge relevant dependency source and record final candidate provenance",
+      "files": [
+        "dependencies:disposition-owned source",
+        "phase:release-candidates.json"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T13:20:46Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "3"
+    }
+  ]
+}

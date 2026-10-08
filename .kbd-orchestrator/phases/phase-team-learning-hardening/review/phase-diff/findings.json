@@ -1,0 +1,107 @@
+{
+  "mode": "diff",
+  "phase": "phase-team-learning-hardening",
+  "verdict": "BLOCK",
+  "judge_model": "claude-sonnet (harness-native)",
+  "isolation_mode": "harness-native",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "same-family-harness-native",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "scripts/install-skills-flat.sh",
+      "line": 225,
+      "claim": "install_codex_memories is unreachable: install_to_codex() is only called inside the `if $UNINSTALL` block, and the new call sits in the non-uninstall else-branch of that same function, so install-skills-flat.sh never disables Codex memory generation.",
+      "evidence": "At 9233000 `grep -n install_to_codex` shows only the definition (line 225) and one call at line 269, which is in the `if $UNINSTALL; then ... install_to_codex ... else (generation install only) fi` block. Inside the function, `if $UNINSTALL; then codex-sync --uninstall; else install_codex_memories; fi` can therefore never take the else-arm. change-tlh-02 spec.md: 'Both installers apply it ... install_to_codex() in install-skills-flat.sh calls it'. test-codex-memories-config.sh only sources the helper directly (case 7) and never runs install-skills-flat.sh, so the gate cannot see this.",
+      "suggested_fix": "Call install_codex_memories from the install (else) branch of the top-level dispatch, outside install_to_codex; decide whether it should honour --skills-only (execution.md says it is intended to apply under --skills-only); add a test that runs install-skills-flat.sh against a scratch HOME/CODEX_HOME and asserts config.toml changed."
+    },
+    {
+      "severity": "WARNING",
+      "file": "scripts/install-skills-flat.sh",
+      "line": 19,
+      "claim": "An unguarded top-level `source` of the new lib file runs under `set -euo pipefail`, so a missing or unreadable file aborts the whole installer before any work.",
+      "evidence": "`source \"$REPO_ROOT/scripts/lib/install-codex-memories.sh\"` at the top; the helper itself is carefully guarded but the source is not. CLAUDE.md 'a submodule build must never be able to abort the installer' sets this as the standard.",
+      "suggested_fix": "`[ -f lib ] && source lib || true`, or define a no-op install_codex_memories fallback."
+    },
+    {
+      "severity": "WARNING",
+      "file": "crates/surreal-memory/src/storage/surreal.rs",
+      "line": 153,
+      "claim": "Cache key is (dimensions, text) not (embedding model id, text) as the spec requires; two different models/backends with equal dimensions would share entries.",
+      "evidence": "QueryEmbedCache::key(dimensions, query) formats `{dimensions}\\u{1f}{collapsed}`; change-tlh-05 spec: 'key = (embedding model id, NFC-normalised whitespace-collapsed query text)'. The comment justifies it with 'one storage instance serves a single embedding service', which does not cover an executor restart/fallback to a different embedder of the same width leaving stale vectors cached for the process lifetime.",
+      "suggested_fix": "Add a model/provider identity from EmbeddingService to the key, or document and test that identity cannot change within a SurrealStorage instance."
+    },
+    {
+      "severity": "WARNING",
+      "file": "crates/surreal-memory/src/storage/surreal.rs",
+      "line": 1403,
+      "claim": "Failed embeddings are not counted in hits/misses and a disabled-cache path counts a miss before the embedding succeeds, so the counters are inconsistent across paths and stats can under-report load.",
+      "evidence": "embed_query: with the cache, `.await?` returns before misses.fetch_add on error; without a cache `misses.fetch_add` runs before `embed_text(query).await`. OperationStats also hides storage errors via `self.surreal().ok()` producing a silent None.",
+      "suggested_fix": "Count misses uniformly at the same point (after success, or add an error counter); surface the surreal() error rather than collapsing to None."
+    },
+    {
+      "severity": "WARNING",
+      "file": "scripts/generate-skill-system-distribution.js",
+      "line": 339,
+      "claim": "assertSharedGeneratedPaths cannot fail: the 'shared' set is produced by running this same generator with --list-outputs, then every outputPaths entry is asserted to be in it.",
+      "evidence": "generated-paths.mjs derives its set from `generate-skill-system-distribution.js --list-outputs` (which prints outputPaths); the check then tests `outputPaths ⊂ shared`. Only a spawn failure can throw. The comment promises it fails 'if the set the checker verifies and the set the helper would resolve ever diverge' - they are the same list by construction.",
+      "suggested_fix": "Compare against an independent source (e.g. paths the generators actually emit via emit()/materialize, or a committed expected list), or drop the claim."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/delivery-cadence/scripts/refresh-skill-pack.sh",
+      "line": 2733,
+      "claim": "Full mode waits forever for any `cargo`/`rustc` process with no timeout, so a long-lived cargo process (rust-analyzer check, cargo watch) hangs the checkpoint indefinitely.",
+      "evidence": "`while pgrep -x cargo ... || pgrep -x rustc ...; do echo waiting; sleep 20; done` has no deadline; the script otherwise promises 'failures are loud' (exit 1/2).",
+      "suggested_fix": "Add a bounded wait (e.g. REFRESH_BUILD_WAIT_SECONDS) that exits 1 with a message on expiry."
+    },
+    {
+      "severity": "WARNING",
+      "file": "shared/scripts/lib/learning_write.py",
+      "line": 1042,
+      "claim": "CORTEX_FEED_TIMEOUT is parsed with float() at module import; a non-numeric PROMETHEUS_CORTEX_FEED_TIMEOUT raises ValueError and breaks every learning write/hook that imports the module.",
+      "evidence": "`CORTEX_FEED_TIMEOUT = float(os.environ.get(\"PROMETHEUS_CORTEX_FEED_TIMEOUT\", \"180\"))` at top level; the mirror is documented as 'never raises, never prints' and optional.",
+      "suggested_fix": "Parse inside a try/except with the 180 default."
+    },
+    {
+      "severity": "WARNING",
+      "file": "shared/scripts/lib/learning_write.py",
+      "line": 1052,
+      "claim": "Each mirrored write now spawns a detached worker plus a node Cortex server that loads an embedding model and lives up to 180 s; many writes under load (load avg 56-250 noted in the phase) multiply concurrent model loads with no cap.",
+      "evidence": "mirror_cortex starts one cortex_feed worker per lesson via Popen(start_new_session=True) and the worker holds the server alive until reply id 2 or the timeout; nothing serialises or bounds workers.",
+      "suggested_fix": "Bound concurrency (lock file / single drain worker) or batch several lessons per server session."
+    },
+    {
+      "severity": "WARNING",
+      "file": "shared/scripts/tests/test-cortex-mirror.sh",
+      "line": 1845,
+      "claim": "The real-Cortex case asserts the operator's real ~/.cortex/memory.db and plugin cache are unmodified over a window of up to ~4 minutes, which fails spuriously whenever the operator's own live Cortex MCP session touches them.",
+      "evidence": "`[ \"$(db_stat)\" = \"$before_db\" ] || fail ...` and `find $CORTEX_CACHE_ROOT -newer marker`; the failure message itself concedes 'another Cortex session may be running'. Not a test-writes-real-state defect (HOME and CORTEX_DATA_DIR are scratch), but the guard is an environment-dependent flake rather than a deterministic isolation check.",
+      "suggested_fix": "Prove isolation by asserting the server's data landed under CORTEX_DATA_DIR (and nothing under scratch HOME/.cortex), or compare only the specific memory rows, not mtime/size."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "scripts/install-system.js",
+      "line": 252,
+      "claim": "applyCodexMemories forces CODEX_HOME=<home>/.codex, overriding an operator's own CODEX_HOME when --home is the default, so the setting can be written to a directory Codex does not read.",
+      "evidence": "`const env = { ...process.env, HOME: home, CODEX_HOME: path.join(home, '.codex') }` (also true of the pre-existing rejectObsoleteNativeUmbrella pattern).",
+      "suggested_fix": "Only override CODEX_HOME when --home was explicitly passed; otherwise inherit."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+      "line": 1209,
+      "claim": "The doctor's repair hint is a repo-relative path (`bash shared/scripts/codex-memories-config.sh`) that does not exist on a machine running the installed CLI outside the repo.",
+      "evidence": "let repair = \"bash shared/scripts/codex-memories-config.sh\"; the installed skill pack lives under ~/.prometheus/plugins/..., and the doc text repeats the relative path.",
+      "suggested_fix": "Resolve against the installed plugin root or state 'from the skill-pack checkout'."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "scripts/memory-index-partition.py",
+      "line": 482,
+      "claim": "Idempotence is only approximate: the footer reserve uses the digit width of prior_moved+len(entries), which can exceed the actual footer width, so a second run could move an entry when the index sits within a byte or two of the limit at a digit boundary (E=9/99).",
+      "evidence": "reserve = len(footer(prior_moved + len(entries))); run 1 reserved footer(E), run 2 reserves footer(E+1). The new test uses a 9-bullet fixture well under the boundary and cannot hit it.",
+      "suggested_fix": "Reserve with the exact footer string that will be written, or add a boundary fixture."
+    }
+  ]
+}

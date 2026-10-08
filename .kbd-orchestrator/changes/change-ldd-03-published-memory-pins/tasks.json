@@ -1,0 +1,46 @@
+{
+  "changeId": "change-ldd-03-published-memory-pins",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "title": "Prepare the all-repository pin and release candidate manifest",
+      "files": [
+        "phase:release-candidates.json",
+        "phase:pin-proposal.md"
+      ],
+      "done": true,
+      "doneAt": "2026-10-05T19:08:46Z",
+      "doneBy": "codex",
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "1"
+    },
+    {
+      "title": "Freeze exact compatible release identities and obtain protected-edit and tag approvals",
+      "files": [
+        "phase:release-manifest.json",
+        "phase:evidence/release-approvals.md"
+      ],
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "2"
+    },
+    {
+      "title": "Apply approved final gitlinks and coherent version declarations",
+      "files": [
+        "full:gitlinks/release declarations",
+        "mini:gitlinks/versions.toml",
+        "dependency:approved version declarations"
+      ],
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "verify": null,
+      "notes": "Production task only. Do not author/run tests before all production changes complete; change 12 owns the final boundary.",
+      "id": "3"
+    }
+  ]
+}

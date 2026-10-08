@@ -1,0 +1,45 @@
+{
+  "changeId": "change-tli-b3b-agent-team-memory-envelope",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[B3b] Emit the learning envelope with design-table agent_id and fail closed without a project id in memory.mts",
+      "done": true,
+      "doneAt": "2026-10-04T13:02:10Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/runtime/src/memory.mts"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[B3b] Resolve the project id once in the memory-queue/memory-publish CLI entries",
+      "done": true,
+      "doneAt": "2026-10-04T13:02:42Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/runtime/src/cli.mts"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[B3b] Add memory-envelope.integration.mts against live surreal-memory and rebuild scripts",
+      "done": true,
+      "doneAt": "2026-10-04T13:03:20Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/runtime/test-src/memory-envelope.integration.mts",
+        "skills/process/agent-team-creator/scripts/*.mjs",
+        "skills/process/agent-team-creator/tests/*.mjs",
+        "dist/plugins/**"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-b3b-agent-team-memory-envelope/verify.sh",
+      "notes": null
+    }
+  ]
+}

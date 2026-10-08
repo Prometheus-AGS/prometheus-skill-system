@@ -1,0 +1,61 @@
+{
+  "changeId": "change-tli-a4-surreal-lean-search-categories-rekey",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "[A4] Return a lean search DTO without embeddings on REST and MCP, with include_embeddings opt-in",
+      "done": true,
+      "doneAt": "2026-10-04T04:11:51Z",
+      "doneBy": "claude-code",
+      "files": [
+        "src/api/search.rs",
+        "src/mcp/handlers.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "[A4] Honour categories in search_memories and thread them through both hybrid legs, the storage trait and all callers",
+      "done": true,
+      "doneAt": "2026-10-04T04:12:18Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/surreal-memory/src/storage/surreal.rs",
+        "crates/surreal-memory/src/storage/mod.rs",
+        "src/api/search.rs",
+        "src/mcp/handlers.rs",
+        "src/api/a2a.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "[A4] Add the loopback-only rekey_agent_id operation with ConnectInfo wiring and dry-run",
+      "done": true,
+      "doneAt": "2026-10-04T04:12:45Z",
+      "doneBy": "claude-code",
+      "files": [
+        "src/operations.rs",
+        "src/main.rs",
+        "docs/operations.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "[A4] Add the team_scoping server-mode integration test",
+      "done": true,
+      "doneAt": "2026-10-04T04:13:13Z",
+      "doneBy": "claude-code",
+      "files": [
+        "tests/team_scoping.rs"
+      ],
+      "verify": "bash /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/changes/change-tli-a4-surreal-lean-search-categories-rekey/verify.sh",
+      "notes": null
+    }
+  ]
+}

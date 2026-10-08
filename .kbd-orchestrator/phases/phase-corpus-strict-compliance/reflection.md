@@ -13,7 +13,7 @@
 | # | Goal | Status | Evidence |
 |---|------|--------|----------|
 | G1 | `npm run validate:strict` exits 0 on the full native corpus | **MET** | `backfill-strict-fields.js` injected `version`, `license`, `metadata.tags` into 75 skills. `npm run validate:strict` → `✨ All skills valid! No errors or warnings.` |
-| G2 | 0 warnings from script permission issues | **MET** | `chmod +x` applied to all 6 zeespec-interrogator scripts. `npm run validate` → 0 warnings. |
+| G2 | 0 warnings from script permission issues | **MET** | `chmod +x` applied to all 6 spec-gate scripts. `npm run validate` → 0 warnings. |
 | G3 | `validate:strict` documented as the CI gate for new skills | **MET** | `CLAUDE.md` updated: Validation section, Publishing Checklist, Testing Strategy, and AgentSkills.io Compliance section all require `validate:strict` for new skills. |
 | G4 | Submodule skills correctly excluded from strict mode | **MET** | `--exclude-submodules` flag added to `validate-skills.js`. Both `validate` and `validate:strict` scripts pass the flag. `skills/imported/` skipped in all default runs. |
 
