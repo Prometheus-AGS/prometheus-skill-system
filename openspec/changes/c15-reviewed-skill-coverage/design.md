@@ -25,6 +25,46 @@ Proposed ownership and interfaces:
 
 **Concrete private contract:** reuse UAR's authenticated, owner/workspace-scoped `/api/v1/collaboration/deployment-bindings:preflight` and existing `DeploymentBinding.extensions`; add a required namespaced `urn:prometheus:uar:reviewed-skill-coverage:1` entry to the *private binding*, alongside the existing Boss host-workspace extension. Its value lists each selected exact SkillRef identity, installed-location hash, source class (`boss-packaged-mini` or `signed-full-generation`), verified manifest/generation digest, trust-root/signer identity when applicable, and a digest of the complete relative-path closure inventory. Boss main constructs it after reading trusted packaged bytes or successfully invoking the full-pack verifier; renderer and portable package never supply it. UAR parses it in `bindings.rs` on preflight/install, compares every required SkillRef and current installed bytes/closure to the attested source, binds the result into `EffectiveBindingReceipt`, and rechecks at run admission. The existing owner/workspace/admin authenticated channel is the transport; do not add a standalone attestation endpoint, scheduler or approval store. The binding's `contentDigest` already covers extensions. Binding authentication alone does not prove the manifest: UAR must verify the supplied bytes against a configured trusted packaged baseline or full-pack signature verifier; if that verifier is unavailable, the result is unreviewed/blocked for a required reviewed skill. Neither a portable `SkillRef` nor arbitrary binding JSON may self-certify. For the effective tool criterion, compare required tools against `uarTeamHostScope.ts`'s resolved `memberTools`, then let `UarTeamHostService.ts`/`UarHostToolAdmission.ts` decide each real invocation with live local/Flint authority. This verifies scope, not a standing permit.
 
+## Pack closure inventory and full verifier contract
+
+Each staged full generation and each staged mini plugin payload writes
+`reviewed-skill-closures.json` at its payload root. It is public metadata only:
+it contains no file body, credential, absolute location, or authorization grant.
+The document uses `prometheus-reviewed-skill-closures-v1`, lowercase
+`sha256:<hex>` digests, and RFC 8785 JSON canonicalization. It contains a sorted
+deduplicated `files` table (`path`, `sha256`) and sorted skills with parsed-only
+`identity` (`id`, `name`, `version`, `artifactDigest`), `entrypoint`, `roots`, and
+a `closure` of sorted paths plus its digest. An absent frontmatter id or version is
+`null`; the pack never invents a portable SkillRef identity. `artifactDigest` is
+the raw `SKILL.md` byte digest. Each skill root is recursively enumerated, so an
+added, deleted, linked, or edited file invalidates its closure. Every shared
+runtime root actually shipped in that package is included conservatively in every
+skill's closure, covering out-of-directory runtime support without trusting a
+handwritten per-skill list. `inventoryDigest` is the digest of the document before
+that field is added.
+
+Mini has no signing addition. Boss pins the exact packaged inventory bytes/digest
+with its application and compares the writable copied payload to that baseline.
+For a full installation, the host invokes its independently packaged trusted copy
+of `scripts/verify-reviewed-skill-coverage.js` with `--plugin-root`, `--home`, and
+`--trust-store`. That wrapper first invokes the existing
+`scripts/install-plugin-generation.js --reviewed-coverage` verification contract, which verifies the
+active generation, manifest signature against the existing Ed25519 store, all
+target receipts, and installed projections. Only on success does it emit a JSON
+record with the inventory, generation and manifest digests, signer id, trust-store
+digest, and receipt digests. Boss must package the wrapper and its installer
+dependency closure as immutable application resources; a script inside the
+writable generation is not a trust root.
+
+The immutable verifier package carries `skill-system.json` but not duplicate
+source target trees. In `--verify` and `--reviewed-coverage` modes,
+`readSkillSystem` still validates its schema, all fourteen targets, each target
+lifecycle value, and release/minimum-version relationship, while deliberately
+omitting only source-tree existence and non-empty probes. Existing installation,
+rollback, and uninstall paths continue to require those source trees. The signed
+active generation, signed target receipts, and installed projections remain the
+verification material for verifier mode.
+
 ## C15.3 handoff provenance already implemented
 
 Full pack `609ab9a`, mini `7d8e098d8f0056a9c172bf85fc12b0bee865043e` and Boss `96492a21bc` have implemented the handoff provenance source. Delivery 10's actual packaged operation passed. Preserve its source and operation evidence; **do not rerun passing handoff behavior** in the next skill-lock operation. Do not claim installed acceptance before its receipt exists.
