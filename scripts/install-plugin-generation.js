@@ -99,6 +99,18 @@ const PAYLOAD_ROOTS = [
   '.mcp.json',
   'skill-system.json',
 ];
+// The reviewed closure covers shared runtime support. Plugin descriptors select
+// a host integration but are not invoked by a skill; their hook target is
+// covered through `hooks`. Keeping descriptors out also preserves the
+// inventory's no-symlink path contract.
+const REVIEWED_CLOSURE_SHARED_ROOTS = [
+  'agents',
+  'bin',
+  'hooks',
+  'shared',
+  'scripts',
+  'skill-system.json',
+];
 const MANIFEST_SIGNATURE = 'manifest.sig.json';
 const SKILL_INDEX_SCHEMA = 'prometheus-skill-index-v1';
 const COMPONENT_INDEX_SCHEMA = 'prometheus-exec-component-index-v1';
@@ -2447,7 +2459,7 @@ function install(args) {
     // Generate it only after every staged runtime and index writer has finished,
     // so its digests become part of the generation's final signed file set.
     writeReviewedSkillClosures(staging, {
-      sharedRoots: PAYLOAD_ROOTS.filter(root => fs.existsSync(path.join(staging, root))),
+      sharedRoots: REVIEWED_CLOSURE_SHARED_ROOTS.filter(root => fs.existsSync(path.join(staging, root))),
     });
     const release = verifyReleaseManifest(staging, args.expectedBundle, relative => {
       const intent = ingest.intents.get(relative);
