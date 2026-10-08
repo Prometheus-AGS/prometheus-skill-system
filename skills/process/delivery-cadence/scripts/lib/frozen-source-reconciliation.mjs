@@ -60,18 +60,21 @@ async function preserved(snapshot, { allowSecondaryUntracked = false } = {}) {
   for (const nested of snapshot.preservedSubmodules ?? []) await preserved(nested, { allowSecondaryUntracked });
 }
 
-async function preservedSources(sourceRefs, snapshots) {
+async function preservedSources(sourceRefs, snapshots, applicationIndex) {
   if (snapshots?.length !== sourceRefs.length) throw new Error('Frozen source snapshots are incomplete');
   for (const [index, snapshot] of snapshots.entries()) {
     const source = sourceRefs[index];
     if (!source || snapshot.repository !== source.repository || snapshot.revision !== source.revision ||
         snapshot.fingerprint !== source.fingerprint) throw new Error('Frozen source snapshot identity changed');
-    await preserved(snapshot, { allowSecondaryUntracked: index > 0 });
+    await preserved(snapshot, { allowSecondaryUntracked: index !== applicationIndex });
   }
 }
 
-function sameSecondarySources(current, candidate) {
-  return current.length === candidate.length && sameSources(current.slice(1), candidate.slice(1));
+function sameSecondarySources(current, candidate, applicationIndex) {
+  return current.length === candidate.length &&
+    current[applicationIndex]?.repository === candidate[applicationIndex]?.repository &&
+    sameSources(current.filter((_item, index) => index !== applicationIndex),
+      candidate.filter((_item, index) => index !== applicationIndex));
 }
 
 export async function assertFrozenReconciliation(root, state, candidate, iteration) {
@@ -85,13 +88,17 @@ export async function assertFrozenReconciliation(root, state, candidate, iterati
       stored.iterationId !== iteration.id || stored.candidateId !== candidate.id) throw new Error('Frozen source reconciliation belongs to another candidate');
   const manifest = JSON.parse(await fs.readFile(candidate.manifestPath, 'utf8'));
   if (digest(manifest) !== candidate.manifestHash) throw new Error('Frozen candidate manifest changed');
-  await preservedSources(candidate.sourceRefs, candidate.preservedSources);
+  const applicationIndex = stored.operatedSource.repository === undefined ? 0
+    : candidate.sourceRefs.findIndex(item => item.repository === stored.operatedSource.repository);
+  if (applicationIndex < 0 || candidate.sourceRefs[applicationIndex]?.revision !== stored.operatedSource.baseRevision)
+    throw new Error('Reconciled application source does not match the frozen candidate');
+  await preservedSources(candidate.sourceRefs, candidate.preservedSources, applicationIndex);
   for (const item of stored.artifacts) await artifact(item.path, item);
   const operation = await fs.readFile(stored.operationEvidence.path);
   if (sha(operation) !== stored.operationEvidence.sha256) throw new Error('Feature operation evidence changed');
   const provenance = await fs.readFile(stored.provenance.path);
   if (sha(provenance) !== stored.provenance.sha256) throw new Error('Frozen build provenance changed');
-  if (!sameSecondarySources(stored.checkoutAtReconciliation, candidate.sourceRefs)) {
+  if (!sameSecondarySources(stored.checkoutAtReconciliation, candidate.sourceRefs, applicationIndex)) {
     throw new Error('Secondary sources changed during frozen source reconciliation');
   }
   if (!sameSources(await captureSources(candidate.sourceRefs.map(item => ({ repository: item.repository })), root),
@@ -118,19 +125,22 @@ export async function reconcileFrozenSource(root, input = {}, args = {}) {
     if (previous && (previous.operationEvidence.sha256 !== sha(evidenceBytes) || previous.provenance.sha256 !== sha(provenanceBytes)))
       throw new Error('Existing frozen candidate operation/provenance differs; use a new delivery candidate');
     const source = candidate.sourceRefs;
-    if (!source.length || source[0].revision !== evidence.sourceRefs.boss ||
-        !sameSources(iteration.sourceRefs, source)) throw new Error('Operation does not identify the frozen source');
-    const repository = source[0].repository;
     const driver = input.driverPath;
     if (typeof driver !== 'string' || !driver.startsWith('scripts/') || driver.split('/').includes('..') ||
-        !Array.isArray(evidence.operationDriverSources) ||
-        !evidence.operationDriverSources.some(item => item.path === path.join(repository, driver)))
+        !Array.isArray(evidence.operationDriverSources))
       throw new Error('Name the exact separately operated scripts/ driver');
-    const frozenBuilder = await git(repository, ['show', `${source[0].revision}:electron-builder.yml`]);
+    const applicationIndexes = source.flatMap((item, index) =>
+      item.revision === evidence.sourceRefs.boss &&
+      evidence.operationDriverSources.some(entry => entry.path === path.join(item.repository, driver)) ? [index] : []);
+    if (applicationIndexes.length !== 1 || !sameSources(iteration.sourceRefs, source))
+      throw new Error('Operation does not identify the frozen source');
+    const applicationIndex = applicationIndexes[0], applicationSource = source[applicationIndex];
+    const repository = applicationSource.repository;
+    const frozenBuilder = await git(repository, ['show', `${applicationSource.revision}:electron-builder.yml`]);
     if (!/^\s*-\s*["']?!scripts["']?\s*$/m.test(frozenBuilder)) throw new Error('Frozen application packaging does not exclude scripts/');
     const operationCommit = input.operationDriverCommit;
-    await git(repository, ['merge-base', '--is-ancestor', source[0].revision, operationCommit]);
-    const diff = await git(repository, ['diff', '--binary', source[0].revision, operationCommit, '--', driver], 'buffer');
+    await git(repository, ['merge-base', '--is-ancestor', applicationSource.revision, operationCommit]);
+    const diff = await git(repository, ['diff', '--binary', applicationSource.revision, operationCommit, '--', driver], 'buffer');
     if (!diff.length || sha(diff) !== evidence.sourceRefs.bossDiffSha256) throw new Error('Operated driver diff differs from recorded operation-time dirty source');
     const driverBytes = await git(repository, ['show', `${operationCommit}:${driver}`], 'buffer');
     const driverEvidence = evidence.operationDriverSources.find(item => item.path === path.join(repository, driver));
@@ -151,12 +161,12 @@ export async function reconcileFrozenSource(root, input = {}, args = {}) {
     if (!artifacts.some(item => item.path.endsWith('/app.asar') && item.sha256 === evidence.sourceRefs.appAsarSha256) ||
         !artifacts.some(item => item.path.endsWith('.dmg'))) throw new Error('Operation did not use the frozen application artifact');
     const currentSourceRefs = await captureSources(source.map(item => ({ repository: item.repository })), root);
-    if (!sameSecondarySources(currentSourceRefs, source)) {
+    if (!sameSecondarySources(currentSourceRefs, source, applicationIndex)) {
       throw new Error('Secondary sources changed after the frozen candidate');
     }
     const record = {
       schemaVersion: 1, candidateId, iterationId: iteration.id, candidateManifestHash: candidate.manifestHash,
-      candidateSourceRefs: source, operatedSource: { baseRevision: source[0].revision, driverPath: driver,
+      candidateSourceRefs: source, operatedSource: { repository, baseRevision: applicationSource.revision, driverPath: driver,
         dirtyDiffSha256: sha(diff), driverSha256: sha(driverBytes), capturedAt: evidence.startedAt },
       checkoutAtReconciliation: currentSourceRefs, checkoutAdvanced: !sameSources(currentSourceRefs, source),
       operationEvidence: { path: evidencePath, sha256: sha(evidenceBytes) },
@@ -164,7 +174,7 @@ export async function reconcileFrozenSource(root, input = {}, args = {}) {
       buildCheckpointId: input.buildCheckpointId, launchCheckpointId: input.launchCheckpointId,
       authorityRef: input.authorityRef, reason: input.reason, recordedAt: now()
     };
-    await preservedSources(source, candidate.preservedSources);
+    await preservedSources(source, candidate.preservedSources, applicationIndex);
     const file = path.join(root, 'source-reconciliations', `${candidateId}-${sha(Buffer.from(JSON.stringify(record)))}.json`);
     await immutableJson(file, record);
     const saved = { ...record, path: file, sha256: sha(await fs.readFile(file)) };

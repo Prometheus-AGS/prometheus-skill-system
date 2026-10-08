@@ -119,11 +119,15 @@ change KBD authority or reconcile publication debt.
 ## Frozen artifact with multiple sources
 
 `candidate reconcile-frozen` preserves the complete ordered candidate source list.
-The first source is the frozen application source named by operation evidence and
-must have no tracked patch or untracked files. Secondary sources also require an
-empty tracked patch. Their preserved untracked files are admissible only when the
+The frozen application source is identified by the operation's Boss revision,
+matching build provenance, and exact driver path within its repository, regardless
+of its position. It must have no tracked patch or untracked files. All other sources
+require an empty tracked patch. Their preserved untracked files are admissible only when the
 saved and current paths are regular files with identical bytes. Every secondary
 source reference must remain exactly the frozen candidate reference; only the
 separately bound application driver may advance. Added, missing, linked, altered,
 or reordered sources are refused. This is not a dirty-source bypass and does not
 exclude application payload, skills, or assets.
+
+New reconciliation receipts record the application's repository in `operatedSource`.
+Existing receipts without that field retain their original first-source identity.
