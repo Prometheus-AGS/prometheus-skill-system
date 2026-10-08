@@ -10,6 +10,11 @@ import { fileURLToPath } from 'node:url';
 
 import { loadCapabilities, materializeLink } from './lib/capabilities.js';
 import { jcs } from './lib/jcs.js';
+import {
+  REVIEWED_SKILL_CLOSURES_FILE,
+  REVIEWED_SKILL_CLOSURES_SCHEMA,
+  writeReviewedSkillClosures,
+} from './lib/reviewed-skill-closures.js';
 import { assertKeyProtection } from './lib/key-protection.js';
 import {
   MANIFEST_SCHEMA_VERSION,
@@ -41,6 +46,7 @@ import { POINTER_PATTERN, isWithin, resolveCodexHome } from './lib/store-paths.j
  * `process.platform`; every decision reads this record.
  */
 let CAPABILITIES = null;
+let VERIFIED_TRUST_STORE_DIGEST = null;
 
 const TARGETS = [
   '.claude/skills',
@@ -135,6 +141,7 @@ function parseArgs(argv) {
     pluginRoot: null,
     home: os.homedir(),
     verify: false,
+    reviewedCoverage: false,
     rollback: false,
     uninstall: false,
     pruneObsolete: false,
@@ -149,6 +156,7 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const value = argv[index];
     if (value === '--verify') args.verify = true;
+    else if (value === '--reviewed-coverage') args.reviewedCoverage = true;
     else if (value === '--rollback') args.rollback = true;
     else if (value === '--uninstall') args.uninstall = true;
     else if (value === '--prune-obsolete') args.pruneObsolete = true;
@@ -259,7 +267,11 @@ function ensureSigningIdentity(privateKeyPath, trustStorePath) {
 
 function readTrustedKey(trustStorePath, signer) {
   if (!fs.existsSync(trustStorePath)) fail(`plugin trust store is missing: ${trustStorePath}`);
-  const trust = JSON.parse(fs.readFileSync(trustStorePath, 'utf8'));
+  const trustBytes = fs.readFileSync(trustStorePath);
+  if (VERIFIED_TRUST_STORE_DIGEST && sha256(trustBytes) !== VERIFIED_TRUST_STORE_DIGEST) {
+    fail('plugin trust store changed during verification');
+  }
+  const trust = JSON.parse(trustBytes);
   const entry = trust.signers?.find(candidate => candidate.keyId === signer);
   if (!entry || entry.algorithm !== 'Ed25519') fail(`untrusted plugin signer: ${signer}`);
   const publicKey = crypto.createPublicKey(entry.publicKey);
@@ -1893,10 +1905,12 @@ function verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets = TA
   if (manifest.targetPayloads.length !== TARGETS.length)
     fail('target receipt matrix is incomplete');
   const selected = new Set(targets);
+  const verified = [];
   for (const targetPayload of manifest.targetPayloads.filter(entry => selected.has(entry.target))) {
     const file = receiptFile(pluginRoot, manifest.generation, targetPayload.target);
     if (!fs.existsSync(file)) fail(`target receipt is missing: ${targetPayload.target}`);
-    const receipt = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const bytes = fs.readFileSync(file);
+    const receipt = JSON.parse(bytes);
     const expected = targetReceipt(manifest, targetPayload);
     if (canonicalJson(receipt.body) !== canonicalJson(expected)) {
       fail(`target receipt body mismatch: ${targetPayload.target}`);
@@ -1905,7 +1919,43 @@ function verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets = TA
     if (receiptSigner !== manifest.signerKeyId) {
       fail(`target receipt signer differs from generation signer: ${targetPayload.target}`);
     }
+    verified.push({
+      target: targetPayload.target,
+      receiptDigest: `sha256:${sha256(bytes)}`,
+      skillsSha256: targetPayload.skillsSha256,
+    });
   }
+  return verified;
+}
+
+function reviewedCoverageRecord(pluginRoot, manifest, trustStorePath, targets) {
+  const generationRoot = path.join(pluginRoot, 'generations', manifest.generation);
+  const inventoryPath = path.join(generationRoot, REVIEWED_SKILL_CLOSURES_FILE);
+  const manifestEntry = manifest.files.find(entry => entry.path === REVIEWED_SKILL_CLOSURES_FILE);
+  if (!manifestEntry || manifestEntry.type !== 'file') fail('generation has no reviewed closure inventory');
+  const inventoryBytes = fs.readFileSync(inventoryPath);
+  if (sha256(inventoryBytes) !== manifestEntry.sha256) {
+    fail('reviewed closure inventory differs from signed generation manifest');
+  }
+  const inventory = JSON.parse(inventoryBytes);
+  const { inventoryDigest, ...inventoryBody } = inventory;
+  if (
+    inventory.schemaVersion !== REVIEWED_SKILL_CLOSURES_SCHEMA ||
+    inventoryDigest !== `sha256:${sha256(jcs(inventoryBody))}`
+  ) {
+    fail('reviewed closure inventory is invalid');
+  }
+  return {
+    schemaVersion: 'prometheus-reviewed-skill-coverage-verification-v1',
+    sourceClass: 'signed-full-generation',
+    generation: manifest.generation,
+    generationDigest: `sha256:${manifest.generation}`,
+    manifestDigest: `sha256:${sha256(fs.readFileSync(path.join(generationRoot, 'manifest.json')))}`,
+    signerKeyId: manifest.signerKeyId,
+    trustRootDigest: `sha256:${VERIFIED_TRUST_STORE_DIGEST ?? sha256(fs.readFileSync(trustStorePath))}`,
+    targetReceipts: verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets),
+    inventory,
+  };
 }
 
 // Stable projections are FILE links for the scripts and helpers and a DIRECTORY
@@ -2393,6 +2443,12 @@ function install(args) {
         entryCount: skillIndex.entries.length,
       })
     );
+    // The closure inventory covers shared staged roots such as agents and bin.
+    // Generate it only after every staged runtime and index writer has finished,
+    // so its digests become part of the generation's final signed file set.
+    writeReviewedSkillClosures(staging, {
+      sharedRoots: PAYLOAD_ROOTS.filter(root => fs.existsSync(path.join(staging, root))),
+    });
     const release = verifyReleaseManifest(staging, args.expectedBundle, relative => {
       const intent = ingest.intents.get(relative);
       return intent && intent.type === 'file' ? Boolean(intent.executable) : null;
@@ -2750,6 +2806,10 @@ function main() {
   process.env.CODEX_HOME = args.codexHome;
   assertSafeRoot(args.pluginRoot, args.home);
   try {
+    if (args.verify || args.reviewedCoverage) {
+      if (!fs.existsSync(args.trustStore)) fail(`plugin trust store is missing: ${args.trustStore}`);
+      VERIFIED_TRUST_STORE_DIGEST = sha256(fs.readFileSync(args.trustStore));
+    }
     // Probe before anything else touches the store. The probe runs in the
     // generation store root because capability varies by VOLUME: a store on a
     // removable or network volume can lack primitives that the temporary
@@ -2763,10 +2823,30 @@ function main() {
       installerVersion: sha256(fs.readFileSync(fileURLToPath(import.meta.url))),
       cacheFile: path.join(args.home, '.prometheus/capabilities.json'),
     });
-    const contract = readSkillSystem(args.sourceRoot);
+    // The independently packaged verifier carries only skill-system.json from
+    // the source tree. It still validates the complete target contract, but
+    // verification attests the active signed generation and its projections,
+    // not a separately materialized source checkout.
+    const contract = readSkillSystem(args.sourceRoot, {
+      requireTargetSourceTrees: !(args.verify || args.reviewedCoverage),
+    });
     const selectedTargets = targetsById(contract, args.targets).map(target => target.path);
     let generation;
-    if (args.verify)
+    if (args.reviewedCoverage) {
+      const manifest = verifyActive(
+        args.pluginRoot,
+        args.trustStore,
+        contract,
+        selectedTargets,
+        args.home
+      );
+      generation = JSON.stringify(reviewedCoverageRecord(
+        args.pluginRoot,
+        manifest,
+        args.trustStore,
+        selectedTargets
+      ));
+    } else if (args.verify)
       generation = verifyActive(
         args.pluginRoot,
         args.trustStore,

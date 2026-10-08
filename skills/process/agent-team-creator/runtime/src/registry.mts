@@ -6,6 +6,7 @@ import { join, resolve } from 'node:path';
 import type { Handoff, ObjectValue, Team, TeamCard, TeamState } from './types.mjs';
 import { object, strings, text, validateTeam } from './validation.mjs';
 import { recordEvent, taskAction } from './state-tasks.mjs';
+import { captureProvenance, provenancePrompt } from './handoff-provenance.mjs';
 
 /** Published team card: the discoverable subset of a team manifest. */
 export interface PublishedCard {
@@ -185,7 +186,7 @@ export function sendRequest(input: ObjectValue, applyHandoff: (apply: (state: Te
   const r = requestInput(input);
   const target = pickTarget(input);
   const card = target.card;
-  const packet = packetPrompt(r, target.teamId, card.intake.intakeRole);
+  let packet = packetPrompt(r, target.teamId, card.intake.intakeRole);
   const sameRepo = r.from.repo === card.repo;
   const forced = ruleForcesIssue(card, r.capabilities, r.paths);
   if (sameRepo && !forced) {
@@ -193,7 +194,10 @@ export function sendRequest(input: ObjectValue, applyHandoff: (apply: (state: Te
     const taskId = `req-${createHash('sha256').update(JSON.stringify([r.from, r.title, r.context])).digest('hex').slice(0, 12)}`;
     applyHandoff(state => {
       if (state.team.id !== target.teamId) throw Error(`State belongs to team ${state.team.id}, not ${target.teamId}`);
-      if (state.tasks.some(t => t.id === taskId)) return; // idempotent: the same request never makes a second task
+      if (state.tasks.some(t => t.id === taskId)) {
+        packet = state.handoffs.find(item => item.taskId === taskId)?.prompt ?? packet;
+        return; // idempotent: retain the original immutable packet
+      }
       const intakeRole = requireCard(state.team).intake.intakeRole;
       taskAction(state, { action: 'add', id: taskId, title: `Request from ${r.from.team}: ${r.title}`, owner: intakeRole,
         remaining: r.remaining.length ? r.remaining : [`Triage request ${taskId}`], evidence: r.evidence });
@@ -205,13 +209,17 @@ export function sendRequest(input: ObjectValue, applyHandoff: (apply: (state: Te
         context: r.context, evidence: r.evidence, remaining: r.remaining, memoryRefs: [],
         git: { root, head: git(root, ['rev-parse', '--verify', 'HEAD']), branch: git(root, ['symbolic-ref', '--quiet', '--short', 'HEAD']), dirty: dirty === null ? null : dirty.length > 0 },
         createdAt: new Date().toISOString(), prompt: packet,
+        provenance: captureProvenance(state, state.tasks.find(task => task.id === taskId)!, cwd, input.provenance),
       };
+      packet += '\n\n' + provenancePrompt(handoff.provenance!);
+      handoff.prompt = packet;
       state.handoffs.push(handoff);
       recordEvent(state, 'request.sent', { taskId, handoffId: handoff.id, fromRepo: r.from.repo, fromTeam: r.from.team, fromRole: r.from.role, toTeam: target.teamId, route: 'handoff' });
       recordEvent(state, 'request.received', { taskId, handoffId: handoff.id, owner: intakeRole, fromTeam: r.from.team, route: 'handoff' });
     });
     return { route: 'handoff', packet, taskId, reason: 'same repo and no rule forces an issue' };
   }
+  if (input.provenance !== undefined) throw Error('Structured handoff provenance is unavailable for the issue route; use the local handoff route');
   const argv = ['gh', 'issue', 'create', '--repo', card.repo, '--title', r.title, '--label', card.intake.label, '--body', packet];
   const command = shellLine(argv);
   const reason = sameRepo ? 'an intake rule forces an issue' : 'the target team is in another repo';

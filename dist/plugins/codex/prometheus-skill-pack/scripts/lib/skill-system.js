@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-export function readSkillSystem(sourceRoot) {
+export function readSkillSystem(sourceRoot, { requireTargetSourceTrees = true } = {}) {
   const file = path.join(sourceRoot, 'skill-system.json');
   if (!fs.existsSync(file)) throw new Error(`distribution contract is missing: ${file}`);
   const contract = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -11,14 +11,15 @@ export function readSkillSystem(sourceRoot) {
   if (!Array.isArray(contract.targets) || contract.targets.length !== 14) {
     throw new Error('distribution contract must declare the canonical 14 targets');
   }
-  assertTargetSourceTrees(sourceRoot, contract);
+  assertTargetLifecycles(contract);
+  if (requireTargetSourceTrees) assertTargetSourceTrees(sourceRoot, contract, { lifecycleValidated: true });
   if (compareVersions(contract.releaseVersion, contract.minimumActiveVersion) < 0) {
     throw new Error('releaseVersion cannot be below minimumActiveVersion');
   }
   return contract;
 }
 
-export function assertTargetSourceTrees(sourceRoot, contract) {
+function assertTargetLifecycles(contract) {
   const allowed = new Set(['required', 'install-only']);
   for (const target of contract.targets ?? []) {
     if (!allowed.has(target.sourceTreeLifecycle)) {
@@ -26,6 +27,12 @@ export function assertTargetSourceTrees(sourceRoot, contract) {
         `target ${target.id ?? '<missing>'} must declare sourceTreeLifecycle as required or install-only`
       );
     }
+  }
+}
+
+export function assertTargetSourceTrees(sourceRoot, contract, { lifecycleValidated = false } = {}) {
+  if (!lifecycleValidated) assertTargetLifecycles(contract);
+  for (const target of contract.targets ?? []) {
     if (target.sourceTreeLifecycle !== 'required') continue;
     const tree = path.join(sourceRoot, target.path);
     if (!fs.existsSync(tree) || !fs.statSync(tree).isDirectory()) {
