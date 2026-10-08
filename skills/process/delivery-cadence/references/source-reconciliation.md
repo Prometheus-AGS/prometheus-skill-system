@@ -122,7 +122,8 @@ change KBD authority or reconcile publication debt.
 The first source is the frozen application source named by operation evidence and
 must have no tracked patch or untracked files. Secondary sources also require an
 empty tracked patch. Their preserved untracked files are admissible only when the
-saved and current paths are regular files with identical bytes and the existing
-full source fingerprint still matches. Added, missing, linked, altered, or
-reordered sources are refused. This is not a dirty-source bypass and does not
+saved and current paths are regular files with identical bytes. Every secondary
+source reference must remain exactly the frozen candidate reference; only the
+separately bound application driver may advance. Added, missing, linked, altered,
+or reordered sources are refused. This is not a dirty-source bypass and does not
 exclude application payload, skills, or assets.

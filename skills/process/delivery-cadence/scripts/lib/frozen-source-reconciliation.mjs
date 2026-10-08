@@ -70,6 +70,10 @@ async function preservedSources(sourceRefs, snapshots) {
   }
 }
 
+function sameSecondarySources(current, candidate) {
+  return current.length === candidate.length && sameSources(current.slice(1), candidate.slice(1));
+}
+
 export async function assertFrozenReconciliation(root, state, candidate, iteration) {
   const record = (state.frozenSourceReconciliations ?? []).findLast(item => item.candidateId === candidate.id);
   if (!record) return null;
@@ -87,6 +91,9 @@ export async function assertFrozenReconciliation(root, state, candidate, iterati
   if (sha(operation) !== stored.operationEvidence.sha256) throw new Error('Feature operation evidence changed');
   const provenance = await fs.readFile(stored.provenance.path);
   if (sha(provenance) !== stored.provenance.sha256) throw new Error('Frozen build provenance changed');
+  if (!sameSecondarySources(stored.checkoutAtReconciliation, candidate.sourceRefs)) {
+    throw new Error('Secondary sources changed during frozen source reconciliation');
+  }
   if (!sameSources(await captureSources(candidate.sourceRefs.map(item => ({ repository: item.repository })), root),
     stored.checkoutAtReconciliation)) throw new Error('Checkout advanced again after frozen source reconciliation');
   return { ...stored, path: record.path, sha256: record.sha256 };
@@ -144,6 +151,9 @@ export async function reconcileFrozenSource(root, input = {}, args = {}) {
     if (!artifacts.some(item => item.path.endsWith('/app.asar') && item.sha256 === evidence.sourceRefs.appAsarSha256) ||
         !artifacts.some(item => item.path.endsWith('.dmg'))) throw new Error('Operation did not use the frozen application artifact');
     const currentSourceRefs = await captureSources(source.map(item => ({ repository: item.repository })), root);
+    if (!sameSecondarySources(currentSourceRefs, source)) {
+      throw new Error('Secondary sources changed after the frozen candidate');
+    }
     const record = {
       schemaVersion: 1, candidateId, iterationId: iteration.id, candidateManifestHash: candidate.manifestHash,
       candidateSourceRefs: source, operatedSource: { baseRevision: source[0].revision, driverPath: driver,

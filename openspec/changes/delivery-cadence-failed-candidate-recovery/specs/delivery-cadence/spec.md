@@ -23,5 +23,5 @@ Cadence SHALL preserve the complete ordered source identity of a frozen artifact
 #### Scenario: Reconcile a frozen application with immutable secondary inputs
 - **WHEN** a candidate has a clean primary application snapshot, immutable secondary snapshots, a successful frozen build and launch, and operation evidence naming the primary application revision
 - **THEN** Cadence may reconcile the frozen external driver without rebuilding the application
-- **AND** it verifies every source reference and each secondary preserved untracked file before adopting or finishing
+- **AND** it verifies that every secondary source reference remains exact and each secondary preserved untracked file matches before adopting or finishing
 - **AND** a changed, missing, linked, added, removed, reordered, or application-source untracked input is rejected
