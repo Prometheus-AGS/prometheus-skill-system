@@ -23,11 +23,51 @@ async function artifact(file, expected) {
   return { path: resolved, sha256: expected.sha256, size: expected.size };
 }
 
-async function preserved(snapshot) {
+function untrackedPath(root, name) {
+  if (typeof name !== 'string' || !name || name.includes('\\') ||
+      name.split('/').some(part => !part || part === '.' || part === '..')) {
+    throw new Error('Preserved frozen source untracked path is invalid');
+  }
+  return path.join(root, ...name.split('/'));
+}
+
+async function regularDigest(file) {
+  const stat = await fs.lstat(file);
+  if (!stat.isFile() || stat.isSymbolicLink()) throw new Error(`Preserved frozen source file is not regular: ${file}`);
+  const hash = createHash('sha256');
+  for await (const chunk of createReadStream(file)) hash.update(chunk);
+  return hash.digest('hex');
+}
+
+async function preservedUntracked(snapshot) {
+  for (const name of snapshot.untrackedFiles ?? []) {
+    const preservedFile = untrackedPath(path.join(snapshot.directory, 'untracked'), name);
+    const currentFile = untrackedPath(snapshot.repository, name);
+    if (await regularDigest(preservedFile) !== await regularDigest(currentFile)) {
+      throw new Error(`Preserved secondary untracked source changed: ${name}`);
+    }
+  }
+}
+
+async function preserved(snapshot, { allowSecondaryUntracked = false } = {}) {
   const patch = await fs.readFile(path.join(snapshot.directory, 'tracked.patch'));
   if (sha(patch) !== snapshot.patchSha256) throw new Error('Preserved frozen source patch changed');
-  if (patch.length || snapshot.untrackedFiles?.length) throw new Error('This reconciliation requires clean committed frozen source and nested pins');
-  for (const nested of snapshot.preservedSubmodules ?? []) await preserved(nested);
+  if (patch.length) throw new Error('This reconciliation requires clean committed frozen source and nested pins');
+  if (snapshot.untrackedFiles?.length && !allowSecondaryUntracked) {
+    throw new Error('This reconciliation requires a clean application frozen source');
+  }
+  if (allowSecondaryUntracked) await preservedUntracked(snapshot);
+  for (const nested of snapshot.preservedSubmodules ?? []) await preserved(nested, { allowSecondaryUntracked });
+}
+
+async function preservedSources(sourceRefs, snapshots) {
+  if (snapshots?.length !== sourceRefs.length) throw new Error('Frozen source snapshots are incomplete');
+  for (const [index, snapshot] of snapshots.entries()) {
+    const source = sourceRefs[index];
+    if (!source || snapshot.repository !== source.repository || snapshot.revision !== source.revision ||
+        snapshot.fingerprint !== source.fingerprint) throw new Error('Frozen source snapshot identity changed');
+    await preserved(snapshot, { allowSecondaryUntracked: index > 0 });
+  }
 }
 
 export async function assertFrozenReconciliation(root, state, candidate, iteration) {
@@ -41,9 +81,7 @@ export async function assertFrozenReconciliation(root, state, candidate, iterati
       stored.iterationId !== iteration.id || stored.candidateId !== candidate.id) throw new Error('Frozen source reconciliation belongs to another candidate');
   const manifest = JSON.parse(await fs.readFile(candidate.manifestPath, 'utf8'));
   if (digest(manifest) !== candidate.manifestHash) throw new Error('Frozen candidate manifest changed');
-  if (candidate.preservedSources?.length !== candidate.sourceRefs.length)
-    throw new Error('Frozen candidate lacks preserved source snapshots');
-  for (const snapshot of candidate.preservedSources ?? []) await preserved(snapshot);
+  await preservedSources(candidate.sourceRefs, candidate.preservedSources);
   for (const item of stored.artifacts) await artifact(item.path, item);
   const operation = await fs.readFile(stored.operationEvidence.path);
   if (sha(operation) !== stored.operationEvidence.sha256) throw new Error('Feature operation evidence changed');
@@ -73,7 +111,7 @@ export async function reconcileFrozenSource(root, input = {}, args = {}) {
     if (previous && (previous.operationEvidence.sha256 !== sha(evidenceBytes) || previous.provenance.sha256 !== sha(provenanceBytes)))
       throw new Error('Existing frozen candidate operation/provenance differs; use a new delivery candidate');
     const source = candidate.sourceRefs;
-    if (source.length !== 1 || source[0].revision !== evidence.sourceRefs.boss ||
+    if (!source.length || source[0].revision !== evidence.sourceRefs.boss ||
         !sameSources(iteration.sourceRefs, source)) throw new Error('Operation does not identify the frozen source');
     const repository = source[0].repository;
     const driver = input.driverPath;
@@ -116,8 +154,7 @@ export async function reconcileFrozenSource(root, input = {}, args = {}) {
       buildCheckpointId: input.buildCheckpointId, launchCheckpointId: input.launchCheckpointId,
       authorityRef: input.authorityRef, reason: input.reason, recordedAt: now()
     };
-    if (candidate.preservedSources?.length !== source.length) throw new Error('Frozen source snapshots are incomplete');
-    for (const snapshot of candidate.preservedSources) await preserved(snapshot);
+    await preservedSources(source, candidate.preservedSources);
     const file = path.join(root, 'source-reconciliations', `${candidateId}-${sha(Buffer.from(JSON.stringify(record)))}.json`);
     await immutableJson(file, record);
     const saved = { ...record, path: file, sha256: sha(await fs.readFile(file)) };

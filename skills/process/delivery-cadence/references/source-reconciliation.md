@@ -115,3 +115,14 @@ If source inputs or authority documents change after reconciliation, collect new
 evidence before promotion. This operation does not merge, rebase, reset or edit
 any checkout, alter firstWorkAt/history/candidate receipts, reclassify dependency,
 change KBD authority or reconcile publication debt.
+
+## Frozen artifact with multiple sources
+
+`candidate reconcile-frozen` preserves the complete ordered candidate source list.
+The first source is the frozen application source named by operation evidence and
+must have no tracked patch or untracked files. Secondary sources also require an
+empty tracked patch. Their preserved untracked files are admissible only when the
+saved and current paths are regular files with identical bytes and the existing
+full source fingerprint still matches. Added, missing, linked, altered, or
+reordered sources are refused. This is not a dirty-source bypass and does not
+exclude application payload, skills, or assets.
