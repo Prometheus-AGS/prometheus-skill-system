@@ -118,3 +118,6 @@ site/docs-catalog/
 
 # Local instruction-install recovery receipts
 .prometheus/recovery/
+__pycache__/
+*.pyc
+*.pyo

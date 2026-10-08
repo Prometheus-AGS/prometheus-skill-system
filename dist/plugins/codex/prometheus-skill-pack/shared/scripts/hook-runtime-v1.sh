@@ -179,4 +179,7 @@ fi
 [[ -n "$HARNESS" ]] || fail "MISSING_HARNESS" "harness is required"
 command -v "$DISPATCHER_INTERPRETER" >/dev/null 2>&1 || \
   fail "MISSING_INTERPRETER" "the dispatcher interpreter is not installed on this host"
+# Retained bundles may predate dispatcher-level bytecode suppression. Enforce
+# the immutable-payload rule here, overriding any inherited setting.
+export PYTHONDONTWRITEBYTECODE=1
 exec "$DISPATCHER_INTERPRETER" "$DISPATCHER" --hook "$HOOK_ID" --harness "$HARNESS"

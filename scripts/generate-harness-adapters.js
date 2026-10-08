@@ -220,7 +220,7 @@ const diskRuntimeFiles = [];
 function collectFiles(directory, relativeRoot, result) {
   if (!fs.existsSync(directory)) return;
   for (const name of fs.readdirSync(directory).sort()) {
-    if (['tests', 'fixtures', 'generated'].includes(name)) continue;
+    if (['tests', 'fixtures', 'generated', '__pycache__'].includes(name) || /\.py[co]$/.test(name)) continue;
     const absolute = path.join(directory, name);
     const relative = path.posix.join(relativeRoot, name);
     const stat = fs.lstatSync(absolute);

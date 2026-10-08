@@ -63,7 +63,7 @@ mkdir -p "$PLUGIN_ROOT"
 # all target receipts and can legitimately take tens of seconds on a busy host.
 LOCK_PID_FILE="$LOCK/pid"
 acquired=false
-for _ in $(seq 1 600); do
+for _ in $(seq 1 3000); do
   if mkdir "$LOCK" 2>/dev/null; then
     printf '%s\n' "$$" >"$LOCK_PID_FILE" 2>/dev/null || true
     acquired=true
@@ -106,7 +106,7 @@ RUNNER="$PLUGIN_ROOT/runtime/v1/run-hook"
 # Launched by explicit interpreter, not by its executable bit. The runner is a
 # copy of a payload entry the manifest records as executable, and a volume
 # that cannot represent that bit must not be able to veto running it.
-if [[ -f "$RUNNER" ]] && bash "$RUNNER" --bundle "$EXPECTED_BUNDLE" --resolve-only >/dev/null 2>&1; then
+if [[ ! -f "$PLUGIN_ROOT/pointers/activation.pending.json" && -f "$RUNNER" ]] && bash "$RUNNER" --bundle "$EXPECTED_BUNDLE" --resolve-only >/dev/null 2>&1; then
   exit 0
 fi
 
@@ -115,7 +115,7 @@ fi
 # one from a child would deadlock against its own parent -- so the lock is
 # declared held for the duration of the call.
 PROMETHEUS_STORE_LOCK_HELD=1 \
-node "$INSTALLER" \
+node "$INSTALLER" --bootstrap \
   --source-root "$SOURCE_ROOT" \
   --plugin-root "$PLUGIN_ROOT" \
   --home "$HOME" \
