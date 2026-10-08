@@ -114,6 +114,10 @@ try:
         if not source.is_dir(): raise Blocked('missing generated payload: ' + str(source))
         cache = owned / ('payload-' + client)
         shutil.copytree(source, cache, symlinks=True)
+        candidate_relative = pathlib.Path('bin') / (sys.platform + '-' + os.uname().machine) / 'prometheus-hook'
+        candidate = cache / candidate_relative
+        candidate.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(binary, candidate); candidate.chmod(0o755)
         store = owned / ('store-' + client)
         client_home, child = harness_environment(client, cache, store)
         installer = cache / 'scripts/install-plugin-generation.js'
@@ -137,7 +141,7 @@ try:
         require(len(hooks) == 3, 'packaged hooks must declare all three learning entrypoints')
         for dispatch in ('shell', 'compiled'):
             compiled = store / 'runtime/v1/prometheus-hook'
-            if dispatch == 'compiled': shutil.copy2(binary, compiled); compiled.chmod(0o755)
+            if dispatch == 'compiled': shutil.copy2(generation / candidate_relative, compiled); compiled.chmod(0o755)
             elif compiled.exists(): compiled.unlink()
             for value in (None, '0'):
                 run_env = dict(child, PROMETHEUS_HARNESS=harness)
@@ -179,6 +183,15 @@ try:
         after = snapshot(generation)
         require(before == after, 'immutable generation bytes/modes changed')
         call(command + ['--verify'], child, client + '-actual-verification-after-hooks')
+        coverage = json.loads(call(command + ['--reviewed-coverage'], child,
+            client + '-actual-reviewed-coverage-after-hooks').stdout)
+        require(coverage['generation'] == generation_id and coverage['generationDigest'] == 'sha256:' + generation_id,
+            'reviewed coverage is not bound to the installed generation')
+        require(coverage['manifestDigest'] == 'sha256:' + hashlib.sha256((generation / 'manifest.json').read_bytes()).hexdigest(),
+            'reviewed coverage is not bound to the signed manifest')
+        require(coverage['inventory'] == json.loads((generation / 'reviewed-skill-closures.json').read_text()),
+            'reviewed coverage differs from the installed closure inventory')
+        require(coverage['targetReceipts'], 'reviewed coverage omitted verified target receipts')
         all_trees.append(dict(client=client, generation=str(generation), before=before, after=after))
         # A real unprotected local import demonstrates that the immutable verifier
         # rejects cache contamination. This is separate from the historical hook control.
@@ -199,6 +212,32 @@ try:
     installed = call(command, child, 'historical-generation-install')
     generation = store / 'generations' / installed.stdout.strip().splitlines()[-1]
     bundle = json.loads((generation / 'manifest.json').read_text())['bundleId']
+    retained_before = snapshot(generation)
+    require(not any('__pycache__' in n or n.endswith('.pyc') for n in retained_before), 'historical input already contains bytecode')
+    # Run the unchanged historical dispatcher directly through each current
+    # stable runner. Bypass hook-entry so its own protection cannot mask a
+    # missing runner-level guarantee, and retain the original runtime for the
+    # subsequent unprotected historical control.
+    for dispatch in ('shell', 'compiled'):
+        for harness in ('claude-code', 'codex'):
+            for value in (None, '0'):
+                suffix = 'retained-' + dispatch + '-' + harness + '-' + (value or 'unset')
+                run_env = dict(child, PROMETHEUS_HARNESS=harness)
+                if value is not None: run_env['PYTHONDONTWRITEBYTECODE'] = value
+                payload = dict(cwd=str(project), agent_type='implementer', agent_id=suffix,
+                    session_id=suffix, turn_id=suffix,
+                    last_assistant_message='LESSON: ' + suffix + ' paths: src/retained.py')
+                runner = [tools / 'bash', full / 'shared/scripts/hook-runtime-v1.sh'] if dispatch == 'shell' else [binary, 'run']
+                for hook in ('subagentstop-learning', 'subagentstart-learning'):
+                    result = call(runner + ['--bundle', bundle, '--hook', hook, '--harness', harness],
+                        run_env, suffix + '-' + hook, json.dumps(payload), cwd=project)
+                    if hook == 'subagentstart-learning':
+                        require('additionalContext' in result.stdout, suffix + ': real role recall was silent')
+                require(suffix in (owned / 'log/lessons.jsonl').read_text(), suffix + ': real lesson was not persisted')
+    require(retained_before == snapshot(generation), 'current stable runner mutated retained historical generation')
+    call(command + ['--verify'], child, 'historical-verification-after-current-runners')
+    cases.append(dict(acceptance=['issue-160/retained-dispatcher'], status='PASS',
+        note='unchanged historical dispatcher and wrappers through current shell/compiled runners, both clients, unset/conflicting bytecode settings, real write/recall'))
     payload = json.dumps(dict(cwd=str(project), agent_type='implementer', session_id='historical', last_assistant_message='LESSON: historical control'))
     call([tools / 'node', cache / 'scripts/hook-entry.mjs', '--bundle', bundle, '--hook', 'subagentstop-learning', '--harness', 'codex'], child, 'historical-actual-hook', payload, cwd=project)
     require(any('__pycache__' in n for n in snapshot(generation)), 'historical hook failed to reproduce bytecode contamination')

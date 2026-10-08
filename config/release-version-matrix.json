@@ -1,34 +1,34 @@
 {
   "schemaVersion": 1,
-  "release": "1.12.0",
+  "release": "1.12.1",
   "ownedSurfaces": [
     {
       "path": "package.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
     },
     {
       "path": "package-lock.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
     },
     {
       "path": "package-lock.json",
-      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
+      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
     },
     {
       "path": "site/package.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
     },
     {
       "path": "site/package-lock.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
     },
     {
       "path": "site/package-lock.json",
-      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.0\""
+      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\"releaseVersion\"\\s*:\\s*\"1\\.12\\.0\""
+      "pattern": "\"releaseVersion\"\\s*:\\s*\"1\\.12\\.1\""
     },
     {
       "path": "skill-system.json",
@@ -80,27 +80,27 @@
     },
     {
       "path": "config/prometheus-exec-component.json",
-      "pattern": "\"release\"\\s*:\\s*\"1\\.12\\.0\""
+      "pattern": "\"release\"\\s*:\\s*\"1\\.12\\.1\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.toml",
-      "pattern": "\\[workspace\\.package\\]\\s*version\\s*=\\s*\"1\\.12\\.0\""
+      "pattern": "\\[workspace\\.package\\]\\s*version\\s*=\\s*\"1\\.12\\.1\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-agents\"\\s*version\\s*=\\s*\"1\\.12\\.0\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-agents\"\\s*version\\s*=\\s*\"1\\.12\\.1\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cedar\"\\s*version\\s*=\\s*\"1\\.12\\.0\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cedar\"\\s*version\\s*=\\s*\"1\\.12\\.1\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cli\"\\s*version\\s*=\\s*\"1\\.12\\.0\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cli\"\\s*version\\s*=\\s*\"1\\.12\\.1\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-learn\"\\s*version\\s*=\\s*\"1\\.12\\.0\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-learn\"\\s*version\\s*=\\s*\"1\\.12\\.1\""
     },
     {
       "path": "skills/ui-ux/.claude-plugin/plugin.json",

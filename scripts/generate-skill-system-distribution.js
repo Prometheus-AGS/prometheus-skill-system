@@ -24,12 +24,14 @@ const contract = readSkillSystem(sourceRoot);
 // The paths this generator owns, as repo-relative paths; directories end in '/'.
 // scripts/generated-paths.mjs asks for them with --list-outputs, so the set of
 // generated paths is derived from this emitter instead of being listed twice.
-const outputPaths = normalizeGeneratedPaths([
-  [contract.outputs.claudePackage, true],
-  [contract.outputs.codexPackage, true],
-  [contract.outputs.claudeMarketplace, false],
-  [contract.outputs.codexMarketplace, false],
-].map(([output, directory]) => (directory ? `${output.replace(/\/+$/, '')}/` : output)));
+const outputPaths = normalizeGeneratedPaths(
+  [
+    [contract.outputs.claudePackage, true],
+    [contract.outputs.codexPackage, true],
+    [contract.outputs.claudeMarketplace, false],
+    [contract.outputs.codexMarketplace, false],
+  ].map(([output, directory]) => (directory ? `${output.replace(/\/+$/, '')}/` : output))
+);
 
 if (process.argv.includes('--list-outputs')) {
   process.stdout.write(`${outputPaths.join('\n')}\n`);
@@ -58,7 +60,7 @@ function copy(source, destination) {
   if (stat.isDirectory()) {
     fs.mkdirSync(destination, { recursive: true, mode: stat.mode & 0o7777 });
     for (const name of fs.readdirSync(source).sort()) {
-      if (['.git', 'node_modules', 'target', '.kbd-orchestrator'].includes(name)) continue;
+      if (['.git', 'node_modules', 'target', '.kbd-orchestrator', '__pycache__'].includes(name) || /\.py[co]$/.test(name)) continue;
       copy(path.join(source, name), path.join(destination, name));
     }
     fs.chmodSync(destination, stat.mode & 0o7777);
@@ -154,13 +156,16 @@ function copyHookTargets(root, hooksSource) {
   // Stop at whitespace as well as the closing quote: Codex entries are one command
   // string, so the plugin-root path is followed by its arguments, not a quote.
   const targets = new Set(
-    [...hooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"\s]+)/g)].map(match => path.posix.normalize(match[1]))
+    [...hooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"\s]+)/g)].map(match =>
+      path.posix.normalize(match[1])
+    )
   );
   for (const target of [...targets].sort()) {
     if (target.startsWith('../') || path.posix.isAbsolute(target))
       throw new Error(`${hooksSource} references a path outside the plugin root: ${target}`);
     const source = path.join(sourceRoot, ...target.split('/'));
-    if (!fs.existsSync(source)) throw new Error(`${hooksSource} references a missing file: ${target}`);
+    if (!fs.existsSync(source))
+      throw new Error(`${hooksSource} references a missing file: ${target}`);
     copy(source, path.join(root, ...target.split('/')));
   }
 }
@@ -170,20 +175,27 @@ function copyHookTargets(root, hooksSource) {
 // unrelated shared fixtures or relying on a source checkout beside the plugin.
 function copyCadenceRuntimeFiles(root) {
   if (!skills.some(skill => skill.name === 'delivery-cadence')) return;
-  const pending = ['scripts/distribute-delivery-cadence.mjs', 'shared/scripts/cadence-kbd-adapter.mjs', 'shared/scripts/cadence-karpathy-adapter.mjs'];
+  const pending = [
+    'scripts/distribute-delivery-cadence.mjs',
+    'shared/scripts/cadence-kbd-adapter.mjs',
+    'shared/scripts/cadence-karpathy-adapter.mjs',
+  ];
   const recorder = 'shared/scripts/record-progress.mjs';
   if (fs.existsSync(path.join(sourceRoot, recorder))) pending.push(recorder);
   const found = new Set();
   while (pending.length) {
     const relative = pending.pop();
     if (found.has(relative)) continue;
-    if (relative.startsWith('../') || path.posix.isAbsolute(relative)) throw new Error(`Cadence dependency escapes package: ${relative}`);
+    if (relative.startsWith('../') || path.posix.isAbsolute(relative))
+      throw new Error(`Cadence dependency escapes package: ${relative}`);
     const file = path.join(sourceRoot, ...relative.split('/'));
     if (!fs.existsSync(file)) throw new Error(`Cadence runtime dependency is missing: ${relative}`);
     found.add(relative);
     copy(file, path.join(root, ...relative.split('/')));
     const source = fs.readFileSync(file, 'utf8');
-    for (const match of source.matchAll(/^\s*(?:import|export)\s+(?:[^'";]*?\sfrom\s*)?['"](\.[^'"]+)['"]/gm)) {
+    for (const match of source.matchAll(
+      /^\s*(?:import|export)\s+(?:[^'";]*?\sfrom\s*)?['"](\.[^'"]+)['"]/gm
+    )) {
       pending.push(path.posix.normalize(path.posix.join(path.posix.dirname(relative), match[1])));
     }
   }
@@ -205,6 +217,10 @@ function copyHookRuntime(root, hooksSource) {
   copy(
     path.join(sourceRoot, 'scripts/check-plugin-source.js'),
     path.join(root, 'scripts/check-plugin-source.js')
+  );
+  copy(
+    path.join(sourceRoot, 'scripts/retire-stale-plugin-caches.mjs'),
+    path.join(root, 'scripts/retire-stale-plugin-caches.mjs')
   );
   // The whole directory, not a name list: install-plugin-generation.js and hook-entry.mjs import
   // several modules from scripts/lib, and a list drifts the moment either gains a dependency.

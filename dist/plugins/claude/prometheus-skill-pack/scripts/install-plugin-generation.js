@@ -142,6 +142,7 @@ function parseArgs(argv) {
     home: os.homedir(),
     verify: false,
     reviewedCoverage: false,
+    bootstrap: false,
     rollback: false,
     uninstall: false,
     pruneObsolete: false,
@@ -157,6 +158,7 @@ function parseArgs(argv) {
     const value = argv[index];
     if (value === '--verify') args.verify = true;
     else if (value === '--reviewed-coverage') args.reviewedCoverage = true;
+    else if (value === '--bootstrap') args.bootstrap = true;
     else if (value === '--rollback') args.rollback = true;
     else if (value === '--uninstall') args.uninstall = true;
     else if (value === '--prune-obsolete') args.pruneObsolete = true;
@@ -169,8 +171,7 @@ function parseArgs(argv) {
     else if (value === '--plugin-root') {
       args.pluginRoot = argv[++index];
       if (!args.pluginRoot) fail('missing value for --plugin-root');
-    }
-    else if (value === '--home') args.home = argv[++index];
+    } else if (value === '--home') args.home = argv[++index];
     else if (value === '--signing-key') args.signingKey = argv[++index];
     else if (value === '--trust-store') args.trustStore = argv[++index];
     else fail(`unknown argument: ${value}`);
@@ -180,7 +181,9 @@ function parseArgs(argv) {
       fail(`missing value for --${key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`)}`);
     args[key] = path.resolve(args[key]);
   }
-  args.pluginRoot = path.resolve(args.pluginRoot ?? path.join(args.home, '.prometheus/plugins/prometheus-skill-pack'));
+  args.pluginRoot = path.resolve(
+    args.pluginRoot ?? path.join(args.home, '.prometheus/plugins/prometheus-skill-pack')
+  );
   args.codexHome = resolveCodexHome(args.home);
   args.signingKey = path.resolve(
     args.signingKey ?? path.join(args.home, '.prometheus/plugin-signing/ed25519-private.pem')
@@ -193,6 +196,9 @@ function parseArgs(argv) {
   }
   if (args.expectedSourceCommit && !/^[a-f0-9]{40,64}$/.test(args.expectedSourceCommit)) {
     fail('invalid value for --expected-source-commit');
+  }
+  if (args.bootstrap && (args.verify || args.reviewedCoverage || args.rollback || args.uninstall || args.pruneObsolete)) {
+    fail('--bootstrap cannot be combined with maintenance operations');
   }
   return args;
 }
@@ -447,7 +453,8 @@ function atomicWrite(file, content, mode = 0o644) {
  * removes stale-holder detection entirely belongs to the compiled dispatcher.
  */
 const STORE_LOCK_DIRECTORY = '.bootstrap-lock';
-const STORE_LOCK_TIMEOUT_MS = 60_000;
+// Full native bootstrap installs every target; allow a cold transaction to finish.
+const STORE_LOCK_TIMEOUT_MS = 300_000;
 
 function sleepSync(milliseconds) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
@@ -690,6 +697,9 @@ const IMPORTED_EVIDENCE_RE =
   /(^|\/)skills\/imported\/[^/]+\/\.kbd-orchestrator\/phases\/[^/]+\/evidence$/;
 
 function isExcludedPayloadEntry(name, sourcePath, repoRoot) {
+  // Build caches are not release inputs. Verification below still rejects any
+  // extra files created inside an installed immutable generation.
+  if (name === '__pycache__' || /\.py[co]$/.test(name)) return true;
   if (name === 'node_modules' || name === 'target' || name === '.git') return true;
   const relative = path.relative(repoRoot, sourcePath).split(path.sep).join('/');
   return IMPORTED_EVIDENCE_RE.test(relative);
@@ -1675,7 +1685,12 @@ function installLinkTarget(targetRoot, skill, pluginRoot) {
 const COPY_OWNERS = new Map();
 const COPY_OWNERSHIP_DIAGNOSTICS = new Set();
 
-function isManagedCopy(destination, target, pluginRoot, trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')) {
+function isManagedCopy(
+  destination,
+  target,
+  pluginRoot,
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
+) {
   if (!fs.lstatSync(destination, { throwIfNoEntry: false })?.isDirectory()) return false;
   const marker = path.join(destination, '.prometheus-generation');
   const markerStat = fs.lstatSync(marker, { throwIfNoEntry: false });
@@ -1689,12 +1704,21 @@ function isManagedCopy(destination, target, pluginRoot, trustStorePath = path.jo
       if (!COPY_OWNERS.has(key)) {
         const store = fs.realpathSync(path.join(pluginRoot, 'generations'));
         const resolved = fs.realpathSync(generationPath);
-        if (!isWithin(store, resolved) || store === resolved) fail('owner generation escapes store');
+        if (!isWithin(store, resolved) || store === resolved)
+          fail('owner generation escapes store');
         verifyGeneration(generationPath, generation, trustStorePath);
-        COPY_OWNERS.set(key, new Set(collectSkills(path.join(generationPath, 'skills'))
-          .flatMap(skill => [skill.name, `prometheus-${skill.name}`])));
+        COPY_OWNERS.set(
+          key,
+          new Set(
+            collectSkills(path.join(generationPath, 'skills')).flatMap(skill => [
+              skill.name,
+              `prometheus-${skill.name}`,
+            ])
+          )
+        );
       }
-      if (!COPY_OWNERS.get(key).has(path.basename(destination))) fail('entry is not a skill of its owner generation');
+      if (!COPY_OWNERS.get(key).has(path.basename(destination)))
+        fail('entry is not a skill of its owner generation');
       return true;
     } catch (error) {
       if (!COPY_OWNERSHIP_DIAGNOSTICS.has(destination)) {
@@ -1704,12 +1728,17 @@ function isManagedCopy(destination, target, pluginRoot, trustStorePath = path.jo
       return false;
     }
   }
-  if (target === '.codex/skills' &&
-      fs.lstatSync(path.join(destination, '.prometheus-pack'), { throwIfNoEntry: false })?.isFile()) {
+  if (
+    target === '.codex/skills' &&
+    fs.lstatSync(path.join(destination, '.prometheus-pack'), { throwIfNoEntry: false })?.isFile()
+  ) {
     const source = fs.readFileSync(path.join(destination, '.prometheus-pack'), 'utf8').trim();
     const relative = source.startsWith('source=') ? source.slice(7) : '';
-    return relative.startsWith('skills/') && path.posix.normalize(relative) === relative &&
-      path.posix.basename(relative) === path.basename(destination);
+    return (
+      relative.startsWith('skills/') &&
+      path.posix.normalize(relative) === relative &&
+      path.posix.basename(relative) === path.basename(destination)
+    );
   }
   if (target === '.minimax/skills') {
     try {
@@ -1724,14 +1753,29 @@ function isManagedCopy(destination, target, pluginRoot, trustStorePath = path.jo
   return false;
 }
 
-function copySkill(source, targetRoot, target, skill, generation, projection, pluginRoot, trustStorePath) {
+function copySkill(
+  source,
+  targetRoot,
+  target,
+  skill,
+  generation,
+  projection,
+  pluginRoot,
+  trustStorePath
+) {
   ensureDirectory(targetRoot);
   let destination = path.join(targetRoot, skill.name);
-  if (fs.existsSync(destination) && !isManagedCopy(destination, target, pluginRoot, trustStorePath)) {
+  if (
+    fs.existsSync(destination) &&
+    !isManagedCopy(destination, target, pluginRoot, trustStorePath)
+  ) {
     recordCollision(targetRoot, skill, destination);
     destination = path.join(targetRoot, `prometheus-${skill.name}`);
   }
-  if (fs.existsSync(destination) && !isManagedCopy(destination, target, pluginRoot, trustStorePath)) {
+  if (
+    fs.existsSync(destination) &&
+    !isManagedCopy(destination, target, pluginRoot, trustStorePath)
+  ) {
     fail(`skill target collision: ${destination}`);
   }
   const temporary = path.join(targetRoot, `.${path.basename(destination)}.${process.pid}.tmp`);
@@ -1820,8 +1864,15 @@ function targetDestination(targetRoot, target, skill, pluginRoot, trustStorePath
   return path.join(targetRoot, `prometheus-${skill.name}`);
 }
 
-function verifyTargets(home, pluginRoot, generationPath, generation, skills, targets = TARGETS,
-  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')) {
+function verifyTargets(
+  home,
+  pluginRoot,
+  generationPath,
+  generation,
+  skills,
+  targets = TARGETS,
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
+) {
   for (const target of targets) {
     const targetRoot = targetRootFor(home, target);
     for (const skill of skills) {
@@ -2109,6 +2160,18 @@ function verifyHookRuntime(
   if (manifestExecutableLookup(manifest)('shared/scripts/hook-runtime-v1.sh') !== true) {
     fail('stable hook runtime v1 is not recorded as executable');
   }
+  const executable = manifestExecutableLookup(manifest);
+  for (const name of ['prometheus-hook', 'prometheus-hook.exe']) {
+    const installed = path.join(pluginRoot, 'runtime/v1', name);
+    const stat = fs.lstatSync(installed, { throwIfNoEntry: false });
+    if (!stat) continue; // The verified shell runner is a supported fallback.
+    const candidates = manifest.files.filter(entry =>
+      entry.path.startsWith('bin/') && path.posix.basename(entry.path) === name &&
+      executable(entry.path) === true);
+    if (!stat.isFile() || !candidates.some(entry => entry.sha256 === sha256(fs.readFileSync(installed)))) {
+      fail(`compiled hook runtime is not a signed payload executable: ${name}`);
+    }
+  }
   const resolved = resolveBundleIndex(pluginRoot, manifest.bundleId, 'bundle index');
   const indexed = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
   if (
@@ -2162,6 +2225,11 @@ function validateBundleIndex(pluginRoot, generationPath, manifest, trustStorePat
  * a payload with no binary for this target is slower, not broken.
  */
 function installHookDispatcher(pluginRoot, generationPath, manifest) {
+  // A dispatcher from a previous generation must not silently survive an
+  // activation whose signed payload ships no matching executable.
+  for (const name of ['prometheus-hook', 'prometheus-hook.exe']) {
+    fs.rmSync(path.join(pluginRoot, 'runtime/v1', name), { force: true });
+  }
   const binRoot = path.join(generationPath, 'bin');
   if (!fs.existsSync(binRoot)) return null;
   const executableOf = manifestExecutableLookup(manifest);
@@ -2199,8 +2267,13 @@ function installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath
   verifyHookRuntime(pluginRoot, manifest, trustStorePath);
 }
 
-function uninstall(home, pluginRoot, targets = TARGETS, removePluginRoot = true,
-  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')) {
+function uninstall(
+  home,
+  pluginRoot,
+  targets = TARGETS,
+  removePluginRoot = true,
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
+) {
   for (const target of targets) {
     const targetRoot = targetRootFor(home, target);
     if (!fs.existsSync(targetRoot)) continue;
@@ -2212,7 +2285,10 @@ function uninstall(home, pluginRoot, targets = TARGETS, removePluginRoot = true,
         isWithin(pluginRoot, path.resolve(targetRoot, fs.readlinkSync(destination)))
       ) {
         fs.unlinkSync(destination);
-      } else if (stat?.isDirectory() && isManagedCopy(destination, target, pluginRoot, trustStorePath)) {
+      } else if (
+        stat?.isDirectory() &&
+        isManagedCopy(destination, target, pluginRoot, trustStorePath)
+      ) {
         fs.rmSync(destination, { recursive: true, force: true });
       }
     }
@@ -2225,13 +2301,192 @@ function uninstall(home, pluginRoot, targets = TARGETS, removePluginRoot = true,
   return 'uninstalled';
 }
 
+const ACTIVATION_JOURNAL = 'pointers/activation.pending.json';
+
+function assertGenerationContained(pluginRoot, generationPath) {
+  const root = fs.realpathSync(path.join(pluginRoot, 'generations'));
+  const candidate = fs.realpathSync(generationPath);
+  if (candidate === root || !isWithin(root, candidate)) {
+    fail('activation generation escapes generations directory');
+  }
+}
+
+// Authenticate the version even when an old payload is contaminated with
+// bytecode. This permits repair, but never authorizes execution of that payload.
+function authenticatedManifest(pluginRoot, target, trustStore) {
+  if (!POINTER_PATTERN.test(target)) fail('invalid active generation target');
+  const directory = path.join(pluginRoot, target);
+  assertGenerationContained(pluginRoot, directory);
+  const manifest = verifyGenerationIdentity(directory, path.basename(target));
+  const signature = JSON.parse(fs.readFileSync(path.join(directory, MANIFEST_SIGNATURE), 'utf8'));
+  if (verifySignedValue(manifest, signature, trustStore) !== manifest.signerKeyId) {
+    fail('active manifest signer differs from its signature');
+  }
+  return manifest;
+}
+
+function assertNoDowngrade(args, incomingVersion) {
+  const active = currentTarget(args.pluginRoot, 'current');
+  if (!active) return;
+  const manifest = authenticatedManifest(args.pluginRoot, active, args.trustStore);
+  if (compareVersions(incomingVersion, manifest.sourceVersion) < 0) {
+    fail(
+      `DOWNGRADE_REFUSED: ${args.bootstrap ? 'hook bootstrap' : 'install'} ${incomingVersion} ` +
+        `is older than active ${manifest.sourceVersion}; refresh the native plugin and restart its session. ` +
+        'Use explicit --rollback for an intentional rollback.'
+    );
+  }
+}
+
+function verifyPointerLink(pluginRoot, name, target) {
+  if (!target) return;
+  try {
+    if (
+      fs.realpathSync(path.join(pluginRoot, name)) ===
+      fs.realpathSync(path.join(pluginRoot, target))
+    )
+      return;
+  } catch {
+    /* Missing and wrong links require the same recovery. */
+  }
+  fail(`activation pointer/link mismatch: ${name}; reinstall to recover the verified pointer`);
+}
+
+// All receipts are signed before publishing the journal. Recovery can finish
+// without a private key, and cannot turn edited journal paths into authority.
+function activationRecord(args, manifest, identity, targets, previous, rollback = false) {
+  const receipts = manifest.targetPayloads
+    .filter(entry => targets.includes(entry.target))
+    .map(entry => {
+      const body = targetReceipt(manifest, entry);
+      if (rollback)
+        return JSON.parse(
+          fs.readFileSync(receiptFile(args.pluginRoot, manifest.generation, entry.target), 'utf8')
+        );
+      return { body, signature: signValue(body, identity) };
+    });
+  const body = {
+    schemaVersion: 1,
+    operation: rollback ? 'rollback' : 'install',
+    generation: manifest.generation,
+    previous,
+    home: args.home,
+    codexHome: args.codexHome,
+    targets,
+    receipts,
+  };
+  return { body, signature: signValue(body, identity) };
+}
+
+function completeActivation(args, record, contract) {
+  verifySignedValue(record.body, record.signature, args.trustStore);
+  const body = record.body;
+  if (
+    body.schemaVersion !== 1 ||
+    !['install', 'rollback'].includes(body.operation) ||
+    !/^[a-f0-9]{64}$/.test(body.generation) ||
+    (body.previous !== null && !POINTER_PATTERN.test(body.previous)) ||
+    body.home !== args.home ||
+    body.codexHome !== args.codexHome ||
+    !Array.isArray(body.targets) ||
+    body.targets.length === 0 ||
+    new Set(body.targets).size !== body.targets.length ||
+    body.targets.some(target => !TARGETS.includes(target))
+  ) {
+    fail('activation journal context is invalid; use the original home and CODEX_HOME to recover');
+  }
+  const generationPath = path.join(args.pluginRoot, 'generations', body.generation);
+  assertGenerationContained(args.pluginRoot, generationPath);
+  const manifest = verifyGeneration(generationPath, body.generation, args.trustStore);
+  assertMinimumActiveVersion(manifest.sourceVersion, contract, 'pending activation');
+  if (!Array.isArray(body.receipts) || body.receipts.length !== body.targets.length) {
+    fail('activation journal receipts are incomplete');
+  }
+  for (const target of body.targets) {
+    const receipt = body.receipts.find(entry => entry.body?.target === target);
+    const expected = targetReceipt(
+      manifest,
+      manifest.targetPayloads.find(entry => entry.target === target)
+    );
+    if (
+      !receipt ||
+      canonicalJson(receipt.body) !== canonicalJson(expected) ||
+      verifySignedValue(receipt.body, receipt.signature, args.trustStore) !== manifest.signerKeyId
+    ) {
+      fail(`activation journal receipt is invalid: ${target}`);
+    }
+  }
+  validateBundleIndex(args.pluginRoot, generationPath, manifest, args.trustStore);
+  const skills = collectSkills(path.join(generationPath, 'skills'));
+  installTargets(
+    args.home,
+    args.pluginRoot,
+    generationPath,
+    body.generation,
+    skills,
+    body.targets,
+    manifest,
+    args.trustStore
+  );
+  verifyTargets(
+    args.home,
+    args.pluginRoot,
+    generationPath,
+    body.generation,
+    skills,
+    body.targets,
+    args.trustStore
+  );
+  assertNoCollisions(false);
+  for (const receipt of body.receipts) {
+    atomicWrite(
+      receiptFile(args.pluginRoot, body.generation, receipt.body.target),
+      canonicalJson(receipt),
+      0o600
+    );
+  }
+  installHookRuntime(args.pluginRoot, generationPath, manifest, args.trustStore);
+  if (body.previous)
+    setActivationPointer(args.pluginRoot, 'previous', body.previous, body.previous);
+  setActivationPointer(
+    args.pluginRoot,
+    'current',
+    `generations/${body.generation}`,
+    `generations/${body.generation}`
+  );
+  createStableDispatchers(args.pluginRoot);
+  verifyActive(args.pluginRoot, args.trustStore, contract, body.targets, args.home, true);
+  fs.unlinkSync(path.join(args.pluginRoot, ACTIVATION_JOURNAL));
+  syncDirectory(path.join(args.pluginRoot, 'pointers'));
+  return body.generation;
+}
+
+function recoverActivation(args, contract) {
+  const journal = path.join(args.pluginRoot, ACTIVATION_JOURNAL);
+  if (fs.existsSync(journal))
+    completeActivation(args, JSON.parse(fs.readFileSync(journal, 'utf8')), contract);
+}
+
+function activate(args, manifest, identity, targets, contract, rollback = false) {
+  const active = currentTarget(args.pluginRoot, 'current');
+  const target = `generations/${manifest.generation}`;
+  const previous = active !== target ? active : currentTarget(args.pluginRoot, 'previous');
+  const record = activationRecord(args, manifest, identity, targets, previous, rollback);
+  atomicWrite(path.join(args.pluginRoot, ACTIVATION_JOURNAL), canonicalJson(record), 0o600);
+  return completeActivation(args, record, contract);
+}
+
 function verifyActive(
   pluginRoot,
   trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json'),
   contract = null,
   targets = TARGETS,
-  home = null
+  home = null,
+  completingActivation = false
 ) {
+  if (!completingActivation && fs.existsSync(path.join(pluginRoot, ACTIVATION_JOURNAL))) {
+    fail('activation is pending; reinstall with the original home and CODEX_HOME to recover');
+  }
   const target = currentTarget(pluginRoot, 'current');
   if (!target) fail('no active plugin generation');
   const resolved = path.resolve(pluginRoot, target);
@@ -2239,56 +2494,39 @@ function verifyActive(
     fail('active pointer escapes generations directory');
   const manifest = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
   if (contract) assertMinimumActiveVersion(manifest.sourceVersion, contract, 'active generation');
-  // The pointer file is authoritative, but the stable projections resolve
-  // THROUGH the convenience link. If a swap was interrupted after the pointer
-  // moved and before the link was recreated, say so -- otherwise the first
-  // projection to be read fails with a bare ENOENT naming an arbitrary script.
-  const currentLink = path.join(pluginRoot, 'current');
-  if (!fs.existsSync(path.join(currentLink, 'manifest.json'))) {
-    fail(
-      'the active generation pointer is set but its convenience link is missing or broken; ' +
-        'an interrupted swap is completed by the next install or rollback'
-    );
-  }
+  verifyPointerLink(pluginRoot, 'current', target);
+  verifyPointerLink(pluginRoot, 'previous', currentTarget(pluginRoot, 'previous'));
   verifyStableDispatchers(pluginRoot, manifest);
   verifyHookRuntime(pluginRoot, manifest, trustStorePath);
   verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets);
   // Receipts certify portable payload identity. The selected root's actual
   // projection and per-copy ownership marker must agree as well.
   if (home !== null) {
-    verifyTargets(home, pluginRoot, resolved, manifest.generation,
-      collectSkills(path.join(resolved, 'skills')), targets, trustStorePath);
+    verifyTargets(
+      home,
+      pluginRoot,
+      resolved,
+      manifest.generation,
+      collectSkills(path.join(resolved, 'skills')),
+      targets,
+      trustStorePath
+    );
   }
   return manifest;
 }
 
-function rollback(pluginRoot, home, trustStorePath, contract, targets = TARGETS) {
-  return withStoreLock(pluginRoot, () =>
-    rollbackLocked(pluginRoot, home, trustStorePath, contract, targets)
-  );
-}
-
-function rollbackLocked(pluginRoot, home, trustStorePath, contract, targets) {
-  recoverPendingLinks(pluginRoot);
-  const active = currentTarget(pluginRoot, 'current');
-  const previous = currentTarget(pluginRoot, 'previous');
-  if (!active || !previous) fail('rollback requires current and previous generations');
-  const generationPath = path.resolve(pluginRoot, previous);
-  if (!isWithin(path.join(pluginRoot, 'generations'), generationPath))
-    fail('previous pointer escapes generations directory');
-  const manifest = verifyGeneration(generationPath, path.basename(previous), trustStorePath);
-  assertMinimumActiveVersion(manifest.sourceVersion, contract, 'rollback generation');
-  const skills = collectSkills(path.join(generationPath, 'skills'));
-  validateBundleIndex(pluginRoot, generationPath, manifest, trustStorePath);
-  installTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets, manifest, trustStorePath);
-  verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets, trustStorePath);
-  assertNoCollisions(false);
-  installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath);
-  setActivationPointer(pluginRoot, 'current', previous, previous);
-  setActivationPointer(pluginRoot, 'previous', active, active);
-  createStableDispatchers(pluginRoot);
-  verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets);
-  return path.basename(previous);
+function rollback(args, contract, targets = TARGETS) {
+  return withStoreLock(args.pluginRoot, () => {
+    recoverActivation(args, contract);
+    const active = currentTarget(args.pluginRoot, 'current');
+    const previous = currentTarget(args.pluginRoot, 'previous');
+    if (!active || !previous) fail('rollback requires current and previous generations');
+    const generationPath = path.resolve(args.pluginRoot, previous);
+    const manifest = verifyGeneration(generationPath, path.basename(previous), args.trustStore);
+    assertMinimumActiveVersion(manifest.sourceVersion, contract, 'rollback generation');
+    const identity = ensureSigningIdentity(args.signingKey, args.trustStore);
+    return activate(args, manifest, identity, targets, contract, true);
+  });
 }
 
 /**
@@ -2345,6 +2583,10 @@ function assertHookExecutablesResolvable(source) {
 function install(args) {
   const source = args.sourceRoot;
   const contract = readSkillSystem(source);
+  withStoreLock(args.pluginRoot, () => {
+    recoverActivation(args, contract);
+    assertNoDowngrade(args, contract.releaseVersion);
+  });
   assertMinimumActiveVersion(contract.releaseVersion, contract, 'source release');
   const targetDefinitions = targetsById(contract, args.targets);
   const selectedTargets = targetDefinitions.map(target => target.path);
@@ -2568,43 +2810,9 @@ function install(args) {
     // bootstrap uses, and any link swap interrupted by a previous run is
     // completed first so recovery never races a live swap.
     return withStoreLock(args.pluginRoot, () => {
-      recoverPendingLinks(args.pluginRoot);
-      validateBundleIndex(args.pluginRoot, generationPath, manifest, args.trustStore);
-      installTargets(
-        args.home,
-        args.pluginRoot,
-        generationPath,
-        generation,
-        skills,
-        selectedTargets,
-        manifest,
-        args.trustStore
-      );
-      verifyTargets(
-        args.home,
-        args.pluginRoot,
-        generationPath,
-        generation,
-        skills,
-        selectedTargets,
-        args.trustStore
-      );
-      assertNoCollisions(Boolean(args.allowFallback));
-      writeTargetReceipts(args.pluginRoot, manifest, signingIdentity, selectedTargets);
-      installHookRuntime(args.pluginRoot, generationPath, manifest, args.trustStore);
-      const active = currentTarget(args.pluginRoot, 'current');
-      if (active !== `generations/${generation}`) {
-        if (active) setActivationPointer(args.pluginRoot, 'previous', active, active);
-        setActivationPointer(
-          args.pluginRoot,
-          'current',
-          `generations/${generation}`,
-          `generations/${generation}`
-        );
-      }
-      createStableDispatchers(args.pluginRoot);
-      verifyActive(args.pluginRoot, args.trustStore, contract, selectedTargets, args.home);
-      return generation;
+      recoverActivation(args, contract);
+      assertNoDowngrade(args, manifest.sourceVersion);
+      return activate(args, manifest, signingIdentity, selectedTargets, contract);
     });
   } catch (error) {
     fs.rmSync(staging, { recursive: true, force: true });
@@ -2619,9 +2827,11 @@ function copyTargetReferencesGeneration(home, generation) {
     for (const name of fs.readdirSync(targetRoot)) {
       const destination = path.join(targetRoot, name);
       const marker = path.join(destination, '.prometheus-generation');
-      if (fs.lstatSync(destination, { throwIfNoEntry: false })?.isDirectory() &&
-          fs.lstatSync(marker, { throwIfNoEntry: false })?.isFile() &&
-          fs.readFileSync(marker, 'utf8').trim() === generation) {
+      if (
+        fs.lstatSync(destination, { throwIfNoEntry: false })?.isDirectory() &&
+        fs.lstatSync(marker, { throwIfNoEntry: false })?.isFile() &&
+        fs.readFileSync(marker, 'utf8').trim() === generation
+      ) {
         return destination;
       }
     }
@@ -2854,8 +3064,7 @@ function main() {
         selectedTargets,
         args.home
       ).generation;
-    else if (args.rollback)
-      generation = rollback(args.pluginRoot, args.home, args.trustStore, contract, selectedTargets);
+    else if (args.rollback) generation = rollback(args, contract, selectedTargets);
     else if (args.uninstall) {
       generation = uninstall(
         args.home,

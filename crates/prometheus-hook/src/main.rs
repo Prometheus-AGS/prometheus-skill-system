@@ -103,6 +103,9 @@ fn run() -> std::result::Result<ExitCode, (HookError, String)> {
 /// would treat as syntax.
 fn dispatch(resolved: &store::Resolved, hook: &str, harness: &str) -> Result<ExitCode> {
     let status = Command::new(&resolved.interpreter)
+        // Retained dispatchers may predate bytecode suppression. Override the
+        // inherited setting so their Python children preserve signed payloads.
+        .env("PYTHONDONTWRITEBYTECODE", "1")
         .arg(&resolved.dispatcher)
         .arg("--hook")
         .arg(hook)
