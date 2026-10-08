@@ -2422,9 +2422,6 @@ function install(args) {
     }
     stagePluginMetadata(source, staging, contract.releaseVersion, ingest);
     stageReleaseRuntimeSupport(source, staging, ingest);
-    writeReviewedSkillClosures(staging, {
-      sharedRoots: PAYLOAD_ROOTS.filter(root => fs.existsSync(path.join(staging, root))),
-    });
     const executionComponent = stageExecutionComponent(
       source,
       staging,
@@ -2446,6 +2443,12 @@ function install(args) {
         entryCount: skillIndex.entries.length,
       })
     );
+    // The closure inventory covers shared staged roots such as agents and bin.
+    // Generate it only after every staged runtime and index writer has finished,
+    // so its digests become part of the generation's final signed file set.
+    writeReviewedSkillClosures(staging, {
+      sharedRoots: PAYLOAD_ROOTS.filter(root => fs.existsSync(path.join(staging, root))),
+    });
     const release = verifyReleaseManifest(staging, args.expectedBundle, relative => {
       const intent = ingest.intents.get(relative);
       return intent && intent.type === 'file' ? Boolean(intent.executable) : null;

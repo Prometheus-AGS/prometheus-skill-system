@@ -18,7 +18,7 @@
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "168909726230c6110663fcd8d0a9abbf02ef167ed71e8d52795de91f9b129869",
+      "sha256": "a25524aed7a692d41700df6ca51413e7a221c626c330a2f5d582c789cb5e4731",
       "executable": true
     },
     {
@@ -72,8 +72,13 @@
       "executable": false
     },
     {
+      "path": "scripts/lib/reviewed-skill-closures.js",
+      "sha256": "916361077ec009614acc4b2945e74a34b57004b8a92418116b41a8481d6ab74f",
+      "executable": false
+    },
+    {
       "path": "scripts/lib/skill-system.js",
-      "sha256": "301735daf1523a1ea3f682958f8dbe5f281e2b3d598ba57eb97a270a2564dedc",
+      "sha256": "de0b7a4cf210740dd791f714eef495bf7af1b1ab6a9bdc89abcc0c13c3c56807",
       "executable": false
     },
     {
@@ -537,5 +542,5 @@
       "executable": true
     }
   ],
-  "bundleId": "0d4f2720d771577d3a47de89452dd349024e1dfadfe1f6fcbfc88d02856af47b"
+  "bundleId": "5e6bcc6d441b0dd9770beb47a9709a0431f0b2063f4863c03b58c1f97aaa2b73"
 }

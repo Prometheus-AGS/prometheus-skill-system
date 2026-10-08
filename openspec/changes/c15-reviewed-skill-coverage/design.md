@@ -28,7 +28,8 @@ Proposed ownership and interfaces:
 ## Pack closure inventory and full verifier contract
 
 Each staged full generation and each staged mini plugin payload writes
-`reviewed-skill-closures.json` at its payload root. It is public metadata only:
+`reviewed-skill-closures.json` at its payload root after every staged runtime and
+index write, before final manifest collection. It is public metadata only:
 it contains no file body, credential, absolute location, or authorization grant.
 The document uses `prometheus-reviewed-skill-closures-v1`, lowercase
 `sha256:<hex>` digests, and RFC 8785 JSON canonicalization. It contains a sorted
