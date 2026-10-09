@@ -25,6 +25,12 @@ install_codex_memories() {
     bash "$script" --create
 }
 
+# Codex lists every SKILL.md it finds and has no de-duplication, so the catalog
+# must be trimmed in ~/.codex/config.toml; see config/codex-catalog.txt.
+install_codex_catalog() {
+    bash "$REPO_ROOT/scripts/lib/install-codex-catalog.sh" "$REPO_ROOT"
+}
+
 for arg in "$@"; do
     case "$arg" in
         --uninstall) UNINSTALL=true ;;
@@ -231,6 +237,7 @@ install_to_kimi_desktop() {
 install_to_codex() {
     if $UNINSTALL; then
         bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --uninstall
+        bash "$REPO_ROOT/shared/scripts/codex-catalog-config.sh" --uninstall --repo-root "$REPO_ROOT" || true
     fi
 
     # The former WatchPaths agent used a different ownership marker and competed
@@ -301,6 +308,7 @@ else
     # Uninstall does not rewrite user memory policy. Failures follow the same
     # certification/best-effort policy as other installation components.
     install_codex_memories || install_failure "Codex memory policy"
+    install_codex_catalog || install_failure "Codex catalog policy"
 fi
 
 # Deterministic local fixture hook. It is deliberately inert unless both variables

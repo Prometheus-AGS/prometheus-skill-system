@@ -47,6 +47,11 @@
       "executable": false
     },
     {
+      "path": "scripts/lib/install-codex-catalog.sh",
+      "sha256": "209aed7692610fe52caf365fdc18278c5752e48f009152ed4f97572aaf78a512",
+      "executable": true
+    },
+    {
       "path": "scripts/lib/install-codex-memories.sh",
       "sha256": "ac20196757d90a8cadf85b1322c867f1d2ca3d00353e2c59411323ebcd3a3952",
       "executable": false
@@ -109,6 +114,11 @@
     {
       "path": "shared/scripts/cedar-skill-gate.sh",
       "sha256": "9f48546001c6236ceff704a3375fdd44e3708d256de113c6530e5a8cdd307eb5",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/codex-catalog-config.sh",
+      "sha256": "5dd9d0089a7d17ee909b5424a8487e90a6aa5574fe36734736742617e0611ba1",
       "executable": true
     },
     {
@@ -502,5 +512,5 @@
       "executable": true
     }
   ],
-  "bundleId": "c00e76ffbab3f9b4c88371c072bbbaa064a91b997572267c9fa5f8937e2d178a"
+  "bundleId": "b385efdde1c939afb6cae47f1d9c561f4065ab6b28fcd9f67346974c9e0db301"
 }

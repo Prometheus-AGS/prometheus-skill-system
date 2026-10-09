@@ -123,6 +123,26 @@ export function applyCodexMemories({ home = os.homedir() } = {}) {
   }
 }
 
+// Trim Codex's skill catalog (redundant and unselected copies) through the same
+// guarded helper the shell installer uses. Failures follow the installer policy.
+export function applyCodexCatalog({ home = os.homedir(), sourceRoot } = {}) {
+  try {
+    const script = fileURLToPath(new URL('./lib/install-codex-catalog.sh', import.meta.url));
+    const root = sourceRoot || fileURLToPath(new URL('..', import.meta.url));
+    const env = { ...process.env, HOME: home, CODEX_HOME: resolveCodexHome(home) };
+    const result = spawnSync('bash', [script, root], { encoding: 'utf8', env });
+    if (result.status !== 0) {
+      const detail = (result.stderr || result.error?.message || `exit ${result.status}`).trim();
+      process.stderr.write(`codex catalog policy failed: ${detail}\n`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    process.stderr.write(`codex catalog policy failed: ${error.message}\n`);
+    return false;
+  }
+}
+
 function platformKind() {
   if (process.platform === 'darwin') return 'darwin';
   if (process.platform === 'linux') return process.env.WSL_DISTRO_NAME ? 'windows-wsl' : 'linux';
@@ -273,6 +293,9 @@ async function main() {
   if (!args.verify && !args.uninstall && targets.some(target => target.id === 'codex')) {
     attempt('Codex memory policy', () => {
       if (!applyCodexMemories({ home: args.home })) fail('could not apply Codex memory policy');
+    });
+    attempt('Codex catalog policy', () => {
+      if (!applyCodexCatalog({ home: args.home, sourceRoot: args.sourceRoot })) fail('could not apply Codex catalog policy');
     });
   }
   if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract));

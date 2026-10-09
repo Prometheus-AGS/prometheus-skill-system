@@ -261,6 +261,17 @@ for (const [id, version] of expected) {
 NODE
         echo "  ✅ Codex local marketplace and affected plugins refreshed and verified"
         echo "    Start a new Codex session to load the refreshed source."
+        # User-config policy, not generation integrity: a failure here is loud but
+        # does not undo the verified refresh above.
+        if ! bash "$REPO_ROOT/shared/scripts/codex-memories-config.sh" --create; then
+            echo "  ⚠️  Codex memory policy could not be applied" >&2
+        fi
+        # shellcheck source=lib/install-codex-catalog.sh
+        if bash "$REPO_ROOT/scripts/lib/install-codex-catalog.sh" "$REPO_ROOT"; then
+            echo "  ✅ Codex skill catalog trimmed (redundant and unselected copies disabled)"
+        else
+            echo "  ⚠️  Codex catalog policy could not be applied" >&2
+        fi
     else
         echo "  — Codex Prometheus marketplace is not installed; verification skipped"
     fi

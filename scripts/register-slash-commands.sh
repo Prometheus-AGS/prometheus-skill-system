@@ -7,14 +7,20 @@
 # Usage:
 #   ./scripts/register-slash-commands.sh              # install
 #   ./scripts/register-slash-commands.sh --uninstall  # remove
+#   ./scripts/register-slash-commands.sh --codex-only # Codex prompts only (leave opencode alone)
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UNINSTALL=false
-if [[ "${1:-}" == "--uninstall" ]]; then
-    UNINSTALL=true
-fi
+CODEX_ONLY=false
+for arg in "$@"; do
+    case "$arg" in
+        --uninstall) UNINSTALL=true ;;
+        --codex-only) CODEX_ONLY=true ;;
+        *) echo "register-slash-commands: unknown argument: $arg" >&2; exit 2 ;;
+    esac
+done
 
 echo "🔥 Prometheus Skill Pack — Slash Command Registration"
 echo "====================================================="
@@ -23,6 +29,7 @@ echo ""
 
 python3 << PYEOF
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -33,6 +40,7 @@ from pathlib import Path
 HOME = Path.home()
 REPO_ROOT = Path("$REPO_ROOT")
 UNINSTALL = "$UNINSTALL" == "true"
+CODEX_ONLY = "$CODEX_ONLY" == "true"
 
 # ── collect skills ────────────────────────────────────────────────────────────
 result = subprocess.run(
@@ -79,7 +87,7 @@ OPENCODE_JSONS = [
     HOME / ".config" / "opencode" / "tui.json",
 ]
 
-for OPENCODE_JSON in OPENCODE_JSONS:
+for OPENCODE_JSON in ([] if CODEX_ONLY else OPENCODE_JSONS):
     if not OPENCODE_JSON.exists():
         print(f"  SKIP opencode: {OPENCODE_JSON} not found")
         continue
@@ -189,7 +197,7 @@ CODEX_RESERVED = {
     "quit", "logout", "mention", "help", "clear",
 }
 
-PROMPTS_DIR = HOME / ".codex" / "prompts"
+PROMPTS_DIR = Path(os.environ.get("CODEX_HOME") or HOME / ".codex") / "prompts"
 if PROMPTS_DIR.parent.exists():
     PROMPTS_DIR.mkdir(exist_ok=True)
     count = 0
