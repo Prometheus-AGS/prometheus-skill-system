@@ -1,0 +1,103 @@
+{
+  "at": "2026-10-09T14:28:29.061Z",
+  "checks": [
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/reconcile.mjs",
+      "sha256": "f8acf33035ed9ef99eda0f1b7151a23a8deb6756c06a6eda09221af895d25ce6"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/reconcile-artifacts.mjs",
+      "sha256": "2ba93e08f53edd39694a823cf0f990c0bc853d11a6fa7b065ac0a246c134817d"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/reconcile-state.mjs",
+      "sha256": "b885294d673a7e1c768e58ef741dc964f8cdcc5ddfaf75283fb5fcec37be4e31"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/reconcile-command.mjs",
+      "sha256": "506dc7a26e8836bad83c38913ee860a221dd034808bb4cfdeb4abc4ebdcf2959"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/task-identity.mjs",
+      "sha256": "59f63fd1f60c87ac033855a151a83fce6808d6fdfacb0a144247e9eaea46f5b1"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/kbd-apply.sh",
+      "sha256": "c2f3446d6bd65ceee2cd1c708f5112e75aeace43c0e6787f28a6c55feb35c9ea"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs",
+      "sha256": "f8acf33035ed9ef99eda0f1b7151a23a8deb6756c06a6eda09221af895d25ce6"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-artifacts.mjs",
+      "sha256": "2ba93e08f53edd39694a823cf0f990c0bc853d11a6fa7b065ac0a246c134817d"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-state.mjs",
+      "sha256": "b885294d673a7e1c768e58ef741dc964f8cdcc5ddfaf75283fb5fcec37be4e31"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-command.mjs",
+      "sha256": "506dc7a26e8836bad83c38913ee860a221dd034808bb4cfdeb4abc4ebdcf2959"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/task-identity.mjs",
+      "sha256": "59f63fd1f60c87ac033855a151a83fce6808d6fdfacb0a144247e9eaea46f5b1"
+    },
+    {
+      "path": "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+      "sha256": "c2f3446d6bd65ceee2cd1c708f5112e75aeace43c0e6787f28a6c55feb35c9ea"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/reconcile.mjs",
+      "sha256": "f8acf33035ed9ef99eda0f1b7151a23a8deb6756c06a6eda09221af895d25ce6"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/reconcile-artifacts.mjs",
+      "sha256": "2ba93e08f53edd39694a823cf0f990c0bc853d11a6fa7b065ac0a246c134817d"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/reconcile-state.mjs",
+      "sha256": "b885294d673a7e1c768e58ef741dc964f8cdcc5ddfaf75283fb5fcec37be4e31"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/reconcile-command.mjs",
+      "sha256": "506dc7a26e8836bad83c38913ee860a221dd034808bb4cfdeb4abc4ebdcf2959"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/task-identity.mjs",
+      "sha256": "59f63fd1f60c87ac033855a151a83fce6808d6fdfacb0a144247e9eaea46f5b1"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/kbd-apply.sh",
+      "sha256": "c2f3446d6bd65ceee2cd1c708f5112e75aeace43c0e6787f28a6c55feb35c9ea"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs",
+      "sha256": "f8acf33035ed9ef99eda0f1b7151a23a8deb6756c06a6eda09221af895d25ce6"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-artifacts.mjs",
+      "sha256": "2ba93e08f53edd39694a823cf0f990c0bc853d11a6fa7b065ac0a246c134817d"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-state.mjs",
+      "sha256": "b885294d673a7e1c768e58ef741dc964f8cdcc5ddfaf75283fb5fcec37be4e31"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-command.mjs",
+      "sha256": "506dc7a26e8836bad83c38913ee860a221dd034808bb4cfdeb4abc4ebdcf2959"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/task-identity.mjs",
+      "sha256": "59f63fd1f60c87ac033855a151a83fce6808d6fdfacb0a144247e9eaea46f5b1"
+    },
+    {
+      "path": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+      "sha256": "c2f3446d6bd65ceee2cd1c708f5112e75aeace43c0e6787f28a6c55feb35c9ea"
+    }
+  ],
+  "selfPath": "relative to import.meta.url; explicit operator root preserved; otherwise nested or flat orchestrator resolved locally",
+  "passed": true
+}

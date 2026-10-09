@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.12.1",
+  "sourceVersion": "1.12.2",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -73,7 +73,7 @@
     },
     {
       "path": "scripts/lib/reviewed-skill-closures.js",
-      "sha256": "916361077ec009614acc4b2945e74a34b57004b8a92418116b41a8481d6ab74f",
+      "sha256": "a5a1a5e934fe1dc8b9e69eaa02a0d34a4a7e5b90df94933fa7e9b6087080567b",
       "executable": false
     },
     {
@@ -502,5 +502,5 @@
       "executable": true
     }
   ],
-  "bundleId": "c00e76ffbab3f9b4c88371c072bbbaa064a91b997572267c9fa5f8937e2d178a"
+  "bundleId": "60b7a16701da5a72fb6b31eb2658fecf6a1f4a4761fb885ccb382c43f2894ed5"
 }

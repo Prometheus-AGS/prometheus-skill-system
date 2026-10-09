@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-09T14:27:44.832Z",
+  "repository": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+  "mergeCommit": "0084d1bebedb2d646ab8466c8edfd93aa51b99e3",
+  "preservedLocalCommits": [
+    "677053b",
+    "d4b76b4",
+    "3e72770"
+  ],
+  "submodule": {
+    "path": "tools/surreal-memory-server",
+    "pin": "63eb413ebf520a4a525ffd3b8d1d07f1389d48d4",
+    "localPinAncestor": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6"
+  },
+  "versions": {
+    "root": {
+      "before": "1.12.1",
+      "after": "1.12.2"
+    },
+    "processPlugin": {
+      "before": "1.7.2",
+      "after": "1.7.3"
+    }
+  },
+  "checks": [
+    {
+      "command": "node scripts/check-release-version-matrix.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/generate-skill-system-distribution.js --check",
+      "exitCode": 0
+    },
+    {
+      "command": "node skills/process/kbd-process-orchestrator/shared/openspec/cli.mjs run --project /Users/gqadonis/Projects/prometheus/prometheus-skill-pack -- validate reconcile-kbd-task-state --type change",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "integration": {
+    "status": "passed",
+    "runner": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/lib/kbd/reconcile.integration.test.mjs",
+    "reportedBy": "parent and mini_reconcile agent",
+    "namedTests": 4,
+    "passed": 4,
+    "failed": 0,
+    "canonicalRetry": {
+      "exitCode": 0,
+      "sessionId": 45111,
+      "miniMs": 21085,
+      "fullMs": 26263,
+      "totalMs": 47442
+    },
+    "earlierLegacy": {
+      "passed": 2,
+      "failed": 0
+    },
+    "scope": "real filesystem backends and installed canonical runtime, repair/no-op/failure, source and generated entrypoints; Windows not run",
+    "receipt": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/openspec/changes/reconcile-kbd-task-state/evidence/integration-results.json",
+    "finalCommand": "KBD_FULL_PACK_ROOT=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack node --test --test-name-pattern='real canonical' lib/kbd/reconcile.integration.test.mjs",
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini"
+  },
+  "windows": "not exercised",
+  "featureChangesCommitted": false,
+  "unchangedPreexisting": [
+    ".kbd-orchestrator/position-reminder.txt",
+    ".prometheus/knowledge/wiki/.index.lock"
+  ],
+  "changedPaths": [
+    ".agents/plugins/marketplace.json",
+    ".claude-plugin/marketplace.json",
+    "config/prometheus-exec-component.json",
+    "config/release-version-matrix.json",
+    "dist/plugins/claude/prometheus-skill-pack/.claude-plugin/plugin.json",
+    "dist/plugins/claude/prometheus-skill-pack/config/prometheus-exec-component.json",
+    "dist/plugins/claude/prometheus-skill-pack/hooks/hooks.json",
+    "dist/plugins/claude/prometheus-skill-pack/package.json",
+    "dist/plugins/claude/prometheus-skill-pack/scripts/lib/reviewed-skill-closures.js",
+    "dist/plugins/claude/prometheus-skill-pack/shared/harnesses/generated/claude-hooks.json",
+    "dist/plugins/claude/prometheus-skill-pack/shared/harnesses/generated/release-manifest.json",
+    "dist/plugins/claude/prometheus-skill-pack/skill-index.json",
+    "dist/plugins/claude/prometheus-skill-pack/skill-system.json",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/SKILL.md",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/kbd-apply.sh",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/reconcile-artifacts.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/reconcile-command.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/reconcile-state.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/reconcile.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-apply/task-identity.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/SKILL.md",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-artifacts.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-command.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-state.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/task-identity.mjs",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md",
+    "dist/plugins/claude/prometheus-skill-pack/skills/kbd-reflect/SKILL.md",
+    "dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json",
+    "dist/plugins/codex/prometheus-skill-pack/config/prometheus-exec-component.json",
+    "dist/plugins/codex/prometheus-skill-pack/hooks/hooks.json",
+    "dist/plugins/codex/prometheus-skill-pack/package.json",
+    "dist/plugins/codex/prometheus-skill-pack/scripts/lib/reviewed-skill-closures.js",
+    "dist/plugins/codex/prometheus-skill-pack/shared/harnesses/generated/claude-hooks.json",
+    "dist/plugins/codex/prometheus-skill-pack/shared/harnesses/generated/release-manifest.json",
+    "dist/plugins/codex/prometheus-skill-pack/skill-index.json",
+    "dist/plugins/codex/prometheus-skill-pack/skill-system.json",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/SKILL.md",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/kbd-apply.sh",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/reconcile-artifacts.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/reconcile-command.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/reconcile-state.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/reconcile.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-apply/task-identity.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/SKILL.md",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-artifacts.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-command.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile-state.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-apply/task-identity.mjs",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md",
+    "dist/plugins/codex/prometheus-skill-pack/skills/kbd-reflect/SKILL.md",
+    "hooks/codex-hooks.json",
+    "hooks/hooks.json",
+    "openspec/changes/reconcile-kbd-task-state/delivery.json",
+    "openspec/changes/reconcile-kbd-task-state/design.md",
+    "openspec/changes/reconcile-kbd-task-state/proposal.md",
+    "openspec/changes/reconcile-kbd-task-state/specs/kbd-task-reconciliation/spec.md",
+    "openspec/changes/reconcile-kbd-task-state/tasks.md",
+    "package-lock.json",
+    "package.json",
+    "shared/harnesses/generated/claude-hooks.json",
+    "shared/harnesses/generated/release-manifest.json",
+    "site/package-lock.json",
+    "site/package.json",
+    "skill-system.json",
+    "skills/process/.claude-plugin/plugin.json",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/SKILL.md",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile-artifacts.mjs",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile-command.mjs",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile-state.mjs",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/task-identity.mjs",
+    "skills/process/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md",
+    "tools/prometheus-cli/Cargo.lock",
+    "tools/prometheus-cli/Cargo.toml"
+  ],
+  "notes": [
+    "Cargo workspace/package versions changed as required by the existing release matrix; no Rust implementation changes or Rust rebuild.",
+    "Generated payload refresh includes the branch’s already-existing reviewed-skill-closures source fix.",
+    "Installed immutable plugin cache not modified."
+  ],
+  "patch": {
+    "path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.context/reconcile-handoff/full.diff",
+    "hashReceipt": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.context/reconcile-handoff/patch-receipt.json"
+  },
+  "resolvedFailures": [
+    "Full canonical boundary guard initially used backend ordinal instead of registered task identity; guard now resolves the same canonical ID as the task transition.",
+    "Full repair adapter initially overrode explicit KBD_ORCHESTRATOR_ROOT; it now respects the configured root."
+  ],
+  "isolation": {
+    "finalRun": "temporary real canonical store/project, real runtime/guard helpers, no service-backed hook configuration",
+    "cancelledEarlierAttempt": "Default production hook configuration was unintentionally used because the adapter overrode the fixture root. Buffered output was lost on termination; retained fixture contains canonical projections, backend tasks and project identity but no hook logs or memory receipts. External effects are unknown; no unrelated global state was cleaned."
+  }
+}

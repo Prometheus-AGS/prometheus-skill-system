@@ -1,34 +1,34 @@
 {
   "schemaVersion": 1,
-  "release": "1.12.1",
+  "release": "1.12.2",
   "ownedSurfaces": [
     {
       "path": "package.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
     },
     {
       "path": "package-lock.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
     },
     {
       "path": "package-lock.json",
-      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
+      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
     },
     {
       "path": "site/package.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
     },
     {
       "path": "site/package-lock.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
     },
     {
       "path": "site/package-lock.json",
-      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.1\""
+      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\"releaseVersion\"\\s*:\\s*\"1\\.12\\.1\""
+      "pattern": "\"releaseVersion\"\\s*:\\s*\"1\\.12\\.2\""
     },
     {
       "path": "skill-system.json",
@@ -44,7 +44,7 @@
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-process\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.7\\.2\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-process\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.7\\.3\""
     },
     {
       "path": "skill-system.json",
@@ -80,27 +80,27 @@
     },
     {
       "path": "config/prometheus-exec-component.json",
-      "pattern": "\"release\"\\s*:\\s*\"1\\.12\\.1\""
+      "pattern": "\"release\"\\s*:\\s*\"1\\.12\\.2\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.toml",
-      "pattern": "\\[workspace\\.package\\]\\s*version\\s*=\\s*\"1\\.12\\.1\""
+      "pattern": "\\[workspace\\.package\\]\\s*version\\s*=\\s*\"1\\.12\\.2\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-agents\"\\s*version\\s*=\\s*\"1\\.12\\.1\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-agents\"\\s*version\\s*=\\s*\"1\\.12\\.2\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cedar\"\\s*version\\s*=\\s*\"1\\.12\\.1\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cedar\"\\s*version\\s*=\\s*\"1\\.12\\.2\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cli\"\\s*version\\s*=\\s*\"1\\.12\\.1\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cli\"\\s*version\\s*=\\s*\"1\\.12\\.2\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-learn\"\\s*version\\s*=\\s*\"1\\.12\\.1\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-learn\"\\s*version\\s*=\\s*\"1\\.12\\.2\""
     },
     {
       "path": "skills/ui-ux/.claude-plugin/plugin.json",
@@ -112,7 +112,7 @@
     },
     {
       "path": "skills/process/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.7\\.2\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.7\\.3\""
     },
     {
       "path": "skills/devops/.claude-plugin/plugin.json",

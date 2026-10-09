@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-09T15:05:38.588Z",
+  "purpose": "Operator-authorized WIP source transfer for review and continuation on another machine; not a release or certification.",
+  "branch": "fix/cli-path-and-import-pins",
+  "issue": "https://github.com/Prometheus-AGS/prometheus-skill-system/issues/172",
+  "previousReceipts": "Historical pre-commit observations are retained unchanged. patch-receipt.json binds the exact pre-transfer product/spec patch, excluding transport artifacts.",
+  "checksThisTransfer": [
+    "Patch SHA256 matches the retained receipt",
+    "Changed product/spec path set matches the retained exact patch",
+    "All 24 recorded generated module-copy digests match",
+    "Git hooks directory contains no active hooks",
+    "Staged git diff --check passed with exact .diff transport files excluded; patch context blank-line whitespace is preserved to retain the recorded digest"
+  ],
+  "priorIntegrationEvidence": "Existing receipts retained; integration suites not rerun during transfer.",
+  "pending": [
+    "Review and absorb newer main changes; regenerate generated bundles if needed",
+    "Windows execution unverified",
+    "Earlier hook-isolation attempt has unknown external effects; no absence-of-effects claim",
+    "Independent feature review and final certification remain pending"
+  ],
+  "excludedPaths": [
+    ".kbd-orchestrator/position-reminder.txt",
+    ".prometheus/knowledge/wiki/.index.lock"
+  ],
+  "releaseOrMainChanged": false,
+  "review": {
+    "status": "pending_review",
+    "reason": "Operator requested WIP branch transfer for independent review and continuation on another machine; no certification claim."
+  }
+}

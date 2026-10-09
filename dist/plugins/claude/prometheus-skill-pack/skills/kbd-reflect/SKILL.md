@@ -120,11 +120,13 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 2. **Discover project identity**
 3. **Confirm the active phase** — from argument or waypoint
 4. **Reconcile, then read `progress.json`** — run
-   `kbd-apply reconcile <phase>` first. Exit 1 means a task is done in its
-   backend but not in the ledger, so `progress.json` under-counts delivered work:
-   STOP, report the drifted tasks, and give the repair command
-   (`kbd-apply reconcile <phase> --repair`). Only on exit 0 read `progress.json`
-   and incorporate work done by all tools
+   `kbd-apply reconcile <phase>` first. Exit **0** permits reading the
+   reconciled progress. Exit **1** reports drift, which may include ledger-ahead,
+   cancelled or archived discrepancies; do not describe all drift as undelivered
+   code. Use `--repair` only for unambiguous active-phase backend-complete
+   tasks. Exit **2** means invalid input or an incomplete scan: report its errors
+   and restore readable input/runtime authority rather than claiming clean.
+   Reconciliation supports archived changes and does not change live state.
 5. **Read artifact-refiner logs** — aggregate QA results
 6. **Load all change data** — from `openspec/changes/archive/` if OpenSpec,
    or `.kbd-orchestrator/changes/archive/` if native KBD
