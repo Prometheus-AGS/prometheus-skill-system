@@ -332,7 +332,9 @@ if [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
 
     info "Building surreal-memory-server..."
     SM_FEATURES="embedded,local-embeddings"
-    if [ "$(uname -s)" = "Darwin" ]; then
+    # `metal` only on Apple Silicon: on Intel Macs the daemon runs the CPU device
+    # (see install-mcp-services.sh), and Candle's Metal compile path is unreliable.
+    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
         SM_FEATURES="embedded,metal,local-embeddings"
     elif command -v nvidia-smi >/dev/null 2>&1; then
         SM_FEATURES="embedded,cuda,local-embeddings"
