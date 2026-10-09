@@ -34,7 +34,9 @@ enforce_source_topology() {
 require_clean_source() {
     local stage="$1"
     local status
-    status="$(git -C "$REPO_ROOT" status --porcelain)"
+    # Same rule as CLEAN_STATUS_ARGS in scripts/lib/plugin-source-topology.js: the hook-written
+    # knowledge wiki and a dirty submodule worktree are runtime state, not uncommitted source.
+    status="$(git -C "$REPO_ROOT" status --porcelain --ignore-submodules=dirty -- . ':(exclude).prometheus/knowledge')"
     if [[ -n "$status" ]]; then
         echo "ERROR: refusing update from a dirty source tree ($stage): $REPO_ROOT" >&2
         echo "$status" >&2

@@ -244,7 +244,7 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   // Run the REAL scripts from a fixture checkout that is a registered source on a topic branch.
   const checkout = makeCheckout(path.join(tmp, 'installer-topic'), { branch: 'fix/installer' });
   fs.mkdirSync(path.join(checkout, 'scripts/lib'), { recursive: true });
-  for (const file of ['update-skill-pack.sh', 'refresh-native-plugin-installs.sh', 'check-plugin-source.js', 'lib/plugin-source-topology.js']) {
+  for (const file of ['update-skill-pack.sh', 'refresh-native-plugin-installs.sh', 'check-plugin-source.js', 'lib/plugin-source-topology.js', 'lib/store-paths.js']) {
     fs.copyFileSync(path.join(root, 'scripts', file), path.join(checkout, 'scripts', file));
   }
   git(checkout, 'add', '-A');
@@ -533,6 +533,44 @@ assert.equal(isReleaseLineBranch(null), true, 'a detached checkout (for example 
   fs.writeFileSync(path.join(checkout, 'new-skill.md'), 'untracked');
   const result = evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) }));
   assert(codes(result).includes('SOURCE_DIRTY'), 'an untracked, non-ignored file is a dirty source');
+}
+
+// --- runtime state is not "uncommitted source" ----------------------------------------
+{
+  const checkout = makeCheckout(path.join(tmp, 'wiki-churn'));
+  const wiki = path.join(checkout, '.prometheus/knowledge/wiki');
+  fs.mkdirSync(wiki, { recursive: true });
+  fs.writeFileSync(path.join(wiki, 'index.md'), 'v1');
+  git(checkout, 'add', '.');
+  git(checkout, 'commit', '-q', '-m', 'wiki');
+  fs.writeFileSync(path.join(wiki, 'index.md'), 'v2 written by a hook');
+  fs.writeFileSync(path.join(wiki, 'karpathy-session-1.md'), 'new session note');
+  fs.mkdirSync(path.join(checkout, '.prometheus/knowledge/.prompt-snapshots'), { recursive: true });
+  fs.writeFileSync(path.join(checkout, '.prometheus/knowledge/.prompt-snapshots/s.json'), '{}');
+  const clean = evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) }));
+  assert(!codes(clean).includes('SOURCE_DIRTY'), 'hook-written wiki files are runtime state, not a dirty source');
+  fs.writeFileSync(path.join(checkout, 'new-skill.md'), 'real untracked source');
+  const dirty = evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) }));
+  assert(codes(dirty).includes('SOURCE_DIRTY'), 'a real untracked file is still dirty next to wiki churn');
+}
+
+{
+  // A submodule's dirty worktree is its own churn; a moved submodule pointer is not.
+  const upstream = makeCheckout(path.join(tmp, 'sub-upstream'));
+  const checkout = makeCheckout(path.join(tmp, 'sub-parent'));
+  git(checkout, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', upstream, 'sub');
+  git(checkout, 'commit', '-q', '-m', 'add submodule');
+  fs.writeFileSync(path.join(checkout, 'sub/a.txt'), 'dirty inside the submodule');
+  fs.writeFileSync(path.join(checkout, 'sub/untracked.txt'), 'untracked inside the submodule');
+  const churn = evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) }));
+  assert(!codes(churn).includes('SOURCE_DIRTY'), 'dirty content inside a submodule is not a dirty source');
+  fs.writeFileSync(path.join(checkout, 'sub/a.txt'), 'a');
+  fs.rmSync(path.join(checkout, 'sub/untracked.txt'));
+  fs.writeFileSync(path.join(checkout, 'sub/b.txt'), 'b');
+  git(path.join(checkout, 'sub'), 'add', '.');
+  git(path.join(checkout, 'sub'), 'commit', '-q', '-m', 'move the pointer');
+  const moved = evaluateSources(readRegisteredSources({ home: makeHome({ claudeKnown: checkout }) }));
+  assert(codes(moved).includes('SOURCE_DIRTY'), 'a moved submodule pointer is an uncommitted change');
 }
 
 // --- the probe never writes the checkout it inspects ----------------------------------

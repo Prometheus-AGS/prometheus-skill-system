@@ -18,7 +18,7 @@
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "a50119f87e25e446597a4a2c02bc27d2f3680169e85ad8f5e393f896e01ec879",
+      "sha256": "96df57f655075b3d9df3bc5188d9a67718432a46490aa6cfe2c01c63c96e7360",
       "executable": true
     },
     {
@@ -68,7 +68,7 @@
     },
     {
       "path": "scripts/lib/plugin-source-topology.js",
-      "sha256": "01401903bff5c8bd99cc3f45c71c823a72c9d24a4cb76217a0390b5fb21a79a0",
+      "sha256": "90c55fffb17fc6e10965882ec48f993a28ba6f5353dd9509bbd15f080d154b2f",
       "executable": false
     },
     {
@@ -502,5 +502,5 @@
       "executable": true
     }
   ],
-  "bundleId": "c00e76ffbab3f9b4c88371c072bbbaa064a91b997572267c9fa5f8937e2d178a"
+  "bundleId": "ae605015b4029477c884749eea959ef120eaaa31cfdcc34c32c169545380ee4f"
 }
