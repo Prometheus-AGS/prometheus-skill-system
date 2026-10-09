@@ -165,7 +165,7 @@
     },
     {
       "surface": "surreal-memory-server submodule",
-      "version": "1.10.0",
+      "version": "1.10.1",
       "reason": "independently released pinned submodule"
     },
     {

@@ -86,6 +86,7 @@
     "test:plugin-source-topology": "node scripts/tests/plugin-source-topology.test.mjs",
     "test:payload-activation": "node scripts/tests/payload-activation.test.mjs",
     "test:hook-entry-diagnostics": "node scripts/tests/hook-entry-diagnostics.test.mjs",
+    "check:submodule-pins": "node scripts/check-submodule-pins.mjs",
     "check:release-version": "node scripts/check-release-version-matrix.mjs",
     "generate:skills-index": "node scripts/generate-skills-index.js",
     "check:skills-index": "node scripts/generate-skills-index.js --check",
