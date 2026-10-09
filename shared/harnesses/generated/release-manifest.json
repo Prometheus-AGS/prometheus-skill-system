@@ -18,7 +18,7 @@
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "da08dd926dbe9915cfd94a805c2ae10092d3e8ac84675d47b1f9398070372315",
+      "sha256": "a50119f87e25e446597a4a2c02bc27d2f3680169e85ad8f5e393f896e01ec879",
       "executable": true
     },
     {
@@ -502,5 +502,5 @@
       "executable": true
     }
   ],
-  "bundleId": "1cf0d84822f72d9876dc3f7561989e32e2a97878f336b4d8ad33362be56a789e"
+  "bundleId": "5da89d3b707b322804c6f86bce3bfc90c9559b62aa20ec4e7759954cd06e6c61"
 }

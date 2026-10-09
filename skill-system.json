@@ -136,7 +136,7 @@
       "id": "surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
-      "commit": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+      "commit": "63eb413ebf520a4a525ffd3b8d1d07f1389d48d4",
       "requiredFor": [
         "full"
       ]

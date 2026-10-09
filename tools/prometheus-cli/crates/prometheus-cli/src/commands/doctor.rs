@@ -1323,7 +1323,7 @@ process.stdout.write(JSON.stringify({ generation, helper }));
   return url;
 }
 try { await import(moduleUrl('install-plugin-generation.js')); }
-catch { process.stderr.write('installed generation/helper verification failed'); process.exitCode = 1; }
+catch (error) { process.stderr.write('installed generation/helper verification failed: ' + String(error?.message ?? error).split('\n')[0].slice(0, 300)); process.exitCode = 1; }
 "#;
     let mut child = Command::new("node")
         .args(["--input-type=module", "--eval", loader])
@@ -1346,7 +1346,19 @@ catch { process.stderr.write('installed generation/helper verification failed');
         .wait_with_output()
         .map_err(|_| "installed-generation verifier did not finish".to_string())?;
     if !output.status.success() {
-        return Err("installed generation or owned memory helper could not be verified; repair the installation first".into());
+        // The verifier's stderr is one bounded line it wrote itself; show it so a
+        // stale `prometheus` binary or a missing capability record is diagnosable.
+        let detail = String::from_utf8_lossy(&output.stderr);
+        let detail = detail.lines().next().unwrap_or("").trim();
+        let detail: String = detail.chars().take(300).collect();
+        let suffix = if detail.is_empty() {
+            String::new()
+        } else {
+            format!(" ({detail})")
+        };
+        return Err(format!(
+            "installed generation or owned memory helper could not be verified{suffix}; repair the installation first"
+        ));
     }
     let result: serde_json::Value = serde_json::from_slice(&output.stdout)
         .map_err(|_| "installed-generation verifier returned invalid output".to_string())?;

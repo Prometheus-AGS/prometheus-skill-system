@@ -172,12 +172,26 @@ fn http_client() -> Option<reqwest::Client> {
         .ok()
 }
 
-async fn get_json(client: &reqwest::Client, url: &str) -> Option<serde_json::Value> {
-    let response = client.get(url).send().await.ok()?;
-    if !response.status().is_success() {
-        return None;
+/// GET `url` as JSON, distinguishing a connection failure from an HTTP or parse
+/// failure so the doctor can say which one it saw.
+async fn fetch_json(client: &reqwest::Client, url: &str) -> Result<serde_json::Value, String> {
+    let response = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|error| format!("could not connect ({error})"))?;
+    let status = response.status();
+    if !status.is_success() {
+        return Err(format!("returned HTTP {status}"));
     }
-    response.json().await.ok()
+    response
+        .json()
+        .await
+        .map_err(|error| format!("returned a body that is not JSON ({error})"))
+}
+
+async fn get_json(client: &reqwest::Client, url: &str) -> Option<serde_json::Value> {
+    fetch_json(client, url).await.ok()
 }
 
 fn describe_stats(stats: &serde_json::Value) -> String {
@@ -206,8 +220,13 @@ async fn server_lines(base: &str, ids: &[&str]) -> Vec<String> {
     let Some(client) = http_client() else {
         return vec!["server: could not construct an HTTP client".into()];
     };
-    let Some(stats) = get_json(&client, &format!("{base}/api/v2/operations/stats")).await else {
-        return vec![format!("server: surreal-memory not reachable at {base}")];
+    let stats = match fetch_json(&client, &format!("{base}/api/v2/operations/stats")).await {
+        Ok(stats) => stats,
+        Err(reason) => {
+            return vec![format!(
+                "server: {base}/api/v2/operations/stats {reason}; the server may be down or predate the stats route"
+            )];
+        }
     };
     let mut lines = vec![describe_stats(&stats)];
     for id in ids {

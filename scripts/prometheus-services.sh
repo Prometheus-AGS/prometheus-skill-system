@@ -153,8 +153,16 @@ render_template() {
     [ -n "$docker_bin" ] || docker_bin="/usr/local/bin/docker"
     [ -n "$surreal_memory_bin" ] || surreal_memory_bin="/usr/local/bin/surreal-memory-server"
     [ -n "$surreal_mlx_executor" ] || surreal_mlx_executor="/usr/local/bin/surreal-memory-mlx-executor"
-    local local_embedding_backend="${PROMETHEUS_LOCAL_EMBEDDING_BACKEND:-mlx}"
-    local local_embedding_device="${PROMETHEUS_LOCAL_EMBEDDING_DEVICE:-auto}"
+    # Mirror install-mcp-services.sh: MLX is Apple Silicon only, and Candle's Metal
+    # path is unreliable on Intel Macs, so default by architecture.
+    local default_embedding_backend="candle" default_embedding_device="cpu"
+    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
+        default_embedding_backend="mlx"; default_embedding_device="auto"
+    elif [ "$(uname -s)" != "Darwin" ]; then
+        default_embedding_device="auto"
+    fi
+    local local_embedding_backend="${PROMETHEUS_LOCAL_EMBEDDING_BACKEND:-$default_embedding_backend}"
+    local local_embedding_device="${PROMETHEUS_LOCAL_EMBEDDING_DEVICE:-$default_embedding_device}"
     case "$local_embedding_backend" in candle|mlx) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_BACKEND must be candle or mlx" >&2; return 1 ;; esac
     case "$local_embedding_device" in auto|cpu) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_DEVICE must be auto or cpu" >&2; return 1 ;; esac
 
