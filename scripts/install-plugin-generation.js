@@ -702,6 +702,10 @@ function isExcludedPayloadEntry(name, sourcePath, repoRoot) {
   if (name === '__pycache__' || /\.py[co]$/.test(name)) return true;
   if (name === 'node_modules' || name === 'target' || name === '.git') return true;
   const relative = path.relative(repoRoot, sourcePath).split(path.sep).join('/');
+  // `.claude-plugin/{agents,hooks,skills}` are layout mirrors of the real
+  // directories, which are staged on their own. The reviewed-closure inventory
+  // refuses symlinks, so shipping them would abort every generation build.
+  if (relative.startsWith('.claude-plugin/') && fs.lstatSync(sourcePath).isSymbolicLink()) return true;
   return IMPORTED_EVIDENCE_RE.test(relative);
 }
 
