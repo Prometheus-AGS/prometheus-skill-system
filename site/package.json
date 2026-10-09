@@ -1,6 +1,6 @@
 {
   "name": "prometheus-skill-pack-docs",
-  "version": "1.12.0",
+  "version": "1.12.2",
   "private": true,
   "scripts": {
     "start": "docusaurus start",

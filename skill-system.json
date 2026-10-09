@@ -2,7 +2,7 @@
   "$schema": "./schemas/skill-system.schema.json",
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
-  "releaseVersion": "1.12.0",
+  "releaseVersion": "1.12.2",
   "minimumActiveVersion": "1.11.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
@@ -136,7 +136,7 @@
       "id": "surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
-      "commit": "0af8ae1f3c7486bf7128beff8ef83aaf1a832ea6",
+      "commit": "63eb413ebf520a4a525ffd3b8d1d07f1389d48d4",
       "requiredFor": [
         "full"
       ]
@@ -169,7 +169,7 @@
       {
         "name": "prometheus-process-skills",
         "path": "skills/process",
-        "version": "1.7.2",
+        "version": "1.7.3",
         "category": "productivity"
       },
       {

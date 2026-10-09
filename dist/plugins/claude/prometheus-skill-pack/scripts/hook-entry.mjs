@@ -107,6 +107,8 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv.slice(2));
+// Also protect children when an older compiled runtime is still installed.
+process.env.PYTHONDONTWRITEBYTECODE = '1';
 if (!/^[a-f0-9]{64}$/.test(args.bundle)) {
   fail('INVALID_BUNDLE', 'bundle id is not sha256', args.bundle);
 }
@@ -114,6 +116,7 @@ if (!/^[a-f0-9]{64}$/.test(args.bundle)) {
 const storeRoot =
   process.env.PROMETHEUS_PLUGIN_ROOT ||
   path.join(os.homedir(), '.prometheus/plugins/prometheus-skill-pack');
+const activationPending = fs.existsSync(path.join(storeRoot, 'pointers/activation.pending.json'));
 
 // Codex sets PLUGIN_ROOT where Claude Code sets CLAUDE_PLUGIN_ROOT. Both are
 // exported onto the spawned process by the harness in either hook form.
@@ -131,7 +134,13 @@ const compiled = ['prometheus-hook', 'prometheus-hook.exe']
   .map(name => path.join(storeRoot, 'runtime/v1', name))
   .find(candidate => fs.existsSync(candidate));
 
-if (compiled) {
+if (
+  !activationPending && compiled &&
+  spawnSync(compiled, ['resolve', '--bundle', args.bundle], {
+    stdio: 'ignore',
+    shell: false,
+  }).status === 0
+) {
   const result = run(compiled, [
     'run',
     '--bundle',
@@ -165,6 +174,7 @@ if (spawnSync('bash', ['-c', 'exit 0'], { shell: false }).error) {
 
 const runner = path.join(storeRoot, 'runtime/v1/run-hook');
 const resolved =
+  !activationPending &&
   fs.existsSync(runner) &&
   spawnSync('bash', [runner, '--bundle', args.bundle, '--resolve-only'], {
     stdio: 'ignore',
@@ -188,11 +198,15 @@ if (!resolved) {
       args.bundle
     );
   }
-  const install = spawnSync('bash', [bootstrap, '--source-root', pluginRoot, '--expected-bundle', args.bundle], {
-    stdio: ['inherit', 'inherit', 'pipe'],
-    encoding: 'utf8',
-    shell: false,
-  });
+  const install = spawnSync(
+    'bash',
+    [bootstrap, '--source-root', pluginRoot, '--expected-bundle', args.bundle],
+    {
+      stdio: ['inherit', 'inherit', 'pipe'],
+      encoding: 'utf8',
+      shell: false,
+    }
+  );
   // A child that could not be started has no stderr and a null status; its spawn error
   // (ENOENT, EACCES...) is the whole story and must not be lost.
   const spawnFailure = install.error

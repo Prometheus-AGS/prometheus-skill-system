@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.12.0",
+  "sourceVersion": "1.12.2",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -13,12 +13,12 @@
     },
     {
       "path": "scripts/hook-entry.mjs",
-      "sha256": "4c75fa4a50d3c85247504de32b81b9509df8014b2e023060eb0d2d6c09ed420a",
+      "sha256": "2cc74a4dd9f26b480af50c911a3a59084372068f2f1c4ffffe0dbbfa5eba2b61",
       "executable": false
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "0f21bada808716a7d9778d1131311877522749d2d9c29ceb74e4d69c49499788",
+      "sha256": "cc2c77a290b1bda751fcdbcd995e586d4f260852c05c9031570cae84a3260955",
       "executable": true
     },
     {
@@ -47,6 +47,11 @@
       "executable": false
     },
     {
+      "path": "scripts/lib/install-codex-catalog.sh",
+      "sha256": "209aed7692610fe52caf365fdc18278c5752e48f009152ed4f97572aaf78a512",
+      "executable": true
+    },
+    {
       "path": "scripts/lib/install-codex-memories.sh",
       "sha256": "ac20196757d90a8cadf85b1322c867f1d2ca3d00353e2c59411323ebcd3a3952",
       "executable": false
@@ -68,7 +73,7 @@
     },
     {
       "path": "scripts/lib/plugin-source-topology.js",
-      "sha256": "01401903bff5c8bd99cc3f45c71c823a72c9d24a4cb76217a0390b5fb21a79a0",
+      "sha256": "90c55fffb17fc6e10965882ec48f993a28ba6f5353dd9509bbd15f080d154b2f",
       "executable": false
     },
     {
@@ -93,7 +98,7 @@
     },
     {
       "path": "shared/scripts/bootstrap-hook-runtime.sh",
-      "sha256": "d82e7a2ac99a7fbbc1d3e12a2897716a12bccdec5e1206ba675a96a89e20c82d",
+      "sha256": "84df410b421d282c4d6379a35fb94b463cc95daae541a230822b5bd57e1e2318",
       "executable": true
     },
     {
@@ -109,6 +114,11 @@
     {
       "path": "shared/scripts/cedar-skill-gate.sh",
       "sha256": "9f48546001c6236ceff704a3375fdd44e3708d256de113c6530e5a8cdd307eb5",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/codex-catalog-config.sh",
+      "sha256": "5dd9d0089a7d17ee909b5424a8487e90a6aa5574fe36734736742617e0611ba1",
       "executable": true
     },
     {
@@ -168,7 +178,7 @@
     },
     {
       "path": "shared/scripts/hook-runtime-v1.sh",
-      "sha256": "fa35fe9d9954d80a9b522fe7ca2b61db0acfb806f5a782969c75298cedf2ccf8",
+      "sha256": "326359f6a6b4fb9aa0f72fb9604ba66ccbc1fed979122dede2d5b031cabeba75",
       "executable": true
     },
     {
@@ -205,46 +215,6 @@
       "path": "shared/scripts/kbd-task-completed-gate.sh",
       "sha256": "443df66de08affe7fa37ff6cc984627fe74f481de46d4ff78dca1ee2d7016c1d",
       "executable": true
-    },
-    {
-      "path": "shared/scripts/lib/__pycache__/agent_identity.cpython-311.pyc",
-      "sha256": "9f75181ecb13db12185bb7fabc815fc29dda1fc7edef1ed34d23b1d06bd7298a",
-      "executable": false
-    },
-    {
-      "path": "shared/scripts/lib/__pycache__/agent_identity.cpython-312.pyc",
-      "sha256": "f29d250819a146fcb71beee276a78a6b315be69689e86ac8d9fcfcb9b16db885",
-      "executable": false
-    },
-    {
-      "path": "shared/scripts/lib/__pycache__/learning_recall.cpython-311.pyc",
-      "sha256": "5f626e013e6887e2a5e8491b9e83d0220f1337d5888f138111f8fbb806514cc3",
-      "executable": false
-    },
-    {
-      "path": "shared/scripts/lib/__pycache__/learning_route.cpython-311.pyc",
-      "sha256": "a14f2cc9df9ddf0d67fcd9e5b8f0f915edf4b4c324adb740993b04888b5d041a",
-      "executable": false
-    },
-    {
-      "path": "shared/scripts/lib/__pycache__/learning_route.cpython-312.pyc",
-      "sha256": "62a330a9b9ab822c6a4f3a96941d08461bc47f486f137da59e16f44a47c1b489",
-      "executable": false
-    },
-    {
-      "path": "shared/scripts/lib/__pycache__/project_id.cpython-311.pyc",
-      "sha256": "299f892abe95a3464a96e9a40df51ac485206d02e587207a7d39d202eeffa9d4",
-      "executable": false
-    },
-    {
-      "path": "shared/scripts/lib/__pycache__/project_id.cpython-312.pyc",
-      "sha256": "2b95356c267feaf5a917f6241e674d67a8bff95b48dbe93d0f294f639d9098a8",
-      "executable": false
-    },
-    {
-      "path": "shared/scripts/lib/__pycache__/prompt_gap.cpython-311.pyc",
-      "sha256": "a773011245ec8d79b4a24a54bea32b1ebf16a00fb9c3226e2c9e3d89beb3025e",
-      "executable": false
     },
     {
       "path": "shared/scripts/lib/agent_identity.py",
@@ -542,5 +512,5 @@
       "executable": true
     }
   ],
-  "bundleId": "acc94daddddc2771718ff4cfb3c64cf07491452b56a356254336ce93cb3166b4"
+  "bundleId": "87425ca0922a267372c95279ab80081c1a5dbf19574f70a814cf00314f051ec3"
 }

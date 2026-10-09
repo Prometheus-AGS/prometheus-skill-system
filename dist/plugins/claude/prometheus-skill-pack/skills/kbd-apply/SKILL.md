@@ -119,7 +119,7 @@ Treat `exactNextCommand` as the operator's stated intent — useful context for
 | `begin-task <change> <id> <i> <n> <title>` | open a missing `change:before`, then fire `task:before` + position signals |
 | `end-task <change> <id> <i> <n> <title>` | mark done + sync + close `task:after`; the final task also closes `change:after` |
 | `mark-done <change> <id>` | flip one task done AND sync the ledger (runtime transition + progress.json); no hooks, and it prints that none fired |
-| `reconcile [<phase>] [--repair] [--json]` | compare each change's backend done flags (`tasks.json` / `tasks.md`) with the canonical ledger; one line per drifted task; exit 1 on drift, 0 when clean. `--repair` replays each drifted task through `begin-task`/`end-task` and re-checks |
+| `reconcile [<phase>] [--repair] [--json]` | compare each change's backend done flags (`tasks.json` / `tasks.md`) with the canonical ledger; one line per drifted task; exit 0 clean, 1 drift, 2 invalid/incomplete. `--repair` repairs only unambiguous active-phase tasks through canonical boundaries and re-checks |
 | `verify <change>` | backend verify; non-zero exit = fail |
 | `archive <change>` | backend archive |
 
@@ -128,13 +128,13 @@ Treat `exactNextCommand` as the operator's stated intent — useful context for
 `mark-done` used to flip only the backend flag, so a phase could show every
 `tasks.json` done while the ledger counted 13 of 25. It now syncs the ledger like
 `end-task` (minus hooks), and `reconcile` is the check that proves backend and
-ledger agree. Inputs, all read-only: the phase's change list from
-`prometheus kbd status --json`, each change's backend task file, and the
-`progress.json` projection. Drift kinds: `ledger-missing`, `ledger-pending`
-(backend done, ledger not), `ledger-ahead` (ledger done, backend not; not
-auto-repairable), `unmappable`, `projection` (progress.json disagrees with the
-ledger). Run it before `/kbd-reflect` reads `progress.json`; the delivery-cadence
-refresh procedure runs it every iteration.
+ledger agree. Inputs are read-only: canonical authority replayed by the installed runtime in an isolated temporary snapshot, backend task files, and phase progress counters. The scan never starts backend initialization, migrates native tasks, fires lifecycle hooks, or writes live projections. Dated archived artifacts are supported; ambiguous archives are errors.
+
+Exit **0** means the complete scan is clean; **1** means drift; **2** means invalid input or incomplete inspection. JSON preserves `phase`, `clean`, `drifted`, `drift` and adds `errors`; diagnostics stay off JSON stdout. Never infer clean from missing files, unavailable runtime state, or a failed scan.
+
+Drift includes backend-ahead, ledger-ahead, unmappable or ledger-only identities, cancellations, archived discrepancies, and projection counts. `--repair` requires the selected phase to be active and only closes unambiguous, active backend-complete tasks through canonical boundaries. It preserves cancellations and archived history, stops after a failed transition, and rescans actual state. Legacy progress counts may be repaired; runtime-owned projections cannot be edited directly. Repeat repair is idempotent. The default selects the actual active nested phase; an explicit phase selects that phase's changes.
+
+Run reconciliation before Reflect and at delivery-cadence refresh boundaries.
 
 ## Backends
 

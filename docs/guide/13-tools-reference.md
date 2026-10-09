@@ -92,6 +92,12 @@ prometheus kbd --path <project> <audit|watch|migrate|rollout>
 prometheus kbd --path <project> <phase|stage|change|task|completion|decision|blocker>
 ```
 
+Known non-fatal warnings: `KBD production rollout gate` stays yellow while rollout is in
+shadow mode, which needs 7 consecutive successful days, 100 real mutations and 10,000
+synthetic replay mutations before promotion. `Harness instruction discovery budgets` stays
+yellow until real harness traces are recorded with `prometheus skill budget`; the doctor
+does not invent ceilings. Neither indicates a broken install.
+
 The `policy check` subcommand gates the operations `skill.mutate`, `skill.generate`, `skill.promote`, and `trace.capture` against the Cedar policy per environment. The `sycophancy` subcommands are a CLI front-end to the [sycophancy-correction](07-sycophancy-correction.md) server. **Build:** `cargo build --release -p prometheus-cli` → copied to `~/.local/bin/prometheus`. (This crate has no README; its surface is documented here from `Cargo.toml` and the clap definitions in `main.rs`.)
 
 `prometheus skill` validates the instruction inventory, measures

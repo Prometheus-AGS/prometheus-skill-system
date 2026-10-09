@@ -35,8 +35,8 @@
 #                                    ledger (runtime transition + progress.json); no hooks
 #   reconcile [<phase>] [--repair] [--json]
 #                                  → compare backend done flags with the canonical ledger;
-#                                    exit 1 on drift, 0 when clean; --repair replays each
-#                                    drifted task through begin-task/end-task
+#                                    exit 0 clean, 1 drift, 2 incomplete; --repair closes
+#                                    unambiguous active-phase tasks through boundaries
 #   verify     <change>            → backend verify (non-zero = fail)
 #   archive    <change>            → backend archive
 #
@@ -45,6 +45,12 @@
 # per-turn position signal firing no matter how long a task takes.
 
 set -uo pipefail
+
+# Inspection must bypass shell backend initialization and lifecycle hooks.
+if [ "${1:-}" = "reconcile" ] && [ "${KBD_APPLY_LIB_ONLY:-}" != "1" ]; then
+  shift
+  exec node "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/reconcile-command.mjs" "$@"
+fi
 
 SELF="kbd-apply"
 die()  { printf '%s: %s\n' "$SELF" "$*" >&2; exit 1; }
@@ -548,6 +554,10 @@ runtime_task_transition() {
   local state phase command_id mutation revision
   state="$(kbd_runtime_status_json ".")" || return 1
   phase="$(printf '%s' "$state" | jq -r '.activePath.phaseId // empty')"
+  if [ -n "${KBD_RECONCILE_PHASE:-}" ] && [ "$phase" != "$KBD_RECONCILE_PHASE" ]; then
+    warn "active phase changed before reconciliation transition"
+    return 1
+  fi
   [ -n "$phase" ] || {
     warn "canonical runtime has no active phase"
     return 1
@@ -619,133 +629,16 @@ runtime_task_complete() {
   runtime_task_transition "$change" "$task_id" "$title" "$sequence" "complete"
 }
 
-# ---- reconcile -------------------------------------------------------------
-# Drift = the backend (tasks.json / tasks.md) says a task is done while the
-# canonical ledger does not. Read-only; the only write path is --repair, which
-# replays each drifted task through begin-task/end-task.
-
-reconcile_phase_default() {
-  local state="$1" p=""
-  p="$(printf '%s' "$state" | jq -r '.activePath.phaseId // .phase // empty' 2>/dev/null)"
-  if [ -z "$p" ] && [ -f "$WP" ]; then p="$(jq -r '.phase // empty' "$WP" 2>/dev/null)"; fi
-  printf '%s' "$p"
-}
-
-# reconcile_scan <phase> <state-json> -> TSV on stdout:
-#   <change>\t<task-id|->\t<seq>\t<total>\t<kind>\t<title>
-# kind: ledger-missing | ledger-pending | ledger-ahead | unmappable | projection | count
-reconcile_scan() {
-  local phase="$1" state="$2" authoritative="$3" changes change listing
-  local tid done title seq total bcomp registered rid status pj pdone rcomp
-  if [ "$authoritative" = "1" ]; then
-    changes="$(printf '%s' "$state" | jq -r --arg p "$phase" '(.phases[$p].changes // {}) | keys_unsorted[]' 2>/dev/null)"
-  else
-    pj=".kbd-orchestrator/phases/$phase/progress.json"
-    changes="$(jq -r '.changes[]?.id' "$pj" 2>/dev/null)"
-  fi
-  while IFS= read -r change; do
-    [ -n "$change" ] || continue
-    listing="$(b_list "$change" 2>/dev/null)" || { warn "reconcile: no backend task list for $change; skipped"; continue; }
-    [ -n "$listing" ] || continue
-    total="$(printf '%s\n' "$listing" | wc -l | tr -d ' ')"
-    bcomp="$(printf '%s\n' "$listing" | awk -F '\t' '$2=="1"{n++} END{print n+0}')"
-    seq=0
-    if [ "$authoritative" = "1" ]; then
-      registered="$(printf '%s' "$state" | jq -c --arg p "$phase" --arg c "$change" '.phases[$p].changes[$c].tasks // {}')"
-      while IFS=$'\t' read -r tid done title; do
-        seq=$((seq + 1))
-        rid="$(resolve_runtime_task_id "$registered" "$tid" "$seq" "$title" 2>/dev/null)" || rid=""
-        if [ -z "$rid" ]; then
-          [ "$done" = "1" ] && printf '%s\t%s\t%s\t%s\tunmappable\t%s\n' "$change" "$tid" "$seq" "$total" "$title"
-          continue
-        fi
-        status="$(printf '%s' "$registered" | jq -r --arg t "$rid" '.[$t].status // "absent"')"
-        case "$status" in complete|completed|done) status=complete ;; esac
-        if [ "$done" = "1" ] && [ "$status" != "complete" ]; then
-          if [ "$status" = "absent" ]; then
-            printf '%s\t%s\t%s\t%s\tledger-missing\t%s\n' "$change" "$tid" "$seq" "$total" "$title"
-          else
-            printf '%s\t%s\t%s\t%s\tledger-pending\t%s\n' "$change" "$tid" "$seq" "$total" "$title"
-          fi
-        elif [ "$done" != "1" ] && [ "$status" = "complete" ]; then
-          printf '%s\t%s\t%s\t%s\tledger-ahead\t%s\n' "$change" "$tid" "$seq" "$total" "$title"
-        fi
-      done <<< "$listing"
-      # The progress.json projection must agree with the runtime's own count.
-      pj=".kbd-orchestrator/phases/$phase/progress.json"
-      if [ -f "$pj" ]; then
-        pdone="$(jq -r --arg c "$change" '[.changes[]? | select(.id==$c) | .tasks_done][0] // empty' "$pj" 2>/dev/null)"
-        rcomp="$(printf '%s' "$registered" | jq -r '[to_entries[] | select(.value.status=="complete" or .value.status=="completed" or .value.status=="done")] | length')"
-        if [ -n "$pdone" ] && [ "$pdone" != "$rcomp" ]; then
-          printf '%s\t-\t0\t%s\tprojection\tprogress.json tasks_done=%s but ledger has %s complete\n' "$change" "$total" "$pdone" "$rcomp"
-        fi
-      fi
-    else
-      pdone="$(jq -r --arg c "$change" '[.changes[]? | select(.id==$c) | .tasks_done][0] // empty' "$pj" 2>/dev/null)"
-      if [ "$pdone" != "$bcomp" ]; then
-        printf '%s\t-\t0\t%s\tcount\tprogress.json tasks_done=%s but backend has %s done\n' "$change" "$total" "${pdone:-absent}" "$bcomp"
-      fi
-    fi
-  done <<< "$changes"
-}
-
-reconcile_print() {
-  # reconcile_print <phase> <json 0|1> <scan-tsv>
-  local phase="$1" json="$2" scan="$3" change tid seq total kind title n=0
-  if [ "$json" = "1" ]; then
-    printf '%s' "$scan" | jq -R -s --arg phase "$phase" '
-      [split("\n")[] | select(length > 0) | split("\t")
-        | {change: .[0], task: .[1], sequence: (.[2]|tonumber), total: (.[3]|tonumber), kind: .[4], title: .[5]}] as $d
-      | {phase: $phase, clean: ($d|length == 0), drifted: ($d|length), drift: $d}'
-    return 0
-  fi
-  while IFS=$'\t' read -r change tid seq total kind title; do
-    [ -n "$change" ] || continue
-    n=$((n + 1))
-    printf 'DRIFT %s task %s (%s): %s\n' "$change" "$tid" "$kind" "$title"
-  done <<< "$scan"
-  if [ "$n" -eq 0 ]; then printf 'reconcile: clean — %s\n' "$phase"
-  else printf 'reconcile: %s drifted task(s) in %s — repair with: kbd-apply reconcile %s --repair\n' "$n" "$phase" "$phase"; fi
-}
-
-reconcile_main() {
-  local phase="" repair=0 json=0 arg state="" authoritative=0 scan rc=0 line
-  for arg in "$@"; do
-    case "$arg" in
-      --repair) repair=1 ;;
-      --json) json=1 ;;
-      -*) die "reconcile: unknown flag $arg (usage: reconcile [<phase>] [--repair] [--json])" ;;
-      *) [ -z "$phase" ] || die "reconcile: only one phase may be given"; phase="$arg" ;;
-    esac
-  done
-  if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
-    authoritative=1
-    state="$(kbd_runtime_status_json ".")" || die "reconcile: cannot read canonical runtime status"
-  fi
-  [ -n "$phase" ] || phase="$(reconcile_phase_default "$state")"
-  [ -n "$phase" ] || die "reconcile: no phase given and no active phase found"
-
-  scan="$(reconcile_scan "$phase" "$state" "$authoritative")"
-  if [ -n "$scan" ] && [ "$repair" = "1" ]; then
-    local change tid seq total kind title
-    while IFS=$'\t' read -r change tid seq total kind title; do
-      [ -n "$change" ] || continue
-      case "$kind" in
-        ledger-missing|ledger-pending)
-          printf 'repair: %s task %s\n' "$change" "$tid" >&2
-          bash "${BASH_SOURCE[0]}" begin-task "$change" "$tid" "$seq" "$total" "$title" >/dev/null || warn "repair: begin-task failed for $change/$tid"
-          bash "${BASH_SOURCE[0]}" end-task "$change" "$tid" "$seq" "$total" "$title" >/dev/null || warn "repair: end-task failed for $change/$tid" ;;
-        count)
-          progress_output="$(b_progress "$change")" && { read -r tot comp rem <<< "$progress_output"; sync_progress "$change" "$comp" "$tot"; } ;;
-      esac
-    done <<< "$scan"
-    # Re-check from fresh state: repair must prove itself, not assume.
-    [ "$authoritative" = "1" ] && { state="$(kbd_runtime_status_json ".")" || die "reconcile: cannot re-read runtime status"; }
-    scan="$(reconcile_scan "$phase" "$state" "$authoritative")"
-  fi
-  reconcile_print "$phase" "$json" "$scan"
-  [ -z "$scan" ] || rc=1
-  return "$rc"
+# Repair may map backend ordinals to task IDs registered by Plan. Guards must
+# bind the same canonical task as the typed transition.
+reconcile_guard_task_id() {
+  local change="$1" id="$2" sequence="$3" title="$4" state phase registered
+  if [ "${KBD_RECONCILE_REPAIR:-}" != "1" ]; then printf '%s' "$id"; return 0; fi
+  state="$(kbd_runtime_status_json ".")" || return 1
+  phase="$(printf '%s' "$state" | jq -r '.activePath.phaseId')"
+  [ "$phase" = "${KBD_RECONCILE_PHASE:-}" ] || return 1
+  registered="$(printf '%s' "$state" | jq -c --arg p "$phase" --arg c "$change" '.phases[$p].changes[$c].tasks // {}')" || return 1
+  resolve_runtime_task_id "$registered" "$id" "$sequence" "$title"
 }
 
 # Fire a hook. Do NOT swallow its stderr — that is where the default reporter
@@ -785,6 +678,8 @@ case "$cmd" in
     read -r before_tot before_comp before_rem <<< "$progress_output"
     runtime_task_transition "$change" "$id" "$title" "$i" "register-only" \
       || die "failed to register canonical task boundary"
+    guard_task_id="$(reconcile_guard_task_id "$change" "$id" "$i" "$title")" \
+      || die "failed to resolve canonical repair guard task"
     change_start=0
     [ "${before_comp:-0}" -eq 0 ] && change_start=1
     guard_enabled=0
@@ -803,7 +698,7 @@ case "$cmd" in
       # OpenSpec task ordinals and standard task titles repeat across changes.
       # Qualify the canonical subject so the guard resolves the exact typed
       # change/task pair and records a distinct boundary obligation.
-      kbd_bottleneck_evaluate task before "$change/$id" 1 >/dev/null \
+      kbd_bottleneck_evaluate task before "$change/$guard_task_id" 1 >/dev/null \
         || die "canonical task start precommit evaluation blocked"
     fi
     runtime_task_transition "$change" "$id" "$title" "$i" "in-progress" \
@@ -813,7 +708,7 @@ case "$cmd" in
         change_guard_output="$(kbd_bottleneck_evaluate change before "$change" 0)" \
           || die "canonical change start postcommit evaluation blocked"
       fi
-      task_guard_output="$(kbd_bottleneck_evaluate task before "$change/$id" 0)" \
+      task_guard_output="$(kbd_bottleneck_evaluate task before "$change/$guard_task_id" 0)" \
         || die "canonical task start postcommit evaluation blocked"
     fi
     if [ "$change_start" = "1" ]; then
@@ -834,21 +729,30 @@ case "$cmd" in
   end-task)
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: end-task <change> <id> <i> <n> <title>"
+    guard_task_id="$(reconcile_guard_task_id "$change" "$id" "$i" "$title")" \
+      || die "failed to resolve canonical repair guard task"
     progress_output="$(b_progress "$change")" || die "failed to read backend task progress"
     read -r before_tot before_comp before_rem <<< "$progress_output"
     final_task=0
     [ "${before_rem:-1}" -eq 1 ] && final_task=1
+    if [ "${KBD_RECONCILE_REPAIR:-}" = "1" ]; then
+      repair_state="$(kbd_runtime_status_json ".")" || die "failed to read repair completion boundary"
+      repair_remaining="$(printf '%s' "$repair_state" | jq --arg c "$change" '[.phases[.activePath.phaseId].changes[$c].tasks[] | select(.status != "complete" and .status != "completed" and .status != "done" and .status != "cancelled")] | length')"
+      [ "$repair_remaining" -eq 1 ] && final_task=1
+    fi
     guard_enabled=0
     if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
       guard_enabled=1
-      kbd_bottleneck_evaluate task after "$change/$id" 1 >/dev/null \
+      kbd_bottleneck_evaluate task after "$change/$guard_task_id" 1 >/dev/null \
         || die "canonical task completion precommit evaluation blocked"
       if [ "$final_task" = "1" ]; then
         kbd_bottleneck_evaluate change after "$change" 1 >/dev/null \
           || die "canonical change completion precommit evaluation blocked"
       fi
     fi
-    b_mark_done "$change" "$id"
+    if [ "${KBD_RECONCILE_REPAIR:-}" != "1" ]; then
+      b_mark_done "$change" "$id" || die "failed to mark backend task complete"
+    fi
     runtime_task_transition "$change" "$id" "$title" "$i" "complete" \
       || die "failed to commit canonical task completion"
     # Recompute progress from the backend so the count is authoritative.
@@ -859,7 +763,7 @@ case "$cmd" in
     # completion live (CF-5). Best-effort; never aborts the driver.
     command -v kbd_position_sync >/dev/null 2>&1 && { kbd_position_sync || true; }
     if [ "$guard_enabled" = "1" ]; then
-      task_guard_output="$(kbd_bottleneck_evaluate task after "$change/$id" 0)" \
+      task_guard_output="$(kbd_bottleneck_evaluate task after "$change/$guard_task_id" 0)" \
         || die "canonical task completion postcommit evaluation blocked"
       if [ "$final_task" = "1" ]; then
         change_guard_output="$(kbd_bottleneck_evaluate change after "$change" 0)" \
@@ -908,9 +812,6 @@ case "$cmd" in
     command -v kbd_position_sync >/dev/null 2>&1 && { kbd_position_sync || true; }
     printf 'mark-done: %s task %s done; ledger synced (%s of %s). Hooks were NOT fired; use begin-task/end-task for a full boundary.\n' \
       "$change" "$id" "${comp:-0}" "${tot:-0}" ;;
-
-  reconcile)
-    reconcile_main "$@" ;;
 
   verify)
     [ -n "${1:-}" ] || die "usage: verify <change>"
