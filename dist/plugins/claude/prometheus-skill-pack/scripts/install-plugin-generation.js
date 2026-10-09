@@ -950,7 +950,12 @@ function sourceProvenance(sourceRoot) {
     return result.status === 0 ? result.stdout.trim() : null;
   };
   const sourceCommit = git('rev-parse', 'HEAD');
-  const sourceTreeState = git('status', '--porcelain') ? 'modified' : 'clean';
+  // Same rule as CLEAN_STATUS_ARGS in scripts/lib/plugin-source-topology.js. It is repeated here
+  // rather than imported because the Rust doctor embeds this file and rejects unknown imports.
+  const sourceTreeState =
+    git('status', '--porcelain', '--ignore-submodules=dirty', '--', '.', ':(exclude).prometheus/knowledge')
+      ? 'modified'
+      : 'clean';
   const configuredPaths = git('config', '-f', '.gitmodules', '--get-regexp', 'path');
   const externalSources = [];
   if (configuredPaths) {

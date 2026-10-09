@@ -98,6 +98,10 @@ SCRATCHPAD.md
 !.prometheus/knowledge/wiki/
 !.prometheus/knowledge/wiki/**
 .kbd-orchestrator/**/project.json
+# Hooks run from a nested crate used to create its own runtime state; never source.
+crates/*/.prometheus/
+# SurrealDB shell history (`surreal sql` writes it into the working directory).
+/history.txt
 
 # Local env overrides
 .envrc
