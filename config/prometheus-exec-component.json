@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "release": "1.12.1",
+  "release": "1.12.2",
   "componentId": "entity-graph-optimize",
   "world": "prometheus:component@0.1.0",
   "sourcePath": "skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm",
