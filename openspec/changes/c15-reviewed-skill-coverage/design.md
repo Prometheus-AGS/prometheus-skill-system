@@ -39,9 +39,12 @@ a `closure` of sorted paths plus its digest. An absent frontmatter id or version
 `null`; the pack never invents a portable SkillRef identity. `artifactDigest` is
 the raw `SKILL.md` byte digest. Each skill root is recursively enumerated, so an
 added, deleted, linked, or edited file invalidates its closure. Every shared
-runtime root actually shipped in that package is included conservatively in every
+runtime root actually used by skills in that package is included conservatively in every
 skill's closure, covering out-of-directory runtime support without trusting a
-handwritten per-skill list. `inventoryDigest` is the digest of the document before
+handwritten per-skill list. Host plugin descriptors are installation metadata, not
+skill runtime roots: their hook target is covered by the shipped `hooks` root, while
+the descriptor itself remains covered by the signed full-generation manifest.
+`inventoryDigest` is the digest of the document before
 that field is added.
 
 Mini has no signing addition. Boss pins the exact packaged inventory bytes/digest
