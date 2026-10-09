@@ -1,0 +1,75 @@
+# Cadence history — immutable IPFS backup
+
+Created: 2026-10-09T21:09:13.700Z. Uploaded and byte-verified: 2026-10-09T21:10:54.187Z.
+
+[Browse the pinned directory](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/) · [Download the restore manifest](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/manifest.json)
+
+Directory CID: `bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4`.
+Manifest SHA-256: `d4324dd3c2a280e66cc10055905b736af99c9a45c1f959c9120d39070d852c32`.
+
+The snapshot preserves run `bce4a4a6-fccb-48f8-85d4-57ad0fb24d1f`, event sequence 1307, 15 successful deliveries, original clocks, command identities and outstanding publication obligations. It does not finalize a delivery, clear publication debt or certify functionality.
+
+The 30 encrypted objects total 883682959 bytes. They contain the current state/journal, complete current archive manifest and its 19 segments, the preserved pre-rebaseline records, and 1384 supporting receipts, inputs and logs. Installers, binaries, application profiles and private runtime databases are excluded. Original and encrypted sizes/checksums are in the manifest.
+
+## Recovery
+
+History is encrypted with AES-256-GCM because the gateway is public and the records include private workflow context. The key is NOT stored in Git or IPFS. Keep a separate secure copy of:
+
+`/Users/gqadonis/.prometheus/backups/cadence-ipfs-20261009/recovery-key.hex`
+
+Recover using Node.js 22 or newer and the checked-in script. Choose a new destination; the script refuses to overwrite an existing directory:
+
+```text
+node <downloaded-restore-cadence-ipfs.mjs> --manifest https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/manifest.json --sha256 d4324dd3c2a280e66cc10055905b736af99c9a45c1f959c9120d39070d852c32 --key-file <secure-copy-of-recovery-key.hex> --out <new-restore-directory>
+```
+
+The output contains `cadence/`, `cadence-recovery-20261006/` and supporting records. Stop all Cadence writers before deliberately moving recovered data into a live `.prometheus/` directory. Inspect canonical KBD state and use Cadence resume; never initialize a fresh run merely to restore history.
+
+The journal and snapshot remain local and unchanged. Raw journals/archive payloads are stored in IPFS rather than Git; source-control checkouts need recovery before those historical files are available.
+
+## Historical limitation
+
+The preserved prior run is missing events 1–1609; this backup preserves the existing recovery record without fabricating them.
+
+The preserved recovery README records the previously lost archive range. This backup cannot recover bytes already missing before it was made.
+
+## Stored files
+
+| Record | Download | Encrypted SHA-256 |
+| --- | --- | --- |
+| `cadence/state.json` | [001-state.json.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/001-state.json.gz.enc) | `b83e2ede5adfcac824cbac3d8b74b1bce218834abef46f89e918158b09bdf483` |
+| `cadence/events.jsonl` | [002-events.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/002-events.jsonl.gz.enc) | `cb42513f5f63b51c3f2707e1a10afcfaa6e18e8cae12f07e8fca1ab3cf5f129f` |
+| `cadence/event-archives.json` | [003-event-archives.json.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/003-event-archives.json.gz.enc) | `438c526943e0bbd2657252cfb38c60cb67a3ae9e9e51b68bdfa20e2eacb321d3` |
+| `cadence/archives/1-131-d0893a8169e59d361e8b391a060f011624de8ab050f5cf6c1ce681133f879f3c.jsonl.gz` | [004-1-131-d0893a8169e59d361e8b391a060f011624de8ab050f5cf6c1ce681133f879f3c.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/004-1-131-d0893a8169e59d361e8b391a060f011624de8ab050f5cf6c1ce681133f879f3c.jsonl.gz.enc) | `7a1fe05a4d2d68c382907deb9a9c63c6ccb3a98b5db82b90298433c54c5d904d` |
+| `cadence/archives/132-1aa-cc221bf3c3735911a553a8fef6f9d256043a88048cabf97b8261fe82266f75dd.jsonl.gz` | [005-132-1aa-cc221bf3c3735911a553a8fef6f9d256043a88048cabf97b8261fe82266f75dd.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/005-132-1aa-cc221bf3c3735911a553a8fef6f9d256043a88048cabf97b8261fe82266f75dd.jsonl.gz.enc) | `1b881cbfa3d6ad772db4e08cdd91f977aac53a3b4bab1f041d95295a2fe505d2` |
+| `cadence/archives/1ab-209-5096d3136f9b8f31f89aefb4d5395b13f6e8c8e52dcdab36488cc878bf6ce676.jsonl.gz` | [006-1ab-209-5096d3136f9b8f31f89aefb4d5395b13f6e8c8e52dcdab36488cc878bf6ce676.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/006-1ab-209-5096d3136f9b8f31f89aefb4d5395b13f6e8c8e52dcdab36488cc878bf6ce676.jsonl.gz.enc) | `2f33b886f994182ded8d700f7b49004fbf84f4b900533f603ca85092c9c34e1a` |
+| `cadence/archives/20a-25d-86c1902d6327b72eb26efcf55fedf856f9fc038c232aa3dedde6ae37f06a1e2b.jsonl.gz` | [007-20a-25d-86c1902d6327b72eb26efcf55fedf856f9fc038c232aa3dedde6ae37f06a1e2b.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/007-20a-25d-86c1902d6327b72eb26efcf55fedf856f9fc038c232aa3dedde6ae37f06a1e2b.jsonl.gz.enc) | `12590e1f90e9a6fe582b1c44433dcff5f9e3d071679ba04c4204228478d0a518` |
+| `cadence/archives/25e-2a9-b4babfd8efeeef334bce0ea85a841d86c8d3bbd885606865ed3c288933724f1b.jsonl.gz` | [008-25e-2a9-b4babfd8efeeef334bce0ea85a841d86c8d3bbd885606865ed3c288933724f1b.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/008-25e-2a9-b4babfd8efeeef334bce0ea85a841d86c8d3bbd885606865ed3c288933724f1b.jsonl.gz.enc) | `05f0836cc2e8ff735d134d91abb374088cb14404a78caedfcf6e48caf91a666e` |
+| `cadence/archives/2aa-2ec-460cbcd45cd8053d7e8bceb83dc3c4975a501616658758af3c7670fedf71e8cf.jsonl.gz` | [009-2aa-2ec-460cbcd45cd8053d7e8bceb83dc3c4975a501616658758af3c7670fedf71e8cf.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/009-2aa-2ec-460cbcd45cd8053d7e8bceb83dc3c4975a501616658758af3c7670fedf71e8cf.jsonl.gz.enc) | `618ce19bb6b4a6d8571f75dacbe6adf603f41c3d590c6733571c02dd1bc95573` |
+| `cadence/archives/2ed-329-231f10206a4938436f56e53c381abd9b185605449e1fc33d6e95a6c62cea48d4.jsonl.gz` | [010-2ed-329-231f10206a4938436f56e53c381abd9b185605449e1fc33d6e95a6c62cea48d4.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/010-2ed-329-231f10206a4938436f56e53c381abd9b185605449e1fc33d6e95a6c62cea48d4.jsonl.gz.enc) | `eef29326bef1b0063dd2c95972be3de464dbbd8023d28aa25d673f2e29d47c01` |
+| `cadence/archives/32a-362-9f4bb475ad045886532f31a7ff7bec6e9b87b6579ec4785fc2604189fdbf16cd.jsonl.gz` | [011-32a-362-9f4bb475ad045886532f31a7ff7bec6e9b87b6579ec4785fc2604189fdbf16cd.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/011-32a-362-9f4bb475ad045886532f31a7ff7bec6e9b87b6579ec4785fc2604189fdbf16cd.jsonl.gz.enc) | `db64433a0103ff1e4399669133534b0191c350e32de92df4d35bbd861db993f2` |
+| `cadence/archives/363-395-b27541cef0c6c62b0a636551f99879d29d720aab2ea23ec73228cff0e05affbd.jsonl.gz` | [012-363-395-b27541cef0c6c62b0a636551f99879d29d720aab2ea23ec73228cff0e05affbd.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/012-363-395-b27541cef0c6c62b0a636551f99879d29d720aab2ea23ec73228cff0e05affbd.jsonl.gz.enc) | `01d121821b6f6b313157b3d5c7a0e37104a46bb6f5b6f347b21d659040c2c393` |
+| `cadence/archives/396-3c3-e16457215f19d0b6e2579bfbb5e5de7ac5c0df41a16674a2c13269a2c687b349.jsonl.gz` | [013-396-3c3-e16457215f19d0b6e2579bfbb5e5de7ac5c0df41a16674a2c13269a2c687b349.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/013-396-3c3-e16457215f19d0b6e2579bfbb5e5de7ac5c0df41a16674a2c13269a2c687b349.jsonl.gz.enc) | `3c26792a7209615c35fafe9f0ed20d1152d3a99d6a7b99594dfae1d65d3a2745` |
+| `cadence/archives/3c4-3ee-1d8816ef3125512cf9fcf22678f5f781a671164b511102414e7fb4318048a44b.jsonl.gz` | [014-3c4-3ee-1d8816ef3125512cf9fcf22678f5f781a671164b511102414e7fb4318048a44b.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/014-3c4-3ee-1d8816ef3125512cf9fcf22678f5f781a671164b511102414e7fb4318048a44b.jsonl.gz.enc) | `59afeccd7cf52bbcaa4818fdf00398531058670ef6b79201318d19ef101373ae` |
+| `cadence/archives/3ef-416-0a58ed1cea087b953e140677e6ba0920673f4571a97e7ae391419d9a80c68df7.jsonl.gz` | [015-3ef-416-0a58ed1cea087b953e140677e6ba0920673f4571a97e7ae391419d9a80c68df7.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/015-3ef-416-0a58ed1cea087b953e140677e6ba0920673f4571a97e7ae391419d9a80c68df7.jsonl.gz.enc) | `1b82c148f187f559c621c37fcf58956dd0b0bac9a98acc07bd645cfe30db17be` |
+| `cadence/archives/417-43c-bc63f7f78054e6be66bb7f5609222ac7c40a8840a62fb7350e0b8990c9d9201a.jsonl.gz` | [016-417-43c-bc63f7f78054e6be66bb7f5609222ac7c40a8840a62fb7350e0b8990c9d9201a.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/016-417-43c-bc63f7f78054e6be66bb7f5609222ac7c40a8840a62fb7350e0b8990c9d9201a.jsonl.gz.enc) | `2fb7b7194a64bc4b05847a7ae5071b96b3222b141e3ffb4af2b41af9790a2491` |
+| `cadence/archives/43d-461-ea86eb873b1c743ac4c3a14e6c2a2a2673cc1030e2a44b874f7a9e891c6049d7.jsonl.gz` | [017-43d-461-ea86eb873b1c743ac4c3a14e6c2a2a2673cc1030e2a44b874f7a9e891c6049d7.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/017-43d-461-ea86eb873b1c743ac4c3a14e6c2a2a2673cc1030e2a44b874f7a9e891c6049d7.jsonl.gz.enc) | `8b936ae20a5a90db806b9735eb5c0e5c1df14aa1921366764139d98ac0e63011` |
+| `cadence/archives/462-484-ff6f72b6a840a721aa10a0a934d9e23bd33653811f50adef3058e10f7f550c2c.jsonl.gz` | [018-462-484-ff6f72b6a840a721aa10a0a934d9e23bd33653811f50adef3058e10f7f550c2c.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/018-462-484-ff6f72b6a840a721aa10a0a934d9e23bd33653811f50adef3058e10f7f550c2c.jsonl.gz.enc) | `c7ffec8cf3e6d7c8b9e14cc1337f0a28cef6ff25037432969aca4ca8c334e6a5` |
+| `cadence/archives/485-4a6-bdc8a4c855d91133474e0c0a06de7dee06bfec7112715431426bcfe010180bef.jsonl.gz` | [019-485-4a6-bdc8a4c855d91133474e0c0a06de7dee06bfec7112715431426bcfe010180bef.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/019-485-4a6-bdc8a4c855d91133474e0c0a06de7dee06bfec7112715431426bcfe010180bef.jsonl.gz.enc) | `838e5321a158f52885cccad4e31b6bed64d9f1ae9aa0facbde037f41ac5f9df9` |
+| `cadence/archives/4a7-4c7-0905b0b7af50728fd34feae2ace13d9ec94b3b486544ba46f0053dcbe2fdcce5.jsonl.gz` | [020-4a7-4c7-0905b0b7af50728fd34feae2ace13d9ec94b3b486544ba46f0053dcbe2fdcce5.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/020-4a7-4c7-0905b0b7af50728fd34feae2ace13d9ec94b3b486544ba46f0053dcbe2fdcce5.jsonl.gz.enc) | `f974b8f5a87ba5bbb8ade90e408ea67d2981bd27205296cbff8e42dbd5bc7801` |
+| `cadence/archives/4c8-4e7-3ba8f01ae16e68bcab80fca63b3f9719935c20a2a36fddd00b569793db2eb336.jsonl.gz` | [021-4c8-4e7-3ba8f01ae16e68bcab80fca63b3f9719935c20a2a36fddd00b569793db2eb336.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/021-4c8-4e7-3ba8f01ae16e68bcab80fca63b3f9719935c20a2a36fddd00b569793db2eb336.jsonl.gz.enc) | `4c42404a043697dda5a4da20c5440b04ab28cd13ef2370025a3c6a09ca7405ff` |
+| `cadence/archives/4e8-506-2e4611ef15d34d269572a053e34d2b80f8f59a1b257db50ea5d2639a480a7cc2.jsonl.gz` | [022-4e8-506-2e4611ef15d34d269572a053e34d2b80f8f59a1b257db50ea5d2639a480a7cc2.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/022-4e8-506-2e4611ef15d34d269572a053e34d2b80f8f59a1b257db50ea5d2639a480a7cc2.jsonl.gz.enc) | `d965b7166ae9d8e7f1ea0bbd7f7be72ad976f8ff578e8066ddf6dfacd1d2f7f3` |
+| `cadence-recovery-20261006/README.md` | [023-README.md.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/023-README.md.gz.enc) | `f36fc29fff28e3cd2dcf40337ecf475ee518b8aaa01b9d4b0bcf2a202a66ffce` |
+| `cadence-recovery-20261006/checksums.sha256` | [024-checksums.sha256.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/024-checksums.sha256.gz.enc) | `a82a908455b0476fc9821188f1b46c7a0a00376d7069d566299cdfa5bb188488` |
+| `cadence-recovery-20261006/events.jsonl` | [025-events.jsonl.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/025-events.jsonl.gz.enc) | `4990d6b4759cc3b1bbeddd7391c4020020a3a3e668d2bc16f83169cf85b293bd` |
+| `cadence-recovery-20261006/history-events.json` | [026-history-events.json.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/026-history-events.json.gz.enc) | `cc9ec86882021f8631f42ecae37cb4e440d7da063668f65312c404f66ac811e7` |
+| `cadence-recovery-20261006/history-state.json` | [027-history-state.json.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/027-history-state.json.gz.enc) | `e71e29261d35302c6f02c26b3868b26238190f1d4b186e7be7027286a73785fb` |
+| `cadence-recovery-20261006/init-input.json` | [028-init-input.json.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/028-init-input.json.gz.enc) | `1b71ff911ea3ef56d0252c97172fa092689ac1d16d7a25bbaa6c490b07155d2d` |
+| `cadence-recovery-20261006/state.json` | [029-state.json.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/029-state.json.gz.enc) | `50e7324cffd2581298cbc574595253357c4064a0e2503329950b4d08c09de32f` |
+| `@supporting-records` | [030-supporting-records.json.gz.enc](https://ipfs.prometheusags.ai/ipfs/bafybeifaty5dvy2ebi5ifszuw2bffe3vqjh72fxbhgeqgj3jvk5skcdfl4/030-supporting-records.json.gz.enc) | `3e6d78a7760b6bbb99846451a61df622d8ea42a1b27f34c83f039cb73039b460` |
+
+## Retention
+
+The directory pin was confirmed recursive on the named node. Availability depends on retaining that pin and the recovery key; a CID alone is not a second backup. Local originals and the encrypted staging copy remain available.
+
+Restore utility: [Node.js script](https://github.com/GQAdonis/librefang/blob/codex/agent-fabric-convergence-c08/docs/plans/agent-fabric-convergence/scripts/restore-cadence-ipfs.mjs). Canonical archive records are maintained in [the convergence planning repository](https://github.com/GQAdonis/librefang/blob/codex/agent-fabric-convergence-c08/docs/plans/agent-fabric-convergence/cadence-history-ipfs.md).
