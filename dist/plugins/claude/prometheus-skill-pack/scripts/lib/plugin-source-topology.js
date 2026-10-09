@@ -166,6 +166,17 @@ function readCodexRegistration(toml) {
 
 // Read-only on purpose: `git status` refreshes and WRITES the index unless optional locks
 // are off, and the doctor must not modify the checkout it inspects.
+/**
+ * `git status` arguments that decide whether a checkout is "what is committed".
+ * Runtime state is excluded: the knowledge wiki is tracked on purpose but hook-written
+ * on every session, so counting it makes every checkout permanently dirty; and a dirty
+ * submodule worktree is the submodule's own churn. A changed submodule *pointer* and any
+ * other tracked or untracked, non-ignored file still count. Keep this list identical to
+ * the copies in scripts/update-skill-pack.sh and scripts/install-plugin-generation.js
+ * (the latter is embedded by the Rust doctor, so it cannot import this module).
+ */
+export const CLEAN_STATUS_ARGS = ['status', '--porcelain', '--ignore-submodules=dirty', '--', '.', ':(exclude).prometheus/knowledge'];
+
 function runGit(cwd, args) {
   const run = spawnSync('git', ['--no-optional-locks', ...args], {
     cwd,
@@ -207,7 +218,7 @@ export function gitFacts(dir, run = runGit) {
   const gitDir = probe(['rev-parse', '--absolute-git-dir'], 'rev-parse --absolute-git-dir');
   const common = probe(['rev-parse', '--path-format=absolute', '--git-common-dir'], 'rev-parse --git-common-dir');
   // Tracked changes and untracked, non-ignored files both mean the install is not what is committed.
-  const status = probe(['status', '--porcelain'], 'status');
+  const status = probe(CLEAN_STATUS_ARGS, 'status');
   return {
     repo: true,
     linkedWorktree: gitDir && common ? path.resolve(gitDir) !== path.resolve(common) : null,
