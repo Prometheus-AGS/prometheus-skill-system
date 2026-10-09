@@ -1181,11 +1181,23 @@ nested sub-skills, e.g. `deep-research/skills/stage-*`) registers its parent *an
 child as separate catalog entries.
 
 Which skills enter the catalog is curated in
-[`config/codex-catalog.txt`](config/codex-catalog.txt). Measure the live cost with:
+[`config/codex-catalog.txt`](config/codex-catalog.txt) and **applied by
+[`shared/scripts/codex-catalog-config.sh`](shared/scripts/codex-catalog-config.sh)**,
+which every install and update runs (`scripts/lib/install-codex-catalog.sh`). It writes
+one managed block of `[[skills.config]] path = ... enabled = false` entries into
+`~/.codex/config.toml` (backup first, everything outside the block untouched, `--uninstall`
+removes it). Nothing on disk is deleted, so the signed generation stays intact.
+
+The listing Codex prints is **truncated at its character cap**, so it is only a lower
+bound: 378 printed entries came from 3,113 distinct `SKILL.md` files on one machine,
+~580 of them third-party. De-duplicating the pack alone cannot fit that, which is why
+the catalog file also carries a `third-party exclude` policy with `keep-path` /
+`keep-name` allow rules. Match `enabled = false` by resolved **path**: a `name` selector
+misses skills Codex lists under a plugin-namespaced name (`bundle:child`).
 
 ```bash
-bash scripts/codex-sync-skills.sh --report
-codex debug prompt-input | python3 scripts/codex-catalog-stat.py
+bash shared/scripts/codex-catalog-config.sh --check   # JSON; ok=false means the block would change
+codex debug prompt-input | python3 scripts/codex-catalog-stat.py   # verdict must not be DEGRADED
 ```
 
 **Excluding a skill from the catalog does not make it unavailable.**

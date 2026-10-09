@@ -1,21 +1,34 @@
 # Codex skill catalog manifest
 #
 # Codex (0.144.x) renders every discoverable skill into a single "## Skills"
-# section with a FIXED size budget. Names and paths are mandatory; descriptions
-# get whatever budget is left over. So each extra skill steals description text
-# from every other skill:
+# section with a FIXED size budget (about 29.6K characters). Names and paths are
+# mandatory; descriptions get whatever budget is left over. So each extra entry
+# steals description text from every other entry:
 #
-#   ~130 skills  -> ~166 char descriptions  (full, model triggers reliably)
-#   ~200 skills  ->  ~66 char descriptions  (usable)
-#   ~360 skills  ->  ~10 char descriptions  (useless -- model cannot tell skills apart)
+#   ~130 entries -> ~166 char descriptions  (full, model triggers reliably)
+#   ~200 entries ->  ~66 char descriptions  (usable)
+#   ~360 entries ->  ~10 char descriptions  (useless -- model cannot tell skills apart)
 #
-# This file selects which skills are copied into ~/.codex/skills, i.e. which
-# ones Codex can AUTO-TRIGGER from their description.
+# Codex does not de-duplicate: every SKILL.md it finds under every skill root is
+# an entry, so one skill installed as a real copy, a prometheus-* alias, a
+# symlink, a plugin-cache copy and a committed repo copy costs five entries.
+#
+# This file selects which PACK skills Codex may AUTO-TRIGGER. The selection is
+# applied by shared/scripts/codex-catalog-config.sh, which writes a managed block
+# of `[[skills.config]] enabled = false` entries into ~/.codex/config.toml. Nothing
+# on disk is deleted or edited, so the signed generation stays intact. The same
+# helper also disables redundant duplicate copies of a skill (pack or not) so each
+# skill appears once.
 #
 # Excluding a skill here does NOT make it unavailable: scripts/register-slash-commands.sh
 # registers a slash command for EVERY skill in the repo, pointing at the SKILL.md in
-# this repo. Slash-command prompts live outside the catalog budget, so an excluded
-# skill is still invokable as /<skill-name> -- it just won't be auto-suggested.
+# this repo, and the helper refuses to exclude a skill that has no prompt. Slash-command
+# prompts live outside the catalog budget, so an excluded skill is still invokable as
+# /<skill-name> -- it just won't be auto-suggested.
+#
+# Only top-level skills are listed. A bundle's nested skills (for example the
+# stage-* skills of deep-research) are internal steps of their bundle and are
+# never auto-discoverable on their own.
 #
 # Syntax: one glob per line, matched against the repo-relative skill directory.
 #   include <glob>    (default when no verb is given)
@@ -23,18 +36,93 @@
 # Later rules win. Comments start with '#'.
 #
 # Verify the effect after editing:
-#   bash scripts/codex-sync-skills.sh --report
+#   bash shared/scripts/codex-catalog-config.sh --check
+#   codex debug prompt-input | python3 scripts/codex-catalog-stat.py
+
+# Start from nothing and opt in, so a new skill never silently grows the catalog.
+exclude skills/**
 
 # ---------------------------------------------------------------------------
-# Default: every non-imported skill is a catalog candidate.
+# Third-party skills (anything that is not a pack skill). The catalog budget
+# cannot hold the ~580 distinct third-party skills a developer machine collects
+# (ECC alone is ~280), so Codex auto-discovers only the sources kept below.
+# Skills that are excluded stay installed and keep working in every other tool;
+# they are only hidden from Codex. Directives (applied by codex-catalog-config.sh):
+#   third-party keep|exclude   what to do with third-party skills not matched below
+#   keep-path <glob>           keep skills whose resolved path matches (~ expands)
+#   keep-name <glob>           keep skills whose name matches
 # ---------------------------------------------------------------------------
-include skills/**
+third-party exclude
+keep-path ~/.codex/skills/.system/**
+keep-path ~/.codex/plugins/cache/openai-*/**
+keep-name openspec-*
 
-# ---------------------------------------------------------------------------
-# Bundles: Codex recurses into copied bundles. Cross-harness continuity
-# requires the complete payload, not machine-specific prompt fallbacks, so no
-# non-imported bundle is excluded. The current complete catalog remains below
-# the documented ~200-entry usable-description threshold.
-# ---------------------------------------------------------------------------
+# Process and workflow: KBD, agent teams, PMPO loops, review, delivery.
+include skills/process/adversarial-review
+include skills/process/agent-team-creator
+include skills/process/agent-team-handoff
+include skills/process/agent-team-manage
+include skills/process/agent-team-models
+include skills/process/cowork-management
+include skills/process/delivery-cadence
+include skills/process/ideation-mindmap
+include skills/process/iterative-evolver
+include skills/process/karpathy-progress-memory
+include skills/process/kbd-evolve
+include skills/process/kbd-goal
+include skills/process/kbd-goal-check
+include skills/process/kbd-loop
+include skills/process/kbd-process-orchestrator
+include skills/process/liter-llm-bridge
+include skills/process/native-agent
+include skills/process/pmpo-elicit
+include skills/process/pmpo-evolver
+include skills/process/pmpo-outer-loop
+include skills/process/pmpo-skill-creator
+include skills/process/prometheus-context-bootstrap
 
-# All non-imported skills are copied as relocatable payloads.
+# Rust and systems.
+include skills/rust/actor-model
+include skills/rust/async-patterns
+include skills/rust/axum-patterns
+include skills/rust/error-handling
+include skills/rust/mcp-server
+include skills/rust/performance
+include skills/rust/prometheus-rust-auditor
+include skills/rust/prometheus-rust-workspace
+include skills/rust/rust-async-patterns
+include skills/rust/rust-best-practices
+include skills/rust/rust-mcp-server-generator
+include skills/rust/workspace-structure
+
+# Testing and DevOps.
+include skills/testing/bdd-lifecycle-loop
+include skills/testing/bdd-testing
+include skills/devops/disk-space-guardian
+include skills/devops/gitops-bootstrap
+
+# Knowledge, learning and research.
+include skills/documentation/llm-wiki
+include skills/research/deep-research
+include skills/learn/feynman-loop
+include skills/learn/learn-goal
+include skills/learn/learn-grade
+include skills/learn/learn-plan
+include skills/learn/learn-retain
+include skills/learn/ui-surface
+
+# UI/UX core (the rest of the 41 UI skills remain slash-command only).
+include skills/ui-ux/design-taste-frontend
+include skills/ui-ux/impeccable
+include skills/ui-ux/prometheus-impeccable-core
+include skills/ui-ux/prometheus-ui-review
+include skills/ui-ux/prometheus-ui-ux
+include skills/ui-ux/ui-ux-pro-max
+include skills/ui-ux/vercel-react-best-practices
+include skills/ui-ux/web-design-guidelines
+
+# Frameworks and architecture.
+include skills/react/prometheus-entity-skills
+include skills/react/react-vite-stack
+include skills/typescript/typescript-base-patterns
+include skills/architecture/clean-architecture
