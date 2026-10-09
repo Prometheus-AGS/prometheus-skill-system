@@ -24,7 +24,19 @@ function relative(root, absolute) {
 
 function collectFiles(root, location, result) {
   const stat = fs.lstatSync(location);
-  if (stat.isSymbolicLink()) throw new Error(`reviewed closure refuses symlink: ${relative(root, location)}`);
+  if (stat.isSymbolicLink()) {
+    // Payload symlinks (e.g. the tracked `.claude-plugin/hooks -> ../hooks`)
+    // are signed as symlink intents by the release manifest. Their targets are
+    // covered where they live, so the link is not followed or double-counted.
+    // A link that resolves outside the payload is still refused.
+    const resolved = path.resolve(path.dirname(location), fs.readlinkSync(location));
+    try {
+      relative(root, resolved);
+    } catch {
+      throw new Error(`reviewed closure refuses symlink escaping payload: ${relative(root, location)}`);
+    }
+    return;
+  }
   if (stat.isDirectory()) {
     for (const name of fs.readdirSync(location).sort(compare)) {
       const child = path.join(location, name);
