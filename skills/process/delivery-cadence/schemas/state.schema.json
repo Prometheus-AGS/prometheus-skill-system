@@ -350,6 +350,10 @@
       "type": "array",
       "items": { "$ref": "pipeline-v3.schema.json#/$defs/externalReleases" }
     },
+    "frozenSourceReconciliations": {
+      "type": "array",
+      "items": { "$ref": "pipeline-v3.schema.json#/$defs/frozenSourceReconciliations" }
+    },
     "publicationLinks": {
       "type": "array",
       "items": { "$ref": "pipeline-v3.schema.json#/$defs/publicationLinks" }
