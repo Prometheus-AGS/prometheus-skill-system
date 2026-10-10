@@ -97,3 +97,5 @@ Point a checkpoint at it as a program plus arguments, for example:
 The local procedure file is a git-ignored shim that `exec`s `$HOME/.claude/skills/delivery-cadence/scripts/refresh-skill-pack.sh` with this machine's deploy worktree, state path and services; see [examples/refresh-skill-pack-shim.sh](../examples/refresh-skill-pack-shim.sh). Only integration tests set `REFRESH_TEST_MODE=1` with `REFRESH_UPDATE_CMD`, `REFRESH_INSTALL_CMD` and `REFRESH_KICKSTART_CMD` (receives the label as `$1`) to substitute recording stubs.
 
 Historical external releases and independent obligation links: see [historical publication](historical-publication.md). This preserves original candidates, delivery credit, clocks and separate installed acceptance.
+
+An explicit operator decision can defer active delivery platforms without resetting its clock. See [publication target amendments](publication-target-amendment.md). Existing publication obligations are preserved.
