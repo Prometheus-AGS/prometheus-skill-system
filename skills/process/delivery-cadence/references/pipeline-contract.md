@@ -19,3 +19,5 @@ Publication modes manual/count/interval/either preserve every as a count alias. 
 See profile.md for CLI requests, adapters.md for KBD boundaries and hooks.md for trusted handler registration.
 
 Interrupted short commands retain their command ID and unknown outcome. Resume accepts commandRecovery:{commandId,evidencePath} only with a matching run/command, inspectedRevision from current status, not-applied outcome, authorityRef, reason and effectChecks [{absent:true,evidence:...}]. This is an explicit owner attestation after inspection, not an automatic claim that an external effect was absent. Repeated failed commands return their recorded error; known successful commands return their receipt.
+
+Historical external releases and independent obligation links: see [historical publication](historical-publication.md). This preserves original candidates, delivery credit, clocks and separate installed acceptance.
