@@ -6,6 +6,10 @@ import { clone, digest, fail, nonempty, strings, timestamp } from './pipeline-da
 const sha = value => /^[a-f0-9]{64}$/.test(value ?? '');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const scopeKinds = ['tasks', 'changes', 'phases', 'outcomes'];
+function observedTime(value) {
+  if (!nonempty(value)) fail('Historical evidence requires explicit original observed timestamps');
+  return timestamp(value);
+}
 function sources(refs) {
   if (!Array.isArray(refs) || !refs.length) fail('Historical evidence needs actual immutable sourceRefs');
   for (const ref of refs) {
@@ -14,7 +18,7 @@ function sources(refs) {
   }
 }
 function ordered(document) {
-  timestamp(document.startedAt); timestamp(document.finishedAt);
+  observedTime(document.startedAt); observedTime(document.finishedAt);
   if (Date.parse(document.finishedAt) < Date.parse(document.startedAt)) fail('Historical operation timestamps are reversed');
 }
 function artifact(value, published = false) {
@@ -47,12 +51,12 @@ export async function historicalEvidence(input) {
   }
   const release = input.release;
   if (!nonempty(release?.id) || !nonempty(release.targetId) || !nonempty(release.version)) fail('Historical release needs immutable id, targetId and version');
-  timestamp(release.publishedAt); sources(release.sourceRefs);
+  observedTime(release.publishedAt); sources(release.sourceRefs);
   async function document(ref, kind) {
     const value = JSON.parse(await read(ref));
     if (value.schemaVersion !== 1 || value.kind !== kind || value.status !== 'success') fail('Historical ' + kind + ' evidence needs schemaVersion:1, matching kind and status:success');
     if (value.releaseVersion !== release.version || digest(value.sourceRefs) !== digest(release.sourceRefs)) fail('Historical ' + kind + ' release/source identity mismatch');
-    timestamp(value.verifiedAt);
+    observedTime(value.verifiedAt);
     await references(value.evidenceRefs);
     return clone(value);
   }
