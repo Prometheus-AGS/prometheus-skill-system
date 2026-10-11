@@ -78,7 +78,7 @@
     },
     {
       "path": "scripts/lib/reviewed-skill-closures.js",
-      "sha256": "916361077ec009614acc4b2945e74a34b57004b8a92418116b41a8481d6ab74f",
+      "sha256": "a5a1a5e934fe1dc8b9e69eaa02a0d34a4a7e5b90df94933fa7e9b6087080567b",
       "executable": false
     },
     {
@@ -512,5 +512,5 @@
       "executable": true
     }
   ],
-  "bundleId": "87425ca0922a267372c95279ab80081c1a5dbf19574f70a814cf00314f051ec3"
+  "bundleId": "dbc442b5ff8ebde896c7401b9655c724a2f5a4d9774423c6de61950a9116808f"
 }
