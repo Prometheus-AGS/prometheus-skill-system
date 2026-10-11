@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-09T14:28:30.130Z",
+  "path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.context/reconcile-handoff/full.diff",
+  "sha256": "852b499d1a62e7a968f9758bf8ec4e4d89724e329661b566bdee5fab80e37965",
+  "bytes": 378264,
+  "paths": 79,
+  "excluded": [
+    ".context/reconcile-handoff/",
+    ".kbd-orchestrator/position-reminder.txt",
+    ".prometheus/knowledge/wiki/.index.lock"
+  ]
+}

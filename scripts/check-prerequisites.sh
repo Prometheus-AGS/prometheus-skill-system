@@ -361,23 +361,43 @@ check_npm() {
 # ── Tool builder helper ──────────────────────────────────────────────────────
 # Builds a Rust workspace and copies a single binary out.
 #
-# Usage: build_and_install <bin-name> <workspace-dir> [<cargo-package>] [<expected-version>]
+# Usage: build_and_install <bin-name> <workspace-dir> [<cargo-package>]
 #
-# - Skips the build if `<bin-name>` is already on PATH (idempotency).
+# - Skips the build only when the `<bin-name>` that PATH resolves IS our
+#   installed copy and reports the workspace's version. A name match alone is
+#   not enough: `prometheus` in particular collides with unrelated tools (e.g.
+#   the @firecrawl/prometheus-cli npm package) and with stale old builds, and a
+#   name-only check left the real CLI never installed or upgraded.
+# - Re-signs ad-hoc on macOS after copying (cp breaks arm64 signatures).
+# - Verifies afterwards that PATH resolves to the installed copy; a shadowed
+#   install is a failure, not a silent success.
 # - Records failures in TOOL_FAILURES so the caller can surface them at the end
 #   without aborting other builds.
+resolve_real_path() {
+    node -e 'try{console.log(require("fs").realpathSync(process.argv[1]))}catch{process.exit(1)}' "$1" 2>/dev/null
+}
+
+# Prints "<target_directory>\t<version>" for the package owning bin target $2.
+workspace_bin_info() {
+    (cd "$1" && cargo metadata --format-version 1 --no-deps 2>/dev/null) \
+        | node -e '
+let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{
+  try{const m=JSON.parse(s);const bin=process.argv[1];
+    const pkg=m.packages.find(p=>p.targets.some(t=>t.kind.includes("bin")&&t.name===bin));
+    console.log(m.target_directory+"\t"+(pkg?pkg.version:""));}catch{process.exit(1)}});' "$2" 2>/dev/null
+}
+
 build_and_install() {
     local bin="$1"
     local workspace="$2"
     local pkg="${3:-}"   # optional -p flag
     local label="$bin"
 
-    if command -v "$bin" >/dev/null 2>&1; then
-        echo "    ✅ $label already on PATH ($(command -v "$bin"))"
-        return 0
-    fi
-
     if [ ! -d "$REPO_ROOT/$workspace" ]; then
+        if command -v "$bin" >/dev/null 2>&1; then
+            echo "    ⚠️  $label workspace missing at $workspace — keeping $(command -v "$bin") (version unverified)"
+            return 0
+        fi
         echo "    ⚠️  $label workspace missing at $workspace — run: git submodule update --init"
         TOOL_FAILURES+=("$label: workspace missing ($workspace)")
         return 1
@@ -389,19 +409,39 @@ build_and_install() {
         return 1
     fi
 
+    local info target_dir expected_version installed
+    info=$(workspace_bin_info "$REPO_ROOT/$workspace" "$bin" || true)
+    target_dir="${info%%$'\t'*}"
+    expected_version="${info#*$'\t'}"
+    [ -n "$info" ] && [ -n "$target_dir" ] || target_dir="$REPO_ROOT/$workspace/target"
+    [ "$info" = "$target_dir" ] && expected_version=""
+    installed="$INSTALL_DIR/$bin$EXE"
+
+    if [ -n "$expected_version" ] && command -v "$bin" >/dev/null 2>&1; then
+        local on_path real_on_path real_installed
+        on_path=$(command -v "$bin")
+        real_on_path=$(resolve_real_path "$on_path" || echo "$on_path")
+        real_installed=$(resolve_real_path "$installed" || echo "$installed")
+        if [ "$real_on_path" = "$real_installed" ] \
+            && "$on_path" --version 2>/dev/null | grep -qF "$expected_version"; then
+            echo "    ✅ $label $expected_version up to date ($on_path)"
+            return 0
+        fi
+        echo "    ℹ️  $label on PATH ($on_path) is not the current build${expected_version:+ ($expected_version)} — rebuilding"
+    fi
+
     echo "    🔨 Building $label from $workspace..."
     local cargo_args=("build" "--release")
     [ -n "$pkg" ] && cargo_args+=("-p" "$pkg")
 
     if (cd "$REPO_ROOT/$workspace" && cargo "${cargo_args[@]}"); then
-        local target_dir built
-        target_dir=$(cd "$REPO_ROOT/$workspace" && cargo metadata --format-version 1 --no-deps 2>/dev/null \
-            | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{try{console.log(JSON.parse(s).target_directory)}catch{process.exit(1)}})" 2>/dev/null \
-            || printf '%s/target' "$REPO_ROOT/$workspace")
-        built="$target_dir/release/$bin$EXE"
+        local built="$target_dir/release/$bin$EXE"
         if [ -f "$built" ]; then
-            cp "$built" "$INSTALL_DIR/" && chmod +x "$INSTALL_DIR/$bin$EXE"
-            echo "    ✅ $label installed → $INSTALL_DIR/$bin$EXE"
+            cp -f "$built" "$installed" && chmod +x "$installed"
+            if [ "$OS" = "macos" ] || [ "$(uname -s)" = "Darwin" ]; then
+                codesign --force --sign - "$installed" >/dev/null 2>&1 || true
+            fi
+            echo "    ✅ $label installed → $installed"
         else
             echo "    ⚠️  Build succeeded but binary not found at $built"
             TOOL_FAILURES+=("$label: binary not produced")
@@ -410,6 +450,22 @@ build_and_install() {
     else
         echo "    ❌ Build failed for $label"
         TOOL_FAILURES+=("$label: cargo build failed")
+        return 1
+    fi
+
+    # The install is only useful if PATH finds it.
+    local resolved real_resolved real_installed
+    resolved=$(command -v "$bin" 2>/dev/null || true)
+    real_installed=$(resolve_real_path "$installed" || echo "$installed")
+    real_resolved=$( [ -n "$resolved" ] && resolve_real_path "$resolved" || echo "$resolved")
+    if [ -z "$resolved" ]; then
+        echo "    ❌ $INSTALL_DIR is not on PATH — add: export PATH=\"$INSTALL_DIR:\$PATH\""
+        TOOL_FAILURES+=("$label: $INSTALL_DIR not on PATH")
+        return 1
+    elif [ "$real_resolved" != "$real_installed" ]; then
+        echo "    ❌ $label is shadowed: PATH resolves $resolved, not $installed"
+        echo "       Remove the other binary or put $INSTALL_DIR earlier on PATH."
+        TOOL_FAILURES+=("$label: shadowed on PATH by $resolved")
         return 1
     fi
 }
