@@ -7,8 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.2] - 2026-10-12
+
+This release also covers 1.12.0 and 1.12.1, which were never tagged.
+
 ### Added
 
+- `kbd-apply reconcile [<phase>] [--repair] [--json]` is trustworthy and phase-safe
+  in both the full and mini packs (#176, mini #52). It exits 0 only for a complete
+  clean scan, 1 for drift and 2 for invalid input or an incomplete scan; JSON output
+  gains `errors`. Repair acts only on the active phase, passes the canonical task
+  identity (`c-t1`, not `c/1`) to the boundary guards, and honors an explicit
+  `KBD_ORCHESTRATOR_ROOT`. Archived OpenSpec, native KBD and Spec Kit artifacts are
+  supported; ambiguous archives are errors. Windows behavior is unverified.
+- The Codex skill catalog is trimmed by a managed, reversible block in
+  `~/.codex/config.toml`, driven by `config/codex-catalog.txt` and applied on every
+  install and update (#173). Undo it with
+  `bash shared/scripts/codex-catalog-config.sh --uninstall`.
+- Delivery-cadence adopts proven historical publications without delivery credit
+  (#180) and mirrors the encrypted Cadence IPFS history reference (#177).
+- Team export preserves capabilities and cross-harness handoff semantics (#175), and
+  scoped team handoff provenance can be inspected (#166).
 - **Spec-engine support: OpenSpec (default), GitHub Spec Kit, native-kbd, and a
   documented extension path.** `kbd-apply` now implements the full five-op
   adapter contract (list / progress / mark-done / verify / archive) for all
@@ -43,6 +62,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Embeddings run on the CPU by default off Apple Silicon, `surreal-memory-server` is
+  pinned to v1.10.2 (which restarts on the CPU and replays after a Metal fault), and
+  the doctor surfaces verifier errors and tells a connection failure from an HTTP
+  failure (#170, #171).
+- The installer no longer stages `.claude-plugin` layout symlinks into the
+  generation (#169), and hook-written runtime state no longer counts as an
+  uncommitted source (#174).
+- Hook activation recovers cleanly and installed payloads stay immutable (#168).
+- Cadence fixes: promotion of committed nested source repairs (#164), reconciliation
+  of already-operated frozen artifacts (#165), preserved native credential account
+  identity (#178), and selection of the packaged Boss main window (#181).
+- The operated proxy tool-argument repair is pinned (#179).
 - `prometheus-context-bootstrap` no longer installs `deny: Edit(.kbd-orchestrator/**)`.
   The rule blocked `/kbd-init` and every KBD stage skill from writing their
   artifacts. `bootstrap.sh` removes the legacy entry from existing projects
