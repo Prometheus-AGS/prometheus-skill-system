@@ -23,6 +23,7 @@ model_routing:
     kbd-resume: small
     kbd-cancel: small
     kbd-audit: small
+    kbd-handoff: small
     kbd-reflect: frontier
     opsx-new: small
     opsx-apply: tiered
@@ -171,6 +172,7 @@ authority.
 | `.kbd-orchestrator/phases/<phase>/analysis.md`   | kbd-analyze        | kbd-spec/kbd-plan | Engineering-landscape research |
 | `.kbd-orchestrator/phases/<phase>/library-candidates.json` | kbd-analyze | kbd-spec/kbd-plan | Build-vs-adopt candidate set |
 | `.kbd-orchestrator/phases/<phase>/handoffs/*.handoff.json` | each stage | next stage gate | Stage precondition + summary |
+| `.kbd-orchestrator/phases/<phase>/harness-handoffs/<harness>-<UTC>.{md,json}` | kbd-handoff | receiving harness | Cross-harness handoff packet (advisory, no lease) |
 | `.kbd-orchestrator/position.json`                | projection writer  | kbd-status/renderer | Revision-bound derived position tree |
 | `.kbd-orchestrator/phases/<phase>/plan.md`       | kbd-plan           | kbd-execute | Ordered change list               |
 | `.kbd-orchestrator/phases/<phase>/execution.md`  | kbd-execute        | All tools   | Backend dispatch contract         |
@@ -465,6 +467,7 @@ integration provides, and the entity schema are in
 - `/kbd-resume` — Resume a paused run at a validated plan revision
 - `/kbd-cancel` — Gracefully terminate the active run
 - `/kbd-audit` — Inspect causal history, ownership, and drift
+- `/kbd-handoff --to <harness>` — Write a lease-free handoff packet so another harness can continue the active phase
 - `/kbd-new-phase <name> [goals...]` — Start a new named phase with goals (implemented in `skills/kbd-new-phase/`)
 - `/kbd-new-child <name> [goals...]` — Spawn a child phase inside the active top-level phase (implemented in `skills/kbd-new-child/`)
 - `/kbd-next-child [<name>]` — Advance childPointer (implicit) or jump to a named child (implemented in `skills/kbd-next-child/`)

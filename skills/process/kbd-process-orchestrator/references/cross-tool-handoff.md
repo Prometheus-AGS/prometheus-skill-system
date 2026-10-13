@@ -21,11 +21,17 @@ parsed.
    checkpoint is required.
 2. It records a course correction, when needed, with `prometheus kbd revise
    --reason <text> --exact-next-work <text>`.
-3. It records the destination harness in the human handoff note and stops
-   issuing commands.
-4. The receiving harness runs `prometheus kbd status --json`, verifies the
-   checkpoint and plan revision, then `prometheus kbd resume
-   --plan-revision <n>`.
+3. It runs `/kbd-handoff --to <harness>`, which refuses on a half-closed
+   boundary (an open task obligation, or a change or phase obligation the
+   runtime marks complete or does not know) and otherwise writes the handoff
+   packet
+   `.kbd-orchestrator/phases/<phase>/harness-handoffs/<harness>-<UTC>.md`
+   (with a JSON sidecar). The skill is read-only on KBD state. The sending
+   harness then stops issuing commands.
+4. The operator pastes the packet's start prompt into the receiving harness,
+   which runs `prometheus kbd status --json`, verifies the checkpoint and plan
+   revision, then `prometheus kbd resume --plan-revision <n>` if the run was
+   paused.
 5. A stale expected revision is rejected, and the complete read/validate/append
    transaction is serialized by the journal lock.
 

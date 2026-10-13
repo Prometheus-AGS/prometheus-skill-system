@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/kbd/harness-handoff.schema.json",
+  "title": "KBD cross-harness handoff packet sidecar",
+  "description": "Written by /kbd-handoff next to its Markdown packet at .kbd-orchestrator/phases/<node>/harness-handoffs/<harness>-<UTC timestamp>.json. Advisory and read-only with respect to KBD state: it records what the sending harness observed and grants no lease. Stage handoffs under handoffs/ use handoff.schema.json instead.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "harness",
+    "fromHarness",
+    "project",
+    "phase",
+    "phaseDir",
+    "createdAt",
+    "packet",
+    "statusVerified",
+    "position",
+    "repos",
+    "readInOrder",
+    "targetChecks",
+    "warnings",
+    "startPrompt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1" },
+    "kind": { "const": "kbd-harness-handoff" },
+    "harness": {
+      "enum": ["claude-code", "codex", "kimi-code", "opencode"],
+      "description": "The receiving harness."
+    },
+    "fromHarness": {
+      "type": "string",
+      "description": "The sending harness from PROMETHEUS_HARNESS, or \"unknown\"."
+    },
+    "project": { "type": "string", "description": "Absolute project root." },
+    "phase": { "type": "string", "minLength": 1 },
+    "phaseDir": {
+      "type": "string",
+      "description": "Phase node directory relative to the project root."
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "packet": {
+      "type": "string",
+      "description": "Project-relative path of the Markdown packet."
+    },
+    "statusVerified": {
+      "type": "boolean",
+      "description": "False when `prometheus kbd status --json` was unavailable, so boundary obligations were not checked and position came from projections."
+    },
+    "position": {
+      "type": "object",
+      "required": ["stage", "lifecycle", "implementation", "nextChange", "nextTask"],
+      "properties": {
+        "stage": { "type": ["string", "null"] },
+        "lifecycle": { "type": ["string", "null"] },
+        "revision": { "type": ["integer", "null"] },
+        "planRevision": { "type": ["integer", "null"] },
+        "implementation": {
+          "type": "object",
+          "required": ["completed", "total"],
+          "properties": {
+            "completed": { "type": ["integer", "null"] },
+            "total": { "type": ["integer", "null"] }
+          },
+          "additionalProperties": false,
+          "description": "This phase's completion.implementation counter."
+        },
+        "nextChange": { "type": ["string", "null"] },
+        "nextTask": { "type": ["string", "null"] },
+        "exactNextWork": {
+          "type": ["string", "null"],
+          "description": "Operator note recorded by the runtime; intent, not a work selector."
+        }
+      },
+      "additionalProperties": false
+    },
+    "repos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "branch", "head", "clean", "dirtyCount", "upstream", "ahead", "pushed"],
+        "properties": {
+          "path": { "type": "string" },
+          "branch": { "type": "string" },
+          "head": { "type": "string" },
+          "clean": { "type": "boolean" },
+          "dirtyCount": { "type": "integer", "minimum": 0 },
+          "upstream": { "type": ["string", "null"] },
+          "ahead": { "type": ["integer", "null"] },
+          "pushed": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "readInOrder": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Project-relative paths; the packet itself is first."
+    },
+    "targetChecks": {
+      "type": "object",
+      "required": [
+        "skillsDir",
+        "skillsDirExists",
+        "brokenSkills",
+        "missingSkills",
+        "teamDetected",
+        "agentsDir",
+        "missingRoleDefinitions"
+      ],
+      "properties": {
+        "skillsDir": { "type": "string" },
+        "skillsDirExists": { "type": "boolean" },
+        "brokenSkills": { "type": "array", "items": { "type": "string" } },
+        "missingSkills": { "type": "array", "items": { "type": "string" } },
+        "teamDetected": { "type": "boolean" },
+        "agentsDir": { "type": ["string", "null"] },
+        "missingRoleDefinitions": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Non-blocking findings: carried work outside the active position, dirty or unpushed worktrees, broken skills, missing role definitions, unchecked boundary obligations."
+    },
+    "startPrompt": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}
