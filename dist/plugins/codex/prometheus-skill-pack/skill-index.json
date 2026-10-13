@@ -483,6 +483,10 @@
       "path": "skills/kbd-goal-check"
     },
     {
+      "name": "kbd-handoff",
+      "path": "skills/kbd-handoff"
+    },
+    {
       "name": "kbd-init",
       "path": "skills/kbd-init"
     },

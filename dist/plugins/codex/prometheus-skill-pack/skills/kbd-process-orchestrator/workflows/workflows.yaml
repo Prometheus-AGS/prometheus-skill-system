@@ -100,6 +100,18 @@ workflows:
     skill: skills/kbd-audit/SKILL.md
     prompt_file: null
 
+  - name: kbd-handoff
+    description: "Write a lease-free packet that hands the active KBD phase to another harness"
+    args:
+      - name: harness
+        optional: false
+        description: "Target harness, e.g. claude-code, codex, kimi-code, opencode (--to <harness>)"
+      - name: phase
+        optional: true
+        description: "Phase to hand off (--phase <name>; default: active phase)"
+    skill: skills/kbd-handoff/SKILL.md
+    prompt_file: null
+
   - name: kbd-new-phase
     description: "Start a new named KBD phase and initialize its directory structure"
     args:

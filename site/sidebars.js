@@ -162,6 +162,7 @@ const sidebars = {
       label: 'Operations',
       items: [
         'kbd/operator-controls',
+        'kbd/harness-handoffs',
         'kbd/checkpoints-compaction-recovery',
         'kbd/migration-and-rollout',
         'kbd/hooks-and-waypoints',
