@@ -81,7 +81,14 @@ export async function launchBoss(args) {
   const receiptFile = args.receipt && fs.existsSync(requestedReceipt)
     ? path.join(path.dirname(requestedReceipt), `${path.parse(requestedReceipt).name}-${randomUUID()}${path.extname(requestedReceipt)}`)
     : requestedReceipt;
-  const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'cadence-boss-'));
+  const profileRoot = process.env.THE_BOSS_PROFILE_ROOT === undefined
+    ? fs.mkdtempSync(path.join(os.tmpdir(), 'cadence-boss-'))
+    : fs.realpathSync(process.env.THE_BOSS_PROFILE_ROOT);
+  const userData = path.join(profileRoot, 'user-data');
+  const sessionData = path.join(profileRoot, 'session-data');
+  if (fs.existsSync(path.join(sessionData, 'DevToolsActivePort'))) {
+    throw new Error('Profile has an existing DevTools endpoint; reconcile its owned application before launching.');
+  }
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort('timeout'), timeoutMs);
   const abort = () => controller.abort('operator cancellation');
@@ -89,9 +96,10 @@ export async function launchBoss(args) {
   process.once('SIGTERM', abort);
   const startedAt = new Date().toISOString();
   const child = spawn(executable, ['--lang=en-US', '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0', `--user-data-dir=${userData}`], {
-    cwd: repository, env: minimalEnvironment(), detached: true, shell: false, stdio: 'ignore',
+    cwd: repository, env: { ...minimalEnvironment(), THE_BOSS_PROFILE_ROOT: profileRoot }, detached: true, shell: false, stdio: 'ignore',
   });
-  let launchError = false, closed = false, connection, retain = false;
+  let launchError = false, closed = false, connection;
+  const retain = Boolean(args['keep-open']);
   child.once('error', () => { launchError = true; });
   child.once('close', () => { closed = true; });
   const signal = controller.signal;
@@ -101,12 +109,12 @@ export async function launchBoss(args) {
   };
   const receipt = { schemaVersion: 1, kind: 'boss-launch', startedAt, repository, app, executable,
     executableModifiedAt: executableStat.mtime.toISOString(), executableBytes: executableStat.size,
-    scenario, scenarioDigest, isolatedUserData: userData, launch: 'pending', functionalAcceptance: 'not-performed' };
+    scenario, scenarioDigest, isolatedProfileRoot: profileRoot, isolatedUserData: userData, isolatedSessionData: sessionData, launch: 'pending', functionalAcceptance: 'not-performed' };
   try {
     let port;
     while (!port) {
       ensureAlive();
-      const activePort = path.join(userData, 'DevToolsActivePort');
+      const activePort = path.join(sessionData, 'DevToolsActivePort');
       if (fs.existsSync(activePort)) {
         const firstLine = fs.readFileSync(activePort, 'utf8').split(/\r?\n/)[0];
         if (/^\d+$/.test(firstLine) && Number(firstLine) > 0 && Number(firstLine) <= 65535) port = Number(firstLine);
@@ -146,7 +154,6 @@ export async function launchBoss(args) {
       receipt.functionalAcceptance = 'scenario-confirmed';
       receipt.observedBehavior = result.observedBehavior.slice(0, 2000);
     }
-    retain = Boolean(args['keep-open']);
     receipt.status = 'success';
   } catch (error) {
     receipt.status = 'failed';
