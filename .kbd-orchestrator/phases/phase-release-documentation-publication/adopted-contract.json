@@ -1,0 +1,217 @@
+{
+  "contractVersion": "1",
+  "kind": "kbd.adopted-contract",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "phaseId": "phase-release-documentation-publication",
+    "planRevision": 17,
+    "contractDigest": "4145e33c9d784f36986250a483072edd835d8f4f38660c23a4148bad67797751"
+  },
+  "status": {
+    "implementationComplete": false
+  },
+  "adoptionSource": "operator instructions 2026-10-18 (documentation-and-publication phase authorization; separate accounting granted)",
+  "decisionOwner": "gqadonis (operator)",
+  "amendmentPolicy": "material scope/acceptance changes require explicit operator version-adoption recorded as a NEW canonical decision with --supersedes; suggestions never auto-enter task totals or later phases",
+  "digestNormalization": {
+    "algorithm": "sha256",
+    "command": "jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)' <contract.json> | shasum -a 256 | awk '{print $1}'",
+    "rationale": "contractDigest excluded to avoid self-referential recursion; planRevision excluded because the canonical Decision binds plan_revision at record time — the adoption writer stamps both fields AFTER digest computation; the read-only checker re-computes with this identical normalization and compares against the canonical decision payload",
+    "stalenessRule": "STALE iff the latest non-superseded adoption decision for this contract path carries a digest != recomputed digest, or the adoption decision has been superseded by a newer adoption for the same path. planRevision is traceability metadata, not an equality gate."
+  },
+  "statusVocabulary": [
+    "PASS",
+    "FAIL(product: real oracle unmet)",
+    "BLOCKED(verification: validator/env/fixture unavailable)",
+    "NOT_EXERCISED"
+  ],
+  "evidenceInvalidation": "keyed by source digest / plan revision / fixture identity; only affected evidence invalidated; history preserved; no full-repo re-review loops; gates that passed and were not invalidated are not re-run",
+  "functionalScope": "Publish the qualified candidate (commits ebc8f687 + 9a7c4bbf on codex/kbd-phase-readiness) as the next unused versioned release: (1) documentation across README, KBD docs, CHANGELOG, Docusaurus site covering planning contract, readiness gate, execution flow, evidence-bound closure, missing-accounting BLOCKED behavior, budgets, installation, and a practical example, with explicit disclosure of shell-layer enforcement, bypassable paths, self-reported accounting, and installed-demonstration limits; (2) version selection from existing tags/metadata/conventions, release notes linking docs/releases/1.12.2-candidate-qualification.md (kept intact); (3) required release-policy checks and docs/site build, distribution regeneration if needed, confirming the release includes the qualified evaluator and gate; (4) scoped commits only, branch push, release PR, in-scope CI failure resolution only; (5) merge only when required checks/approvals pass, publish version + Docusaurus via existing configured workflow, verify tag/artifact identity, documentation URL, installation instructions; (6) GitHub issue reconciliation — close only criteria-met issues, keep #184/#185 open with release link and remaining scope.",
+  "exclusions": [
+    "no force-push, no branch-protection bypass, no overwriting a published version",
+    "no unrelated working-tree changes in commits",
+    "no new credentials, permissions, or paid resources without operator approval",
+    "no successor hardening, mini-pack work, phase-exit integration, or additional features",
+    "no rerunning unrelated behavioral suites for prose/version-metadata-only changes",
+    "no hosted CI as acceptance evidence beyond what the repository's release policy requires"
+  ],
+  "releaseClaim": {
+    "userOperation": "operator installs the published skill-pack version, reads the published documentation (contract, gate, execution flow, closure, budgets, installation, example, limitations), and reconciles GitHub issues against what shipped",
+    "supportedEnvironments": [
+      "this repository worktree (full-kbd-phase-readiness)",
+      "macOS",
+      "bash>=4",
+      "jq",
+      "node>=20.19",
+      "prometheus CLI 1.12.2",
+      "OpenCode harness",
+      "GitHub hosting for PR/release (pre-authorized for this phase)",
+      "local-only validation for all checks"
+    ],
+    "currentCapabilities": "candidate ebc8f687+9a7c4bbf is qualified for controlled use per docs/releases/1.12.2-candidate-qualification.md; this phase publishes it with documentation",
+    "explicitUnknowns": [
+      "exact required-CI set on the release PR (discovered at PR time; resolved only in-scope)",
+      "whether Docusaurus deployment needs permissions beyond the existing configured workflow (stop for approval if so)"
+    ]
+  },
+  "requiredSafetyChecks": [
+    "canonical writer only for adoption/closure/blocker records",
+    "no journal/waypoint/counter hand-edits",
+    "scoped commits only; unrelated dirty paths preserved",
+    "no force-push or protection bypass",
+    "published-version overwrite prohibited (version collision = BLOCKED)"
+  ],
+  "resilienceScope": {
+    "policy": "adopted requirements never defer by budget overflow (exhaustion => checkpoint+BLOCKED, report 'candidate qualified; publication blocked' with the exact unfinished action)",
+    "deferredOptional": [
+      "Docusaurus theme/layout redesign beyond content updates",
+      "video or interactive examples"
+    ]
+  },
+  "workerRoutes": {
+    "agent": "main",
+    "model": "kimi-code-plan-global/k3-256k",
+    "billing": "operator-confirmed Kimi coding subscription endpoint, Extra Usage disabled",
+    "subagents": "none (single authorized route)",
+    "reviewRoundsMax": 1
+  },
+  "budgets": {
+    "timeMinutes": 60,
+    "toolCalls": 40,
+    "repairAttempts": 1,
+    "noProgressLimit": 2,
+    "tokenBudget": "UNKNOWN",
+    "tokenFallback": "time+toolCalls bounds",
+    "consumedAtAuthoring": {
+      "toolCallsApprox": 0,
+      "timeMinutesApprox": 0,
+      "note": "new, explicitly granted publication-phase limits; historical consumption (est. ~213 min, ~166 calls, 6/6 repairs measured) preserved separately and not reset"
+    },
+    "exhaustion": "checkpoint + BLOCKED; never silent PASS; docs/state may be saved without running product tests",
+    "extensions": []
+  },
+  "scenarioMatrix": [
+    {
+      "id": "PB-01",
+      "name": "DOCUMENTATION-COMPLETE",
+      "ownerTask": "T1",
+      "productionEntry": "edit README.md, CHANGELOG.md, KBD guide docs, and site/docs pages; grep the committed files for required topic and disclosure markers",
+      "realCollaborators": [
+        "git",
+        "grep",
+        "the repository's own documentation files"
+      ],
+      "oracle": "every required topic marker present in committed docs (planning contract, readiness gate, execution flow, evidence-bound closure, missing-accounting BLOCKED behavior, budgets, installation, practical example) AND every required disclosure marker present (shell-layer enforcement, bypassable paths, self-reported accounting, installed-demonstration limits); no claim of automatic enforcement in every harness",
+      "negativeControl": "grep for a marker string that was deliberately NOT written returns no match (proves the grep oracle is live)",
+      "fixtures": "the repository's own README/docs/site files at this branch",
+      "evidence": "changed file paths + grep outputs per marker"
+    },
+    {
+      "id": "PB-02",
+      "name": "VERSION-SELECTED-UNUSED",
+      "ownerTask": "T2",
+      "productionEntry": "git tag --list; inspect package.json + CHANGELOG conventions; select next unused version; bump package.json; create docs/releases/<new>/ notes linking the 1.12.2 candidate qualification note",
+      "realCollaborators": [
+        "git tag store",
+        "package.json",
+        "CHANGELOG.md",
+        "docs/releases/"
+      ],
+      "oracle": "selected version absent from git tag --list before tagging; package.json version equals selection; CHANGELOG gains the version section; new release-notes file links docs/releases/1.12.2-candidate-qualification.md; the qualification note itself is byte-identical to its pre-phase content",
+      "negativeControl": "selecting the already-published v1.12.2 is rejected by the tag-collision check (proves the unused-version oracle is live)",
+      "fixtures": "existing tags v1.12.2, v1.10.0, v1.8.0... as the collision baseline",
+      "evidence": "git tag output, package.json diff, release notes path"
+    },
+    {
+      "id": "PB-03",
+      "name": "RELEASE-CHECKS-PASS",
+      "ownerTask": "T3",
+      "productionEntry": "run the repository's required release checks (check:release-version, check:distribution, docs build) and confirm the packaged evaluator carries the qualified behavior",
+      "realCollaborators": [
+        "node scripts/check-release-version-matrix.mjs",
+        "scripts/generate-skill-system-distribution.js",
+        "Docusaurus build"
+      ],
+      "oracle": "each required check exits 0; dist payloads contain kbd-phase-close-eval.sh with the budget-consumption-missing BLOCKED marker; docs/site build succeeds",
+      "negativeControl": "marker grep against a file known not to contain it returns nothing (proves the marker oracle is live); a distribution left stale fails --check",
+      "fixtures": "dist/plugins/{claude,codex}/prometheus-skill-pack payloads",
+      "evidence": "command argv + exit codes + marker grep output"
+    },
+    {
+      "id": "PB-04",
+      "name": "DELIVERY-PR-OPEN",
+      "ownerTask": "T4",
+      "productionEntry": "commit only in-scope changes; push codex/kbd-phase-readiness; open the release PR with gh; inspect required checks",
+      "realCollaborators": [
+        "git (local commits, push)",
+        "GitHub (PR, checks) via gh CLI"
+      ],
+      "oracle": "git show --stat of each new commit touches only in-scope paths; unrelated pre-existing dirty paths remain uncommitted; gh pr view returns the PR URL; required-check list recorded",
+      "negativeControl": "an unrelated dirty path staged by mistake is caught by git status review before commit and excluded",
+      "fixtures": "pre-existing unrelated working-tree dirt (~164 typed-runtime paths, runtime projections) as the exclusion baseline",
+      "evidence": "commit hashes + gh pr view output + CI check list"
+    },
+    {
+      "id": "PB-05",
+      "name": "PUBLISHED-AND-VERIFIED",
+      "ownerTask": "T5",
+      "productionEntry": "merge after required checks/approvals; publish the versioned tag/release and Docusaurus via the existing configured workflow; verify tag/artifact identity, documentation URL, and installation instructions",
+      "realCollaborators": [
+        "GitHub merge + release",
+        "existing docs deployment workflow",
+        "public docs URL"
+      ],
+      "oracle": "remote tag for the selected version exists and points at the merged release commit; release notes link the qualification note; documentation URL returns the updated content; installation instructions in the published docs match the published artifact",
+      "negativeControl": "remote history is fast-forward only (no force-push); a version collision on tag creation fails instead of overwriting",
+      "fixtures": "the merged release commit",
+      "evidence": "git ls-remote / gh release view output, docs URL fetch, install command from published docs"
+    },
+    {
+      "id": "PB-06",
+      "name": "ISSUES-RECONCILED",
+      "ownerTask": "T6",
+      "productionEntry": "gh issue view/close/comment for affected issues against actual shipped scope",
+      "realCollaborators": [
+        "GitHub issues via gh CLI"
+      ],
+      "oracle": "#186 closed only if its acceptance criteria are met by the release, with a comment linking the release; #184 and #185 remain open, each with a comment linking the release and stating the remaining scope; no issue closed by discarding or redefining requirements",
+      "negativeControl": "before closing any issue, its acceptance criteria are quoted in the reconciliation record; an unmet criterion blocks closure",
+      "fixtures": "issues #184, #185, #186 current bodies and acceptance criteria",
+      "evidence": "gh issue view state before/after + comment URLs"
+    }
+  ],
+  "boundaryPacket": {
+    "postImplementationOnly": true,
+    "singleRun": true,
+    "commands": [
+      "npm run check:release-version",
+      "npm run check:distribution",
+      "npm run docs:check",
+      "node scripts/generate-skill-system-distribution.js --check",
+      "grep -c budget-consumption-missing dist/plugins/claude/prometheus-skill-pack/shared/scripts/kbd-phase-close-eval.sh"
+    ],
+    "expectedEffects": [
+      "release checks exit 0",
+      "dist payloads carry the qualified evaluator",
+      "docs/site build succeeds",
+      "phase closure evidence with budgetConsumption recorded via kbd-phase-close-eval.sh"
+    ],
+    "requiredApprovals": "none beyond the operator's 2026-10-18 publication-phase authorization; stop for approval if new credentials, permissions, or paid resources are needed",
+    "receipts": [
+      "check command outputs",
+      "gh pr/release/issue URLs",
+      "docs URL verification",
+      "boundary-results.json for this phase"
+    ],
+    "cleanup": [
+      "no cleanup of canonical history (append-only, preserved)"
+    ],
+    "stopConditions": [
+      "budgets exhausted => checkpoint+BLOCKED with 'candidate qualified; publication blocked' report",
+      "1 repair attempt exhausted => BLOCKED",
+      "2 consecutive no-progress turns => checkpoint+BLOCKED",
+      "frozen criteria met => terminate, no invented follow-up work"
+    ]
+  }
+}
