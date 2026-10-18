@@ -1,0 +1,29 @@
+{
+  "phase": "phase-readiness-contract",
+  "runAt": "2026-10-18T03:00:15Z",
+  "scenarios": [
+    {"id": "RC-01", "attempted": "checker on real phase post-adoption", "observed": "READY exit=0", "evidence": "READY phase=phase-readiness-contract contract=.kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json digest=248c84d3a051e1fb75dd91c17c0602e5529a49c22302d0a80d2374c80888022c planRevision=17", "status": "PASS"},
+    {"id": "RC-01-idempotent", "attempted": "writer re-run with identical content", "observed": "idempotent no-op", "evidence": "ALREADY-ADOPTED path=.kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json sha256=248c84d3a051e1fb75dd91c17c0602e5529a49c22302d0a80d2374c80888022c decision=contract-adoption-phase-readiness-contract-248c84d3 (idempotent no-op)", "status": "PASS"},
+    {"id": "RC-01-neg", "attempted": "checker with adoption stripped (fixture status)", "observed": "BLOCKED(adoption) exit=2", "evidence": "BLOCKED missing=adoption(no canonical adoption decision for .kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json)", "status": "PASS"},
+    {"id": "RC-02", "attempted": "checker on fixture without adoption", "observed": "BLOCKED(adoption) exit=2", "evidence": "BLOCKED missing=adoption(no canonical adoption decision for /var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T//kbd-rc-xDoQo3/rc02/repo/.kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json)", "status": "PASS"},
+    {"id": "RC-02-neg", "attempted": "same fixture with correct adoption", "observed": "READY exit=0 (not BLOCKED)", "evidence": "READY phase=phase-readiness-contract contract=/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T//kbd-rc-xDoQo3/rc02/repo/.kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json digest=248c84d3a051e1fb75dd91c17c0602e5529a49c22302d0a80d2374c80888022c planRevision=17", "status": "PASS"},
+    {"id": "RC-03", "attempted": "checker on tampered-digest fixture", "observed": "REJECT-STALE exit=4", "evidence": "REJECT-STALE contractDigest(decision=0000000000000000000000000000000000000000000000000000000000000000 contract=248c84d3a051e1fb75dd91c17c0602e5529a49c22302d0a80d2374c80888022c) planRevision(decision=17) — amend via kbd-contract-adopt.sh --supersedes", "status": "PASS"},
+    {"id": "RC-03-nowrite", "attempted": "real phase dir untouched by negative controls", "observed": "git status digest stable", "evidence": "020bd229e9229a70e244507003e377a9bdd4b0045dc4698e5667b65434963626", "status": "PASS"},
+    {"id": "RC-04", "attempted": "checker with wrong canonical runId", "observed": "REJECT-IDENTITY exit=3", "evidence": "REJECT-IDENTITY runId(contract=phase-learning-deploy-and-debt-20261018T020551Z canonical=wrong-run-fixture)", "status": "PASS"},
+    {"id": "RC-05a", "attempted": "stage gate execute with garbage plan handoff", "observed": "rejected exit=2", "evidence": "kbd_stage_gate: execute blocked — plan handoff is not valid JSON: /var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T//kbd-rc-xDoQo3/rc05/repo/.kbd-orchestrator/phases/phase-readiness-contract/handoffs/plan.handoff.json"
+"Remediation: rewrite the handoff via kbd_stage_handoff_write plan (never hand-edit).", "status": "PASS"},
+    {"id": "RC-05b", "attempted": "stage gate execute with identity-less plan handoff", "observed": "rejected exit=2 (identity required)", "evidence": "kbd_stage_gate: execute blocked — plan handoff identity missing."
+"The Plan→Execute boundary requires an adopted-contract-bound handoff (issue #186)."
+"Remediation: adopt the phase contract (shared/scripts/kbd-contract-adopt.sh), then rewrite the plan handoff with KBD_HANDOFF_IDENTITY_JSON set.", "status": "PASS"},
+    {"id": "RC-05c", "attempted": "stage gate execute with identity-bound handoff", "observed": "passes exit=0", "evidence": "positive control", "status": "PASS"},
+    {"id": "RC-06", "attempted": "real amendment via --supersedes", "observed": "unexpected exit=0", "evidence": "ALREADY-ADOPTED path=.kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json sha256=248c84d3a051e1fb75dd91c17c0602e5529a49c22302d0a80d2374c80888022c decision=contract-adoption-phase-readiness-contract-248c84d3 (idempotent no-op)", "status": "FAIL"},
+    {"id": "RC-06-ready", "attempted": "checker accepts amended digest", "observed": "READY new digest", "evidence": "READY phase=phase-readiness-contract contract=.kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json digest=248c84d3a051e1fb75dd91c17c0602e5529a49c22302d0a80d2374c80888022c planRevision=17", "status": "PASS"},
+    {"id": "RC-06-stale", "attempted": "checker rejects superseded v1 digest", "observed": "unexpected exit=2", "evidence": "BLOCKED missing=coverage(tasks.json absent)", "status": "FAIL"},
+    {"id": "RC-07-strict", "attempted": "npm run validate:strict skills/process/kbd-process-orchestrator", "observed": "exit=0", "evidence": "   kbd-status: Description has no trigger clause. Add \"Use when <situation>, or when the user mentions \"<keyword>\"\" so the model knows when to select it (docs/skill-authoring-guide.md)"
+"   kbd-status: Description has no exclusion clause. Add \"Do NOT use for <case> (see <other-skill>)\" so neighbouring skills stop competing for the same prompt (docs/skill-authoring-guide.md)", "status": "PASS"},
+    {"id": "RC-07-parity", "attempted": "scratch install", "observed": "installer exit=1 or payload missing (verification failure class)", "evidence": "  stdout: null,"
+"  stderr: null"
+"}", "status": "BLOCKED"},
+    {"id": "RC-07-neg", "attempted": "pre-change stage-gate.sh at HEAD lacks readiness marker", "observed": "discriminating control confirmed", "evidence": , "status": "PASS"}
+  ]
+}

@@ -1,34 +1,34 @@
 {
   "schemaVersion": 1,
-  "release": "1.12.2",
+  "release": "1.13.0",
   "ownedSurfaces": [
     {
       "path": "package.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.13\\.0\""
     },
     {
       "path": "package-lock.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.13\\.0\""
     },
     {
       "path": "package-lock.json",
-      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
+      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.13\\.0\""
     },
     {
       "path": "site/package.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.13\\.0\""
     },
     {
       "path": "site/package-lock.json",
-      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
+      "pattern": "^\\{[^{}]*\"version\"\\s*:\\s*\"1\\.13\\.0\""
     },
     {
       "path": "site/package-lock.json",
-      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.12\\.2\""
+      "pattern": "\"packages\"\\s*:\\s*\\{\\s*\"\"\\s*:\\s*\\{[^{}]*\"version\"\\s*:\\s*\"1\\.13\\.0\""
     },
     {
       "path": "skill-system.json",
-      "pattern": "\"releaseVersion\"\\s*:\\s*\"1\\.12\\.2\""
+      "pattern": "\"releaseVersion\"\\s*:\\s*\"1\\.13\\.0\""
     },
     {
       "path": "skill-system.json",
@@ -44,7 +44,7 @@
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-process\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.7\\.3\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-process\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.8\\.0\""
     },
     {
       "path": "skill-system.json",
@@ -80,27 +80,27 @@
     },
     {
       "path": "config/prometheus-exec-component.json",
-      "pattern": "\"release\"\\s*:\\s*\"1\\.12\\.2\""
+      "pattern": "\"release\"\\s*:\\s*\"1\\.13\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.toml",
-      "pattern": "\\[workspace\\.package\\]\\s*version\\s*=\\s*\"1\\.12\\.2\""
+      "pattern": "\\[workspace\\.package\\]\\s*version\\s*=\\s*\"1\\.13\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-agents\"\\s*version\\s*=\\s*\"1\\.12\\.2\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-agents\"\\s*version\\s*=\\s*\"1\\.13\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cedar\"\\s*version\\s*=\\s*\"1\\.12\\.2\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cedar\"\\s*version\\s*=\\s*\"1\\.13\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cli\"\\s*version\\s*=\\s*\"1\\.12\\.2\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-cli\"\\s*version\\s*=\\s*\"1\\.13\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.lock",
-      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-learn\"\\s*version\\s*=\\s*\"1\\.12\\.2\""
+      "pattern": "\\[\\[package\\]\\]\\s*name\\s*=\\s*\"prometheus\\-learn\"\\s*version\\s*=\\s*\"1\\.13\\.0\""
     },
     {
       "path": "skills/ui-ux/.claude-plugin/plugin.json",
@@ -112,7 +112,7 @@
     },
     {
       "path": "skills/process/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.7\\.3\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.8\\.0\""
     },
     {
       "path": "skills/devops/.claude-plugin/plugin.json",
@@ -166,7 +166,7 @@
     {
       "surface": "surreal-memory-server submodule",
       "version": "1.10.2",
-      "reason": "independently released pinned submodule"
+      "reason": "independently released pinned submodule (pin tag v1.10.2; Cargo package version)"
     },
     {
       "surface": "prometheus-exec",
@@ -177,6 +177,11 @@
       "surface": "adjacent marketplace plugins",
       "version": "owned",
       "reason": "Independent plugin releases do not cascade automatically with the umbrella; all 11 owned plugin patch bumps in this release are explicitly approved and covered above."
+    },
+    {
+      "surface": "surreal-memory-server OpenAPI spec",
+      "version": "1.10.1",
+      "reason": "published spec inside the pinned v1.10.2 submodule declares 1.10.1; the static site copy mirrors it exactly"
     }
   ]
 }

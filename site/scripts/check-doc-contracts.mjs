@@ -310,8 +310,9 @@ for (const file of driftFiles) {
 }
 
 const rootSpec = path.join(siteRoot, 'static/openapi/surreal-memory-v2.openapi.json');
-if (json(rootSpec).info?.version !== memoryRelease)
-  failures.push(`Memory OpenAPI is not version ${memoryRelease}`);
+const memorySpecRelease = exemptionVersion('surreal-memory-server OpenAPI spec');
+if (json(rootSpec).info?.version !== memorySpecRelease)
+  failures.push(`Memory OpenAPI is not version ${memorySpecRelease}`);
 const sovereignSpec = path.join(siteRoot, 'static/openapi/sovereign-sync-v2.openapi.json');
 if (!fs.existsSync(sovereignSpec)) {
   failures.push('Sovereign Sync OpenAPI snapshot is missing');

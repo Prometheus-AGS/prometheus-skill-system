@@ -32,6 +32,18 @@
 #       Record an explicit skip (skipped:true) so the gate passes
 #       deliberately rather than by drift.
 #
+#   _sg_validate_handoff <file> <expected-stage> <phase-dir> <for-stage>
+#       Semantic handoff validation (replaces bare `jq empty`): valid JSON,
+#       required schema fields, stage-name match, identity.phaseId agreement
+#       when identity is present. At the Plan→Execute boundary the plan
+#       handoff MUST carry full identity (projectId, runId, phaseId,
+#       planRevision, contractDigest) bound to the adopted contract — an
+#       identity-less or foreign plan handoff is rejected, never dispatched.
+#
+#   Handoff writes merge $KBD_HANDOFF_IDENTITY_JSON (a JSON identity object)
+#   into the emitted handoff when the variable is set — this is how the plan
+#   stage binds its handoff to the adopted contract.
+#
 # Phase dir resolution: explicit argument wins; else $KBD_PHASE_DIR; else
 # derived from the nearest .kbd-orchestrator/current-waypoint.json
 # (phase + childPointer).
@@ -124,6 +136,108 @@ _sg_assert_canonical_phase() { # <stage> <phase_dir>
   return 2
 }
 
+# Semantic handoff validation. Replaces bare `jq empty`: a handoff must be
+# valid JSON with the required schema fields, the stage name must match the
+# predecessor being closed, and when an identity object is present its
+# phaseId must match the phase directory the handoff lives in. At the
+# Plan→Execute boundary the plan handoff MUST carry identity (projectId,
+# runId, phaseId, planRevision, contractDigest) — an identity-less or stale
+# plan handoff is rejected instead of silently dispatching (issue #186).
+_sg_validate_handoff() { # <handoff-file> <expected-stage> <phase_dir> <for-stage>
+  local handoff="$1" prev="$2" phase_dir="$3" for_stage="$4"
+  if ! jq empty "$handoff" 2>/dev/null; then
+    printf 'kbd_stage_gate: %s blocked — %s handoff is not valid JSON: %s\n' "$for_stage" "$prev" "$handoff" >&2
+    printf 'Remediation: rewrite the handoff via kbd_stage_handoff_write %s (never hand-edit).\n' "$prev" >&2
+    return 2
+  fi
+  local ok
+  ok="$(jq -r --arg s "$prev" '
+    (if (.stage // "") == $s then "stage-ok" else "stage-mismatch" end) + " " +
+    (if ((.completedAt // "") | type) == "string" and ((.completedAt // "") | length) > 0 then "ts-ok" else "ts-missing" end) + " " +
+    (if (.skipped | type) == "boolean" then "skip-ok" else "skip-bad" end)
+  ' "$handoff" 2>/dev/null)" || return 2
+  if [ "$ok" != "stage-ok ts-ok skip-ok" ]; then
+    printf 'kbd_stage_gate: %s blocked — %s handoff fails schema check (%s): %s\n' "$for_stage" "$prev" "$ok" "$handoff" >&2
+    printf 'Remediation: rewrite the handoff via kbd_stage_handoff_write %s (never hand-edit).\n' "$prev" >&2
+    return 2
+  fi
+  # Identity, when present, must agree with the phase directory it lives in.
+  local id_phase worked=""
+  id_phase="$(jq -r '.identity.phaseId // empty' "$handoff" 2>/dev/null)"
+  if [ -n "$id_phase" ]; then
+    if [ -f "$phase_dir/progress.json" ]; then
+      worked="$(jq -r '.phaseId // .phase // empty' "$phase_dir/progress.json" 2>/dev/null)"
+    fi
+    [ -n "$worked" ] || worked="$(basename "$phase_dir")"
+    if [ "$id_phase" != "$worked" ]; then
+      printf 'kbd_stage_gate: %s blocked — %s handoff identity.phaseId=%s disagrees with phase %s.\n' "$for_stage" "$prev" "$id_phase" "$worked" >&2
+      return 2
+    fi
+  fi
+  # Plan→Execute boundary: the plan handoff MUST carry full identity bound to
+  # the adopted contract. Earlier boundaries stay optional-stage compatible.
+  if [ "$for_stage" = "execute" ] && [ "$prev" = "plan" ]; then
+    local id_ok
+    id_ok="$(jq -r '
+      if (.identity // null) == null then "missing"
+      elif ((.identity.projectId // "") | length) == 0 then "missing-projectId"
+      elif ((.identity.runId // "") | length) == 0 then "missing-runId"
+      elif ((.identity.phaseId // "") | length) == 0 then "missing-phaseId"
+      elif ((.identity.planRevision // null) | type) != "number" then "missing-planRevision"
+      elif ((.identity.contractDigest // "") | test("^[0-9a-f]{64}$")) | not then "missing-contractDigest"
+      else "ok" end
+    ' "$handoff" 2>/dev/null)"
+    if [ "$id_ok" != "ok" ]; then
+      printf 'kbd_stage_gate: execute blocked — plan handoff identity %s.\n' "$id_ok" >&2
+      printf 'The Plan→Execute boundary requires an adopted-contract-bound handoff (issue #186).\n' >&2
+      printf 'Remediation: adopt the phase contract (shared/scripts/kbd-contract-adopt.sh), then rewrite the plan handoff with KBD_HANDOFF_IDENTITY_JSON set.\n' >&2
+      return 2
+    fi
+    # B2: a phase closed PASS by the terminal evaluator refuses further execute
+    # dispatch. Decisions are read from the phase tree's own canonical status
+    # (KBD_READINESS_STATUS_FILE overrides for scratch fixtures — disclosed seam).
+    local sg_root sg_status worked_phase
+    sg_root="${phase_dir%/.kbd-orchestrator/phases/*}"
+    [ "$sg_root" = "$phase_dir" ] && sg_root="$(_sg_root)"
+    worked_phase="$(jq -r '.identity.phaseId // empty' "$handoff" 2>/dev/null)"
+    [ -n "$worked_phase" ] || worked_phase="$(basename "$phase_dir")"
+    sg_status=""
+    if [ -n "${KBD_READINESS_STATUS_FILE:-}" ]; then
+      sg_status="$(cat "$KBD_READINESS_STATUS_FILE" 2>/dev/null)"
+    elif [ -n "$sg_root" ] && command -v prometheus >/dev/null 2>&1; then
+      sg_status="$(prometheus kbd --path "$sg_root" status --json 2>/dev/null || true)"
+    fi
+    if [ -n "$sg_status" ] && printf '%s' "$sg_status" | jq -e --arg p "$worked_phase" \
+        '[(.decisions // {})[] | select(.summary | contains("PHASE-CLOSED phase=" + $p + " verdict=PASS"))] | length > 0' >/dev/null 2>&1; then
+      printf 'kbd_stage_gate: execute blocked — phase %s is CLOSED (PHASE-CLOSED verdict=PASS recorded by the terminal evaluator).\n' "$worked_phase" >&2
+      printf 'A closed phase receives no further dispatch. Remediation: open a successor phase via the canonical next-phase flow.\n' >&2
+      return 2
+    fi
+    # B1: full canonical readiness validation at the real Plan→Execute
+    # transition. Handoff identity alone is not sufficient: the adopted
+    # contract, its digest, scenario coverage and contract-quality gates must
+    # all validate, or the boundary does not complete and nothing dispatches.
+    local checker="$sg_root/shared/scripts/kbd-phase-readiness-check.sh"
+    if [ ! -f "$checker" ]; then
+      printf 'kbd_stage_gate: execute blocked — readiness checker missing at %s (broken install or payload drift).\n' "$checker" >&2
+      printf 'Remediation: reinstall the kbd-process-orchestrator payload; do not bypass.\n' >&2
+      return 2
+    fi
+    local rc_out rc_ec
+    if [ -n "${KBD_READINESS_STATUS_FILE:-}" ]; then
+      rc_out="$(bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" --status-file "$KBD_READINESS_STATUS_FILE" 2>&1)"; rc_ec=$?
+    else
+      rc_out="$(bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" 2>&1)"; rc_ec=$?
+    fi
+    if [ "$rc_ec" -ne 0 ]; then
+      printf 'kbd_stage_gate: execute blocked — phase readiness validation failed (exit %s).\n%s\n' "$rc_ec" "$rc_out" >&2
+      printf 'Remediation: satisfy shared/scripts/kbd-phase-readiness-check.sh (adopted contract, identity, digest, coverage, quality gates) before dispatch.\n' >&2
+      return 2
+    fi
+  fi
+  return 0
+}
+
 kbd_stage_gate() {
   local stage="${1:-}"
   local idx
@@ -170,7 +284,8 @@ kbd_stage_gate() {
   while [ "$i" -ge 0 ]; do
     prev="${_SG_ORDER[$i]}"
     handoff="$phase_dir/handoffs/$prev.handoff.json"
-    if [ -f "$handoff" ] && jq empty "$handoff" 2>/dev/null; then
+    if [ -f "$handoff" ]; then
+      _sg_validate_handoff "$handoff" "$prev" "$phase_dir" "$stage" || return 2
       return 0
     fi
     case "$_SG_OPTIONAL" in
@@ -195,7 +310,11 @@ _sg_handoff_emit() { # <stage> <summary> <skipped> <skipReason> <phase_dir> [out
     next="${_SG_ORDER[$((idx + 1))]}"
   fi
   mkdir -p "$phase_dir/handoffs" || return 1
-  local outputs_json tmp
+  local outputs_json tmp identity_json="${KBD_HANDOFF_IDENTITY_JSON:-}"
+  if [ -n "$identity_json" ] && ! printf '%s' "$identity_json" | jq empty 2>/dev/null; then
+    printf 'stage-gate: KBD_HANDOFF_IDENTITY_JSON is not valid JSON\n' >&2
+    return 1
+  fi
   outputs_json="$(printf '%s\n' "$@" | jq -R . | jq -s 'map(select(length > 0))')"
   tmp="$(mktemp "$phase_dir/handoffs/.$stage.XXXXXX")" || return 1
   jq -n \
@@ -203,6 +322,7 @@ _sg_handoff_emit() { # <stage> <summary> <skipped> <skipReason> <phase_dir> [out
     --arg next "$next" \
     --arg summary "$summary" \
     --arg skipReason "$skip_reason" \
+    --arg identity "$identity_json" \
     --argjson outputs "$outputs_json" \
     --argjson skipped "$skipped" \
     '{
@@ -213,7 +333,7 @@ _sg_handoff_emit() { # <stage> <summary> <skipped> <skipReason> <phase_dir> [out
       summaryForNext: $summary,
       skipped: $skipped,
       skipReason: (if $skipReason == "" then null else $skipReason end)
-    }' > "$tmp" || { rm -f "$tmp"; return 1; }
+    } + (if $identity == "" then {} else {identity: ($identity | fromjson)} end)' > "$tmp" || { rm -f "$tmp"; return 1; }
   mv "$tmp" "$phase_dir/handoffs/$stage.handoff.json"
 }
 

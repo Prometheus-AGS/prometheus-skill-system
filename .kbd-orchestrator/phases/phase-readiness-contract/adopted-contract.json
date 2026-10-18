@@ -1,0 +1,287 @@
+{
+  "contractVersion": "1",
+  "kind": "kbd.adopted-contract",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "phaseId": "phase-readiness-contract",
+    "planRevision": 17,
+    "contractDigest": "4b3c3321fcdfc9c877b0bc512285d627ec975f75d03c395bc771abb8ad055090"
+  },
+  "digestNormalization": {
+    "algorithm": "sha256",
+    "command": "jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)' <contract.json> | shasum -a 256 | awk '{print $1}'",
+    "rationale": "contractDigest excluded to avoid self-referential recursion; planRevision excluded because the canonical Decision binds plan_revision at record time — the adoption writer stamps both fields AFTER digest computation; the read-only checker re-computes with this identical normalization and compares against the canonical decision payload",
+    "stalenessRule": "STALE iff the latest non-superseded adoption decision for this contract path carries a digest != recomputed digest, or the adoption decision has been superseded by a newer adoption for the same path. planRevision is traceability metadata, not an equality gate."
+  },
+  "adoptionSource": "operator instructions 2026-10-17/2026-10-18 (explicit adoption; no inference from TODOs); v3 amendment: task-6/KBD-BOUNDED-AMENDMENT-PROMPT.txt + operator finite extension approval 2026-10-18",
+  "decisionOwner": "gqadonis (operator)",
+  "amendmentPolicy": "material scope/acceptance changes require explicit operator version-adoption recorded as a NEW canonical decision with --supersedes; suggestions never auto-enter task totals or later phases",
+  "releaseClaim": {
+    "userOperation": "operator adopts a versioned finite completion contract for one useful runnable end-to-end phase via the existing canonical writer; Assess-Analyze-Spec-Plan produce one consistent contract plus a bounded permission-aware execution packet; Plan-to-Execute dispatches only a complete READY implementation and rejects unadopted/missing/stale identity without fabricating PASS",
+    "supportedEnvironments": [
+      "this repository worktree (full-kbd-phase-readiness)",
+      "macOS",
+      "bash>=4",
+      "jq",
+      "node>=20.19",
+      "prometheus CLI 1.12.2",
+      "OpenCode harness",
+      "local-only validation"
+    ],
+    "currentCapabilities": "MISSING today: contract schema/template, adoption writer, readiness checker, semantic handoff gate. PARTIAL: acceptance template, stage-gate canonical-phase check, canonical decision/gate seams. See assessment.md IMPLEMENTATION STATUS.",
+    "explicitUnknowns": [
+      "token telemetry (no provider metering; fallback = time+tool-call bounds)",
+      "foreign Cargo occupation duration (irrelevant: no Rust artifacts this phase)",
+      "installed-payload parity for harness targets this phase does not change"
+    ]
+  },
+  "statusVocabulary": [
+    "PASS",
+    "FAIL(product: real oracle unmet)",
+    "BLOCKED(verification: validator/env/fixture unavailable)",
+    "NOT_EXERCISED"
+  ],
+  "scenarioMatrix": [
+    {
+      "id": "RC-01",
+      "name": "ADOPT-READY",
+      "ownerTask": "T4+T5+T7+T9+T10",
+      "productionEntry": "bash shared/scripts/kbd-contract-adopt.sh .kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json && bash shared/scripts/kbd-phase-readiness-check.sh --phase phase-readiness-contract",
+      "realCollaborators": [
+        "prometheus CLI canonical runtime (decision record, audit)",
+        "filesystem phase dir"
+      ],
+      "oracle": "adoption decision visible in prometheus kbd audit with matching digest; checker stdout READY exit 0; re-run of writer with identical content is idempotent (no duplicate decision)",
+      "negativeControl": "checker run BEFORE adoption prints BLOCKED naming adoption, exit 2",
+      "fixtures": "the phase's own real contract file (this JSON); identity = repo revision + file digest recorded at run time",
+      "evidence": "argv, exit codes, audit excerpt, checker stdout"
+    },
+    {
+      "id": "RC-02",
+      "name": "BLOCKED-MISSING",
+      "ownerTask": "T5+T8+T9+T10",
+      "productionEntry": "bash shared/scripts/kbd-phase-readiness-check.sh --phase-dir <scratch>/phase --decision-file <scratch>/decisions.json",
+      "realCollaborators": [
+        "scratch fixture tree only"
+      ],
+      "oracle": "BLOCKED, minimal missing list contains adoption, exit 2",
+      "negativeControl": "identical fixture WITH adoption entry is not BLOCKED on adoption",
+      "fixtures": "scratch canonical project root (own .kbd-orchestrator + .prometheus/project.json) under scratch HOME",
+      "evidence": "argv, exit, stdout, fixture digests"
+    },
+    {
+      "id": "RC-03",
+      "name": "REJECT-STALE",
+      "ownerTask": "T5+T8+T10",
+      "productionEntry": "checker against scratch fixture whose decision digest != contract digest (or superseded)",
+      "realCollaborators": [
+        "scratch fixture tree only"
+      ],
+      "oracle": "rejection names contractDigest (staleness per digestNormalization.stalenessRule); zero writes to real phase dir",
+      "negativeControl": "untouched fixture passes digest check",
+      "fixtures": "scratch roots as RC-02 plus tampered decisions.json",
+      "evidence": "argv, exit, stdout, git status of real phase dir unchanged"
+    },
+    {
+      "id": "RC-04",
+      "name": "REJECT-IDENTITY",
+      "ownerTask": "T3+T5+T8+T9",
+      "productionEntry": "checker / kbd_stage_gate against scratch fixture with wrong phaseId or runId",
+      "realCollaborators": [
+        "scratch fixture tree only"
+      ],
+      "oracle": "rejection names identity",
+      "negativeControl": "correct-identity fixture passes identity check",
+      "fixtures": "scratch roots as RC-02",
+      "evidence": "argv, exit, stdout"
+    },
+    {
+      "id": "RC-05",
+      "name": "REJECT-MALFORMED",
+      "ownerTask": "T3+T8+T10",
+      "productionEntry": "kbd_stage_gate execute with empty/garbage plan handoff in scratch phase dir",
+      "realCollaborators": [
+        "scratch fixture tree only"
+      ],
+      "oracle": "exit != 0 with stderr remediation; no handoff/evidence file created",
+      "negativeControl": "well-formed handoff passes gate",
+      "fixtures": "scratch phase dir with handoffs/ fixtures",
+      "evidence": "argv, exit, stderr, fixture dir listing"
+    },
+    {
+      "id": "RC-06",
+      "name": "AMEND",
+      "ownerTask": "T4+T5+T8+T11",
+      "productionEntry": "kbd-contract-adopt.sh re-run at boundary with amended contract (status.implementationComplete false->true, content change => new digest, --supersedes prior decision)",
+      "realCollaborators": [
+        "prometheus CLI canonical runtime (real amendment)",
+        "filesystem"
+      ],
+      "oracle": "checker accepts new digest and rejects old digest (old contract copy => REJECT-STALE); prometheus kbd audit lists both decisions; history intact",
+      "negativeControl": "old digest rejected post-amendment",
+      "fixtures": "real phase dir; old contract copy preserved under scratch for the rejection check",
+      "evidence": "argv, exit, audit excerpt"
+    },
+    {
+      "id": "RC-07",
+      "name": "SKILL-PACKAGING + INSTALL-PARITY (delivery qualification, not a product oracle)",
+      "ownerTask": "T6+T8",
+      "productionEntry": "npm run validate:strict skills/process/kbd-process-orchestrator && node scripts/generate-skill-system-distribution.js && HOME=<scratch> XDG_DATA_HOME=<scratch> node scripts/install.js --scope user, then digest/marker comparison of installed payloads vs source",
+      "realCollaborators": [
+        "repo build/distribution generator",
+        "real installer scripts/install.js",
+        "scratch HOME/XDG roots"
+      ],
+      "oracle": "validate:strict exit 0; generated dist payload reflects changed sources; installed stage-gate.sh digest == source digest; installed kbd-execute SKILL.md contains readiness-gate marker",
+      "negativeControl": "scratch install of PRE-CHANGE source lacks the readiness-gate marker; broken-frontmatter scratch copy fails validate:strict",
+      "fixtures": "scratch HOME + XDG_DATA_HOME + scratch harness roots; NEVER live ~/.opencode, ~/.claude, surreal-memory, or ~/Library/Application Support/prometheus",
+      "evidence": "argv, exit codes, digests, grep excerpt",
+      "classification": "packaging/verification evidence; failure here is a verification failure class, never auto-cascaded into RC-01..06 product-failure claims"
+    }
+  ],
+  "functionalScope": [
+    "RC-01..RC-07 as bound above",
+    "production file groups T1..T8",
+    "canonical registration of this phase's change/tasks",
+    "B1 (T9): full canonical readiness validation enforced at the real Plan-to-Execute stage-gate transition, incl. contract-quality gates (unique scenario ids, decidable oracles, production entries, fixtures, exclusions, budgets, safety checks, bounded packet); validation failure prevents boundary completion and dispatch",
+    "B2 (T10): terminal close evaluator consuming adopted scenario-result evidence (never task counts, implementationComplete, or READY); valid complete PASS closes the phase via canonical writer, idempotently, and blocks further dispatch for the closed phase; FAIL/BLOCKED/NOT_EXERCISED record truthful termination and stop auto-continue",
+    "T11: amendment demonstration sub-cases mapped onto RC-01..RC-07 (no new scenario ids) plus corrections C1..C4"
+  ],
+  "resilienceScope": {
+    "policy": "adopted requirements never defer by budget overflow (exhaustion => checkpoint+BLOCKED); only never-adopted optional items below",
+    "deferredOptional": [
+      "host-side budget enforcement (#185)",
+      "automatic evidence revalidation on source drift",
+      "install/gate parity for harness targets unchanged by this phase",
+      "UAR-specific matrices"
+    ]
+  },
+  "exclusions": [
+    "mini port",
+    "#185 implementation",
+    "#184 full phase-exit/budget runtime",
+    "#172/#176 reconcile rewrite",
+    "global tool fence",
+    "plugin migration",
+    "new services/credentials",
+    "push/merge/release",
+    "hosted CI as evidence"
+  ],
+  "requiredSafetyChecks": [
+    "canonical writer only for runtime state",
+    "no journal/waypoint hand-edits",
+    "negative controls write nothing to real canonical state",
+    "scratch isolation roots (HOME, XDG_DATA_HOME, canonical project, store, hook, memory roots)",
+    "foreign dirty state in main checkout untouched"
+  ],
+  "budgets": {
+    "timeMinutes": 90,
+    "toolCalls": 180,
+    "repairAttempts": 2,
+    "noProgressLimit": 2,
+    "tokenBudget": "UNKNOWN",
+    "tokenFallback": "time+toolCalls bounds",
+    "consumedAtAuthoring": {
+      "toolCallsApprox": 42,
+      "timeMinutesApprox": 45
+    },
+    "exhaustion": "checkpoint + BLOCKED; never silent PASS; docs/state may be saved without running product tests",
+    "extensions": [
+      {
+        "approvedAt": "2026-10-18T10:03Z (estimate; operator message timestamp)",
+        "scope": "amendment-184-185-enforcement.md only (B1, B2, C1..C4, RC-mapped sub-cases)",
+        "timeMinutes": 90,
+        "toolCalls": 90,
+        "repairAttempts": 2,
+        "noProgressLimit": 2,
+        "cumulative": "preserves prior consumption (est. ~95 min, ~90 tool calls, 2 repairs used); estimates marked as estimates; token telemetry UNKNOWN with time+toolCalls fallback"
+      },
+      {
+        "approvedAt": "2026-10-18 (operator message; estimate ~11:05Z)",
+        "scope": "Q1+Q2 correction pass per reconciliation-20261018.md only",
+        "operation": "add",
+        "timeMinutes": 40,
+        "toolCalls": 20,
+        "repairAttempts": 2,
+        "noProgressLimit": {
+          "operation": "unchanged",
+          "absolute": 2
+        },
+        "resultingCeilings": {
+          "timeMinutes": 220,
+          "toolCalls": 290,
+          "repairAttempts": 6,
+          "noProgressLimit": 2
+        },
+        "passSelfLimit": "this correction pass itself limited to 40 minutes and 20 tool calls",
+        "cumulative": "preserves all prior consumption (est. ~145 min, ~137 calls; 4 repairs measured; 0 no-progress measured); no automatic renewal",
+        "provenance": "operator approval message 2026-10-18 (Approve fixes A and B only)"
+      }
+    ]
+  },
+  "evidenceInvalidation": "keyed by source digest / plan revision / fixture identity; only affected evidence invalidated; history preserved; no full-repo re-review loops; gates that passed and were not invalidated are not re-run",
+  "workerRoutes": {
+    "agent": "main",
+    "model": "kimi-code-plan-global/k3-256k",
+    "billing": "operator-confirmed Kimi coding subscription endpoint, Extra Usage disabled",
+    "subagents": "none (single authorized route; reviewers run sequentially in main agent)",
+    "reviewRoundsMax": 2
+  },
+  "boundaryPacket": {
+    "postImplementationOnly": true,
+    "singleRun": true,
+    "commands": [
+      "prometheus kbd gate run --kind integration --scope phase-readiness-contract -- bash shared/scripts/tests/test-kbd-readiness-gate.sh",
+      "npm run validate:strict skills/process/kbd-process-orchestrator",
+      "node scripts/generate-skill-system-distribution.js --check"
+    ],
+    "expectedEffects": [
+      "signed gate start/finish receipts in canonical journal",
+      "scenario matrix results written to .kbd-orchestrator/phases/phase-readiness-contract/boundary-results.json",
+      "RC-06 amendment decision recorded by the test via kbd-contract-adopt.sh",
+      "scratch fixtures removed on cleanup"
+    ],
+    "requiredApprovals": "none beyond existing operator authorization for this phase; no new credentials/providers",
+    "receipts": [
+      "prometheus kbd gate run signed receipts",
+      "prometheus kbd audit excerpts for adoption + amendment",
+      "boundary-results.json"
+    ],
+    "cleanup": [
+      "rm -rf scratch fixture roots under $TMPDIR",
+      "no cleanup of canonical history (append-only, preserved)"
+    ],
+    "stopConditions": [
+      "budgets exhausted => checkpoint+BLOCKED",
+      "2 repair attempts exhausted => BLOCKED",
+      "2 consecutive no-progress turns => checkpoint+BLOCKED",
+      "frozen criteria met => terminate, no invented follow-up work"
+    ]
+  },
+  "amendments": [
+    {
+      "version": 3,
+      "source": "task-6/KBD-BOUNDED-AMENDMENT-PROMPT.txt + operator finite extension approval 2026-10-18",
+      "plan": ".kbd-orchestrator/phases/phase-readiness-contract/amendment-184-185-enforcement.md",
+      "behaviors": [
+        "B1: kbd_stage_gate execute transition invokes full canonical readiness validation (shared/scripts/kbd-phase-readiness-check.sh) with contract-quality gates; failure prevents boundary completion and dispatch",
+        "B2: shared/scripts/kbd-phase-close-eval.sh terminal evaluator; evidence-bound closure via canonical writer; idempotent; closed phase refuses further execute dispatch"
+      ],
+      "demonstrationMapping": "RC-01 valid transition + idempotent valid closure + zero new tasks; RC-02 empty/invalid contract rejected at gate + budget-exhaustion BLOCKED stops dispatch; RC-03 missing/stale/invalid evidence cannot close; RC-04 wrong project/run/digest rejected at real gate; RC-05 valid FAIL result cannot close; RC-06 controlled v3 amendment preserves history, rejects old digest and unauthorized amendment; RC-07 generated + scratch-installed payload parity",
+      "bypassDisclosure": "kbd_stage_gate is a shell convention invoked by the orchestrator skill layer; the compiled prometheus kbd CLI does not itself call it, direct CLI/state manipulation and KBD_READINESS_STATUS_FILE fixture override bypass enforcement and are disclosed, not claimed as impossible"
+    },
+    {
+      "version": 4,
+      "source": "operator approval 2026-10-18 (fixes A and B only) per reconciliation-20261018.md",
+      "behaviors": [
+        "A: evaluator validates presence, JSON, project/run/phase identity, latest non-superseded adoption digest, source freshness and per-scenario oracles BEFORE any ALREADY-CLOSED; the closure match is bound to phase + run + adopted contract digest, so a different run or a superseded contract cannot inherit a same-phase historical PASS; unchanged valid bound replay stays idempotent",
+        "B: evaluator budget predicate compares declared ceilings (contract budgets + additive extensions; latest extension resultingCeilings wins) against evidence budgetConsumption, which identifies its source and classes each value measured/estimate/unknown; consumption ABOVE a ceiling refuses closure (BLOCKED); consumption AT a ceiling permits closure of work completed within limits and records exhaustion (no further work admitted); unknown-class values are not enforced (declared time/tool fallback governs)"
+      ],
+      "proofLimits": "budgetConsumption is self-reported run accounting (agent-authored or fixture-supplied), NOT independent telemetry and NOT tamper-proof; the predicate proves only the declared-limit comparison and refusal behavior; a missing header skips the predicate and is disclosed as budget-consumption-undeclared in the closure record"
+    }
+  ],
+  "status": {
+    "implementationComplete": true
+  }
+}

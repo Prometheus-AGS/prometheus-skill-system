@@ -1,6 +1,6 @@
 ---
 name: prometheus-skill-pack
-version: 1.12.2
+version: 1.13.0
 skill_count: 214
 commit: f44abc234d6485abaaffa6ae39a95dfb7d1c808a
 type: collection

@@ -144,7 +144,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Lifecycle',
-      items: ['kbd/overview', 'kbd/stages', 'kbd/task-model-assignments', 'kbd/openspec-lifecycle'],
+      items: ['kbd/overview', 'kbd/stages', 'kbd/task-model-assignments', 'kbd/openspec-lifecycle', 'kbd/phase-readiness-contract'],
     },
     {
       type: 'category',

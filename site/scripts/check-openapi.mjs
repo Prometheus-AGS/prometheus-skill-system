@@ -11,7 +11,7 @@ const releaseMatrix = JSON.parse(
   fs.readFileSync(path.join(repoRoot, 'config/release-version-matrix.json'), 'utf8')
 );
 const memoryRelease = releaseMatrix.intentionalExemptions.find(
-  entry => entry.surface === 'surreal-memory-server submodule'
+  entry => entry.surface === 'surreal-memory-server OpenAPI spec'
 )?.version;
 const failures = [];
 

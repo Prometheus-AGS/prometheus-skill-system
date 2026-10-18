@@ -34,12 +34,12 @@ From the approved repository root, with the selected machine home and store:
 
 ```bash
 node scripts/retire-stale-plugin-caches.mjs \
-  --home /absolute/home \
-  --plugin-root /absolute/home/.prometheus/plugins/prometheus-skill-pack
+  --home <absolute-home> \
+  --plugin-root <absolute-home>/.prometheus/plugins/prometheus-skill-pack
 
 node scripts/retire-stale-plugin-caches.mjs \
-  --home /absolute/home \
-  --plugin-root /absolute/home/.prometheus/plugins/prometheus-skill-pack \
+  --home <absolute-home> \
+  --plugin-root <absolute-home>/.prometheus/plugins/prometheus-skill-pack \
   --apply
 ```
 

@@ -236,3 +236,12 @@ A missing required handoff fails with remediation: complete the predecessor
 stage, or record an explicit skip with its reason under project policy.
 A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
 "<reason>"`. Schema: `references/schemas/handoff.schema.json`.
+
+## Contract binding + single boundary packet (required)
+
+Plan output must bind contract identity + digest, scenario→task coverage,
+worker routes, freshness keys, budgets, and ONE boundary execution packet —
+and record adoption via `bash shared/scripts/kbd-contract-adopt.sh` before
+writing the identity-bound plan handoff (KBD_HANDOFF_IDENTITY_JSON). See
+prompts/plan.md. Plans without an adopted contract cannot pass the
+Plan→Execute readiness gate.

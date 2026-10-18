@@ -17,7 +17,7 @@ Use it when you need:
 
 The REST operation ledger is canonical for durable writes. Existing read/search and MCP surfaces remain useful, but durable v2 integrations acknowledge writes through `/api/v2/operations`.
 The full Python learning writer uses a local queue delivered by the supervised
-worker. Mini has a reduced file tier and an optional scoped `/api/v1/memory`
+worker. Mini has a reduced file tier and an optional scoped legacy v1
 publication client; that source contract does not provide the full v2 worker,
 Python or Cortex pipeline. See [Memory tiers](/docs/guide/memory-tiers).
 

@@ -153,3 +153,13 @@ Record the assessment lifecycle through typed `prometheus kbd stage enter`
 and `stage transition` commands, and write the assess handoff through
 `kbd_stage_handoff_write`. The runtime regenerates progress and waypoint
 projections. Never set assessment flags or timestamps in generated JSON.
+
+## Adopted-outcome elicitation (required)
+
+Before closing Assess, record in assessment.md the adopted-outcome contract
+inputs: the one useful shipped user operation, the observed baseline
+(including explicit UNKNOWNs), the desired observable result, supported
+environments, required safety/security checks, exclusions/deferred items, risk
+acceptance, and the decision owner. Explicit prior operator instructions count
+as adoption; never infer adoption from TODOs or reflections. These inputs feed
+`adopted-contract.json` (schema: references/schemas/adopted-contract.schema.json).

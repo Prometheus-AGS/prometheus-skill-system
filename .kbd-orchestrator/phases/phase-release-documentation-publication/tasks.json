@@ -1,0 +1,13 @@
+{
+  "phase": "phase-release-documentation-publication",
+  "revision": 1,
+  "workerRoute": { "agent": "main", "model": "kimi-code-plan-global/k3-256k", "subagents": "none (single authorized route)" },
+  "tasks": [
+    { "id": "T1", "title": "documentation updates (README, KBD docs, CHANGELOG, Docusaurus site)", "scenarios": ["PB-01"], "files": ["README.md", "CHANGELOG.md", "docs/guide/", "site/docs/"] },
+    { "id": "T2", "title": "version selection + release notes linking qualification note", "scenarios": ["PB-02"], "files": ["package.json", "docs/releases/"] },
+    { "id": "T3", "title": "required release checks + docs/site build + distribution consistency", "scenarios": ["PB-03"], "files": ["scripts/check-release-version-matrix.mjs", "scripts/generate-skill-system-distribution.js", "site/"] },
+    { "id": "T4", "title": "scoped commits, branch push, release PR, in-scope CI resolution", "scenarios": ["PB-04"], "files": [] },
+    { "id": "T5", "title": "merge after required checks, publish version + Docusaurus, verify tag/artifact/docs/install", "scenarios": ["PB-05"], "files": [] },
+    { "id": "T6", "title": "GitHub issue reconciliation (#186 close-if-met; #184/#185 open with remaining scope)", "scenarios": ["PB-06"], "files": [] }
+  ]
+}

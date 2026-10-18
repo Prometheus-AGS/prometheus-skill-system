@@ -89,7 +89,7 @@ Every engine implements five operations as `<prefix>_*` functions in
 
 | Op | Signature | Output / effect |
 |---|---|---|
-| `list` | `<change>` | TSV on stdout: `id<TAB>done(0|1)<TAB>title`, one line per task |
+| `list` | `<change>` | TSV on stdout: `id[TAB]done(0|1)[TAB]title`, one line per task |
 | `progress` | `<change>` | `total complete remaining` on stdout |
 | `mark_done` | `<change> <id>` | flip one task to done in the engine's own artifact |
 | `verify` | `<change>` | structural/CLI gate; non-zero exit = fail |

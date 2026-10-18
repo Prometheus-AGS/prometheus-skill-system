@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.12.2",
+  "sourceVersion": "1.13.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -187,6 +187,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/kbd-contract-adopt.sh",
+      "sha256": "5f570c4dedc404e86fe5566763bf51a84904537d23788e28cc1740751f4179bb",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/kbd-harness-adapter.sh",
       "sha256": "8425ccc397e794449694bc04ce1ab9de4c6212e706b71bd5dd01553b08988c5d",
       "executable": true
@@ -199,6 +204,16 @@
     {
       "path": "shared/scripts/kbd-open.sh",
       "sha256": "5d73a38e6cece55a1eb3a6c7ebcae83f79b5784ec1985c7e52defd9f8782f54c",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-phase-close-eval.sh",
+      "sha256": "930fab97e03f13d737ea016e763e98c15e775d9a0e9ac08888e36047b1c86ada",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-phase-readiness-check.sh",
+      "sha256": "7ca52a7292e97b10e187397cd36dc131becd2adfaf8db9e281b404bbc73bd85f",
       "executable": true
     },
     {
@@ -512,5 +527,5 @@
       "executable": true
     }
   ],
-  "bundleId": "dbc442b5ff8ebde896c7401b9655c724a2f5a4d9774423c6de61950a9116808f"
+  "bundleId": "85afb868a434a09c6b9214367a79e10ea39bb0a7f9c94f021301dac4cbca094a"
 }

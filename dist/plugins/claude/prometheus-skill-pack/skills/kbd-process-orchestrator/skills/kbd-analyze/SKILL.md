@@ -180,3 +180,12 @@ allowed enum in `shared/lib/hooks.sh`). See orchestrator `SKILL.md` → "Hooks".
 Write the stage handoff (`kbd_stage_handoff_write analyze …`) before firing
 `analyze:after`: the builtin `kbd-stage-writeback-analyze` hook stores its summary
 in memory at visibility `lead`, where the lead view of later stages recalls it.
+
+## Readiness mapping (required)
+
+Each build-vs-adopt decision must state its effect on phase readiness: which
+contract section it satisfies, and whether the phase can reach READY
+(shared/scripts/kbd-phase-readiness-check.sh) without new runtime code. Close
+analysis.md with an explicit `READY to spec` / `BLOCKED` recommendation;
+BLOCKED names the minimal missing items. Do not run broad external research
+when the operator has ruled current inputs sufficient.

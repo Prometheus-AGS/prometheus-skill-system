@@ -1,0 +1,14 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-10-18T02:31:16Z",
+  "outputs": [
+    "spec.md",
+    "tasks.json",
+    "verification.md",
+    "adopted-contract.json"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "Spec complete: RC-01..RC-07 frozen with digest normalization, isolation roots, owner/coverage bindings; adopted-contract.json authored",
+  "skipped": false,
+  "skipReason": null
+}

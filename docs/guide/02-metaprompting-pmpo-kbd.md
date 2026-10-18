@@ -57,6 +57,8 @@ KBD has three mechanisms.
 
 KBD is what you reach for when work spans multiple sessions, multiple phases, and multiple agents. It is the structure that prevents long-horizon work from dissolving into uncoordinated activity.
 
+**Phase completion is contractual, not impressionistic.** A phase can adopt a readiness contract — a versioned, digest-bound declaration of its goal, acceptance scenario matrix, budgets, and verification packet — through a canonical writer before execution. The Plan→Execute gate refuses to dispatch a phase without a valid adopted contract, and a terminal evaluator closes the phase only when every adopted scenario has PASS evidence bound to the current run and the adopted contract digest. Missing budget accounting is refused as `BLOCKED`, never waived. The mechanism is a shell-layer convention with disclosed bypass paths and self-reported accounting; the full behavior and its exact limits are documented in the [phase readiness contract](/docs/kbd/phase-readiness-contract) reference.
+
 ```mermaid
 graph LR
     A["/kbd-assess"] --> B["/kbd-analyze"]

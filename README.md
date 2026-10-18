@@ -84,6 +84,17 @@ determine which steps can run; unavailable providers and missing prerequisites
 must stay visible in task state. Read [the KBD overview](site/docs/kbd/overview.md)
 and [task model assignments](site/docs/kbd/task-model-assignments.md).
 
+Phases can also adopt a **readiness contract**: a versioned, digest-bound exit
+contract (goal, scenario matrix with production entries/oracles/negative
+controls, declared budgets) recorded canonically before execution. The
+Plan→Execute gate validates adoption, identity, digest freshness, task
+coverage, and contract quality before dispatch, and a terminal evaluator closes
+the phase only on evidence bound to the current run and adopted contract digest
+— with missing budget accounting refused as `BLOCKED`, never waived. This is a
+shell-layer convention with disclosed bypass paths and self-reported
+accounting; see [the phase readiness contract](site/docs/kbd/phase-readiness-contract.md)
+for the exact limits.
+
 For an improvement cycle, name `iterative-evolver`. For a sourced investigation,
 name `deep-research` and read its
 [stage contracts](skills/research/deep-research/references/stage-contracts.md).

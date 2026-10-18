@@ -112,3 +112,14 @@ kbd_stage_handoff_write spec "<N changes created>" "<first-change>/spec.md"
 
 Fires `spec:before` / `spec:after` (the `spec` hook kind is in the allowed
 enum in `shared/lib/hooks.sh`). See orchestrator `SKILL.md` → "Hooks".
+
+## Finite scenario matrix + contract authoring (required)
+
+Spec freezes the finite scenario matrix: stable scenario IDs (pattern
+`^[A-Z]+-[0-9]+$`), production entry point, real collaborators, oracle,
+negative control, fixture identity (scratch roots + digests), evidence
+requirements, and owning task ID per scenario — using
+references/templates/acceptance.template.md fields. Separate functional scope
+from resilience scope; adopted resilience requirements never defer via budget
+overflow. Author the phase `adopted-contract.json`
+(schema: references/schemas/adopted-contract.schema.json) in this stage.

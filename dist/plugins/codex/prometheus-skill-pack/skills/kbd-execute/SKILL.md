@@ -313,3 +313,22 @@ A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
 When a delivery-cadence profile is selected, include its path, state root, iteration scope, required build/run actions and publication interval in the authored execution dispatch contract. The harness remains continuation owner; kbd-apply remains canonical task owner. Do not edit generated waypoints.
 
 Finish the complete independently usable increment, then BUILD and RUN its actual function. Do not run test suites, per-task verification or reviewer loops at iteration boundaries. Fix build, launch or functional failures before beginning another increment. A timer never certifies partial work. Apply the profile's human review and publication policy; keep architecture approvals separate. See the delivery-cadence skill only for cadence-enabled work.
+
+## Pre-dispatch readiness gate (mandatory)
+
+Before any dispatch, run:
+
+```bash
+bash shared/scripts/kbd-phase-readiness-check.sh --phase <phase>
+```
+
+- `READY` (exit 0) is required to dispatch implementation. READY authorizes
+  dispatch of implementation work only — it does NOT start testing; the
+  contract's boundaryPacket runs once at the phase boundary.
+- `BLOCKED` (exit 2): do not dispatch; surface the minimal missing list.
+- `REJECT-IDENTITY` (3) / `REJECT-STALE` (4): do not dispatch; stale digests
+  require an operator-adopted amendment
+  (`kbd-contract-adopt.sh --supersedes <prior-decision-id>`).
+
+Never fabricate PASS, never treat unknown as success, and never hand-write
+handoffs, journals, or receipts.
