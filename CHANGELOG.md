@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-10-18
+
+### Added
+
+- KBD phase readiness contract: a versioned, content-digested exit contract
+  adopted through a canonical writer before execution, a Plan→Execute readiness
+  gate, and a terminal evidence-bound closure evaluator (#186, bounded
+  #184/#185 amendment).
+  - `shared/scripts/kbd-contract-adopt.sh` records adoption as an immutable
+    canonical decision keyed to the contract SHA-256 digest, with supersedes
+    lineage (`--supersedes`) and idempotent re-adoption (`ALREADY-ADOPTED`).
+  - `shared/scripts/kbd-phase-readiness-check.sh` validates adoption
+    presence/unambiguity, project/run/phase identity, digest freshness
+    (`REJECT-STALE`), task coverage, and contract quality (scenario matrix,
+    budgets with UNKNOWN-token fallback, verification packet).
+  - `skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh` refuses
+    Plan→Execute dispatch unless readiness is READY, and refuses to dispatch
+    closed phases.
+  - `shared/scripts/kbd-phase-close-eval.sh` closes a phase only when every
+    adopted scenario has valid PASS evidence bound to the current run and
+    adopted contract digest, with recomputed source freshness and a budget
+    predicate against declared ceilings. Missing `budgetConsumption` accounting
+    is a `BLOCKED` refusal (`budget-consumption-missing`), never waived; a
+    valid unchanged replay is an idempotent `ALREADY-CLOSED` no-op.
+  - Documentation: [phase readiness contract](site/docs/kbd/phase-readiness-contract.md).
+  - Enforcement is a shell-layer convention with disclosed bypass paths and
+    self-reported (not independent) budget accounting; the documented limits
+    are part of the release. Candidate qualification evidence:
+    `docs/releases/1.12.2-candidate-qualification.md`.
+
 ## [1.12.2] - 2026-10-12
 
 This release also covers 1.12.0 and 1.12.1, which were never tagged.
