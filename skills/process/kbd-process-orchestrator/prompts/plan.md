@@ -149,3 +149,15 @@ plan stage through `stage enter` / `stage transition`. The runtime regenerates
 the progress and waypoint projections. Resolve the next task from canonical
 pending work; `exactNextCommand` is context, not authority to repeat stale work.
 Never edit generated waypoint fields directly.
+
+## Contract binding + single boundary packet (required)
+
+plan.md must bind: contract identity (path + SHA-256 digest under the frozen
+normalization), the scenario→task coverage map, worker routes (agent + model),
+freshness/evidence-invalidation keys, budgets (time / tool / token-or-UNKNOWN /
+repair / no-progress), and ONE boundary execution packet (exact commands,
+expected effects, required approvals, receipts, cleanup, stop conditions;
+postImplementationOnly). Record adoption via
+`bash shared/scripts/kbd-contract-adopt.sh <contract>` and write the plan
+handoff with KBD_HANDOFF_IDENTITY_JSON set to the contract identity object —
+the Plan→Execute gate rejects identity-less plan handoffs.

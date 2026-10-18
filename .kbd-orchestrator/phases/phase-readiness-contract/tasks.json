@@ -1,0 +1,18 @@
+{
+  "phase": "phase-readiness-contract",
+  "revision": 1,
+  "workerRoute": { "agent": "main", "model": "kimi-code-plan-global/k3-256k", "subagents": "none (single authorized route)" },
+  "tasks": [
+    { "id": "T1", "title": "adopted-contract schema + template", "scenarios": ["RC-01"], "files": ["skills/process/kbd-process-orchestrator/references/schemas/adopted-contract.schema.json", "skills/process/kbd-process-orchestrator/references/templates/adopted-contract.template.md"], "status": "pending" },
+    { "id": "T2", "title": "handoff schema identity extension (backward compatible)", "scenarios": ["RC-04", "RC-05"], "files": ["skills/process/kbd-process-orchestrator/references/schemas/handoff.schema.json"], "status": "pending" },
+    { "id": "T3", "title": "stage-gate.sh semantic validation + Plan→Execute identity requirement", "scenarios": ["RC-04", "RC-05"], "files": ["skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh"], "status": "pending" },
+    { "id": "T4", "title": "kbd-contract-adopt.sh adoption writer (canonical decision seam)", "scenarios": ["RC-01", "RC-06"], "files": ["shared/scripts/kbd-contract-adopt.sh"], "status": "pending" },
+    { "id": "T5", "title": "kbd-phase-readiness-check.sh READY/BLOCKED checker", "scenarios": ["RC-01", "RC-02", "RC-03", "RC-04", "RC-06"], "files": ["shared/scripts/kbd-phase-readiness-check.sh"], "status": "pending" },
+    { "id": "T6", "title": "upstream skill/prompt minimal edits (assess/analyze/spec/plan/execute/apply + acceptance template)", "scenarios": ["RC-07"], "files": ["skills/process/kbd-process-orchestrator/prompts/assess.md", "skills/process/kbd-process-orchestrator/prompts/plan.md", "skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md", "skills/process/kbd-process-orchestrator/skills/kbd-analyze/SKILL.md", "skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md", "skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md", "skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md", "skills/process/kbd-process-orchestrator/skills/kbd-apply/SKILL.md", "skills/process/kbd-process-orchestrator/references/templates/acceptance.template.md"], "status": "pending" },
+    { "id": "T7", "title": "this phase's own adopted-contract.json (frozen content, dogfood fixture for RC-01)", "scenarios": ["RC-01"], "files": [".kbd-orchestrator/phases/phase-readiness-contract/adopted-contract.json"], "status": "pending" },
+    { "id": "T8", "title": "boundary integration test + single boundary run", "scenarios": ["RC-01", "RC-02", "RC-03", "RC-04", "RC-05", "RC-06", "RC-07"], "files": ["shared/scripts/tests/test-kbd-readiness-gate.sh"], "status": "pending" },
+    { "id": "T9", "title": "B1: checker contract-quality gates + stage-gate full readiness enforcement at Plan→Execute", "scenarios": ["RC-01", "RC-02", "RC-04"], "files": ["shared/scripts/kbd-phase-readiness-check.sh", "skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh"], "status": "pending" },
+    { "id": "T10", "title": "B2: terminal close evaluator (evidence-bound, idempotent, canonical closure)", "scenarios": ["RC-01", "RC-02", "RC-03", "RC-05"], "files": ["shared/scripts/kbd-phase-close-eval.sh"], "status": "pending" },
+    { "id": "T11", "title": "amendment demonstration sub-cases + corrections C1..C4 in boundary test", "scenarios": ["RC-06"], "files": ["shared/scripts/tests/test-kbd-readiness-gate.sh"], "status": "pending" }
+  ]
+}

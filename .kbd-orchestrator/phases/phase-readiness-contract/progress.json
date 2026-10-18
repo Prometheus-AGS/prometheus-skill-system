@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 83,
+  "derivedRevision": 83,
+  "frontier": {
+    "385a1272-766b-41ce-b7d8-af6faaef4d70": 83
+  },
+  "conflictCount": 0,
+  "phase": "phase-readiness-contract",
+  "phaseId": "phase-readiness-contract",
+  "parentPhase": null,
+  "last_updated": "2026-10-18T11:19:24.643317Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 1,
+  "changes_completed": 1,
+  "implementation_total": 1,
+  "implementation_completed": 1,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 1,
+      "total": 1,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 327,
+      "total": 389,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "readiness-contract-implementation",
+      "title": "Pre-execution readiness: adopted contract + bounded permission-aware execution packet + Plan-Execute gate",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 11,
+      "tasks_done": 11,
+      "last_task_completed": "B1: readiness enforcement at Plan-Execute transition",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

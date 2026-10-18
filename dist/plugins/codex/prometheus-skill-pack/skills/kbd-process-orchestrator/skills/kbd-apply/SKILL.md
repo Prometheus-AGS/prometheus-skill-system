@@ -183,3 +183,10 @@ the driver's `begin-task`/`end-task` — relay them verbatim to the user.
 - `/kbd-reflect` — consumes the per-task `progress.json` this driver maintains.
 - Child loops (`/kbd-new-child`, `/kbd-next-child`) use this **same** driver, so
   nested phases get identical per-task reporting (see change-006).
+
+## Pre-dispatch readiness gate (mandatory)
+
+Identical to kbd-execute: `bash shared/scripts/kbd-phase-readiness-check.sh
+--phase <phase>` must print READY (exit 0) before any task dispatch. BLOCKED /
+REJECT-IDENTITY / REJECT-STALE stop dispatch with the minimal missing list;
+stale digests require an operator-adopted amendment. Never fabricate PASS.

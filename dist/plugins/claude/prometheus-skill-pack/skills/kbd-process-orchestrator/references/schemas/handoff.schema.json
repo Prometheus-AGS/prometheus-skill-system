@@ -35,6 +35,19 @@
     "skipReason": {
       "type": ["string", "null"],
       "description": "Required human reason when skipped is true."
+    },
+    "identity": {
+      "type": "object",
+      "description": "OPTIONAL for assess/analyze/spec handoffs, REQUIRED by the Plan→Execute boundary (enforced by shared/lib/stage-gate.sh). Binds the handoff to canonical identity and the adopted contract so stale or foreign handoffs are rejected instead of silently accepted.",
+      "required": ["projectId", "runId", "phaseId", "planRevision", "contractDigest"],
+      "properties": {
+        "projectId": { "type": "string", "description": "Canonical project UUID from .prometheus/project.json." },
+        "runId": { "type": "string", "description": "Canonical run id from prometheus kbd status." },
+        "phaseId": { "type": "string", "description": "Canonical phase id; must equal the phase directory the handoff lives in." },
+        "planRevision": { "type": "integer", "minimum": 0, "description": "Plan revision the handoff was produced against." },
+        "contractDigest": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "SHA-256 of the adopted contract under the contract's digestNormalization (identity.contractDigest and identity.planRevision excluded)." }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false

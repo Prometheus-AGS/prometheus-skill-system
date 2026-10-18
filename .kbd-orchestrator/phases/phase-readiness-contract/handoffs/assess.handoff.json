@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-10-18T02:16:27Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Assessment complete: readiness contract machinery MISSING (contract schema, semantic handoff gate, readiness checker, packet); canonical seams identified (kbd decision record, BoundaryReceipt/GateReceipt); no Rust gate needed (shell/markdown/JSON only); Cargo occupied by foreign process recorded UNKNOWN",
+  "skipped": false,
+  "skipReason": null
+}
