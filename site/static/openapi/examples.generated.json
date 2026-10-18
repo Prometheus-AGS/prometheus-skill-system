@@ -60,6 +60,9 @@
     "same-id-same-hash": "Repeat POST after response loss; 200 returns the stored receipt and never duplicates logical work.",
     "same-id-different-hash": "Repeat the operation ID with another canonical payload hash; 409 preserves the original receipt.",
     "response-loss": "Discard POST response, then GET by operation_id until committed or rejected.",
-    "long-logical-memory": "Persist tokenizer-planned parts and per-part embeddings; restart resumes only unfinished parts and commits one logical memory."
+    "long-logical-memory": "Persist tokenizer-planned parts and per-part embeddings; restart resumes only unfinished parts and commits one logical memory.",
+    "operator-retry": "POST /retry re-drives a paused operation immediately; terminal operations return 409.",
+    "operator-reject": "POST /reject dead-letters a non-terminal, non-indexed operation; reconciliation never processes it again.",
+    "permanent-failure": "A failure retrying cannot fix (invalid payload, empty plan, changed deterministic plan) rejects the operation instead of pausing it."
   }
 }
