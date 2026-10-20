@@ -16,5 +16,13 @@ if [ -f "$SECRETS" ]; then
     set +a
 fi
 
-LITER_LLM_BIN="$(command -v liter-llm || echo /usr/local/bin/liter-llm)"
+# Prefer the user-local update over an older system-wide copy on launchd PATH.
+# An explicit service override still wins.
+if [ -z "${LITER_LLM_BIN:-}" ]; then
+    if [ -x "$HOME/.local/bin/liter-llm" ]; then
+        LITER_LLM_BIN="$HOME/.local/bin/liter-llm"
+    else
+        LITER_LLM_BIN="$(command -v liter-llm || echo /usr/local/bin/liter-llm)"
+    fi
+fi
 exec "$LITER_LLM_BIN" api --config "$HOME/.config/liter-llm/liter-llm-proxy.toml"

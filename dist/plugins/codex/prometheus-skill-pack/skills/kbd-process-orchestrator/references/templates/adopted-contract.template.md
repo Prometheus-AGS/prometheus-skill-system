@@ -8,9 +8,19 @@ section; placeholders are not acceptance evidence.
 
 ## Adoption (canonical writer only)
 
+Run from the consumer project. For repository development or a custom payload,
+set `KBD_PACK_ROOT` to the absolute package root; do not change into that root.
+All package and contract paths must remain quoted.
+
 ```bash
-bash shared/scripts/kbd-contract-adopt.sh .kbd-orchestrator/phases/<phase>/adopted-contract.json
+KBD_PACKAGE_ROOT="${KBD_PACK_ROOT:-${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}/current}}}"
+bash "$KBD_PACKAGE_ROOT/shared/scripts/kbd-contract-adopt.sh" ".kbd-orchestrator/phases/<phase>/adopted-contract.json"
 ```
+
+The generation installer also exposes both helpers under
+`"${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}/stable"`.
+A missing helper is an installation error; an available helper reporting missing
+or invalid contract state requires fixing the consumer contract/adoption.
 
 The writer validates the contract against the schema, computes the digest with
 the frozen normalization, stamps `identity.planRevision` (from

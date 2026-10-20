@@ -2,7 +2,7 @@
   "$schema": "./schemas/skill-system.schema.json",
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
-  "releaseVersion": "1.13.0",
+  "releaseVersion": "1.13.1",
   "minimumActiveVersion": "1.11.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
@@ -81,7 +81,7 @@
       "id": "prometheus-entity-management",
       "path": "skills/imported/prometheus-entity-management",
       "repository": "https://github.com/Prometheus-AGS/prometheus-entity-management.git",
-      "commit": "071b9e5b06c31f6c7d9d191bdaa4a2e188d1d565",
+      "commit": "34a211563fe7f06118996a40cc398c4c3af953ef",
       "requiredFor": [
         "full"
       ],
@@ -109,7 +109,7 @@
       "id": "liter-llm",
       "path": "tools/liter-llm",
       "repository": "https://github.com/GQAdonis/liter-llm.git",
-      "commit": "12a2fae9675e34b88e9373caa2bca9959f416493",
+      "commit": "a6047386cc9fae4258b4a8577f6a016022095586",
       "requiredFor": [
         "full"
       ]
@@ -118,7 +118,7 @@
       "id": "openai-proxy",
       "path": "tools/openai-proxy",
       "repository": "https://github.com/GQAdonis/openai-proxy.git",
-      "commit": "ad32f5dc1f676dc1b40b01de8a4f043a6ee6928d",
+      "commit": "b68861e0a6672f5ece900c58fd44b9e23a6b5691",
       "requiredFor": [
         "full"
       ]

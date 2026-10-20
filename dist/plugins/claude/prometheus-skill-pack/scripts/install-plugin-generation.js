@@ -66,6 +66,8 @@ const TARGETS = [
 ];
 const COPY_TARGETS = new Set(['.minimax/skills', '.codex/skills']);
 const REQUIRED_SCRIPTS = [
+  'kbd-contract-adopt.sh',
+  'kbd-phase-readiness-check.sh',
   'hook-runtime-v1.sh',
   'bootstrap-hook-runtime.sh',
   'generated/hook-dispatch-v1.sh',
@@ -77,6 +79,8 @@ const REQUIRED_SCRIPTS = [
   'enqueue-memory-operation.py',
 ];
 const STABLE_SCRIPTS = [
+  'kbd-contract-adopt.sh',
+  'kbd-phase-readiness-check.sh',
   'karpathy-hook-dispatch.sh',
   'detect-project-context.sh',
   'memory-outbox-flush.sh',

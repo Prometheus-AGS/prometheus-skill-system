@@ -61,8 +61,33 @@ function pluginVersion(root) {
   }
 }
 
-function describePayloadFailure(root, stderrText) {
+function describePayloadFailure(root, stderrText, expectedBundle) {
   const where = `${root}${pluginVersion(root) ? ` (version ${pluginVersion(root)})` : ''}`;
+  // A running harness can retain commands from before the payload was rebuilt.
+  // Preserve the identity refusal: substituting the current bundle would execute
+  // different hooks from the ones the session requested.
+  const bundleMismatch = stderrText.split('\n').some(line => {
+    try { return JSON.parse(line).reason === 'bundle identity mismatch'; }
+    catch { return false; }
+  });
+  if (bundleMismatch) {
+    let actualBundle = 'unreadable';
+    try {
+      const release = JSON.parse(fs.readFileSync(path.join(root, 'shared/harnesses/generated/release-manifest.json'), 'utf8'));
+      if (/^[a-f0-9]{64}$/.test(release.bundleId)) actualBundle = release.bundleId;
+    } catch { /* Keep the original refusal even if the manifest disappears. */ }
+    const pending = path.join(storeRoot, 'pointers/activation.pending.json');
+    const recovery = activationPending
+      ? ` An unfinished activation transaction at ${pending} blocks installed bundle dispatch. ` +
+        'Recover it through the verified installer using the original HOME and CODEX_HOME, then restart the affected session. ' +
+        'Recovery changes the installation; do not delete the journal or bypass the bundle check.'
+      : ' Restart the affected session to reload the regenerated hook commands. ' +
+        'If it persists, refresh the native plugin registration from the intended payload, then restart again.';
+    return {
+      code: activationPending ? 'ACTIVATION_PENDING' : 'BUNDLE_IDENTITY_MISMATCH',
+      message: `the session requested bundle ${expectedBundle}, but the plugin payload at ${where} contains ${actualBundle}.` + recovery,
+    };
+  }
   const missing = /Cannot find module '([^']+)'/.exec(stderrText)?.[1];
   if (missing || /ERR_MODULE_NOT_FOUND/.test(stderrText)) {
     return {
@@ -216,7 +241,7 @@ if (!resolved) {
   const debug = process.env.PROMETHEUS_HOOK_DEBUG === '1';
   if (install.error || install.status !== 0) {
     if (debug && childStderr) process.stderr.write(`${childStderr}\n`);
-    const cause = describePayloadFailure(pluginRoot, childStderr);
+    const cause = describePayloadFailure(pluginRoot, childStderr, args.bundle);
     process.stderr.write(
       `${JSON.stringify({ status: 'HOOK_RUNTIME_ERROR', code: cause.code, message: cause.message, bundle: args.bundle })}\n`
     );

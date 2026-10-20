@@ -39,24 +39,9 @@ _kbd_hooks_warn() {
   printf 'hooks: %s\n' "$*" >&2
 }
 
-# Resolve the pack root that ships shared/scripts (memory-writeback.sh,
-# kbd-stage-writeback.sh, the learning libraries). Order: an explicit
-# KBD_PACK_ROOT, the plugin root, the flat installed layout
-# (<root>/skills/kbd-process-orchestrator), then the source tree
-# (<root>/skills/process/kbd-process-orchestrator). Echoes nothing when the
-# orchestrator is installed without the pack's shared tree.
-_kbd_hooks_pack_root() {
-  local candidate
-  for candidate in "${KBD_PACK_ROOT:-}" "${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}" \
-                   "${KBD_ORCHESTRATOR_ROOT:-}/../.." "${KBD_ORCHESTRATOR_ROOT:-}/../../.."; do
-    [[ -n "$candidate" && "$candidate" != "/../.." && "$candidate" != "/../../.." ]] || continue
-    if [[ -f "$candidate/shared/scripts/lib/learning_write.py" ]]; then
-      (cd "$candidate" 2>/dev/null && pwd -P)
-      return 0
-    fi
-  done
-  return 0
-}
+# Share package discovery with the stage gate; retain the hook-facing name.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/package-root.sh"
+_kbd_hooks_pack_root() { kbd_package_root; }
 
 # Map a legacy event name to canonical <kind>:<edge>.
 # Echoes the canonical form, or the input unchanged if no mapping applies.

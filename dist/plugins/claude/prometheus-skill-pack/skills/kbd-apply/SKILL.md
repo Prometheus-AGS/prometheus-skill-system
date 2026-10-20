@@ -186,7 +186,16 @@ the driver's `begin-task`/`end-task` — relay them verbatim to the user.
 
 ## Pre-dispatch readiness gate (mandatory)
 
-Identical to kbd-execute: `bash shared/scripts/kbd-phase-readiness-check.sh
---phase <phase>` must print READY (exit 0) before any task dispatch. BLOCKED /
+Identical to kbd-execute, this must print READY (exit 0) before any task dispatch:
+
+Run from the consumer project. For repository development or a custom payload,
+set `KBD_PACK_ROOT` to the absolute package root; do not change into that root.
+All package and contract paths must remain quoted.
+
+```bash
+KBD_PACKAGE_ROOT="${KBD_PACK_ROOT:-${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}/current}}}"
+bash "$KBD_PACKAGE_ROOT/shared/scripts/kbd-phase-readiness-check.sh" --phase "<phase>"
+```
+ BLOCKED /
 REJECT-IDENTITY / REJECT-STALE stop dispatch with the minimal missing list;
 stale digests require an operator-adopted amendment. Never fabricate PASS.
