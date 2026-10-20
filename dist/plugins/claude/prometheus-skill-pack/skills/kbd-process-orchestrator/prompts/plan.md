@@ -157,7 +157,16 @@ normalization), the scenario→task coverage map, worker routes (agent + model),
 freshness/evidence-invalidation keys, budgets (time / tool / token-or-UNKNOWN /
 repair / no-progress), and ONE boundary execution packet (exact commands,
 expected effects, required approvals, receipts, cleanup, stop conditions;
-postImplementationOnly). Record adoption via
-`bash shared/scripts/kbd-contract-adopt.sh <contract>` and write the plan
-handoff with KBD_HANDOFF_IDENTITY_JSON set to the contract identity object —
+postImplementationOnly). Record adoption from the consumer project:
+
+Run from the consumer project. For repository development or a custom payload,
+set `KBD_PACK_ROOT` to the absolute package root; do not change into that root.
+All package and contract paths must remain quoted.
+
+```bash
+KBD_PACKAGE_ROOT="${KBD_PACK_ROOT:-${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}/current}}}"
+bash "$KBD_PACKAGE_ROOT/shared/scripts/kbd-contract-adopt.sh" ".kbd-orchestrator/phases/<phase>/adopted-contract.json"
+```
+
+Then write the plan handoff with KBD_HANDOFF_IDENTITY_JSON set to the contract identity object —
 the Plan→Execute gate rejects identity-less plan handoffs.

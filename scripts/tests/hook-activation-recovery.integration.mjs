@@ -114,12 +114,37 @@ async function crashUpgrade() {
   return savedJournal;
 }
 
+function mismatchedHook(label, expectedCode) {
+  const before = snapshot();
+  const args = [path.join(next, 'scripts/hook-entry.mjs'), '--bundle', priorBundle,
+    '--hook', 'not-a-hook', '--harness', 'claude-code'];
+  const result = spawnSync(process.execPath, args, { cwd: scratch,
+    env: { ...env, CLAUDE_PLUGIN_ROOT: next }, encoding: 'utf8', timeout: 180_000 });
+  record(label, process.execPath, args, result);
+  assert.equal(result.status, 78, result.stderr);
+  const report = result.stderr.trim().split('\n').map(line => {
+    try { return JSON.parse(line); } catch { return null; }
+  }).find(value => value?.status === 'HOOK_RUNTIME_ERROR');
+  assert.equal(report?.code, expectedCode, result.stderr);
+  assert(report.message.includes(priorBundle) && report.message.includes(release.bundleId));
+  assert.match(report.message, /restart/i);
+  if (expectedCode === 'ACTIVATION_PENDING') {
+    assert(report.message.includes(path.join(store, 'pointers/activation.pending.json')));
+    assert.match(report.message, /original HOME and CODEX_HOME/);
+    assert.match(report.message, /do not delete the journal/);
+  }
+  assert.deepEqual(snapshot(), before, 'a mismatch must neither activate another bundle nor consume the pending journal');
+}
+
 try {
+  mismatchedHook('unregistered-stale-hook-diagnostic', 'BUNDLE_IDENTITY_MISMATCH');
+  assert(!fs.existsSync(store), 'stale commands must not bootstrap the different payload');
   run('fresh-install', old); consistent();
   const baseline = snapshot();
   run('equal-version-install', old); consistent();
   assert.deepEqual(snapshot(), baseline);
   const savedJournal = await crashUpgrade();
+  mismatchedHook('pending-stale-hook-diagnostic', 'ACTIVATION_PENDING');
   assert.match(run('pending-verification-rejected', next, ['--verify'], 1).stderr, /activation is pending/);
   // An invalid candidate blocks replay before any shared activation state changes.
   const pending = read(path.join(store, 'pointers/activation.pending.json'));

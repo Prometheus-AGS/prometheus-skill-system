@@ -48,6 +48,8 @@
 # derived from the nearest .kbd-orchestrator/current-waypoint.json
 # (phase + childPointer).
 
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/package-root.sh"
+
 _SG_ORDER=(assess analyze spec plan execute reflect)
 _SG_OPTIONAL=" analyze spec "
 
@@ -190,7 +192,7 @@ _sg_validate_handoff() { # <handoff-file> <expected-stage> <phase_dir> <for-stag
     if [ "$id_ok" != "ok" ]; then
       printf 'kbd_stage_gate: execute blocked — plan handoff identity %s.\n' "$id_ok" >&2
       printf 'The Plan→Execute boundary requires an adopted-contract-bound handoff (issue #186).\n' >&2
-      printf 'Remediation: adopt the phase contract (shared/scripts/kbd-contract-adopt.sh), then rewrite the plan handoff with KBD_HANDOFF_IDENTITY_JSON set.\n' >&2
+      printf 'Remediation: adopt the phase contract using the package-root command in references/templates/adopted-contract.template.md, then rewrite the plan handoff with KBD_HANDOFF_IDENTITY_JSON set.\n' >&2
       return 2
     fi
     # B2: a phase closed PASS by the terminal evaluator refuses further execute
@@ -217,21 +219,23 @@ _sg_validate_handoff() { # <handoff-file> <expected-stage> <phase_dir> <for-stag
     # transition. Handoff identity alone is not sufficient: the adopted
     # contract, its digest, scenario coverage and contract-quality gates must
     # all validate, or the boundary does not complete and nothing dispatches.
-    local checker="$sg_root/shared/scripts/kbd-phase-readiness-check.sh"
-    if [ ! -f "$checker" ]; then
+    local pack_root checker
+    pack_root="$(kbd_package_root)"
+    checker="${pack_root:+$pack_root/}shared/scripts/kbd-phase-readiness-check.sh"
+    if [ -z "$pack_root" ] || [ ! -f "$checker" ]; then
       printf 'kbd_stage_gate: execute blocked — readiness checker missing at %s (broken install or payload drift).\n' "$checker" >&2
       printf 'Remediation: reinstall the kbd-process-orchestrator payload; do not bypass.\n' >&2
       return 2
     fi
     local rc_out rc_ec
     if [ -n "${KBD_READINESS_STATUS_FILE:-}" ]; then
-      rc_out="$(bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" --status-file "$KBD_READINESS_STATUS_FILE" 2>&1)"; rc_ec=$?
+      rc_out="$(cd "$sg_root" && bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" --status-file "$KBD_READINESS_STATUS_FILE" 2>&1)"; rc_ec=$?
     else
-      rc_out="$(bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" 2>&1)"; rc_ec=$?
+      rc_out="$(cd "$sg_root" && bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" 2>&1)"; rc_ec=$?
     fi
     if [ "$rc_ec" -ne 0 ]; then
       printf 'kbd_stage_gate: execute blocked — phase readiness validation failed (exit %s).\n%s\n' "$rc_ec" "$rc_out" >&2
-      printf 'Remediation: satisfy shared/scripts/kbd-phase-readiness-check.sh (adopted contract, identity, digest, coverage, quality gates) before dispatch.\n' >&2
+      printf 'Remediation: satisfy the package readiness checker (adopted contract, identity, digest, coverage, quality gates) before dispatch.\n' >&2
       return 2
     fi
   fi

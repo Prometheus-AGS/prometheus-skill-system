@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.13.0",
+  "sourceVersion": "1.13.1",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -13,12 +13,12 @@
     },
     {
       "path": "scripts/hook-entry.mjs",
-      "sha256": "2cc74a4dd9f26b480af50c911a3a59084372068f2f1c4ffffe0dbbfa5eba2b61",
+      "sha256": "11d081dc4e3a6f85a0c9c017b16656572cfd786fdf19ca7b03445771dc54fb6b",
       "executable": false
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "cc2c77a290b1bda751fcdbcd995e586d4f260852c05c9031570cae84a3260955",
+      "sha256": "adcf901e993c52780cc122cbd6e28f56be68a17497219dcf78fb34e720082024",
       "executable": true
     },
     {
@@ -318,7 +318,7 @@
     },
     {
       "path": "shared/scripts/liter-llm-api-launch.sh",
-      "sha256": "b3ea3aaabef12e2ea26876f03c13c7b49c29bb6bf9adc357df95d6b1cb8e32e1",
+      "sha256": "ebbdbbf7fa783c307c55b909531265fd405f97caa6acd6ea020f3bb8aa5706f5",
       "executable": true
     },
     {
@@ -527,5 +527,5 @@
       "executable": true
     }
   ],
-  "bundleId": "85afb868a434a09c6b9214367a79e10ea39bb0a7f9c94f021301dac4cbca094a"
+  "bundleId": "33036ab216e1d2e1effb30e38a3cc64927f3da1ce5454efc00951f1e0f9b23da"
 }

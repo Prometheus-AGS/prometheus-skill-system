@@ -6,6 +6,23 @@ cannot intercept an old cache's installer, and a running session can retain old
 hook commands until it restarts. Issue #160 requires upgrading the generation,
 refreshing native registrations, retiring old cache paths, and restarting sessions.
 
+## Rebuilt payloads and retained hook commands
+
+A session can retain a `--bundle` value after its source or generated plugin
+payload has been rebuilt. `BUNDLE_IDENTITY_MISMATCH` names the requested bundle
+and the different bundle currently in that payload. Restart the affected session
+to reload its hook commands. If the mismatch persists, refresh its native plugin
+registration from the intended payload and restart again. Never replace the
+requested bundle with the current one inside the dispatcher.
+
+If the diagnostic is `ACTIVATION_PENDING`, an unfinished
+`pointers/activation.pending.json` transaction also blocks dispatch, including
+otherwise registered historical bundles. Restarting alone does not recover that
+transaction. Follow the verified installer recovery sequence below with the
+original HOME and CODEX_HOME. Preserve the journal; do not delete it to make the
+hook run. Recovery changes the installation. When installation changes are out
+of scope, report this live blocker and leave the store untouched.
+
 ## Repair sequence
 
 1. Back up the affected plugin configuration, native registrations and generation

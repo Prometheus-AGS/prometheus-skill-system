@@ -275,7 +275,7 @@
           "restart": {
             "keepAlive": true,
             "throttleInterval": 10,
-            "processType": "Background"
+            "processType": "Interactive"
           },
           "logs": {
             "stdout": "__PROMETHEUS_LOG_DIR__/liter-llm-api.stdout.log",

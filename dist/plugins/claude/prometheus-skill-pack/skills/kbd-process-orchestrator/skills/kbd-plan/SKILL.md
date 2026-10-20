@@ -241,7 +241,18 @@ A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
 
 Plan output must bind contract identity + digest, scenario→task coverage,
 worker routes, freshness keys, budgets, and ONE boundary execution packet —
-and record adoption via `bash shared/scripts/kbd-contract-adopt.sh` before
-writing the identity-bound plan handoff (KBD_HANDOFF_IDENTITY_JSON). See
+and record adoption before writing the identity-bound plan handoff
+(KBD_HANDOFF_IDENTITY_JSON):
+
+Run from the consumer project. For repository development or a custom payload,
+set `KBD_PACK_ROOT` to the absolute package root; do not change into that root.
+All package and contract paths must remain quoted.
+
+```bash
+KBD_PACKAGE_ROOT="${KBD_PACK_ROOT:-${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}/current}}}"
+bash "$KBD_PACKAGE_ROOT/shared/scripts/kbd-contract-adopt.sh" ".kbd-orchestrator/phases/<phase>/adopted-contract.json"
+```
+
+See
 prompts/plan.md. Plans without an adopted contract cannot pass the
 Plan→Execute readiness gate.

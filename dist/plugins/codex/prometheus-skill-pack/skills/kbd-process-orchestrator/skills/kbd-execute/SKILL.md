@@ -318,8 +318,13 @@ Finish the complete independently usable increment, then BUILD and RUN its actua
 
 Before any dispatch, run:
 
+Run from the consumer project. For repository development or a custom payload,
+set `KBD_PACK_ROOT` to the absolute package root; do not change into that root.
+All package and contract paths must remain quoted.
+
 ```bash
-bash shared/scripts/kbd-phase-readiness-check.sh --phase <phase>
+KBD_PACKAGE_ROOT="${KBD_PACK_ROOT:-${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}/current}}}"
+bash "$KBD_PACKAGE_ROOT/shared/scripts/kbd-phase-readiness-check.sh" --phase "<phase>"
 ```
 
 - `READY` (exit 0) is required to dispatch implementation. READY authorizes
@@ -328,7 +333,7 @@ bash shared/scripts/kbd-phase-readiness-check.sh --phase <phase>
 - `BLOCKED` (exit 2): do not dispatch; surface the minimal missing list.
 - `REJECT-IDENTITY` (3) / `REJECT-STALE` (4): do not dispatch; stale digests
   require an operator-adopted amendment
-  (`kbd-contract-adopt.sh --supersedes <prior-decision-id>`).
+  (`bash "$KBD_PACKAGE_ROOT/shared/scripts/kbd-contract-adopt.sh" "<contract>" --supersedes "<prior-decision-id>"`).
 
 Never fabricate PASS, never treat unknown as success, and never hand-write
 handoffs, journals, or receipts.
