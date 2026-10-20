@@ -79,6 +79,7 @@ S="$(cd "$S" && pwd -P)"
 cleanup() { scratch_surreal_stop >/dev/null 2>&1; wait 2>/dev/null; if [ -n "${TLI_KEEP:-}" ]; then echo "kept $S" >&2; else rm -rf "$S"; fi; }
 trap cleanup EXIT
 export HOME="$S/home" CODEX_HOME="$S/codex" PROMETHEUS_PLUGIN_ROOT="$S/plugin-root"
+export CLAUDE_CONFIG_DIR="$HOME/.claude" XDG_CONFIG_HOME="$HOME/.config" XDG_DATA_HOME="$HOME/.local/share" XDG_CACHE_HOME="$HOME/.cache"
 export PROMETHEUS_LEARNING_QUEUE="$S/queue" PROMETHEUS_LEARNING_LOG_DIR="$S/log" PROMETHEUS_LEARNING_INDEX_DIR="$S/index"
 export PROMETHEUS_LEARNING_DELIVERY_TRACE_DIR="$S/trace" PROMETHEUS_PROJECT_ID_SKIP_RUNTIME=1 PROMETHEUS_USER_ID=b5-fixture
 export SURREAL_MEMORY_URL="http://127.0.0.1:$PORT" PATH="$(dirname "$PK_BIN"):$PATH"
@@ -162,8 +163,10 @@ ok "seeded ALPHA-API (api-dev), ALPHA-UI (ui-dev) and $seeded_bytes bytes of pro
 # --- 2. the generated entry, run directly (no model) --------------------------
 BUNDLE="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).bundleId)' "$CLAUDE_PKG/shared/harnesses/generated/release-manifest.json")"
 grep -q -- "--bundle $BUNDLE --hook subagentstart-learning" "$CODEX_PKG/hooks/hooks.json" || fail "codex package bundle differs from claude package"
-bash "$CLAUDE_PKG/shared/scripts/bootstrap-hook-runtime.sh" --source-root "$CLAUDE_PKG" --expected-bundle "$BUNDLE" >"$S/bootstrap.log" 2>&1 \
-  || { cat "$S/bootstrap.log" >&2; fail "could not activate the generated bundle in the scratch PROMETHEUS_PLUGIN_ROOT"; }
+# Hook dispatch is read-only; fixture setup explicitly installs its generated payload.
+node "$CLAUDE_PKG/scripts/install-plugin-generation.js" --source-root "$CLAUDE_PKG" \
+  --home "$HOME" --plugin-root "$PROMETHEUS_PLUGIN_ROOT" --targets claude,codex >"$S/install.log" 2>&1 \
+  || { cat "$S/install.log" >&2; fail "could not install the generated bundle in the scratch PROMETHEUS_PLUGIN_ROOT"; }
 hook_direct() { # <harness> <payload>   -> stdout of the generated entry
   printf '%s' "$2" | CLAUDE_PLUGIN_ROOT="$CLAUDE_PKG" node "$CLAUDE_PKG/scripts/hook-entry.mjs" \
     --bundle "$BUNDLE" --hook subagentstart-learning --harness "$1"

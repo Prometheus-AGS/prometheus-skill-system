@@ -66,6 +66,11 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+# Direct CLI calls must not populate bytecode inside the signed package.
+# Importing callers still need -B before Python loads this module itself.
+sys.dont_write_bytecode = True
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+
 LIB = Path(__file__).resolve().parent
 sys.path.insert(0, str(LIB))
 from agent_identity import find_root, load_teams, active_team, role_ids, resolve as resolve_identity  # noqa: E402

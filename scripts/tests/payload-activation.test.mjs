@@ -1,21 +1,4 @@
-/**
- * Activation closure for the distributed Claude plugin payload.
- *
- * The distribution test proves the payload's files exist and that its relative JS
- * imports resolve. It cannot prove the payload ACTIVATES: that needs the payload to
- * run the way a user's machine runs it. This test copies the built payload to a temp
- * directory (as a plugin cache would hold it), points HOME at an empty directory (so
- * no generation is registered and `hook-entry.mjs` must take the bootstrap path),
- * and executes every hook the shipped hooks.json declares, in order.
- *
- * It is the check that would have caught the 1.10.0/1.11.0 payloads, which shipped
- * `install-plugin-generation.js` without five of its `scripts/lib` imports: every Stop
- * hook died with ERR_MODULE_NOT_FOUND on a machine whose generation was older than the
- * payload. The second case proves the detector detects, by removing one of those
- * modules and requiring the failure to be reported.
- *
- * Local only (no hosted CI). Needs bash and node, like the hooks themselves.
- */
+/** Real explicit installer plus every packaged hook, in isolated homes. */
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -87,11 +70,8 @@ function activate(sandbox) {
       input: payload,
       encoding: 'utf8',
       // The harness kills a hook at its declared timeout, so every warm hook must finish inside it.
-      // The FIRST hook on a clean machine installs the generation (about 30s against a declared 10s);
-      // that cold-start latency is a known, separately tracked gap, so only it gets the generous
-      // default. Hooks declaring no timeout get the default too.
-      timeout: results.length === 0 ? PER_HOOK_TIMEOUT_MS : (hook.timeoutMs ?? PER_HOOK_TIMEOUT_MS),
-      env: { ...process.env, HOME: sandbox.home, CLAUDE_PLUGIN_ROOT: sandbox.payload },
+      timeout: hook.timeoutMs ?? PER_HOOK_TIMEOUT_MS,
+      env: isolatedEnv(sandbox),
     });
     const output = `${run.stdout ?? ''}\n${run.stderr ?? ''}`;
     results.push({
@@ -106,12 +86,27 @@ function activate(sandbox) {
   return results;
 }
 
+function isolatedEnv(box) {
+  return { ...process.env, HOME: box.home, CODEX_HOME: path.join(box.home, '.codex'),
+    CLAUDE_CONFIG_DIR: path.join(box.home, '.claude'), CLAUDE_PLUGIN_ROOT: box.payload,
+    PROMETHEUS_PLUGIN_ROOT: path.join(box.home, '.prometheus/plugins/prometheus-skill-pack'),
+    XDG_CONFIG_HOME: path.join(box.home, '.config'), XDG_DATA_HOME: path.join(box.home, '.local/share'),
+    PYTHONDONTWRITEBYTECODE: '0' };
+}
+function install(box) {
+  return spawnSync(process.execPath, [path.join(box.payload, 'scripts/install-plugin-generation.js'),
+    '--source-root', box.payload, '--home', box.home, '--targets', 'all'],
+    { env: isolatedEnv(box), cwd: box.project, encoding: 'utf8', timeout: 180_000 });
+}
+
 const failures = results => results.filter(r => r.timedOut || r.status !== 0 || r.marker);
 
 // 1. Each shipped payload activates from nothing and runs every hook it declares.
 for (const source of payloadSources) {
   const sandbox = makeSandbox(path.basename(path.dirname(source)) || 'shipped', source);
   try {
+    const installed = install(sandbox);
+    assert.equal(installed.status, 0, installed.stderr);
     const results = activate(sandbox);
     assert(results.length >= 30, `expected the full hook set from ${source}, ran ${results.length}`);
     const bad = failures(results);
@@ -130,12 +125,12 @@ for (const source of payloadSources) {
   const sandbox = makeSandbox('mutated');
   try {
     fs.rmSync(path.join(sandbox.payload, 'scripts/lib/capabilities.js'));
-    const [first] = activate(sandbox).slice(0, 1);
-    assert.notEqual(first.status, 0, 'a payload missing scripts/lib/capabilities.js must not activate');
-    assert(first.marker, `the failure must be recognisable, got: ${first.output.slice(0, 300)}`);
+    const result = install(sandbox);
+    assert.notEqual(result.status, 0, 'incomplete payload must not explicitly install');
+    assert.match(result.stderr, /capabilities.js/);
   } finally {
     fs.rmSync(sandbox.base, { recursive: true, force: true });
   }
 }
 
-console.log('PASS: the shipped payload activates from a clean HOME and an incomplete one is detected');
+console.log('PASS: both shipped payloads explicitly install and run all hooks; incomplete input is rejected');

@@ -160,6 +160,7 @@ function parseArgs(argv) {
     reviewedCoverage: false,
     bootstrap: false,
     rollback: false,
+    cancelPending: false,
     uninstall: false,
     pruneObsolete: false,
     dryRun: false,
@@ -176,6 +177,7 @@ function parseArgs(argv) {
     else if (value === '--reviewed-coverage') args.reviewedCoverage = true;
     else if (value === '--bootstrap') args.bootstrap = true;
     else if (value === '--rollback') args.rollback = true;
+    else if (value === '--cancel-pending') args.cancelPending = true;
     else if (value === '--uninstall') args.uninstall = true;
     else if (value === '--prune-obsolete') args.pruneObsolete = true;
     else if (value === '--dry-run') args.dryRun = true;
@@ -213,8 +215,11 @@ function parseArgs(argv) {
   if (args.expectedSourceCommit && !/^[a-f0-9]{40,64}$/.test(args.expectedSourceCommit)) {
     fail('invalid value for --expected-source-commit');
   }
-  if (args.bootstrap && (args.verify || args.reviewedCoverage || args.rollback || args.uninstall || args.pruneObsolete)) {
+  if (args.bootstrap && (args.verify || args.reviewedCoverage || args.rollback || args.cancelPending || args.uninstall || args.pruneObsolete)) {
     fail('--bootstrap cannot be combined with maintenance operations');
+  }
+  if (args.cancelPending && (args.verify || args.reviewedCoverage || args.rollback || args.uninstall || args.pruneObsolete || args.dryRun)) {
+    fail('--cancel-pending cannot be combined with other maintenance operations');
   }
   return args;
 }
@@ -2403,7 +2408,7 @@ function activationRecord(args, manifest, identity, targets, previous, rollback 
   return { body, signature: signValue(body, identity) };
 }
 
-function completeActivation(args, record, contract) {
+function validateActivationRecord(args, record) {
   verifySignedValue(record.body, record.signature, args.trustStore);
   const body = record.body;
   if (
@@ -2420,6 +2425,11 @@ function completeActivation(args, record, contract) {
   ) {
     fail('activation journal context is invalid; use the original home and CODEX_HOME to recover');
   }
+  return body;
+}
+
+function completeActivation(args, record, contract) {
+  const body = validateActivationRecord(args, record);
   const generationPath = path.join(args.pluginRoot, 'generations', body.generation);
   assertGenerationContained(args.pluginRoot, generationPath);
   const manifest = verifyGeneration(generationPath, body.generation, args.trustStore);
@@ -2490,6 +2500,34 @@ function recoverActivation(args, contract) {
   const journal = path.join(args.pluginRoot, ACTIVATION_JOURNAL);
   if (fs.existsSync(journal))
     completeActivation(args, JSON.parse(fs.readFileSync(journal, 'utf8')), contract);
+}
+
+// Cancel an interrupted install without ever publishing its candidate. Only
+// the signed journal may select the pre-transaction generation. The rollback
+// itself is journaled, so an interrupted cancellation remains recoverable.
+function cancelPendingActivation(args, contract) {
+  return withStoreLock(args.pluginRoot, () => {
+    const journal = path.join(args.pluginRoot, ACTIVATION_JOURNAL);
+    if (!fs.existsSync(journal)) fail('no pending activation to cancel');
+    const record = JSON.parse(fs.readFileSync(journal, 'utf8'));
+    const body = validateActivationRecord(args, record);
+    if (body.operation !== 'install' || !body.previous || !POINTER_PATTERN.test(body.previous)) {
+      fail('pending transaction has no pre-install generation to restore');
+    }
+    if (currentTarget(args.pluginRoot, 'current') !== body.previous) {
+      fail('pending candidate is already active; use explicit rollback after verified recovery');
+    }
+    const generationPath = path.join(args.pluginRoot, body.previous);
+    assertGenerationContained(args.pluginRoot, generationPath);
+    const manifest = verifyGeneration(generationPath, path.basename(body.previous), args.trustStore);
+    assertMinimumActiveVersion(manifest.sourceVersion, contract, 'pre-install generation');
+    const identity = ensureSigningIdentity(args.signingKey, args.trustStore);
+    const cancellation = activationRecord(args, manifest, identity, body.targets,
+      currentTarget(args.pluginRoot, 'previous'), true);
+    atomicWrite(path.join(args.pluginRoot, 'pointers/cancelled-activations', `${body.generation}.json`), canonicalJson(record), 0o600);
+    atomicWrite(journal, canonicalJson(cancellation), 0o600);
+    return completeActivation(args, cancellation, contract);
+  });
 }
 
 function activate(args, manifest, identity, targets, contract, rollback = false) {
@@ -3037,6 +3075,11 @@ if (import.meta.main !== false) main();
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.bootstrap) {
+    process.stderr.write('install-plugin-generation: automatic activation disabled; run an explicit install without --bootstrap\n');
+    process.exitCode = 1;
+    return;
+  }
   process.env.HOME = args.home;
   process.env.CODEX_HOME = args.codexHome;
   assertSafeRoot(args.pluginRoot, args.home);
@@ -3063,7 +3106,7 @@ function main() {
     // verification attests the active signed generation and its projections,
     // not a separately materialized source checkout.
     const contract = readSkillSystem(args.sourceRoot, {
-      requireTargetSourceTrees: !(args.verify || args.reviewedCoverage),
+      requireTargetSourceTrees: !(args.verify || args.reviewedCoverage || args.cancelPending),
     });
     const selectedTargets = targetsById(contract, args.targets).map(target => target.path);
     let generation;
@@ -3089,6 +3132,7 @@ function main() {
         selectedTargets,
         args.home
       ).generation;
+    else if (args.cancelPending) generation = cancelPendingActivation(args, contract);
     else if (args.rollback) generation = rollback(args, contract, selectedTargets);
     else if (args.uninstall) {
       generation = uninstall(

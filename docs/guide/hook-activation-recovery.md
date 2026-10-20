@@ -3,8 +3,40 @@
 Native plugin caches and the signed Prometheus generation store are separate.
 Historical caches carry their own installer. A new generation's downgrade guard
 cannot intercept an old cache's installer, and a running session can retain old
-hook commands until it restarts. Issue #160 requires upgrading the generation,
-refreshing native registrations, retiring old cache paths, and restarting sessions.
+hook commands until it restarts. Choose the intended release explicitly; a repair may retain its version.
+Refresh native registrations and restart sessions after verified recovery.
+
+## Hooks never activate installations
+
+Hook entry points only dispatch an already registered, verified bundle. A missing
+bundle reports `NOT_ACTIVATED`; an unfinished transaction reports
+`ACTIVATION_PENDING`. Neither condition launches an installer. The legacy shell
+bootstrap and installer `--bootstrap` path also refuse automatic activation.
+Updating a source checkout therefore cannot upgrade the installed generation.
+
+To retain the pre-transaction version, use the corrected installer explicitly:
+
+```bash
+node scripts/install-plugin-generation.js --source-root "$PWD" \
+  --home "$HOME" --plugin-root "$HOME/.prometheus/plugins/prometheus-skill-pack" \
+  --cancel-pending
+```
+
+Keep the original `CODEX_HOME`. Cancellation authenticates the journal, fully
+verifies its pre-install generation, restores the signed target receipts, and
+archives the original journal. It never publishes the pending candidate. It
+refuses if that candidate is already active; that case requires explicit rollback.
+A normal install still completes a valid pending upgrade, so do not use normal
+installation when the operator requested retaining the pre-transaction version.
+
+Python callers importing packaged learning helpers must use `python3 -B` before
+the first import. An in-module `sys.dont_write_bytecode` assignment is too late
+to prevent that module's own cache on import. Direct CLI helpers also protect
+their local imports and subprocesses. Never weaken manifest verification to
+ignore bytecode. For an authorized repair, back up the store, identify only
+unmanifested cache artifacts, quarantine those outside the generation, and verify
+the original signed payload before cancelling or installing a repaired generation.
+Keep historical signed files unchanged.
 
 ## Rebuilt payloads and retained hook commands
 
@@ -27,7 +59,8 @@ of scope, report this live blocker and leave the store untouched.
 
 1. Back up the affected plugin configuration, native registrations and generation
    store. Stop affected Claude and Codex sessions and outstanding hook processes.
-   Do not remove bytecode or rewrite files inside a signed historical payload.
+   Quarantine only identified unmanifested cache artifacts as described above;
+   do not rewrite signed historical files.
 2. Install the corrected release from the approved source. Normal installation
    recovers pending activation transactions from their verified candidate. If the
    candidate cannot be verified, preserve the journal and restore trusted release

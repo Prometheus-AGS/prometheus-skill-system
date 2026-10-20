@@ -44,72 +44,30 @@ function fail(code, message, bundle) {
   process.exit(NOT_ACTIVATED);
 }
 
-/**
- * Why a plugin payload could not activate, in words that name the cause and the remedy.
- *
- * The bootstrap child used to inherit stderr, so an incomplete payload surfaced as a raw
- * Node stack ("Failed with non-blocking status code: node:internal/modules/esm/resolve…")
- * on every Stop hook of every turn, with no hint that the plugin install was the problem.
- * This stays inline, with node built-ins only: the entry point must not depend on the
- * payload files it is diagnosing, or an incomplete payload would break the diagnosis too.
- */
-function pluginVersion(root) {
-  try {
-    return JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version ?? '';
-  } catch {
-    return '';
+// Hook dispatch is read-only with respect to installation. A source checkout
+// or native cache may be newer than the operator-selected active generation.
+function activationFailure() {
+  if (activationPending) {
+    fail('ACTIVATION_PENDING',
+      `An unfinished activation at ${path.join(storeRoot, 'pointers/activation.pending.json')} blocks dispatch. ` +
+      'Use the verified installer to explicitly recover or cancel the pending transaction, then restart the session. Hooks never recover or upgrade the installation automatically.', args.bundle);
   }
-}
-
-function describePayloadFailure(root, stderrText, expectedBundle) {
-  const where = `${root}${pluginVersion(root) ? ` (version ${pluginVersion(root)})` : ''}`;
-  // A running harness can retain commands from before the payload was rebuilt.
-  // Preserve the identity refusal: substituting the current bundle would execute
-  // different hooks from the ones the session requested.
-  const bundleMismatch = stderrText.split('\n').some(line => {
-    try { return JSON.parse(line).reason === 'bundle identity mismatch'; }
-    catch { return false; }
-  });
-  if (bundleMismatch) {
-    let actualBundle = 'unreadable';
-    try {
-      const release = JSON.parse(fs.readFileSync(path.join(root, 'shared/harnesses/generated/release-manifest.json'), 'utf8'));
-      if (/^[a-f0-9]{64}$/.test(release.bundleId)) actualBundle = release.bundleId;
-    } catch { /* Keep the original refusal even if the manifest disappears. */ }
-    const pending = path.join(storeRoot, 'pointers/activation.pending.json');
-    const recovery = activationPending
-      ? ` An unfinished activation transaction at ${pending} blocks installed bundle dispatch. ` +
-        'Recover it through the verified installer using the original HOME and CODEX_HOME, then restart the affected session. ' +
-        'Recovery changes the installation; do not delete the journal or bypass the bundle check.'
-      : ' Restart the affected session to reload the regenerated hook commands. ' +
-        'If it persists, refresh the native plugin registration from the intended payload, then restart again.';
-    return {
-      code: activationPending ? 'ACTIVATION_PENDING' : 'BUNDLE_IDENTITY_MISMATCH',
-      message: `the session requested bundle ${expectedBundle}, but the plugin payload at ${where} contains ${actualBundle}.` + recovery,
-    };
+  if (pluginRoot) {
+    const manifest = path.join(pluginRoot, 'shared/harnesses/generated/release-manifest.json');
+    let release;
+    try { release = JSON.parse(fs.readFileSync(manifest, 'utf8')); }
+    catch {
+      fail('PAYLOAD_INCOMPLETE', `Cannot read the release manifest at ${manifest}. Restore the intended plugin payload before explicitly installing it.`, args.bundle);
+    }
+    if (release.bundleId !== args.bundle) {
+      fail('BUNDLE_IDENTITY_MISMATCH',
+        `The session requested bundle ${args.bundle}, but ${pluginRoot} contains ${release.bundleId}. ` +
+        'Restart the session using the intended installed plugin. No installation was changed.', args.bundle);
+    }
   }
-  const missing = /Cannot find module '([^']+)'/.exec(stderrText)?.[1];
-  if (missing || /ERR_MODULE_NOT_FOUND/.test(stderrText)) {
-    return {
-      code: 'PAYLOAD_INCOMPLETE',
-      message:
-        `the plugin payload at ${where} is incomplete: ${missing ? `${path.basename(missing)} (${missing}) is missing` : 'a required module is missing'}. ` +
-        'Update or reinstall the plugin (/plugin), then restart this session.',
-    };
-  }
-  // Prefer the error line itself ("Error: …", "TypeError [ERR_X]: …") over the file:line
-  // locator Node prints above it; fall back to the first line that is not a stack frame.
-  const lines = stderrText.split('\n').map(line => line.trim());
-  const firstLine =
-    lines.find(line => /^\w*Error(?: \[\w+\])?: /.test(line)) ??
-    lines.find(line => line && !/^at /.test(line)) ??
-    'no error output';
-  return {
-    code: 'BOOTSTRAP_FAILED',
-    message:
-      `activating the plugin payload at ${where} failed: ${firstLine.slice(0, 200)}. ` +
-      'Re-run with PROMETHEUS_HOOK_DEBUG=1 for the full output.',
-  };
+  fail('NOT_ACTIVATED',
+    `Requested bundle ${args.bundle} is not available in the verified installation. ` +
+    'Activate the intended payload explicitly with install-plugin-generation.js, or restart using the already installed plugin. Hooks never install or upgrade a payload.', args.bundle);
 }
 
 /**
@@ -147,6 +105,9 @@ const activationPending = fs.existsSync(path.join(storeRoot, 'pointers/activatio
 // exported onto the spawned process by the harness in either hook form.
 const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || process.env.PLUGIN_ROOT || '';
 
+// A pending transaction is never an invitation to run the installer.
+if (activationPending) activationFailure();
+
 function run(file, argv) {
   return spawnSync(file, argv, { stdio: 'inherit', shell: false });
 }
@@ -182,12 +143,11 @@ if (
 }
 
 // ---------------------------------------------------------------------------
-// Shell path: used until the dispatcher is installed, and to bootstrap it
+// Shell path: dispatch an explicitly installed bundle
 // ---------------------------------------------------------------------------
 
 // Cold-path scripts declare their dependency rather than dying on an
-// interpreter error. Until the compiled dispatcher exists, resolution and
-// bootstrap are both shell scripts, so a host with no shell is told exactly
+// interpreter error. Until the compiled dispatcher exists, resolution uses a shell script, so a host with no shell is told exactly
 // what is missing.
 if (spawnSync('bash', ['-c', 'exit 0'], { shell: false }).error) {
   fail(
@@ -206,50 +166,7 @@ const resolved =
     shell: false,
   }).status === 0;
 
-if (!resolved) {
-  const bootstrap = path.join(pluginRoot, 'shared/scripts/bootstrap-hook-runtime.sh');
-  if (!pluginRoot) {
-    fail(
-      'NOT_ACTIVATED',
-      'no activated bundle, and the harness provided no plugin root (CLAUDE_PLUGIN_ROOT / PLUGIN_ROOT) to bootstrap from',
-      args.bundle
-    );
-  }
-  if (!fs.existsSync(bootstrap)) {
-    fail(
-      'NOT_ACTIVATED',
-      `no activated bundle, and the plugin root ${pluginRoot} has no bootstrap payload (it may have been removed or is incomplete). ` +
-        'Update or reinstall the plugin (/plugin), then restart this session.',
-      args.bundle
-    );
-  }
-  const install = spawnSync(
-    'bash',
-    [bootstrap, '--source-root', pluginRoot, '--expected-bundle', args.bundle],
-    {
-      stdio: ['inherit', 'inherit', 'pipe'],
-      encoding: 'utf8',
-      shell: false,
-    }
-  );
-  // A child that could not be started has no stderr and a null status; its spawn error
-  // (ENOENT, EACCES...) is the whole story and must not be lost.
-  const spawnFailure = install.error
-    ? `Error: could not start the bootstrap shell (${install.error.code ?? 'spawn error'}: ${install.error.message})`
-    : '';
-  const childStderr = [install.stderr ?? '', spawnFailure].filter(Boolean).join('\n');
-  const debug = process.env.PROMETHEUS_HOOK_DEBUG === '1';
-  if (install.error || install.status !== 0) {
-    if (debug && childStderr) process.stderr.write(`${childStderr}\n`);
-    const cause = describePayloadFailure(pluginRoot, childStderr, args.bundle);
-    process.stderr.write(
-      `${JSON.stringify({ status: 'HOOK_RUNTIME_ERROR', code: cause.code, message: cause.message, bundle: args.bundle })}\n`
-    );
-    process.exit(install.status ?? NOT_ACTIVATED);
-  }
-  // A successful bootstrap's own warnings are still the operator's to see.
-  if (install.stderr) process.stderr.write(install.stderr);
-}
+if (!resolved) activationFailure();
 
 if (!args.hook) fail('MISSING_HOOK', 'hook id is required', args.bundle);
 if (!args.harness) fail('MISSING_HARNESS', 'harness is required', args.bundle);

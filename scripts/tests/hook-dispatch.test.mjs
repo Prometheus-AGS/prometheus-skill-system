@@ -325,15 +325,13 @@ if (shell.available) {
     'both sha256sum and shasum live in /usr/bin on msys2 and cannot be taken off PATH without removing bash itself'
   );
 
-  check('the bootstrap declares the tools it shells out to', () => {
+  check('the retained bootstrap refuses automatic activation without installer dependencies', () => {
     const bootstrap = fs.readFileSync(
       path.join(repoRoot, 'shared/scripts/bootstrap-hook-runtime.sh'),
       'utf8'
     );
-    assert.match(bootstrap, /missing dependency/, 'it must name what is missing');
-    for (const tool of ['awk', 'node']) {
-      assert.ok(bootstrap.includes(tool), `${tool} must be declared`);
-    }
+    assert.match(bootstrap, /automatic activation disabled/, 'it must explain explicit activation is required');
+    assert.match(bootstrap, /exit 78/, 'the compatibility entry must refuse activation');
     // And it must not gate on an executable bit any more.
     assert.equal(/\[\[ -x /.test(bootstrap), false, 'no executable-bit gate may remain');
   });

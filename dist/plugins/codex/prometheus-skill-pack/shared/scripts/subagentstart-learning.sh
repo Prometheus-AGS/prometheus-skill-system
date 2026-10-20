@@ -140,7 +140,7 @@ if trace_dir:  # test instrumentation: the exact text handed to the harness
 sys.stdout.write(json.dumps({"hookSpecificOutput": {"hookEventName": "SubagentStart", "additionalContext": context}}) + "\n")
 PY
 
-python3 -c "$PROGRAM" "$LIB" "$work/payload.json" "$harness" > "$work/out" 2>/dev/null &
+python3 -B -c "$PROGRAM" "$LIB" "$work/payload.json" "$harness" > "$work/out" 2>/dev/null &
 pid=$!
 ( sleep "$WATCHDOG_SECONDS"; kill -TERM "$pid" 2>/dev/null; sleep 1; kill -KILL "$pid" 2>/dev/null ) >/dev/null 2>&1 &
 watchdog=$!

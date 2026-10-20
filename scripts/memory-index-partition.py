@@ -269,6 +269,9 @@ def plan(source: str, limit: int, phase: str = "") -> dict:
 
 
 def load_writer():
+    # Set this before import: a module body cannot suppress its own cached code.
+    sys.dont_write_bytecode = True
+    os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
     sys.path.insert(0, str(LIB))
     try:
         from learning_write import write_lesson  # type: ignore

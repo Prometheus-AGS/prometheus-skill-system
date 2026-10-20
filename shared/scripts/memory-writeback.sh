@@ -90,7 +90,7 @@ if [ -f "$PROGRESS" ]; then
   fi
 fi
 
-python3 - "$REFLECTION" "$LW" "$ROOT" <<'PY' >/dev/null 2>"${TMPDIR:-/tmp}/memory-writeback.$$.err" || true
+python3 -B - "$REFLECTION" "$LW" "$ROOT" <<'PY' >/dev/null 2>"${TMPDIR:-/tmp}/memory-writeback.$$.err" || true
 import hashlib, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 

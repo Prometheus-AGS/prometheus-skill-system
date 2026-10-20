@@ -26,7 +26,7 @@ payload="$(mktemp "${TMPDIR:-/tmp}/subagentstop-learning.XXXXXX")" || exit 0
 trap 'rm -f "$payload"' EXIT
 cat > "$payload"
 
-python3 - "$payload" "$HERE" <<'PY' >/dev/null 2>&1 || true
+python3 -B - "$payload" "$HERE" <<'PY' >/dev/null 2>&1 || true
 import json, re, subprocess, sys
 from pathlib import Path
 payload_path, here = sys.argv[1], Path(sys.argv[2])
@@ -77,5 +77,5 @@ for raw in str(message).splitlines():
 PY
 
 # Queue the asynchronous extraction job (identity fields added by the enqueuer).
-python3 "$HERE/enqueue-learning-job.py" subagent_stop "${PROMETHEUS_HARNESS:-unknown}" < "$payload" >/dev/null 2>&1 || true
+python3 -B "$HERE/enqueue-learning-job.py" subagent_stop "${PROMETHEUS_HARNESS:-unknown}" < "$payload" >/dev/null 2>&1 || true
 exit 0

@@ -91,7 +91,7 @@ fi
 KBD_RECALL_LIB="$lib" KBD_RECALL_PHASE="$phase" KBD_RECALL_STAGE="$stage" \
 KBD_RECALL_PHASE_DIR="$phase_dir" KBD_RECALL_ROOT="$project_root" \
 KBD_RECALL_DIGEST="$digest" KBD_RECALL_MEMORY_URL="$memory_url" \
-python3 - <<'PY' || write_stub '<!-- memory recall failed; no prior context retrieved -->'
+python3 -B - <<'PY' || write_stub '<!-- memory recall failed; no prior context retrieved -->'
 import os, re, sys
 from pathlib import Path
 

@@ -247,7 +247,7 @@ def enqueue(arguments: dict) -> str:
         return ""
     try:
         completed = subprocess.run(
-            [sys.executable, str(ENQUEUE), "add_memory", json.dumps(arguments, sort_keys=True), "[]"],
+            [sys.executable, "-B", str(ENQUEUE), "add_memory", json.dumps(arguments, sort_keys=True), "[]"],
             capture_output=True, text=True, timeout=5, check=False,
         )
     except (OSError, subprocess.TimeoutExpired):
@@ -493,7 +493,7 @@ def mirror_cortex(text: str, envelope: dict, user_id: str, status: dict | None =
                               "params": {"name": "cortex_remember", "arguments": cortex_arguments(text, envelope, user_id)}}]
     worker = None
     try:
-        worker = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), CORTEX_FEED_FLAG,
+        worker = subprocess.Popen([sys.executable, "-B", str(Path(__file__).resolve()), CORTEX_FEED_FLAG,
                                    str(lease.descriptor)],
                                   stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
                                   stderr=subprocess.DEVNULL, start_new_session=True,

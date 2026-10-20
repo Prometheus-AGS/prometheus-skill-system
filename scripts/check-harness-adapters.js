@@ -176,10 +176,10 @@ for (const harness of ['claude-code', 'codex', 'opencode', 'kimi']) {
 // still the one asked; where it cannot, git's index is.
 const hostCapabilities = probeFilesystemCapabilities(root);
 const oracle = readIngestOracle(root);
-// The guarded acquisition path moved into the entry point when hooks became
-// exec form. Assert it is still there rather than assuming it.
+// Exec-form hooks only dispatch installed bundles and report missing/pending
+// activation. Installer execution belongs to an explicit operator command.
 const hookEntry = fs.readFileSync(path.join(root, 'scripts/hook-entry.mjs'), 'utf8');
-for (const required of ['runtime/v1/run-hook', 'bootstrap-hook-runtime.sh', 'runtime/v1']) {
+for (const required of ['runtime/v1/run-hook', 'ACTIVATION_PENDING', 'NOT_ACTIVATED', 'runtime/v1']) {
   if (!hookEntry.includes(required)) {
     failures.push(`hook entry point omits ${required}`);
   }

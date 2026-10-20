@@ -16,7 +16,7 @@ flowchart TD
   Generation --> Stable["Stable hook dispatchers"]
 ```
 
-The generation includes skills, agents, hooks, shared scripts, plugin manifests, and MCP configuration. The Claude package also carries its verified installer, ESM support library, flattened distribution contract, and execution descriptor so a cold hook bootstrap never depends on repository-only files. The manifest records every file hash and mode plus the expected target projection. Installation verifies the complete generation before activation.
+The generation includes skills, agents, hooks, shared scripts, plugin manifests, and MCP configuration. The Claude package also carries its verified installer, ESM support library, flattened distribution contract, and execution descriptor so explicit activation never depends on repository-only files. Hooks do not install or upgrade the package automatically. The manifest records every file hash and mode plus the expected target projection. Installation verifies the complete generation before activation.
 
 ## Claude Code and OpenCode
 
