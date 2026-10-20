@@ -13,12 +13,12 @@
     },
     {
       "path": "scripts/hook-entry.mjs",
-      "sha256": "11d081dc4e3a6f85a0c9c017b16656572cfd786fdf19ca7b03445771dc54fb6b",
+      "sha256": "c6f4bf62652a30f624e38d9427da10a0ca694aefaf3caf98a128fd6eeff6b4f4",
       "executable": false
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "adcf901e993c52780cc122cbd6e28f56be68a17497219dcf78fb34e720082024",
+      "sha256": "a046f72ee2f6b4a55342f674d633dc5e7684164de4f55e1cccec63c01869f3c9",
       "executable": true
     },
     {
@@ -98,7 +98,7 @@
     },
     {
       "path": "shared/scripts/bootstrap-hook-runtime.sh",
-      "sha256": "84df410b421d282c4d6379a35fb94b463cc95daae541a230822b5bd57e1e2318",
+      "sha256": "cac448fc81f298fbd03b64924398f259db4723a923b30f09a762de9c0660b01f",
       "executable": true
     },
     {
@@ -153,7 +153,7 @@
     },
     {
       "path": "shared/scripts/enqueue-learning-job.py",
-      "sha256": "f778a175f179875631eefe9ee7838a987caa6db5528d3d89747fe26205bf1acc",
+      "sha256": "adcf7f7a857d1b0a6dfe9c02f8559ce7dcd8398e4da3e32c6b4e88e73746bfce",
       "executable": true
     },
     {
@@ -223,7 +223,7 @@
     },
     {
       "path": "shared/scripts/kbd-stage-writeback.sh",
-      "sha256": "3fe121cd0a25c8963f6531e2dc7169ff5ca344fcdb5f64b740148db7b3eaa9d9",
+      "sha256": "f750c17ade9e9ddd980608a9e57f0b049b48af2fe061f45305a9ee2e6d17bf5e",
       "executable": true
     },
     {
@@ -233,7 +233,7 @@
     },
     {
       "path": "shared/scripts/lib/agent_identity.py",
-      "sha256": "3dea8c5591f3f32739cb7efdec4db358071b3d5011bbae12d71cc4181938b261",
+      "sha256": "d04d3bae329aa4a73162b71989894de148a8d2e525bca358dda782094ed8219b",
       "executable": true
     },
     {
@@ -258,17 +258,17 @@
     },
     {
       "path": "shared/scripts/lib/learning_recall.py",
-      "sha256": "bfb2efa0de05ddfc4bc92c9e7d9b5021be8fa5b4946be639cb20f86ab8d6e7b8",
+      "sha256": "8d12fb5bdfb9e56300ed042cf84a25f69be6ce9c44d1605750394e4a07f6a3a0",
       "executable": true
     },
     {
       "path": "shared/scripts/lib/learning_route.py",
-      "sha256": "fa95cdc3fce09a1c4f75f4d145bdfd2badfaa18bed314d3392f6ce52a3bd9d9c",
+      "sha256": "1200eafc6bc26b83a201679c5b3860ce546b1a1894ddd2971bb986d4e3aa4dbc",
       "executable": true
     },
     {
       "path": "shared/scripts/lib/learning_write.py",
-      "sha256": "32d4f44af85c9020c600122d18e29f53d279691b93395f0acc98ea6290a59763",
+      "sha256": "ae5a17c64f955d0d290ba185acbbe0941e3b4840ddf5061fa650ff7541c9cec9",
       "executable": true
     },
     {
@@ -293,7 +293,7 @@
     },
     {
       "path": "shared/scripts/lib/prompt_gap.py",
-      "sha256": "e6acce9539bac7733b9d373c625738e824a6c9e49a36c763ce05691805b6ae07",
+      "sha256": "745a4dac534feb4784c6711205b62701a92ed2cd1c78cd68de657d8cb0bb5b31",
       "executable": true
     },
     {
@@ -333,7 +333,7 @@
     },
     {
       "path": "shared/scripts/memory-writeback.sh",
-      "sha256": "19c5ebc7a10f2bd3421530f54269a532babededb68f765fa4e6a18e8369bcb96",
+      "sha256": "3b5e7455ff4e26efbdf09dc71e1491faba27017255e2c7e797a745bf58d127e0",
       "executable": true
     },
     {
@@ -418,7 +418,7 @@
     },
     {
       "path": "shared/scripts/sessionstart-learning.sh",
-      "sha256": "f6a242fe65379318c6372e56ff1c247a5730293a056fe5916e81465115db0edc",
+      "sha256": "5523ec5d9d238a2b2af04df5a3d7f93060716ae39e2fe64c1a34952a25e5ddd5",
       "executable": true
     },
     {
@@ -438,12 +438,12 @@
     },
     {
       "path": "shared/scripts/subagentstart-learning.sh",
-      "sha256": "404e4609016f02be1129b56c252f23ea975e6f36bc3f707ac12aecb8644683dc",
+      "sha256": "0067d91c517db0c9a17d1789a0bf1132ba3f784554b78011dba0de1c4c45fa29",
       "executable": true
     },
     {
       "path": "shared/scripts/subagentstop-learning.sh",
-      "sha256": "e465f12b9840c155b1b24766f96806605333543b96c2cd783c31e3c414fcb352",
+      "sha256": "23a4b18e8dbca5ac034cee500a9c86d3b4156f25240efa67ff67e9386b67d831",
       "executable": true
     },
     {
@@ -527,5 +527,5 @@
       "executable": true
     }
   ],
-  "bundleId": "33036ab216e1d2e1effb30e38a3cc64927f3da1ce5454efc00951f1e0f9b23da"
+  "bundleId": "cdbfc7cc50bee363aa58a1fc6356787089a52aca8c5c5af5439fe3cb73603225"
 }

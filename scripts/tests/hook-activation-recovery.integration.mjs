@@ -126,12 +126,11 @@ function mismatchedHook(label, expectedCode) {
     try { return JSON.parse(line); } catch { return null; }
   }).find(value => value?.status === 'HOOK_RUNTIME_ERROR');
   assert.equal(report?.code, expectedCode, result.stderr);
-  assert(report.message.includes(priorBundle) && report.message.includes(release.bundleId));
+  if (expectedCode !== 'ACTIVATION_PENDING') assert(report.message.includes(priorBundle) && report.message.includes(release.bundleId));
   assert.match(report.message, /restart/i);
   if (expectedCode === 'ACTIVATION_PENDING') {
     assert(report.message.includes(path.join(store, 'pointers/activation.pending.json')));
-    assert.match(report.message, /original HOME and CODEX_HOME/);
-    assert.match(report.message, /do not delete the journal/);
+    assert.match(report.message, /never recover or upgrade/);
   }
   assert.deepEqual(snapshot(), before, 'a mismatch must neither activate another bundle nor consume the pending journal');
 }
@@ -143,7 +142,7 @@ try {
   const baseline = snapshot();
   run('equal-version-install', old); consistent();
   assert.deepEqual(snapshot(), baseline);
-  const savedJournal = await crashUpgrade();
+  let savedJournal = await crashUpgrade();
   mismatchedHook('pending-stale-hook-diagnostic', 'ACTIVATION_PENDING');
   assert.match(run('pending-verification-rejected', next, ['--verify'], 1).stderr, /activation is pending/);
   // An invalid candidate blocks replay before any shared activation state changes.
@@ -160,6 +159,18 @@ try {
   assert.match(run('escaped-recovery-rejected', next, [], 1).stderr, /escapes generations/);
   assert.deepEqual(snapshot(), interruptedState);
   fs.unlinkSync(candidate); fs.renameSync(escaped, candidate);
+  const beforeCancel = fs.readFileSync(path.join(store, 'pointers/current'), 'utf8');
+  const badCancellation = JSON.parse(savedJournal); badCancellation.body.previous = 'generations/' + '0'.repeat(64);
+  fs.writeFileSync(path.join(store, 'pointers/activation.pending.json'), json(badCancellation));
+  const tamperedCancelState = snapshot();
+  run('tampered-cancellation-rejected', next, ['--cancel-pending'], 1);
+  assert.deepEqual(snapshot(), tamperedCancelState);
+  fs.writeFileSync(path.join(store, 'pointers/activation.pending.json'), savedJournal);
+  run('cancel-upgrade-retain-version', next, ['--cancel-pending']); consistent();
+  assert.equal(fs.readFileSync(path.join(store, 'pointers/current'), 'utf8'), beforeCancel);
+  assert.equal(read(path.join(store, 'current/manifest.json')).sourceVersion, currentVersion);
+  run('verify-cancelled-installation', old, ['--verify']);
+  savedJournal = await crashUpgrade();
   run('recover-upgrade', next); consistent();
   run('verify-upgrade', next, ['--verify']);
   // Model interruption immediately before journal removal using the unchanged
@@ -168,15 +179,18 @@ try {
   const bootstrapArgs = [path.join(next, 'shared/scripts/bootstrap-hook-runtime.sh'),
     '--source-root', next, '--expected-bundle', release.bundleId];
   const recovered = spawnSync('bash', bootstrapArgs, { cwd: scratch, env, encoding: 'utf8', timeout: 180_000 });
-  record('warm-bootstrap-recovers-journal', 'bash', bootstrapArgs, recovered);
-  assert.equal(recovered.status, 0, recovered.stderr); consistent();
+  record('warm-bootstrap-refuses-journal', 'bash', bootstrapArgs, recovered);
+  assert.equal(recovered.status, 78, recovered.stderr);
+  assert.deepEqual(fs.readFileSync(path.join(store, 'pointers/activation.pending.json')), savedJournal);
   fs.writeFileSync(path.join(store, 'pointers/activation.pending.json'), savedJournal);
   const entryArgs = [path.join(next, 'scripts/hook-entry.mjs'), '--bundle', release.bundleId,
     '--hook', 'not-a-hook', '--harness', 'claude-code'];
   const entryRecovery = spawnSync(process.execPath, entryArgs, { cwd: scratch,
     env: { ...env, CLAUDE_PLUGIN_ROOT: next }, encoding: 'utf8', timeout: 180_000 });
-  record('warm-hook-entry-recovers-journal', process.execPath, entryArgs, entryRecovery);
-  assert.equal(entryRecovery.status, 64, entryRecovery.stderr); consistent();
+  record('warm-hook-entry-refuses-journal', process.execPath, entryArgs, entryRecovery);
+  assert.equal(entryRecovery.status, 78, entryRecovery.stderr);
+  assert.deepEqual(fs.readFileSync(path.join(store, 'pointers/activation.pending.json')), savedJournal);
+  run('explicit-recovery-after-hook-refusal', next); consistent();
   const unexpectedBinary = path.join(store, 'runtime/v1/prometheus-hook');
   fs.writeFileSync(unexpectedBinary, 'unmanifested executable');
   assert.match(run('unsigned-compiled-runtime-rejected', next, ['--verify'], 1).stderr, /compiled hook runtime/);
@@ -184,7 +198,7 @@ try {
   const upgraded = snapshot();
   assert.match(run('direct-downgrade-rejected', old, [], 1).stderr, /DOWNGRADE_REFUSED/);
   assert.deepEqual(snapshot(), upgraded);
-  assert.match(run('bootstrap-downgrade-rejected', old, ['--bootstrap'], 1).stderr, /DOWNGRADE_REFUSED/);
+  assert.match(run('bootstrap-downgrade-rejected', old, ['--bootstrap'], 1).stderr, /automatic activation disabled/);
   assert.deepEqual(snapshot(), upgraded);
   const runner = path.join(store, 'runtime/v1/run-hook');
   const oldBundle = read(path.join(old, releaseFile)).bundleId;
@@ -200,7 +214,7 @@ try {
     '--source-root', old, '--expected-bundle', oldBundle];
   const stale = spawnSync('bash', staleArgs, { cwd: scratch, env, encoding: 'utf8', timeout: 180_000 });
   record('unresolved-stale-shell-bootstrap-rejected', 'bash', staleArgs, stale);
-  assert.notEqual(stale.status, 0); assert.match(stale.stderr, /DOWNGRADE_REFUSED/);
+  assert.notEqual(stale.status, 0); assert.match(stale.stderr, /automatic activation disabled/);
   assert.deepEqual(snapshot(), unresolvedState);
   fs.writeFileSync(oldPointer, pointerBytes); fs.symlinkSync(linkValue, oldLink);
   run('explicit-rollback', next, ['--rollback']); consistent();
@@ -232,10 +246,11 @@ try {
     const timer = setTimeout(() => child.kill('SIGKILL'), 360_000);
     child.on('error', reject); child.on('exit', (status, signal) => {
       clearTimeout(timer); record(`concurrent-bootstrap-${index}`, 'bash', args, { status, signal, stdout, stderr });
-      if (status !== 0) reject(new Error(stderr)); else resolve();
+      if (status !== 78) reject(new Error(stderr)); else resolve();
     });
   })));
   for (const result of concurrentResults) if (result.status === 'rejected') throw result.reason;
+  assert(!fs.existsSync(concurrentStore), 'concurrent legacy bootstraps cannot create an installation');
   fs.writeFileSync(path.join(evidence, 'result.json'), json({ status: 'PASS', commands: logs.length, currentVersion, nextVersion }));
   console.log(`PASS: activation recovery (${logs.length} production processes)`);
 } catch (error) {

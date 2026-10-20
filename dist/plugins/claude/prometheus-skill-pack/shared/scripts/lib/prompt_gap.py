@@ -65,6 +65,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Direct CLI calls must not populate bytecode inside the signed package.
+# Importing callers still need -B before Python loads this module itself.
+sys.dont_write_bytecode = True
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 DEFAULT_MIN_SCORE = 4.0

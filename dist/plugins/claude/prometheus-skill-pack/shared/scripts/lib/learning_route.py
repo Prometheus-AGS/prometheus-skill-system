@@ -32,6 +32,11 @@ import tempfile
 import time
 from pathlib import Path
 
+# Direct CLI calls must not populate bytecode inside the signed package.
+# Importing callers still need -B before Python loads this module itself.
+sys.dont_write_bytecode = True
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from agent_identity import active_team, find_root, load_teams, role_ids  # noqa: E402
 

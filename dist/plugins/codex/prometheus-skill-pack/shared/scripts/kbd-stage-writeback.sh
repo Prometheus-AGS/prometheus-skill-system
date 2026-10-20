@@ -36,7 +36,7 @@ fi
 phase_dir="$root/.kbd-orchestrator/phases/$phase"
 [ -d "$phase_dir" ] || exit 0
 
-python3 - "$LW" "$root" "$phase_dir" "$phase" "$stage" <<'PY' >/dev/null 2>&1 || true
+python3 -B - "$LW" "$root" "$phase_dir" "$phase" "$stage" <<'PY' >/dev/null 2>&1 || true
 import json, re, sys
 from pathlib import Path
 
