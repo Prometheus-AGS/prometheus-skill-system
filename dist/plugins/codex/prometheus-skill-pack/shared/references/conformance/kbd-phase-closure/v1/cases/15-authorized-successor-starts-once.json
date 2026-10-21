@@ -1,0 +1,74 @@
+{
+  "id": "15-authorized-successor-starts-once",
+  "acceptance": [
+    6
+  ],
+  "description": "A signed start-successor starts exactly the named scope once; a rerun is ALREADY-STARTED.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "next-phase",
+      "args": {
+        "authorization": {
+          "action": "start-successor",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": null,
+          "label": "succ"
+        },
+        "successor": "successor-phase"
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "successor-phase ready for /kbd-assess"
+      }
+    },
+    {
+      "op": "next-phase",
+      "args": {
+        "authorization": {
+          "action": "start-successor",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": null
+        },
+        "successor": "successor-phase"
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "ALREADY-STARTED"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "successor": "successor-phase",
+        "successorStatus": "in_progress",
+        "activePhase": "successor-phase",
+        "events": {
+          "phase_successor_started": 1
+        }
+      }
+    }
+  ]
+}

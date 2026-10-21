@@ -1,0 +1,153 @@
+{
+  "id": "13-amendment-requires-valid-authority",
+  "acceptance": [
+    3,
+    5
+  ],
+  "description": "Unsigned, wrong-key, wrong-namespace, wrong-phase, mismatched-diff and replayed manifests are refused with no event.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "edit-contract",
+      "args": {
+        "modifyScenario": "CS-2"
+      }
+    },
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "adopt",
+      "args": {
+        "amendment": {
+          "action": "amend-contract",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": "garbage-signature"
+        }
+      },
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "adopt",
+      "args": {
+        "amendment": {
+          "action": "amend-contract",
+          "signer": "intruder",
+          "namespace": "scope",
+          "tamper": null
+        }
+      },
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "adopt",
+      "args": {
+        "amendment": {
+          "action": "amend-contract",
+          "signer": "operator",
+          "namespace": "other",
+          "tamper": null
+        }
+      },
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "adopt",
+      "args": {
+        "amendment": {
+          "action": "amend-contract",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": "phase"
+        }
+      },
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "adopt",
+      "args": {
+        "amendment": {
+          "action": "amend-contract",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": "diff"
+        }
+      },
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "bindingRevision": 1,
+        "events": {
+          "phase_contract_bound": 1
+        }
+      }
+    },
+    {
+      "op": "adopt",
+      "args": {
+        "amendment": {
+          "action": "amend-contract",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": null,
+          "label": "good"
+        }
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "bound=revision-2"
+      }
+    },
+    {
+      "op": "edit-contract",
+      "args": {
+        "modifyScenario": "CS-1"
+      }
+    },
+    {
+      "op": "adopt",
+      "args": {
+        "amendment": {
+          "action": "amend-contract",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": null,
+          "reuse": "good"
+        }
+      },
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "bindingRevision": 2,
+        "events": {
+          "phase_contract_bound": 2
+        }
+      }
+    }
+  ]
+}

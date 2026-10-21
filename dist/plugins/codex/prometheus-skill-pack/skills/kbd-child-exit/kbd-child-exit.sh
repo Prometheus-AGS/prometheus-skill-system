@@ -121,17 +121,35 @@ if [[ "$runtime_avail" == "1" ]]; then
   child_runtime_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phaseId // empty')"
   [[ -n "$child_runtime_id" ]] || die "runtime omitted active child phase"
   parent_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[-2]')"
-  if [[ "$bottleneck_avail" == "1" ]]; then
-    kbd_bottleneck_evaluate phase after "$child_runtime_id" 1 >/dev/null \
-      || die "child phase completion precommit evaluation blocked"
+  # Issue #192: a contract-bound child closes only through its terminal
+  # evaluator; child-exit then returns control without its own transition.
+  child_bound=false
+  if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/phase-disposition.sh" ]]; then
+    . "$KBD_ORCHESTRATOR_ROOT/shared/lib/phase-disposition.sh"
+    child_disposition="$(kbd_phase_disposition_json "." "$child_runtime_id")" \
+      || die "canonical phase disposition for $child_runtime_id is unreadable"
+    child_bound="$(printf '%s' "$child_disposition" | jq -r '.contractBound')"
   fi
-  prometheus kbd --path . phase transition \
-    --command-id "phase-complete:${child_runtime_id}" \
-    --id "$child_runtime_id" --status complete >/dev/null
-  if [[ "$bottleneck_avail" == "1" ]]; then
-    guard_output="$(kbd_bottleneck_evaluate phase after "$child_runtime_id" 0)" \
-      || die "child phase completion postcommit evaluation blocked"
-    kbd_bottleneck_print_signal "$guard_output"
+  if [[ "$child_bound" == "true" ]]; then
+    child_token="$(printf '%s' "$child_disposition" | jq -r '.disposition')"
+    [[ "$child_token" == "CLOSED" ]] || {
+      printf 'kbd-child-exit: NOT-CLOSED: contract-bound child %s is %s; run kbd-phase-close-eval.sh --phase %s first\n' \
+        "$child_runtime_id" "$child_token" "$child_runtime_id" >&2
+      exit 2
+    }
+  else
+    if [[ "$bottleneck_avail" == "1" ]]; then
+      kbd_bottleneck_evaluate phase after "$child_runtime_id" 1 >/dev/null \
+        || die "child phase completion precommit evaluation blocked"
+    fi
+    prometheus kbd --path . phase transition \
+      --command-id "phase-complete:${child_runtime_id}" \
+      --id "$child_runtime_id" --status complete >/dev/null
+    if [[ "$bottleneck_avail" == "1" ]]; then
+      guard_output="$(kbd_bottleneck_evaluate phase after "$child_runtime_id" 0)" \
+        || die "child phase completion postcommit evaluation blocked"
+      kbd_bottleneck_print_signal "$guard_output"
+    fi
   fi
   [[ "$hooks_avail" == "1" ]] &&
     kbd_hooks_fire phase after "$child_runtime_id" "$depth" "$depth" ||

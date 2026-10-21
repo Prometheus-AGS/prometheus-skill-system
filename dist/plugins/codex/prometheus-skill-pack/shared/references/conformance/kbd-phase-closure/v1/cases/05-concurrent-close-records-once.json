@@ -1,0 +1,42 @@
+{
+  "id": "05-concurrent-close-records-once",
+  "acceptance": [
+    2
+  ],
+  "description": "Two evaluators racing on the same evidence record one terminal disposition.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "args": {
+        "parallel": 2
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    }
+  ]
+}

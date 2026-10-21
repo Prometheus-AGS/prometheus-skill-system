@@ -1,0 +1,91 @@
+{
+  "id": "08-unmet-requirement-stays-refused",
+  "acceptance": [
+    4
+  ],
+  "description": "NOT_EXERCISED, a missing scenario, a prefix run id and a direct PASS claim never become PASS.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "NOT_EXERCISED"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "not-pass:CS-2"
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "missing-scenario:CS-2"
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 7
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "run": "prefix"
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "evidence-run-mismatch"
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 7
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 3
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "14-budget-cannot-reset",
+  "acceptance": [
+    5
+  ],
+  "description": "Recorded cumulative consumption never decreases; a PASS reporting less is refused.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "FAIL"
+        },
+        "budget": {
+          "timeMinutes": 4,
+          "toolCalls": 50,
+          "repairAttempts": 1
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 3
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "budget": {
+          "timeMinutes": 4,
+          "toolCalls": 40,
+          "repairAttempts": 1
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "runtime-refused-pass.*budget-regressed"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_FAIL",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    }
+  ]
+}

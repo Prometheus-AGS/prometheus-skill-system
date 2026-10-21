@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kbd.phase-closure-case/v1",
+  "title": "Conformance case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "acceptance",
+    "description",
+    "steps"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "acceptance": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 7
+      }
+    },
+    "description": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "op"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "op": {
+            "enum": [
+              "adopt",
+              "edit-contract",
+              "evidence",
+              "close-eval",
+              "cli-close",
+              "stage-gate-execute",
+              "next-phase",
+              "cli-successor",
+              "forge-decision",
+              "phase-transition",
+              "phase-create",
+              "phase-activate",
+              "restart",
+              "assert"
+            ]
+          },
+          "args": {
+            "type": "object"
+          },
+          "expect": {
+            "type": "object",
+            "properties": {
+              "exit": {
+                "type": "integer"
+              },
+              "stdout": {
+                "type": "string"
+              },
+              "stderr": {
+                "type": "string"
+              },
+              "notStdout": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "10-budget-at-ceiling-closes-labelled",
+  "acceptance": [
+    4
+  ],
+  "description": "Complete work exactly at a ceiling closes and is labelled budget-exhausted; a ceiling never substitutes for evidence.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "budget": "at-ceiling"
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0,
+        "stdout": "budget-note=budget-exhausted"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED"
+      }
+    }
+  ]
+}

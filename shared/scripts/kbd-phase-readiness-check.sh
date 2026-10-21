@@ -9,6 +9,10 @@
 #       [--phase-dir <dir>]      fixture override (scratch trees)
 #       [--status-file <f>]      fixture override for `prometheus kbd status --json`
 #       [--contract <f>]         fixture override for the contract path
+#       [--disposition-file <f>] fixture override for `prometheus kbd phase disposition --json`
+#
+# A phase bound in canonical state (issue #192) is checked against its bound
+# digest; decision-summary text is consulted only for unbound legacy phases.
 #
 # Checks (in order; all failures collected where recoverable):
 #   contract   adopted-contract.json exists + passes structural validation
@@ -28,10 +32,11 @@
 #             3 REJECT-IDENTITY; 4 REJECT-STALE; 5 contract malformed.
 set -euo pipefail
 
-PHASE=""; PHASE_DIR=""; STATUS_FILE=""; CONTRACT=""
+PHASE=""; PHASE_DIR=""; STATUS_FILE=""; CONTRACT=""; DISPOSITION_FILE=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --phase) PHASE="${2:?}"; shift 2 ;;
+    --disposition-file) DISPOSITION_FILE="${2:?}"; shift 2 ;;
     --phase-dir) PHASE_DIR="${2:?}"; shift 2 ;;
     --status-file) STATUS_FILE="${2:?}"; shift 2 ;;
     --contract) CONTRACT="${2:?}"; shift 2 ;;
@@ -105,20 +110,36 @@ fi
 # --- adoption + staleness ---
 REL="${CONTRACT#"$ROOT"/}"
 MISSING=""
+C_DIGEST="$(jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)' "$CONTRACT" | shasum -a 256 | awk '{print $1}')"
+DISP_JSON=""
+if [ -n "$DISPOSITION_FILE" ]; then
+  DISP_JSON="$(cat "$DISPOSITION_FILE" 2>/dev/null || true)"
+elif [ -z "$STATUS_FILE" ]; then
+  DISP_JSON="$(prometheus kbd --path "$ROOT" phase disposition --id "$PHASE" --json 2>/dev/null || true)"
+fi
+B_DIGEST="$(printf '%s' "$DISP_JSON" | jq -r 'select(.schema == "kbd.phase-disposition/v1") | .binding.contractDigest // empty' 2>/dev/null || true)"
+if [ -n "$B_DIGEST" ]; then
+  if [ "$B_DIGEST" != "$C_DIGEST" ]; then
+    printf 'REJECT-STALE contractDigest(bound=%s contract=%s) — a bound contract changes only through a signed amendment (kbd-contract-adopt.sh --supersedes --amendment --signature)\n' \
+      "$B_DIGEST" "$C_DIGEST"
+    exit 4
+  fi
+  LATEST="BOUND"
+else
 LATEST="$(printf '%s' "$STATUS_JSON" | jq -r --arg path "$REL" '
   [(.decisions // {}) | to_entries[] | select(.value.summary | contains("ADOPTED-CONTRACT path=" + $path + " "))] as $adoptions
   | [$adoptions[] | select(.value as $d | [$adoptions[] | select(.value.supersedes == $d.id)] | length == 0)]
   | if length == 0 then "" elif length == 1 then .[0].value | .id + " " + (try (.summary | capture("sha256=(?<d>[0-9a-f]{64})") | .d) catch "NODIGEST") + " " + ((.planRevision // "null") | tostring) else "AMBIGUOUS" end
 ')"
+fi
 if [ "$LATEST" = "AMBIGUOUS" ]; then
   printf 'BLOCKED missing=adoption-unambiguous(multiple non-superseded adoption decisions for %s)\n' "$REL"; exit 2
 fi
 if [ -z "$LATEST" ]; then
   MISSING="adoption(no canonical adoption decision for $REL)"
-else
+elif [ "$LATEST" != "BOUND" ]; then
   L_DIGEST="$(printf '%s' "$LATEST" | awk '{print $2}')"
   L_REV="$(printf '%s' "$LATEST" | awk '{print $3}')"
-  C_DIGEST="$(jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)' "$CONTRACT" | shasum -a 256 | awk '{print $1}')"
   if [ "$L_DIGEST" != "$C_DIGEST" ]; then
     printf 'REJECT-STALE contractDigest(decision=%s contract=%s) planRevision(decision=%s) — amend via kbd-contract-adopt.sh --supersedes\n' \
       "$L_DIGEST" "$C_DIGEST" "$L_REV"

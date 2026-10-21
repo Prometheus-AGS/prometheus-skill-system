@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use std::collections::BTreeMap;
+use std::path::PathBuf;
 
 mod commands;
 mod host;
@@ -762,6 +763,94 @@ enum KbdPhaseAction {
         #[arg(long, value_enum)]
         status: KbdWorkStatus,
     },
+    /// Bind the phase to its adopted contract digest; a changed digest needs a
+    /// signed amend-contract manifest
+    BindContract {
+        /// Optional; must equal the identity-derived id when given
+        #[arg(long)]
+        command_id: Option<String>,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        contract_path: String,
+        #[arg(long)]
+        contract_digest: String,
+        /// Per-scenario digest as ID=SHA256 (repeat for every adopted scenario)
+        #[arg(long = "scenario-digest", required = true)]
+        scenario_digests: Vec<String>,
+        #[arg(long)]
+        plan_revision: u64,
+        #[arg(long)]
+        adoption_decision: String,
+        #[arg(long)]
+        amendment: Option<PathBuf>,
+        #[arg(long)]
+        signature: Option<PathBuf>,
+    },
+    /// Record the canonical phase disposition from boundary evidence
+    Close {
+        #[arg(long)]
+        command_id: Option<String>,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        evidence_file: Option<PathBuf>,
+        #[arg(long, value_enum)]
+        disposition: KbdPhaseDisposition,
+        #[arg(long)]
+        reason_code: Option<String>,
+    },
+    /// Print the canonical disposition (UNBOUND, OPEN, CLOSED, REFUSED_BLOCKED, REFUSED_FAIL)
+    Disposition {
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        json: bool,
+    },
+    /// Successor phases start only from a closed phase under signed authority
+    Successor {
+        #[command(subcommand)]
+        action: KbdSuccessorAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdSuccessorAction {
+    Start {
+        #[arg(long)]
+        command_id: Option<String>,
+        #[arg(long)]
+        predecessor: String,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        title: String,
+        #[arg(long)]
+        slug: Option<String>,
+        #[arg(long)]
+        exact_next_work: Option<String>,
+        #[arg(long)]
+        authorization: PathBuf,
+        #[arg(long)]
+        signature: PathBuf,
+    },
+}
+
+#[derive(Clone, clap::ValueEnum)]
+enum KbdPhaseDisposition {
+    Pass,
+    Fail,
+    Blocked,
+}
+
+impl From<KbdPhaseDisposition> for kbd_runtime::PhaseDisposition {
+    fn from(value: KbdPhaseDisposition) -> Self {
+        match value {
+            KbdPhaseDisposition::Pass => Self::Pass,
+            KbdPhaseDisposition::Fail => Self::Fail,
+            KbdPhaseDisposition::Blocked => Self::Blocked,
+        }
+    }
 }
 
 #[derive(Subcommand)]
@@ -1202,6 +1291,73 @@ async fn run() -> Result<()> {
                         kbd_runtime::CommandKind::PhaseTransition {
                             phase_id: id,
                             to: status.into(),
+                        },
+                    ),
+                    KbdPhaseAction::BindContract {
+                        command_id,
+                        id,
+                        contract_path,
+                        contract_digest,
+                        scenario_digests,
+                        plan_revision,
+                        adoption_decision,
+                        amendment,
+                        signature,
+                    } => commands::kbd::Action::PhaseClosure(
+                        commands::kbd::PhaseClosureAction::BindContract {
+                            command_id,
+                            phase_id: id,
+                            contract_path,
+                            contract_digest,
+                            scenario_digests,
+                            plan_revision,
+                            adoption_decision,
+                            amendment,
+                            signature,
+                        },
+                    ),
+                    KbdPhaseAction::Close {
+                        command_id,
+                        id,
+                        evidence_file,
+                        disposition,
+                        reason_code,
+                    } => commands::kbd::Action::PhaseClosure(
+                        commands::kbd::PhaseClosureAction::Close {
+                            command_id,
+                            phase_id: id,
+                            evidence_file,
+                            disposition: disposition.into(),
+                            reason_code,
+                        },
+                    ),
+                    KbdPhaseAction::Disposition { id, json } => {
+                        commands::kbd::Action::PhaseClosure(
+                            commands::kbd::PhaseClosureAction::Disposition { phase_id: id, json },
+                        )
+                    }
+                    KbdPhaseAction::Successor {
+                        action:
+                            KbdSuccessorAction::Start {
+                                command_id,
+                                predecessor,
+                                id,
+                                title,
+                                slug,
+                                exact_next_work,
+                                authorization,
+                                signature,
+                            },
+                    } => commands::kbd::Action::PhaseClosure(
+                        commands::kbd::PhaseClosureAction::SuccessorStart {
+                            command_id,
+                            predecessor_phase_id: predecessor,
+                            phase_id: id,
+                            title,
+                            slug,
+                            exact_next_work,
+                            authorization,
+                            signature,
                         },
                     ),
                 },

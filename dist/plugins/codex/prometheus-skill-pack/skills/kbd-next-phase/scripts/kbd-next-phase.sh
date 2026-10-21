@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 # kbd-next-phase.sh — Seed and initialize the next KBD phase from reflection
 #
-# Usage: kbd-next-phase.sh [new-phase-name]
+# Usage: kbd-next-phase.sh [new-phase-name] [--authorize-successor <manifest> --signature <sig>]
 #   If no argument: extracts suggested name from reflection.md "Recommended Next Phase" section.
 #   If argument provided: uses it as the new phase name (normalized to kebab-case).
+#
+# Contract-bound phases (issue #192): closing and continuing are separate.
+#   - the current phase must already be CLOSED in canonical state
+#     (kbd-phase-close-eval.sh records that); otherwise exit 2, nothing written;
+#   - a successor starts only with a signed start-successor manifest
+#     (--authorize-successor/--signature; generate it with
+#     shared/scripts/kbd-scope-authority-template.sh start-successor); without
+#     it exit 4, nothing written; the successor id and title come from the
+#     manifest, and the runtime defines + activates it in one event;
+#   - a rerun after the successor started reports ALREADY-STARTED (exit 0);
+#   - goals.md is written only after canonical success and is labelled as
+#     reflection proposals, never adopted scope.
 #
 # Reads:
 #   .kbd-orchestrator/current-waypoint.json         -> current (completed) phase + stage
@@ -19,7 +31,18 @@
 
 set -euo pipefail
 
-PROPOSED_NAME="${1:-}"
+PROPOSED_NAME=""
+AUTH_MANIFEST=""
+AUTH_SIGNATURE=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --authorize-successor) AUTH_MANIFEST="${2:?--authorize-successor needs a manifest path}"; shift 2 ;;
+    --signature) AUTH_SIGNATURE="${2:?--signature needs a signature path}"; shift 2 ;;
+    -*) echo "[kbd-next-phase] unknown flag: $1" >&2; exit 1 ;;
+    *) [[ -z "$PROPOSED_NAME" ]] || { echo "[kbd-next-phase] unexpected argument: $1" >&2; exit 1; }
+       PROPOSED_NAME="$1"; shift ;;
+  esac
+done
 TIMESTAMP="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 DATE_SLUG="$(date +%Y-%m-%d)"
 
@@ -74,6 +97,61 @@ CHANGES_COMPLETED="$(jq -r '.implementationCompleted // .changesCompleted // .ch
 PROJECT_NAME="unknown"
 if [[ -f "$PROJECT_JSON" ]]; then
   PROJECT_NAME="$(python3 -c "import json; d=json.load(open('$PROJECT_JSON')); print(d.get('name','unknown'))" 2>/dev/null || echo "unknown")"
+fi
+
+# ── Canonical runtime libraries + contract-bound closure authority ─────────
+SKILL_ROOT="$KBD_ORCHESTRATOR_ROOT"
+for lib in runtime-authority.sh bottleneck-guard.sh phase-disposition.sh; do
+  if [[ -f "$SKILL_ROOT/shared/lib/$lib" ]]; then
+    # shellcheck source=/dev/null
+    . "$SKILL_ROOT/shared/lib/$lib"
+  fi
+done
+RUNTIME_AUTHORITATIVE=0
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "$PROJECT_ROOT"; then
+  RUNTIME_AUTHORITATIVE=1
+fi
+CURRENT_DISPOSITION=""
+REQUESTED_SUCCESSOR="$PROPOSED_NAME"
+if [[ -z "$REQUESTED_SUCCESSOR" && -n "$AUTH_MANIFEST" && -f "$AUTH_MANIFEST" ]]; then
+  REQUESTED_SUCCESSOR="$(jq -r '.successorPhaseId // empty' "$AUTH_MANIFEST" 2>/dev/null || true)"
+fi
+if [[ "$RUNTIME_AUTHORITATIVE" == 1 && -n "$REQUESTED_SUCCESSOR" && "$REQUESTED_SUCCESSOR" == "$CURRENT_PHASE" ]]; then
+  # A rerun after the authorized successor started: the active phase already
+  # is that successor. Report it instead of treating it as a new request.
+  predecessor="$(kbd_runtime_status_json "$PROJECT_ROOT" 2>/dev/null | jq -r --arg s "$REQUESTED_SUCCESSOR" \
+    '[(.phaseClosure.phases // {}) | to_entries[] | select(.value.successor.phaseId == $s) | .key] | first // empty')"
+  if [[ -n "$predecessor" ]]; then
+    echo "[kbd-next-phase] ALREADY-STARTED: successor '${REQUESTED_SUCCESSOR}' of '${predecessor}' was already started; no new events."
+    printf '  Next:  /kbd-assess %s\n' "$REQUESTED_SUCCESSOR"
+    exit 0
+  fi
+fi
+if [[ "$RUNTIME_AUTHORITATIVE" == 1 ]]; then
+  command -v kbd_phase_disposition_json >/dev/null 2>&1 \
+    || { echo "[kbd-next-phase] phase-disposition library is missing (broken install)" >&2; exit 1; }
+  CURRENT_DISPOSITION="$(kbd_phase_disposition_json "$PROJECT_ROOT" "$CURRENT_PHASE")" \
+    || { echo "[kbd-next-phase] canonical phase disposition for '$CURRENT_PHASE' is unreadable; nothing was written" >&2; exit 1; }
+fi
+if [[ -n "$CURRENT_DISPOSITION" ]] && [[ "$(printf '%s' "$CURRENT_DISPOSITION" | jq -r '.contractBound')" == "true" ]]; then
+  token="$(printf '%s' "$CURRENT_DISPOSITION" | jq -r '.disposition')"
+  if [[ "$token" != "CLOSED" ]]; then
+    echo "[kbd-next-phase] NOT-CLOSED: phase '${CURRENT_PHASE}' disposition is ${token}; nothing was written."
+    echo "  A contract-bound phase closes only through its terminal evaluator:"
+    echo "    bash shared/scripts/kbd-phase-close-eval.sh --phase ${CURRENT_PHASE}"
+    exit 2
+  fi
+  started="$(printf '%s' "$CURRENT_DISPOSITION" | jq -r '.successor.phaseId // empty')"
+  ALREADY_STARTED="$started"
+  if [[ -z "$started" && ( -z "$AUTH_MANIFEST" || -z "$AUTH_SIGNATURE" ) ]]; then
+    echo "[kbd-next-phase] SUCCESSOR-UNAUTHORIZED: '${CURRENT_PHASE}' is CLOSED; closure alone never starts a successor. Nothing was written."
+    echo "  An operator signs a start-successor manifest naming the successor:"
+    echo "    bash shared/scripts/kbd-scope-authority-template.sh start-successor --phase ${CURRENT_PHASE} --successor <id> --title '<title>' > successor.json"
+    echo "    ssh-keygen -Y sign -f <operator-key> -n prometheus-kbd-scope-amendment successor.json"
+    echo "  then: kbd-next-phase.sh --authorize-successor successor.json --signature successor.json.sig"
+    exit 4
+  fi
+  [[ -n "$started" ]] || BOUND_SUCCESSOR=1
 fi
 
 # ── Warn if reflection not complete ───────────────────────────────────────
@@ -166,42 +244,21 @@ else
   echo ""
 fi
 
-# ── Determine new phase name ───────────────────────────────────────────────
-if [[ -n "$PROPOSED_NAME" ]]; then
-  NEW_PHASE="$PROPOSED_NAME"
-elif [[ -n "$SEED_PHASE_NAME" ]]; then
-  NEW_PHASE="${SEED_PHASE_NAME}-${DATE_SLUG}"
-else
-  NEW_PHASE="phase-next-${DATE_SLUG}"
-fi
-
-# Normalize: lowercase, spaces -> hyphens, strip non-[a-z0-9-] chars
-NEW_PHASE="$(echo "$NEW_PHASE" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-')"
-
-# ── Guard: phase must not already exist ───────────────────────────────────
-NEW_PHASE_DIR="${KBD_DIR}/phases/${NEW_PHASE}"
-if [[ -d "$NEW_PHASE_DIR" ]]; then
-  echo ""
-  echo "[kbd-next-phase] ERROR: Phase '${NEW_PHASE}' already exists:"
-  echo "  ${NEW_PHASE_DIR}"
-  echo "  Choose a different name or resume it with: /kbd-assess ${NEW_PHASE}"
-  exit 1
-fi
-
-node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "$PROJECT_ROOT" --timeout-ms 120000 \
-  || { echo "[kbd-next-phase] OpenSpec refresh failed; phase was not started" >&2; exit 1; }
-
-# ── Create phase directory and seed files ─────────────────────────────────
-mkdir -p "$NEW_PHASE_DIR"
-
-# goals.md — seeded from reflection
-cat > "${NEW_PHASE_DIR}/goals.md" << GOALS_EOF
+# goals.md is written only after the canonical writes succeed, so a failed
+# start leaves no orphan successor directory and a rerun stays idempotent.
+write_goals() {
+  mkdir -p "$NEW_PHASE_DIR"
+  cat > "${NEW_PHASE_DIR}/goals.md" << GOALS_EOF
 # Goals: ${NEW_PHASE}
 
 Seeded from: \`${CURRENT_PHASE}/reflection.md\`
 Created: ${TIMESTAMP}
 
-## Seeded Goals
+## Reflection proposals — not adopted scope
+
+These are suggestions carried forward from the previous reflection. They are
+not requirements: blocking scope exists only once this phase's contract is
+adopted (and any later change is a signed amendment).
 
 ${SEED_CONTENT:-"(No seed content found in reflection -- add goals manually before running /kbd-assess)"}
 
@@ -216,75 +273,127 @@ Add, remove, or clarify as needed. When ready:
 /kbd-assess ${NEW_PHASE}
 \`\`\`
 GOALS_EOF
+}
 
-# In runtime-authority mode the phase and active path are typed journal
-# mutations. The compatibility JSON and waypoint markdown are projections.
-SKILL_ROOT="$KBD_ORCHESTRATOR_ROOT"
-runtime_lib="$SKILL_ROOT/shared/lib/runtime-authority.sh"
-if [[ -f "$runtime_lib" ]]; then
-  # shellcheck source=/dev/null
-  . "$runtime_lib"
+if [[ -n "${ALREADY_STARTED:-}" ]]; then
+  NEW_PHASE="$ALREADY_STARTED"
+  NEW_PHASE_DIR="${KBD_DIR}/phases/${NEW_PHASE}"
+  [[ -f "$NEW_PHASE_DIR/goals.md" ]] || write_goals
+  echo "[kbd-next-phase] ALREADY-STARTED: successor '${NEW_PHASE}' of '${CURRENT_PHASE}' was already started; no new events."
+  printf '  Next:  /kbd-assess %s\n' "$NEW_PHASE"
+  exit 0
 fi
-bottleneck_lib="$SKILL_ROOT/shared/lib/bottleneck-guard.sh"
-if [[ -f "$bottleneck_lib" ]]; then
-  # shellcheck source=/dev/null
-  . "$bottleneck_lib"
+
+# ── Determine new phase name ───────────────────────────────────────────────
+SUCCESSOR_TITLE=""
+if [[ "${BOUND_SUCCESSOR:-0}" == 1 ]]; then
+  manifest_raw="$(cat "$AUTH_MANIFEST")" || { echo "[kbd-next-phase] cannot read $AUTH_MANIFEST" >&2; exit 1; }
+  NEW_PHASE="$(printf '%s' "$manifest_raw" | jq -r '.successorPhaseId // empty')"
+  SUCCESSOR_TITLE="$(printf '%s' "$manifest_raw" | jq -r '.successorTitle // empty')"
+  [[ -n "$NEW_PHASE" && -n "$SUCCESSOR_TITLE" ]] \
+    || { echo "[kbd-next-phase] SUCCESSOR-UNAUTHORIZED: manifest names no successorPhaseId/successorTitle" >&2; exit 4; }
+  if [[ -n "$PROPOSED_NAME" && "$PROPOSED_NAME" != "$NEW_PHASE" ]]; then
+    echo "[kbd-next-phase] SUCCESSOR-UNAUTHORIZED: '${PROPOSED_NAME}' is not the authorized successor '${NEW_PHASE}'" >&2
+    exit 4
+  fi
+elif [[ -n "$PROPOSED_NAME" ]]; then
+  NEW_PHASE="$PROPOSED_NAME"
+elif [[ -n "$SEED_PHASE_NAME" ]]; then
+  NEW_PHASE="${SEED_PHASE_NAME}-${DATE_SLUG}"
+else
+  NEW_PHASE="phase-next-${DATE_SLUG}"
 fi
-if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
-   kbd_runtime_authoritative "$PROJECT_ROOT"; then
+
+# Normalize: lowercase, spaces -> hyphens, strip non-[a-z0-9-] chars
+NEW_PHASE="$(echo "$NEW_PHASE" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-')"
+[[ -n "$SUCCESSOR_TITLE" ]] || SUCCESSOR_TITLE="$NEW_PHASE"
+
+# ── Guard: phase must not already exist ───────────────────────────────────
+NEW_PHASE_DIR="${KBD_DIR}/phases/${NEW_PHASE}"
+if [[ -d "$NEW_PHASE_DIR" ]]; then
+  echo ""
+  echo "[kbd-next-phase] ERROR: Phase '${NEW_PHASE}' already exists:"
+  echo "  ${NEW_PHASE_DIR}"
+  echo "  Choose a different name or resume it with: /kbd-assess ${NEW_PHASE}"
+  exit 1
+fi
+
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" refresh --project "$PROJECT_ROOT" --timeout-ms 120000 \
+  || { echo "[kbd-next-phase] OpenSpec refresh failed; phase was not started" >&2; exit 1; }
+
+if [[ "$RUNTIME_AUTHORITATIVE" == 1 ]]; then
   export KBD_BOTTLENECK_PATH="$PROJECT_ROOT"
-  canonical_state="$(kbd_runtime_status_json "$PROJECT_ROOT")" \
-    || { echo "[kbd-next-phase] canonical status read failed" >&2; exit 1; }
-  current_phase_status="$(printf '%s' "$canonical_state" | jq -r --arg phase "$CURRENT_PHASE" '.phases[$phase].status // "missing"')"
-  [[ "$current_phase_status" != "missing" ]] \
-    || { echo "[kbd-next-phase] current phase '$CURRENT_PHASE' is absent from canonical state" >&2; exit 1; }
   guard_enabled=false
   if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
     guard_enabled=true
   fi
-  completed_guard=""
-  if [[ "$current_phase_status" != "complete" ]]; then
-    if [[ "$guard_enabled" == true ]]; then
-      kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 1 >/dev/null \
-        || { echo "[kbd-next-phase] current phase completion precommit blocked" >&2; exit 1; }
-    fi
-    prometheus kbd --path "$PROJECT_ROOT" phase transition \
-      --command-id "phase-complete:${CURRENT_PHASE}" \
-      --id "$CURRENT_PHASE" --status complete >/dev/null
-    if [[ "$guard_enabled" == true ]]; then
-      completed_guard="$(kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 0)" \
-        || { echo "[kbd-next-phase] current phase completion postcommit blocked" >&2; exit 1; }
+  if [[ "${BOUND_SUCCESSOR:-0}" == 1 ]]; then
+    # One typed event closes nothing and starts exactly the authorized scope.
+    if ! start_out="$(prometheus kbd --path "$PROJECT_ROOT" phase successor start \
+        --predecessor "$CURRENT_PHASE" --id "$NEW_PHASE" --title "$SUCCESSOR_TITLE" \
+        --exact-next-work "/kbd-assess ${NEW_PHASE}" \
+        --authorization "$AUTH_MANIFEST" --signature "$AUTH_SIGNATURE" 2>&1)"; then
+      echo "[kbd-next-phase] SUCCESSOR-UNAUTHORIZED: the runtime refused the successor; nothing was written." >&2
+      printf '%s\n' "$start_out" >&2
+      exit 4
     fi
     if [[ "$hooks_avail" == 1 ]]; then
       (cd "$PROJECT_ROOT" && kbd_hooks_fire phase after "$CURRENT_PHASE" 1 1) \
         || echo "[kbd-next-phase] phase completion hook failed" >&2
     fi
+  else
+    canonical_state="$(kbd_runtime_status_json "$PROJECT_ROOT")" \
+      || { echo "[kbd-next-phase] canonical status read failed" >&2; exit 1; }
+    current_phase_status="$(printf '%s' "$canonical_state" | jq -r --arg phase "$CURRENT_PHASE" '.phases[$phase].status // "missing"')"
+    [[ "$current_phase_status" != "missing" ]] \
+      || { echo "[kbd-next-phase] current phase '$CURRENT_PHASE' is absent from canonical state" >&2; exit 1; }
+    completed_guard=""
+    if [[ "$current_phase_status" != "complete" ]]; then
+      if [[ "$guard_enabled" == true ]]; then
+        kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 1 >/dev/null \
+          || { echo "[kbd-next-phase] current phase completion precommit blocked" >&2; exit 1; }
+      fi
+      prometheus kbd --path "$PROJECT_ROOT" phase transition \
+        --command-id "phase-complete:${CURRENT_PHASE}" \
+        --id "$CURRENT_PHASE" --status complete >/dev/null
+      if [[ "$guard_enabled" == true ]]; then
+        completed_guard="$(kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 0)" \
+          || { echo "[kbd-next-phase] current phase completion postcommit blocked" >&2; exit 1; }
+      fi
+      if [[ "$hooks_avail" == 1 ]]; then
+        (cd "$PROJECT_ROOT" && kbd_hooks_fire phase after "$CURRENT_PHASE" 1 1) \
+          || echo "[kbd-next-phase] phase completion hook failed" >&2
+      fi
+    fi
+    prometheus kbd --path "$PROJECT_ROOT" phase create \
+      --command-id "phase-create:${NEW_PHASE}" \
+      --id "$NEW_PHASE" --title "$NEW_PHASE" >/dev/null
+    if [[ "$guard_enabled" == true ]]; then
+      kbd_bottleneck_evaluate phase before "$NEW_PHASE" 1 >/dev/null \
+        || { echo "[kbd-next-phase] next phase start precommit blocked" >&2; exit 1; }
+    fi
+    prometheus kbd --path "$PROJECT_ROOT" phase activate \
+      --command-id "phase-activate:${NEW_PHASE}" \
+      --id "$NEW_PHASE" --exact-next-work "/kbd-assess ${NEW_PHASE}" >/dev/null
+    prometheus kbd --path "$PROJECT_ROOT" phase transition \
+      --command-id "phase-start:${NEW_PHASE}" \
+      --id "$NEW_PHASE" --status in-progress >/dev/null
+    [[ -z "$completed_guard" ]] || kbd_bottleneck_print_signal "$completed_guard"
   fi
-  prometheus kbd --path "$PROJECT_ROOT" phase create \
-    --command-id "phase-create:${NEW_PHASE}" \
-    --id "$NEW_PHASE" --title "$NEW_PHASE" >/dev/null
-  if [[ "$guard_enabled" == true ]]; then
-    kbd_bottleneck_evaluate phase before "$NEW_PHASE" 1 >/dev/null \
-      || { echo "[kbd-next-phase] next phase start precommit blocked" >&2; exit 1; }
-  fi
-  prometheus kbd --path "$PROJECT_ROOT" phase activate \
-    --command-id "phase-activate:${NEW_PHASE}" \
-    --id "$NEW_PHASE" --exact-next-work "/kbd-assess ${NEW_PHASE}" >/dev/null
-  prometheus kbd --path "$PROJECT_ROOT" phase transition \
-    --command-id "phase-start:${NEW_PHASE}" \
-    --id "$NEW_PHASE" --status in-progress >/dev/null
   if [[ "$guard_enabled" == true ]]; then
     starting_guard="$(kbd_bottleneck_evaluate phase before "$NEW_PHASE" 0)" \
-      || { echo "[kbd-next-phase] next phase start postcommit blocked" >&2; exit 1; }
-    [[ -z "$completed_guard" ]] || kbd_bottleneck_print_signal "$completed_guard"
+      || { echo "[kbd-next-phase] next phase start postcommit blocked; record it with: prometheus kbd --path . guard evaluate --boundary phase --edge before --subject ${NEW_PHASE} --json" >&2; exit 1; }
     kbd_bottleneck_print_signal "$starting_guard"
   fi
+  write_goals
   printf '\nCompleted kbd-next-phase — %s ready for /kbd-assess\n' "$NEW_PHASE"
   printf '  phase: %s\n' "$NEW_PHASE"
   printf '  goals: %s\n' "$NEW_PHASE_DIR/goals.md"
   printf '  Next:  /kbd-assess %s\n' "$NEW_PHASE"
   exit 0
 fi
+
+write_goals
 
 # Skeleton progress.json
 cat > "${NEW_PHASE_DIR}/progress.json" << PROGRESS_EOF

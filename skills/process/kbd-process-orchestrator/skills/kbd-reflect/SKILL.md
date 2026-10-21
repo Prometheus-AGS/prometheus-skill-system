@@ -156,7 +156,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
     step — the human runs the printed command. An unreviewed candidate stays
     pending.
 11. **If evolver bridge exists**: write execution results back to evolver state
-12. **Advance when authorized** through `/kbd-next-phase`; its helper activates the phase and generates projections
+12. **Advance only when authorized** through `/kbd-next-phase`. For a contract-bound phase that authorization is an operator-signed start-successor manifest (`kbd-next-phase.sh --authorize-successor <manifest> --signature <sig>`); closure alone never starts a successor, and reflection cannot supply that authority
 13. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
 
 ## Examples
@@ -181,23 +181,39 @@ phase is fired by `/kbd-new-phase` / `/kbd-next-phase`, not here.
 kbd_hooks_fire reflect before "$phase" 1 1
 # … write reflection.md …
 kbd_hooks_fire reflect after  "$phase" 1 1
-export KBD_BOTTLENECK_PATH="${KBD_BOTTLENECK_PATH:-.}"
-guard_enabled=0
-if kbd_bottleneck_active; then
-  guard_enabled=1
-  kbd_bottleneck_evaluate phase after "$phase" 1 >/dev/null || exit 1
-fi
-prometheus kbd --path . phase transition \
-  --command-id "reflect-complete:$phase" \
-  --id "$phase" --status complete || exit 1
-if [ "$guard_enabled" = "1" ]; then
-  kbd_bottleneck_evaluate phase after "$phase" 0 >/dev/null || exit 1
+bound="$(prometheus kbd --path . phase disposition --id "$phase" --json | jq -r '.contractBound')" || exit 1
+if [ "$bound" = "true" ]; then
+  # Contract-bound phase (issue #192): only the terminal evaluator closes it,
+  # against the bound contract snapshot. 0 = CLOSED (or identical no-op);
+  # 2/3 = BLOCKED/FAIL recorded, phase stays open; 5 = writer failed;
+  # 6 = already closed under other evidence. Report the disposition and stop.
+  bash "$PACK_ROOT/shared/scripts/kbd-phase-close-eval.sh" --phase "$phase" || exit $?
+else
+  export KBD_BOTTLENECK_PATH="${KBD_BOTTLENECK_PATH:-.}"
+  guard_enabled=0
+  if kbd_bottleneck_active; then
+    guard_enabled=1
+    kbd_bottleneck_evaluate phase after "$phase" 1 >/dev/null || exit 1
+  fi
+  prometheus kbd --path . phase transition \
+    --command-id "reflect-complete:$phase" \
+    --id "$phase" --status complete || exit 1
+  if [ "$guard_enabled" = "1" ]; then
+    kbd_bottleneck_evaluate phase after "$phase" 0 >/dev/null || exit 1
+  fi
 fi
 kbd_hooks_fire phase   after  "$phase" 1 1   # canonical phase-end boundary
 ```
 
-Both phase guard evaluations and the phase transition must succeed before
-`phase:after` fires. This ordering prevents a rejected or partial reflection
+`$PACK_ROOT` is the package root (`kbd_package_root` from
+`shared/lib/package-root.sh`). A contract-bound phase is never moved to
+`complete` with `phase transition`; the runtime refuses that edge and only a
+PASS disposition closes it. Reflection text, review findings and the
+`## Next Phase Seed` are proposals: they never add requirements to this phase
+and never start a successor.
+
+Both phase guard evaluations and the phase transition (or, for a bound phase,
+the evaluator's CLOSED result) must succeed before `phase:after` fires. This ordering prevents a rejected or partial reflection
 from producing a completion memory record. `/kbd-next-phase` reads canonical
 phase status and skips this terminal transition and completion hook when
 reflection has already completed the phase.

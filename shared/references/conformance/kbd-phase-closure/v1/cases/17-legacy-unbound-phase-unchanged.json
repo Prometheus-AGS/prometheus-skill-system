@@ -1,0 +1,37 @@
+{
+  "id": "17-legacy-unbound-phase-unchanged",
+  "acceptance": [
+    7
+  ],
+  "description": "A phase that was never bound keeps the legacy next-phase flow.",
+  "steps": [
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "UNBOUND"
+      }
+    },
+    {
+      "op": "next-phase",
+      "args": {
+        "authorization": "none",
+        "successor": "legacy-successor"
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "legacy-successor ready for /kbd-assess"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "UNBOUND",
+        "phaseStatus": "complete",
+        "activePhase": "legacy-successor",
+        "events": {
+          "phase_successor_started": 0
+        }
+      }
+    }
+  ]
+}

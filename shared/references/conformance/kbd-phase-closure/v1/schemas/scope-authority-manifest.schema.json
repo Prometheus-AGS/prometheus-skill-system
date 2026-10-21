@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kbd.scope-authority/v1",
+  "title": "Scope-authority manifest an operator signs (namespace prometheus-kbd-scope-amendment)",
+  "description": "The file is the canonical JSON (sorted keys, compact, printable ASCII) plus one newline; ssh-keygen -Y sign covers exactly those bytes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "namespace",
+    "action",
+    "projectId",
+    "runId",
+    "phaseId",
+    "reason",
+    "approver",
+    "timestamp",
+    "nonce"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1"
+    },
+    "kind": {
+      "const": "kbd.scope-authority"
+    },
+    "namespace": {
+      "const": "prometheus-kbd-scope-amendment"
+    },
+    "action": {
+      "enum": [
+        "amend-contract",
+        "start-successor"
+      ]
+    },
+    "projectId": {
+      "type": "string"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "phaseId": {
+      "type": "string"
+    },
+    "contractPath": {
+      "type": "string"
+    },
+    "previousContractDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "newContractDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "scenarioChanges": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "added",
+        "modified",
+        "removed"
+      ],
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modified": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "predecessorClosureKey": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "successorPhaseId": {
+      "type": "string"
+    },
+    "successorTitle": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 10
+    },
+    "approver": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "nonce": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "amend-contract"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "contractPath",
+          "previousContractDigest",
+          "newContractDigest",
+          "scenarioChanges"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "start-successor"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "predecessorClosureKey",
+          "successorPhaseId",
+          "successorTitle"
+        ]
+      }
+    }
+  ]
+}

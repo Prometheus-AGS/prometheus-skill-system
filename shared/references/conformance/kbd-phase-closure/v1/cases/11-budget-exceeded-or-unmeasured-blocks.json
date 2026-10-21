@@ -1,0 +1,56 @@
+{
+  "id": "11-budget-exceeded-or-unmeasured-blocks",
+  "acceptance": [
+    4
+  ],
+  "description": "Consumption above a ceiling, or an enforceable dimension reported unknown, is BLOCKED.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "budget": "exceeded"
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "budget-exceeded"
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "budget": "unmeasured"
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "budget-unmeasured"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress"
+      }
+    }
+  ]
+}

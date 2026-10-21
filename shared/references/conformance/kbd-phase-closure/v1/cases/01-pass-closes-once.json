@@ -1,0 +1,70 @@
+{
+  "id": "01-pass-closes-once",
+  "acceptance": [
+    1
+  ],
+  "description": "A phase whose bound scenarios all PASS closes exactly once, and evaluation, dispatch and next-phase agree.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0,
+        "stdout": "^ADOPTED "
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0,
+        "stdout": "^CLOSED phase="
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "phaseStatus": "complete",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    },
+    {
+      "op": "stage-gate-execute",
+      "expect": {
+        "exit": 2,
+        "stderr": "is CLOSED in canonical state"
+      }
+    },
+    {
+      "op": "next-phase",
+      "args": {
+        "authorization": "none",
+        "successor": "successor-phase"
+      },
+      "expect": {
+        "exit": 4,
+        "stdout": "SUCCESSOR-UNAUTHORIZED"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "events": {
+          "phase_disposition_recorded": 1,
+          "phase_successor_started": 0
+        }
+      }
+    }
+  ]
+}

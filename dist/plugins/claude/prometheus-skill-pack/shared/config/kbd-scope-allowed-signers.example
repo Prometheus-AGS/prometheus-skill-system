@@ -1,0 +1,16 @@
+# KBD scope-authority allowed signers (issue #192) — example only.
+#
+# Install a real copy at ~/.config/prometheus/kbd-scope-allowed-signers
+# (or $XDG_CONFIG_HOME/prometheus/kbd-scope-allowed-signers). The runtime
+# reads only that path; there is no flag or environment override. A missing
+# file makes every scope amendment and successor start fail closed.
+#
+# One line per operator principal, in ssh-keygen ALLOWED SIGNERS format.
+# Pin each key to the scope namespace so it cannot authorize anything else:
+#
+#   operator@example.com namespaces="prometheus-kbd-scope-amendment" sk-ssh-ed25519@openssh.com AAAA...
+#
+# A FIDO (sk-*) key or a passphrase the agent cannot supply is what makes a
+# signature evidence of human approval. Any key whose private half a local
+# agent process can use unattended only records intent; enforcing that
+# boundary on the host is issue #185, not this file.

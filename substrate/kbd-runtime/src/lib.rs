@@ -18,9 +18,17 @@ use uuid::Uuid;
 use project_document::ProjectDocument;
 
 mod authority;
+pub mod phase_closure;
 pub mod project_document;
 pub mod registry;
 pub mod rollout;
+pub mod scope_authority;
+
+pub use phase_closure::{
+    ContractBinding, ContractBindingInput, PhaseCloseInput, PhaseClosure, PhaseClosureRegistry,
+    PhaseDisposition, PhaseDispositionView, ScenarioOutcome,
+};
+pub use scope_authority::{ScopeAuthorityInput, ScopeAuthorityRecord};
 
 #[cfg(test)]
 mod live_certification_proof;
@@ -110,6 +118,17 @@ pub enum RuntimeError {
         winner_event_id: String,
         frontier: CausalFrontier,
     },
+    #[error("phase {phase_id} is already closed (closureKey {existing_key}); a closed phase is immutable")]
+    PhaseAlreadyClosed {
+        phase_id: String,
+        existing_key: String,
+    },
+    #[error("phase {phase_id} is contract-bound and refuses: {operation}")]
+    ContractBoundPhase { phase_id: String, operation: String },
+    #[error("phase {phase_id} close refused: {reason}")]
+    PhaseCloseRefused { phase_id: String, reason: String },
+    #[error("scope authority refused: {0}")]
+    ScopeAuthority(String),
 }
 
 pub type Result<T> = std::result::Result<T, RuntimeError>;
@@ -887,6 +906,21 @@ pub enum EventKind {
         winner_event_id: String,
         reason: String,
     },
+    PhaseContractBound {
+        phase_id: String,
+        binding: Box<ContractBinding>,
+    },
+    PhaseDispositionRecorded {
+        phase_id: String,
+        closure: Box<PhaseClosure>,
+    },
+    PhaseSuccessorStarted {
+        predecessor_phase_id: String,
+        phase: Box<Phase>,
+        active_path: Box<ActivePath>,
+        exact_next_work: Option<String>,
+        authority: Box<ScopeAuthorityRecord>,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -1182,6 +1216,8 @@ pub struct KbdStateV2 {
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub operator_key_ids: BTreeSet<String>,
     pub command_revisions: BTreeMap<String, u64>,
+    #[serde(default, skip_serializing_if = "PhaseClosureRegistry::is_empty")]
+    pub phase_closure: PhaseClosureRegistry,
 }
 
 pub type RuntimeState = KbdStateV2;
@@ -1601,6 +1637,26 @@ pub enum CommandKind {
     SubmodulePinSet {
         pin: SubmodulePin,
     },
+    PhaseContractBind {
+        phase_id: String,
+        binding: ContractBindingInput,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        authority: Option<ScopeAuthorityInput>,
+    },
+    PhaseClose {
+        phase_id: String,
+        closure: PhaseCloseInput,
+    },
+    PhaseSuccessorStart {
+        predecessor_phase_id: String,
+        successor_phase_id: String,
+        title: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        slug: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        exact_next_work: Option<String>,
+        authority: ScopeAuthorityInput,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1620,7 +1676,10 @@ impl ProjectionScope {
             | CommandKind::ChangeRegister { phase_id, .. }
             | CommandKind::ChangeTransition { phase_id, .. }
             | CommandKind::TaskRegister { phase_id, .. }
-            | CommandKind::TaskTransition { phase_id, .. } => Some(phase_id.as_str()),
+            | CommandKind::TaskTransition { phase_id, .. }
+            | CommandKind::PhaseContractBind { phase_id, .. }
+            | CommandKind::PhaseClose { phase_id, .. } => Some(phase_id.as_str()),
+            CommandKind::PhaseSuccessorStart { .. } => return Self::AllPhases,
             CommandKind::BoundaryReceiptRecord { receipt } => receipt.phase_id.as_deref(),
             CommandKind::GateStart { gate } => gate.phase_id.as_deref(),
             CommandKind::GateFinish { receipt } => receipt.phase_id.as_deref(),
@@ -1710,6 +1769,7 @@ impl Default for KbdStateV2 {
             devices: BTreeMap::new(),
             operator_key_ids: BTreeSet::new(),
             command_revisions: BTreeMap::new(),
+            phase_closure: PhaseClosureRegistry::default(),
         }
     }
 }
@@ -1851,6 +1911,7 @@ impl KbdStateV2 {
                     self.active_gates = defaults.active_gates;
                     self.latest_gate_receipts = defaults.latest_gate_receipts;
                     self.claims = defaults.claims;
+                    self.phase_closure = defaults.phase_closure;
                 }
                 self.run_id.clone_from(&event.run_id);
                 self.lifecycle = initial_state.clone();
@@ -1955,6 +2016,7 @@ impl KbdStateV2 {
                 self.phases.insert(phase.id.clone(), phase.clone());
             }
             EventKind::PhaseTransitioned { phase_id, from, to } => {
+                phase_closure::guard_phase_transition(self, phase_id, to)?;
                 let phase = self.phase_mut(phase_id)?;
                 if phase.status != *from || !valid_work_transition(from, to) {
                     return Err(RuntimeError::InvalidWorkTransition {
@@ -1966,6 +2028,7 @@ impl KbdStateV2 {
                 phase.status = to.clone();
             }
             EventKind::StageEntered { phase_id, stage } => {
+                phase_closure::guard_work(self, phase_id, None)?;
                 {
                     let phase = self.phase_mut(phase_id)?;
                     if phase.stages.contains_key(&stage.id) {
@@ -1989,6 +2052,7 @@ impl KbdStateV2 {
                 from,
                 to,
             } => {
+                phase_closure::guard_work(self, phase_id, Some(to))?;
                 let stage = self
                     .phase_mut(phase_id)?
                     .stages
@@ -2007,6 +2071,7 @@ impl KbdStateV2 {
                 stage.status = to.clone();
             }
             EventKind::ChangeRegistered { phase_id, change } => {
+                phase_closure::guard_work(self, phase_id, None)?;
                 let phase = self.phase_mut(phase_id)?;
                 if phase.changes.contains_key(&change.id) {
                     return Err(RuntimeError::WorkItemExists {
@@ -2024,6 +2089,7 @@ impl KbdStateV2 {
                 from,
                 to,
             } => {
+                phase_closure::guard_work(self, phase_id, Some(to))?;
                 let change = self.change_mut(phase_id, change_id)?;
                 if change.status != *from || !valid_work_transition(from, to) {
                     return Err(RuntimeError::InvalidWorkTransition {
@@ -2042,6 +2108,7 @@ impl KbdStateV2 {
                 change_id,
                 task,
             } => {
+                phase_closure::guard_work(self, phase_id, None)?;
                 let change = self.change_mut(phase_id, change_id)?;
                 if change.tasks.contains_key(&task.id) {
                     return Err(RuntimeError::WorkItemExists {
@@ -2062,6 +2129,7 @@ impl KbdStateV2 {
                 to,
                 summary,
             } => {
+                phase_closure::guard_work(self, phase_id, Some(to))?;
                 let task = self.task_mut(phase_id, change_id, task_id)?;
                 if task.status != *from || !valid_work_transition(from, to) {
                     return Err(RuntimeError::InvalidWorkTransition {
@@ -2083,6 +2151,7 @@ impl KbdStateV2 {
                 exact_next_work,
             } => {
                 self.validate_active_path(active_path)?;
+                phase_closure::admit_active_path(self, active_path)?;
                 self.active_path.clone_from(active_path);
                 if let Some(phase_id) = self.active_path.phase_id.clone() {
                     self.synchronize_active_work_cursor(&phase_id);
@@ -2354,6 +2423,29 @@ impl KbdStateV2 {
                 conflict.winner_event_id.clone_from(winner_event_id);
                 conflict.resolved_by_event_id = Some(event.event_id.clone());
                 conflict.resolution_reason = Some(reason.clone());
+            }
+            EventKind::PhaseContractBound { phase_id, binding } => {
+                phase_closure::apply_bound(self, event.revision, phase_id, binding)?;
+            }
+            EventKind::PhaseDispositionRecorded { phase_id, closure } => {
+                phase_closure::apply_disposition(self, event.revision, phase_id, closure)?;
+            }
+            EventKind::PhaseSuccessorStarted {
+                predecessor_phase_id,
+                phase,
+                active_path,
+                exact_next_work,
+                authority,
+            } => {
+                phase_closure::apply_successor(
+                    self,
+                    event.revision,
+                    predecessor_phase_id,
+                    phase,
+                    active_path,
+                    exact_next_work,
+                    authority,
+                )?;
             }
         }
 
@@ -4570,6 +4662,14 @@ impl Runtime {
         }
         if let Some(committed_revision) = state.command_revisions.get(&envelope.command_id).copied()
         {
+            if phase_closure::is_closure_command(&envelope.command)
+                && phase_closure::idempotent_replay(&state, &envelope.command)?.is_none()
+            {
+                return Err(RuntimeError::InvalidState(format!(
+                    "commandId {} was already used for a different phase-closure payload",
+                    envelope.command_id
+                )));
+            }
             let mut state = state;
             self.decorate_replica_view(&mut state);
             return Ok(CommandResult {
@@ -4584,6 +4684,19 @@ impl Runtime {
             return Err(RuntimeError::RunMismatch {
                 supplied: envelope.run_id,
                 current: state.run_id,
+            });
+        }
+        if let Some(committed_revision) =
+            phase_closure::idempotent_replay(&state, &envelope.command)?
+        {
+            let mut state = state;
+            self.decorate_replica_view(&mut state);
+            return Ok(CommandResult {
+                command_id: envelope.command_id,
+                committed_revision,
+                duplicate: true,
+                state,
+                apply_error: None,
             });
         }
         validate_command_frontier(&state, &envelope)?;
@@ -4644,6 +4757,9 @@ impl Runtime {
                 supplied: envelope.run_id,
                 current: state.run_id.clone(),
             });
+        }
+        if phase_closure::idempotent_replay(state, &envelope.command)?.is_some() {
+            return Err(RuntimeError::DuplicateCommand(envelope.command_id));
         }
         validate_command_frontier(state, &envelope)?;
         validate_claim_write(state, &envelope.actor, &envelope.command)?;
@@ -8068,6 +8184,12 @@ fn command_scope(command: &CommandKind) -> Option<String> {
         CommandKind::GateStart { gate } => format!("gate:{}", gate.scope),
         CommandKind::GateFinish { receipt } => format!("gate:{}", receipt.scope),
         CommandKind::SubmodulePinSet { pin } => format!("submodule:{}", pin.path),
+        CommandKind::PhaseContractBind { phase_id, .. }
+        | CommandKind::PhaseClose { phase_id, .. } => format!("phase:{phase_id}"),
+        CommandKind::PhaseSuccessorStart {
+            predecessor_phase_id,
+            ..
+        } => format!("phase:{predecessor_phase_id}"),
     })
 }
 
@@ -8176,9 +8298,12 @@ fn prepare_command_event(
                 exact_next_work: exact_next_work.clone(),
             }
         }
-        CommandKind::PhaseDefine { phase } => EventKind::PhaseDefined {
-            phase: phase.clone(),
-        },
+        CommandKind::PhaseDefine { phase } => {
+            phase_closure::admit_phase_define(phase)?;
+            EventKind::PhaseDefined {
+                phase: phase.clone(),
+            }
+        }
         CommandKind::PhaseTransition { phase_id, to } => {
             let phase =
                 state
@@ -8502,6 +8627,30 @@ fn prepare_command_event(
             }
             EventKind::SubmodulePinRecorded { pin: pin.clone() }
         }
+        CommandKind::PhaseContractBind {
+            phase_id,
+            binding,
+            authority,
+        } => phase_closure::prepare_bind(state, phase_id, binding, authority.as_ref())?,
+        CommandKind::PhaseClose { phase_id, closure } => {
+            phase_closure::prepare_close(state, phase_id, closure)?
+        }
+        CommandKind::PhaseSuccessorStart {
+            predecessor_phase_id,
+            successor_phase_id,
+            title,
+            slug,
+            exact_next_work,
+            authority,
+        } => phase_closure::prepare_successor(
+            state,
+            predecessor_phase_id,
+            successor_phase_id,
+            title,
+            slug.as_deref(),
+            exact_next_work.as_ref(),
+            authority,
+        )?,
     })
 }
 
