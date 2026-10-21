@@ -1,0 +1,64 @@
+{
+  "id": "09-writer-failure-claims-nothing",
+  "acceptance": [
+    4
+  ],
+  "description": "When the canonical writer rejects the write, the evaluator reports WRITER-FAILED on both PASS and refusal paths and claims nothing.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "args": {
+        "writer": "unenrolled"
+      },
+      "expect": {
+        "exit": 5,
+        "stdout": "WRITER-FAILED",
+        "notStdout": "^CLOSED"
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "FAIL",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "args": {
+        "writer": "unenrolled"
+      },
+      "expect": {
+        "exit": 5,
+        "stdout": "WRITER-FAILED"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "OPEN",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 0
+        }
+      }
+    }
+  ]
+}

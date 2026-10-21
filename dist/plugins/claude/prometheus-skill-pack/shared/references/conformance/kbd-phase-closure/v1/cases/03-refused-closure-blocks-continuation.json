@@ -1,0 +1,70 @@
+{
+  "id": "03-refused-closure-blocks-continuation",
+  "acceptance": [
+    1,
+    4
+  ],
+  "description": "A FAIL refusal leaves the phase open; next-phase and a direct transition cannot complete it.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "FAIL",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 3,
+        "stdout": "^FAIL phase=.*product-oracle-unmet"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_FAIL",
+        "phaseStatus": "in_progress"
+      }
+    },
+    {
+      "op": "next-phase",
+      "args": {
+        "authorization": "none",
+        "successor": "successor-phase"
+      },
+      "expect": {
+        "exit": 2,
+        "stdout": "NOT-CLOSED"
+      }
+    },
+    {
+      "op": "phase-transition",
+      "args": {
+        "status": "complete"
+      },
+      "expect": {
+        "exit": 1,
+        "stderr": "contract-bound"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_FAIL",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_successor_started": 0
+        }
+      }
+    }
+  ]
+}

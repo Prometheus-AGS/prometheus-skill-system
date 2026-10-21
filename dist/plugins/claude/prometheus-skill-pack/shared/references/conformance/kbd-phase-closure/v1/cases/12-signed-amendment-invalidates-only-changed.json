@@ -1,0 +1,115 @@
+{
+  "id": "12-signed-amendment-invalidates-only-changed",
+  "acceptance": [
+    5
+  ],
+  "description": "A signed amendment binds a new revision; unchanged scenarios may carry evidence, the modified one needs fresh evidence, consumption is preserved.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "FAIL"
+        },
+        "budget": {
+          "timeMinutes": 4,
+          "toolCalls": 50,
+          "repairAttempts": 1
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 3
+      }
+    },
+    {
+      "op": "edit-contract",
+      "args": {
+        "modifyScenario": "CS-2"
+      }
+    },
+    {
+      "op": "adopt",
+      "args": {
+        "amendment": {
+          "action": "amend-contract",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": null,
+          "label": "first"
+        }
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "bound=revision-2"
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "carry": [
+          "CS-2"
+        ],
+        "budget": {
+          "timeMinutes": 5,
+          "toolCalls": 60,
+          "repairAttempts": 1
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "runtime-refused-pass.*carried-evidence-invalid"
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "carry": [
+          "CS-1"
+        ],
+        "budget": {
+          "timeMinutes": 5,
+          "toolCalls": 60,
+          "repairAttempts": 1
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0,
+        "stdout": "^CLOSED "
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "bindingRevision": 2,
+        "events": {
+          "phase_contract_bound": 2
+        }
+      }
+    }
+  ]
+}

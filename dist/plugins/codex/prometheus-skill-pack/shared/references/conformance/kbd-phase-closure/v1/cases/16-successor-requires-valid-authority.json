@@ -1,0 +1,136 @@
+{
+  "id": "16-successor-requires-valid-authority",
+  "acceptance": [
+    6
+  ],
+  "description": "Closure alone, bad signatures, a direct create+activate and a second successor are all refused.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "next-phase",
+      "args": {
+        "authorization": {
+          "action": "start-successor",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": "garbage-signature"
+        },
+        "successor": "successor-phase"
+      },
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "next-phase",
+      "args": {
+        "authorization": {
+          "action": "start-successor",
+          "signer": "intruder",
+          "namespace": "scope",
+          "tamper": null
+        },
+        "successor": "successor-phase"
+      },
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "phase-create",
+      "args": {
+        "id": "rogue-phase"
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "phase-activate",
+      "args": {
+        "id": "rogue-phase"
+      },
+      "expect": {
+        "exit": 1,
+        "stderr": "awaits a signed start-successor"
+      }
+    },
+    {
+      "op": "phase-activate",
+      "args": {
+        "id": "{{phase}}"
+      },
+      "expect": {
+        "exit": 1,
+        "stderr": "already closed"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "events": {
+          "phase_successor_started": 0
+        }
+      }
+    },
+    {
+      "op": "cli-successor",
+      "args": {
+        "authorization": {
+          "action": "start-successor",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": null
+        },
+        "successor": "successor-phase"
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "cli-successor",
+      "args": {
+        "authorization": {
+          "action": "start-successor",
+          "signer": "operator",
+          "namespace": "scope",
+          "tamper": null
+        },
+        "successor": "second-successor"
+      },
+      "expect": {
+        "exit": 7
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "successor": "successor-phase",
+        "events": {
+          "phase_successor_started": 1
+        }
+      }
+    }
+  ]
+}

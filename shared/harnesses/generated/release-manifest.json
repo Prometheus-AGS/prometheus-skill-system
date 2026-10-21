@@ -188,7 +188,7 @@
     },
     {
       "path": "shared/scripts/kbd-contract-adopt.sh",
-      "sha256": "5f570c4dedc404e86fe5566763bf51a84904537d23788e28cc1740751f4179bb",
+      "sha256": "c405a4bcb28ccd5a8630037eae7ab042163d8088cec39f406ff25b3499b1b34d",
       "executable": true
     },
     {
@@ -198,7 +198,7 @@
     },
     {
       "path": "shared/scripts/kbd-next-phase.sh",
-      "sha256": "63bed50bb8277577c0e1baca7619edbbd16b8b688a73888009aa209fe8cefc25",
+      "sha256": "87cc872705480154c0e97313a801cc9eba053145264cf74d82e636d1bc773c24",
       "executable": true
     },
     {
@@ -208,17 +208,22 @@
     },
     {
       "path": "shared/scripts/kbd-phase-close-eval.sh",
-      "sha256": "930fab97e03f13d737ea016e763e98c15e775d9a0e9ac08888e36047b1c86ada",
+      "sha256": "dd732ebbd23b9cd30903b56a21a7ea29f845c584b33889bda31d788aae6cf637",
       "executable": true
     },
     {
       "path": "shared/scripts/kbd-phase-readiness-check.sh",
-      "sha256": "7ca52a7292e97b10e187397cd36dc131becd2adfaf8db9e281b404bbc73bd85f",
+      "sha256": "dcf08137023b510ec853ee21c8e47c71e7fd7399f3e4c0fd5912eff059e2bb29",
       "executable": true
     },
     {
       "path": "shared/scripts/kbd-phase-status.sh",
       "sha256": "7b254f9ed990c5dd0d51ba80e64517646bfd0b2133a07e85c645366e2e69491e",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-scope-authority-template.sh",
+      "sha256": "4b340a829615e8e013112b8c5db4d46aa66718acd31061f84542210e8495fd01",
       "executable": true
     },
     {
@@ -527,5 +532,5 @@
       "executable": true
     }
   ],
-  "bundleId": "cdbfc7cc50bee363aa58a1fc6356787089a52aca8c5c5af5439fe3cb73603225"
+  "bundleId": "34c3b3a2318c0365be8c1c696821c5a395219d0c4368862fae013da2dde962bf"
 }

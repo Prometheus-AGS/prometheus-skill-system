@@ -648,9 +648,15 @@ fn event_slot(event: &Event) -> Option<(String, ConflictKind)> {
         EventKind::PhaseDefined { phase } => {
             Some((format!("phase:{}", phase.id), ConflictKind::Phase))
         }
-        EventKind::PhaseTransitioned { phase_id, .. } => {
+        EventKind::PhaseTransitioned { phase_id, .. }
+        | EventKind::PhaseContractBound { phase_id, .. }
+        | EventKind::PhaseDispositionRecorded { phase_id, .. } => {
             Some((format!("phase:{phase_id}"), ConflictKind::Phase))
         }
+        EventKind::PhaseSuccessorStarted {
+            predecessor_phase_id,
+            ..
+        } => Some((format!("phase:{predecessor_phase_id}"), ConflictKind::Phase)),
         EventKind::CompletionUpdated { dimension, .. } => Some((
             format!("completion:{dimension:?}"),
             ConflictKind::Completion,

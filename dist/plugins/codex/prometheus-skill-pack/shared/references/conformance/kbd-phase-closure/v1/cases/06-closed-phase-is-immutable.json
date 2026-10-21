@@ -1,0 +1,65 @@
+{
+  "id": "06-closed-phase-is-immutable",
+  "acceptance": [
+    2
+  ],
+  "description": "Different evidence after closure is refused and records nothing.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "marker": "second run"
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 6,
+        "stdout": "CLOSED-DIFFERENT-IDENTITY"
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 6
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    }
+  ]
+}

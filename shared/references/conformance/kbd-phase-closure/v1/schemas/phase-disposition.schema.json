@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kbd.phase-disposition/v1",
+  "title": "Canonical phase disposition view (prometheus kbd phase disposition --json)",
+  "type": "object",
+  "required": [
+    "schema",
+    "projectId",
+    "runId",
+    "phaseId",
+    "phaseStatus",
+    "contractBound",
+    "disposition",
+    "dispatchAllowed",
+    "successorAllowed",
+    "awaitingSuccessor",
+    "consumptionHighWater"
+  ],
+  "properties": {
+    "schema": {
+      "const": "kbd.phase-disposition/v1"
+    },
+    "projectId": {
+      "type": "string"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "phaseId": {
+      "type": "string"
+    },
+    "phaseStatus": {
+      "enum": [
+        "pending",
+        "in_progress",
+        "blocked",
+        "complete",
+        "cancelled"
+      ]
+    },
+    "contractBound": {
+      "type": "boolean"
+    },
+    "disposition": {
+      "enum": [
+        "UNBOUND",
+        "OPEN",
+        "CLOSED",
+        "REFUSED_BLOCKED",
+        "REFUSED_FAIL"
+      ]
+    },
+    "binding": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "contractPath",
+        "contractDigest",
+        "scenarioDigests",
+        "planRevision",
+        "adoptionDecisionId",
+        "bindingRevision"
+      ],
+      "properties": {
+        "contractDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "scenarioDigests": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "bindingRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "amendedScenarios": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "closure": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "runId",
+        "contractDigest",
+        "evidenceDigest",
+        "disposition",
+        "closureKey",
+        "recordedAtRevision"
+      ],
+      "properties": {
+        "closureKey": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "disposition": {
+          "const": "pass"
+        }
+      }
+    },
+    "lastRefusal": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "disposition": {
+          "enum": [
+            "fail",
+            "blocked"
+          ]
+        },
+        "reasonCode": {
+          "type": "string"
+        }
+      }
+    },
+    "successor": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "phaseId",
+        "manifestSha256",
+        "startedAtRevision"
+      ]
+    },
+    "consumptionHighWater": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "awaitingSuccessor": {
+      "type": "boolean"
+    },
+    "dispatchAllowed": {
+      "type": "boolean"
+    },
+    "successorAllowed": {
+      "type": "boolean"
+    }
+  }
+}

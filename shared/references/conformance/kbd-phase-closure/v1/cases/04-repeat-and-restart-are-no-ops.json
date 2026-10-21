@@ -1,0 +1,76 @@
+{
+  "id": "04-repeat-and-restart-are-no-ops",
+  "acceptance": [
+    2
+  ],
+  "description": "Repeated close, a direct duplicate close, and restart from the journal add no terminal events.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0,
+        "stdout": "^CLOSED "
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0,
+        "stdout": "^ALREADY-CLOSED "
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "\"duplicate\": true"
+      }
+    },
+    {
+      "op": "restart"
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0,
+        "stdout": "^ALREADY-CLOSED "
+      }
+    },
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0,
+        "stdout": "^ALREADY-ADOPTED "
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "phaseStatus": "complete",
+        "events": {
+          "phase_disposition_recorded": 1,
+          "phase_contract_bound": 1
+        }
+      }
+    }
+  ]
+}

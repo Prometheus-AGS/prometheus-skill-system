@@ -1,0 +1,10 @@
+{
+  "contract": "contract.json",
+  "snapshot": "contract.snapshot.json",
+  "contractDigest": "63221f68858b0aefbe2ce5351f34486de9daceb2af488e70a198b67fa21b5762",
+  "scenarioDigests": {
+    "GC-1": "b5d82c2cc62beb5807bb59bed69a5818f0d77f4eb438017488f1bcafde2efd7d",
+    "GC-2": "3721fb8bdd402a0c1fdf3d4f3f4b4e63bc05a8e6ce208a746ffb63b90e0b99fb"
+  },
+  "rule": "digest = sha256(jq -S -c of the contract with identity.contractDigest and identity.planRevision removed, INCLUDING the trailing newline jq emits); scenario digest = sha256(jq -S -c of the scenarioMatrix entry, including trailing newline)"
+}

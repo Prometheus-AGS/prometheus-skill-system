@@ -4,6 +4,18 @@ Continue to the next KBD phase, automatically seeded from the previous phase's r
 
 ## Instructions
 
+0. Check the canonical disposition of the current phase:
+   `prometheus kbd phase disposition --id <current-phase>`.
+   - `UNBOUND` → legacy phase; continue with step 1.
+   - `CLOSED` → continue only if the operator supplied a signed start-successor
+     manifest and signature; pass them as
+     `--authorize-successor <manifest> --signature <sig>`. Otherwise stop and
+     show the operator the commands the script prints (exit 4). Never write or
+     sign a manifest yourself; closure alone never starts a successor.
+   - `OPEN`, `REFUSED_BLOCKED`, `REFUSED_FAIL` → stop: the phase is not closed.
+     Its terminal evaluator decides closure
+     (`shared/scripts/kbd-phase-close-eval.sh --phase <current-phase>`).
+
 1. Read `.kbd-orchestrator/current-waypoint.json`.
    - Note the current `phase` and `stage`.
    - If `stage` is not `reflect_complete`, warn the user:
@@ -38,6 +50,9 @@ Continue to the next KBD phase, automatically seeded from the previous phase's r
 - `current-waypoint.json` missing → instruct user to run `/kbd-init` first.
 - `reflection.md` missing → instruct user to run `/kbd-reflect` first.
 - Proposed phase name already exists → the script will error; suggest an alternate name.
+- Exit 2 `NOT-CLOSED` → the contract-bound phase has no PASS closure; nothing was written.
+- Exit 4 `SUCCESSOR-UNAUTHORIZED` → no (valid) signed start-successor manifest; nothing was written.
+- `ALREADY-STARTED` → the authorized successor already exists; resume it with `/kbd-assess`.
 
 ## Examples
 

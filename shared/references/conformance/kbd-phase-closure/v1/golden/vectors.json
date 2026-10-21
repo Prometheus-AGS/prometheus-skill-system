@@ -1,0 +1,8 @@
+{
+  "closureIdentityFile": "closure-identity.jcs",
+  "closureKey": "522d418b0b7ca15498d3a97ef72b27ac9c59a15962176c8dc408ffa4fd72dc9d",
+  "closureKeyRule": "sha256 of RFC 8785 (JCS) bytes of {contractDigest,disposition,evidenceDigest,phaseId,projectId,reasonCode,runId}; no trailing newline; reasonCode null when absent",
+  "manifestFile": "manifest.start-successor.json",
+  "manifestSha256": "60caa5ed039ed395446832a49e02ae7729a5aa33d15ff5c070fac5c98af983e8",
+  "manifestRule": "manifest bytes are canonical JSON (sorted keys, compact, printable ASCII, string values only) with no trailing newline; the file adds exactly one newline and ssh-keygen -Y sign covers manifest + newline; manifestSha256 covers the manifest bytes without the newline"
+}

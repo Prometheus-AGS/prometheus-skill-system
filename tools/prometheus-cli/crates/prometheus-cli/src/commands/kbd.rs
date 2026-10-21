@@ -127,7 +127,12 @@ pub enum Action {
         command_id: String,
         command: CommandKind,
     },
+    PhaseClosure(PhaseClosureAction),
 }
+
+#[path = "kbd_phase.rs"]
+mod phase;
+pub use phase::PhaseClosureAction;
 
 pub async fn run(path: &str, action: Action) -> Result<()> {
     let action = match action {
@@ -696,38 +701,49 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 }
             }
             let state = state_or_initialize(&client, &runtime).await?;
-            let envelope = CommandEnvelope {
-                schema_version: "2".into(),
-                project_id: state.project_id,
-                run_id: state.run_id,
-                command_id,
-                frontier: Some(state.frontier),
-                expected_revision: state.revision,
-                actor: current_actor(ActorKind::Harness),
-                command,
-            };
-            let result = match client.submit(envelope.clone()).await {
-                Ok(result) => result,
-                Err(failure) if !failure.may_execute_locally() => return Err(failure.into_error()),
-                Err(failure) => {
-                    let ambiguous = matches!(failure, ControlFailure::Ambiguous(_));
-                    let state =
-                        client.execute_locally(envelope, Some(&failure.into_error()), ambiguous)?;
-                    json!({
-                        "state": state,
-                        "committedLocally": true,
-                        "remoteStatusUnknown": ambiguous
-                    })
-                }
-            };
+            let result = submit_typed(&client, &state, command_id, command).await?;
             println!("{}", serde_json::to_string_pretty(&result)?);
             Ok(())
         }
+        Action::PhaseClosure(action) => phase::run(&runtime, &client, action).await,
         Action::Projects { .. }
         | Action::MigrateProjections { .. }
         | Action::Register { .. }
         | Action::Replicas { .. }
         | Action::Adopt { .. } => unreachable!("early actions return before project open"),
+    }
+}
+
+/// Submit one typed command built from `state`, through the control plane when
+/// it is enabled and reachable, otherwise through the local canonical runtime.
+async fn submit_typed(
+    client: &ControlClient,
+    state: &RuntimeState,
+    command_id: String,
+    command: CommandKind,
+) -> Result<Value> {
+    let envelope = CommandEnvelope {
+        schema_version: "2".into(),
+        project_id: state.project_id.clone(),
+        run_id: state.run_id.clone(),
+        command_id,
+        frontier: Some(state.frontier.clone()),
+        expected_revision: state.revision,
+        actor: current_actor(ActorKind::Harness),
+        command,
+    };
+    match client.submit(envelope.clone()).await {
+        Ok(result) => Ok(result),
+        Err(failure) if !failure.may_execute_locally() => Err(failure.into_error()),
+        Err(failure) => {
+            let ambiguous = matches!(failure, ControlFailure::Ambiguous(_));
+            let state = client.execute_locally(envelope, Some(&failure.into_error()), ambiguous)?;
+            Ok(json!({
+                "state": state,
+                "committedLocally": true,
+                "remoteStatusUnknown": ambiguous
+            }))
+        }
     }
 }
 

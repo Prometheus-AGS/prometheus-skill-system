@@ -1,0 +1,18 @@
+{
+  "contractVersion": "1",
+  "kind": "kbd.adopted-contract",
+  "identity": { "projectId": "00000000-0000-4000-8000-000000000192", "runId": "golden-run-192", "phaseId": "golden-phase" },
+  "digestNormalization": { "algorithm": "sha256", "command": "jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)'", "stalenessRule": "bound digest must match" },
+  "adoptionSource": "conformance golden vector", "decisionOwner": "conformance", "amendmentPolicy": "signed amend-contract manifest",
+  "releaseClaim": { "userOperation": "close a phase exactly once", "supportedEnvironments": ["local"], "currentCapabilities": "golden" },
+  "statusVocabulary": ["PASS", "FAIL", "BLOCKED", "NOT_EXERCISED"],
+  "scenarioMatrix": [
+    { "id": "GC-1", "ownerTask": "T1", "productionEntry": "evaluator", "oracle": "PASS", "negativeControl": "FAIL", "fixtures": "scratch", "evidence": "stdout" },
+    { "id": "GC-2", "ownerTask": "T1", "productionEntry": "stage gate", "oracle": "refuses closed", "negativeControl": "open phase", "fixtures": "scratch", "evidence": "exit code" }
+  ],
+  "functionalScope": ["GC-1", "GC-2"], "exclusions": ["none"], "requiredSafetyChecks": ["isolated"],
+  "budgets": { "timeMinutes": 10, "toolCalls": 100, "repairAttempts": 2, "noProgressLimit": 2, "tokenBudget": "UNKNOWN", "tokenFallback": "time and tools", "exhaustion": "BLOCKED" },
+  "evidenceInvalidation": "digest changes", "workerRoutes": { "agent": "local", "model": "none" },
+  "boundaryPacket": { "postImplementationOnly": true, "singleRun": true, "commands": ["integration"], "stopConditions": ["failure"] },
+  "status": { "implementationComplete": true }
+}

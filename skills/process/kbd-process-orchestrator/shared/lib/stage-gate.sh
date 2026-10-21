@@ -49,6 +49,8 @@
 # (phase + childPointer).
 
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/package-root.sh"
+# shellcheck source=/dev/null
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/phase-disposition.sh"
 
 _SG_ORDER=(assess analyze spec plan execute reflect)
 _SG_OPTIONAL=" analyze spec "
@@ -195,24 +197,27 @@ _sg_validate_handoff() { # <handoff-file> <expected-stage> <phase_dir> <for-stag
       printf 'Remediation: adopt the phase contract using the package-root command in references/templates/adopted-contract.template.md, then rewrite the plan handoff with KBD_HANDOFF_IDENTITY_JSON set.\n' >&2
       return 2
     fi
-    # B2: a phase closed PASS by the terminal evaluator refuses further execute
-    # dispatch. Decisions are read from the phase tree's own canonical status
-    # (KBD_READINESS_STATUS_FILE overrides for scratch fixtures — disclosed seam).
-    local sg_root sg_status worked_phase
+    # B2 (issue #192): a phase CLOSED in canonical state refuses further
+    # execute dispatch. The disposition comes from the typed runtime authority
+    # (`prometheus kbd phase disposition`), never from decision-summary text,
+    # so a recorded string cannot fake or hide a closure. REFUSED_* phases
+    # still admit repair dispatch. Under canonical runtime authority an
+    # unreadable disposition blocks instead of failing open.
+    local sg_root worked_phase sg_token
     sg_root="${phase_dir%/.kbd-orchestrator/phases/*}"
     [ "$sg_root" = "$phase_dir" ] && sg_root="$(_sg_root)"
     worked_phase="$(jq -r '.identity.phaseId // empty' "$handoff" 2>/dev/null)"
     [ -n "$worked_phase" ] || worked_phase="$(basename "$phase_dir")"
-    sg_status=""
-    if [ -n "${KBD_READINESS_STATUS_FILE:-}" ]; then
-      sg_status="$(cat "$KBD_READINESS_STATUS_FILE" 2>/dev/null)"
-    elif [ -n "$sg_root" ] && command -v prometheus >/dev/null 2>&1; then
-      sg_status="$(prometheus kbd --path "$sg_root" status --json 2>/dev/null || true)"
-    fi
-    if [ -n "$sg_status" ] && printf '%s' "$sg_status" | jq -e --arg p "$worked_phase" \
-        '[(.decisions // {})[] | select(.summary | contains("PHASE-CLOSED phase=" + $p + " verdict=PASS"))] | length > 0' >/dev/null 2>&1; then
-      printf 'kbd_stage_gate: execute blocked — phase %s is CLOSED (PHASE-CLOSED verdict=PASS recorded by the terminal evaluator).\n' "$worked_phase" >&2
-      printf 'A closed phase receives no further dispatch. Remediation: open a successor phase via the canonical next-phase flow.\n' >&2
+    if sg_token="$(kbd_phase_disposition "$sg_root" "$worked_phase")"; then
+      if [ "$sg_token" = "CLOSED" ]; then
+        printf 'kbd_stage_gate: execute blocked — phase %s is CLOSED in canonical state (typed phase disposition).\n' "$worked_phase" >&2
+        printf 'A closed phase receives no further dispatch. A successor starts only with a signed start-successor authorization (kbd-next-phase --authorize-successor).\n' >&2
+        return 2
+      fi
+    elif [ -n "${KBD_PHASE_DISPOSITION_FILE:-}" ] || { [ -n "$sg_root" ] && command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "$sg_root"; } \
+         || { [ -n "$sg_root" ] && [ "$(jq -r '.generatedBy // empty' "$sg_root/.kbd-orchestrator/current-waypoint.json" 2>/dev/null)" = "kbd-runtime" ]; }; then
+      printf 'kbd_stage_gate: execute blocked — canonical phase disposition for %s is unreadable.\n' "$worked_phase" >&2
+      printf 'Remediation: install a prometheus CLI with typed phase closure (prometheus kbd phase disposition), then retry.\n' >&2
       return 2
     fi
     # B1: full canonical readiness validation at the real Plan→Execute
@@ -227,12 +232,10 @@ _sg_validate_handoff() { # <handoff-file> <expected-stage> <phase_dir> <for-stag
       printf 'Remediation: reinstall the kbd-process-orchestrator payload; do not bypass.\n' >&2
       return 2
     fi
-    local rc_out rc_ec
-    if [ -n "${KBD_READINESS_STATUS_FILE:-}" ]; then
-      rc_out="$(cd "$sg_root" && bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" --status-file "$KBD_READINESS_STATUS_FILE" 2>&1)"; rc_ec=$?
-    else
-      rc_out="$(cd "$sg_root" && bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" 2>&1)"; rc_ec=$?
-    fi
+    local rc_out rc_ec rc_fixture=()
+    [ -n "${KBD_READINESS_STATUS_FILE:-}" ] && rc_fixture+=(--status-file "$KBD_READINESS_STATUS_FILE")
+    [ -n "${KBD_PHASE_DISPOSITION_FILE:-}" ] && rc_fixture+=(--disposition-file "$KBD_PHASE_DISPOSITION_FILE")
+    rc_out="$(cd "$sg_root" && bash "$checker" --phase "$worked_phase" --phase-dir "$phase_dir" ${rc_fixture[@]+"${rc_fixture[@]}"} 2>&1)"; rc_ec=$?
     if [ "$rc_ec" -ne 0 ]; then
       printf 'kbd_stage_gate: execute blocked — phase readiness validation failed (exit %s).\n%s\n' "$rc_ec" "$rc_out" >&2
       printf 'Remediation: satisfy the package readiness checker (adopted contract, identity, digest, coverage, quality gates) before dispatch.\n' >&2

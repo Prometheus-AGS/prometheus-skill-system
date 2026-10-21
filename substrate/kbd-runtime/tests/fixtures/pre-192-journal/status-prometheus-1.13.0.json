@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "2",
+  "projectId": "0aca7068-8fb6-4b2d-86a8-50467b66c841",
+  "runId": "project-20261021T114605Z",
+  "revision": 16,
+  "frontier": {
+    "e0bf575a-c284-4692-92e2-e207d0f0a101": 16
+  },
+  "replicaHeads": {
+    "e0bf575a-c284-4692-92e2-e207d0f0a101": {
+      "eventId": "2fb245e2-ecad-4704-97c6-fe6d97682df4",
+      "integrityHash": "ca84b01f012afecfda5bed194835b7852992fadb04b1a18d35f3137e1ab79964",
+      "lamport": 16
+    }
+  },
+  "lastEventId": "2fb245e2-ecad-4704-97c6-fe6d97682df4",
+  "lastEventHash": "ca84b01f012afecfda5bed194835b7852992fadb04b1a18d35f3137e1ab79964",
+  "lastEventAt": "2026-10-21T11:46:19.314284Z",
+  "phaseDefinitionOrder": [
+    "refused-phase",
+    "successor-phase"
+  ],
+  "lifecycle": "ready",
+  "planRevision": 1,
+  "checkpoint": null,
+  "exactNextWork": null,
+  "activePath": {
+    "phasePath": [
+      "refused-phase"
+    ],
+    "phaseId": "refused-phase",
+    "stageId": null,
+    "changeId": "C1",
+    "taskId": "T1"
+  },
+  "phases": {
+    "refused-phase": {
+      "id": "refused-phase",
+      "slug": "refused-phase",
+      "title": "refused-phase",
+      "parentPhaseId": null,
+      "status": "complete",
+      "stages": {},
+      "changes": {
+        "C1": {
+          "id": "C1",
+          "title": "c",
+          "sequence": 0,
+          "status": "pending",
+          "implementationStatus": "pending",
+          "tasks": {
+            "T1": {
+              "id": "T1",
+              "title": "t",
+              "sequence": 0,
+              "status": "pending",
+              "summary": null
+            }
+          }
+        }
+      },
+      "legacyReadOnly": false
+    },
+    "successor-phase": {
+      "id": "successor-phase",
+      "slug": "successor-phase",
+      "title": "successor-phase",
+      "parentPhaseId": null,
+      "status": "in_progress",
+      "stages": {},
+      "changes": {},
+      "legacyReadOnly": false
+    }
+  },
+  "completion": {
+    "implementation": {
+      "completed": 0,
+      "total": 1,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "evidence": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "decisions": {
+    "contract-adoption-refused-phase-086574a6": {
+      "id": "contract-adoption-refused-phase-086574a6",
+      "summary": "ADOPTED-CONTRACT path=.kbd-orchestrator/phases/refused-phase/adopted-contract.json sha256=086574a6ab22c04f56faf3282b8d44100f65282c64eebb87a54fbb2c3ec0ccae planRevision=1 adoptionSource=repro owner=repro scenarios=RP-1",
+      "planRevision": 1,
+      "supersedes": null
+    },
+    "phase-closure-refused-refused-phase-20261021T114610Z": {
+      "id": "phase-closure-refused-refused-phase-20261021T114610Z",
+      "summary": "PHASE-CLOSURE-REFUSED phase=refused-phase verdict=FAIL reason=product-oracle-unmet(RP-1)",
+      "planRevision": 1,
+      "supersedes": null
+    }
+  },
+  "blockers": {},
+  "boundaryObligations": {
+    "phase:successor-phase": {
+      "key": "phase:successor-phase",
+      "receiptId": "6bcb581be86f00536e2d4b5e5946bc52d43a063f50d960450fced13c712129eb",
+      "boundary": "phase",
+      "subject": "successor-phase",
+      "sourceRevision": 14,
+      "exactSignal": "Starting phase 2 out of 2: successor-phase"
+    }
+  },
+  "latestBoundaryReceipts": {
+    "phase:refused-phase": {
+      "id": "08648281fa30df0f3c128cb94610720b5571777d9585361a0921c062b4e1d9b8",
+      "boundary": "phase",
+      "edge": "after",
+      "subject": "refused-phase",
+      "phaseId": "refused-phase",
+      "changeId": null,
+      "taskId": null,
+      "sourceRevision": 10,
+      "position": "refused-phase",
+      "exactSignal": "Completed phase 1 out of 1: refused-phase",
+      "outcome": "pass",
+      "findings": [],
+      "repairedProjections": [],
+      "observedAt": "2026-10-21T11:46:12.759692Z"
+    },
+    "phase:successor-phase": {
+      "id": "6bcb581be86f00536e2d4b5e5946bc52d43a063f50d960450fced13c712129eb",
+      "boundary": "phase",
+      "edge": "before",
+      "subject": "successor-phase",
+      "phaseId": "successor-phase",
+      "changeId": null,
+      "taskId": null,
+      "sourceRevision": 14,
+      "position": "successor-phase",
+      "exactSignal": "Starting phase 2 out of 2: successor-phase",
+      "outcome": "pass",
+      "findings": [],
+      "repairedProjections": [],
+      "observedAt": "2026-10-21T11:46:18.618711Z"
+    }
+  },
+  "claims": {},
+  "submodulePins": {},
+  "replicaView": {
+    "replicaId": "e0bf575a-c284-4692-92e2-e207d0f0a101",
+    "localHead": null,
+    "activePathStatus": "unknown",
+    "submodules": {}
+  },
+  "conflicts": {},
+  "devices": {
+    "ed25519:124139cdb9bd8552897f1122d6d0b5d528cd880e9e9053daccc96e84ccc20e6a": {
+      "deviceId": "unknown-device",
+      "keyId": "ed25519:124139cdb9bd8552897f1122d6d0b5d528cd880e9e9053daccc96e84ccc20e6a",
+      "publicKey": "xOtTFtJQMlXFbBk8xBus6ZsAnuYb98Xyqah7EIPgU9I=",
+      "status": "active",
+      "enrolledAtRevision": 1,
+      "revokedAtRevision": null
+    }
+  },
+  "operatorKeyIds": [
+    "ed25519:124139cdb9bd8552897f1122d6d0b5d528cd880e9e9053daccc96e84ccc20e6a"
+  ],
+  "commandRevisions": {
+    "27bcad16-31be-4154-92c9-389ff64524cc": 1,
+    "48f14888-9c6c-453a-8bd8-45accc6561d3": 11,
+    "activate-refused-phase": 3,
+    "ba7bc3b8-2db0-4ca3-8b30-8a93a9273c94": 4,
+    "change-refused-phase": 6,
+    "contract-adopt-refused-phase-086574a6": 8,
+    "create-refused-phase": 2,
+    "e4acd743-9d2f-4b5b-9de0-0599a67ff09f": 15,
+    "phase-activate:successor-phase": 13,
+    "phase-close-refused-refused-phase-20261021T114610Z": 9,
+    "phase-complete:refused-phase": 10,
+    "phase-create:successor-phase": 12,
+    "phase-start:successor-phase": 14,
+    "reactivate": 16,
+    "start-refused-phase": 5,
+    "task-refused-phase": 7
+  }
+}

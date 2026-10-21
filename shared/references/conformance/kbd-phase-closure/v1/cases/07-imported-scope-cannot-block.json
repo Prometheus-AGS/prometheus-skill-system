@@ -1,0 +1,68 @@
+{
+  "id": "07-imported-scope-cannot-block",
+  "acceptance": [
+    3
+  ],
+  "description": "An imported scenario, an agent-written approval field and an unadopted FAIL entry change neither the required set nor the verdict.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "edit-contract",
+      "args": {
+        "addScenario": "CS-9",
+        "setField": {
+          "approved": true,
+          "approvedBy": "assistant"
+        }
+      }
+    },
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 4
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "extra": [
+          {
+            "id": "CS-9",
+            "status": "FAIL"
+          },
+          {
+            "id": "XP-1",
+            "status": "BLOCKED"
+          }
+        ],
+        "approvedBy": "assistant"
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0,
+        "stdout": "contract-drift-ignored.*|ignored-unadopted"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "bindingRevision": 1,
+        "events": {
+          "phase_contract_bound": 1
+        }
+      }
+    }
+  ]
+}
