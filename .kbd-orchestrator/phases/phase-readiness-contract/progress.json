@@ -2,16 +2,17 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 83,
-  "derivedRevision": 83,
+  "sourceRevision": 139,
+  "derivedRevision": 139,
   "frontier": {
-    "385a1272-766b-41ce-b7d8-af6faaef4d70": 83
+    "385a1272-766b-41ce-b7d8-af6faaef4d70": 86,
+    "6bafb865-d257-47ab-b002-095905bf0d96": 53
   },
   "conflictCount": 0,
   "phase": "phase-readiness-contract",
   "phaseId": "phase-readiness-contract",
   "parentPhase": null,
-  "last_updated": "2026-10-18T11:19:24.643317Z",
+  "last_updated": "2026-10-27T10:18:40.948806Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 1,
   "changes_completed": 1,
@@ -50,7 +51,7 @@
     "primaryCounter": "implementation",
     "implementation": {
       "completed": 327,
-      "total": 389,
+      "total": 393,
       "status": "IN_PROGRESS"
     },
     "evidence": {

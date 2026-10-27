@@ -1,11 +1,18 @@
 {
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "sourceRevision": 2,
+  "projectionContractVersion": 2,
+  "sourceRevision": 139,
+  "derivedRevision": 139,
+  "frontier": {
+    "385a1272-766b-41ce-b7d8-af6faaef4d70": 86,
+    "6bafb865-d257-47ab-b002-095905bf0d96": 53
+  },
+  "conflictCount": 0,
   "phase": "phase-codex-plugin-implementation",
   "phaseId": "phase-codex-plugin-implementation",
   "parentPhase": null,
-  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated": "2026-10-27T10:18:40.948806Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 8,
   "changes_completed": 0,
@@ -17,6 +24,35 @@
       "completed": 0,
       "total": 8,
       "status": "PENDING"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 327,
+      "total": 393,
+      "status": "IN_PROGRESS"
     },
     "evidence": {
       "status": "PENDING",
@@ -125,5 +161,5 @@
     }
   ],
   "children": {},
-  "migrationStatus": "legacy-read-only"
+  "migrationStatus": null
 }
