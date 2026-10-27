@@ -168,7 +168,7 @@ fn prepare_with(state: &RuntimeState, phase_id: &str, input: &RepairInput, recor
                     || original.subject == format!("{}:{}", task.source_key, task.source_task_key)
                     || original.subject == format!("{}::{}", task.source_key, task.source_task_key)
             }).map(|task| format!("{}/{}", resolution.target_key, task.target_task_key)),
-            BoundaryKind::Phase => None,
+            BoundaryKind::Phase | BoundaryKind::Zeespec => None,
         };
         let valid_subject = expected_subject.as_deref() == Some(mapping.target_subject.as_str());
         if !valid_subject { return Err(invalid("receipt target must resolve to an existing resulting change/task")); }
