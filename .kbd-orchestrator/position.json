@@ -2,28 +2,358 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 2422,
-  "derivedRevision": 2422,
+  "sourceRevision": 198,
+  "derivedRevision": 198,
   "frontier": {
-    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
-    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
-    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
+    "385a1272-766b-41ce-b7d8-af6faaef4d70": 86,
+    "6bafb865-d257-47ab-b002-095905bf0d96": 112
   },
   "conflictCount": 0,
-  "updatedAt": "2026-10-05T23:00:25.251624Z",
+  "updatedAt": "2026-10-27T12:16:35.405729Z",
   "cursor": [
-    "phase-learning-deploy-and-debt"
+    "issues-194-195-196",
+    "execute"
   ],
   "root": {
     "type": "phase",
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "status": "ready",
     "progress": {
-      "done": 101,
-      "total": 104
+      "done": 331,
+      "total": 393
     },
     "children": [
+      {
+        "type": "phase",
+        "id": "adversarial-review-for-creation",
+        "canonicalId": "adversarial-review-for-creation",
+        "status": "IN_PROGRESS",
+        "progress": {
+          "done": 28,
+          "total": 34
+        },
+        "children": [
+          {
+            "type": "phase",
+            "id": "mcp-2026-07-28-adoption",
+            "canonicalId": "adversarial-review-for-creation::mcp-2026-07-28-adoption",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            },
+            "children": [],
+            "annotations": []
+          },
+          {
+            "type": "change",
+            "id": "change-arc-001-ratify-goal-wording",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-arc-002-producer-model-fail-closed",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-arc-003-creation-review-packets",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-arc-004-wire-skill-creator-review",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-arc-005-wire-agent-creator-review",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-arc-006-flawed-input-fixtures",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-arc-007-rejection-cap-override",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-arc-008-cowork-skill-discovery",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-arc-009-openai-proxy-vendoring-decision",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-001-decision-review-packet",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-002-enforced-diversity-ideation",
+            "status": "IN_PROGRESS",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-003-automation-bias-countermeasures",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-004-decision-outcome-persistence",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-005-coach-role",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-006-harness-delivery-ui-surface",
+            "status": "IN_PROGRESS",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-007-idea-fixtures",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-008-feature-gate-iroh-docs",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-009-record-fabric-decisions",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-001-classify-script-skills",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-002-zed-tier1-routing",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-003-verify-opencode-kimi",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-004-fabric-integration-skill",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-005-prometheus-component-wit",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-006-reference-component",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-007-ffi-pattern-decision",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-008-uar-execution-proof",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-msp-009-mobile-ffi-bindings",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-uhe-001-cursor-tier1",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-uhe-002-ci-sibling-repos",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-uhe-003-ffi-marginal-cost",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-uhe-004-librefang-abi-decision",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-uhe-005-pack-provenance",
+            "status": "IN_PROGRESS",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-uhe-006-origin-enabled-columns",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-uhe-007-db-level-delete-guard",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
       {
         "type": "phase",
         "id": "agent-team-creator",
@@ -39,8 +369,8 @@
             "id": "kbd-consistency-before-agent-teams",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -48,8 +378,124 @@
             "id": "agent-team-creator",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "canonical-lifecycle",
+        "canonicalId": "canonical-lifecycle",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 5,
+          "total": 5
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-native-kbd-backend",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-position-sync-wiring",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-kbd-spec-stage",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-004-kbd-analyze-stage",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-005-pmpo-elicit",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "child-loops-and-capabilities",
+        "canonicalId": "child-loops-and-capabilities",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 5,
+          "total": 5
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-waypoint-path",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-depth-child",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-child-exit-rollup",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-004-child-scope-hook",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-005-apply-position-depth",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
             }
           }
         ],
@@ -59,7 +505,7 @@
         "type": "phase",
         "id": "control-plane-to-companion",
         "canonicalId": "control-plane-to-companion",
-        "status": "IN_PROGRESS",
+        "status": "PENDING",
         "progress": {
           "done": 10,
           "total": 13
@@ -70,8 +516,8 @@
             "id": "change-cpc-001-integration-contract",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -79,8 +525,8 @@
             "id": "change-cpc-002-skill-ffi-kbd-mobile-split",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -88,8 +534,8 @@
             "id": "change-cpc-003-companion-workspace",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -97,8 +543,8 @@
             "id": "change-cpc-004-relocate-sovereign-sync",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -106,8 +552,8 @@
             "id": "change-cpc-005-node-hosting",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -115,8 +561,8 @@
             "id": "change-cpc-006-discovery-and-pairing",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -124,8 +570,8 @@
             "id": "change-cpc-007-supervisor-and-health",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -133,8 +579,8 @@
             "id": "change-cpc-008-sync-skills-plugin",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -142,8 +588,8 @@
             "id": "change-cpc-012-pack-sync-skills-removal",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -151,8 +597,8 @@
             "id": "change-cpc-009-pack-removal",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -187,9 +633,21 @@
       },
       {
         "type": "phase",
+        "id": "cowork-integration",
+        "canonicalId": "cowork-integration",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
         "id": "deep-research-onyx-parity",
         "canonicalId": "deep-research-onyx-parity",
-        "status": "IN_PROGRESS",
+        "status": "COMPLETE",
         "progress": {
           "done": 7,
           "total": 7
@@ -198,7 +656,7 @@
           {
             "type": "phase",
             "id": "bench-runner-automation",
-            "canonicalId": "bench-runner-automation",
+            "canonicalId": "deep-research-onyx-parity::bench-runner-automation",
             "status": "PENDING",
             "progress": {
               "done": 0,
@@ -222,8 +680,8 @@
                 "id": "change-drt-008-hang-capture-harness",
                 "status": "COMPLETE",
                 "progress": {
-                  "done": 3,
-                  "total": 3
+                  "done": 0,
+                  "total": 0
                 }
               },
               {
@@ -231,8 +689,8 @@
                 "id": "change-drt-009-stage10-hang-fix-and-certification",
                 "status": "COMPLETE",
                 "progress": {
-                  "done": 3,
-                  "total": 3
+                  "done": 0,
+                  "total": 0
                 }
               },
               {
@@ -240,8 +698,8 @@
                 "id": "change-drt-011-phase-close-distribution-regen",
                 "status": "COMPLETE",
                 "progress": {
-                  "done": 1,
-                  "total": 1
+                  "done": 0,
+                  "total": 0
                 }
               }
             ],
@@ -252,8 +710,8 @@
             "id": "change-drt-001-dispatch-smoke-and-thread-contracts",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -261,8 +719,8 @@
             "id": "change-drt-007-install-surface-repair",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -270,8 +728,8 @@
             "id": "change-drt-002-thread-scheduler-and-budgets",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -279,8 +737,8 @@
             "id": "change-drt-004-deterministic-merge",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -288,8 +746,8 @@
             "id": "change-drt-003-director-worker-agents",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -297,8 +755,8 @@
             "id": "change-drt-005-multipass-report",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -306,8 +764,248 @@
             "id": "change-drt-006-bench-and-metrics",
             "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "docusaurus-github-pages-site",
+        "canonicalId": "docusaurus-github-pages-site",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 8,
+          "total": 8
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-dgp-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-dgp-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-dgp-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-dgp-004",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-dgp-005",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-dgp-006",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-dgp-007",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-dgp-008",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "goal-loop-support",
+        "canonicalId": "goal-loop-support",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "ideation-and-decision-tools",
+        "canonicalId": "ideation-and-decision-tools",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 9,
+          "total": 9
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-idt-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-004",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-005",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-006",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-007",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-008",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-idt-009",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "issues-194-195-196",
+        "canonicalId": "issues-194-195-196",
+        "status": "IN_PROGRESS",
+        "progress": {
+          "done": 4,
+          "total": 4
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "kbd-194-change-identity-repair",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "kbd-195-vlbv-policy-propagation",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "kbd-196-value-scenario-workflow",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "kbd-194-196-delivery-qualification",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
             }
           }
         ],
@@ -375,7 +1073,7 @@
           {
             "type": "phase",
             "id": "skill-pack-1-10-recovery",
-            "canonicalId": "skill-pack-1-10-recovery",
+            "canonicalId": "kbd-control-plane-recovery::skill-pack-1-10-recovery",
             "status": "COMPLETE",
             "progress": {
               "done": 1,
@@ -387,8 +1085,8 @@
                 "id": "release-skill-pack-1-10-recovery",
                 "status": "COMPLETE",
                 "progress": {
-                  "done": 8,
-                  "total": 8
+                  "done": 0,
+                  "total": 0
                 }
               }
             ],
@@ -399,8 +1097,8 @@
             "id": "repair-kbd-memory-rest-contract",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -408,8 +1106,8 @@
             "id": "harden-uiux-routing-discovery",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -417,8 +1115,8 @@
             "id": "add-kbd-registry-prune",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -426,8 +1124,8 @@
             "id": "reconcile-kbd-control-plane-projections",
             "status": "COMPLETE",
             "progress": {
-              "done": 10,
-              "total": 10
+              "done": 0,
+              "total": 0
             }
           }
         ],
@@ -435,19 +1133,269 @@
       },
       {
         "type": "phase",
-        "id": "openspec-mirror-drift-cleanup",
-        "canonicalId": "openspec-mirror-drift-cleanup",
+        "id": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
+        "canonicalId": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 8,
+          "total": 8
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-005-hooks-robustness",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-001-spec-backend-interface",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-kbd-apply-driver",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-rewrite-execute-dispatch",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-004-per-turn-position-reporter",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-006-child-loop-wrapping",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-008-verify-and-integration-test",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-007-speckit-adapter",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "kimi-desktop-extensibility",
+        "canonicalId": "kimi-desktop-extensibility",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 5,
+          "total": 5
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "kde-000-skillinstructions-decision",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "kde-003-hooks-probe",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "kde-001-mcp-servers",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "kde-002-session-start",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "kde-005-catalog-budget",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "machine-installation-2026-05-25",
+        "canonicalId": "machine-installation-2026-05-25",
         "status": "PENDING",
         "progress": {
           "done": 0,
           "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "machine-refresh-2026-05-30",
+        "canonicalId": "machine-refresh-2026-05-30",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "memory-and-karpathy",
+        "canonicalId": "memory-and-karpathy",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 3,
+          "total": 3
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-memory-bridge",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-memory-writeback",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-pk-and-binary",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "memory-write-transport",
+        "canonicalId": "memory-write-transport",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 2,
+          "total": 2
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-rest-write-path",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-outbox-flush-and-compress",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "mobile-skill-portability",
+        "canonicalId": "mobile-skill-portability",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 9,
+          "total": 9
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "openspec-mirror-drift-cleanup",
+        "canonicalId": "openspec-mirror-drift-cleanup",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 6,
+          "total": 6
         },
         "children": [
           {
             "type": "phase",
             "id": "sovereign-sync-service-reliability",
             "canonicalId": "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
-            "status": "PENDING",
+            "status": "COMPLETE",
             "progress": {
               "done": 1,
               "total": 1
@@ -458,12 +1406,1351 @@
                 "id": "repair-sovereign-sync-kbd-availability",
                 "status": "COMPLETE",
                 "progress": {
-                  "done": 3,
-                  "total": 3
+                  "done": 0,
+                  "total": 0
                 }
               }
             ],
             "annotations": []
+          },
+          {
+            "type": "change",
+            "id": "change-drift-400-openspec-110-upgrade",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drift-401-windsurf-harness",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drift-402-entity-mgmt-submodule",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drift-403-routine-artifacts",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drift-404-harness-completeness",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drift-405-reinstall-verify",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "outer-loop-and-ux",
+        "canonicalId": "outer-loop-and-ux",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 5,
+          "total": 5
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-path-scope-helper",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-skill-extract",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-nesting-docs",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-004-outer-loop",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-005-dual-ux",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "pglite-certification-2026-05-25",
+        "canonicalId": "pglite-certification-2026-05-25",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-a2ui-agui-artifact-refiner",
+        "canonicalId": "phase-a2ui-agui-artifact-refiner",
+        "status": "PENDING",
+        "progress": {
+          "done": 1,
+          "total": 3
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-finish-a2ui-domain",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-agui-spike-and-domain",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-bump-artifact-refiner-pointer",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-bdd-video-proof",
+        "canonicalId": "phase-bdd-video-proof",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 8
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-bdd-001-fork-cucumber-js",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-bdd-002-cucumber-js-examples",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-bdd-003-cucumber-rs-skill",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-bdd-004-cucumber-rs-examples",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-bdd-005-lifecycle-loop-skill",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-bdd-006-video-cert-bundle",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-bdd-007-cross-references",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-bdd-008-validate-smoke-tests",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-ci-all-green",
+        "canonicalId": "phase-ci-all-green",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 5,
+          "total": 5
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-green-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-green-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-green-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-green-004",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-green-005",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-ci-cross-model-qa-and-hardening",
+        "canonicalId": "phase-ci-cross-model-qa-and-hardening",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 3,
+          "total": 3
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-hard-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-hard-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-hard-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-codex-plugin-distribution-and-ci",
+        "canonicalId": "phase-codex-plugin-distribution-and-ci",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 6
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-cpd-001-constraints",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpd-002-ci-validate-codex",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpd-003-install-platforms-build-codex",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpd-004-generator-git-sources",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpd-005-env-provisioning-helper",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpd-006-hook-trust-verification",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-codex-plugin-implementation",
+        "canonicalId": "phase-codex-plugin-implementation",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 8
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-cpi-001-runtime-spike",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpi-002-plugin-manifest",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpi-003-codex-marketplace",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpi-004-plugin-mcp",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpi-005-hooks-wiring",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpi-006-skills-bundle",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpi-007-build-tooling",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpi-008-parity-docs-uar",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-codex-plugin-verify-and-publish",
+        "canonicalId": "phase-codex-plugin-verify-and-publish",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 6
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-cpv-001-cowork-progress-signals",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpv-002-format-fix",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpv-003-ci-green-verify",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpv-004-real-hooks-codex",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpv-005-env-roundtrip",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpv-006-git-subdir-publish",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-compliance-and-power-multiplier",
+        "canonicalId": "phase-compliance-and-power-multiplier",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-corpus-strict-compliance",
+        "canonicalId": "phase-corpus-strict-compliance",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-cowork-push-and-release",
+        "canonicalId": "phase-cowork-push-and-release",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-credibility-90",
+        "canonicalId": "phase-credibility-90",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-credibility-closure",
+        "canonicalId": "phase-credibility-closure",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-deep-research-skill",
+        "canonicalId": "phase-deep-research-skill",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-developer-ux",
+        "canonicalId": "phase-developer-ux",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-drui-standalone-hosting",
+        "canonicalId": "phase-drui-standalone-hosting",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 6
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-drui-001-brand-tokens-and-assets",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drui-002-serve-ui-shell",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drui-003-relative-paths-and-readme",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drui-004-docker-compose",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drui-005-restyle-ui-knowme",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drui-006-ci-smoke",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-dsg-cli-foundation",
+        "canonicalId": "phase-dsg-cli-foundation",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-dsg-hardening",
+        "canonicalId": "phase-dsg-hardening",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-dsg-install-binaries-fix",
+        "canonicalId": "phase-dsg-install-binaries-fix",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-external-validation",
+        "canonicalId": "phase-external-validation",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-first-user-onboarding",
+        "canonicalId": "phase-first-user-onboarding",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 2,
+          "total": 2
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-onboard-001-claude-code-prereq",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-onboard-002-linux-systemd-note",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-learn-feynman",
+        "canonicalId": "phase-learn-feynman",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 29,
+          "total": 29
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-learn-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-004",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-004b",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-005",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-006",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-007",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-008",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-009",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-010",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-011",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-012",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-013",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-014",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-015",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-016",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-017",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-018",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-019",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-020",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-021",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-022",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-023",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-024",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-025",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-026",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-027",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learn-028",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-learn-grader-validation",
+        "canonicalId": "phase-learn-grader-validation",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 7
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-lgv-001-third-domain-corpus",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-lgv-002-eval-explanations",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-lgv-003-dataset-schema-and-index",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-lgv-004-grading-harness",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-lgv-005-compute-metrics",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-lgv-006-tune-grader",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-lgv-007-regression-test-and-docs",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-learn-sovereign-sync",
+        "canonicalId": "phase-learn-sovereign-sync",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 20,
+          "total": 20
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-sync-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-004",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-005",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-006",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-007",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-008",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-009",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-010",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-011",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-012",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-013",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-014",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-015",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-016",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-017",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-018",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-019",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-sync-020",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
           }
         ],
         "annotations": []
@@ -482,7 +2769,7 @@
             "type": "phase",
             "id": "release-recovery",
             "canonicalId": "phase-learning-deploy-and-debt::release-recovery",
-            "status": "SKIPPED",
+            "status": "PENDING",
             "progress": {
               "done": 0,
               "total": 0
@@ -495,8 +2782,8 @@
             "id": "change-ldd-13-source-convergence",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -504,8 +2791,8 @@
             "id": "change-ldd-01-hook-bytecode",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -513,8 +2800,8 @@
             "id": "change-ldd-02-codex-memory-control",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -522,8 +2809,8 @@
             "id": "change-ldd-04-cache-identity-accounting",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -531,8 +2818,8 @@
             "id": "change-ldd-05-generated-output-ownership",
             "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -540,8 +2827,8 @@
             "id": "change-ldd-06-installed-doctor-remediation",
             "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -549,8 +2836,8 @@
             "id": "change-ldd-07-custom-codex-home",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -558,8 +2845,8 @@
             "id": "change-ldd-08-bounded-cortex-mirror",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -567,8 +2854,8 @@
             "id": "change-ldd-09-partition-footer",
             "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -576,8 +2863,8 @@
             "id": "change-ldd-10-mini-executable-modes",
             "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -585,8 +2872,8 @@
             "id": "change-ldd-11-entrypoint-spec-contract",
             "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -594,8 +2881,8 @@
             "id": "change-ldd-14-companion-publication-preparation",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -603,8 +2890,8 @@
             "id": "change-ldd-18-stability-legacy-closure",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -612,8 +2899,8 @@
             "id": "change-ldd-03-published-memory-pins",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -621,8 +2908,8 @@
             "id": "change-ldd-15-readme-content-renewal",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -630,8 +2917,8 @@
             "id": "change-ldd-16-agent-team-handbook",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -639,8 +2926,8 @@
             "id": "change-ldd-17-service-sites-current",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -648,8 +2935,243 @@
             "id": "change-ldd-12-integration-rollout",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-librefang-wasm-onramp",
+        "canonicalId": "phase-librefang-wasm-onramp",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-okf-llm-wiki-adoption",
+        "canonicalId": "phase-okf-llm-wiki-adoption",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-prometheus-research-binary",
+        "canonicalId": "phase-prometheus-research-binary",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-prometheus-research-ui",
+        "canonicalId": "phase-prometheus-research-ui",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 5
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-prui-004-ci-workflow",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-prui-003-surface-bridge-wiring",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-prui-001-skill-md-update",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-prui-002-htmx-ui-real-sse",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-prui-005-smoke-test",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-prui-polish",
+        "canonicalId": "phase-prui-polish",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 4
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-polish-001-vendor-hlsjs",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-polish-002-static-install-step",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-polish-003-cancel-error-toast",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-polish-004-sse-reconnect-overlay",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-readiness-contract",
+        "canonicalId": "phase-readiness-contract",
+        "status": "IN_PROGRESS",
+        "progress": {
+          "done": 1,
+          "total": 1
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "readiness-contract-implementation",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 11,
+              "total": 11
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-release-documentation-publication",
+        "canonicalId": "phase-release-documentation-publication",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "phase-sovereign-sync-hardening",
+        "canonicalId": "phase-sovereign-sync-hardening",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 5,
+          "total": 5
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-hardening-001-iroh-docs-share-import",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-hardening-002-sovereign-sync-ci",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-hardening-003-mcp-client-pool-e2e",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-hardening-004-docusaurus-brand-and-lock",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-hardening-005-daemon-health-detect-toolchain",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
             }
           }
         ],
@@ -670,8 +3192,8 @@
             "id": "change-tlh-03-versioned-cadence-refresh-procedure",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -679,8 +3201,8 @@
             "id": "change-tlh-04-scratch-surreal-for-envelope-test",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -688,8 +3210,8 @@
             "id": "change-tlh-01-ranked-memory-partition",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -697,8 +3219,8 @@
             "id": "change-tlh-09-rebase-regenerate",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -706,8 +3228,8 @@
             "id": "change-tlh-07-cortex-mirror-real-service",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -715,8 +3237,8 @@
             "id": "change-tlh-05-query-embedding-cache",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -724,8 +3246,8 @@
             "id": "change-tlh-02-codex-memories-install-and-doctor",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -733,8 +3255,8 @@
             "id": "change-tlh-06-ledger-reconciliation",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -742,8 +3264,294 @@
             "id": "change-tlh-08-recall-scoping-and-eval",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "pmpo-elicit",
+        "canonicalId": "pmpo-elicit",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 6,
+          "total": 6
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-elicit-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-elicit-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-elicit-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-elicit-004",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-elicit-005",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-elicit-006",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "pmpo-evolver",
+        "canonicalId": "pmpo-evolver",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 10,
+          "total": 10
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-evolver-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-004",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-005",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-006",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-007",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-008",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-009",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-evolver-010",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "position-and-handoff-guarantee",
+        "canonicalId": "position-and-handoff-guarantee",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 6,
+          "total": 6
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-position-render",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-position-prompt-hook",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-position-stop-gate",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-004-stage-gates-handoffs",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-005-position-model",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-006-ci-signal-lint",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "prometheus-exec-code-execution-engine",
+        "canonicalId": "prometheus-exec-code-execution-engine",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 4,
+          "total": 4
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-exec-001-contracts-verification",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-exec-002-tier-p-sidecar",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-exec-003-tier-w-mobile",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-exec-004-remote-mcp-docs",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
             }
           }
         ],
@@ -753,7 +3561,7 @@
         "type": "phase",
         "id": "research-agent-hardening",
         "canonicalId": "research-agent-hardening",
-        "status": "IN_PROGRESS",
+        "status": "COMPLETE",
         "progress": {
           "done": 13,
           "total": 13
@@ -764,8 +3572,8 @@
             "id": "change-cpc-008-sync-skills-plugin",
             "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -773,8 +3581,8 @@
             "id": "change-cpc-009-pack-removal",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -782,8 +3590,8 @@
             "id": "change-rah-001-compile-baseline-and-timestamps",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -791,8 +3599,8 @@
             "id": "change-rah-002-research-package-contract",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -800,8 +3608,8 @@
             "id": "change-rah-003-stage-contract-driver",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -809,8 +3617,8 @@
             "id": "change-rah-004-daemon-job-execution",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -818,8 +3626,8 @@
             "id": "change-rah-005-claim-labels-and-provenance",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -827,8 +3635,8 @@
             "id": "change-rah-006-agent-duties-and-report-review",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -836,8 +3644,8 @@
             "id": "change-rah-007-eval-ground-truth-review",
             "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -845,8 +3653,8 @@
             "id": "change-rah-008-learn-artifact-and-corpus-coherence",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -854,8 +3662,8 @@
             "id": "change-rah-009-learner-model-write-paths-and-fsrs",
             "status": "COMPLETE",
             "progress": {
-              "done": 5,
-              "total": 5
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -863,8 +3671,8 @@
             "id": "change-rah-010-source-scoring-and-graph",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -872,8 +3680,282 @@
             "id": "change-rah-011-integration-evidence-and-docs",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "safeguards",
+        "canonicalId": "safeguards",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 3,
+          "total": 3
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-protect-tests",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-scope-guard",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-sycophancy-artifact-gate",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "self-learning-loop-integration",
+        "canonicalId": "self-learning-loop-integration",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 10,
+          "total": 10
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-slli-008",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-002",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-003",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-001",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-004",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-005",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-006",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-007",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-009",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-slli-010",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "setup-rebuild-and-staleness-2026-05-30",
+        "canonicalId": "setup-rebuild-and-staleness-2026-05-30",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "skill-pack-all-phases-2026-05-09",
+        "canonicalId": "skill-pack-all-phases-2026-05-09",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "skill-pack-upgrade-2026-05-09",
+        "canonicalId": "skill-pack-upgrade-2026-05-09",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 6,
+          "total": 6
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-001-bdd006-immutable-tests-rule",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-002-sp015-hooks-json-canonical",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-003-bdd001-manifest-dual-key-cleanup",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-004-bdd002-flake-quarantine",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-005-sp006-stop-hook-observability",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-006-sp013-sycophancy-reflector-hook",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "sovereign-sync-domain-adapters",
+        "canonicalId": "sovereign-sync-domain-adapters",
+        "status": "PENDING",
+        "progress": {
+          "done": 2,
+          "total": 3
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-kbd-presence-peer-auth",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-learner-model-e2e-test",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-verify-p2p-transport",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
             }
           }
         ],
@@ -883,7 +3965,7 @@
         "type": "phase",
         "id": "team-aware-learning-memory",
         "canonicalId": "team-aware-learning-memory",
-        "status": "IN_PROGRESS",
+        "status": "COMPLETE",
         "progress": {
           "done": 4,
           "total": 4
@@ -894,8 +3976,8 @@
             "id": "change-tlm-004-hook-timeout-seconds",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -903,8 +3985,8 @@
             "id": "change-tlm-001-subagent-identity-probe",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -912,8 +3994,8 @@
             "id": "change-tlm-002-team-aware-learning-design",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -921,8 +4003,8 @@
             "id": "change-tlm-003-revised-implementation-plan",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           }
         ],
@@ -943,8 +4025,8 @@
             "id": "change-tli-a1-pk-context-scoring",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -952,8 +4034,8 @@
             "id": "change-tli-a2-pk-worker-attribution",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -961,8 +4043,8 @@
             "id": "change-tli-a4-surreal-lean-search-categories-rekey",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -970,8 +4052,8 @@
             "id": "change-tli-b1-identity-resolver",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -979,8 +4061,8 @@
             "id": "change-tli-d2-mini-hook-timeouts-seconds",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -988,8 +4070,8 @@
             "id": "change-tli-a3-pk-tags-and-type",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -997,8 +4079,8 @@
             "id": "change-tli-b2-namespaced-subagent-matchers",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1006,8 +4088,8 @@
             "id": "change-tli-a5a-skillpack-pin-v1-10-0",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1015,8 +4097,8 @@
             "id": "change-tli-a5b-mini-pin-operator-request",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1024,8 +4106,8 @@
             "id": "change-tli-b3-envelope-write-library",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1033,8 +4115,8 @@
             "id": "change-tli-c1a-pk-promotion-candidates",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1042,8 +4124,8 @@
             "id": "change-tli-b3b-agent-team-memory-envelope",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1051,8 +4133,8 @@
             "id": "change-tli-b4-per-agent-recall-and-kbd-loop",
             "status": "COMPLETE",
             "progress": {
-              "done": 6,
-              "total": 6
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1060,8 +4142,8 @@
             "id": "change-tli-c3a-pk-skill-discovery",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1069,8 +4151,8 @@
             "id": "change-tli-b5-subagentstart-delivery-alpha",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1078,8 +4160,8 @@
             "id": "change-tli-e1-pin-v1-11-0",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1087,8 +4169,8 @@
             "id": "change-tli-b6-file-tier-reduction",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1096,8 +4178,8 @@
             "id": "change-tli-b7-cross-agent-awareness-beta",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1105,8 +4187,8 @@
             "id": "change-tli-c1b-promotion-routing",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1114,8 +4196,8 @@
             "id": "change-tli-c2-feynman-gap-routing",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1123,8 +4205,8 @@
             "id": "change-tli-c4-cross-repo-team-requests",
             "status": "COMPLETE",
             "progress": {
-              "done": 4,
-              "total": 4
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1132,8 +4214,8 @@
             "id": "change-tli-d1a-mini-file-tier-port",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1141,8 +4223,8 @@
             "id": "change-tli-d3-claude-md-memory-chain-cortex",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1150,8 +4232,8 @@
             "id": "change-tli-c3b-skill-candidate-surfacing",
             "status": "COMPLETE",
             "progress": {
-              "done": 3,
-              "total": 3
+              "done": 0,
+              "total": 0
             }
           },
           {
@@ -1159,9 +4241,46 @@
             "id": "change-tli-d1b-mini-pk-tags",
             "status": "COMPLETE",
             "progress": {
-              "done": 2,
-              "total": 2
+              "done": 0,
+              "total": 0
             }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "uar-frontend-workspace-repair",
+        "canonicalId": "uar-frontend-workspace-repair",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 1,
+          "total": 1
+        },
+        "children": [],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "uar-host-execution",
+        "canonicalId": "uar-host-execution",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 16,
+          "total": 16
+        },
+        "children": [
+          {
+            "type": "phase",
+            "id": "mcp-2026-07-28-adoption",
+            "canonicalId": "uar-host-execution::mcp-2026-07-28-adoption",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            },
+            "children": [],
+            "annotations": []
           }
         ],
         "annotations": []

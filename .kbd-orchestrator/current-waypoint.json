@@ -2,41 +2,39 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 2422,
-  "derivedRevision": 2422,
+  "sourceRevision": 198,
+  "derivedRevision": 198,
   "frontier": {
-    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
-    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
-    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
+    "385a1272-766b-41ce-b7d8-af6faaef4d70": 86,
+    "6bafb865-d257-47ab-b002-095905bf0d96": 112
   },
   "conflictCount": 0,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "runId": "sovereign-sync-service-reliability-20260829",
+  "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
   "path": [
-    "phase-learning-deploy-and-debt"
+    "issues-194-195-196"
   ],
   "phaseIds": [
-    "phase-learning-deploy-and-debt"
+    "issues-194-195-196"
   ],
-  "activePhaseId": "phase-learning-deploy-and-debt",
-  "activePhase": "phase-learning-deploy-and-debt",
-  "phase": "phase-learning-deploy-and-debt",
+  "activePhaseId": "issues-194-195-196",
+  "activePhase": "issues-194-195-196",
+  "phase": "issues-194-195-196",
   "parentPhase": null,
   "childPointer": null,
   "change": null,
   "currentTask": null,
   "status": "ready",
   "lifecycle": "ready",
-  "stageId": null,
-  "stageStatus": null,
+  "stageId": "execute",
+  "stageStatus": "IN_PROGRESS",
   "completionMetric": "implementation",
-  "implementationCompleted": 101,
-  "implementationTotal": 104,
-  "planRevision": 17,
-  "revision": 2422,
-  "exactNextCommand": "None. Owner closed the effort after documentation and incident accounting; cancelled release work must not resume. Future bugs require a new explicit request. No final certification or deployment claimed.",
+  "implementationCompleted": 331,
+  "implementationTotal": 393,
+  "planRevision": 19,
+  "revision": 198,
+  "exactNextCommand": "/kbd-execute issues-194-195-196 (requires a new explicit execution request)",
   "nextChange": null,
   "nextTask": null,
-  "updatedAt": "2026-10-05T23:00:25.251624Z"
+  "updatedAt": "2026-10-27T12:16:35.405729Z"
 }

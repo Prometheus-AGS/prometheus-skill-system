@@ -1,426 +1,462 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-arc-001-ratify-goal-wording",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Record the ratification in analysis.md",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 3,
-      "tasks_total": 3,
-      "title": "change-arc-001-ratify-goal-wording"
-    },
-    {
-      "blockers": [],
-      "id": "change-arc-002-producer-model-fail-closed",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Source it from both creator entry points",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 3,
-      "tasks_total": 3,
-      "title": "change-arc-002-producer-model-fail-closed"
-    },
-    {
-      "blockers": [],
-      "id": "change-arc-003-creation-review-packets",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Cap each packet and RECORD the cap inside the packet so truncation is never mistaken for completeness",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 4,
-      "tasks_total": 4,
-      "title": "change-arc-003-creation-review-packets"
-    },
-    {
-      "blockers": [],
-      "id": "change-arc-004-wire-skill-creator-review",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Retry loop: review final artifact -> CRITICAL -> fix -> re-review -> cap at 2 rounds -> append Unresolved review findings",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 4,
-      "tasks_total": 4,
-      "title": "change-arc-004-wire-skill-creator-review"
-    },
-    {
-      "blockers": [],
-      "id": "change-arc-005-wire-agent-creator-review",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Same 2-round retry loop as 004 (goal 5 covers both creators)",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 3,
-      "tasks_total": 3,
-      "title": "change-arc-005-wire-agent-creator-review"
-    },
-    {
-      "blockers": [],
-      "id": "change-arc-006-flawed-input-fixtures",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Judge-call ceiling 6; on-demand and release gate only",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-arc-006-flawed-input-fixtures"
-    },
-    {
-      "blockers": [],
-      "id": "change-arc-007-rejection-cap-override",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Ships its own test; 006 Group C deliberately does not cover it",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 6,
-      "tasks_total": 6,
-      "title": "change-arc-007-rejection-cap-override"
-    },
-    {
-      "blockers": [],
-      "id": "change-arc-008-cowork-skill-discovery",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Site must build with zero broken links",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-arc-008-cowork-skill-discovery"
-    },
-    {
-      "blockers": [],
-      "id": "change-arc-009-openai-proxy-vendoring-decision",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Record the liter-llm precedent: an unbuildable submodule aborted install-binaries.sh mid-run this session",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 4,
-      "tasks_total": 4,
-      "title": "change-arc-009-openai-proxy-vendoring-decision"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-001-decision-review-packet",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Add a validator that REJECTS absent / same-model-collision / unverified-producer-unknown, asserted by a test",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-idt-001-decision-review-packet"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-002-enforced-diversity-ideation",
-      "implementation_status": "IN_PROGRESS",
-      "last_task_completed": "Reweight the rubric to executability over novelty (Ideation-Execution Gap)",
-      "next_task_pending": "Assert independence by inspecting dispatch inputs, not prompt text",
-      "status": "IN_PROGRESS",
-      "tasks_done": 4,
-      "tasks_total": 5,
-      "title": "change-idt-002-enforced-diversity-ideation"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-003-automation-bias-countermeasures",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Fixture proving the gate cannot be bypassed when the reveal step is forced",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-idt-003-automation-bias-countermeasures"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-004-decision-outcome-persistence",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "De-duplicate: re-running the same decision creates no second entry",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-idt-004-decision-outcome-persistence"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-005-coach-role",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Assert coach output is evaluated by the reflector, never by the coach",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 3,
-      "tasks_total": 3,
-      "title": "change-idt-005-coach-role"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-006-harness-delivery-ui-surface",
-      "implementation_status": "IN_PROGRESS",
-      "last_task_completed": "Claude Code: detect-surface-tier.sh reports tier1 and the prompt appears",
-      "next_task_pending": "One named non-Claude harness: writes __ui_intent__.json, consumes __ui_response__.json within 30s, flow continues — RUN IT",
-      "status": "IN_PROGRESS",
-      "tasks_done": 2,
-      "tasks_total": 4,
-      "title": "change-idt-006-harness-delivery-ui-surface"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-007-idea-fixtures",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Bound judge calls; on-demand and release-gate only",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-idt-007-idea-fixtures"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-008-feature-gate-iroh-docs",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Native cargo build unchanged; wasm32 check progresses past the iroh-docs failure",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 3,
-      "tasks_total": 3,
-      "title": "change-idt-008-feature-gate-iroh-docs"
-    },
-    {
-      "blockers": [],
-      "id": "change-idt-009-record-fabric-decisions",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "No code lands in flint-realtime-fabric, universal-agent-runtime, or know-me-system",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 6,
-      "tasks_total": 6,
-      "title": "change-idt-009-record-fabric-decisions"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-001-classify-script-skills",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Check script fails when the file drifts from evidence/skill-inventory.md",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 4,
-      "tasks_total": 4,
-      "title": "change-msp-001-classify-script-skills"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-002-zed-tier1-routing",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Ensure no Tier 1 claim exists in the not-routed outcome",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 4,
-      "tasks_total": 4,
-      "title": "change-msp-002-zed-tier1-routing"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-003-verify-opencode-kimi",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Record any failure explicitly rather than narrowing the claim",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 4,
-      "tasks_total": 4,
-      "title": "change-msp-003-verify-opencode-kimi"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-004-fabric-integration-skill",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Wire into package.json and CI, green on merge",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 7,
-      "tasks_total": 7,
-      "title": "change-msp-004-fabric-integration-skill"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-005-prometheus-component-wit",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "State explicitly anything that CANNOT be expressed in the unified world",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 6,
-      "tasks_total": 6,
-      "title": "change-msp-005-prometheus-component-wit"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-006-reference-component",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Report \"well-formed, execution unproven\" — do NOT claim it runs",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-msp-006-reference-component"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-007-ffi-pattern-decision",
-      "implementation_status": "PENDING",
-      "last_task_completed": "Write NO FFI code in this change",
-      "next_task_pending": "Write the decision: cbindgen (in-tree, 767-fn, JNI + Dart bridge) vs uniffi (Kotlin+Swift from one definition)",
-      "status": "PENDING",
-      "tasks_done": 4,
-      "tasks_total": 5,
-      "title": "change-msp-007-ffi-pattern-decision"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-008-uar-execution-proof",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "If unauthorised or unanswered: archive BLOCKED, touch no external file, stop",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 2,
-      "tasks_total": 2,
-      "title": "change-msp-008-uar-execution-proof"
-    },
-    {
-      "blockers": [],
-      "id": "change-msp-009-mobile-ffi-bindings",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "If the toolchain is unavailable: archive BLOCKED naming it, report goal 3 PARTIAL not MET",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-msp-009-mobile-ffi-bindings"
-    },
-    {
-      "blockers": [],
-      "id": "change-uhe-001-cursor-tier1",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "OR: record the diagnostic and keep cursor documented as Tier 0, making no Tier 1 claim",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-uhe-001-cursor-tier1"
-    },
-    {
-      "blockers": [],
-      "id": "change-uhe-002-ci-sibling-repos",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "If a repo cannot be checked out in CI: record a stated limit, keep SKIP, claim no coverage",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 3,
-      "tasks_total": 3,
-      "title": "change-uhe-002-ci-sibling-repos"
-    },
-    {
-      "blockers": [],
-      "id": "change-uhe-003-ffi-marginal-cost",
-      "implementation_status": "PENDING",
-      "last_task_completed": "If over threshold: reverse the FFI pattern decision and record the reversal via decision-log.sh outcome",
-      "next_task_pending": "Count the hand-written Dart + Rust annotation + build-config lines it required",
-      "status": "PENDING",
-      "tasks_done": 2,
-      "tasks_total": 3,
-      "title": "change-uhe-003-ffi-marginal-cost"
-    },
-    {
-      "blockers": [],
-      "id": "change-uhe-004-librefang-abi-decision",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Write NO code in this change",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 5,
-      "tasks_total": 5,
-      "title": "change-uhe-004-librefang-abi-decision"
-    },
-    {
-      "blockers": [],
-      "id": "change-uhe-005-pack-provenance",
-      "implementation_status": "IN_PROGRESS",
-      "last_task_completed": "Pack emits a version manifest (EXTEND skills-index; do not invent a parallel file)",
-      "next_task_pending": "UAR reads it at load WITHOUT shelling out to git (impossible on mobile)",
-      "status": "IN_PROGRESS",
-      "tasks_done": 1,
-      "tasks_total": 3,
-      "title": "change-uhe-005-pack-provenance"
-    },
-    {
-      "blockers": [],
-      "id": "change-uhe-006-origin-enabled-columns",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Provider round-trips whichever form was chosen; existing rows survive with correct values",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 4,
-      "tasks_total": 4,
-      "title": "change-uhe-006-origin-enabled-columns"
-    },
-    {
-      "blockers": [],
-      "id": "change-uhe-007-db-level-delete-guard",
-      "implementation_status": "PENDING",
-      "last_task_completed": "Confirm the existing service.rs:374 guard still returns 409 on the normal path",
-      "next_task_pending": "Add the constraint/trigger so DELETE of a Builtin skill fails at the database",
-      "status": "PENDING",
-      "tasks_done": 2,
-      "tasks_total": 3,
-      "title": "change-uhe-007-db-level-delete-guard"
-    }
-  ],
-  "changes_completed": 28,
-  "changes_total": 34,
-  "children": {
-    "mcp-2026-07-28-adoption": {
-      "certification_status": "NOT_TRACKED",
-      "changes_completed": 0,
-      "changes_total": 0,
-      "completed_at": null,
-      "handoff": null,
-      "implementation_completed": 0,
-      "implementation_total": 0,
-      "status": "PENDING"
-    }
-  },
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 28,
-      "status": "IN_PROGRESS",
-      "total": 34
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 28,
-  "implementation_total": 34,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
+  "projectionContractVersion": 2,
+  "sourceRevision": 139,
+  "derivedRevision": 139,
+  "frontier": {
+    "385a1272-766b-41ce-b7d8-af6faaef4d70": 86,
+    "6bafb865-d257-47ab-b002-095905bf0d96": 53
+  },
+  "conflictCount": 0,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-10-27T10:18:40.948806Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 34,
+  "changes_completed": 28,
+  "implementation_total": 34,
+  "implementation_completed": 28,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 28,
+      "total": 34,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 327,
+      "total": 393,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-arc-001-ratify-goal-wording",
+      "title": "change-arc-001-ratify-goal-wording",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-arc-002-producer-model-fail-closed",
+      "title": "change-arc-002-producer-model-fail-closed",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-arc-003-creation-review-packets",
+      "title": "change-arc-003-creation-review-packets",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-arc-004-wire-skill-creator-review",
+      "title": "change-arc-004-wire-skill-creator-review",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-arc-005-wire-agent-creator-review",
+      "title": "change-arc-005-wire-agent-creator-review",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-arc-006-flawed-input-fixtures",
+      "title": "change-arc-006-flawed-input-fixtures",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-arc-007-rejection-cap-override",
+      "title": "change-arc-007-rejection-cap-override",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-arc-008-cowork-skill-discovery",
+      "title": "change-arc-008-cowork-skill-discovery",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-arc-009-openai-proxy-vendoring-decision",
+      "title": "change-arc-009-openai-proxy-vendoring-decision",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-001-decision-review-packet",
+      "title": "change-idt-001-decision-review-packet",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-002-enforced-diversity-ideation",
+      "title": "change-idt-002-enforced-diversity-ideation",
+      "status": "IN_PROGRESS",
+      "implementation_status": "IN_PROGRESS",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-003-automation-bias-countermeasures",
+      "title": "change-idt-003-automation-bias-countermeasures",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-004-decision-outcome-persistence",
+      "title": "change-idt-004-decision-outcome-persistence",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-005-coach-role",
+      "title": "change-idt-005-coach-role",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-006-harness-delivery-ui-surface",
+      "title": "change-idt-006-harness-delivery-ui-surface",
+      "status": "IN_PROGRESS",
+      "implementation_status": "IN_PROGRESS",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-007-idea-fixtures",
+      "title": "change-idt-007-idea-fixtures",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-008-feature-gate-iroh-docs",
+      "title": "change-idt-008-feature-gate-iroh-docs",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-idt-009-record-fabric-decisions",
+      "title": "change-idt-009-record-fabric-decisions",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-001-classify-script-skills",
+      "title": "change-msp-001-classify-script-skills",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-002-zed-tier1-routing",
+      "title": "change-msp-002-zed-tier1-routing",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-003-verify-opencode-kimi",
+      "title": "change-msp-003-verify-opencode-kimi",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-004-fabric-integration-skill",
+      "title": "change-msp-004-fabric-integration-skill",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-005-prometheus-component-wit",
+      "title": "change-msp-005-prometheus-component-wit",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-006-reference-component",
+      "title": "change-msp-006-reference-component",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-007-ffi-pattern-decision",
+      "title": "change-msp-007-ffi-pattern-decision",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-008-uar-execution-proof",
+      "title": "change-msp-008-uar-execution-proof",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-msp-009-mobile-ffi-bindings",
+      "title": "change-msp-009-mobile-ffi-bindings",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-uhe-001-cursor-tier1",
+      "title": "change-uhe-001-cursor-tier1",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-uhe-002-ci-sibling-repos",
+      "title": "change-uhe-002-ci-sibling-repos",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-uhe-003-ffi-marginal-cost",
+      "title": "change-uhe-003-ffi-marginal-cost",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-uhe-004-librefang-abi-decision",
+      "title": "change-uhe-004-librefang-abi-decision",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-uhe-005-pack-provenance",
+      "title": "change-uhe-005-pack-provenance",
+      "status": "IN_PROGRESS",
+      "implementation_status": "IN_PROGRESS",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-uhe-006-origin-enabled-columns",
+      "title": "change-uhe-006-origin-enabled-columns",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-uhe-007-db-level-delete-guard",
+      "title": "change-uhe-007-db-level-delete-guard",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {
+    "mcp-2026-07-28-adoption": {
+      "status": "PENDING",
+      "changes_completed": 0,
+      "changes_total": 0,
+      "implementation_completed": 0,
+      "implementation_total": 0,
+      "certification_status": "NOT_TRACKED",
+      "handoff": null,
+      "completed_at": null
+    }
+  },
+  "migrationStatus": null
 }
