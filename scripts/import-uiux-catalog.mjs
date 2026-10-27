@@ -22,7 +22,7 @@ const sources = [
     'flutter-build-responsive-layout', 'flutter-fix-layout-issues', 'flutter-setup-declarative-routing', 'flutter-setup-localization'].map(x => `skills/${x}`)],
   ['twostraws/swiftui-agent-skill', 'be297ff80dddec529af1f9b1f1f114aab6c9d11c', 'MIT', 'LICENSE', ['swiftui-pro']],
   ['android/skills', '42dc2270e96032bd860bb94511e440aa00a43125', 'Apache-2.0', 'LICENSE.txt', ['jetpack-compose/adaptive', 'system/edge-to-edge']],
-  ['pbakaus/impeccable', '9d715cc4f5564a990ca8345abfdd5df6dc9b41c8', 'Apache-2.0', 'LICENSE', ['.agents/skills/impeccable']],
+  ['pbakaus/impeccable', '414603bf14c7a344edb466bb1f85690c77ce8b7d', 'Apache-2.0', 'LICENSE', ['.agents/skills/impeccable']],
 ];
 async function remote(repo, revision, path) {
   const response = await fetch(`https://raw.githubusercontent.com/${repo}/${revision}/${path}`);
