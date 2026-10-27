@@ -17,6 +17,7 @@ use std::time::{Duration, Instant};
 use super::control_transport::{ControlResponse, ControlTransport, TransportFailure};
 
 pub enum Action {
+    InspectChangeIdentity { phase: String },
     Status {
         json: bool,
     },
@@ -691,6 +692,34 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             scope,
             command,
         } => gate_run(&root, &runtime, &client, kind, &scope, &command).await,
+        Action::InspectChangeIdentity { phase } => {
+            let state = runtime.replay_authority()?;
+            let selected = state.phases.get(&phase).ok_or_else(|| anyhow!("phase {phase:?} not found"))?;
+            let changes = selected.changes.iter().map(|(key, change)| {
+                Ok(json!({"key": key, "embeddedId": change.id,
+                    "sha256": kbd_runtime::change_identity::change_digest(change)?,
+                    "record": change}))
+            }).collect::<Result<Vec<Value>>>()?;
+            println!("{}", serde_json::to_string_pretty(&json!({
+                "schema": "kbd.change-identity-inspection/v1", "projectId": state.project_id,
+                "runId": state.run_id, "revision": state.revision, "phaseId": phase,
+                "issues": kbd_runtime::change_identity::phase_issues(selected), "changes": changes,
+                "boundaryObligations": state.boundary_obligations,
+                "unmatchedObligations": state.boundary_obligations.values().filter(|obligation| {
+                    if obligation.boundary == BoundaryKind::Phase { return false; }
+                    let subject = obligation.subject.as_str();
+                    let (change_part, task_part) = subject
+                        .split_once('/').or_else(|| subject.split_once("::")).or_else(|| subject.split_once(':'))
+                        .map_or((subject, None), |(c, t)| (c, Some(t)));
+                    !selected.changes.get(change_part).is_some_and(|change| match task_part {
+                        Some(task) => change.tasks.contains_key(task),
+                        None => true,
+                    })
+                }).map(|obligation| obligation.key.clone()).collect::<Vec<_>>(),
+                "note": "Inspection grants no repair authority; review exact source/task/receipt mappings before repair."
+            }))?);
+            Ok(())
+        }
         Action::Command {
             command_id,
             mut command,
@@ -729,7 +758,7 @@ async fn submit_typed(
         command_id,
         frontier: Some(state.frontier.clone()),
         expected_revision: state.revision,
-        actor: current_actor(ActorKind::Harness),
+        actor: current_actor(if matches!(&command, CommandKind::ChangeRepairIdentity { .. }) { ActorKind::Operator } else { ActorKind::Harness }),
         command,
     };
     match client.submit(envelope.clone()).await {
@@ -872,11 +901,13 @@ fn guard_context(state: &RuntimeState, boundary: BoundaryKind, subject: &str) ->
         BoundaryKind::Change => {
             let phase_id = active_phase_id.clone();
             let phase = phase_id.as_ref().and_then(|id| state.phases.get(id));
-            let matches = phase
-                .into_iter()
-                .flat_map(|phase| phase.changes.values())
-                .filter(|change| change.id == subject || change.title == subject)
-                .collect::<Vec<_>>();
+            let matches = if let Some(exact) = phase.and_then(|phase| phase.changes.get(subject)) {
+                vec![exact]
+            } else {
+                phase.into_iter().flat_map(|phase| phase.changes.values())
+                    .filter(|change| change.id == subject || change.title == subject)
+                    .collect::<Vec<_>>()
+            };
             let selected = (matches.len() == 1).then(|| matches[0]);
             let mut changes = phase
                 .map(|phase| phase.changes.values().collect::<Vec<_>>())
@@ -1146,6 +1177,20 @@ async fn guard_evaluate(
     );
     let obligation_key = format!("{boundary:?}:{subject}").to_ascii_lowercase();
     let mut findings = Vec::new();
+    if let Some(phase) = state.active_path.phase_id.as_ref().and_then(|id| state.phases.get(id)) {
+        findings.extend(kbd_runtime::change_identity::phase_issues(phase));
+        if !context.valid && boundary == BoundaryKind::Task {
+            let qualified = subject.split_once('/').or_else(|| subject.split_once("::")).or_else(|| subject.split_once(':'));
+            if let Some((change, task)) = qualified {
+                findings.push(format!("phase {} missing qualified task key {change}/{task}; inspect registered task keys, not backend display labels", phase.id));
+            } else {
+                let matches = phase.changes.iter().flat_map(|(key, change)| change.tasks.iter().filter_map(move |(task_key, task)| {
+                    (task.id == subject || task.title == subject).then(|| format!("{key}/{task_key}"))
+                })).collect::<Vec<_>>();
+                findings.push(format!("phase {} task subject {subject:?} has {} matches: {matches:?}", phase.id, matches.len()));
+            }
+        }
+    }
     if !context.valid {
         findings.push(format!(
             "{boundary:?} subject {subject} is not a unique canonical work item"

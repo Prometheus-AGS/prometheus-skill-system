@@ -1,0 +1,270 @@
+{
+  "kind": "kbd.manual-handoff/v1",
+  "destination": "claude-desktop",
+  "nativeHandoffAccepted": false,
+  "projectRoot": "/Users/gqadonis/Projects/prometheus/prometheus-skill-system",
+  "capturedAt": "2026-10-27T10:38:45.630072+00:00",
+  "revision": 158,
+  "planRevision": 19,
+  "activePath": {
+    "phasePath": [
+      "issues-194-195-196"
+    ],
+    "phaseId": "issues-194-195-196",
+    "stageId": "execute",
+    "changeId": "kbd-194-change-identity-repair",
+    "taskId": "2",
+    "commit": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7"
+  },
+  "lifecycle": "ready",
+  "phase": {
+    "id": "issues-194-195-196",
+    "slug": "issues-194-195-196",
+    "title": "issues-194-195-196",
+    "parentPhaseId": null,
+    "status": "in_progress",
+    "stages": {
+      "analyze": {
+        "id": "analyze",
+        "title": "Analyze issues 194, 195 and 196",
+        "sequence": 1,
+        "status": "complete"
+      },
+      "assess": {
+        "id": "assess",
+        "title": "Assess issues 194, 195 and 196",
+        "sequence": 0,
+        "status": "complete"
+      },
+      "execute": {
+        "id": "execute",
+        "title": "Execute issues 194, 195 and 196",
+        "sequence": 4,
+        "status": "in_progress"
+      },
+      "plan": {
+        "id": "plan",
+        "title": "Plan issues 194, 195 and 196",
+        "sequence": 3,
+        "status": "complete"
+      },
+      "spec": {
+        "id": "spec",
+        "title": "Specify issues 194, 195 and 196",
+        "sequence": 2,
+        "status": "complete"
+      }
+    },
+    "changes": {
+      "kbd-194-196-delivery-qualification": {
+        "id": "kbd-194-196-delivery-qualification",
+        "title": "kbd-194-196-delivery-qualification",
+        "sequence": 3,
+        "status": "pending",
+        "implementationStatus": "pending",
+        "tasks": {
+          "1": {
+            "id": "1",
+            "title": "1.1 Reconcile required skill registrations, generator inputs and documentation for all three source changes; static completion artifact is the final source/ownership manifest for PKG-001.",
+            "sequence": 0,
+            "status": "pending",
+            "summary": null
+          },
+          "2": {
+            "id": "2",
+            "title": "1.2 After all planned production source edits are complete, compile existing runtime payloads and regenerate managed distributions twice using existing tooling; retain candidate/generated identities for PKG-001 and do not hand-edit generated outputs.",
+            "sequence": 1,
+            "status": "pending",
+            "summary": null
+          },
+          "3": {
+            "id": "3",
+            "title": "2.1 EVIDENCE \u2014 Only after every production task completes, author the finite real-path integration driver/scenarios and run the exact local packet from verification.md; record all 12 scenario observations, negative controls, attempt lineage and cleanup.",
+            "sequence": 2,
+            "status": "pending",
+            "summary": null
+          },
+          "4": {
+            "id": "4",
+            "title": "2.2 EVIDENCE \u2014 Obtain authorized independent cumulative review and run the applicable final confirming integration gate after coherent fixes; retain pending/refused status until requirements pass, without reopening authored implementation solely for evidence gaps.",
+            "sequence": 3,
+            "status": "pending",
+            "summary": null
+          }
+        }
+      },
+      "kbd-194-change-identity-repair": {
+        "id": "kbd-194-change-identity-repair",
+        "title": "kbd-194-change-identity-repair",
+        "sequence": 0,
+        "status": "in_progress",
+        "implementationStatus": "in_progress",
+        "tasks": {
+          "1": {
+            "id": "1",
+            "title": "1.1 Preserve conflicting registration/import records and add explicit identity diagnostics; deliver the behavior specified by IDR-001, with source inspection now and final real-path evidence later.",
+            "sequence": 0,
+            "status": "complete",
+            "summary": "1.1 Preserve conflicting registration/import records and add explicit identity diagnostics; deliver the behavior specified by IDR-001, with source inspection now and final real-path evidence later."
+          },
+          "2": {
+            "id": "2",
+            "title": "1.2 Implement typed signed revision-bound repair-identity command, replay and mapping validation; deliver IDR-002 without fabricating status or receipts, inspected statically until the parent boundary.",
+            "sequence": 1,
+            "status": "in_progress",
+            "summary": "1.2 Implement typed signed revision-bound repair-identity command, replay and mapping validation; deliver IDR-002 without fabricating status or receipts, inspected statically until the parent boundary."
+          },
+          "3": {
+            "id": "3",
+            "title": "1.3 Integrate effective task identity and obligation-preserving continuation with apply/reconcile; deliver IDR-003, with final CLI/backend evidence deferred.",
+            "sequence": 2,
+            "status": "pending",
+            "summary": null
+          },
+          "4": {
+            "id": "4",
+            "title": "1.4 Document canonical versus projection repair, exact syntax, supported incident families and unavailable-original-incident limitation; completion artifact is the operator guide linked to IDR-001\u2013003.",
+            "sequence": 3,
+            "status": "pending",
+            "summary": null
+          }
+        }
+      },
+      "kbd-195-vlbv-policy-propagation": {
+        "id": "kbd-195-vlbv-policy-propagation",
+        "title": "kbd-195-vlbv-policy-propagation",
+        "sequence": 1,
+        "status": "complete",
+        "implementationStatus": "complete",
+        "tasks": {
+          "1": {
+            "id": "1",
+            "title": "1.1 Define compact derived method-context references and governing-policy discovery/conflict behavior; delivered artifacts cover POL-001\u2013003 and are inspected statically.",
+            "sequence": 0,
+            "status": "complete",
+            "summary": "1.1 Define compact derived method-context references and governing-policy discovery/conflict behavior; delivered artifacts cover POL-001\u2013003 and are inspected statically."
+          },
+          "2": {
+            "id": "2",
+            "title": "1.2 Propagate references through bootstrap/path rules and team prompt/export/provenance source; completion is matching lead/role authority semantics specified by POL-001, with behavioral checks deferred.",
+            "sequence": 1,
+            "status": "complete",
+            "summary": "1.2 Propagate references through bootstrap/path rules and team prompt/export/provenance source; completion is matching lead/role authority semantics specified by POL-001, with behavioral checks deferred."
+          },
+          "3": {
+            "id": "3",
+            "title": "1.3 Integrate dispatch, child/harness handoff, pause/resume and compaction recovery with supersession/budget/effect retention; completion artifact implements POL-002\u2013003 without implying new permissions.",
+            "sequence": 2,
+            "status": "complete",
+            "summary": "1.3 Integrate dispatch, child/harness handoff, pause/resume and compaction recovery with supersession/budget/effect retention; completion artifact implements POL-002\u2013003 without implying new permissions."
+          },
+          "4": {
+            "id": "4",
+            "title": "1.4 Update operator and cadence guidance with instruction-only limitations and prospective whole-value boundaries; delivered docs trace POL-001\u2013003 and preserve operator-owned policies.",
+            "sequence": 3,
+            "status": "complete",
+            "summary": "1.4 Update operator and cadence guidance with instruction-only limitations and prospective whole-value boundaries; delivered docs trace POL-001\u2013003 and preserve operator-owned policies."
+          }
+        }
+      },
+      "kbd-196-value-scenario-workflow": {
+        "id": "kbd-196-value-scenario-workflow",
+        "title": "kbd-196-value-scenario-workflow",
+        "sequence": 2,
+        "status": "in_progress",
+        "implementationStatus": "in_progress",
+        "tasks": {
+          "1": {
+            "id": "1",
+            "title": "1.1 Implement and register value-scenario-discovery with finite calibration, proposal status and Assess/Spec/Plan routing; delivered procedure covers SCN-001, inspected statically until final qualification.",
+            "sequence": 0,
+            "status": "complete",
+            "summary": "1.1 Implement and register value-scenario-discovery with finite calibration, proposal status and Assess/Spec/Plan routing; delivered procedure covers SCN-001, inspected statically until final qualification."
+          },
+          "2": {
+            "id": "2",
+            "title": "1.2 Add explicit author-only paths to existing JS/Rust BDD skills with stable ID/assertion/oracle linkage and policy-sensitive authoring; delivered guidance covers SCN-002 without invoking a runner or import.",
+            "sequence": 1,
+            "status": "in_progress",
+            "summary": "1.2 Add explicit author-only paths to existing JS/Rust BDD skills with stable ID/assertion/oracle linkage and policy-sensitive authoring; delivered guidance covers SCN-002 without invoking a runner or import."
+          },
+          "3": {
+            "id": "3",
+            "title": "1.3 Implement and register thin value-scenario-verify procedure reusing runners and canonical writer, observation/negative-control evidence, dispositions and repair lineage; delivered procedure covers VER-001\u2013003, with execution deferred.",
+            "sequence": 2,
+            "status": "pending",
+            "summary": null
+          },
+          "4": {
+            "id": "4",
+            "title": "1.4 Replace conflicting BDD lifecycle and KBD integration procedures and document invocation/limitations; delivered docs preserve #195 authority and trace SCN-001\u2013002 and VER-001\u2013003.",
+            "sequence": 3,
+            "status": "pending",
+            "summary": null
+          }
+        }
+      }
+    },
+    "legacyReadOnly": false
+  },
+  "conflicts": {},
+  "boundaryObligations": {
+    "change:kbd-194-change-identity-repair": {
+      "key": "change:kbd-194-change-identity-repair",
+      "receiptId": "9ac4ccea67524498473d0b8de49312cf638dfc3447eee45be82d4271323bba51",
+      "boundary": "change",
+      "subject": "kbd-194-change-identity-repair",
+      "sourceRevision": 126,
+      "exactSignal": "Starting change 1 out of 4: kbd-194-change-identity-repair"
+    },
+    "change:kbd-196-value-scenario-workflow": {
+      "key": "change:kbd-196-value-scenario-workflow",
+      "receiptId": "a4fe85403206973192ab37e698720b6183c4ee60c37d3f0a69d8b49932710ac5",
+      "boundary": "change",
+      "subject": "kbd-196-value-scenario-workflow",
+      "sourceRevision": 132,
+      "exactSignal": "Starting change 3 out of 4: kbd-196-value-scenario-workflow"
+    },
+    "phase:issues-194-195-196": {
+      "key": "phase:issues-194-195-196",
+      "receiptId": "d7946a0129dbcb1057199a43894244ac1d4e0d61250f3dc58b8abd53e4d8ab10",
+      "boundary": "phase",
+      "subject": "issues-194-195-196",
+      "sourceRevision": 89,
+      "exactSignal": "Starting phase 70 out of 70: issues-194-195-196"
+    },
+    "phase:phase-readiness-contract": {
+      "key": "phase:phase-readiness-contract",
+      "receiptId": "be97da59e63f3fe0f65f5eb9267046c6683ff1b4da6c7c5a3c335785da4a4eed",
+      "boundary": "phase",
+      "subject": "phase-readiness-contract",
+      "sourceRevision": 5,
+      "exactSignal": "Starting phase 68 out of 68: phase-readiness-contract"
+    },
+    "task:kbd-194-change-identity-repair/2": {
+      "key": "task:kbd-194-change-identity-repair/2",
+      "receiptId": "01300e9bf0914aac869a82098113cb81659d406be3c1fd6cac600aa4c9a9ea6f",
+      "boundary": "task",
+      "subject": "kbd-194-change-identity-repair/2",
+      "sourceRevision": 137,
+      "exactSignal": "Starting task 2 out of 4: 1.2 Implement typed signed revision-bound repair-identity command, replay and mapping validation; deliver IDR-002 without fabricating status or receipts, inspected statically until the parent boundary."
+    },
+    "task:kbd-196-value-scenario-workflow/2": {
+      "key": "task:kbd-196-value-scenario-workflow/2",
+      "receiptId": "f1dff958d3905840688fe7a474c17f3318f0290a7064bef7abe3f1ef1d0967f6",
+      "boundary": "task",
+      "subject": "kbd-196-value-scenario-workflow/2",
+      "sourceRevision": 146,
+      "exactSignal": "Starting task 2 out of 4: 1.2 Add explicit author-only paths to existing JS/Rust BDD skills with stable ID/assertion/oracle linkage and policy-sensitive authoring; delivered guidance covers SCN-002 without invoking a runner or import."
+    }
+  },
+  "contractIdentity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "phaseId": "issues-194-195-196",
+    "planRevision": 19,
+    "contractDigest": "c6c2db6d12c9588a9213fe7f53efbd316cab2155c432c45a814307ebbf0f5734"
+  },
+  "sourceAgents": "Both native implementation workers ended with usage-limit errors; do not restart in Codex. No implementation process intentionally left running.",
+  "reasonManual": "Claude Desktop is not a native target of kbd-handoff; open task obligations intentionally retained. No fake completion/receipt or team state created."
+}

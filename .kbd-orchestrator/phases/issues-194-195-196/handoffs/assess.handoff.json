@@ -1,0 +1,13 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-10-27T01:41:05Z",
+  "outputs": [
+    "assessment.md",
+    "issue-baseline.md",
+    "review/assess/pending-review.json"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Source assessment: #194 current runtime already rejects duplicate registration keys, but incident identity/version and authorized repair remain unresolved; #195 needs selected-method/authority/supersession propagation, and #196 depends on that policy to separate calibrated discovery, BDD authoring and phase-end execution. Reuse existing finite contract and typed closure; do not reopen delivered foundations or infer current behavior from recalled historical repairs. WARNING: independent review remains pending under the completed-production reviewer boundary, provider preflight has zero resolved distinct models, generated-code health/parity is UNKNOWN, and calibration examples, selected installed targets and finite budgets/oracles await prospective contract adoption.",
+  "skipped": false,
+  "skipReason": null
+}

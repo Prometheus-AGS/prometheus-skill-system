@@ -1,0 +1,376 @@
+ M .agents/skills/openspec-apply-change/SKILL.md
+ M .agents/skills/openspec-archive-change/SKILL.md
+ M .agents/skills/openspec-explore/SKILL.md
+ M .agents/skills/openspec-propose/SKILL.md
+ M .agents/skills/openspec-sync-specs/SKILL.md
+ M .agents/skills/openspec-update-change/SKILL.md
+ M .agents/workflows/opsx-explore.md
+ M .agents/workflows/opsx-propose.md
+ M .agents/workflows/opsx-update.md
+ M .cursor/commands/opsx-explore.md
+ M .cursor/commands/opsx-propose.md
+ M .cursor/commands/opsx-update.md
+ M .cursor/skills/openspec-apply-change/SKILL.md
+ M .cursor/skills/openspec-archive-change/SKILL.md
+ M .cursor/skills/openspec-explore/SKILL.md
+ M .cursor/skills/openspec-propose/SKILL.md
+ M .cursor/skills/openspec-sync-specs/SKILL.md
+ M .cursor/skills/openspec-update-change/SKILL.md
+ M .devin/skills/openspec-apply-change/SKILL.md
+ M .devin/skills/openspec-archive-change/SKILL.md
+ M .devin/skills/openspec-explore/SKILL.md
+ M .devin/skills/openspec-propose/SKILL.md
+ M .devin/skills/openspec-sync-specs/SKILL.md
+ M .devin/skills/openspec-update-change/SKILL.md
+ M .devin/workflows/opsx-explore.md
+ M .devin/workflows/opsx-propose.md
+ M .devin/workflows/opsx-update.md
+ M .kbd-orchestrator/current-waypoint.json
+ M .kbd-orchestrator/phases/adversarial-review-for-creation/children/mcp-2026-07-28-adoption/progress.json
+ D .kbd-orchestrator/phases/adversarial-review-for-creation/children/mcp-2026-07-28-adoption/tasks.md
+ M .kbd-orchestrator/phases/adversarial-review-for-creation/progress.json
+ M .kbd-orchestrator/phases/agent-team-creator/progress.json
+ M .kbd-orchestrator/phases/canonical-lifecycle/progress.json
+ D .kbd-orchestrator/phases/canonical-lifecycle/tasks.md
+ M .kbd-orchestrator/phases/child-loops-and-capabilities/progress.json
+ D .kbd-orchestrator/phases/child-loops-and-capabilities/tasks.md
+ M .kbd-orchestrator/phases/control-plane-to-companion/progress.json
+ M .kbd-orchestrator/phases/cowork-integration/progress.json
+ D .kbd-orchestrator/phases/cowork-integration/tasks.md
+ M .kbd-orchestrator/phases/deep-research-onyx-parity/children/bench-runner-automation/progress.json
+ M .kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/progress.json
+ M .kbd-orchestrator/phases/deep-research-onyx-parity/progress.json
+ M .kbd-orchestrator/phases/docusaurus-github-pages-site/progress.json
+ D .kbd-orchestrator/phases/docusaurus-github-pages-site/tasks.md
+ M .kbd-orchestrator/phases/goal-loop-support/progress.json
+ D .kbd-orchestrator/phases/goal-loop-support/tasks.md
+ M .kbd-orchestrator/phases/kbd-control-plane-recovery/children/bottleneck-evaluator-and-detector/progress.json
+ M .kbd-orchestrator/phases/kbd-control-plane-recovery/children/skill-pack-1-10-recovery/progress.json
+ M .kbd-orchestrator/phases/kbd-control-plane-recovery/progress.json
+ M .kbd-orchestrator/phases/kbd-execute-spec-wrapping-and-nesting-2026-06-03/progress.json
+ D .kbd-orchestrator/phases/kbd-execute-spec-wrapping-and-nesting-2026-06-03/tasks.md
+ M .kbd-orchestrator/phases/machine-installation-2026-05-25/progress.json
+ D .kbd-orchestrator/phases/machine-installation-2026-05-25/tasks.md
+ M .kbd-orchestrator/phases/machine-refresh-2026-05-30/progress.json
+ D .kbd-orchestrator/phases/machine-refresh-2026-05-30/tasks.md
+ M .kbd-orchestrator/phases/memory-and-karpathy/progress.json
+ D .kbd-orchestrator/phases/memory-and-karpathy/tasks.md
+ M .kbd-orchestrator/phases/memory-write-transport/progress.json
+ D .kbd-orchestrator/phases/memory-write-transport/tasks.md
+ M .kbd-orchestrator/phases/openspec-mirror-drift-cleanup/children/sovereign-sync-service-reliability/progress.json
+ M .kbd-orchestrator/phases/outer-loop-and-ux/progress.json
+ D .kbd-orchestrator/phases/outer-loop-and-ux/tasks.md
+ M .kbd-orchestrator/phases/pglite-certification-2026-05-25/progress.json
+ D .kbd-orchestrator/phases/pglite-certification-2026-05-25/tasks.md
+ M .kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/progress.json
+ D .kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/tasks.md
+ M .kbd-orchestrator/phases/phase-bdd-video-proof/progress.json
+ D .kbd-orchestrator/phases/phase-bdd-video-proof/tasks.md
+ M .kbd-orchestrator/phases/phase-ci-all-green/progress.json
+ D .kbd-orchestrator/phases/phase-ci-all-green/tasks.md
+ M .kbd-orchestrator/phases/phase-ci-cross-model-qa-and-hardening/progress.json
+ D .kbd-orchestrator/phases/phase-ci-cross-model-qa-and-hardening/tasks.md
+ M .kbd-orchestrator/phases/phase-codex-plugin-distribution-and-ci/progress.json
+ D .kbd-orchestrator/phases/phase-codex-plugin-distribution-and-ci/tasks.md
+ M .kbd-orchestrator/phases/phase-codex-plugin-implementation/progress.json
+ D .kbd-orchestrator/phases/phase-codex-plugin-implementation/tasks.md
+ M .kbd-orchestrator/phases/phase-codex-plugin-verify-and-publish/progress.json
+ D .kbd-orchestrator/phases/phase-codex-plugin-verify-and-publish/tasks.md
+ M .kbd-orchestrator/phases/phase-compliance-and-power-multiplier/progress.json
+ D .kbd-orchestrator/phases/phase-compliance-and-power-multiplier/tasks.md
+ M .kbd-orchestrator/phases/phase-corpus-strict-compliance/progress.json
+ D .kbd-orchestrator/phases/phase-corpus-strict-compliance/tasks.md
+ M .kbd-orchestrator/phases/phase-cowork-push-and-release/progress.json
+ D .kbd-orchestrator/phases/phase-cowork-push-and-release/tasks.md
+ M .kbd-orchestrator/phases/phase-credibility-90/progress.json
+ D .kbd-orchestrator/phases/phase-credibility-90/tasks.md
+ M .kbd-orchestrator/phases/phase-credibility-closure/progress.json
+ D .kbd-orchestrator/phases/phase-credibility-closure/tasks.md
+ M .kbd-orchestrator/phases/phase-deep-research-skill/progress.json
+ D .kbd-orchestrator/phases/phase-deep-research-skill/tasks.md
+ M .kbd-orchestrator/phases/phase-developer-ux/progress.json
+ D .kbd-orchestrator/phases/phase-developer-ux/tasks.md
+ M .kbd-orchestrator/phases/phase-drui-standalone-hosting/progress.json
+ D .kbd-orchestrator/phases/phase-drui-standalone-hosting/tasks.md
+ M .kbd-orchestrator/phases/phase-dsg-cli-foundation/progress.json
+ D .kbd-orchestrator/phases/phase-dsg-cli-foundation/tasks.md
+ M .kbd-orchestrator/phases/phase-dsg-hardening/progress.json
+ D .kbd-orchestrator/phases/phase-dsg-hardening/tasks.md
+ M .kbd-orchestrator/phases/phase-dsg-install-binaries-fix/progress.json
+ D .kbd-orchestrator/phases/phase-dsg-install-binaries-fix/tasks.md
+ M .kbd-orchestrator/phases/phase-external-validation/progress.json
+ D .kbd-orchestrator/phases/phase-external-validation/tasks.md
+ M .kbd-orchestrator/phases/phase-first-user-onboarding/progress.json
+ D .kbd-orchestrator/phases/phase-first-user-onboarding/tasks.md
+ M .kbd-orchestrator/phases/phase-learn-feynman/progress.json
+ D .kbd-orchestrator/phases/phase-learn-feynman/tasks.md
+ M .kbd-orchestrator/phases/phase-learn-grader-validation/progress.json
+ D .kbd-orchestrator/phases/phase-learn-grader-validation/tasks.md
+ M .kbd-orchestrator/phases/phase-learn-sovereign-sync/progress.json
+ D .kbd-orchestrator/phases/phase-learn-sovereign-sync/tasks.md
+ M .kbd-orchestrator/phases/phase-learning-deploy-and-debt/children/release-recovery/progress.json
+ M .kbd-orchestrator/phases/phase-learning-deploy-and-debt/progress.json
+ M .kbd-orchestrator/phases/phase-librefang-wasm-onramp/progress.json
+ D .kbd-orchestrator/phases/phase-librefang-wasm-onramp/tasks.md
+ M .kbd-orchestrator/phases/phase-okf-llm-wiki-adoption/progress.json
+ D .kbd-orchestrator/phases/phase-okf-llm-wiki-adoption/tasks.md
+ M .kbd-orchestrator/phases/phase-prometheus-research-binary/progress.json
+ D .kbd-orchestrator/phases/phase-prometheus-research-binary/tasks.md
+ M .kbd-orchestrator/phases/phase-prometheus-research-ui/progress.json
+ D .kbd-orchestrator/phases/phase-prometheus-research-ui/tasks.md
+ M .kbd-orchestrator/phases/phase-prui-polish/progress.json
+ D .kbd-orchestrator/phases/phase-prui-polish/tasks.md
+ M .kbd-orchestrator/phases/phase-readiness-contract/progress.json
+ M .kbd-orchestrator/phases/phase-readiness-contract/tasks.md
+ M .kbd-orchestrator/phases/phase-release-documentation-publication/progress.json
+ M .kbd-orchestrator/phases/phase-sovereign-sync-hardening/progress.json
+ D .kbd-orchestrator/phases/phase-sovereign-sync-hardening/tasks.md
+ M .kbd-orchestrator/phases/phase-team-learning-hardening/progress.json
+ M .kbd-orchestrator/phases/pmpo-elicit/progress.json
+ D .kbd-orchestrator/phases/pmpo-elicit/tasks.md
+ M .kbd-orchestrator/phases/pmpo-evolver/progress.json
+ D .kbd-orchestrator/phases/pmpo-evolver/tasks.md
+ M .kbd-orchestrator/phases/position-and-handoff-guarantee/progress.json
+ D .kbd-orchestrator/phases/position-and-handoff-guarantee/tasks.md
+ M .kbd-orchestrator/phases/research-agent-hardening/progress.json
+ M .kbd-orchestrator/phases/safeguards/progress.json
+ D .kbd-orchestrator/phases/safeguards/tasks.md
+ M .kbd-orchestrator/phases/self-learning-loop-integration/progress.json
+ D .kbd-orchestrator/phases/self-learning-loop-integration/tasks.md
+ M .kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30/progress.json
+ D .kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30/tasks.md
+ M .kbd-orchestrator/phases/skill-pack-all-phases-2026-05-09/progress.json
+ D .kbd-orchestrator/phases/skill-pack-all-phases-2026-05-09/tasks.md
+ M .kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09/progress.json
+ D .kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09/tasks.md
+ M .kbd-orchestrator/phases/sovereign-sync-domain-adapters/progress.json
+ M .kbd-orchestrator/phases/team-aware-learning-memory-impl/progress.json
+ M .kbd-orchestrator/phases/team-aware-learning-memory/progress.json
+ M .kbd-orchestrator/position-reminder.txt
+ M .kbd-orchestrator/position.json
+ M .opencode/commands/opsx-explore.md
+ M .opencode/commands/opsx-propose.md
+ M .opencode/commands/opsx-update.md
+ M .opencode/skills/openspec-apply-change/SKILL.md
+ M .opencode/skills/openspec-archive-change/SKILL.md
+ M .opencode/skills/openspec-explore/SKILL.md
+ M .opencode/skills/openspec-propose/SKILL.md
+ M .opencode/skills/openspec-sync-specs/SKILL.md
+ M .opencode/skills/openspec-update-change/SKILL.md
+MM .prometheus/knowledge/wiki/index.md
+MM .prometheus/knowledge/wiki/log.md
+ M .prometheus/session-log.md
+ M skills/process/agent-team-creator/runtime/src/adapters-codecs.mts
+ M skills/process/agent-team-creator/runtime/src/handoff-provenance.mts
+ M skills/process/agent-team-creator/runtime/src/handoff.mts
+ M skills/process/delivery-cadence/SKILL.md
+ M skills/process/kbd-process-orchestrator/hooks/hooks.json
+ M skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs
+ M skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-handoff/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-handoff/kbd-handoff.sh
+ M skills/process/kbd-process-orchestrator/skills/kbd-init/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-new-child/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-next-child/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-pause/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-resume/SKILL.md
+ M skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md
+ M skills/process/prometheus-context-bootstrap/SKILL.md
+ M skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh
+ M skills/process/prometheus-context-bootstrap/references/AGENTS.base.md
+ M skills/process/prometheus-context-bootstrap/references/rules-flutter.md
+ M skills/process/prometheus-context-bootstrap/references/rules-go.md
+ M skills/process/prometheus-context-bootstrap/references/rules-python.md
+ M skills/process/prometheus-context-bootstrap/references/rules-rust.md
+ M skills/process/prometheus-context-bootstrap/references/rules-typescript.md
+ M skills/testing/bdd-cucumber-js/SKILL.md
+ M skills/testing/bdd-cucumber-rs/SKILL.md
+ M substrate/kbd-runtime/src/lib.rs
+ M substrate/kbd-runtime/src/project_document.rs
+ M tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs
+ M tools/prometheus-cli/crates/prometheus-cli/src/main.rs
+ m tools/surreal-memory-server
+?? .kbd-orchestrator/phases/issues-194-195-196/adopted-contract.json
+?? .kbd-orchestrator/phases/issues-194-195-196/adopted/c6c2db6d12c9588a9213fe7f53efbd316cab2155c432c45a814307ebbf0f5734.json
+?? .kbd-orchestrator/phases/issues-194-195-196/analysis.md
+?? .kbd-orchestrator/phases/issues-194-195-196/assessment.md
+?? .kbd-orchestrator/phases/issues-194-195-196/backend-task-map.json
+?? .kbd-orchestrator/phases/issues-194-195-196/decision-log.md
+?? .kbd-orchestrator/phases/issues-194-195-196/execute-dispatch.json
+?? .kbd-orchestrator/phases/issues-194-195-196/execution.md
+?? .kbd-orchestrator/phases/issues-194-195-196/goals.md
+?? .kbd-orchestrator/phases/issues-194-195-196/handoffs/analyze.handoff.json
+?? .kbd-orchestrator/phases/issues-194-195-196/handoffs/assess.handoff.json
+?? .kbd-orchestrator/phases/issues-194-195-196/handoffs/plan.handoff.json
+?? .kbd-orchestrator/phases/issues-194-195-196/handoffs/spec.handoff.json
+?? .kbd-orchestrator/phases/issues-194-195-196/harness-handoffs/claude-desktop-20261027T103845Z.json
+?? .kbd-orchestrator/phases/issues-194-195-196/history/plan-before-owner-approval/adopted-contract.json
+?? .kbd-orchestrator/phases/issues-194-195-196/history/plan-before-owner-approval/plan-authority.json
+?? .kbd-orchestrator/phases/issues-194-195-196/history/plan-before-owner-approval/plan-finalization.json
+?? .kbd-orchestrator/phases/issues-194-195-196/history/plan-before-owner-approval/plan.md
+?? .kbd-orchestrator/phases/issues-194-195-196/history/plan-before-owner-approval/proposed-calibration.md
+?? .kbd-orchestrator/phases/issues-194-195-196/installed-identity.json
+?? .kbd-orchestrator/phases/issues-194-195-196/issue-baseline.md
+?? .kbd-orchestrator/phases/issues-194-195-196/library-candidates.json
+?? .kbd-orchestrator/phases/issues-194-195-196/owner-approval.json
+?? .kbd-orchestrator/phases/issues-194-195-196/plan-authority.json
+?? .kbd-orchestrator/phases/issues-194-195-196/plan-finalization.json
+?? .kbd-orchestrator/phases/issues-194-195-196/plan-registration.json
+?? .kbd-orchestrator/phases/issues-194-195-196/plan.md
+?? .kbd-orchestrator/phases/issues-194-195-196/prior-context.md
+?? .kbd-orchestrator/phases/issues-194-195-196/progress.json
+?? .kbd-orchestrator/phases/issues-194-195-196/proposed-calibration.md
+?? .kbd-orchestrator/phases/issues-194-195-196/review/analyze/packet.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/analyze/pending-review.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/assess/packet.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/assess/pending-review.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/plan/owner-approved-packet.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/plan/owner-approved-pending-review.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/plan/packet.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/plan/pending-review.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/spec/packet.json
+?? .kbd-orchestrator/phases/issues-194-195-196/review/spec/pending-review.json
+?? .kbd-orchestrator/phases/issues-194-195-196/specification-manifest.json
+?? .kbd-orchestrator/phases/issues-194-195-196/specification.md
+?? .kbd-orchestrator/phases/issues-194-195-196/sycophancy/assess-20261026.json
+?? .kbd-orchestrator/phases/issues-194-195-196/sycophancy/plan-20261027.json
+?? .kbd-orchestrator/phases/issues-194-195-196/tasks.json
+?? .kbd-orchestrator/phases/issues-194-195-196/tasks.md
+?? .prometheus/knowledge/wiki/.index.lock
+?? .prometheus/knowledge/wiki/karpathy-session-00139a0539d609cc.md
+?? .prometheus/knowledge/wiki/karpathy-session-037dfafee5d965b0.md
+?? .prometheus/knowledge/wiki/karpathy-session-0630269241627907.md
+?? .prometheus/knowledge/wiki/karpathy-session-06c17488d2819fe9.md
+?? .prometheus/knowledge/wiki/karpathy-session-0c152ce89316c404.md
+?? .prometheus/knowledge/wiki/karpathy-session-0d73e02f36652524.md
+?? .prometheus/knowledge/wiki/karpathy-session-113533abeb245405.md
+?? .prometheus/knowledge/wiki/karpathy-session-11cd6b0e5d438255.md
+?? .prometheus/knowledge/wiki/karpathy-session-1294183f5a5cfeeb.md
+?? .prometheus/knowledge/wiki/karpathy-session-1a0e636ecc2197fb.md
+?? .prometheus/knowledge/wiki/karpathy-session-1b27762d89f08b10.md
+?? .prometheus/knowledge/wiki/karpathy-session-1ca981a3dd7c5dca.md
+?? .prometheus/knowledge/wiki/karpathy-session-1e610075852e9fb9.md
+?? .prometheus/knowledge/wiki/karpathy-session-22911628e9a17950.md
+?? .prometheus/knowledge/wiki/karpathy-session-2736090eb8196c39.md
+?? .prometheus/knowledge/wiki/karpathy-session-28920831c66f073b.md
+?? .prometheus/knowledge/wiki/karpathy-session-2e6d1e52345c1999.md
+?? .prometheus/knowledge/wiki/karpathy-session-2effabac8c613bfd.md
+?? .prometheus/knowledge/wiki/karpathy-session-3063e69ad44da7aa.md
+?? .prometheus/knowledge/wiki/karpathy-session-3158ed09e5da382f.md
+?? .prometheus/knowledge/wiki/karpathy-session-33e4ab2207d35b0a.md
+?? .prometheus/knowledge/wiki/karpathy-session-33ed77a44f815f50.md
+?? .prometheus/knowledge/wiki/karpathy-session-3f01db9279787f44.md
+?? .prometheus/knowledge/wiki/karpathy-session-45d4d69de95d1f79.md
+?? .prometheus/knowledge/wiki/karpathy-session-46a0f9293c2cc9c3.md
+?? .prometheus/knowledge/wiki/karpathy-session-4789d021e5b7b16b.md
+?? .prometheus/knowledge/wiki/karpathy-session-4be3843602b14168.md
+?? .prometheus/knowledge/wiki/karpathy-session-569acad69798a610.md
+?? .prometheus/knowledge/wiki/karpathy-session-58da7cc6a9caa6d0.md
+?? .prometheus/knowledge/wiki/karpathy-session-5cdc1601fe8be9d6.md
+?? .prometheus/knowledge/wiki/karpathy-session-5f4acc06ba024836.md
+?? .prometheus/knowledge/wiki/karpathy-session-636a57d37fa7fdc9.md
+?? .prometheus/knowledge/wiki/karpathy-session-67bc1e462efe2a57.md
+?? .prometheus/knowledge/wiki/karpathy-session-688ed527051a9de0.md
+?? .prometheus/knowledge/wiki/karpathy-session-6e87f0fa701dfdca.md
+?? .prometheus/knowledge/wiki/karpathy-session-6e929c38b4a0a56d.md
+?? .prometheus/knowledge/wiki/karpathy-session-6eafc55111ab1795.md
+?? .prometheus/knowledge/wiki/karpathy-session-701187f311ae4590.md
+?? .prometheus/knowledge/wiki/karpathy-session-72a7bd61ab262d78.md
+?? .prometheus/knowledge/wiki/karpathy-session-7317f4bef7b7f589.md
+?? .prometheus/knowledge/wiki/karpathy-session-7436bfcc57949fa8.md
+?? .prometheus/knowledge/wiki/karpathy-session-7467dade0e3b9151.md
+?? .prometheus/knowledge/wiki/karpathy-session-74796b81e7e3ae45.md
+?? .prometheus/knowledge/wiki/karpathy-session-749320e446e5ef41.md
+?? .prometheus/knowledge/wiki/karpathy-session-75908e48e8e9d42b.md
+?? .prometheus/knowledge/wiki/karpathy-session-777e2081fb2f898f.md
+?? .prometheus/knowledge/wiki/karpathy-session-7b7deff007b92c9a.md
+?? .prometheus/knowledge/wiki/karpathy-session-7ed240244bf5e196.md
+?? .prometheus/knowledge/wiki/karpathy-session-7ef88de1833ef3f0.md
+?? .prometheus/knowledge/wiki/karpathy-session-8065af03a8a1f030.md
+?? .prometheus/knowledge/wiki/karpathy-session-854e5bd94be8b203.md
+?? .prometheus/knowledge/wiki/karpathy-session-894a525d3fee7254.md
+?? .prometheus/knowledge/wiki/karpathy-session-89649f31e9c36de8.md
+?? .prometheus/knowledge/wiki/karpathy-session-8e1fc25030ad8836.md
+?? .prometheus/knowledge/wiki/karpathy-session-91c9d4d7c9dcd990.md
+?? .prometheus/knowledge/wiki/karpathy-session-92e8415eb5b4aead.md
+?? .prometheus/knowledge/wiki/karpathy-session-9625e3fc5a625a33.md
+?? .prometheus/knowledge/wiki/karpathy-session-992da35a2024db6b.md
+?? .prometheus/knowledge/wiki/karpathy-session-9959bb979357c54c.md
+?? .prometheus/knowledge/wiki/karpathy-session-99917384c9e778db.md
+?? .prometheus/knowledge/wiki/karpathy-session-99f674d3890fd06f.md
+?? .prometheus/knowledge/wiki/karpathy-session-9bb56551e7a77539.md
+?? .prometheus/knowledge/wiki/karpathy-session-9d8109fdd63b199a.md
+?? .prometheus/knowledge/wiki/karpathy-session-9f9416854830cdc4.md
+?? .prometheus/knowledge/wiki/karpathy-session-a098582a86d8ca9b.md
+?? .prometheus/knowledge/wiki/karpathy-session-a22e4fcf71a40097.md
+?? .prometheus/knowledge/wiki/karpathy-session-a4deef4d58837100.md
+?? .prometheus/knowledge/wiki/karpathy-session-a88a4a4725af4374.md
+?? .prometheus/knowledge/wiki/karpathy-session-a8d62c9dcd380fee.md
+?? .prometheus/knowledge/wiki/karpathy-session-a91825b4d1a87748.md
+?? .prometheus/knowledge/wiki/karpathy-session-b5b729aaf6447671.md
+?? .prometheus/knowledge/wiki/karpathy-session-b95e24c99da829df.md
+?? .prometheus/knowledge/wiki/karpathy-session-bd1863033a9520f7.md
+?? .prometheus/knowledge/wiki/karpathy-session-bf810d6d5b9e7043.md
+?? .prometheus/knowledge/wiki/karpathy-session-c4d227365a35ecea.md
+?? .prometheus/knowledge/wiki/karpathy-session-c7308864949dce59.md
+?? .prometheus/knowledge/wiki/karpathy-session-cde954ef534fc453.md
+?? .prometheus/knowledge/wiki/karpathy-session-d6bceb13e95c53da.md
+?? .prometheus/knowledge/wiki/karpathy-session-d8d0f6685e8b6158.md
+?? .prometheus/knowledge/wiki/karpathy-session-d9eeed6e950b1fed.md
+?? .prometheus/knowledge/wiki/karpathy-session-da2870d02dc0a384.md
+?? .prometheus/knowledge/wiki/karpathy-session-e1114ba6642232fd.md
+?? .prometheus/knowledge/wiki/karpathy-session-e2fc88076ab3c602.md
+?? .prometheus/knowledge/wiki/karpathy-session-e44b10814f408e33.md
+?? .prometheus/knowledge/wiki/karpathy-session-e8580c9f482ff685.md
+?? .prometheus/knowledge/wiki/karpathy-session-e8a64b83c7228742.md
+?? .prometheus/knowledge/wiki/karpathy-session-e8cee4541fb1a905.md
+?? .prometheus/knowledge/wiki/karpathy-session-eafaaa0335cef975.md
+?? .prometheus/knowledge/wiki/karpathy-session-ec253f70ec384385.md
+?? .prometheus/knowledge/wiki/karpathy-session-ed57ac616b87fda1.md
+?? .prometheus/knowledge/wiki/karpathy-session-efa1a9fedb3627c6.md
+?? .prometheus/knowledge/wiki/karpathy-session-efcab611db816bea.md
+?? .prometheus/knowledge/wiki/karpathy-session-f003d7aa95075615.md
+?? .prometheus/knowledge/wiki/karpathy-session-f07825d717b54919.md
+?? .prometheus/knowledge/wiki/karpathy-session-f1c45e1df43255e1.md
+?? .prometheus/knowledge/wiki/karpathy-session-f5b1a1fb3a19c74c.md
+?? .prometheus/knowledge/wiki/karpathy-session-f833220b5d7d3fd5.md
+?? .prometheus/knowledge/wiki/karpathy-session-fea28ec931078311.md
+?? .prometheus/knowledge/wiki/karpathy-session-ff4e5178d85d46a6.md
+?? .prometheus/knowledge/wiki/karpathy-session-ff9bc138ed67f53f.md
+?? docs/guide/kbd-selected-method-recovery.md
+?? openspec/changes/kbd-194-196-delivery-qualification/.openspec.yaml
+?? openspec/changes/kbd-194-196-delivery-qualification/design.md
+?? openspec/changes/kbd-194-196-delivery-qualification/proposal.md
+?? openspec/changes/kbd-194-196-delivery-qualification/specs/kbd-control-plane-reconciliation/spec.md
+?? openspec/changes/kbd-194-196-delivery-qualification/tasks.md
+?? openspec/changes/kbd-194-196-delivery-qualification/verification.md
+?? openspec/changes/kbd-194-change-identity-repair/.openspec.yaml
+?? openspec/changes/kbd-194-change-identity-repair/design.md
+?? openspec/changes/kbd-194-change-identity-repair/proposal.md
+?? openspec/changes/kbd-194-change-identity-repair/specs/kbd-control-plane-reconciliation/spec.md
+?? openspec/changes/kbd-194-change-identity-repair/tasks.md
+?? openspec/changes/kbd-194-change-identity-repair/verification.md
+?? openspec/changes/kbd-195-vlbv-policy-propagation/.openspec.yaml
+?? openspec/changes/kbd-195-vlbv-policy-propagation/design.md
+?? openspec/changes/kbd-195-vlbv-policy-propagation/proposal.md
+?? openspec/changes/kbd-195-vlbv-policy-propagation/specs/agent-team-management/spec.md
+?? openspec/changes/kbd-195-vlbv-policy-propagation/specs/kbd-phase-consistency/spec.md
+?? openspec/changes/kbd-195-vlbv-policy-propagation/tasks.md
+?? openspec/changes/kbd-195-vlbv-policy-propagation/verification.md
+?? openspec/changes/kbd-196-value-scenario-workflow/.openspec.yaml
+?? openspec/changes/kbd-196-value-scenario-workflow/design.md
+?? openspec/changes/kbd-196-value-scenario-workflow/proposal.md
+?? openspec/changes/kbd-196-value-scenario-workflow/specs/value-led-scenario-verification/spec.md
+?? openspec/changes/kbd-196-value-scenario-workflow/tasks.md
+?? openspec/changes/kbd-196-value-scenario-workflow/verification.md
+?? skills/process/agent-team-creator/runtime/src/phase-policy.mts
+?? skills/process/kbd-process-orchestrator/references/method-context.md
+?? skills/process/kbd-process-orchestrator/shared/method-context.mjs
+?? skills/testing/bdd-cucumber-js/references/author-only.md
+?? skills/testing/bdd-cucumber-rs/references/author-only.md
+?? skills/testing/value-scenario-discovery/SKILL.md
+?? skills/testing/value-scenario-verify/SKILL.md
+?? substrate/kbd-runtime/src/change_identity.rs

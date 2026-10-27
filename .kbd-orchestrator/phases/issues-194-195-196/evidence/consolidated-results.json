@@ -1,0 +1,134 @@
+{
+  "note": "Latest attempt per scenario against the candidate unchanged since attempt 9. Earlier attempts and all failures are retained under evidence/attempt-N.",
+  "scenarios": [
+    {
+      "id": "IDR-001",
+      "status": "PASS",
+      "fromAttempt": "attempt-9",
+      "observed": "12 assertions observed",
+      "limitations": []
+    },
+    {
+      "id": "IDR-002",
+      "status": "PASS",
+      "fromAttempt": "attempt-9",
+      "observed": "22 assertions observed",
+      "limitations": [
+        "Non-operator actor kind cannot be selected from the public CLI (it signs repair as operator); authority is exercised through an unenrolled signer.",
+        "Original #194 journal and 1.11.3 binary are unavailable; this proves only the seeded damaged-identity family."
+      ]
+    },
+    {
+      "id": "IDR-003",
+      "status": "PASS",
+      "fromAttempt": "attempt-9",
+      "observed": "11 assertions observed",
+      "limitations": []
+    },
+    {
+      "id": "PKG-001",
+      "status": "PASS",
+      "fromAttempt": "attempt-9",
+      "observed": "37 assertions observed",
+      "limitations": [
+        "Only local macOS source, generated and scratch-installed Claude/Codex payloads; no real user install was read or changed.",
+        "Payload equality and identical diagnostics establish payload fidelity, not session obedience; native-session observation is covered separately and is BLOCKED."
+      ]
+    },
+    {
+      "id": "POL-001",
+      "status": "PASS",
+      "fromAttempt": "attempt-13",
+      "observed": "14 assertions observed",
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ]
+    },
+    {
+      "id": "SCN-001",
+      "status": "PASS",
+      "fromAttempt": "attempt-13",
+      "observed": "7 assertions observed",
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ]
+    },
+    {
+      "id": "SCN-002",
+      "status": "PASS",
+      "fromAttempt": "attempt-14",
+      "observed": "9 assertions observed",
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ]
+    },
+    {
+      "id": "POL-002",
+      "status": "PASS",
+      "fromAttempt": "attempt-16",
+      "observed": "4 assertions observed",
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\".",
+        "Codex was NOT exercised: the logged-in account reported \"You've hit your usage limit. Try again at Nov 2nd, 2026 8:06 AM.\"",
+        "Codex ran from AGENTS.md plus the derived method-context index only; the generated Codex plugin was not loaded into the session."
+      ]
+    },
+    {
+      "id": "POL-003",
+      "status": "PASS",
+      "fromAttempt": "attempt-16",
+      "observed": "6 assertions observed",
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ]
+    },
+    {
+      "id": "VER-002",
+      "status": "PASS",
+      "fromAttempt": "attempt-11",
+      "observed": "8 assertions observed",
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\".",
+        "Classification of stated cases only; no real runner, canonical writer or closure was driven by the session."
+      ]
+    },
+    {
+      "id": "VER-001",
+      "status": "NOT_EXERCISED",
+      "fromAttempt": "attempt-11",
+      "observed": "Recorded by the operator as NOT_EXERCISED: no session drove the verify procedure against a real runner (VER-001) or the canonical closure writer (VER-003).",
+      "limitations": []
+    },
+    {
+      "id": "VER-003",
+      "status": "NOT_EXERCISED",
+      "fromAttempt": "attempt-11",
+      "observed": "Recorded by the operator as NOT_EXERCISED: no session drove the verify procedure against a real runner (VER-001) or the canonical closure writer (VER-003).",
+      "limitations": []
+    }
+  ],
+  "harnessCoverage": {
+    "claude-code": "exercised (POL-001, POL-002, POL-003, SCN-001, SCN-002, VER-002; n=1 each)",
+    "codex": "NOT exercised: scratch login works but the account returned a usage limit until Nov 2nd, 2026",
+    "opencode": "NOT exercised: `opencode run` produced no output within 60-120 s on two free models, including --standalone"
+  },
+  "recordedBy": "operator decision in chat; evidence file only, no canonical closure written"
+}

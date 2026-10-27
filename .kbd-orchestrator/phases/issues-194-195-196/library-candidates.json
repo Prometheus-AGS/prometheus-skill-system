@@ -1,0 +1,243 @@
+{
+  "phase": "issues-194-195-196",
+  "generated_at": "2026-10-27T08:55:20.590865+00:00",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier_1": 5,
+      "tier_2": 6,
+      "tier_3": 2,
+      "tier_4": 0
+    }
+  },
+  "gaps_addressed": [
+    "194-identity-and-repair",
+    "195-policy-propagation-and-recovery",
+    "196-discovery-authoring-execution"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "Existing signed KBD runtime and apply/reconcile path",
+      "kind": "framework",
+      "registry": "none",
+      "repo_url": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+      "verdict": "adapt",
+      "fit_for_gap": "#194 prevention, duplicate diagnosis and evidence-preserving authorized repair",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/substrate/kbd-runtime/src/lib.rs#L2073",
+          "claim": "New ChangeRegistered events already reject an existing phase-map key."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/substrate/kbd-runtime/src/lib.rs#L6897",
+          "claim": "Legacy conversion collects rows into a BTreeMap by embedded ID; duplicate rows can overwrite earlier values."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs#L805",
+          "claim": "Boundary resolution is active-phase scoped; qualified task lookup uses map keys before an ID/title fallback."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs#L54",
+          "claim": "Duplicate progress IDs currently cause a generic scan error."
+        }
+      ],
+      "risks": [
+        "Affected 1.11.3 journal unavailable: no incident reproduction or root-cause certification.",
+        "A merge must not fabricate task completion or rewrite signed history."
+      ],
+      "decision_rationale": "Add targeted identity inspection and an explicit typed, signed repair path only for confirmed canonical damage; preserve existing guards and receipts. Readiness: scenarioMatrix, evidenceInvalidation and boundaryPacket; current runtime does not expose the needed repair command."
+    },
+    {
+      "id": "cand-002",
+      "name": "Existing adopted contract, decisions, readiness and typed phase closure",
+      "kind": "framework",
+      "registry": "none",
+      "verdict": "adopt",
+      "fit_for_gap": "#195/#196 single contract authority and scenario-to-evidence-to-closure binding",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/skills/process/kbd-process-orchestrator/references/schemas/adopted-contract.schema.json",
+          "claim": "Contract has stable scenario IDs, oracle, negativeControl, budgets, evidence invalidation, workerRoutes and a single post-implementation boundary packet."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/substrate/kbd-runtime/src/phase_closure.rs#L775",
+          "claim": "Typed closure already handles pass/refusal and refuses unsupported cancelled/deferred dispositions."
+        }
+      ],
+      "risks": [
+        "Reuse is not current execution evidence.",
+        "Any necessary schema extension must retain digest normalization and existing adoption authority."
+      ],
+      "decision_rationale": "No parallel ledger or generic closure replacement. Readiness: identity, adoptionSource, scenarioMatrix, budgets, workerRoutes and boundaryPacket; existing machinery can support the integration, but #194 repair still needs production code."
+    },
+    {
+      "id": "cand-003",
+      "name": "Bootstrap, KBD handoff and team prompt/provenance surfaces",
+      "kind": "skeleton",
+      "registry": "none",
+      "verdict": "adapt",
+      "fit_for_gap": "#195 compact method/contract/authority recovery through new and delegated sessions",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/skills/process/agent-team-creator/runtime/src/adapters-codecs.mts#L64",
+          "claim": "Role prompt already exports outcome, ownership, inputs, outputs, dependencies and skills."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/skills/process/agent-team-creator/runtime/src/handoff-provenance.mts",
+          "claim": "Selected provenance already hashes source/evidence files and warns that observation transfers no authority."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/skills/process/kbd-process-orchestrator/references/schemas/harness-handoff.schema.json",
+          "claim": "Handoff has readInOrder, targetChecks, warnings and startPrompt."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh",
+          "claim": "Recovery restores position, not VLBV method/calibration/supersession references."
+        }
+      ],
+      "risks": [
+        "Generic references need explicit stable semantics; prompt visibility alone does not enforce behavior.",
+        "Do not silently rewrite operator-owned instructions."
+      ],
+      "decision_rationale": "Reuse inputs, selected file provenance and handoff references before proposing additive schema fields. Readiness: workerRoutes, identity, amendmentPolicy, evidenceInvalidation and budgets; compact propagation needs implementation, not a new runtime authority."
+    },
+    {
+      "id": "cand-004",
+      "name": "Cucumber.js via existing bdd-cucumber-js adapter",
+      "kind": "library",
+      "registry": "npm",
+      "repo_url": "https://github.com/cucumber/cucumber-js",
+      "license": "MIT",
+      "verdict": "adapt",
+      "fit_for_gap": "#196 author-only instructions and bounded phase-end JS execution/report retention",
+      "maintenance": {
+        "last_release": "Registry latest observed 13.3.0; metadata modified 2026-10-05T08:15:25.322Z"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/cucumber/cucumber-js/blob/edaa0bb17a0b9a6004d6179741597e37db87465e/docs/dry_run.md",
+          "claim": "Dry-run loads support code, skips steps and does not fail on undefined/ambiguous steps; it is neither author-only nor assertion evidence."
+        },
+        {
+          "tier": 2,
+          "source_url": "https://github.com/cucumber/cucumber-js/blob/main/docs/custom_formatters.md",
+          "claim": "Existing message formatters expose runner results; no replacement runner is necessary."
+        },
+        {
+          "tier": 3,
+          "source_url": "https://registry.npmjs.org/@cucumber%2fcucumber",
+          "claim": "Read-only npm metadata reports 13.3.0, MIT. This does not authorize changing consumer dependency pins."
+        }
+      ],
+      "risks": [
+        "Never import support code, install dependencies or run dry-run during author-only invocation.",
+        "Process success and formatter results alone do not prove the contract oracle."
+      ],
+      "decision_rationale": "Keep existing runner; adapt skill routing and scenario/assertion/evidence links. Readiness: scenarioMatrix and boundaryPacket; no new general-purpose runner runtime needed."
+    },
+    {
+      "id": "cand-005",
+      "name": "cucumber-rs via existing bdd-cucumber-rs adapter",
+      "kind": "library",
+      "registry": "crates",
+      "repo_url": "https://github.com/cucumber-rs/cucumber",
+      "license": "MIT OR Apache-2.0",
+      "verdict": "adapt",
+      "fit_for_gap": "#196 author-only instructions and bounded phase-end Rust integration execution",
+      "maintenance": {
+        "last_release": "0.23.0; registry updated 2026-04-23T22:35:03.179719Z"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/cucumber-rs/cucumber/blob/d95872541ee2a43d71089c64bd3fa8848e24c922/book/src/output/index.md",
+          "claim": "Existing output supports Cucumber JSON, JUnit and libtest integrations."
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/cucumber",
+          "claim": "Registry reports stable 0.23.0 and MIT OR Apache-2.0; this matches the current skill major/minor guidance."
+        }
+      ],
+      "risks": [
+        "Cargo builds/checks/test execution remain deferred to the authorized complete-phase boundary.",
+        "JSON or libtest output is not by itself a retained value assertion."
+      ],
+      "decision_rationale": "Adapt the existing Rust skill, preserve package pins and use a targeted real integration entry point at phase end. Readiness: scenarioMatrix and boundaryPacket; no replacement runner."
+    },
+    {
+      "id": "cand-006",
+      "name": "Published VLBV method and supersession procedure",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "#195 selected-method semantics; #196 bounded relevance discovery and calibration",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://ipfs.prometheusags.ai/ipfs/bafybeihp44qigr3g5zoalkt3p6xvovaglcuzbsp3l4os5vba26glfz6zya/index.html",
+          "claim": "Method source read during Assess: pre-generation acceptance planning, owner calibration, complete-value-phase verification and explicit supersession; not product qualification."
+        }
+      ],
+      "risks": [
+        "No project adoption or execution permission follows merely from the paper.",
+        "Scenario selection needs owner-reviewed examples; do not invent probabilities or weights."
+      ],
+      "decision_rationale": "Reference the independent method and build a small pack-specific discovery/routing procedure. Readiness: functionalScope, exclusions, scenarioMatrix, amendmentPolicy; generic library adoption cannot supply project value judgments."
+    },
+    {
+      "id": "cand-007",
+      "name": "Replacement orchestrator, runner or parallel acceptance ledger",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reject",
+      "fit_for_gap": "Alternative for #194\u2013196",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/skills/process/kbd-process-orchestrator/references/schemas/adopted-contract.schema.json",
+          "claim": "Existing contract already owns finite acceptance and boundary identity."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/bfe572ff8a97a21c7610c44ea6b39d5f97a857b7/substrate/kbd-runtime/src/phase_closure.rs",
+          "claim": "Existing signed runtime owns closure semantics."
+        }
+      ],
+      "risks": [
+        "Duplicates authority and increases migration scope contrary to issue exclusions."
+      ],
+      "decision_rationale": "Existing runtime, adapters and contract are adequate foundations. Readiness is improved by targeted integration, not framework replacement."
+    }
+  ],
+  "build_required": [
+    {
+      "need": "Explicit duplicate identity diagnostics, legacy/import preservation and authorized repair in existing runtime/apply path",
+      "why_no_candidate": "Domain-specific signed journal, embedded IDs, task receipts and counter semantics cannot be delegated to a generic deduplication library. Incident-specific mapping remains conditional on evidence.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Compact selected-method and phase-authority reference propagation through bootstrap, dispatch, handoffs and recovery",
+      "why_no_candidate": "Existing fields/provenance can carry references, but selection, supersession and governing-policy resolution need project-specific integration.",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Small separately invocable scenario discovery procedure plus explicit BDD author-only and phase-end execution routing",
+      "why_no_candidate": "Runners execute scenarios; they do not adopt useful scope, calibrate relevance, grant authority or establish oracle sensitivity.",
+      "capability_gap_id": null
+    }
+  ]
+}

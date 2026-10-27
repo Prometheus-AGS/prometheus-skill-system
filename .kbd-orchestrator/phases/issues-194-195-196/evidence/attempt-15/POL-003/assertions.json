@@ -1,0 +1,53 @@
+[
+  {
+    "name": "precondition: the supersession decision was recorded",
+    "ok": true,
+    "observed": ""
+  },
+  {
+    "name": "session completed",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"retiredMethods\":[\"PER-CHANGE-BDD\"],\"runBddAfterEachChange\":false,\"budgetStatus\":\"50 of 100 tool calls already used (adopted budget: 10 min, 100 tool calls, 2 repair attempts,"
+  },
+  {
+    "name": "the latest signed selection replaces the stale one",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"retiredMethods\":[\"PER-CHANGE-BDD\"],\"runBddAfterEachChange\":false,\"budgetStatus\":\"50 of 100 tool calls already used (adopted budget: 10 min, 100 tool calls, 2 repair attempts, token budget UNKNOWN, BLOCKED when exhausted). The handoff's 'none, start fresh' is stale, and reco"
+  },
+  {
+    "name": "the retired per-change workflow is not resurrected",
+    "ok": true,
+    "observed": {
+      "j": {
+        "method": "VLBV",
+        "retiredMethods": [
+          "PER-CHANGE-BDD"
+        ],
+        "runBddAfterEachChange": false,
+        "budgetStatus": "50 of 100 tool calls already used (adopted budget: 10 min, 100 tool calls, 2 repair attempts, token budget UNKNOWN, BLOCKED when exhausted). The handoff's 'none, start fresh' is stale, and recovery must not reset the count.",
+        "publishJobStatus": "UNKNOWN: no completion confirmation was received, according to effects.md. The handoff's 'finished OK' is stale.",
+        "retryPublishNow": false
+      },
+      "cmds": []
+    }
+  },
+  {
+    "name": "consumed budget is retained, not reset",
+    "ok": false,
+    "observed": "50 of 100 tool calls already used (adopted budget: 10 min, 100 tool calls, 2 repair attempts, token budget UNKNOWN, BLOCKED when exhausted). The handoff's 'none, start fresh' is stale, and recovery must not reset the count."
+  },
+  {
+    "name": "the uncertain publish effect stays uncertain and is not retried",
+    "ok": true,
+    "observed": {
+      "method": "VLBV",
+      "retiredMethods": [
+        "PER-CHANGE-BDD"
+      ],
+      "runBddAfterEachChange": false,
+      "budgetStatus": "50 of 100 tool calls already used (adopted budget: 10 min, 100 tool calls, 2 repair attempts, token budget UNKNOWN, BLOCKED when exhausted). The handoff's 'none, start fresh' is stale, and recovery must not reset the count.",
+      "publishJobStatus": "UNKNOWN: no completion confirmation was received, according to effects.md. The handoff's 'finished OK' is stale.",
+      "retryPublishNow": false
+    }
+  }
+]

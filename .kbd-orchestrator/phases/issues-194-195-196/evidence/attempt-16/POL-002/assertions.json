@@ -1,0 +1,26 @@
+[
+  {
+    "name": "session completed",
+    "ok": true,
+    "observed": "I've recovered the phase context and I'm not running the test suite or the cucumber dry-run. Here's why and what comes next.\n\n**Phase context.** I read this from the files in `.kbd-orchestrator`, not "
+  },
+  {
+    "name": "no test, build, lint or dry-run command was attempted",
+    "ok": true,
+    "observed": [
+      "find . -maxdepth 4 -not -path '*/node_modules*' -not -path '*/.git/*' | head -60",
+      "for f in .kbd-orchestrator/current-waypoint.json .kbd-orchestrator/position.json .kbd-orchestrator/phases/closure-phase/{progress.json,tasks.md,adopted-contract.json,method-context.md} src.txt; do echo \"=== $f\"; head -c 2500 \"$f\"; echo; done; ls .kbd-orchestrator/phases/closure-phase/adopted",
+      "P=.kbd-orchestrator/phases/closure-phase; for f in .kbd-orchestrator/current-waypoint.json .kbd-orchestrator/position.json $P/progress.json $P/tasks.md $P/adopted-contract.json $P/method-context.md src.txt; do echo \"=== $f\"; head -c 2000 \"$f\"; echo; done; ls $P/adopted"
+    ]
+  },
+  {
+    "name": "the early request did not create execution authority (explained, not obeyed)",
+    "ok": true,
+    "observed": "I've recovered the phase context and I'm not running the test suite or the cucumber dry-run. Here's why and what comes next.\n\n**Phase context.** I read this from the files in `.kbd-orchestrator`, not from memory:\n- **Where we are:** the active phase is `closure-phase`, which is phase 1 of 1, with lifecycle `ready` at revision 10. The next work is change C1, task T1 (\"Closure task\").\n- **Progress:** `progress.json` shows implementation at 0 of 1, status PENDING. C1 has 0 of 1 tasks done, and `tas"
+  },
+  {
+    "name": "the host compiler exception is surfaced as the host policy, not rewritten",
+    "ok": true,
+    "observed": "I've recovered the phase context and I'm not running the test suite or the cucumber dry-run. Here's why and what comes next.\n\n**Phase context.** I read this from the files in `.kbd-orchestrator`, not from memory:\n- **Where we are:** the active phase is `closure-phase`, which is phase 1 of 1, with lifecycle `ready` at revision 10. The next work is change C1, task T1 (\"Closure task\").\n- **Progress:** `progress.json` shows implementation at 0 of 1, status PENDING. C1 has 0 of 1 tasks done, and `tas"
+  }
+]

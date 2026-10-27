@@ -65,7 +65,7 @@ Full integration contracts are defined in `references/integrations/`:
 | ---------------------- | ----------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- |
 | **iterative-evolver**  | Assess                  | Deep codebase + spec gap analysis with cross-session continuity                    | `references/integrations/iterative-evolver.md`  |
 | **artifact-refiner**   | Execute (per-change QA) | Constraint-driven code quality gate before archiving each change                   | `references/integrations/artifact-refiner.md`   |
-| **bdd-testing**        | Execute (verification)  | Behavioral verification gate — BDD scenarios must pass before DONE                 | `references/integrations/bdd-testing.md`        |
+| **bdd-testing**        | Assess/Spec/Plan define; phase-end verify | Value scenarios defined before generation; executed once at the authorized complete value-phase boundary | `references/integrations/bdd-testing.md`        |
 | **pmpo-skill-creator** | Reflect (meta)          | KBD self-improvement — extend kbd with new sub-skills discovered during reflection | `references/integrations/pmpo-skill-creator.md` |
 
 ### Why Global, Not Copies?
@@ -110,11 +110,14 @@ PLAN
 
 EXECUTE (per change)
  └─ <executing tool> implements the change
-    └─ /bdd-testing: write feature file + step defs   ← bdd-testing
-    └─ <tool runs the feature>: pnpm test:bdd
-    └─ /refine-validate: constraint QA gate            ← artifact-refiner
+    └─ no test, build or runner command until every planned production change is done
+    └─ /refine-validate: constraint QA gate            ← artifact-refiner (when policy allows)
        └─ if FAIL: /refine-code for iterative refinement
     └─ /opsx:archive or native archive
+
+PHASE-END VERIFY (separately authorized, complete value phase only)
+ └─ /value-scenario-verify                             ← bdd-cucumber-js / -rs execute
+    └─ smallest adequate real-path runner; evidence → canonical closure writer
 
 REFLECT
  └─ /kbd-reflect (phase retrospective)

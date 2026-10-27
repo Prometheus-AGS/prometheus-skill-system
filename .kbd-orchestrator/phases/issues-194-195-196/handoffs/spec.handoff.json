@@ -1,0 +1,23 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-10-27T09:31:25Z",
+  "outputs": [
+    "specification.md",
+    "specification-manifest.json",
+    "adopted-contract.json",
+    "proposed-calibration.md",
+    "openspec/changes/kbd-194-change-identity-repair/proposal.md",
+    "openspec/changes/kbd-194-change-identity-repair/tasks.md",
+    "openspec/changes/kbd-195-vlbv-policy-propagation/proposal.md",
+    "openspec/changes/kbd-195-vlbv-policy-propagation/tasks.md",
+    "openspec/changes/kbd-196-value-scenario-workflow/proposal.md",
+    "openspec/changes/kbd-196-value-scenario-workflow/tasks.md",
+    "openspec/changes/kbd-194-196-delivery-qualification/proposal.md",
+    "openspec/changes/kbd-194-196-delivery-qualification/tasks.md",
+    "review/spec/pending-review.json"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "Four OpenSpec changes authored: kbd-194-change-identity-repair, kbd-195-vlbv-policy-propagation, kbd-196-value-scenario-workflow, kbd-194-196-delivery-qualification. Draft existing-shape contract has 12 stable scenarios, explicit task mapping, boundary-only verification and proposed calibration/budgets/surfaces; canonical adoption NOT performed. #195 precedes #196 in shared KBD files; final delivery change owns generated reconciliation and evidence-only tasks. WARNING: original #194 incident unknown/unexercised; no validation or generated-code checks; independent review pending under completed-production policy, with OpenSpec artifacts in a locally assembled packet because bundled packet helper only collects native changes. Plan must resolve prospective adoption/readiness, prior consumption and actual host/team routes; no implementation or external-action authority inferred.",
+  "skipped": false,
+  "skipReason": null
+}

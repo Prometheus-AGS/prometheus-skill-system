@@ -1,0 +1,22 @@
+[
+  {
+    "label": "source",
+    "root": "~/Projects/prometheus/prometheus-skill-system"
+  },
+  {
+    "label": "generated claude",
+    "root": "~/Projects/prometheus/prometheus-skill-system/dist/plugins/claude/prometheus-skill-pack"
+  },
+  {
+    "label": "generated codex",
+    "root": "~/Projects/prometheus/prometheus-skill-system/dist/plugins/codex/prometheus-skill-pack"
+  },
+  {
+    "label": "installed claude",
+    "root": "/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-install-claude-OZgvYe/.prometheus/plugins/prometheus-skill-pack/generations/0d0880016cf3e7e0308f997cbaaa991e7381df4acf4dfcbfd29d1052403a8090"
+  },
+  {
+    "label": "installed codex",
+    "root": "/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-install-codex-Cpd7vV/.prometheus/plugins/prometheus-skill-pack/generations/8916b010d523f0f495761dc46fd838f61317c16dae4a06f7447e5d51e436ee28"
+  }
+]

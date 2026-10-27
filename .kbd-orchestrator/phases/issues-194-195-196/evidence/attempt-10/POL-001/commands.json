@@ -1,0 +1,35 @@
+[
+  {
+    "argv": [
+      "claude",
+      "auth",
+      "status"
+    ],
+    "envAllowlist": [
+      "CLAUDE_CONFIG_DIR",
+      "CODEX_HOME",
+      "GIT_CONFIG_GLOBAL",
+      "GIT_CONFIG_NOSYSTEM",
+      "HOME",
+      "KBD_MEMORY_MCP_URL",
+      "PATH",
+      "PROMETHEUS_CONTROL_ENDPOINT",
+      "PROMETHEUS_DATA_DIR",
+      "PROMETHEUS_DEVICE_KEY_FILE",
+      "PROMETHEUS_KBD_CONTROL_PLANE",
+      "PROMETHEUS_LEARNING_CORTEX",
+      "PROMETHEUS_LEARNING_PK",
+      "PYTHONDONTWRITEBYTECODE",
+      "TMPDIR",
+      "UAR_MEMORY_MCP_URL",
+      "USERPROFILE",
+      "XDG_CACHE_HOME",
+      "XDG_CONFIG_HOME",
+      "XDG_DATA_HOME"
+    ],
+    "startedAt": "2026-10-27T12:26:44.211Z",
+    "exit": 1,
+    "stdout": "{\n  \"loggedIn\": false,\n  \"authMethod\": \"none\",\n  \"apiProvider\": \"firstParty\",\n  \"analyticsDisabled\": false,\n  \"projectsDirectory\": \"/Users/gqadonis/.prometheus-scratch/kbd194/claude/projects\",\n  \"configDirectory\": \"/Users/gqadonis/.prometheus-scratch/kbd194/claude\"\n}\n",
+    "stderr": ""
+  }
+]

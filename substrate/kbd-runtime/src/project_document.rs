@@ -653,6 +653,9 @@ fn event_slot(event: &Event) -> Option<(String, ConflictKind)> {
         | EventKind::PhaseDispositionRecorded { phase_id, .. } => {
             Some((format!("phase:{phase_id}"), ConflictKind::Phase))
         }
+        EventKind::ChangeIdentityRepaired { repair } => {
+            Some((format!("phase:{}", repair.phase_id), ConflictKind::Phase))
+        }
         EventKind::PhaseSuccessorStarted {
             predecessor_phase_id,
             ..

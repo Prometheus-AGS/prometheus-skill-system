@@ -1,5 +1,5 @@
 {
-  "releaseVersion": "1.13.1",
+  "releaseVersion": "1.13.2",
   "schemaVersion": "prometheus-distribution-skill-index-v1",
   "skills": [
     {
@@ -833,6 +833,14 @@
     {
       "name": "validate-skill",
       "path": "skills/validate-skill"
+    },
+    {
+      "name": "value-scenario-discovery",
+      "path": "skills/value-scenario-discovery"
+    },
+    {
+      "name": "value-scenario-verify",
+      "path": "skills/value-scenario-verify"
     },
     {
       "name": "variant",

@@ -1,0 +1,332 @@
+[
+  {
+    "path": "docs/guide/kbd-selected-method-recovery.md",
+    "sha256": "f9aae49fca870117e835f994a1cd8d1839b30291ec37c2920d9d872d0b5d07e7",
+    "bytes": 4170
+  },
+  {
+    "path": "openspec/changes/kbd-194-196-delivery-qualification/.openspec.yaml",
+    "sha256": "89901217d56bdfb49c20b541962dc5db50e8161beb30e5c2cae1d189e5d53eb5",
+    "bytes": 40
+  },
+  {
+    "path": "openspec/changes/kbd-194-196-delivery-qualification/design.md",
+    "sha256": "7a9620716d66bf79146a4661a485a0199f30cf9c30a78015718c14e747ecf8f6",
+    "bytes": 10028
+  },
+  {
+    "path": "openspec/changes/kbd-194-196-delivery-qualification/proposal.md",
+    "sha256": "e0422c1a5acb8d3da6ca044c1a778b695305f798fa8f3482c96b3afffb305f88",
+    "bytes": 1425
+  },
+  {
+    "path": "openspec/changes/kbd-194-196-delivery-qualification/specs/kbd-control-plane-reconciliation/spec.md",
+    "sha256": "e48b5c62b974b4d33fc67e100cfdeb0366ed5570993ad0756dd4ab7ffe0183b3",
+    "bytes": 1747
+  },
+  {
+    "path": "openspec/changes/kbd-194-196-delivery-qualification/tasks.md",
+    "sha256": "0d500901585f033a20a4047e7e5ebef78666d34566541df0487d995de9d7ce71",
+    "bytes": 2166
+  },
+  {
+    "path": "openspec/changes/kbd-194-196-delivery-qualification/verification.md",
+    "sha256": "d7576cf52207f0b4ce46aa7b3f897cd04e64f37b05042363c9d42c2f8e14ed85",
+    "bytes": 27495
+  },
+  {
+    "path": "openspec/changes/kbd-194-change-identity-repair/.openspec.yaml",
+    "sha256": "89901217d56bdfb49c20b541962dc5db50e8161beb30e5c2cae1d189e5d53eb5",
+    "bytes": 40
+  },
+  {
+    "path": "openspec/changes/kbd-194-change-identity-repair/design.md",
+    "sha256": "e6f2397ac63667e87c61cc53146fe3811b47f88c9f7670f1b5c6b8bb67cac1a7",
+    "bytes": 5716
+  },
+  {
+    "path": "openspec/changes/kbd-194-change-identity-repair/proposal.md",
+    "sha256": "8c69b466eb8c3a922f07847e81e94fab0bb20d0b5a3a90615b1d83fd1ffe607c",
+    "bytes": 1278
+  },
+  {
+    "path": "openspec/changes/kbd-194-change-identity-repair/specs/kbd-control-plane-reconciliation/spec.md",
+    "sha256": "b28c784bbe2c0fa1a0b9f106b56ce7f49dbd9f14d7f6d2eeedf7f5329b2a38b5",
+    "bytes": 3281
+  },
+  {
+    "path": "openspec/changes/kbd-194-change-identity-repair/tasks.md",
+    "sha256": "3d9eab002b9a7ef2cc15df381179894683801951ff2066bea706e3632186d5a2",
+    "bytes": 1905
+  },
+  {
+    "path": "openspec/changes/kbd-194-change-identity-repair/verification.md",
+    "sha256": "b4eb6a61bd672433aafd8fdaa9cff9f9394046e053108a714f2bb4a89f6de6d7",
+    "bytes": 7947
+  },
+  {
+    "path": "openspec/changes/kbd-195-vlbv-policy-propagation/.openspec.yaml",
+    "sha256": "89901217d56bdfb49c20b541962dc5db50e8161beb30e5c2cae1d189e5d53eb5",
+    "bytes": 40
+  },
+  {
+    "path": "openspec/changes/kbd-195-vlbv-policy-propagation/design.md",
+    "sha256": "53c50e9ac267d489cc59ade0322cee5a8012e9aeeed1cd4513aaa1bf24acf8f2",
+    "bytes": 6554
+  },
+  {
+    "path": "openspec/changes/kbd-195-vlbv-policy-propagation/proposal.md",
+    "sha256": "6e4de7b94369c5622eed202220b27234551bfb38ef8d947b7bfe5401ad0e1083",
+    "bytes": 1420
+  },
+  {
+    "path": "openspec/changes/kbd-195-vlbv-policy-propagation/specs/agent-team-management/spec.md",
+    "sha256": "2218142767fb312974451204983dfdbff0cee3dcbf7a6dc25c54650ca16a2157",
+    "bytes": 979
+  },
+  {
+    "path": "openspec/changes/kbd-195-vlbv-policy-propagation/specs/kbd-phase-consistency/spec.md",
+    "sha256": "23089ca47940a01f7fe0852f0d35940182a3b0944fef47d115f0f433c9a7ac68",
+    "bytes": 2827
+  },
+  {
+    "path": "openspec/changes/kbd-195-vlbv-policy-propagation/tasks.md",
+    "sha256": "86d39653ae15b0245e2c18a33686b829eab7f00217b02c037cbfcbcb472a9d58",
+    "bytes": 1870
+  },
+  {
+    "path": "openspec/changes/kbd-195-vlbv-policy-propagation/verification.md",
+    "sha256": "b174f3f187b2116bb8d32c726c3cc4414d86b2ba6a20c889f4c191dbf6ce2cc8",
+    "bytes": 7943
+  },
+  {
+    "path": "openspec/changes/kbd-196-value-scenario-workflow/.openspec.yaml",
+    "sha256": "89901217d56bdfb49c20b541962dc5db50e8161beb30e5c2cae1d189e5d53eb5",
+    "bytes": 40
+  },
+  {
+    "path": "openspec/changes/kbd-196-value-scenario-workflow/design.md",
+    "sha256": "20cf37baca4f6d9c713d5cbc29b8a23033ab7da813720c140fecf58c1389e653",
+    "bytes": 6823
+  },
+  {
+    "path": "openspec/changes/kbd-196-value-scenario-workflow/proposal.md",
+    "sha256": "c1fe2e59ea031d85b95d2292c1c8f35c49aa65623725a2107f7e3b74cdb5f1c6",
+    "bytes": 1403
+  },
+  {
+    "path": "openspec/changes/kbd-196-value-scenario-workflow/specs/value-led-scenario-verification/spec.md",
+    "sha256": "913c967fdc1ebad498923b02991a5f06658bb177c44cc9256e81983294316c7a",
+    "bytes": 4993
+  },
+  {
+    "path": "openspec/changes/kbd-196-value-scenario-workflow/tasks.md",
+    "sha256": "7d8f85371c5dbd75d1bc9ab715bd7d63618b88eb37254b3aeb44ac4151ffd577",
+    "bytes": 1843
+  },
+  {
+    "path": "openspec/changes/kbd-196-value-scenario-workflow/verification.md",
+    "sha256": "7b9d388fc9015f3c2373419736736baa703beeef35fbe4b1258c4ffefd240fc9",
+    "bytes": 12271
+  },
+  {
+    "path": "skills/process/agent-team-creator/runtime/src/adapters-codecs.mts",
+    "sha256": "4d2d70feb507f18374ea192dc0f298f978299acd4d7fc6ddf4bf10921fb91d56",
+    "bytes": 3944
+  },
+  {
+    "path": "skills/process/agent-team-creator/runtime/src/handoff-provenance.mts",
+    "sha256": "d4f04e61275c3c82904a60b619cb3436c8092da54606d3c9a0510b0b5aa0e2fe",
+    "bytes": 7807
+  },
+  {
+    "path": "skills/process/agent-team-creator/runtime/src/handoff.mts",
+    "sha256": "c369506d654ac33173b67b2b5493c3991d04b8ca66f8701dd170c56b50c8ea71",
+    "bytes": 5722
+  },
+  {
+    "path": "skills/process/agent-team-creator/runtime/src/phase-policy.mts",
+    "sha256": "c83051d9dad073dc98766e0645b632f24723bd26f8362aa64049e917103d995d",
+    "bytes": 3485
+  },
+  {
+    "path": "skills/process/delivery-cadence/SKILL.md",
+    "sha256": "11dfd5aea74da8a63d34079233988466e5e5dce9a360a66d11aab138e3599539",
+    "bytes": 7692
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/hooks/hooks.json",
+    "sha256": "ed5b8f2d3e1f17945a88d0b32375898c2424977d362792ce64ceba40a1c80245",
+    "bytes": 17112
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/references/method-context.md",
+    "sha256": "fa267bafc905749054aa354825990d612fd97a0b0fe3187cb34b7929eb7dc9a4",
+    "bytes": 3014
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/shared/method-context.mjs",
+    "sha256": "dae3754ae06f4a1b685535cb3be3a1a25d03c4946355034accfae34b479b7968",
+    "bytes": 11522
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs",
+    "sha256": "e5346022e34c2645fed4f99d60e5ae90d1637511d86e58c0c1bd80380e98fd41",
+    "bytes": 10537
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md",
+    "sha256": "0797482bfecbf0c5c4da8a0e98d8405af4d3441bd2b1f648f8c5eeb1faccc883",
+    "bytes": 9887
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md",
+    "sha256": "db32d6333b126c3d170cda94301f1caca9d681577ac1561a0d3868f22d8b648c",
+    "bytes": 4065
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md",
+    "sha256": "db4a33f356807fbe05be80e5c93a8f3b12470c93d176c3b56542231ccad0b635",
+    "bytes": 18297
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-handoff/SKILL.md",
+    "sha256": "9d1a14029c0884477e43bded16efb7a68be830b577957a0c6b13d29167b9c775",
+    "bytes": 8304
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-handoff/kbd-handoff.sh",
+    "sha256": "37c604c8f9b7bc311a27fab6c91826f733f0696e41e47ef3e3e30b97f37431a9",
+    "bytes": 31512
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-init/SKILL.md",
+    "sha256": "1c17e32d0f69a079b257031021e3ee4d4ecad7aa3d14ace044157895827caa76",
+    "bytes": 13347
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-new-child/SKILL.md",
+    "sha256": "0b2c1f742a09b38ee8aba53e5bcf693eefd760b57dfad87f94b472d77feb81ba",
+    "bytes": 4516
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-next-child/SKILL.md",
+    "sha256": "302cbd9ae9597f9e81c0709fac8f6ddc1b86ee0020be84ede84475e9eb0310fc",
+    "bytes": 4128
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-pause/SKILL.md",
+    "sha256": "8c17ff24f2ce8623881188421aa2b9e25174eb5b5c6d2e77762a66b721b82621",
+    "bytes": 2651
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md",
+    "sha256": "919bd482c82a602b1f758d18351fdefa48725d0e2ab1934c94e68b26fec7fad3",
+    "bytes": 13914
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-resume/SKILL.md",
+    "sha256": "7e1f3e5d00ce5fcad81c6f499cd5ae007efae0ec102f3360503370405311ece2",
+    "bytes": 3271
+  },
+  {
+    "path": "skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md",
+    "sha256": "86665648b598d3e7dc2dd8c698a1d88893ebd75c1d65e7762002ffabd04a08bf",
+    "bytes": 8012
+  },
+  {
+    "path": "skills/process/prometheus-context-bootstrap/SKILL.md",
+    "sha256": "91f2564efd63c1c092ca9fde1c5267dbe5c3f95e06916d7b4b95098eb4edb36c",
+    "bytes": 23763
+  },
+  {
+    "path": "skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh",
+    "sha256": "de98a12efd60eae402d896745bb8d7109d286e94b7125d5f18f25ab433c86a53",
+    "bytes": 3648
+  },
+  {
+    "path": "skills/process/prometheus-context-bootstrap/references/AGENTS.base.md",
+    "sha256": "d5516c113a8af4e06acc61f88164a714f610855b94379b35f3a5f3ac60f6aea3",
+    "bytes": 7166
+  },
+  {
+    "path": "skills/process/prometheus-context-bootstrap/references/rules-flutter.md",
+    "sha256": "844a8d8fff7270522050406380d06633541c1b893235fabd3aa4a25620706ad0",
+    "bytes": 1550
+  },
+  {
+    "path": "skills/process/prometheus-context-bootstrap/references/rules-go.md",
+    "sha256": "67a89cc6760a61052e672afdd02f8f499acd7e0696984dddcc892853e437c525",
+    "bytes": 1551
+  },
+  {
+    "path": "skills/process/prometheus-context-bootstrap/references/rules-python.md",
+    "sha256": "3f10da91800f5ee68a2a6325d51a21d7f94e1a29aad4ae9ff30d0a8bb5fccbf8",
+    "bytes": 1367
+  },
+  {
+    "path": "skills/process/prometheus-context-bootstrap/references/rules-rust.md",
+    "sha256": "fa9ef9d1887026dd7b3659a2ff3c86247fbf6c6093c78199af1c1fb2e57f0f91",
+    "bytes": 3608
+  },
+  {
+    "path": "skills/process/prometheus-context-bootstrap/references/rules-typescript.md",
+    "sha256": "4f1a5a9cacb4cfdc4ae89d2d3ce04cc55642178b741978a2a2ffb196d0b1d4ac",
+    "bytes": 2024
+  },
+  {
+    "path": "skills/testing/bdd-cucumber-js/SKILL.md",
+    "sha256": "f57d541196fa3d434562f9e0c7fcfff80ea7d87a5604e1023bbe75b052530fe7",
+    "bytes": 10144
+  },
+  {
+    "path": "skills/testing/bdd-cucumber-js/references/author-only.md",
+    "sha256": "1dcdb9291b2137b41773f14fcf09b450a281aa69f56aee03aedb6ba146f8fa13",
+    "bytes": 2266
+  },
+  {
+    "path": "skills/testing/bdd-cucumber-rs/SKILL.md",
+    "sha256": "4cb9bd167656546ab15645521e55efa2da5f06dd861081241cb00767a704e9c2",
+    "bytes": 10087
+  },
+  {
+    "path": "skills/testing/bdd-cucumber-rs/references/author-only.md",
+    "sha256": "1dcdb9291b2137b41773f14fcf09b450a281aa69f56aee03aedb6ba146f8fa13",
+    "bytes": 2266
+  },
+  {
+    "path": "skills/testing/value-scenario-discovery/SKILL.md",
+    "sha256": "0de0f67f7b0a485849718dc530fcd65e8b4fccea6148b94711f48512066ef050",
+    "bytes": 4590
+  },
+  {
+    "path": "skills/testing/value-scenario-verify/SKILL.md",
+    "sha256": "311359ffa341c64031afbdaa229e94cddeaacf70f5c00f458ad4e62460c3e161",
+    "bytes": 5689
+  },
+  {
+    "path": "substrate/kbd-runtime/src/change_identity.rs",
+    "sha256": "ab03dbb829bc5bc90deeb78022f43e905172170e14d3c95a72d2d7ecf2a5f25d",
+    "bytes": 13671
+  },
+  {
+    "path": "substrate/kbd-runtime/src/lib.rs",
+    "sha256": "c195e7e572c96b05a8c39833ed2f4234883765fc99d8f8b7859d202ba077f273",
+    "bytes": 433302
+  },
+  {
+    "path": "substrate/kbd-runtime/src/project_document.rs",
+    "sha256": "9125b6be9bf980ecf619838d280c9a8f9159dd5b5575d75d35f41cf3f440e4b6",
+    "bytes": 55962
+  },
+  {
+    "path": "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+    "sha256": "3c9737ffe78eaf7fd19adb94a1b437ba0170a76f4d4c377a9b38a152a2c936e6",
+    "bytes": 95317
+  },
+  {
+    "path": "tools/prometheus-cli/crates/prometheus-cli/src/main.rs",
+    "sha256": "db3fc509b00e7b9d266c4c84446cfb663245abf8651da3b7d995a5f1c3ff545c",
+    "bytes": 53705
+  }
+]

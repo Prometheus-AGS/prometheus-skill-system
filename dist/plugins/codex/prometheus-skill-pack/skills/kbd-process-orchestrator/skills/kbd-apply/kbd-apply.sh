@@ -563,6 +563,10 @@ runtime_task_transition() {
     return 1
   }
 
+  # A retired alias left by an authorized identity repair resolves to its
+  # surviving change; never register it again as a new change.
+  change="$(effective_change_id "$state" "$phase" "$change")" || return 1
+
   # Register missing change/task definitions before transitioning them. Each
   # operation refreshes revision so optimistic concurrency remains exact.
   if ! printf '%s' "$state" | jq -e \
@@ -617,6 +621,7 @@ runtime_task_complete() {
   local state phase registered rid status
   state="$(kbd_runtime_status_json ".")" || return 1
   phase="$(printf '%s' "$state" | jq -r '.activePath.phaseId // empty')"
+  change="$(effective_change_id "$state" "$phase" "$change")" || return 1
   registered="$(printf '%s' "$state" | jq -c --arg phase "$phase" --arg change "$change" \
     '.phases[$phase].changes[$change].tasks // {}')" || return 1
   rid="$(resolve_runtime_task_id "$registered" "$task_id" "$sequence" "$title" 2>/dev/null)" || return 1
@@ -629,14 +634,59 @@ runtime_task_complete() {
   runtime_task_transition "$change" "$task_id" "$title" "$sequence" "complete"
 }
 
-# Repair may map backend ordinals to task IDs registered by Plan. Guards must
-# bind the same canonical task as the typed transition.
+effective_change_id() {
+  # effective_change_id <state-json> <phase> <change>
+  # Prints the registered change key for <change>. A key that is registered
+  # wins; otherwise a retired alias recorded by a signed identity repair resolves
+  # to its unique target. An ambiguous or cyclic alias is refused, never guessed.
+  local state="$1" phase="$2" current="$3" next hops=0
+  while ! printf '%s' "$state" | jq -e --arg p "$phase" --arg c "$current" \
+      '.phases[$p].changes[$c]' >/dev/null 2>&1; do
+    next="$(printf '%s' "$state" | jq -r --arg p "$phase" --arg c "$current" '
+      [(.changeIdentityRepairs // {})[]
+        | select(.phaseId == $p and (.originalChanges | has($c)))
+        | .input.resolution.targetKey] | unique
+      | if length == 0 then "" elif length == 1 then .[0] else "@@AMBIGUOUS@@" end')" || return 1
+    case "$next" in
+      "") break ;;
+      "@@AMBIGUOUS@@") warn "ambiguous retired change alias $current in phase $phase; inspect identity repairs"; return 1 ;;
+    esac
+    hops=$((hops + 1))
+    [ "$hops" -le 8 ] || { warn "retired change alias chain for $current is too long or cyclic"; return 1; }
+    current="$next"
+  done
+  printf '%s' "$current"
+}
+
+# guard_change_id <change>: the change key the canonical guards must bind.
+guard_change_id() {
+  local change="$1" state phase
+  if ! command -v kbd_runtime_authoritative >/dev/null 2>&1 \
+     || ! kbd_runtime_authoritative "."; then
+    printf '%s' "$change"; return 0
+  fi
+  state="$(kbd_runtime_status_json ".")" || return 1
+  phase="$(printf '%s' "$state" | jq -r '.activePath.phaseId // empty')"
+  [ -n "$phase" ] || { printf '%s' "$change"; return 0; }
+  effective_change_id "$state" "$phase" "$change"
+}
+
+# Backend ordinals may map to task IDs registered by Plan or surviving an
+# identity repair. Guards must bind the same canonical task, under the same
+# effective change, as the typed transition so remapped receipts stay matched.
 reconcile_guard_task_id() {
   local change="$1" id="$2" sequence="$3" title="$4" state phase registered
-  if [ "${KBD_RECONCILE_REPAIR:-}" != "1" ]; then printf '%s' "$id"; return 0; fi
+  if ! command -v kbd_runtime_authoritative >/dev/null 2>&1 \
+     || ! kbd_runtime_authoritative "."; then
+    printf '%s' "$id"; return 0
+  fi
   state="$(kbd_runtime_status_json ".")" || return 1
-  phase="$(printf '%s' "$state" | jq -r '.activePath.phaseId')"
-  [ "$phase" = "${KBD_RECONCILE_PHASE:-}" ] || return 1
+  phase="$(printf '%s' "$state" | jq -r '.activePath.phaseId // empty')"
+  if [ "${KBD_RECONCILE_REPAIR:-}" = "1" ]; then
+    [ "$phase" = "${KBD_RECONCILE_PHASE:-}" ] || return 1
+  fi
+  [ -n "$phase" ] || { printf '%s' "$id"; return 0; }
+  change="$(effective_change_id "$state" "$phase" "$change")" || return 1
   registered="$(printf '%s' "$state" | jq -c --arg p "$phase" --arg c "$change" '.phases[$p].changes[$c].tasks // {}')" || return 1
   resolve_runtime_task_id "$registered" "$id" "$sequence" "$title"
 }
@@ -680,35 +730,37 @@ case "$cmd" in
       || die "failed to register canonical task boundary"
     guard_task_id="$(reconcile_guard_task_id "$change" "$id" "$i" "$title")" \
       || die "failed to resolve canonical repair guard task"
+    guard_change="$(guard_change_id "$change")" \
+      || die "failed to resolve canonical change identity"
     change_start=0
     [ "${before_comp:-0}" -eq 0 ] && change_start=1
     guard_enabled=0
     if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
       guard_enabled=1
-      change_key="change:$(printf '%s' "$change" | tr '[:upper:]' '[:lower:]')"
+      change_key="change:$(printf '%s' "$guard_change" | tr '[:upper:]' '[:lower:]')"
       canonical_state="$(kbd_runtime_status_json ".")" \
         || die "failed to read canonical boundary obligations"
       if printf '%s' "$canonical_state" | jq -e --arg key "$change_key" '.boundaryObligations[$key]' >/dev/null 2>&1; then
         change_start=0
       else
         change_start=1
-        kbd_bottleneck_evaluate change before "$change" 1 >/dev/null \
+        kbd_bottleneck_evaluate change before "$guard_change" 1 >/dev/null \
           || die "canonical change start precommit evaluation blocked"
       fi
       # OpenSpec task ordinals and standard task titles repeat across changes.
       # Qualify the canonical subject so the guard resolves the exact typed
       # change/task pair and records a distinct boundary obligation.
-      kbd_bottleneck_evaluate task before "$change/$guard_task_id" 1 >/dev/null \
+      kbd_bottleneck_evaluate task before "$guard_change/$guard_task_id" 1 >/dev/null \
         || die "canonical task start precommit evaluation blocked"
     fi
     runtime_task_transition "$change" "$id" "$title" "$i" "in-progress" \
       || die "failed to commit canonical task start"
     if [ "$guard_enabled" = "1" ]; then
       if [ "$change_start" = "1" ]; then
-        change_guard_output="$(kbd_bottleneck_evaluate change before "$change" 0)" \
+        change_guard_output="$(kbd_bottleneck_evaluate change before "$guard_change" 0)" \
           || die "canonical change start postcommit evaluation blocked"
       fi
-      task_guard_output="$(kbd_bottleneck_evaluate task before "$change/$guard_task_id" 0)" \
+      task_guard_output="$(kbd_bottleneck_evaluate task before "$guard_change/$guard_task_id" 0)" \
         || die "canonical task start postcommit evaluation blocked"
     fi
     if [ "$change_start" = "1" ]; then
@@ -717,9 +769,9 @@ case "$cmd" in
       else
         printf 'Starting change 1 out of 1:   %s\n' "$change"
       fi
-      fire change before "$change" 1 1
+      fire change before "$guard_change" 1 1
     fi
-    fire task before "$change:$id" "$i" "$n"
+    fire task before "$guard_change:$guard_task_id" "$i" "$n"
     if [ "$guard_enabled" = "1" ]; then
       kbd_bottleneck_print_signal "$task_guard_output"
     else
@@ -731,22 +783,24 @@ case "$cmd" in
     [ -n "$change" ] && [ -n "$id" ] || die "usage: end-task <change> <id> <i> <n> <title>"
     guard_task_id="$(reconcile_guard_task_id "$change" "$id" "$i" "$title")" \
       || die "failed to resolve canonical repair guard task"
+    guard_change="$(guard_change_id "$change")" \
+      || die "failed to resolve canonical change identity"
     progress_output="$(b_progress "$change")" || die "failed to read backend task progress"
     read -r before_tot before_comp before_rem <<< "$progress_output"
     final_task=0
     [ "${before_rem:-1}" -eq 1 ] && final_task=1
     if [ "${KBD_RECONCILE_REPAIR:-}" = "1" ]; then
       repair_state="$(kbd_runtime_status_json ".")" || die "failed to read repair completion boundary"
-      repair_remaining="$(printf '%s' "$repair_state" | jq --arg c "$change" '[.phases[.activePath.phaseId].changes[$c].tasks[] | select(.status != "complete" and .status != "completed" and .status != "done" and .status != "cancelled")] | length')"
+      repair_remaining="$(printf '%s' "$repair_state" | jq --arg c "$guard_change" '[.phases[.activePath.phaseId].changes[$c].tasks[] | select(.status != "complete" and .status != "completed" and .status != "done" and .status != "cancelled")] | length')"
       [ "$repair_remaining" -eq 1 ] && final_task=1
     fi
     guard_enabled=0
     if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
       guard_enabled=1
-      kbd_bottleneck_evaluate task after "$change/$guard_task_id" 1 >/dev/null \
+      kbd_bottleneck_evaluate task after "$guard_change/$guard_task_id" 1 >/dev/null \
         || die "canonical task completion precommit evaluation blocked"
       if [ "$final_task" = "1" ]; then
-        kbd_bottleneck_evaluate change after "$change" 1 >/dev/null \
+        kbd_bottleneck_evaluate change after "$guard_change" 1 >/dev/null \
           || die "canonical change completion precommit evaluation blocked"
       fi
     fi
@@ -763,10 +817,10 @@ case "$cmd" in
     # completion live (CF-5). Best-effort; never aborts the driver.
     command -v kbd_position_sync >/dev/null 2>&1 && { kbd_position_sync || true; }
     if [ "$guard_enabled" = "1" ]; then
-      task_guard_output="$(kbd_bottleneck_evaluate task after "$change/$guard_task_id" 0)" \
+      task_guard_output="$(kbd_bottleneck_evaluate task after "$guard_change/$guard_task_id" 0)" \
         || die "canonical task completion postcommit evaluation blocked"
       if [ "$final_task" = "1" ]; then
-        change_guard_output="$(kbd_bottleneck_evaluate change after "$change" 0)" \
+        change_guard_output="$(kbd_bottleneck_evaluate change after "$guard_change" 0)" \
           || die "canonical change completion postcommit evaluation blocked"
       fi
       kbd_bottleneck_print_signal "$task_guard_output"
@@ -775,14 +829,14 @@ case "$cmd" in
     fi
     # Completion hooks run only after both the canonical transition and its
     # signed after-boundary receipt succeed.
-    fire task after "$change:$id" "$i" "$n"
+    fire task after "$guard_change:$guard_task_id" "$i" "$n"
     if [ "$final_task" = "1" ]; then
       if [ "$guard_enabled" = "1" ]; then
         kbd_bottleneck_print_signal "$change_guard_output"
       else
         printf 'Completed change 1 out of 1:   %s\n' "$change"
       fi
-      fire change after "$change" 1 1
+      fire change after "$guard_change" 1 1
     fi
     if [ "${rem:-0}" -gt 0 ]; then
       pending_titles="$(b_remaining_titles "$change" | paste -sd ' | ' -)"

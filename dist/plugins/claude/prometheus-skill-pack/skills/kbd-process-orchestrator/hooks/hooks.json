@@ -5,7 +5,7 @@
       "id": "report-progress",
       "event": "*:*",
       "mode": "augment",
-      "description": "Default reporter — emits the canonical KBD long-run progress signal for phases and tasks, and a compact fallback line for other hook kinds.",
+      "description": "Default reporter \u2014 emits the canonical KBD long-run progress signal for phases and tasks, and a compact fallback line for other hook kinds.",
       "action": {
         "type": "command",
         "command": "if [ \"$KBD_HOOK_EDGE\" = \"before\" ]; then verb=Starting; else verb=Completed; fi; if [ \"$KBD_HOOK_KIND\" = \"phase\" ]; then printf '%s phase %s out of %s:  %s\\n' \"$verb\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; elif [ \"$KBD_HOOK_KIND\" = \"task\" ]; then printf '%s task %s out of %s:   %s\\n' \"$verb\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; else printf '%s %s %s out of %s: %s\\n' \"$verb\" \"$KBD_HOOK_KIND\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; fi",
@@ -17,7 +17,7 @@
       "id": "kbd-memory-log",
       "event": "*:*",
       "mode": "augment",
-      "description": "Mirror every hook fire into surreal-memory (default-on when endpoint is reachable; no-op otherwise). Captures only structured KBD_HOOK_* values — no third-party stderr.",
+      "description": "Mirror every hook fire into surreal-memory (default-on when endpoint is reachable; no-op otherwise). Captures only structured KBD_HOOK_* values \u2014 no third-party stderr.",
       "action": {
         "type": "command",
         "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/lib/memory-log.sh\"",
@@ -162,7 +162,7 @@
       "event": "on_phase_complete",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Phase complete — run /kbd-reflect to generate reflection report, then /kbd-new-phase to start next phase'"
+        "command": "echo '[kbd-orchestrator] Phase complete \u2014 run /kbd-reflect to generate reflection report, then /kbd-new-phase to start next phase'"
       }
     },
     {
@@ -170,7 +170,7 @@
       "event": "on_change_complete",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Change complete — record it with prometheus kbd change transition --status complete, then run /opsx:verify + /opsx:archive (if OpenSpec)'"
+        "command": "echo '[kbd-orchestrator] Change complete \u2014 record it with prometheus kbd change transition --status complete, then run /opsx:verify + /opsx:archive (if OpenSpec)'"
       }
     },
     {
@@ -178,7 +178,7 @@
       "event": "on_assessment_complete",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Assessment written — run /kbd-plan to generate change list'"
+        "command": "echo '[kbd-orchestrator] Assessment written \u2014 run /kbd-plan to generate change list'"
       }
     },
     {
@@ -186,7 +186,7 @@
       "event": "on_plan_complete",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Plan written — run /kbd-execute to select backend and dispatch'"
+        "command": "echo '[kbd-orchestrator] Plan written \u2014 run /kbd-execute to select backend and dispatch'"
       }
     },
     {
@@ -194,7 +194,7 @@
       "event": "on_cross_tool_handoff",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Cross-tool handoff — receiving tool should read current-waypoint.json and progress.json before starting'"
+        "command": "echo '[kbd-orchestrator] Cross-tool handoff \u2014 receiving tool should read current-waypoint.json and progress.json before starting'"
       }
     },
     {
@@ -202,7 +202,7 @@
       "event": "on_blocker_detected",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Blocker detected — record it with prometheus kbd blocker record; compatibility projections refresh from the runtime'"
+        "command": "echo '[kbd-orchestrator] Blocker detected \u2014 record it with prometheus kbd blocker record; compatibility projections refresh from the runtime'"
       }
     },
     {
@@ -210,7 +210,7 @@
       "event": "on_reflection_complete",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Reflection complete — waypoint advanced to next phase, run /kbd-new-phase <name> to begin'"
+        "command": "echo '[kbd-orchestrator] Reflection complete \u2014 waypoint advanced to next phase, run /kbd-new-phase <name> to begin'"
       }
     },
     {
@@ -235,6 +235,90 @@
         "command": "for r in \"${KBD_PACK_ROOT:-}\" \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../..\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../..\"; do if [ -n \"$r\" ] && [ -f \"$r/shared/scripts/memory-writeback.sh\" ]; then bash \"$r/shared/scripts/memory-writeback.sh\" </dev/null || true; exit 0; fi; done; exit 0",
         "timeout": 8,
         "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "method-context-phase-after",
+      "event": "phase:after",
+      "mode": "augment",
+      "description": "Refresh derived selected-method/contract recovery references only; no test, build, import, installation or authority transfer. Missing references remain explicit in the index.",
+      "action": {
+        "type": "command",
+        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --write >/dev/null",
+        "timeout": 30,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "method-context-child-before",
+      "event": "child:before",
+      "mode": "augment",
+      "description": "Refresh derived selected-method/contract recovery references only; no test, build, import, installation or authority transfer. Missing references remain explicit in the index.",
+      "action": {
+        "type": "command",
+        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --write >/dev/null",
+        "timeout": 30,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "method-context-child-after",
+      "event": "child:after",
+      "mode": "augment",
+      "description": "Refresh derived selected-method/contract recovery references only; no test, build, import, installation or authority transfer. Missing references remain explicit in the index.",
+      "action": {
+        "type": "command",
+        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --write >/dev/null",
+        "timeout": 30,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "method-context-assess-before",
+      "event": "assess:before",
+      "mode": "augment",
+      "description": "Refresh derived selected-method/contract recovery references only; no test, build, import, installation or authority transfer. Missing references remain explicit in the index.",
+      "action": {
+        "type": "command",
+        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --write >/dev/null",
+        "timeout": 30,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "method-context-spec-before",
+      "event": "spec:before",
+      "mode": "augment",
+      "description": "Refresh derived selected-method/contract recovery references only; no test, build, import, installation or authority transfer. Missing references remain explicit in the index.",
+      "action": {
+        "type": "command",
+        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --write >/dev/null",
+        "timeout": 30,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "method-context-plan-before",
+      "event": "plan:before",
+      "mode": "augment",
+      "description": "Refresh derived selected-method/contract recovery references only; no test, build, import, installation or authority transfer. Missing references remain explicit in the index.",
+      "action": {
+        "type": "command",
+        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --write >/dev/null",
+        "timeout": 30,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "method-context-execute-before",
+      "event": "execute:before",
+      "mode": "augment",
+      "description": "Refresh derived selected-method/contract recovery references only; no test, build, import, installation or authority transfer. Missing references remain explicit in the index.",
+      "action": {
+        "type": "command",
+        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --write >/dev/null",
+        "timeout": 30,
+        "on_failure": "warn"
       }
     }
   ]

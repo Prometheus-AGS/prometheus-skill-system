@@ -359,7 +359,12 @@ fi
 
 # ------------------------------------------------------------ read in order
 READ_LIST=""
-add_read() { [ -e "$root/$1" ] && READ_LIST="${READ_LIST}${1}${NL}"; }
+add_read() {
+  # Only project-relative paths: a reference from a decision must not list files outside the project.
+  case "$1" in ""|/*|..|../*|*/..|*/../*) return 0 ;; esac
+  [ -e "$root/$1" ] && READ_LIST="${READ_LIST}${1}${NL}"
+  return 0
+}
 add_read "AGENTS.md"
 [ -f "$root/AGENTS.md" ] || add_read "CLAUDE.md"
 add_read ".prometheus/gotchas.md"
@@ -367,6 +372,32 @@ phase_rel="$(rel "$phase_dir")"
 add_read "$phase_rel/plan.md"
 add_read "$phase_rel/assessment.md"
 add_read "$phase_rel/execution.md"
+add_read "$phase_rel/adopted-contract.json"
+add_read "$phase_rel/method-context.md"
+add_read "$phase_rel/method-context.json"
+METHOD_CONTEXT=""
+method_helper=""
+for candidate in "${KBD_ORCHESTRATOR_ROOT:-}/shared/method-context.mjs" "$here/../../shared/method-context.mjs" "$here/../kbd-process-orchestrator/shared/method-context.mjs"; do
+  if [ -f "$candidate" ]; then method_helper="$candidate"; break; fi
+done
+if [ -n "$method_helper" ] && command -v node >/dev/null 2>&1; then
+  # Prefer the canonical phase id (a leaf slug or a legacy field does not name a child phase).
+  method_phase_id="$(sj '.activePath.phaseId // empty' 2>/dev/null || true)"
+  [ -n "$method_phase_id" ] || method_phase_id="$(pj '.phaseId // .phase // empty')"
+  [ -n "$method_phase_id" ] || method_phase_id="$phase"
+  if METHOD_CONTEXT="$(run_bounded node "$method_helper" --project "$root" --phase "$method_phase_id" --json)"; then
+    while IFS= read -r method_reference; do
+      [ -n "$method_reference" ] && add_read "$method_reference"
+    done < <(printf '%s' "$METHOD_CONTEXT" | jq -r '.references[]? | select(.path | test("[\\u0000-\\u001f]") | not) | .path')
+    method_status="$(printf '%s' "$METHOD_CONTEXT" | jq -r '.status // "UNKNOWN"')"
+    [ "$method_status" = "RESOLVED_REFERENCES" ] || warn "selected method references unresolved: read method-context/contract and current canonical decisions before dependent work"
+  else
+    warn "selected method discovery unavailable; no method or stage authority inferred from the handoff"
+    METHOD_CONTEXT=""
+  fi
+else
+  warn "method-context helper or Node unavailable; selected-method recovery is unverified"
+fi
 [ -n "$next_change" ] && add_read "openspec/changes/$next_change"
 
 # ------------------------------------------------- gates, decisions, blockers
@@ -428,6 +459,7 @@ next_text="${next_change:-none recorded}"
 [ -n "$next_task" ] && next_text="$next_text, task $next_task"
 
 start_prompt="You are taking over KBD phase \`$phase\` in \`$root\` on $target. Read \`$packet_rel\` first, then every file in its \"Read in order\" list. Run \`timeout $TIMEOUT_SECS prometheus kbd --path \"$root\" status --json </dev/null\` and confirm phase \`$phase\`, stage \`${stage:-unknown}\`, revision ${revision:-unknown}, next work $next_text before you change anything; if they differ, stop and report the difference. Drive every task through \`$apply_cmd begin-task\` and \`end-task\`, under timeout with stdin closed. Do nothing listed under \"Never do\"; ask the operator for any listed gate or open prerequisite, one batched question at a time."
+start_prompt="$start_prompt Resolve current selected method/contract/supersession from canonical decisions and method-context references before dependent action. For selected VLBV, preserve the complete value-phase boundary; task/hour/compiler/reviewer triggers grant no generated-code verification authority. Retain original evidence, candidate freshness, consumed budgets and unresolved effects; reconcile uncertain effects before retry. Instruction-only handoff grants no release authority or automatic successor."
 
 render_list() { # <newline list> <empty text>
   if [ -n "$1" ]; then printf '%s\n' "$1" | sed '/^$/d; s/^/- /'; else printf -- '- %s\n' "$2"; fi
@@ -450,6 +482,14 @@ render_packet() {
   [ -n "$exact_next" ] && printf -- '- Operator note (intent, not a work selector): `%s`\n' "$exact_next"
   printf -- '- Runtime revision %s, plan revision %s%s.\n\n' "${revision:-unknown}" "${plan_revision:-unknown}" \
     "$([ "$status_ok" = 1 ] || echo '; NOT read from `prometheus kbd status` (unavailable)')"
+
+  printf '## Selected method and authority\n\n'
+  if [ -n "$METHOD_CONTEXT" ]; then
+    printf '%s' "$METHOD_CONTEXT" | jq '{selectedMethod,phaseId,sourceRevision,status,blockers,policyConflicts,contract:{path:.contract.path,contractDigest:.contract.contractDigest},methodDecision:{id:.methodDecision.id,supersedes:.methodDecision.supersedes},references,stageAuthority,preserve,control}'
+  else
+    printf 'UNKNOWN — resolve current canonical method and contract before dependent action.\n'
+  fi
+  printf '\nThis is an observed/derived recovery view, not execution permission. Preserve original evidence, budget consumption and unresolved effects; do not revive a retired method from old memory.\n\n'
 
   printf '## Repositories\n\n%s\n' "$REPOS_MD"
 

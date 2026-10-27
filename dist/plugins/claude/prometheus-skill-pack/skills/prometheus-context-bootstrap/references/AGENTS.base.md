@@ -10,10 +10,11 @@ overwritten on re-run. Write project prose outside them.
 
 ## Position and authority
 
-- `.kbd-orchestrator/current-waypoint.json` is authoritative for position.
+- Signed canonical KBD status/decisions and the adopted phase contract are authoritative; `.kbd-orchestrator/current-waypoint.json` is their derived position view.
 - `versions.toml` is authoritative for architecture decisions and dependency pins.
 - READMEs go stale. Do not trust one over the two files above.
 - Read the waypoint at session start. State the current phase before executing.
+- Recover the active phase's `method-context.md` and contract references before dependent work. The index is advisory: resolve current canonical identity, selected method/supersession, included value, exclusions, stage authority, evidence freshness, consumed budgets and unresolved effects. Missing/stale references are explicit, never guessed from memory or an old next-command.
 
 ## Capability inversion
 
@@ -41,6 +42,18 @@ the final phase boundary. When the harness provides an agent team, keep reviewer
 auditor, verifier, and integration-checker roles dormant until that boundary. Unit,
 mock-only, filtered-function, and per-edit tests are not completion evidence.
 Per-stack commands live in `.claude/rules/`, loaded only when a matching file is read.
+
+For selected VLBV, no generated-code tests, builds, imports, lint/typecheck,
+verification hooks or probes run during generation. Define acceptance/scenarios
+before generation; executable authoring follows governing host policy. A task,
+hour, commit, reviewer request, compiler problem or renamed slice does not create
+the complete value-phase boundary. If a host compiler exception conflicts,
+surface it before dependent action; do not rewrite owner policy or infer permission.
+Recover latest authorized supersession without reviving retired workflows. Keep
+original evidence, candidate identity, consumed budgets and unresolved effects;
+reconcile uncertain effects before retry. These are instruction-only rules unless
+an actual named trusted host boundary enforces them. Publication cadence does not
+certify partial value, grant release authority or create a successor.
 
 <!-- prometheus-base:stacks -->
 

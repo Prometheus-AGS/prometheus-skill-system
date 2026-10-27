@@ -35,7 +35,30 @@ fi
 [[ -f "$root/versions.toml" ]] && \
   echo "Pins: versions.toml is authoritative for architecture and dependencies."
 
-echo "Authority: waypoint for position, versions.toml for decisions. READMEs go stale."
+echo "Authority: signed canonical KBD status/decisions and adopted phase contract; waypoint is a derived position view. Pins remain in versions.toml."
+
+# Recover compact references, not a second policy authority or a pasted payload.
+if [[ -f "$wp" ]] && command -v jq >/dev/null 2>&1; then
+  method_dir="$root/.kbd-orchestrator/phases"
+  method_path_ok=1
+  method_count=0
+  while IFS= read -r component; do
+    case "$component" in ''|.|..|*/*|*\\*|*..*) method_path_ok=0; break ;; esac
+    if [[ "$method_count" -gt 0 ]]; then method_dir="$method_dir/children"; fi
+    method_dir="$method_dir/$component"
+    method_count=$((method_count + 1))
+  done < <(jq -r 'if ((.path // []) | length) > 0 then .path[] else (.phase // empty) end' "$wp" 2>/dev/null)
+  if [[ "$method_path_ok" == 1 && "$method_count" -gt 0 ]]; then
+    echo "Method recovery: $method_dir/method-context.md; contract: $method_dir/adopted-contract.json"
+    if [[ -f "$method_dir/method-context.json" ]]; then
+      echo "Method snapshot (derived; re-resolve canonical authority): $(jq -c '{selectedMethod, phaseId, sourceRevision, status, blockers, policyConflicts, control}' "$method_dir/method-context.json" 2>/dev/null || echo '<unparseable>')"
+    else
+      echo "Method snapshot unavailable: resolve selected method and contract before dependent work; do not infer them from old commands or memory."
+    fi
+  fi
+fi
+echo "Recovery preserves latest supersession, original evidence, candidate freshness, consumed budgets and unresolved effects. Reconcile uncertain effects before retry."
+echo "For selected VLBV: only the complete agreed value-phase boundary with separate authority permits generated-code verification. Host-policy conflicts remain explicit; no generic tool interception is claimed."
 
 # Surface the most recent learned constraints. Three lines, not the file.
 g="$root/.prometheus/gotchas.md"

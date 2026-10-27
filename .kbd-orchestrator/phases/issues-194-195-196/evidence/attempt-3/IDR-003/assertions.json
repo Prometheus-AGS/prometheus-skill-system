@@ -1,0 +1,79 @@
+[
+  {
+    "name": "precondition: repair succeeded",
+    "ok": true,
+    "observed": ""
+  },
+  {
+    "name": "end-task through the retired key exits 0",
+    "ok": false,
+    "observed": "kbd-apply: warn: backend task 1 maps to registered runtime task target-t1\nError: boundary evaluation blocked: boundary target has no matching start receipt\nkbd-apply: canonical change completion precommit evaluation blocked\n"
+  },
+  {
+    "name": "the registered task key was reused, no duplicate change or task exists",
+    "ok": true,
+    "observed": {
+      "changeKeys": [
+        "target"
+      ],
+      "taskKeys": [
+        "target-t1"
+      ]
+    }
+  },
+  {
+    "name": "the task is complete in the canonical ledger",
+    "ok": false,
+    "observed": {
+      "target-t1": {
+        "id": "target-t1",
+        "title": "1.1 Shared task",
+        "sequence": 1,
+        "status": "in_progress",
+        "summary": null
+      }
+    }
+  },
+  {
+    "name": "the start receipt was consumed by the single completion",
+    "ok": false,
+    "observed": [
+      "task:target/target-t1"
+    ]
+  },
+  {
+    "name": "a second completion is refused rather than duplicating work",
+    "ok": false,
+    "observed": "it has no `generatedBy: \"kbd-runtime\"` marker, so it was written by something else. Leaving it untouched. Delete the file if the runtime should own it.\nError: boundary evaluation blocked: 1 projection mismatch(es) remain after repair\nkbd-apply: canonical task completion precommit evaluation blocked\n"
+  },
+  {
+    "name": "reconcile reads the retired alias row through its surviving change without errors",
+    "ok": true,
+    "observed": "{\n  \"phase\": \"dmg-phase\",\n  \"clean\": true,\n  \"drifted\": 0,\n  \"drift\": [],\n  \"errors\": []\n}\n"
+  },
+  {
+    "name": "reconcile created no new change or task",
+    "ok": true,
+    "observed": [
+      "target"
+    ]
+  },
+  {
+    "name": "completion without a start receipt is blocked and explicit",
+    "ok": true,
+    "observed": "kbd-apply: warn: backend task 1 maps to registered runtime task target-t1\nError: boundary evaluation blocked: boundary target/target-t1 has no matching start receipt\nkbd-apply: canonical task completion precommit evaluation blocked\n"
+  },
+  {
+    "name": "the task is not completed and no receipt was manufactured",
+    "ok": true,
+    "observed": {
+      "target-t1": {
+        "id": "target-t1",
+        "title": "1.1 Shared task",
+        "sequence": 1,
+        "status": "in_progress",
+        "summary": null
+      }
+    }
+  }
+]

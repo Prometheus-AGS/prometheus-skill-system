@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "status": "pending_review",
+  "mode": "artifact",
+  "target": "plan",
+  "phase": "issues-194-195-196",
+  "createdAt": "2026-10-27T09:41:32.448071+00:00",
+  "artifacts": [
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/plan.md",
+      "sha256": "61148488405f46fdc26a86c71529b535073eee0d4304507a4292ac79f0ce754a"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/plan-authority.json",
+      "sha256": "39430b5ff4f4d2a6b98aa7cdf8193a45bdfecd9f3c7c506a364aa637c24296bb"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/backend-task-map.json",
+      "sha256": "1aabcc0da14eaf9e3905c1e0e16ca11cbe1e5f1ebdaf69ebce68ad6044611035"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/adopted-contract.json",
+      "sha256": "1100a53ad092c9afcedd10e270bae0446cd5ff1852f295727db760f48866c1e0"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/proposed-calibration.md",
+      "sha256": "fbdd3a2a996c388fdcf692ce3ca6556dc52d3f985e8abbc660eaa25c5cfca32a"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/plan-finalization.json",
+      "sha256": "69ff7f192db83f65aee62b61e3ee959d90f1b14e253738fa494d8ae6d2d719bc"
+    }
+  ],
+  "independentReviewPassed": false,
+  "crossModelCheck": "not-performed",
+  "reason": "Reviewer roles dormant until complete production; no remote agent dispatched. Owner calibration/adoption also pending and is a separate issue."
+}

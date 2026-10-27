@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "kind": "kbd.phase-task-coverage",
+  "phase": "issues-194-195-196",
+  "source": "backend-task-map.json; coverage identities only, canonical status remains in signed runtime",
+  "tasks": [
+    {
+      "id": "kbd-194-change-identity-repair/1",
+      "changeId": "kbd-194-change-identity-repair",
+      "backendTaskId": "1",
+      "title": "1.1 Preserve conflicting registration/import records and add explicit identity diagnostics; deliver the behavior specified by IDR-001, with source inspection now and final real-path evidence later.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-194-change-identity-repair/2",
+      "changeId": "kbd-194-change-identity-repair",
+      "backendTaskId": "2",
+      "title": "1.2 Implement typed signed revision-bound repair-identity command, replay and mapping validation; deliver IDR-002 without fabricating status or receipts, inspected statically until the parent boundary.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-194-change-identity-repair/3",
+      "changeId": "kbd-194-change-identity-repair",
+      "backendTaskId": "3",
+      "title": "1.3 Integrate effective task identity and obligation-preserving continuation with apply/reconcile; deliver IDR-003, with final CLI/backend evidence deferred.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-194-change-identity-repair/4",
+      "changeId": "kbd-194-change-identity-repair",
+      "backendTaskId": "4",
+      "title": "1.4 Document canonical versus projection repair, exact syntax, supported incident families and unavailable-original-incident limitation; completion artifact is the operator guide linked to IDR-001\u2013003.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-195-vlbv-policy-propagation/1",
+      "changeId": "kbd-195-vlbv-policy-propagation",
+      "backendTaskId": "1",
+      "title": "1.1 Define compact derived method-context references and governing-policy discovery/conflict behavior; delivered artifacts cover POL-001\u2013003 and are inspected statically.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-195-vlbv-policy-propagation/2",
+      "changeId": "kbd-195-vlbv-policy-propagation",
+      "backendTaskId": "2",
+      "title": "1.2 Propagate references through bootstrap/path rules and team prompt/export/provenance source; completion is matching lead/role authority semantics specified by POL-001, with behavioral checks deferred.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-195-vlbv-policy-propagation/3",
+      "changeId": "kbd-195-vlbv-policy-propagation",
+      "backendTaskId": "3",
+      "title": "1.3 Integrate dispatch, child/harness handoff, pause/resume and compaction recovery with supersession/budget/effect retention; completion artifact implements POL-002\u2013003 without implying new permissions.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-195-vlbv-policy-propagation/4",
+      "changeId": "kbd-195-vlbv-policy-propagation",
+      "backendTaskId": "4",
+      "title": "1.4 Update operator and cadence guidance with instruction-only limitations and prospective whole-value boundaries; delivered docs trace POL-001\u2013003 and preserve operator-owned policies.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-196-value-scenario-workflow/1",
+      "changeId": "kbd-196-value-scenario-workflow",
+      "backendTaskId": "1",
+      "title": "1.1 Implement and register value-scenario-discovery with finite calibration, proposal status and Assess/Spec/Plan routing; delivered procedure covers SCN-001, inspected statically until final qualification.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-196-value-scenario-workflow/2",
+      "changeId": "kbd-196-value-scenario-workflow",
+      "backendTaskId": "2",
+      "title": "1.2 Add explicit author-only paths to existing JS/Rust BDD skills with stable ID/assertion/oracle linkage and policy-sensitive authoring; delivered guidance covers SCN-002 without invoking a runner or import.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-196-value-scenario-workflow/3",
+      "changeId": "kbd-196-value-scenario-workflow",
+      "backendTaskId": "3",
+      "title": "1.3 Implement and register thin value-scenario-verify procedure reusing runners and canonical writer, observation/negative-control evidence, dispositions and repair lineage; delivered procedure covers VER-001\u2013003, with execution deferred.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-196-value-scenario-workflow/4",
+      "changeId": "kbd-196-value-scenario-workflow",
+      "backendTaskId": "4",
+      "title": "1.4 Replace conflicting BDD lifecycle and KBD integration procedures and document invocation/limitations; delivered docs preserve #195 authority and trace SCN-001\u2013002 and VER-001\u2013003.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-194-196-delivery-qualification/1",
+      "changeId": "kbd-194-196-delivery-qualification",
+      "backendTaskId": "1",
+      "title": "1.1 Reconcile required skill registrations, generator inputs and documentation for all three source changes; static completion artifact is the final source/ownership manifest for PKG-001.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-194-196-delivery-qualification/2",
+      "changeId": "kbd-194-196-delivery-qualification",
+      "backendTaskId": "2",
+      "title": "1.2 After all planned production source edits are complete, compile existing runtime payloads and regenerate managed distributions twice using existing tooling; retain candidate/generated identities for PKG-001 and do not hand-edit generated outputs.",
+      "classification": "IMPLEMENTATION"
+    },
+    {
+      "id": "kbd-194-196-delivery-qualification/3",
+      "changeId": "kbd-194-196-delivery-qualification",
+      "backendTaskId": "3",
+      "title": "2.1 EVIDENCE \u2014 Only after every production task completes, author the finite real-path integration driver/scenarios and run the exact local packet from verification.md; record all 12 scenario observations, negative controls, attempt lineage and cleanup.",
+      "classification": "EVIDENCE"
+    },
+    {
+      "id": "kbd-194-196-delivery-qualification/4",
+      "changeId": "kbd-194-196-delivery-qualification",
+      "backendTaskId": "4",
+      "title": "2.2 EVIDENCE \u2014 Obtain authorized independent cumulative review and run the applicable final confirming integration gate after coherent fixes; retain pending/refused status until requirements pass, without reopening authored implementation solely for evidence gaps.",
+      "classification": "EVIDENCE"
+    }
+  ]
+}

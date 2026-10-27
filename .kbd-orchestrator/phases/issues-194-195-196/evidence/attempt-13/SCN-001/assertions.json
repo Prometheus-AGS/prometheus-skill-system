@@ -1,0 +1,44 @@
+[
+  {
+    "name": "session completed",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: `closure-phase`\n\n**Status: proposal only, not adopted.** I wrote no files. I ran no tests, builds, probes or runners.\n\n"
+  },
+  {
+    "name": "the discovery skill was actually invoked",
+    "ok": true,
+    "observed": [
+      "prometheus-skill-pack:value-scenario-discovery"
+    ]
+  },
+  {
+    "name": "the proposal carries the required relevance fields",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: `closure-phase`\n\n**Status: proposal only, not adopted.** I wrote no files. I ran no tests, builds, probes or runners.\n\n## What this is based on\n\n| Item | Value |\n|---|---|\n| Method | VLBV (`method-vlbv`, plan revision 1, nothing superseded) |\n| Contract | `adopted-contract.json`, digest `daca49bb…958d9b`, binding revi"
+  },
+  {
+    "name": "the reviewed useful operation and the rare mandatory constraint are selected",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: `closure-phase`\n\n**Status: proposal only, not adopted.** I wrote no files. I ran no tests, builds, probes or runners.\n\n## What this is based on\n\n| Item | Value |\n|---|---|\n| Method | VLBV (`method-vlbv`, plan revision 1, nothing superseded) |\n| Contract | `adopted-contract.json`, digest `daca49bb…958d9b`, binding revi"
+  },
+  {
+    "name": "the irrelevant benchmark is deferred with a reason",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: `closure-phase`\n\n**Status: proposal only, not adopted.** I wrote no files. I ran no tests, builds, probes or runners.\n\n## What this is based on\n\n| Item | Value |\n|---|---|\n| Method | VLBV (`method-vlbv`, plan revision 1, nothing superseded) |\n| Contract | `adopted-contract.json`, digest `daca49bb…958d9b`, binding revi"
+  },
+  {
+    "name": "no invented probability is presented",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: `closure-phase`\n\n**Status: proposal only, not adopted.** I wrote no files. I ran no tests, builds, probes or runners.\n\n## What this is based on\n\n| Item | Value |\n|---|---|\n| Method | VLBV (`method-vlbv`, plan revision 1"
+  },
+  {
+    "name": "it did not adopt scope, write files or run any check",
+    "ok": true,
+    "observed": [
+      "Skill",
+      "Bash",
+      "Bash",
+      "Bash"
+    ]
+  }
+]

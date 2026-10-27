@@ -1,0 +1,61 @@
+{
+  "observation": "read-only content identity; no behavior or parity qualification",
+  "surfaces": [
+    {
+      "relativePath": "SKILL.md",
+      "sourcePath": "/Users/gqadonis/Projects/prometheus/prometheus-skill-system/skills/process/kbd-process-orchestrator/SKILL.md",
+      "installedPath": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator/SKILL.md",
+      "sourceSha256": "216108e762f283d4601c301cbf0ca078d3bca452bf437b4311d0a4f5d108cecf",
+      "installedSha256": "216108e762f283d4601c301cbf0ca078d3bca452bf437b4311d0a4f5d108cecf",
+      "sameBytes": true
+    },
+    {
+      "relativePath": "skills/kbd-apply/kbd-apply.sh",
+      "sourcePath": "/Users/gqadonis/Projects/prometheus/prometheus-skill-system/skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+      "installedPath": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+      "sourceSha256": "c2f3446d6bd65ceee2cd1c708f5112e75aeace43c0e6787f28a6c55feb35c9ea",
+      "installedSha256": "c2f3446d6bd65ceee2cd1c708f5112e75aeace43c0e6787f28a6c55feb35c9ea",
+      "sameBytes": true
+    },
+    {
+      "relativePath": "skills/kbd-apply/reconcile.mjs",
+      "sourcePath": "/Users/gqadonis/Projects/prometheus/prometheus-skill-system/skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs",
+      "installedPath": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs",
+      "sourceSha256": "f8acf33035ed9ef99eda0f1b7151a23a8deb6756c06a6eda09221af895d25ce6",
+      "installedSha256": "f8acf33035ed9ef99eda0f1b7151a23a8deb6756c06a6eda09221af895d25ce6",
+      "sameBytes": true
+    },
+    {
+      "relativePath": "skills/kbd-assess/SKILL.md",
+      "sourcePath": "/Users/gqadonis/Projects/prometheus/prometheus-skill-system/skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md",
+      "installedPath": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator/skills/kbd-assess/SKILL.md",
+      "sourceSha256": "a505ae0140cc09868946e5b2314b814d14d05db88019f4bab112cdbca3290b49",
+      "installedSha256": "a505ae0140cc09868946e5b2314b814d14d05db88019f4bab112cdbca3290b49",
+      "sameBytes": true
+    },
+    {
+      "relativePath": "skills/kbd-analyze/SKILL.md",
+      "sourcePath": "/Users/gqadonis/Projects/prometheus/prometheus-skill-system/skills/process/kbd-process-orchestrator/skills/kbd-analyze/SKILL.md",
+      "installedPath": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator/skills/kbd-analyze/SKILL.md",
+      "sourceSha256": "aa599db165d9050412b0aa5957cea6d30093275370af364d2897abf312059c73",
+      "installedSha256": "aa599db165d9050412b0aa5957cea6d30093275370af364d2897abf312059c73",
+      "sameBytes": true
+    },
+    {
+      "relativePath": "skills/kbd-execute/SKILL.md",
+      "sourcePath": "/Users/gqadonis/Projects/prometheus/prometheus-skill-system/skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md",
+      "installedPath": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator/skills/kbd-execute/SKILL.md",
+      "sourceSha256": "a9bc584e61c192348a7dce1dc1d91d8e2d876bed2bc37a2719c101318a4638f3",
+      "installedSha256": "a9bc584e61c192348a7dce1dc1d91d8e2d876bed2bc37a2719c101318a4638f3",
+      "sameBytes": true
+    },
+    {
+      "relativePath": "references/schemas/adopted-contract.schema.json",
+      "sourcePath": "/Users/gqadonis/Projects/prometheus/prometheus-skill-system/skills/process/kbd-process-orchestrator/references/schemas/adopted-contract.schema.json",
+      "installedPath": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator/references/schemas/adopted-contract.schema.json",
+      "sourceSha256": "16e3fada71a865e6390ffb5869bd47d6bce380c8359f5c1e1b3be2cd1bc463fb",
+      "installedSha256": "16e3fada71a865e6390ffb5869bd47d6bce380c8359f5c1e1b3be2cd1bc463fb",
+      "sameBytes": true
+    }
+  ]
+}

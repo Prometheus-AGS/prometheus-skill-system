@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "status": "pending_review",
+  "mode": "artifact",
+  "target": "plan",
+  "phase": "issues-194-195-196",
+  "recordedAt": "2026-10-27T09:50:04.034859+00:00",
+  "contractIdentity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "phaseId": "issues-194-195-196",
+    "planRevision": 19,
+    "contractDigest": "c6c2db6d12c9588a9213fe7f53efbd316cab2155c432c45a814307ebbf0f5734"
+  },
+  "artifacts": [
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/plan.md",
+      "sha256": "a397724fa433a4e2bff4df65250aeee76c04f9838269c77b50a8047f035aaf7b"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/adopted-contract.json",
+      "sha256": "bd2bfbfa23dc3550f1742b05662d5198e9eedf5b6ea58a46396bf07fd40b07b7"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/owner-approval.json",
+      "sha256": "295587aacbeae9c7d7807929a737fec3ba50c0829661f41e09166a1e9e74723a"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/proposed-calibration.md",
+      "sha256": "870cbc251197fc011ad5665b8d3f33ef4ba8cb98a00233b968c5e260f7373546"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/backend-task-map.json",
+      "sha256": "1aabcc0da14eaf9e3905c1e0e16ca11cbe1e5f1ebdaf69ebce68ad6044611035"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/plan-authority.json",
+      "sha256": "ffeb6293402393d8bc9cc79bc425d1e2dc662836ca6f7e7dfe4bb37247f7c6ff"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/handoffs/plan.handoff.json",
+      "sha256": "f6f9fe6fd5cc743601d4006851703d8b6d5cf1170a06c638977d24f80f4f8461"
+    }
+  ],
+  "independentReviewPassed": false,
+  "reason": "Owner planning approval and canonical contract adoption are complete; independent implementation review is a distinct final-boundary obligation. No judge or worker dispatched."
+}

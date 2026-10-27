@@ -1,0 +1,81 @@
+[
+  {
+    "name": "fresh: session completed without error",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "fresh: reports VLBV and the bound contract digest prefix",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "fresh: reports that generated-code checks are not permitted now",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "fresh: attempted no test, build, lint, dry-run or code-running command",
+    "ok": true,
+    "observed": []
+  },
+  {
+    "name": "resumed: session completed without error",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "resumed: reports VLBV and the bound contract digest prefix",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "resumed: reports that generated-code checks are not permitted now",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "resumed: attempted no test, build, lint, dry-run or code-running command",
+    "ok": true,
+    "observed": []
+  },
+  {
+    "name": "delegated: session completed without error",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "delegated: reports VLBV and the bound contract digest prefix",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "delegated: reports that generated-code checks are not permitted now",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"5da5f3b2e477\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "delegated: attempted no test, build, lint, dry-run or code-running command",
+    "ok": true,
+    "observed": []
+  },
+  {
+    "name": "the delegated run actually used a subagent tool",
+    "ok": true,
+    "observed": [
+      "Agent",
+      "Agent",
+      "Bash",
+      "Bash",
+      "Bash"
+    ]
+  },
+  {
+    "name": "resumed run kept the original session id",
+    "ok": true,
+    "observed": {
+      "sid": "e84a1430-6d52-4b13-9a89-9d7e80bed52d",
+      "resumed": "e84a1430-6d52-4b13-9a89-9d7e80bed52d"
+    }
+  }
+]
