@@ -1,0 +1,156 @@
+[
+  {
+    "name": "generator --check reports no drift",
+    "ok": true,
+    "observed": ""
+  },
+  {
+    "name": "contract adoption through the production helper succeeds",
+    "ok": true,
+    "observed": "ADOPTED path=.kbd-orchestrator/phases/closure-phase/adopted-contract.json sha256=cdd48df09e121bcdb2d7279dae4a866502016576c2d0bfbf9d7a15c1439a19d2 planRevision=1 decision=contract-adoption-closure-phase-cdd48df0 bound=revision-1\n"
+  },
+  {
+    "name": "method selection is recorded as a signed decision",
+    "ok": true,
+    "observed": "-adoption-closure-phase-cdd48df0\",\n            \"bindingRevision\": 1\n          },\n          \"boundAtRevision\": 8\n        }\n      }\n    }\n  },\n  \"committedLocally\": true,\n  \"controlPlane\": \"disabled\"\n}\n"
+  },
+  {
+    "name": "source: method-context entry point is present",
+    "ok": true,
+    "observed": "~/Projects/prometheus/prometheus-skill-system/skills/process/kbd-process-orchestrator/shared/method-context.mjs"
+  },
+  {
+    "name": "source: selection resolves to the bound contract and VLBV",
+    "ok": true,
+    "observed": "{\n  \"schemaVersion\": 1,\n  \"kind\": \"kbd.derived-method-context\",\n  \"generatedAt\": \"2026-10-27T11:42:20.372Z\",\n  \"authority\": \"derived-read-only-index; canonical signed decisions, phase binding, contract and governing host policy remain authority\",\n  \"projectId\": \"6f22733b-c337-4b5a-8a44-260c84285238\""
+  },
+  {
+    "name": "source: a changed reference is reported, not guessed",
+    "ok": true,
+    "observed": "exit 2"
+  },
+  {
+    "name": "generated claude: method-context entry point is present",
+    "ok": true,
+    "observed": "~/Projects/prometheus/prometheus-skill-system/dist/plugins/claude/prometheus-skill-pack/skills/kbd-process-orchestrator/shared/method-context.mjs"
+  },
+  {
+    "name": "generated claude: selection resolves to the bound contract and VLBV",
+    "ok": true,
+    "observed": "{\n  \"schemaVersion\": 1,\n  \"kind\": \"kbd.derived-method-context\",\n  \"generatedAt\": \"2026-10-27T11:42:21.248Z\",\n  \"authority\": \"derived-read-only-index; canonical signed decisions, phase binding, contract and governing host policy remain authority\",\n  \"projectId\": \"6f22733b-c337-4b5a-8a44-260c84285238\""
+  },
+  {
+    "name": "generated claude: a changed reference is reported, not guessed",
+    "ok": true,
+    "observed": "exit 2"
+  },
+  {
+    "name": "generated codex: method-context entry point is present",
+    "ok": true,
+    "observed": "~/Projects/prometheus/prometheus-skill-system/dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator/shared/method-context.mjs"
+  },
+  {
+    "name": "generated codex: selection resolves to the bound contract and VLBV",
+    "ok": true,
+    "observed": "{\n  \"schemaVersion\": 1,\n  \"kind\": \"kbd.derived-method-context\",\n  \"generatedAt\": \"2026-10-27T11:42:22.112Z\",\n  \"authority\": \"derived-read-only-index; canonical signed decisions, phase binding, contract and governing host policy remain authority\",\n  \"projectId\": \"6f22733b-c337-4b5a-8a44-260c84285238\""
+  },
+  {
+    "name": "generated codex: a changed reference is reported, not guessed",
+    "ok": true,
+    "observed": "exit 2"
+  },
+  {
+    "name": "installed claude: method-context entry point is present",
+    "ok": true,
+    "observed": "/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-install-claude-YUbAJe/.prometheus/plugins/prometheus-skill-pack/generations/90503375291714b4f0083fc7d1bd068712a4d74dd9906dea75cf61c673fda804/skills/kbd-process-orchestrator/shared/method-context.mjs"
+  },
+  {
+    "name": "installed claude: selection resolves to the bound contract and VLBV",
+    "ok": true,
+    "observed": "{\n  \"schemaVersion\": 1,\n  \"kind\": \"kbd.derived-method-context\",\n  \"generatedAt\": \"2026-10-27T11:42:22.952Z\",\n  \"authority\": \"derived-read-only-index; canonical signed decisions, phase binding, contract and governing host policy remain authority\",\n  \"projectId\": \"6f22733b-c337-4b5a-8a44-260c84285238\""
+  },
+  {
+    "name": "installed claude: a changed reference is reported, not guessed",
+    "ok": true,
+    "observed": "exit 2"
+  },
+  {
+    "name": "installed codex: method-context entry point is present",
+    "ok": true,
+    "observed": "/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-install-codex-8o3QcP/.prometheus/plugins/prometheus-skill-pack/generations/a42d8979aecb6603c121737a38bb65e8d364e47daf8c4f407b51efcb4ca171c5/skills/kbd-process-orchestrator/shared/method-context.mjs"
+  },
+  {
+    "name": "installed codex: selection resolves to the bound contract and VLBV",
+    "ok": true,
+    "observed": "{\n  \"schemaVersion\": 1,\n  \"kind\": \"kbd.derived-method-context\",\n  \"generatedAt\": \"2026-10-27T11:42:23.792Z\",\n  \"authority\": \"derived-read-only-index; canonical signed decisions, phase binding, contract and governing host policy remain authority\",\n  \"projectId\": \"6f22733b-c337-4b5a-8a44-260c84285238\""
+  },
+  {
+    "name": "installed codex: a changed reference is reported, not guessed",
+    "ok": true,
+    "observed": "exit 2"
+  },
+  {
+    "name": "all surfaces report byte-identical method context",
+    "ok": true,
+    "observed": [
+      "source",
+      "generated claude",
+      "generated codex",
+      "installed claude",
+      "installed codex"
+    ]
+  },
+  {
+    "name": "all surfaces name the same duplicate canonical identity",
+    "ok": true,
+    "observed": "[\"phase dmg-phase: change key \\\"alias-a\\\" differs from embedded ID \\\"target\\\"; duplicate canonical change ID \\\"target\\\" at keys \\\"alias-a\\\" and \\\"target\\\"; explicit signed identity repair required\"]"
+  },
+  {
+    "name": "installed claude shared/method-context.mjs equals the generated bytes",
+    "ok": true,
+    "observed": {
+      "generated": true,
+      "installed": true
+    }
+  },
+  {
+    "name": "installed claude skills/kbd-apply/kbd-apply.sh equals the generated bytes",
+    "ok": true,
+    "observed": {
+      "generated": true,
+      "installed": true
+    }
+  },
+  {
+    "name": "installed claude skills/kbd-apply/reconcile.mjs equals the generated bytes",
+    "ok": true,
+    "observed": {
+      "generated": true,
+      "installed": true
+    }
+  },
+  {
+    "name": "installed codex shared/method-context.mjs equals the generated bytes",
+    "ok": true,
+    "observed": {
+      "generated": true,
+      "installed": true
+    }
+  },
+  {
+    "name": "installed codex skills/kbd-apply/kbd-apply.sh equals the generated bytes",
+    "ok": true,
+    "observed": {
+      "generated": true,
+      "installed": true
+    }
+  },
+  {
+    "name": "installed codex skills/kbd-apply/reconcile.mjs equals the generated bytes",
+    "ok": true,
+    "observed": {
+      "generated": true,
+      "installed": true
+    }
+  }
+]

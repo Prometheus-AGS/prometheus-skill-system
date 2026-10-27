@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "phase": "issues-194-195-196",
+  "status": "PLAN_PREPARED_ADOPTION_PENDING",
+  "draftContractSha256": "8ba993b2955409f4120ae5f21c294b9bdb0e8933d78d1ebbae1cd465acb03b19",
+  "normalization": "jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)'",
+  "canonicalAdoption": false,
+  "planToExecuteHandoff": false,
+  "ownerCalibrationReview": "PENDING; do not claim the owner reviewed proposed-calibration.md",
+  "proposedBoundaryBudget": {
+    "timeMinutes": 180,
+    "toolCalls": 240,
+    "repairAttempts": 2,
+    "noProgressLimit": 2,
+    "scope": "Final verification/repair boundary only; not total development effort"
+  },
+  "scopeBasis": "Owner-authored issues #194\u2013196 and explicit /kbd-plan request; human review of proposed calibration not yet supplied.",
+  "requiredReview": [
+    "proposed-calibration.md ordinary/rejected/rare-critical examples",
+    "boundary budgets and selected macOS source/generated/scratch-installed surfaces"
+  ],
+  "reasonForNoBinding": "Issue #196 explicitly requires owner-reviewed calibration; prior artifacts retain these examples as unreviewed proposals. A phase-planning command does not establish that review occurred."
+}

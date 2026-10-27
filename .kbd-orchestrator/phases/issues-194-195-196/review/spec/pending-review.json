@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "status": "pending_review",
+  "mode": "artifact",
+  "target": "spec",
+  "phase": "issues-194-195-196",
+  "createdAt": "2026-10-27T09:30:45.619973+00:00",
+  "artifacts": [
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/specification.md",
+      "sha256": "b9ba6689d5d02d967ee3f5d669a390136a002559c01ee84c992c3745091cd205"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/adopted-contract.json",
+      "sha256": "436f20eb4f930327e0d5440a2ebd85ddafa57a691e7e4ee20782f93453bbe15b"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/proposed-calibration.md",
+      "sha256": "fbdd3a2a996c388fdcf692ce3ca6556dc52d3f985e8abbc660eaa25c5cfca32a"
+    },
+    {
+      "path": ".kbd-orchestrator/phases/issues-194-195-196/specification-manifest.json",
+      "sha256": "664b519adc3dc38ea2df90c36bdafe114e164200b992853a7b863b3c2603b81e"
+    },
+    {
+      "path": "openspec/changes/kbd-194-change-identity-repair/design.md",
+      "sha256": "daa4f738df6ba78472103ef14e0c2abc513e042623db7c84c3362d8fd2095aa4"
+    },
+    {
+      "path": "openspec/changes/kbd-194-change-identity-repair/proposal.md",
+      "sha256": "8c69b466eb8c3a922f07847e81e94fab0bb20d0b5a3a90615b1d83fd1ffe607c"
+    },
+    {
+      "path": "openspec/changes/kbd-194-change-identity-repair/specs/kbd-control-plane-reconciliation/spec.md",
+      "sha256": "b28c784bbe2c0fa1a0b9f106b56ce7f49dbd9f14d7f6d2eeedf7f5329b2a38b5"
+    },
+    {
+      "path": "openspec/changes/kbd-194-change-identity-repair/tasks.md",
+      "sha256": "7780371b38e7f67b5642158959b40dcf6a750dc4d236d1a02503fdc23e4dde54"
+    },
+    {
+      "path": "openspec/changes/kbd-194-change-identity-repair/verification.md",
+      "sha256": "530424b09f3267630afb4738a415e279e010e68a4c0e692f56f0ecded209070b"
+    },
+    {
+      "path": "openspec/changes/kbd-195-vlbv-policy-propagation/design.md",
+      "sha256": "02baa1fdc719be3510e2a09baf34e2f1524661e7a608687bb5523dc2a9618af8"
+    },
+    {
+      "path": "openspec/changes/kbd-195-vlbv-policy-propagation/proposal.md",
+      "sha256": "6e4de7b94369c5622eed202220b27234551bfb38ef8d947b7bfe5401ad0e1083"
+    },
+    {
+      "path": "openspec/changes/kbd-195-vlbv-policy-propagation/specs/agent-team-management/spec.md",
+      "sha256": "2218142767fb312974451204983dfdbff0cee3dcbf7a6dc25c54650ca16a2157"
+    },
+    {
+      "path": "openspec/changes/kbd-195-vlbv-policy-propagation/specs/kbd-phase-consistency/spec.md",
+      "sha256": "23089ca47940a01f7fe0852f0d35940182a3b0944fef47d115f0f433c9a7ac68"
+    },
+    {
+      "path": "openspec/changes/kbd-195-vlbv-policy-propagation/tasks.md",
+      "sha256": "c1ecb609e871f10226be802276b4296a0bd30f5201f889026f75835d96faa0f8"
+    },
+    {
+      "path": "openspec/changes/kbd-195-vlbv-policy-propagation/verification.md",
+      "sha256": "92f3b1318002607f487b0e2864ca607af341aef0fd4d3b54a18c7f308b698841"
+    },
+    {
+      "path": "openspec/changes/kbd-196-value-scenario-workflow/design.md",
+      "sha256": "f6b85c35ce90f2f1e20a1cf6fb5264cb75e291225afa21a1c490b2dcfc310196"
+    },
+    {
+      "path": "openspec/changes/kbd-196-value-scenario-workflow/proposal.md",
+      "sha256": "c1fe2e59ea031d85b95d2292c1c8f35c49aa65623725a2107f7e3b74cdb5f1c6"
+    },
+    {
+      "path": "openspec/changes/kbd-196-value-scenario-workflow/specs/value-led-scenario-verification/spec.md",
+      "sha256": "913c967fdc1ebad498923b02991a5f06658bb177c44cc9256e81983294316c7a"
+    },
+    {
+      "path": "openspec/changes/kbd-196-value-scenario-workflow/tasks.md",
+      "sha256": "136fea2752228a1b25c196762fc77e73f25064d8332de125a815c1d37a7768b3"
+    },
+    {
+      "path": "openspec/changes/kbd-196-value-scenario-workflow/verification.md",
+      "sha256": "3d048b48e648aa0f8e10a69b9adb17fa1884d0f9e07456f08f1fb24a881551fe"
+    },
+    {
+      "path": "openspec/changes/kbd-194-196-delivery-qualification/design.md",
+      "sha256": "05a199f820d67817914e85ab90f8f104285028e16a46b38cca8f5dbfe4759bf2"
+    },
+    {
+      "path": "openspec/changes/kbd-194-196-delivery-qualification/proposal.md",
+      "sha256": "e0422c1a5acb8d3da6ca044c1a778b695305f798fa8f3482c96b3afffb305f88"
+    },
+    {
+      "path": "openspec/changes/kbd-194-196-delivery-qualification/specs/kbd-control-plane-reconciliation/spec.md",
+      "sha256": "e48b5c62b974b4d33fc67e100cfdeb0366ed5570993ad0756dd4ab7ffe0183b3"
+    },
+    {
+      "path": "openspec/changes/kbd-194-196-delivery-qualification/tasks.md",
+      "sha256": "df6f615f4544f578373f1f960dbf7eff07ab02a42ec42c4b9f4540b0b002aa49"
+    },
+    {
+      "path": "openspec/changes/kbd-194-196-delivery-qualification/verification.md",
+      "sha256": "8f5b11ce23a111c2639d5d9f354a71363a5e179eaa7d567579578b40075abf6c"
+    }
+  ],
+  "independentReviewPassed": false,
+  "crossModelCheck": "not-performed",
+  "reason": "Repository policy keeps reviewer/verifier roles dormant until completed parent production. No remote dispatch authorized. Authored specifications only; canonical contract adoption not performed.",
+  "limitations": [
+    "Bundled artifact packet helper only collects native-kbd change paths; OpenSpec artifacts preserved in a local scoped packet without truncation."
+  ]
+}

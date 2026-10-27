@@ -1,0 +1,149 @@
+[
+  {
+    "name": "incomplete-task-mapping: refused",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    invalid compatibility state: change identity repair refused: every source task requires an explicit mapping; no task may be discarded\n"
+  },
+  {
+    "name": "incomplete-task-mapping: journal and state unchanged",
+    "ok": true,
+    "observed": "6->6"
+  },
+  {
+    "name": "unmapped-receipt: refused",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    invalid compatibility state: change identity repair refused: every outstanding source receipt requires an explicit mapping; none may be dropped or synthesized\n"
+  },
+  {
+    "name": "unmapped-receipt: journal and state unchanged",
+    "ok": true,
+    "observed": "6->6"
+  },
+  {
+    "name": "stale-source-digest: refused",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    invalid compatibility state: change identity repair refused: source content digest changed at key \"alias-a\"\n"
+  },
+  {
+    "name": "stale-source-digest: journal and state unchanged",
+    "ok": true,
+    "observed": "6->6"
+  },
+  {
+    "name": "stale expected revision is refused",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    expected revision 5, current revision is 6\n"
+  },
+  {
+    "name": "stale revision left the journal unchanged",
+    "ok": true,
+    "observed": {
+      "run_initialized": 1,
+      "legacy_state_imported": 1,
+      "boundary_receipt_recorded": 3,
+      "blocker_recorded": 1
+    }
+  },
+  {
+    "name": "the unenrolled signer key was generated",
+    "ok": true,
+    "observed": ""
+  },
+  {
+    "name": "a signer that is not the journal operator is refused",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    invalid compatibility state: explicit PROMETHEUS_DEVICE_KEY_FILE signer ed25519:e8b4911a0f2e172e36bc25637362fe5d66c7dbc6e1953793c0f66a43ed1a84ed is not the journal's active enrolled operator\n"
+  },
+  {
+    "name": "unauthorized signer left the journal unchanged",
+    "ok": true,
+    "observed": {
+      "run_initialized": 1,
+      "legacy_state_imported": 1,
+      "boundary_receipt_recorded": 3,
+      "blocker_recorded": 1
+    }
+  },
+  {
+    "name": "conflicting task outcomes are refused without fabricating completion",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    invalid compatibility state: change identity repair refused: conflicting outcomes/content mapped to task \"target-t1\"; resolve separately with real evidence\n"
+  },
+  {
+    "name": "conflicting fixture was not mutated",
+    "ok": true,
+    "observed": {
+      "run_initialized": 1,
+      "legacy_state_imported": 1,
+      "boundary_receipt_recorded": 3,
+      "blocker_recorded": 1
+    }
+  },
+  {
+    "name": "authorized repair succeeds with one new revision",
+    "ok": true,
+    "observed": "6->7 "
+  },
+  {
+    "name": "effective identity is unique",
+    "ok": true,
+    "observed": [
+      "target"
+    ]
+  },
+  {
+    "name": "the merged task is the single mapped task, not fabricated complete",
+    "ok": true,
+    "observed": {
+      "target-t1": {
+        "id": "target-t1",
+        "title": "1.1 Shared task",
+        "sequence": 1,
+        "status": "in_progress",
+        "summary": null
+      }
+    }
+  },
+  {
+    "name": "original change and receipt snapshots are retained in the signed record",
+    "ok": true,
+    "observed": [
+      "alias-a",
+      "target"
+    ]
+  },
+  {
+    "name": "receipt lineage moved to the effective task and was not synthesized",
+    "ok": true,
+    "observed": [
+      "change:target",
+      "task:target/target-t1"
+    ]
+  },
+  {
+    "name": "exactly one signed repair event was appended",
+    "ok": true,
+    "observed": {
+      "run_initialized": 1,
+      "legacy_state_imported": 1,
+      "boundary_receipt_recorded": 3,
+      "blocker_recorded": 1,
+      "change_identity_repaired": 1
+    }
+  },
+  {
+    "name": "identical retry is idempotent",
+    "ok": true,
+    "observed": ""
+  },
+  {
+    "name": "the same command id with different content is refused",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    invalid compatibility state: commandId repair-identity-1 was already used for different identity-repair content\n"
+  },
+  {
+    "name": "cold replay of the signed journal converges to the same effective state",
+    "ok": true,
+    "observed": "checkpoints removed, state recomputed"
+  }
+]

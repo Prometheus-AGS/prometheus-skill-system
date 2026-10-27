@@ -18,6 +18,7 @@ use uuid::Uuid;
 use project_document::ProjectDocument;
 
 mod authority;
+pub mod change_identity;
 pub mod phase_closure;
 pub mod project_document;
 pub mod registry;
@@ -821,6 +822,9 @@ pub enum EventKind {
         phase_id: String,
         change: Change,
     },
+    ChangeIdentityRepaired {
+        repair: change_identity::RepairRecord,
+    },
     ChangeTransitioned {
         phase_id: String,
         change_id: String,
@@ -1218,6 +1222,8 @@ pub struct KbdStateV2 {
     pub command_revisions: BTreeMap<String, u64>,
     #[serde(default, skip_serializing_if = "PhaseClosureRegistry::is_empty")]
     pub phase_closure: PhaseClosureRegistry,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub change_identity_repairs: BTreeMap<String, change_identity::RepairRecord>,
 }
 
 pub type RuntimeState = KbdStateV2;
@@ -1561,6 +1567,10 @@ pub enum CommandKind {
         phase_id: String,
         change: Change,
     },
+    ChangeRepairIdentity {
+        phase_id: String,
+        repair: change_identity::RepairInput,
+    },
     ChangeTransition {
         phase_id: String,
         change_id: String,
@@ -1674,6 +1684,7 @@ impl ProjectionScope {
             | CommandKind::StageEnter { phase_id, .. }
             | CommandKind::StageTransition { phase_id, .. }
             | CommandKind::ChangeRegister { phase_id, .. }
+            | CommandKind::ChangeRepairIdentity { phase_id, .. }
             | CommandKind::ChangeTransition { phase_id, .. }
             | CommandKind::TaskRegister { phase_id, .. }
             | CommandKind::TaskTransition { phase_id, .. }
@@ -1770,6 +1781,7 @@ impl Default for KbdStateV2 {
             operator_key_ids: BTreeSet::new(),
             command_revisions: BTreeMap::new(),
             phase_closure: PhaseClosureRegistry::default(),
+            change_identity_repairs: BTreeMap::new(),
         }
     }
 }
@@ -1912,6 +1924,7 @@ impl KbdStateV2 {
                     self.latest_gate_receipts = defaults.latest_gate_receipts;
                     self.claims = defaults.claims;
                     self.phase_closure = defaults.phase_closure;
+                    self.change_identity_repairs = defaults.change_identity_repairs;
                 }
                 self.run_id.clone_from(&event.run_id);
                 self.lifecycle = initial_state.clone();
@@ -2082,6 +2095,25 @@ impl KbdStateV2 {
                 phase.changes.insert(change.id.clone(), change.clone());
                 self.recalculate_implementation();
                 self.synchronize_active_work_cursor(phase_id);
+            }
+            EventKind::ChangeIdentityRepaired { repair } => {
+                if event.actor.kind != ActorKind::Operator {
+                    return Err(RuntimeError::InvalidState("change identity repair requires signed operator authority".into()));
+                }
+                phase_closure::guard_work(self, &repair.phase_id, None)?;
+                let admitted = change_identity::prepare_replay(self, &repair.phase_id, &repair.input, &repair.original_changes)?;
+                if admitted != *repair {
+                    return Err(RuntimeError::InvalidState("change identity repair payload differs from admitted source content".into()));
+                }
+                let command_id = event.command_id.as_ref().ok_or_else(|| RuntimeError::InvalidState("identity repair requires commandId".into()))?;
+                let phase = self.phase_mut(&repair.phase_id)?;
+                for key in repair.original_changes.keys() { phase.changes.remove(key); }
+                phase.changes.insert(repair.input.resolution.target_key.clone(), repair.resulting_change.clone());
+                for key in repair.original_obligations.keys() { self.boundary_obligations.remove(key); }
+                self.boundary_obligations.extend(repair.resulting_obligations.clone());
+                self.change_identity_repairs.insert(command_id.clone(), repair.clone());
+                self.recalculate_implementation();
+                self.synchronize_active_work_cursor(&repair.phase_id);
             }
             EventKind::ChangeTransitioned {
                 phase_id,
@@ -4605,6 +4637,10 @@ impl Runtime {
             return Err(RuntimeError::NotInitialized);
         }
         if state.command_revisions.contains_key(&command_id) {
+            if matches!(&kind, EventKind::ChangeRegistered { .. } | EventKind::ChangeIdentityRepaired { .. })
+                && !events.iter().any(|event| event.command_id.as_deref() == Some(command_id.as_str()) && event.kind == kind) {
+                return Err(RuntimeError::InvalidState(format!("commandId {command_id} already names different change identity content")));
+            }
             let mut state = state;
             self.decorate_replica_view(&mut state);
             return Ok(state);
@@ -4614,6 +4650,9 @@ impl Runtime {
                 expected: expected_revision,
                 actual: state.revision,
             });
+        }
+        if let EventKind::ChangeRegistered { phase_id, change } = &kind {
+            change_identity::admit_registration(&state, phase_id, change)?;
         }
         let project_id = state.project_id.clone();
         let run_id = state.run_id.clone();
@@ -4662,6 +4701,18 @@ impl Runtime {
         }
         if let Some(committed_revision) = state.command_revisions.get(&envelope.command_id).copied()
         {
+            if let CommandKind::ChangeRegister { phase_id, change } = &envelope.command {
+                if !events.iter().any(|event| event.command_id.as_deref() == Some(envelope.command_id.as_str())
+                    && matches!(&event.kind, EventKind::ChangeRegistered { phase_id: original_phase, change: original_change } if original_phase == phase_id && original_change == change)) {
+                    return Err(RuntimeError::InvalidState(format!("commandId {} already names different change registration content", envelope.command_id)));
+                }
+            }
+            if let CommandKind::ChangeRepairIdentity { phase_id, repair } = &envelope.command {
+                if !state.change_identity_repairs.get(&envelope.command_id)
+                    .is_some_and(|record| &record.phase_id == phase_id && &record.input == repair) {
+                    return Err(RuntimeError::InvalidState(format!("commandId {} was already used for different identity-repair content", envelope.command_id)));
+                }
+            }
             if phase_closure::is_closure_command(&envelope.command)
                 && phase_closure::idempotent_replay(&state, &envelope.command)?.is_none()
             {
@@ -6128,6 +6179,7 @@ impl Runtime {
                 migrated += 1;
             }
             let identity = legacy_phase_identity(&kbd_root, path, &progress);
+            change_identity::validate_legacy(&identity.id, &progress)?;
             let derived_phase = legacy_phase(&identity.id, &progress, file_uncertain > 0, None);
             let (derived_completed, derived_total) = phase_implementation_counts(&derived_phase);
             let counts = legacy_completion_resolution(&progress, derived_completed, derived_total);
@@ -8157,6 +8209,7 @@ fn command_scope(command: &CommandKind) -> Option<String> {
         CommandKind::ChangeRegister { phase_id, change } => {
             format!("phase:{phase_id}/change:{}", change.id)
         }
+        CommandKind::ChangeRepairIdentity { phase_id, .. } => format!("phase:{phase_id}"),
         CommandKind::ChangeTransition {
             phase_id,
             change_id,
@@ -8343,10 +8396,17 @@ fn prepare_command_event(
                 to: to.clone(),
             }
         }
-        CommandKind::ChangeRegister { phase_id, change } => EventKind::ChangeRegistered {
-            phase_id: phase_id.clone(),
-            change: change.clone(),
+        CommandKind::ChangeRegister { phase_id, change } => {
+            change_identity::admit_registration(state, phase_id, change)?;
+            EventKind::ChangeRegistered { phase_id: phase_id.clone(), change: change.clone() }
         },
+        CommandKind::ChangeRepairIdentity { phase_id, repair } => {
+            if actor.kind != ActorKind::Operator {
+                return Err(RuntimeError::InvalidState("change identity repair requires signed operator authority".into()));
+            }
+            phase_closure::guard_work(state, phase_id, None)?;
+            EventKind::ChangeIdentityRepaired { repair: change_identity::prepare(state, phase_id, repair)? }
+        }
         CommandKind::ChangeTransition {
             phase_id,
             change_id,

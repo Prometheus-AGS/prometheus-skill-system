@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "phase": "issues-194-195-196",
+  "status": "PLAN_DRAFT_AWAITING_OWNER_REVIEW",
+  "createdAt": "2026-10-27T09:41:32.448071+00:00",
+  "canonicalRevision": 118,
+  "planRevision": 18,
+  "outputs": [
+    "plan.md",
+    "plan-authority.json",
+    "backend-task-map.json",
+    "plan-registration.json",
+    "adopted-contract.json"
+  ],
+  "canonicalAdoption": false,
+  "executeHandoffWritten": false,
+  "pendingInputs": [
+    "owner review of proposed-calibration.md",
+    "approval of prospective final-boundary ceilings and selected local surfaces"
+  ],
+  "review": "independent review pending until completed production",
+  "actualImplementationTasksStarted": 0,
+  "nextAction": "After owner review, finalize contract content, invoke existing canonical adoption writer, write identity-bound plan handoff and complete plan stage. Do not dispatch or implement in Plan."
+}

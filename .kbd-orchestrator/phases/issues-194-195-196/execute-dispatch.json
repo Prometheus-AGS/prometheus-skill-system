@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "phase": "issues-194-195-196",
+  "dispatchedAt": "2026-10-27T10:13:55.172942+00:00",
+  "backend": "openspec",
+  "contractDigest": "c6c2db6d12c9588a9213fe7f53efbd316cab2155c432c45a814307ebbf0f5734",
+  "planRevision": 19,
+  "route": "native scoped implementation workers plus lead; inherited model, no override",
+  "assignedChanges": [
+    "kbd-194-change-identity-repair",
+    "kbd-195-vlbv-policy-propagation",
+    "kbd-196-value-scenario-workflow",
+    "kbd-194-196-delivery-qualification"
+  ],
+  "pendingWork": "All production and evidence tasks; no verification or completion claimed"
+}

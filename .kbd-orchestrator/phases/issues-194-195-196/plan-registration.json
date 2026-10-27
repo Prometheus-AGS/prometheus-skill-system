@@ -1,0 +1,50 @@
+{
+  "phase": "issues-194-195-196",
+  "sourceRevision": 118,
+  "planRevision": 18,
+  "changes": [
+    {
+      "id": "kbd-194-change-identity-repair",
+      "status": "pending",
+      "taskIds": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "id": "kbd-195-vlbv-policy-propagation",
+      "status": "pending",
+      "taskIds": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "id": "kbd-196-value-scenario-workflow",
+      "status": "pending",
+      "taskIds": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "id": "kbd-194-196-delivery-qualification",
+      "status": "pending",
+      "taskIds": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    }
+  ],
+  "implementationStarted": false,
+  "contractAdopted": false,
+  "note": "Typed pending work registration only; no begin-task or implementation transition."
+}

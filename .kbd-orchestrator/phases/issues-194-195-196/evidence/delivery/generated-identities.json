@@ -1,0 +1,18 @@
+{
+  "capturedAt": "2026-10-27T11:17:32.407592+00:00",
+  "baseHead": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7",
+  "generatedTrees": {
+    "dist": "d9d44ccb0e4a7d6281a96c054e68cdb80214ea445325ada3cd966f34b2c6d1fc",
+    ".agents/plugins": "11e080f7a151a2e751b61eaaeba1331003cf0466f315ece252f42c63d2b1aed5"
+  },
+  "skillsMd": "394025dbfe23612e4263f5be7bed56d407d42ad493a4f8eec580ad691f128404",
+  "teamRuntime": {
+    "adapters-codecs.mjs": "777a0b4dfc369be356907519f07acbb18704a7eb04aa98df640188b15b08919f",
+    "handoff-provenance.mjs": "1f9a8dcd736c12002458852302fb2dee527d25c5b97b8cec6bfa8fd7f563b8a0",
+    "handoff.mjs": "3a74f16bb04e942d6a9c6fd7a33bf6edd2e4d98deaf26447cbce8896035e0767",
+    "phase-policy.mjs": "f15879ddbdc06780979e3d1221248911ac8ae1e13edbaa0ca96208033cc6720a"
+  },
+  "compiler": "typescript 7.0.2 via npm ci --prefix skills/process/agent-team-creator/runtime",
+  "generatorRuns": "scripts/generate-skill-system-distribution.js x2, identical dist tree hash; generate-skills-index.js x2 identical SKILLS.md",
+  "handEditedGeneratedOutputs": false
+}

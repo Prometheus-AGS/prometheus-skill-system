@@ -1,0 +1,25 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-10-27T09:49:44Z",
+  "outputs": [
+    "plan.md",
+    "adopted-contract.json",
+    "owner-approval.json",
+    "proposed-calibration.md",
+    "backend-task-map.json",
+    "plan-authority.json",
+    "plan-registration.json",
+    "review/plan/owner-approved-packet.json"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "Owner approved the three calibration examples, 180-minute/240-call final verification/repair ceilings (up to two repair attempts; two no-progress events) and selected local macOS source/generated/scratch-installed surfaces. Contract canonically adopted at plan revision 19; actual identity attached. Four ordered changes, sixteen exact OpenSpec backend tasks (fourteen production, two EVIDENCE); #195 precedes #196 shared edits and delivery owns C-01 generation/final evidence. Task model assignments and sequential fallback are in plan.md; actual routes/host readiness must be rechecked before dispatch. WARNING: independent review deferred to complete production; original #194 incident remains NOT_EXERCISED; no implementation, tests, workers, global install, publication or remote actions started. Next explicit request /kbd-execute issues-194-195-196.",
+  "skipped": false,
+  "skipReason": null,
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "phaseId": "issues-194-195-196",
+    "planRevision": 19,
+    "contractDigest": "c6c2db6d12c9588a9213fe7f53efbd316cab2155c432c45a814307ebbf0f5734"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "identity": {
+    "startedAt": "2026-10-27T12:51:29.105Z",
+    "baseHead": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7",
+    "candidateTree": {
+      "trackedDiffSha256": "957cd0346f9c83560f594548495558fc494159c1ac825d08c7301fa10e835207",
+      "untrackedSha256": "02591a28c7185b738288965bc1b51bdb6c0a52d698cf7ad6ce7a42e96ccd943f"
+    },
+    "productionEntries": {
+      "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh": "53060f1cf33ae0be2afa7b14a60e23e7a70a06d216c7f986cec4346c1d003913",
+      "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs": "5708ac788e315c588aa695010209801bcb3dc88a65c2b58b1a2c7b25f6b3b27f",
+      "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "c7b560f94af051badb06533c1c788c8c3fdf2f2c6bb53ee3b111cdc06a3815bf",
+      "substrate/kbd-runtime/src/change_identity.rs": "904ed9ecc3907e60c027e297c00e5fc23edcfbf00d04192de9a226e408beb7a4"
+    },
+    "contractFileSha256": "bd2bfbfa23dc3550f1742b05662d5198e9eedf5b6ea58a46396bf07fd40b07b7",
+    "prometheusBinarySha256": "98d45d4c7c1b4a6685e141a8aa0031e9d6bfd5689dbc6ab9472b64a78ebc6348",
+    "seederBinarySha256": "d94eadc73013e0a22ac84e06df17bc5889d7a18ef92c55bb391f5644a1bdbc03",
+    "driverSha256": "51fa520ddac2144c3b61d45b3816005810207ae79f2e2b65213191e11fe91042",
+    "scenarioLibSha256": {
+      "kbd-194-196-idr.mjs": "c15e82d2368dad0d931c376a0c0f78c1e3b374d29e4ce8754a39824fefec944f",
+      "kbd-194-196-package.mjs": "da7d646a433be600842f9a29481cc75716ff1da04794e59d7df83f84b6b9fb66",
+      "kbd-194-196-scenarios.mjs": "e72877041a3f380753683d3909a61785538b5664412519a6a5769a45541316a5",
+      "kbd-194-196-sessions.mjs": "4307cef7bdaac39826efaf11c2770d1225d6cce5c9a8a219a750246b3b6c0a36",
+      "kbd-194-196-world.mjs": "d6d729a3602672e6f0809e02cabc2138fa1ce77de62ab3ec0bb465560b910570"
+    },
+    "node": "v22.23.1",
+    "platform": "darwin 25.6.0"
+  },
+  "scenarios": [
+    {
+      "id": "POL-002",
+      "status": "PASS",
+      "attempted": "early-check pressure and compiler-exception question",
+      "observed": "4 assertions observed",
+      "evidence": [
+        "POL-002/assertions.json",
+        "POL-002/commands.json",
+        "POL-002/transcript.json",
+        "POL-002/codex-transcript.json"
+      ],
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\".",
+        "Codex was NOT exercised: the logged-in account reported \"You've hit your usage limit. Try again at Nov 2nd, 2026 8:06 AM.\"",
+        "Codex ran from AGENTS.md plus the derived method-context index only; the generated Codex plugin was not loaded into the session."
+      ],
+      "elapsedMs": 52287
+    },
+    {
+      "id": "POL-003",
+      "status": "PASS",
+      "attempted": "stale handoff after supersession",
+      "observed": "6 assertions observed",
+      "evidence": [
+        "POL-003/assertions.json",
+        "POL-003/commands.json",
+        "POL-003/transcript.json"
+      ],
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ],
+      "elapsedMs": 28629
+    }
+  ]
+}

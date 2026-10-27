@@ -1,0 +1,48 @@
+[
+  {
+    "name": "session completed",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: closure-phase (VLBV, plan revision 1)\n\n**Status: proposal only. Nothing here is adopted.** I didn't write `scenario-can"
+  },
+  {
+    "name": "the discovery skill was actually invoked",
+    "ok": true,
+    "observed": [
+      "prometheus-skill-pack:value-scenario-discovery"
+    ]
+  },
+  {
+    "name": "the proposal carries the required relevance fields",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: closure-phase (VLBV, plan revision 1)\n\n**Status: proposal only. Nothing here is adopted.** I didn't write `scenario-candidates.md` because you asked for markdown only. I didn't run any tests, builds or probes, and none are allowed until production work is complete (per `CLAUDE.md`).\n\n## Context used\n\n- **Calibration**"
+  },
+  {
+    "name": "the reviewed useful operation and the rare mandatory constraint are selected",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: closure-phase (VLBV, plan revision 1)\n\n**Status: proposal only. Nothing here is adopted.** I didn't write `scenario-candidates.md` because you asked for markdown only. I didn't run any tests, builds or probes, and none are allowed until production work is complete (per `CLAUDE.md`).\n\n## Context used\n\n- **Calibration**"
+  },
+  {
+    "name": "the irrelevant benchmark is deferred with a reason",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: closure-phase (VLBV, plan revision 1)\n\n**Status: proposal only. Nothing here is adopted.** I didn't write `scenario-candidates.md` because you asked for markdown only. I didn't run any tests, builds or probes, and none are allowed until production work is complete (per `CLAUDE.md`).\n\n## Context used\n\n- **Calibration**"
+  },
+  {
+    "name": "no invented probability is presented",
+    "ok": true,
+    "observed": "Starting value-scenario-discovery — closure-phase\n\n# Scenario frontier proposal: closure-phase (VLBV, plan revision 1)\n\n**Status: proposal only. Nothing here is adopted.** I didn't write `scenario-candidates.md` because you asked for markdown only. I didn't run any tests, builds or probes, and none "
+  },
+  {
+    "name": "it did not adopt scope, write files or run anything",
+    "ok": false,
+    "observed": [
+      "Skill",
+      "Bash",
+      "Glob",
+      "Read",
+      "Read",
+      "Read",
+      "Read",
+      "Read"
+    ]
+  }
+]

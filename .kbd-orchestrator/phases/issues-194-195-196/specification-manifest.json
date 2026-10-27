@@ -1,0 +1,52 @@
+{
+  "phase": "issues-194-195-196",
+  "backend": "openspec",
+  "status": "SPEC_AUTHORED_NOT_ADOPTED",
+  "changes": [
+    {
+      "id": "kbd-194-change-identity-repair",
+      "path": "openspec/changes/kbd-194-change-identity-repair",
+      "dependsOn": []
+    },
+    {
+      "id": "kbd-195-vlbv-policy-propagation",
+      "path": "openspec/changes/kbd-195-vlbv-policy-propagation",
+      "dependsOn": []
+    },
+    {
+      "id": "kbd-196-value-scenario-workflow",
+      "path": "openspec/changes/kbd-196-value-scenario-workflow",
+      "dependsOn": [
+        "kbd-195-vlbv-policy-propagation"
+      ]
+    },
+    {
+      "id": "kbd-194-196-delivery-qualification",
+      "path": "openspec/changes/kbd-194-196-delivery-qualification",
+      "dependsOn": [
+        "kbd-194-change-identity-repair",
+        "kbd-195-vlbv-policy-propagation",
+        "kbd-196-value-scenario-workflow"
+      ]
+    }
+  ],
+  "scenarioIds": [
+    "IDR-001",
+    "IDR-002",
+    "IDR-003",
+    "POL-001",
+    "POL-002",
+    "POL-003",
+    "SCN-001",
+    "SCN-002",
+    "VER-001",
+    "VER-002",
+    "VER-003",
+    "PKG-001"
+  ],
+  "contract": "adopted-contract.json",
+  "canonicalAdoption": "NOT_PERFORMED",
+  "review": "PENDING_UNTIL_COMPLETED_PRODUCTION",
+  "finalGateDriver": "scripts/tests/kbd-194-196.integration.mjs (not authored until final boundary)",
+  "sourceRevision": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7"
+}

@@ -16,6 +16,29 @@ metadata:
 
 # BDD Cucumber-rs Skill
 
+## Select the invocation mode before using commands
+
+- `author-only <contract-reference> <scenario-IDs>` consumes only adopted IDs
+  and writes features, real assertions, steps and configuration under governing
+  authoring policy. Read [the author-only procedure](references/author-only.md).
+  Do not execute/import generated test code, run dry-run/build/lint/typecheck,
+  install dependencies or modify protected scenarios in this mode.
+- `execute <contract-reference> <scenario-IDs>` is a separate request. Read
+  `value-scenario-verify` from the installed testing skills and require the
+  complete agreed value-phase production plus current boundary authority before
+  using any runner/build command below. A task/hour/commit/reviewer request is
+  not that boundary; process exit zero is not an assertion observation.
+
+With selected VLBV, define acceptance/scenarios before generation; executable
+feature/step authoring follows the host policy; where that policy is production-first
+(for example Prometheus repositories), defer authoring until the complete production
+implementation. Missing/unknown scenario adoption
+blocks; available tools or example commands are not execution permission. Reuse
+existing owner-reviewed calibration rather than requesting the same approval.
+Record contract/scenario/assertion/oracle source and excluded false positive;
+report authored-only artifacts as NOT_EXERCISED until real authorized execution.
+
+
 Author and run BDD integration tests for **any Rust project**. This skill is
 crate-agnostic. Pair it with `bdd-lifecycle-loop` for the author → run →
 triage → maintain workflow, and with `bdd-video-proof` for certification
@@ -225,7 +248,7 @@ UiWorld::cucumber()
     .await;
 ```
 
-## Running
+## Running — authorized phase-end execution only
 
 ```bash
 # HTTP-only scenarios (@api)

@@ -1,12 +1,13 @@
 ---
 name: bdd-lifecycle-loop
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 description: >
-  Codifies the create → run → triage → maintain workflow for BDD test
-  suites. Includes outside-in scenario authoring, flake-budget enforcement
-  wrapping cucumber's --retry-tag-filter primitive, an immutable-tests CI
-  guard, and a visual-baseline refresh workflow with paper trail. Use when
+  Codifies the define → author → run → triage → maintain workflow for BDD
+  test suites, with execution only at the authorized phase boundary.
+  Includes outside-in scenario authoring, flake-budget enforcement wrapping
+  cucumber's --retry-tag-filter primitive, an immutable-tests guard, and a
+  visual-baseline refresh workflow with paper trail. Use when
   standing up a new BDD suite, growing an existing suite past 100
   scenarios, or when flakiness starts eroding trust in CI.
 metadata:
@@ -21,11 +22,28 @@ A repeatable workflow for the four phases of a BDD suite's life. Pairs
 with `bdd-cucumber-js` and `bdd-cucumber-rs` (which cover *how to author*)
 and `bdd-video-proof` (which covers *how to certify*).
 
+## Definition, authoring and execution are three different acts
+
+| Act | When | Skill |
+|---|---|---|
+| **Define** scenarios (actor, outcome, source, oracle, false positive) | Before generation, from the specification | `value-scenario-discovery` |
+| **Author** features, real assertions and steps | Per host policy; where production is implemented first, only after the complete agreed production work | `bdd-cucumber-js` / `bdd-cucumber-rs` `author-only` |
+| **Execute** against the real path | Only at the separately authorized complete value-phase boundary | `value-scenario-verify` |
+
+Defining a scenario does not authorize running anything. Where the repository
+requires implementation first (for example Prometheus: complete the whole
+agreed production batch, then run one integration gate), the phases below
+describe the loop *after* that boundary; do not run Phases 2-3 against an
+intentionally incomplete codebase, per change, per task or per edit. A
+selected method or host policy always outranks this loop's defaults, and no
+step here repeals an operator rule or modifies a protected scenario without its
+existing signed approval.
+
 ## The loop
 
 ```
       ┌──────────────┐
-      │  1. Author   │  Write failing feature → step definitions
+      │  1. Author   │  Features → real assertions → step definitions
       └──────┬───────┘
              ↓
       ┌──────────────┐
@@ -51,17 +69,22 @@ Skip any phase and the loop breaks:
 
 ## Phase 1: Author (outside-in)
 
-Write the **failing scenario first**. Do NOT let the AI or human write
-the step definitions from the feature file, run once, and call it done —
-that's inside-out. Instead:
+Work outside-in: begin from the observable user outcome, not from step code
+that mirrors the implementation. Whether the scenario is expected to fail
+first depends on the declared timing policy:
 
-1. Draft the `.feature` file from the user story or acceptance criterion
-2. Run cucumber — it MUST fail with "step undefined" for every step
-3. Add the first missing step; the assertion inside must still fail (feature not implemented)
-4. Implement the smallest slice of production code that turns that assertion green
-5. Repeat for each remaining step
+- **Continuous-testing projects** may write the feature, observe it fail for
+  the right reason, then implement the smallest slice and watch it pass.
+- **Production-first or selected-VLBV projects** (including this repository)
+  write the features, assertions and oracle mapping from the adopted
+  scenario IDs, but do **not** run them while production is incomplete. A
+  scenario that has never run is `NOT_EXERCISED`, never "red" and never
+  "green". Use `author-only` and stop after static inspection.
 
-**Never** write production code without a failing scenario driving it.
+In either policy each assertion must be real: it observes the production
+operation's externally meaningful result against an independent source of
+expected truth. A step that only returns, or asserts a process exit code, is
+not an assertion.
 
 ### Feature file conventions
 
@@ -76,6 +99,9 @@ that's inside-out. Instead:
 - Reference `data-testid` selectors when the scenario is `@ui`
 
 ## Phase 2: Run
+
+Run only at the authorized boundary (see the table above); under production-first
+policy that is the single complete-phase gate, never a per-change loop.
 
 The cucumber runner writes `cucumber.json` (machine-readable) alongside
 whatever human-readable report you configured (`html`, `progress-bar`,
@@ -173,6 +199,8 @@ for the branch-and-review workflow.
 
 ## See also
 
+- [value-scenario-discovery](../value-scenario-discovery/SKILL.md) — define scenarios before generation
+- [value-scenario-verify](../value-scenario-verify/SKILL.md) — execute at the authorized phase boundary
 - [bdd-cucumber-js](../bdd-cucumber-js/SKILL.md) — how to author TS scenarios
 - [bdd-cucumber-rs](../bdd-cucumber-rs/SKILL.md) — how to author Rust scenarios
 - [bdd-video-proof](../bdd-video-proof/SKILL.md) — certification bundles

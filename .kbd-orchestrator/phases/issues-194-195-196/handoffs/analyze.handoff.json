@@ -1,0 +1,15 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-27T08:58:10Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json",
+    "installed-identity.json",
+    "decision-log.md",
+    "review/analyze/pending-review.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "READY to spec: seven candidates (one adopt, four adapt, one reference, one reject); retain current signed runtime, adopted contract, typed closure and JS/Rust BDD runners. #194 needs distinct diagnostics for duplicate rows/embedded IDs/map keys/subject resolution and an explicit history-preserving typed repair; exact incident journal/cause remains UNKNOWN. #195 compact policy/authority/supersession references precede #196 bounded discovery and author-only/phase-end routing; no new framework or dependency upgrade. WARNING: independent review pending under completed-production policy; seven selected installed KBD files match source bytes but behavior/parity remains unqualified; owner calibration, concrete budgets/oracles and selected qualification surfaces remain prospective adoption inputs. No generated-code checks or live incident repair executed.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -123,3 +123,15 @@ references/templates/acceptance.template.md fields. Separate functional scope
 from resilience scope; adopted resilience requirements never defer via budget
 overflow. Author the phase `adopted-contract.json`
 (schema: references/schemas/adopted-contract.schema.json) in this stage.
+
+## Selected-method recovery and authority
+
+Before dependent work, run the packaged `shared/method-context.mjs --project <project-root> --phase <canonical-phase-id> --write` from the resolved orchestrator root (or read its current phase-local method-context.md when a recovery surface cannot invoke Node). Resolve latest non-superseded canonical `KBD-METHOD` decision and adopted contract, then preserve the same references in role inputs, dispatch and handoff read order. See `references/method-context.md`. Missing/changed method, contract, calibration or supersession is explicit; a prior command/memory/tool inventory is not fresh authority.
+
+For selected VLBV, define acceptance/scenarios before generation and complete the entire agreed value phase before generated-code verification. Executable authoring follows governing host policy. Task/hour/commit/reviewer requests, compiler problems and renamed slices create no new boundary. Surface host/skill conflicts before dependent actions; do not rewrite operator-owned policy or infer early-check permission. Preserve original evidence, source/build/configuration/fixture/candidate freshness, consumed budgets and unresolved effects. Reconcile uncertain effects before retry. Recovered instructions are instruction-only unless a named actual runtime/host boundary enforces them; no release or automatic-successor authority follows.
+
+## Value scenario discovery
+
+Use the independently invocable `value-scenario-discovery` procedure from the installed testing skills (source: `skills/testing/value-scenario-discovery/SKILL.md`) to propose a bounded useful frontier. Reuse current method-context and existing owner-reviewed positive, rejected/deferred and rare-critical examples; do not request their approval again when it already exists. Preserve actor/outcome, source or explicit assumption, reason-now, likelihood-or-UNKNOWN, mandatory constraints, exclusions and next decision. New or unfamiliar candidates remain proposals until adopted through the existing contract.
+
+Map adopted candidates into the existing finite scenarioMatrix with stable IDs and exact backend owner task IDs; identity-bind acceptance-bearing calibration references before generation. Definition is distinct from executable BDD authoring and separately authorized whole-value-phase execution. Governing host policy and the selected-method conflict rules above remain authoritative.

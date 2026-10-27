@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 198,
+  "derivedRevision": 198,
+  "frontier": {
+    "385a1272-766b-41ce-b7d8-af6faaef4d70": 86,
+    "6bafb865-d257-47ab-b002-095905bf0d96": 112
+  },
+  "conflictCount": 0,
+  "phase": "issues-194-195-196",
+  "phaseId": "issues-194-195-196",
+  "parentPhase": null,
+  "last_updated": "2026-10-27T12:16:35.405729Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 4,
+  "changes_completed": 4,
+  "implementation_total": 4,
+  "implementation_completed": 4,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 4,
+      "total": 4,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 331,
+      "total": 393,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "kbd-194-change-identity-repair",
+      "title": "kbd-194-change-identity-repair",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "1.4 Document canonical versus projection repair, exact syntax, supported incident families and unavailable-original-incident limitation; completion artifact is the operator guide linked to IDR-001–003.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "kbd-195-vlbv-policy-propagation",
+      "title": "kbd-195-vlbv-policy-propagation",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "1.4 Update operator and cadence guidance with instruction-only limitations and prospective whole-value boundaries; delivered docs trace POL-001–003 and preserve operator-owned policies.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "kbd-196-value-scenario-workflow",
+      "title": "kbd-196-value-scenario-workflow",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "1.4 Replace conflicting BDD lifecycle and KBD integration procedures and document invocation/limitations; delivered docs preserve #195 authority and trace SCN-001–002 and VER-001–003.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "kbd-194-196-delivery-qualification",
+      "title": "kbd-194-196-delivery-qualification",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "2.2 EVIDENCE — Obtain authorized independent cumulative review and run the applicable final confirming integration gate after coherent fixes; retain pending/refused status until requirements pass, without reopening authored implementation solely for evidence gaps.",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

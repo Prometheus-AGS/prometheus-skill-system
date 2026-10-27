@@ -1,0 +1,85 @@
+{
+  "identity": {
+    "startedAt": "2026-10-27T12:33:11.760Z",
+    "baseHead": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7",
+    "candidateTree": {
+      "trackedDiffSha256": "957cd0346f9c83560f594548495558fc494159c1ac825d08c7301fa10e835207",
+      "untrackedSha256": "02591a28c7185b738288965bc1b51bdb6c0a52d698cf7ad6ce7a42e96ccd943f"
+    },
+    "productionEntries": {
+      "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh": "53060f1cf33ae0be2afa7b14a60e23e7a70a06d216c7f986cec4346c1d003913",
+      "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs": "5708ac788e315c588aa695010209801bcb3dc88a65c2b58b1a2c7b25f6b3b27f",
+      "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "c7b560f94af051badb06533c1c788c8c3fdf2f2c6bb53ee3b111cdc06a3815bf",
+      "substrate/kbd-runtime/src/change_identity.rs": "904ed9ecc3907e60c027e297c00e5fc23edcfbf00d04192de9a226e408beb7a4"
+    },
+    "contractFileSha256": "bd2bfbfa23dc3550f1742b05662d5198e9eedf5b6ea58a46396bf07fd40b07b7",
+    "prometheusBinarySha256": "98d45d4c7c1b4a6685e141a8aa0031e9d6bfd5689dbc6ab9472b64a78ebc6348",
+    "seederBinarySha256": "d94eadc73013e0a22ac84e06df17bc5889d7a18ef92c55bb391f5644a1bdbc03",
+    "driverSha256": "51fa520ddac2144c3b61d45b3816005810207ae79f2e2b65213191e11fe91042",
+    "scenarioLibSha256": {
+      "kbd-194-196-idr.mjs": "c15e82d2368dad0d931c376a0c0f78c1e3b374d29e4ce8754a39824fefec944f",
+      "kbd-194-196-package.mjs": "da7d646a433be600842f9a29481cc75716ff1da04794e59d7df83f84b6b9fb66",
+      "kbd-194-196-scenarios.mjs": "e72877041a3f380753683d3909a61785538b5664412519a6a5769a45541316a5",
+      "kbd-194-196-sessions.mjs": "07056decac8854da978a2bfb865b2ce5e1bebae2c92be0b2ca27ab6a99455de6",
+      "kbd-194-196-world.mjs": "1c8209c268e5fed57e3159201e42b888a28878bf502b730485b26154b7561d8a"
+    },
+    "node": "v22.23.1",
+    "platform": "darwin 25.6.0"
+  },
+  "scenarios": [
+    {
+      "id": "POL-001",
+      "status": "FAIL",
+      "attempted": "scenario execution",
+      "observed": "unclassified driver or product exception, triage required: Error: ENOTEMPTY: directory not empty, rmdir '/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-sess-pol-001-rmDPmV/ws/sess'\n    at Object.rmdirSync (node:fs:1193:11)\n    at _rmdirSync (node:internal/fs/rimraf:261:21)\n    at rimrafSync (node:internal/fs/rimraf:194:7)\n    at node:internal/fs/rimraf:254:9\n    at Array.forEach (<anonymous>)\n    at _rmdirSync (node:internal/fs/rimraf:251:7)\n    at rimrafSync (node:internal/fs/rimraf:194:7)\n    at node:internal/fs/rimraf:254:9\n    at Array.forEach (<anonymous>)\n    at _rmdirSync (node:internal/fs/rimraf:251:7)",
+      "evidence": [
+        "POL-001/assertions.json",
+        "POL-001/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 109732
+    },
+    {
+      "id": "POL-002",
+      "status": "FAIL",
+      "attempted": "scenario execution",
+      "observed": "unclassified driver or product exception, triage required: Error: ENOTEMPTY: directory not empty, rmdir '/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-sess-pol-002-EzZmeb/ws/sess'\n    at Object.rmdirSync (node:fs:1193:11)\n    at _rmdirSync (node:internal/fs/rimraf:261:21)\n    at rimrafSync (node:internal/fs/rimraf:194:7)\n    at node:internal/fs/rimraf:254:9\n    at Array.forEach (<anonymous>)\n    at _rmdirSync (node:internal/fs/rimraf:251:7)\n    at rimrafSync (node:internal/fs/rimraf:194:7)\n    at node:internal/fs/rimraf:254:9\n    at Array.forEach (<anonymous>)\n    at _rmdirSync (node:internal/fs/rimraf:251:7)",
+      "evidence": [
+        "POL-002/assertions.json",
+        "POL-002/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 51768
+    },
+    {
+      "id": "SCN-001",
+      "status": "FAIL",
+      "attempted": "scenario execution",
+      "observed": "unclassified driver or product exception, triage required: Error: ENOTEMPTY: directory not empty, rmdir '/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-sess-scn-001-RDsmkT/ws/sess'\n    at Object.rmdirSync (node:fs:1193:11)\n    at _rmdirSync (node:internal/fs/rimraf:261:21)\n    at rimrafSync (node:internal/fs/rimraf:194:7)\n    at node:internal/fs/rimraf:254:9\n    at Array.forEach (<anonymous>)\n    at _rmdirSync (node:internal/fs/rimraf:251:7)\n    at rimrafSync (node:internal/fs/rimraf:194:7)\n    at node:internal/fs/rimraf:254:9\n    at Array.forEach (<anonymous>)\n    at _rmdirSync (node:internal/fs/rimraf:251:7)",
+      "evidence": [
+        "SCN-001/assertions.json",
+        "SCN-001/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 65945
+    },
+    {
+      "id": "SCN-002",
+      "status": "FAIL",
+      "attempted": "author-only: adopted ID, unknown ID, disallowed stage",
+      "observed": "unmet: a feature tagged with the adopted ID, steps and an assertion map were written; an unknown scenario ID is refused explicitly; nothing was written for the unknown ID",
+      "evidence": [
+        "SCN-002/assertions.json",
+        "SCN-002/commands.json",
+        "SCN-002/transcripts.json"
+      ],
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ],
+      "elapsedMs": 106057
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.13.1",
+  "sourceVersion": "1.13.2",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -532,5 +532,5 @@
       "executable": true
     }
   ],
-  "bundleId": "34c3b3a2318c0365be8c1c696821c5a395219d0c4368862fae013da2dde962bf"
+  "bundleId": "1d613f4cf7b85cd3d87cb90dbbbdde522a09d7f6648ff409a100430c1b65f797"
 }

@@ -1,0 +1,12 @@
+[
+  {
+    "harness": "claude-code",
+    "authenticated": false,
+    "exit": 1
+  },
+  {
+    "harness": "codex",
+    "authenticated": false,
+    "exit": 1
+  }
+]

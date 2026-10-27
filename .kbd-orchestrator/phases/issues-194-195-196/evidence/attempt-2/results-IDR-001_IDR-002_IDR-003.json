@@ -1,0 +1,54 @@
+{
+  "identity": {
+    "startedAt": "2026-10-27T11:32:23.206Z",
+    "baseHead": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7",
+    "contractFileSha256": "bd2bfbfa23dc3550f1742b05662d5198e9eedf5b6ea58a46396bf07fd40b07b7",
+    "prometheusBinarySha256": "030598264c4f4651d46ba547bd017db677925990c5285ac7120ee4cd36f44198",
+    "seederBinarySha256": "554479b99ca05b6ce0c496820c9e3f2479756ab7d63717187ac58f2f9b4df113",
+    "driverSha256": "249020bffa3dac24435fbc71cf5078290f747ed1849701a87fc332c19ea5d2fc",
+    "scenarioLibSha256": "e72877041a3f380753683d3909a61785538b5664412519a6a5769a45541316a5",
+    "node": "v22.23.1",
+    "platform": "darwin 25.6.0"
+  },
+  "scenarios": [
+    {
+      "id": "IDR-001",
+      "status": "FAIL",
+      "attempted": "conflicting registration, duplicate legacy import, reconcile and inspect diagnostics",
+      "observed": "unmet: reconcile names the repeated progress ID",
+      "evidence": [
+        "IDR-001/assertions.json",
+        "IDR-001/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 11946
+    },
+    {
+      "id": "IDR-002",
+      "status": "PASS",
+      "attempted": "inspect, refuse five invalid repairs, repair the damaged canonical identity, retry and cold-replay",
+      "observed": "21 assertions observed",
+      "evidence": [
+        "IDR-002/assertions.json",
+        "IDR-002/commands.json"
+      ],
+      "limitations": [
+        "Non-operator actor kind cannot be selected from the public CLI (it signs repair as operator); authority is exercised through an unenrolled signer.",
+        "Original #194 journal and 1.11.3 binary are unavailable; this proves only the seeded damaged-identity family."
+      ],
+      "elapsedMs": 10382
+    },
+    {
+      "id": "IDR-003",
+      "status": "BLOCKED",
+      "attempted": "scenario setup",
+      "observed": "driver/fixture error (not a product verdict): TypeError: Cannot convert undefined or null to object\n    at Function.keys (<anonymous>)\n    at idr003 (file:///Users/gqadonis/Projects/prometheus/prometheus-skill-system/scripts/tests/lib/kbd-194-196-idr.mjs:196:15)\n    at file:///Users/gqadonis/Projects/prometheus/prometheus-skill-system/scripts/tests/kbd-194-196.integration.mjs:61:21",
+      "evidence": [
+        "IDR-003/assertions.json",
+        "IDR-003/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 11871
+    }
+  ]
+}

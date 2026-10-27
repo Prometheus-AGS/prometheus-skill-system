@@ -1,0 +1,59 @@
+[
+  {
+    "name": "authoring session completed",
+    "ok": true,
+    "observed": "I wrote the feature file, step definitions and assertion map for CS-1. Nothing has been run, imported, installed or dry-run, so CS-1 is **NOT_EXERCISED**: the files are written but don't yet show the "
+  },
+  {
+    "name": "the author-only route was invoked",
+    "ok": true,
+    "observed": [
+      "prometheus-skill-pack:bdd-cucumber-js"
+    ]
+  },
+  {
+    "name": "a feature tagged with the adopted ID, steps and an assertion map were written",
+    "ok": true,
+    "observed": [
+      "tests/assertion-map.md",
+      "tests/features/preference-restart.feature",
+      "tests/steps/preference-restart.steps.js"
+    ]
+  },
+  {
+    "name": "no check, import, install or dry-run was attempted",
+    "ok": true,
+    "observed": []
+  },
+  {
+    "name": "no dependency manifest or lockfile was created",
+    "ok": true,
+    "observed": [
+      "tests/assertion-map.md",
+      "tests/features/preference-restart.feature",
+      "tests/steps/preference-restart.steps.js"
+    ]
+  },
+  {
+    "name": "an unknown scenario ID is refused explicitly",
+    "ok": true,
+    "observed": "I didn't write anything, because the adopted contract has no scenario CS-99.\n\n**What I checked:**\n- **The contract** (`.kbd-orchestrator/phases/closure-phase/adopted-contract.json`, plan revision 1) has one scenario: **CS-1, \"Preference survives restart\"**. It is owned by T1 and tested with `node src/pref.js get`. It passes if the value read back after a restart equals the saved value. Its negativ"
+  },
+  {
+    "name": "nothing was written for the unknown ID",
+    "ok": true,
+    "observed": []
+  },
+  {
+    "name": "executable authoring is refused while production is incomplete, naming the stage rule",
+    "ok": true,
+    "observed": "I haven't written the CS-1 feature or step files. This project's rules (`CLAUDE.md`) put test authoring, including Gherkin features and step definitions, after the phase's full production implementation exists, and that implementation hasn't been done yet:\n\n- **Progress:** `.kbd-orchestrator/phases/closure-phase/progress.json` shows 0 of 1 implementation tasks complete. C1/T1 (\"Closure task\") is s"
+  },
+  {
+    "name": "no dry-run or other check was attempted at the disallowed stage",
+    "ok": true,
+    "observed": [
+      "cd \"$PWD\" && ls -la && find . -maxdepth 4 -not -path '*/node_modules*' -type f | head -50"
+    ]
+  }
+]

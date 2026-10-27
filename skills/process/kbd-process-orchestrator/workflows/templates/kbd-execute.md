@@ -19,9 +19,10 @@ Select the execution backend and dispatch the current phase change list.
 6. For this tool (self-executing):
 
    a. Implement the change in `focus_project_path`.
-   b. Run bdd-testing (`/bdd-testing` for feature file + steps).
-   c. Run artifact-refiner QA gate (`/refine-validate <change-id>`).
-   d. When code/integration is complete, set
+   b. Do not run tests, builds, lint, probes or QA gates while any planned production
+      change remains; scenarios are verified once at the separately authorized
+      complete value-phase boundary (`/value-scenario-verify`).
+   c. When code/integration is complete, set
       `implementation_status=COMPLETE` and update
       `completion.implementation` even if evidence tasks remain. Update legacy
       `changes_completed/changes_total` as exact implementation aliases.

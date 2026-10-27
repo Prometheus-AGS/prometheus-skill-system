@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
@@ -881,6 +881,24 @@ enum KbdStageAction {
 
 #[derive(Subcommand)]
 enum KbdChangeAction {
+    /// Inspect map keys, embedded identities and exact source digests without repair.
+    InspectIdentity {
+        #[arg(long)]
+        phase: String,
+    },
+    /// Explicit signed repair of damaged canonical change identities.
+    RepairIdentity {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        phase: String,
+        #[arg(long)]
+        expected_revision: u64,
+        #[arg(long)]
+        resolution_file: std::path::PathBuf,
+        #[arg(long)]
+        reason: String,
+    },
     Register {
         #[command(flatten)]
         mutation: KbdMutationArgs,
@@ -1395,6 +1413,17 @@ async fn run() -> Result<()> {
                     ),
                 },
                 KbdAction::Change { action } => match action {
+                    KbdChangeAction::InspectIdentity { phase } => commands::kbd::Action::InspectChangeIdentity { phase },
+                    KbdChangeAction::RepairIdentity { mutation, phase, expected_revision, resolution_file, reason } => {
+                        let bytes = std::fs::read(&resolution_file)
+                            .with_context(|| format!("reading identity resolution {}", resolution_file.display()))?;
+                        let resolution: kbd_runtime::change_identity::Resolution = serde_json::from_slice(&bytes)
+                            .with_context(|| format!("invalid identity resolution {}", resolution_file.display()))?;
+                        typed_command(mutation, kbd_runtime::CommandKind::ChangeRepairIdentity {
+                            phase_id: phase,
+                            repair: kbd_runtime::change_identity::RepairInput { expected_revision, reason, resolution },
+                        })
+                    }
                     KbdChangeAction::Register {
                         mutation,
                         phase,

@@ -1,0 +1,152 @@
+{
+  "identity": {
+    "startedAt": "2026-10-27T12:27:24.236Z",
+    "baseHead": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7",
+    "candidateTree": {
+      "trackedDiffSha256": "0f4c4bfb0556bc4cf27fb0e1d86249d48f1a5757213c015cb576521c87f59042",
+      "untrackedSha256": "02591a28c7185b738288965bc1b51bdb6c0a52d698cf7ad6ce7a42e96ccd943f"
+    },
+    "productionEntries": {
+      "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh": "53060f1cf33ae0be2afa7b14a60e23e7a70a06d216c7f986cec4346c1d003913",
+      "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs": "5708ac788e315c588aa695010209801bcb3dc88a65c2b58b1a2c7b25f6b3b27f",
+      "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "c7b560f94af051badb06533c1c788c8c3fdf2f2c6bb53ee3b111cdc06a3815bf",
+      "substrate/kbd-runtime/src/change_identity.rs": "904ed9ecc3907e60c027e297c00e5fc23edcfbf00d04192de9a226e408beb7a4"
+    },
+    "contractFileSha256": "bd2bfbfa23dc3550f1742b05662d5198e9eedf5b6ea58a46396bf07fd40b07b7",
+    "prometheusBinarySha256": "98d45d4c7c1b4a6685e141a8aa0031e9d6bfd5689dbc6ab9472b64a78ebc6348",
+    "seederBinarySha256": "d94eadc73013e0a22ac84e06df17bc5889d7a18ef92c55bb391f5644a1bdbc03",
+    "driverSha256": "51fa520ddac2144c3b61d45b3816005810207ae79f2e2b65213191e11fe91042",
+    "scenarioLibSha256": {
+      "kbd-194-196-idr.mjs": "c15e82d2368dad0d931c376a0c0f78c1e3b374d29e4ce8754a39824fefec944f",
+      "kbd-194-196-package.mjs": "da7d646a433be600842f9a29481cc75716ff1da04794e59d7df83f84b6b9fb66",
+      "kbd-194-196-scenarios.mjs": "e72877041a3f380753683d3909a61785538b5664412519a6a5769a45541316a5",
+      "kbd-194-196-sessions.mjs": "20116358dc8a8f633b798f3851765c97043555872c5184ce851a2c89b60876ba",
+      "kbd-194-196-world.mjs": "cf12dfcd46a08e03f8dfe801c5627c5b9224c151d53735df434412f385f67558"
+    },
+    "node": "v22.23.1",
+    "platform": "darwin 25.6.0"
+  },
+  "scenarios": [
+    {
+      "id": "POL-001",
+      "status": "FAIL",
+      "attempted": "fresh, resumed and delegated sessions",
+      "observed": "unmet: fresh: attempted no shell command; resumed: attempted no shell command; delegated: attempted no shell command",
+      "evidence": [
+        "POL-001/assertions.json",
+        "POL-001/commands.json",
+        "POL-001/transcripts.json"
+      ],
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ],
+      "elapsedMs": 132272
+    },
+    {
+      "id": "POL-002",
+      "status": "FAIL",
+      "attempted": "early-check pressure and compiler-exception question",
+      "observed": "unmet: the host compiler exception is surfaced as the host policy, not rewritten",
+      "evidence": [
+        "POL-002/assertions.json",
+        "POL-002/commands.json",
+        "POL-002/transcript.json"
+      ],
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ],
+      "elapsedMs": 45886
+    },
+    {
+      "id": "POL-003",
+      "status": "NOT_EXERCISED",
+      "attempted": "resume from a stale handoff after supersession and observe whether the retired workflow returns",
+      "observed": "No session script exists yet for supersession plus stale-handoff resumption; nothing was observed.",
+      "evidence": [
+        "POL-003/assertions.json",
+        "POL-003/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 3
+    },
+    {
+      "id": "SCN-001",
+      "status": "FAIL",
+      "attempted": "value-scenario-discovery",
+      "observed": "unmet: it did not adopt scope, write files or run anything",
+      "evidence": [
+        "SCN-001/assertions.json",
+        "SCN-001/commands.json",
+        "SCN-001/transcript.json"
+      ],
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\"."
+      ],
+      "elapsedMs": 49962
+    },
+    {
+      "id": "SCN-002",
+      "status": "FAIL",
+      "attempted": "scenario execution",
+      "observed": "unclassified driver or product exception, triage required: Error: ENOTEMPTY: directory not empty, rmdir '/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-sess-scn002-b-zXnHpz/ws/sess'\n    at Object.rmdirSync (node:fs:1193:11)\n    at _rmdirSync (node:internal/fs/rimraf:261:21)\n    at rimrafSync (node:internal/fs/rimraf:194:7)\n    at node:internal/fs/rimraf:254:9\n    at Array.forEach (<anonymous>)\n    at _rmdirSync (node:internal/fs/rimraf:251:7)\n    at rimrafSync (node:internal/fs/rimraf:194:7)\n    at node:internal/fs/rimraf:254:9\n    at Array.forEach (<anonymous>)\n    at _rmdirSync (node:internal/fs/rimraf:251:7)",
+      "evidence": [
+        "SCN-002/assertions.json",
+        "SCN-002/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 80321
+    },
+    {
+      "id": "VER-001",
+      "status": "NOT_EXERCISED",
+      "attempted": "run /value-scenario-verify against the real scratch repair-and-resume operation with a sensitivity challenge",
+      "observed": "The skill was not driven against a real runner and operation by a session; only IDR-002/003 exercised that operation directly.",
+      "evidence": [
+        "VER-001/assertions.json",
+        "VER-001/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 3
+    },
+    {
+      "id": "VER-002",
+      "status": "PASS",
+      "attempted": "disposition classification",
+      "observed": "8 assertions observed",
+      "evidence": [
+        "VER-002/assertions.json",
+        "VER-002/commands.json",
+        "VER-002/transcript.json"
+      ],
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Claude Code only; Codex scratch home is not logged in and was not exercised.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Bash is never pre-approved: attempted commands are denied and recorded, so \"did not run\" means \"did not attempt\".",
+        "Classification of stated cases only; no real runner, canonical writer or closure was driven by the session."
+      ],
+      "elapsedMs": 17689
+    },
+    {
+      "id": "VER-003",
+      "status": "NOT_EXERCISED",
+      "attempted": "drive /value-scenario-verify through the canonical closure writer and observe the six separate claims",
+      "observed": "No session drove the canonical closure writer; the writer was not exercised from a session.",
+      "evidence": [
+        "VER-003/assertions.json",
+        "VER-003/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 2
+    }
+  ]
+}

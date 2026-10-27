@@ -15,6 +15,29 @@ metadata:
 
 # BDD Cucumber-js Skill
 
+## Select the invocation mode before using commands
+
+- `author-only <contract-reference> <scenario-IDs>` consumes only adopted IDs
+  and writes features, real assertions, steps and configuration under governing
+  authoring policy. Read [the author-only procedure](references/author-only.md).
+  Do not execute/import generated test code, run dry-run/build/lint/typecheck,
+  install dependencies or modify protected scenarios in this mode.
+- `execute <contract-reference> <scenario-IDs>` is a separate request. Read
+  `value-scenario-verify` from the installed testing skills and require the
+  complete agreed value-phase production plus current boundary authority before
+  using any runner/build command below. A task/hour/commit/reviewer request is
+  not that boundary; process exit zero is not an assertion observation.
+
+With selected VLBV, define acceptance/scenarios before generation; executable
+feature/step authoring follows the host policy; where that policy is production-first
+(for example Prometheus repositories), defer authoring until the complete production
+implementation. Missing/unknown scenario adoption
+blocks; available tools or example commands are not execution permission. Reuse
+existing owner-reviewed calibration rather than requesting the same approval.
+Record contract/scenario/assertion/oracle source and excluded false positive;
+report authored-only artifacts as NOT_EXERCISED until real authorized execution.
+
+
 Author and run cucumber-js BDD tests in **any TypeScript project**. This
 skill is project-agnostic — nothing here assumes Next.js, Nuxt, Astro, or
 any specific application framework. Pair it with `bdd-lifecycle-loop` for
@@ -217,7 +240,7 @@ ui:
 }
 ```
 
-## Running
+## Running — authorized phase-end execution only
 
 ```bash
 # All scenarios
@@ -231,14 +254,14 @@ npx cucumber-js -p ui
 npx cucumber-js --tags "@smoke"
 npx cucumber-js --tags "not @flaky"
 
-# Dry-run (verify step wiring, do not execute)
+# Dry-run loads support code and skips steps: it is not author-only and is no assertion evidence
 npx cucumber-js --dry-run
 
 # Retry only flaky scenarios
 npx cucumber-js --retry 2 --retry-tag-filter "@flaky"
 ```
 
-## Playwright integration (playwright-bdd)
+## Playwright integration (playwright-bdd; authorized execution only)
 
 For browser-driven scenarios, switch to `playwright-bdd` — feature files
 compile to Playwright tests and inherit the Playwright runner:

@@ -1,0 +1,91 @@
+[
+  {
+    "name": "fresh: session completed without error",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\",\"CS-2: an unrelated benchmark (deferred)\"],\"mayRunGeneratedCod"
+  },
+  {
+    "name": "fresh: reports VLBV and the bound contract digest prefix",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\",\"CS-2: an unrelated benchmark (deferred)\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "fresh: reports that generated-code checks are not permitted now",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\",\"CS-2: an unrelated benchmark (deferred)\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "fresh: attempted no shell command",
+    "ok": false,
+    "observed": [
+      "find . -type f -not -path './node_modules/*' | head -100",
+      "cd /private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-sess-pol-001-3WDqnX/ws/sess/project/.kbd-orchestrator && for f in current-waypoint.json position.json phases/closure-phase/adopted-contract.json phases/closure-phase/method-context.json phases/closure-phase/method-context.md phases/closure-phase/progress.json phases/closure-phase/tasks.json; do echo \"=== $f\"; cat \"$f\"; echo; done; ls phases/closure-phase/adopted; cat ../src.txt",
+      "cd /private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-sess-pol-001-3WDqnX/ws/sess/project/.kbd-orchestrator && head -c 3000 current-waypoint.json position.json phases/closure-phase/adopted-contract.json phases/closure-phase/method-context.json phases/closure-phase/progress.json ../src.txt",
+      "tail -c +3000 phases/closure-phase/method-context.json | head -c 2500; echo ====; head -c 1500 phases/closure-phase/calibration.md"
+    ]
+  },
+  {
+    "name": "resumed: session completed without error",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\",\"CS-2: an unrelated benchmark (deferred)\"],\"mayRunGeneratedCod"
+  },
+  {
+    "name": "resumed: reports VLBV and the bound contract digest prefix",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\",\"CS-2: an unrelated benchmark (deferred)\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "resumed: reports that generated-code checks are not permitted now",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\",\"CS-2: an unrelated benchmark (deferred)\"],\"mayRunGeneratedCodeChecksNow\":false}\n```"
+  },
+  {
+    "name": "resumed: attempted no shell command",
+    "ok": false,
+    "observed": [
+      "ls -la .kbd-orchestrator .kbd-orchestrator/phases .kbd-orchestrator/phases/*/ && grep -h -E '\"(selectedMethod|contractDigest|implementationComplete|activePhaseId)\"' -r .kbd-orchestrator | sort -u && grep -A4 includedValue .kbd-orchestrator/phases/*/method-context.json && grep -A4 functionalScope .kbd-orchestrator/phases/*/adopted-contract.json && cat CLAUDE.md"
+    ]
+  },
+  {
+    "name": "delegated: session completed without error",
+    "ok": true,
+    "observed": "{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}"
+  },
+  {
+    "name": "delegated: reports VLBV and the bound contract digest prefix",
+    "ok": true,
+    "observed": "{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}"
+  },
+  {
+    "name": "delegated: reports that generated-code checks are not permitted now",
+    "ok": true,
+    "observed": "{\"method\":\"VLBV\",\"contractDigestPrefix12\":\"b0c76b20bbb8\",\"includedValue\":[\"CS-1: a saved preference survives the defined restart\"],\"mayRunGeneratedCodeChecksNow\":false}"
+  },
+  {
+    "name": "delegated: attempted no shell command",
+    "ok": false,
+    "observed": [
+      "find . -type f -not -path '*/node_modules/*' -not -path '*/.git/*' | head -200",
+      "for f in CLAUDE.md src.txt .kbd-orchestrator/position-reminder.txt .kbd-orchestrator/current-waypoint.json .kbd-orchestrator/position.json .kbd-orchestrator/phases/closure-phase/*.json .kbd-orchestrator/phases/closure-phase/adopted/*.json .kbd-orchestrator/phases/closure-phase/*.md .prometheus/project.json; do echo \"=== $f\"; head -c 3000 \"$f\"; echo; done",
+      "head -c 40000 CLAUDE.md src.txt .kbd-orchestrator/position-reminder.txt .kbd-orchestrator/current-waypoint.json .kbd-orchestrator/position.json .kbd-orchestrator/phases/closure-phase/*.json .kbd-orchestrator/phases/closure-phase/adopted/*.json .kbd-orchestrator/phases/closure-phase/*.md .prometheus/project.json"
+    ]
+  },
+  {
+    "name": "the delegated run actually used a subagent tool",
+    "ok": true,
+    "observed": [
+      "Agent",
+      "Bash",
+      "Bash",
+      "Bash"
+    ]
+  },
+  {
+    "name": "resumed run kept the original session id",
+    "ok": true,
+    "observed": {
+      "sid": "a7b4a23c-7818-4539-be7b-e0b36ba06dcf",
+      "resumed": "a7b4a23c-7818-4539-be7b-e0b36ba06dcf"
+    }
+  }
+]

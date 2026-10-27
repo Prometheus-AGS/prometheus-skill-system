@@ -21,6 +21,21 @@ metadata:
 
 # Prometheus Context Bootstrap
 
+## Selected method and phase authority
+
+Managed resident and path-scoped templates preserve compact references to the
+active phase's `method-context.md` and adopted contract, not another authority
+ledger. Canonical signed status/decisions remain authoritative. Compaction/session
+reanchor restores pointers and a labelled derived snapshot; missing/stale context
+is explicit. Preserve latest authorized supersession, original evidence, candidate
+freshness, consumed budgets and unresolved effects, and reconcile unknown effects
+before retry. For selected VLBV retain the complete agreed value-phase boundary
+and separate execution authority. Surface host compiler/skill-policy conflicts
+before dependent action without changing operator-owned policy. Template guidance
+is instruction-only unless an actual named host boundary enforces it; no global
+context rewrite, universal interception, release or automatic-successor authority
+is implied.
+
 Standing policy that is not in the root context file does not survive
 compaction. Rules that exist only as prose are advisory, and adherence falls as
 instruction count rises. This skill installs the structure that addresses both:

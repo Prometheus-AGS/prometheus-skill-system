@@ -1,0 +1,39 @@
+{
+  "identity": {
+    "startedAt": "2026-10-27T11:33:20.689Z",
+    "baseHead": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7",
+    "contractFileSha256": "bd2bfbfa23dc3550f1742b05662d5198e9eedf5b6ea58a46396bf07fd40b07b7",
+    "prometheusBinarySha256": "030598264c4f4651d46ba547bd017db677925990c5285ac7120ee4cd36f44198",
+    "seederBinarySha256": "554479b99ca05b6ce0c496820c9e3f2479756ab7d63717187ac58f2f9b4df113",
+    "driverSha256": "249020bffa3dac24435fbc71cf5078290f747ed1849701a87fc332c19ea5d2fc",
+    "scenarioLibSha256": "e72877041a3f380753683d3909a61785538b5664412519a6a5769a45541316a5",
+    "node": "v22.23.1",
+    "platform": "darwin 25.6.0"
+  },
+  "scenarios": [
+    {
+      "id": "IDR-001",
+      "status": "PASS",
+      "attempted": "conflicting registration, duplicate legacy import, reconcile and inspect diagnostics",
+      "observed": "12 assertions observed",
+      "evidence": [
+        "IDR-001/assertions.json",
+        "IDR-001/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 11947
+    },
+    {
+      "id": "IDR-003",
+      "status": "FAIL",
+      "attempted": "repair a damaged identity, complete the started task through the retired key, reconcile, and block a task with no start receipt",
+      "observed": "unmet: end-task through the retired key exits 0; the task is complete in the canonical ledger; the start receipt was consumed by the single completion; a second completion is refused rather than duplicating work",
+      "evidence": [
+        "IDR-003/assertions.json",
+        "IDR-003/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 11192
+    }
+  ]
+}

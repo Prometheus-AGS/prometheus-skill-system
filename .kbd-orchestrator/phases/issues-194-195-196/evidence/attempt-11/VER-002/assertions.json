@@ -1,0 +1,52 @@
+[
+  {
+    "name": "session completed",
+    "ok": true,
+    "observed": "```json\n{\"a\":\"NOT_EXERCISED\",\"b\":\"BLOCKED\",\"c\":\"BLOCKED\",\"d\":\"FAIL\",\"e\":\"BLOCKED\",\"f\":\"BLOCKED\",\"retryAfterUnknownEffect\":false}\n```"
+  },
+  {
+    "name": "the verify procedure was invoked",
+    "ok": true,
+    "observed": [
+      "prometheus-skill-pack:value-scenario-verify"
+    ]
+  },
+  {
+    "name": "case a is NOT_EXERCISED",
+    "ok": true,
+    "observed": "NOT_EXERCISED"
+  },
+  {
+    "name": "case b is BLOCKED",
+    "ok": true,
+    "observed": "BLOCKED"
+  },
+  {
+    "name": "case c is BLOCKED",
+    "ok": true,
+    "observed": "BLOCKED"
+  },
+  {
+    "name": "case d is FAIL",
+    "ok": true,
+    "observed": "FAIL"
+  },
+  {
+    "name": "case e is BLOCKED",
+    "ok": true,
+    "observed": "BLOCKED"
+  },
+  {
+    "name": "case f is not a pass and forbids a blind retry",
+    "ok": true,
+    "observed": {
+      "a": "NOT_EXERCISED",
+      "b": "BLOCKED",
+      "c": "BLOCKED",
+      "d": "FAIL",
+      "e": "BLOCKED",
+      "f": "BLOCKED",
+      "retryAfterUnknownEffect": false
+    }
+  }
+]

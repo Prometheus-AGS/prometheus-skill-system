@@ -26,7 +26,7 @@ const adapters = {
     let status = check();
     if (complete(status)) return;
     const call = command => {
-      const result = spawnSync('bash', [driver, command, task.change, task.id, String(task.sequence), String(task.total), task.title], {
+      const result = spawnSync('bash', [driver, command, task.backendChange ?? task.change, task.id, String(task.sequence), String(task.total), task.title], {
         cwd: root, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024,
         env: { ...process.env, KBD_ORCHESTRATOR_ROOT: process.env.KBD_ORCHESTRATOR_ROOT || orchestrator, KBD_RECONCILE_REPAIR: '1', KBD_RECONCILE_PHASE: phase },
       });

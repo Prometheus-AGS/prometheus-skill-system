@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "phase": "issues-194-195-196",
+  "status": "PLAN_COMPLETE",
+  "createdAt": "2026-10-27T09:41:32.448071+00:00",
+  "canonicalRevision": 124,
+  "planRevision": 19,
+  "outputs": [
+    "plan.md",
+    "plan-authority.json",
+    "backend-task-map.json",
+    "plan-registration.json",
+    "adopted-contract.json"
+  ],
+  "canonicalAdoption": true,
+  "executeHandoffWritten": true,
+  "pendingInputs": [],
+  "review": "independent review pending until completed production",
+  "actualImplementationTasksStarted": 0,
+  "nextAction": "/kbd-execute issues-194-195-196 on a new explicit user request. Actual execution readiness and route capabilities rechecked there.",
+  "finalizedAt": "2026-10-27T09:49:25.457918+00:00"
+}

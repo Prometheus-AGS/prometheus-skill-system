@@ -1,0 +1,18 @@
+{
+  "exit": 0,
+  "toolUses": [
+    {
+      "name": "Skill",
+      "input": {
+        "skill": "prometheus-skill-pack:value-scenario-verify"
+      }
+    }
+  ],
+  "text": "```json\n{\"a\":\"NOT_EXERCISED\",\"b\":\"BLOCKED\",\"c\":\"BLOCKED\",\"d\":\"FAIL\",\"e\":\"BLOCKED\",\"f\":\"BLOCKED\",\"retryAfterUnknownEffect\":false}\n```",
+  "sessionId": "b05ece00-9649-44b2-b153-8f34898763ca",
+  "denials": [],
+  "costUsd": 0.2888642,
+  "isError": false,
+  "turns": 3,
+  "raw": 20
+}

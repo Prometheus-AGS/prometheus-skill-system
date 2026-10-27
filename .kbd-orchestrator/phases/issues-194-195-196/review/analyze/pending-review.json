@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "status": "pending_review",
+  "phase": "issues-194-195-196",
+  "mode": "artifact",
+  "target": "analyze",
+  "createdAt": "2026-10-27T08:57:39.354601+00:00",
+  "artifacts": [
+    {
+      "path": "analysis.md",
+      "sha256": "67f56036adc5446898f2c92cf1685e69568ceec4688fd55f89130267264ff358"
+    },
+    {
+      "path": "library-candidates.json",
+      "sha256": "8787ed8619fc3e504f731ca6366cbea9f4238028c8e0efc1b1c3c177268b9b80"
+    },
+    {
+      "path": "installed-identity.json",
+      "sha256": "189358df46ce0c6d03a18152ac70dcbfcc05f84bcf64ebad027dd38c2a9adf60"
+    },
+    {
+      "path": "decision-log.md",
+      "sha256": "4078482e80a8e4e26cca71b59b7535e8c79c8ec392a060fb02de82ff8bef2fe1"
+    }
+  ],
+  "independentReviewPassed": false,
+  "crossModelCheck": "not-performed",
+  "reason": "Repository completed-production boundary keeps reviewer roles dormant; no remote-agent authorization. Pending status must be retained in subsequent handoffs."
+}

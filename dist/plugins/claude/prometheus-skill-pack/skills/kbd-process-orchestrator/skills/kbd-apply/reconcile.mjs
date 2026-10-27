@@ -34,6 +34,37 @@ function phaseCounts(phase, progress) {
   return { completed: Math.max(0, Math.min(total, completed)), total };
 }
 
+// Retired aliases left by authorized identity repairs, keyed by alias. An alias with
+// more than one target is ambiguous and is never guessed.
+function retiredAliases(state, phase) {
+  const aliases = new Map();
+  for (const repair of Object.values(state?.changeIdentityRepairs ?? {})) {
+    if (repair.phaseId !== phase) continue;
+    const target = repair.input?.resolution?.targetKey;
+    for (const source of Object.keys(repair.originalChanges ?? {})) {
+      if (source === target) continue;
+      if (aliases.has(source) && aliases.get(source) !== target) {
+        throw new Error(`phase ${phase}: retired change alias ${JSON.stringify(source)} maps to multiple targets; inspect identity repairs`);
+      }
+      aliases.set(source, target);
+    }
+  }
+  return aliases;
+}
+
+function readBackendFor(root, names, pinned) {
+  let first;
+  for (const name of names) {
+    try { return { artifact: readBackendTasks(root, name, pinned), backendChange: name }; }
+    catch (error) {
+      first ??= error;
+      // Only an absent artifact falls through to the next name; a corrupt one is reported.
+      if (!/^no unique task artifact/.test(error.message)) throw error;
+    }
+  }
+  throw first;
+}
+
 export async function scanReconcile(root, requested, { readCanonical, resolveIdentity = resolveRuntimeTaskId } = {}) {
   const drift = [];
   const errors = [];
@@ -50,21 +81,41 @@ export async function scanReconcile(root, requested, { readCanonical, resolveIde
     const progress = readJson(progressFile);
     if (!Array.isArray(progress.changes)) throw new Error('invalid phase progress changes');
     const rows = new Map();
-    for (const row of progress.changes) {
-      if (!row?.id || rows.has(row.id)) throw new Error('invalid or duplicate progress change ID');
+    for (const [index, row] of progress.changes.entries()) {
+      if (typeof row?.id !== 'string' || !row.id) throw new Error(`phase ${phase}: progress change row ${index} has no valid ID`);
+      if (rows.has(row.id)) throw new Error(`phase ${phase}: duplicate progress change ID ${JSON.stringify(row.id)} at row ${index}; inspect canonical keys/embedded IDs before repair`);
       rows.set(row.id, row);
+    }
+    if (state) {
+      const identities = new Map();
+      const issues = [];
+      for (const [key, change] of Object.entries(state.phases[phase].changes ?? {})) {
+        if (key !== change.id) issues.push(`change key ${JSON.stringify(key)} differs from embedded ID ${JSON.stringify(change.id)}`);
+        const previous = identities.get(change.id);
+        if (previous !== undefined) issues.push(`duplicate canonical change ID ${JSON.stringify(change.id)} at keys ${JSON.stringify(previous)} and ${JSON.stringify(key)}`);
+        identities.set(change.id, key);
+        for (const [taskKey, task] of Object.entries(change.tasks ?? {})) {
+          if (taskKey !== task.id) issues.push(`change ${JSON.stringify(key)} task key ${JSON.stringify(taskKey)} differs from embedded ID ${JSON.stringify(task.id)}`);
+        }
+      }
+      if (issues.length) throw new Error(`phase ${phase}: ${issues.join('; ')}; explicit signed identity repair required`);
     }
     const projectFile = path.join(root, '.kbd-orchestrator', 'project.json');
     const pinned = existsSync(projectFile) ? readJson(projectFile).specBackend : undefined;
+    const aliases = state ? retiredAliases(state, phase) : new Map();
     const changes = state ? Object.keys(state.phases[phase].changes ?? {}) : [...rows.keys()];
     // Projection-only changes must also be inspected: silently dropping them would hide drift.
-    for (const id of rows.keys()) if (!changes.includes(id)) changes.push(id);
+    // A row under a retired alias is inspected through its surviving canonical change.
+    for (const id of rows.keys()) {
+      if (!changes.includes(id) && !(aliases.has(id) && changes.includes(aliases.get(id)))) changes.push(id);
+    }
     Object.assign(context, { progressFile, progress });
     for (const change of changes) {
       const ledger = state?.phases[phase].changes?.[change];
-      const projection = rows.get(change);
+      const names = [change, ...[...aliases].filter(([, target]) => target === change).map(([alias]) => alias)];
+      const projection = names.map((name) => rows.get(name)).find(Boolean);
       try {
-        const artifact = readBackendTasks(root, change, pinned);
+        const { artifact, backendChange } = readBackendFor(root, names, pinned);
         context.artifacts[change] = artifact;
         const { tasks, archived } = artifact;
         const total = tasks.length;
@@ -88,7 +139,7 @@ export async function scanReconcile(root, requested, { readCanonical, resolveIde
             if (task.done && !complete(status)) {
               const kind = isCancelled ? 'cancelled' : archived ? 'archived' : status ? 'ledger-pending' : 'ledger-missing';
               add(task, kind);
-              if (kind === 'ledger-pending' || kind === 'ledger-missing') context.repairs.push({ change, ...task, total, runtimeId: id, status });
+              if (kind === 'ledger-pending' || kind === 'ledger-missing') context.repairs.push({ change, backendChange, ...task, total, runtimeId: id, status });
             } else if (!task.done && complete(status)) add(task, 'ledger-ahead');
           }
           for (const [id, task] of Object.entries(registered)) {

@@ -1,0 +1,214 @@
+{
+  "identity": {
+    "startedAt": "2026-10-27T12:10:45.008Z",
+    "baseHead": "bfe572ff8a97a21c7610c44ea6b39d5f97a857b7",
+    "candidateTree": {
+      "trackedDiffSha256": "d05b37bd3c14263bc377d2795bb0317c9d530bf05d8ff4866024c4dd49a39504",
+      "untrackedSha256": "02591a28c7185b738288965bc1b51bdb6c0a52d698cf7ad6ce7a42e96ccd943f"
+    },
+    "productionEntries": {
+      "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh": "53060f1cf33ae0be2afa7b14a60e23e7a70a06d216c7f986cec4346c1d003913",
+      "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs": "5708ac788e315c588aa695010209801bcb3dc88a65c2b58b1a2c7b25f6b3b27f",
+      "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "c7b560f94af051badb06533c1c788c8c3fdf2f2c6bb53ee3b111cdc06a3815bf",
+      "substrate/kbd-runtime/src/change_identity.rs": "904ed9ecc3907e60c027e297c00e5fc23edcfbf00d04192de9a226e408beb7a4"
+    },
+    "contractFileSha256": "bd2bfbfa23dc3550f1742b05662d5198e9eedf5b6ea58a46396bf07fd40b07b7",
+    "prometheusBinarySha256": "98d45d4c7c1b4a6685e141a8aa0031e9d6bfd5689dbc6ab9472b64a78ebc6348",
+    "seederBinarySha256": "d94eadc73013e0a22ac84e06df17bc5889d7a18ef92c55bb391f5644a1bdbc03",
+    "driverSha256": "51fa520ddac2144c3b61d45b3816005810207ae79f2e2b65213191e11fe91042",
+    "scenarioLibSha256": {
+      "kbd-194-196-idr.mjs": "c15e82d2368dad0d931c376a0c0f78c1e3b374d29e4ce8754a39824fefec944f",
+      "kbd-194-196-package.mjs": "da7d646a433be600842f9a29481cc75716ff1da04794e59d7df83f84b6b9fb66",
+      "kbd-194-196-scenarios.mjs": "e72877041a3f380753683d3909a61785538b5664412519a6a5769a45541316a5",
+      "kbd-194-196-sessions.mjs": "18c3072059aab9a50339c08584a8aa10eeb4aa0791fb97845abf7c1ce11a4435",
+      "kbd-194-196-world.mjs": "cf12dfcd46a08e03f8dfe801c5627c5b9224c151d53735df434412f385f67558"
+    },
+    "node": "v22.23.1",
+    "platform": "darwin 25.6.0"
+  },
+  "scenarios": [
+    {
+      "id": "IDR-001",
+      "status": "PASS",
+      "attempted": "conflicting registration, duplicate legacy import, reconcile and inspect diagnostics",
+      "observed": "12 assertions observed",
+      "evidence": [
+        "IDR-001/assertions.json",
+        "IDR-001/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 12397
+    },
+    {
+      "id": "IDR-002",
+      "status": "PASS",
+      "attempted": "inspect, refuse five invalid repairs, repair the damaged canonical identity, retry and cold-replay",
+      "observed": "22 assertions observed",
+      "evidence": [
+        "IDR-002/assertions.json",
+        "IDR-002/commands.json"
+      ],
+      "limitations": [
+        "Non-operator actor kind cannot be selected from the public CLI (it signs repair as operator); authority is exercised through an unenrolled signer.",
+        "Original #194 journal and 1.11.3 binary are unavailable; this proves only the seeded damaged-identity family."
+      ],
+      "elapsedMs": 10951
+    },
+    {
+      "id": "IDR-003",
+      "status": "PASS",
+      "attempted": "repair a damaged identity, complete the started task through the retired key, reconcile, and block a task with no start receipt",
+      "observed": "11 assertions observed",
+      "evidence": [
+        "IDR-003/assertions.json",
+        "IDR-003/commands.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 17667
+    },
+    {
+      "id": "POL-001",
+      "status": "BLOCKED",
+      "attempted": "open fresh, delegated and resumed native sessions and compare the selected method, contract digest, value and stage authority",
+      "observed": "required native session observation unavailable: claude-code not logged in under scratch roots; codex not logged in under scratch roots. Lead/fresh/delegated/resumed observations were not made.",
+      "evidence": [
+        "POL-001/assertions.json",
+        "POL-001/commands.json",
+        "POL-001/session-probe.json"
+      ],
+      "limitations": [
+        "No credentials were copied, exported or typed; unauthenticated scratch sessions cannot be driven.",
+        "Payload text and exports qualify fidelity only, never obedience (contract limitation); none was substituted."
+      ],
+      "elapsedMs": 1590
+    },
+    {
+      "id": "POL-002",
+      "status": "BLOCKED",
+      "attempted": "ask a native session to act on task/hour/commit/reviewer/stale-command triggers while production is incomplete and observe its commands",
+      "observed": "required native session observation unavailable: claude-code not logged in under scratch roots; codex not logged in under scratch roots. No command observation of an instructed session was made.",
+      "evidence": [
+        "POL-002/assertions.json",
+        "POL-002/commands.json",
+        "POL-002/session-probe.json"
+      ],
+      "limitations": [
+        "No credentials were copied, exported or typed; unauthenticated scratch sessions cannot be driven.",
+        "Payload text and exports qualify fidelity only, never obedience (contract limitation); none was substituted."
+      ],
+      "elapsedMs": 1068
+    },
+    {
+      "id": "POL-003",
+      "status": "BLOCKED",
+      "attempted": "resume a native session from a stale handoff after supersession and observe whether the retired workflow returns",
+      "observed": "required native session observation unavailable: claude-code not logged in under scratch roots; codex not logged in under scratch roots. No resumed-session observation was made.",
+      "evidence": [
+        "POL-003/assertions.json",
+        "POL-003/commands.json",
+        "POL-003/session-probe.json"
+      ],
+      "limitations": [
+        "No credentials were copied, exported or typed; unauthenticated scratch sessions cannot be driven.",
+        "Payload text and exports qualify fidelity only, never obedience (contract limitation); none was substituted."
+      ],
+      "elapsedMs": 999
+    },
+    {
+      "id": "SCN-001",
+      "status": "BLOCKED",
+      "attempted": "invoke /value-scenario-discovery in a native session with reviewed and unreviewed calibration",
+      "observed": "required native session observation unavailable: claude-code not logged in under scratch roots; codex not logged in under scratch roots. The discovery procedure was not run by any session.",
+      "evidence": [
+        "SCN-001/assertions.json",
+        "SCN-001/commands.json",
+        "SCN-001/session-probe.json"
+      ],
+      "limitations": [
+        "No credentials were copied, exported or typed; unauthenticated scratch sessions cannot be driven.",
+        "Payload text and exports qualify fidelity only, never obedience (contract limitation); none was substituted."
+      ],
+      "elapsedMs": 930
+    },
+    {
+      "id": "SCN-002",
+      "status": "BLOCKED",
+      "attempted": "invoke bdd-cucumber-js/-rs author-only in a native session and observe commands and writes",
+      "observed": "required native session observation unavailable: claude-code not logged in under scratch roots; codex not logged in under scratch roots. No author-only invocation was observed.",
+      "evidence": [
+        "SCN-002/assertions.json",
+        "SCN-002/commands.json",
+        "SCN-002/session-probe.json"
+      ],
+      "limitations": [
+        "No credentials were copied, exported or typed; unauthenticated scratch sessions cannot be driven.",
+        "Payload text and exports qualify fidelity only, never obedience (contract limitation); none was substituted."
+      ],
+      "elapsedMs": 952
+    },
+    {
+      "id": "VER-001",
+      "status": "BLOCKED",
+      "attempted": "invoke /value-scenario-verify in a native session against the scratch repair-and-resume operation with a sensitivity challenge",
+      "observed": "required native session observation unavailable: claude-code not logged in under scratch roots; codex not logged in under scratch roots. The verify procedure was not run by any session.",
+      "evidence": [
+        "VER-001/assertions.json",
+        "VER-001/commands.json",
+        "VER-001/session-probe.json"
+      ],
+      "limitations": [
+        "No credentials were copied, exported or typed; unauthenticated scratch sessions cannot be driven.",
+        "Payload text and exports qualify fidelity only, never obedience (contract limitation); none was substituted."
+      ],
+      "elapsedMs": 920
+    },
+    {
+      "id": "VER-002",
+      "status": "BLOCKED",
+      "attempted": "invoke /value-scenario-verify on stale/unexercised/blocked cases and observe dispositions",
+      "observed": "required native session observation unavailable: claude-code not logged in under scratch roots; codex not logged in under scratch roots. The verify procedure was not run by any session.",
+      "evidence": [
+        "VER-002/assertions.json",
+        "VER-002/commands.json",
+        "VER-002/session-probe.json"
+      ],
+      "limitations": [
+        "No credentials were copied, exported or typed; unauthenticated scratch sessions cannot be driven.",
+        "Payload text and exports qualify fidelity only, never obedience (contract limitation); none was substituted."
+      ],
+      "elapsedMs": 976
+    },
+    {
+      "id": "VER-003",
+      "status": "BLOCKED",
+      "attempted": "invoke /value-scenario-verify through to the canonical closure writer and observe the six separate claims",
+      "observed": "required native session observation unavailable: claude-code not logged in under scratch roots; codex not logged in under scratch roots. The verify procedure was not run by any session.",
+      "evidence": [
+        "VER-003/assertions.json",
+        "VER-003/commands.json",
+        "VER-003/session-probe.json"
+      ],
+      "limitations": [
+        "No credentials were copied, exported or typed; unauthenticated scratch sessions cannot be driven.",
+        "Payload text and exports qualify fidelity only, never obedience (contract limitation); none was substituted."
+      ],
+      "elapsedMs": 922
+    },
+    {
+      "id": "PKG-001",
+      "status": "PASS",
+      "attempted": "run the generator drift gate, real installer dispatch for both payloads, and compare method-context and reconcile behavior across source, generated and installed surfaces",
+      "observed": "37 assertions observed",
+      "evidence": [
+        "PKG-001/assertions.json",
+        "PKG-001/commands.json",
+        "PKG-001/surfaces.json"
+      ],
+      "limitations": [
+        "Only local macOS source, generated and scratch-installed Claude/Codex payloads; no real user install was read or changed.",
+        "Payload equality and identical diagnostics establish payload fidelity, not session obedience; native-session observation is covered separately and is BLOCKED."
+      ],
+      "elapsedMs": 210508
+    }
+  ]
+}

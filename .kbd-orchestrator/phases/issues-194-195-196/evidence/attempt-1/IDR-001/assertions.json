@@ -1,0 +1,80 @@
+[
+  {
+    "name": "conflicting registration is refused",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    change C1 already exists\n"
+  },
+  {
+    "name": "original change record is byte-for-byte preserved",
+    "ok": true,
+    "observed": {
+      "id": "C1",
+      "title": "First change",
+      "sequence": 0,
+      "status": "pending",
+      "implementationStatus": "pending",
+      "tasks": {
+        "T1": {
+          "id": "T1",
+          "title": "Shared title",
+          "sequence": 0,
+          "status": "pending",
+          "summary": null
+        }
+      }
+    }
+  },
+  {
+    "name": "no revision is consumed by the refused registration",
+    "ok": true,
+    "observed": "7 -> 7"
+  },
+  {
+    "name": "equivalent retry is idempotent and creates no duplicate",
+    "ok": true,
+    "observed": ""
+  },
+  {
+    "name": "a command id reused for different content is refused",
+    "ok": true,
+    "observed": "Error: local runtime rejected the command\n\nCaused by:\n    invalid compatibility state: commandId fx-change already names different change registration content\n"
+  },
+  {
+    "name": "missing qualified task key is reported as a missing key, not a missing receipt",
+    "ok": true,
+    "observed": "{\n  \"outcome\": \"blocked\",\n  \"authoritativeRevision\": 11,\n  \"sourceRevision\": 9,\n  \"position\": \"dmg-phase › C1/T9\",\n  \"findings\": [\n    \"phase dmg-phase missing qualified task key C1/T9; inspect registered task keys, not backend display labels\",\n    \"Task subject C1/T9 is not a unique canonical work item\"\n  ],\n  \"outstandingObligations\": {\n    \"phase:dmg-phase\": {\n      \"key\": \"phase:dmg-phase\",\n  "
+  },
+  {
+    "name": "an ambiguous title names the multiple matches",
+    "ok": true,
+    "observed": "{\n  \"outcome\": \"blocked\",\n  \"authoritativeRevision\": 13,\n  \"sourceRevision\": 11,\n  \"position\": \"dmg-phase › Shared title\",\n  \"findings\": [\n    \"phase dmg-phase task subject \\\"Shared title\\\" has 2 matches: [\\\"C1/T1\\\", \\\"C2/T1\\\"]\",\n    \"Task subject Shared title is not a unique canonical work item\",\n    \"5 compatibility projection(s) differ from canonical revision 11\"\n  ],\n  \"outstandingObligations\""
+  },
+  {
+    "name": "duplicate legacy rows are refused naming the repeated ID and both rows",
+    "ok": true,
+    "observed": "Error: invalid compatibility state: phase legacy-dup: legacy identity conversion refused without altering input: duplicate change ID \"dup-id\" at rows/keys \"0\" and \"1\"\n"
+  },
+  {
+    "name": "legacy input bytes are unchanged",
+    "ok": true,
+    "observed": "sha256 compare"
+  },
+  {
+    "name": "reconcile names the repeated progress ID",
+    "ok": false,
+    "observed": "{\n  \"phase\": \"dmg-phase\",\n  \"clean\": false,\n  \"drifted\": 0,\n  \"drift\": [],\n  \"errors\": [\n    {\n      \"kind\": \"scan\",\n      \"change\": null,\n      \"message\": \"ENOENT: no such file or directory, open '/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-idr001-dmg-1jNuqE/project/.kbd-orchestrator/current-waypoint.json'\"\n    }\n  ]\n}\n"
+  },
+  {
+    "name": "reconcile names the canonical key/embedded-ID mismatch and duplicate identity",
+    "ok": false,
+    "observed": "{\n  \"phase\": \"dmg-phase\",\n  \"clean\": false,\n  \"drifted\": 0,\n  \"drift\": [],\n  \"errors\": [\n    {\n      \"kind\": \"scan\",\n      \"change\": null,\n      \"message\": \"ENOENT: no such file or directory, open '/private/var/folders/2l/dfb80qb56z99f_t41vyw6s5r0000gn/T/kbd194-idr001-dmg-1jNuqE/project/.kbd-orchestrator/current-waypoint.json'\"\n    }\n  ]\n}\n"
+  },
+  {
+    "name": "inspect-identity reports both competing keys without changing state",
+    "ok": true,
+    "observed": [
+      "phase dmg-phase change key \"alias-a\" differs from embedded ID \"target\"",
+      "phase dmg-phase duplicate change ID \"target\" at keys [\"alias-a\", \"target\"]"
+    ]
+  }
+]

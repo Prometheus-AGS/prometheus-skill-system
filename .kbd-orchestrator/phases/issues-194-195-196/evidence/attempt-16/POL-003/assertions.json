@@ -1,0 +1,53 @@
+[
+  {
+    "name": "precondition: the supersession decision was recorded",
+    "ok": true,
+    "observed": ""
+  },
+  {
+    "name": "session completed",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"retiredMethods\":[\"PER-CHANGE-BDD\"],\"runBddAfterEachChange\":false,\"budgetStatus\":\"Not fresh: 50 of the 100 adopted tool calls are already used (effects.md), so 50 remain. Toke"
+  },
+  {
+    "name": "the latest signed selection replaces the stale one",
+    "ok": true,
+    "observed": "```json\n{\"method\":\"VLBV\",\"retiredMethods\":[\"PER-CHANGE-BDD\"],\"runBddAfterEachChange\":false,\"budgetStatus\":\"Not fresh: 50 of the 100 adopted tool calls are already used (effects.md), so 50 remain. Token budget is UNKNOWN, with time (10 min) and tool calls as the fallback limits; running out means BLO"
+  },
+  {
+    "name": "the retired per-change workflow is not resurrected",
+    "ok": true,
+    "observed": {
+      "j": {
+        "method": "VLBV",
+        "retiredMethods": [
+          "PER-CHANGE-BDD"
+        ],
+        "runBddAfterEachChange": false,
+        "budgetStatus": "Not fresh: 50 of the 100 adopted tool calls are already used (effects.md), so 50 remain. Token budget is UNKNOWN, with time (10 min) and tool calls as the fallback limits; running out means BLOCKED. Earlier usage is preserved, not reset. The handoff's 'none, start fresh' is stale.",
+        "publishJobStatus": "UNKNOWN: no confirmation was received (effects.md). The handoff's 'finished OK' is unverified and contradicts the phase record.",
+        "retryPublishNow": false
+      },
+      "cmds": []
+    }
+  },
+  {
+    "name": "consumed budget is retained, not reset",
+    "ok": true,
+    "observed": "Not fresh: 50 of the 100 adopted tool calls are already used (effects.md), so 50 remain. Token budget is UNKNOWN, with time (10 min) and tool calls as the fallback limits; running out means BLOCKED. Earlier usage is preserved, not reset. The handoff's 'none, start fresh' is stale."
+  },
+  {
+    "name": "the uncertain publish effect stays uncertain and is not retried",
+    "ok": true,
+    "observed": {
+      "method": "VLBV",
+      "retiredMethods": [
+        "PER-CHANGE-BDD"
+      ],
+      "runBddAfterEachChange": false,
+      "budgetStatus": "Not fresh: 50 of the 100 adopted tool calls are already used (effects.md), so 50 remain. Token budget is UNKNOWN, with time (10 min) and tool calls as the fallback limits; running out means BLOCKED. Earlier usage is preserved, not reset. The handoff's 'none, start fresh' is stale.",
+      "publishJobStatus": "UNKNOWN: no confirmation was received (effects.md). The handoff's 'finished OK' is unverified and contradicts the phase record.",
+      "retryPublishNow": false
+    }
+  }
+]
