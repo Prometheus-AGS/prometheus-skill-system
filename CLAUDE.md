@@ -1157,12 +1157,17 @@ Codex therefore gets **real directories**, synced by
 `install_to_codex()` in `install-skills-flat.sh` delegates to it. Never add Codex back
 into the `install_to_dir` (symlinking) list.
 
-Because copies go stale when a skill is edited, `ai.prometheus.codex-skills-sync`
-(launchd, `shared/launchagents/`) re-runs the sync on an interval and whenever a skill
-dir is added or removed. Note that launchd `WatchPaths` on a *directory* fires only on
-structural changes — it does **not** fire when a nested file such as
-`skills/<domain>/<skill>/SKILL.md` is edited — which is why `StartInterval` is the
-primary trigger, not `WatchPaths`.
+Global Codex copies are owned by the immutable generation: `install-plugin-generation.js`
+writes them with a `.prometheus-generation` marker, and they are refreshed on every pack
+install or update (`scripts/update-skill-pack.sh`), not continuously. A repo edit to a
+skill reaches Codex only after the next update.
+
+The former `ai.prometheus.codex-skills-sync` LaunchAgent is **retired**. It used a
+different ownership marker and competed with generation receipts, so
+`install-skills-flat.sh` and `refresh-native-plugin-installs.sh` remove it on every run.
+Do not reinstall it; its plist template remains in `shared/launchagents/` only because
+it is still listed in the generated service manifest. See
+[`docs/UPDATE_CONSIDERATIONS.md`](docs/UPDATE_CONSIDERATIONS.md).
 
 ### The skill catalog has a fixed budget — every skill steals description text
 
