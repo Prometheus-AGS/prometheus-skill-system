@@ -5,39 +5,6 @@
   "note": "GENERATED — do not hand-edit. Regenerate after any change to shared/launchagents/*.plist or shared/systemd/* (constraint C-01). Placeholders such as __PROMETHEUS_ROOT__ are substituted at install time.",
   "services": [
     {
-      "label": "ai.prometheus.codex-skills-sync",
-      "program": "/bin/bash",
-      "args": [
-        "__REPO_ROOT__/scripts/codex-sync-skills.sh",
-        "--quiet"
-      ],
-      "binding": null,
-      "platforms": {
-        "darwin": {
-          "source": "shared/launchagents/ai.prometheus.codex-skills-sync.plist",
-          "schedule": {
-            "runAtLoad": true,
-            "startInterval": 120,
-            "watchPaths": [
-              "__REPO_ROOT__/skills",
-              "__REPO_ROOT__/config/codex-catalog.txt"
-            ]
-          },
-          "restart": {
-            "keepAlive": null,
-            "throttleInterval": null,
-            "processType": "Background"
-          },
-          "logs": {
-            "stdout": "__HOME__/.prometheus/logs/codex-skills-sync.log",
-            "stderr": "__HOME__/.prometheus/logs/codex-skills-sync.log"
-          },
-          "workingDirectory": null
-        },
-        "linux": null
-      }
-    },
-    {
       "label": "ai.prometheus.exec",
       "program": "__PROMETHEUS_EXEC_BIN__",
       "args": [

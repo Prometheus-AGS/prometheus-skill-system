@@ -1165,8 +1165,8 @@ skill reaches Codex only after the next update.
 The former `ai.prometheus.codex-skills-sync` LaunchAgent is **retired**. It used a
 different ownership marker and competed with generation receipts, so
 `install-skills-flat.sh` and `refresh-native-plugin-installs.sh` remove it on every run.
-Do not reinstall it; its plist template remains in `shared/launchagents/` only because
-it is still listed in the generated service manifest. See
+Do not reinstall it; its plist template has been removed from `shared/launchagents/`
+and from the generated service manifest. See
 [`docs/UPDATE_CONSIDERATIONS.md`](docs/UPDATE_CONSIDERATIONS.md).
 
 ### The skill catalog has a fixed budget — every skill steals description text

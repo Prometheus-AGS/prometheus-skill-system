@@ -73,7 +73,7 @@ All labels below have the prefix `ai.prometheus.`.
 | `learning-worker` | Scheduled reconciliation/writeback, no port | Learning queues and delivery index under selected `.prometheus` | macOS, Linux |
 | `hooks-logrotate` | Scheduled log maintenance, no port | Selected `.prometheus/logs` | macOS, Linux |
 | `prometheus-nudge` | Optional periodic memory heartbeat, no port | Configured memory URL and nudge log | macOS, Linux |
-| `codex-skills-sync` | **Retired** legacy Codex skill-copy sync, no port. Installers and updates remove it; Codex copies are refreshed by each pack update ([UPDATE_CONSIDERATIONS](../UPDATE_CONSIDERATIONS.md)) | Not installed | macOS (template only) |
+| `codex-skills-sync` | **Retired** legacy Codex skill-copy sync, no port. Installers and updates remove it; Codex copies are refreshed by each pack update ([UPDATE_CONSIDERATIONS](../UPDATE_CONSIDERATIONS.md)) | Not installed | None (template removed) |
 
 On-demand components are separate. `learner-model` reads JSON-RPC from stdin
 and defaults to `~/.prometheus/learn/learner-model` for state. The harness starts
