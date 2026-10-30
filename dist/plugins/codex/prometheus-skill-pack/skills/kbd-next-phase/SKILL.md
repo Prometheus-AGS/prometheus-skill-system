@@ -1,10 +1,11 @@
 ---
 license: MIT
 name: kbd-next-phase
-version: '1.1.0'
+version: '1.1.1'
 description: >
-  Continue to the next KBD phase, automatically seeded from the previous
-  phase's reflection. Reads the "Recommended Next Phase" section of
+  Continue to the next KBD phase after Reflect has completed and the
+  operator has authorized the next scope; seeds proposals (never adopted
+  scope) from the previous phase's reflection. Reads the "Recommended Next Phase" section of
   reflection.md, initializes the new phase directory with goals.md and a
   skeleton progress.json, updates current-waypoint.json to point to
   /kbd-assess, and updates project.json activePhase.
@@ -68,7 +69,8 @@ phase, and prepares all state so any tool can resume cleanly with
 
 Unlike `/kbd-new-phase` (which requires you to supply a name and goals
 manually), `/kbd-next-phase` reads what KBD already knows from the reflection
-and seeds the new phase automatically.
+and seeds the new phase with those recommendations as proposals once the
+operator has authorized it.
 
 ## Progress Signals (MANDATORY)
 
@@ -84,7 +86,9 @@ Emit to plain response text — no tool call needed.
 
 - Contract-bound phase: CLOSED in canonical state plus a signed
   start-successor manifest (refused otherwise)
-- Unbound phase: `/kbd-reflect` should have run (warning issued if not)
+- Unbound phase: `/kbd-reflect` must have completed and the operator must have
+  explicitly authorized the next scope; otherwise stop and ask (never continue
+  on a warning)
 - `reflection.md` should exist at `.kbd-orchestrator/phases/<phase>/reflection.md`
 - The proposed new phase name must not already exist as a directory
 
