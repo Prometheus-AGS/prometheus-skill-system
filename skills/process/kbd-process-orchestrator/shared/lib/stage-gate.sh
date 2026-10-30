@@ -142,7 +142,8 @@ _sg_assert_canonical_phase() { # <stage> <phase_dir>
 
 # Semantic handoff validation. Replaces bare `jq empty`: a handoff must be
 # valid JSON with the required schema fields, the stage name must match the
-# predecessor being closed, and when an identity object is present its
+# predecessor being closed, a skip must carry its reason, every declared
+# output must exist, and when an identity object is present its
 # phaseId must match the phase directory the handoff lives in. At the
 # Plan→Execute boundary the plan handoff MUST carry identity (projectId,
 # runId, phaseId, planRevision, contractDigest) — an identity-less or stale
@@ -163,6 +164,33 @@ _sg_validate_handoff() { # <handoff-file> <expected-stage> <phase_dir> <for-stag
   if [ "$ok" != "stage-ok ts-ok skip-ok" ]; then
     printf 'kbd_stage_gate: %s blocked — %s handoff fails schema check (%s): %s\n' "$for_stage" "$prev" "$ok" "$handoff" >&2
     printf 'Remediation: rewrite the handoff via kbd_stage_handoff_write %s (never hand-edit).\n' "$prev" >&2
+    return 2
+  fi
+  # A skip is an explicit decision, so it must say why (issue #184).
+  if [ "$(jq -r '.skipped' "$handoff")" = "true" ] \
+     && [ -z "$(jq -r '.skipReason // empty' "$handoff" 2>/dev/null)" ]; then
+    printf 'kbd_stage_gate: %s blocked — %s handoff is skipped without a skipReason: %s\n' "$for_stage" "$prev" "$handoff" >&2
+    printf 'Remediation: record the skip via kbd_stage_handoff_skip %s "<reason>".\n' "$prev" >&2
+    return 2
+  fi
+  # Every declared output must still exist (issue #184). Paths are resolved
+  # against the phase directory, then the repository root; absolute paths are
+  # taken as given. Content is not hashed: outputs routinely include runtime
+  # projections such as progress.json that are regenerated on every transition.
+  local out_root missing_outputs="" out
+  out_root="${phase_dir%/.kbd-orchestrator/phases/*}"
+  [ "$out_root" = "$phase_dir" ] && out_root="$(_sg_root)"
+  while IFS= read -r out; do
+    [ -n "$out" ] || continue
+    case "$out" in
+      /*) [ -e "$out" ] && continue ;;
+      *) { [ -e "$phase_dir/$out" ] || { [ -n "$out_root" ] && [ -e "$out_root/$out" ]; }; } && continue ;;
+    esac
+    missing_outputs="${missing_outputs:+$missing_outputs, }$out"
+  done < <(jq -r '.outputs[]? | strings' "$handoff" 2>/dev/null)
+  if [ -n "$missing_outputs" ]; then
+    printf 'kbd_stage_gate: %s blocked — %s handoff declares outputs that do not exist: %s\n' "$for_stage" "$prev" "$missing_outputs" >&2
+    printf 'Remediation: restore the outputs or rerun /kbd-%s so its handoff matches what exists.\n' "$prev" >&2
     return 2
   fi
   # Identity, when present, must agree with the phase directory it lives in.
