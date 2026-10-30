@@ -59,7 +59,7 @@ while [ -n "$ROOT" ] && [ "$ROOT" != "/" ] && [ ! -d "$ROOT/.kbd-orchestrator" ]
 PHASE_DIR="$ROOT/.kbd-orchestrator/phases/$PHASE"
 [ -d "$PHASE_DIR" ] || { printf 'BLOCKED missing=phase-dir(%s)\n' "$PHASE_DIR"; exit 2; }
 [ -n "$EVIDENCE" ] || EVIDENCE="$PHASE_DIR/boundary-results.json"
-ENFORCED_DIMS="timeMinutes toolCalls repairAttempts"
+ENFORCED_DIMS="timeMinutes toolCalls repairAttempts noProgress"
 ERRF="$(mktemp)"; trap 'rm -f "$ERRF"' EXIT
 
 read_fixture_or() { # <fixture-file> <command...>
@@ -196,7 +196,8 @@ esac
 # Ceilings come from the bound snapshot: base budgets plus additive extensions;
 # the latest extension's explicit resultingCeilings wins when present. Values
 # are self-reported accounting, NOT independent telemetry. ABOVE a ceiling
-# refuses; an enforceable dimension (time, tool calls, repairs) reported as
+# refuses; an enforceable dimension (time, tool calls, repairs, no-progress
+# cycles against noProgressLimit) reported as
 # unknown refuses, because an unmetered budget cannot be shown to hold;
 # exactly AT a ceiling closes work already complete within limits and records
 # budget-exhausted. The runtime additionally refuses any decrease below the
