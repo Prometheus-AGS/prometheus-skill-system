@@ -597,6 +597,9 @@ pub enum BoundaryKind {
     Task,
     Change,
     Phase,
+    /// Retired in 1.12 with the zeespec skills. Kept only so signed journals
+    /// recorded by 1.11.x still replay; new receipts of this kind are refused.
+    Zeespec,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -8492,6 +8495,11 @@ fn prepare_command_event(
             resolution: resolution.clone(),
         },
         CommandKind::BoundaryReceiptRecord { receipt } => {
+            if receipt.boundary == BoundaryKind::Zeespec {
+                return Err(RuntimeError::InvalidState(
+                    "zeespec boundaries were retired in 1.12; legacy receipts replay only".into(),
+                ));
+            }
             if receipt.source_revision != state.revision {
                 return Err(RuntimeError::RevisionConflict {
                     expected: receipt.source_revision,
