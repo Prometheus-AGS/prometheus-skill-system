@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Journals signed by 1.11.x that contain zeespec stage receipts replay again.
+  `BoundaryKind::Zeespec` is restored as a legacy, replay-only variant: new
+  zeespec receipts are still refused at command admission, so the retired
+  zeespec workflow stays gone. This reverses the breaking replay removal listed
+  under 1.14.0; signed history is append-only and could not be migrated away.
+  The replay fixture and `tests/pre_1_12_zeespec_replay.rs` are restored.
+
 ## [1.14.0] - 2026-11-05
 
 ### Changed
