@@ -44,12 +44,17 @@ See `references/model-routing.md` for the full routing contract.
 - **Canonical specs**: `openspec/specs/*.md` (if OpenSpec), or project spec files
 - **Cross-tool progress**: `.kbd-orchestrator/phases/<phase>/progress.json`
 
-## OpenSpec Detection
+## Spec engine detection
 
-Check if `openspec/` directory exists at the project root.
+Resolve the engine as `kbd-apply detect` does (`project.json.specBackend` pin →
+the change's existing store → `openspec/` → Spec Kit → native KBD).
 
-- **YES** → use OpenSpec changes; emit `/opsx:new <change-id>` commands
-- **NO** → use native KBD changes; emit `mkdir .kbd-orchestrator/changes/<id>` instructions
+- **openspec** (primary) → emit `/opsx:new <change-id>` commands
+- **speckit** (backup) → write `specs/<change-id>/{spec.md,plan.md,tasks.md}`
+- **native-kbd** (existing native projects or an explicit pin) → emit
+  `mkdir .kbd-orchestrator/changes/<id>` instructions
+- **nothing resolves** → initialize OpenSpec with `shared/openspec/cli.mjs init`
+  and pin `"specBackend": "openspec"`; never default to native files
 
 ## Planning Rules
 

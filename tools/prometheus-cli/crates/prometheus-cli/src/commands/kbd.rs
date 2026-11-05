@@ -1011,21 +1011,6 @@ fn guard_context(state: &RuntimeState, boundary: BoundaryKind, subject: &str) ->
                 valid,
             }
         }
-        // Retired in 1.12: present only in replayed history, never a new subject.
-        BoundaryKind::Zeespec => {
-            let mut position = phase_path;
-            position.push(format!("zeespec:{subject}"));
-            GuardContext {
-                phase_id: active_phase_id,
-                change_id: None,
-                task_id: None,
-                ordinal: 1,
-                total: 1,
-                name: subject.to_owned(),
-                position: position.join(" › "),
-                valid: false,
-            }
-        }
     }
 }
 
@@ -1180,7 +1165,6 @@ async fn guard_evaluate(
         BoundaryKind::Task => "task",
         BoundaryKind::Change => "change",
         BoundaryKind::Phase => "phase",
-        BoundaryKind::Zeespec => "zeespec stage",
     };
     let verb = if edge == BoundaryEdge::Before {
         "Starting"

@@ -4,7 +4,8 @@
 // Prints the spec-engine registry (config/spec-engines.json) as JSON, and
 // optionally the engine detected for a repository root using the same
 // heuristic as kbd-apply.sh's backend_detect:
-//   - .kbd-orchestrator/project.json specBackend pin wins
+//   - .kbd-orchestrator/project.json specBackend pin wins (legacy change_backend
+//     is read when specBackend is absent)
 //     ("openspec"|"speckit"|"native-kbd"; "auto"/absent falls through)
 //   - openspec/ dir -> openspec
 //   - .specify/ dir or specs/*/tasks.md -> speckit
@@ -40,7 +41,8 @@ function detectEngine(root) {
   const projectJson = join(root, '.kbd-orchestrator', 'project.json');
   if (existsSync(projectJson)) {
     try {
-      const pinned = JSON.parse(readFileSync(projectJson, 'utf8')).specBackend;
+      const project = JSON.parse(readFileSync(projectJson, 'utf8'));
+      const pinned = project.specBackend ?? project.change_backend;
       if (pinned === 'openspec' || pinned === 'speckit' || pinned === 'native-kbd') {
         return pinned;
       }

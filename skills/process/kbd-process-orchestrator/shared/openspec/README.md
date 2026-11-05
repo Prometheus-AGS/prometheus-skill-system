@@ -2,12 +2,14 @@
 
 This directory is self-contained and uses Node builtins. Copy the whole directory
 when packaging it for another harness. Node must meet OpenSpec's requirement
-(20.19.0 or newer); invoke JavaScript with `node`, without executable bits or
+(22.12.0 or newer since OpenSpec 1.16.0; the runner refuses an older Node with a
+receipt naming the standalone binary); invoke JavaScript with `node`, without executable bits or
 shell shims.
 
 ```text
 node cli.mjs refresh --project /path/to/project --timeout-ms 120000
 node cli.mjs run --project /path/to/project -- list --json
+node cli.mjs init --project /path/to/project --tools claude,codex
 ```
 
 `cli.mjs` also exports `main(argv)`, returning the exit code. A wrapper must assign
@@ -17,7 +19,8 @@ OpenSpec command's stdout, including JSON output.
 ## Selection and installation
 
 Every explicit `refresh` queries the official npm registry's latest stable
-`@fission-ai/openspec`, with minimum version **1.14.0**. A registry failure permits
+`@fission-ai/openspec`, with minimum version **1.16.0**. A previously selected version below that
+minimum is treated as stale and replaced on the next run. A registry failure permits
 the last successfully selected cached CLI, with `latestVerified: false` and an
 explicit `cached-offline` policy. It never claims an offline cache is latest.
 `run` reuses the selected CLI without a registry request or reinstall; its first
@@ -37,7 +40,7 @@ Human overrides are explicit environment variables:
 | Variable | Behavior |
 | --- | --- |
 | `PROMETHEUS_OPENSPEC_HOME` | Override the managed home, including for isolated integration runs. |
-| `PROMETHEUS_OPENSPEC_VERSION` | Pin an exact stable version at or above 1.14.0; receipts say `operator-pin`, latest unverified. |
+| `PROMETHEUS_OPENSPEC_VERSION` | Pin an exact stable version at or above 1.16.0; receipts say `operator-pin`, latest unverified. |
 | `PROMETHEUS_OPENSPEC_DISABLE=1` | Disable managed activity; refresh records disabled and exits 0, run exits 2 without executing a CLI. |
 
 ## Refresh boundary
@@ -46,11 +49,15 @@ Refresh searches upward for `openspec/` plus `.prometheus/project.json`,
 `.kbd-orchestrator/project.json`, or `.kbd-orchestrator/current-waypoint.json`.
 Unrelated directories produce a `skipped` receipt. `run` only needs an OpenSpec
 ancestor, and can run `init` in the requested directory if none exists.
+`init` wraps `openspec init <project> --tools <list> --no-animation
+--no-copilot-cloud` and reports `already-initialized` without running anything
+when `openspec/` exists. `/kbd-init` uses it to adopt OpenSpec as a new
+project's primary spec engine.
 
 Refresh runs `openspec update <project> --force` with stdin closed,
 `OPEN_SPEC_INTERACTIVE=0`, and `OPENSPEC_NO_UPDATE_CHECK=1`. Force permits the
 official generated-integration cleanup after backups. The audited implementation
-is [OpenSpec v1.14.0](https://github.com/Fission-AI/OpenSpec/tree/v1.14.0/src/core).
+is [OpenSpec v1.16.0](https://github.com/Fission-AI/OpenSpec/tree/v1.16.0/src/core).
 The selected package's own tool, skill, workflow, command, and legacy-migration
 declarations determine backup paths. An incompatible internal API fails before
 update instead of guessing paths.

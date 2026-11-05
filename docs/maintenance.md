@@ -28,12 +28,12 @@ freeze and final local gate.
 
 | Platform/profile | Source prerequisites and boundary | Release acceptance |
 |---|---|---|
-| macOS, skills | Git, Node 20.19+, Bash launcher; selected harness targets | Pending exact host/harness matrix and installed invocation |
+| macOS, skills | Git, Node 22.12+, Bash launcher; selected harness targets | Pending exact host/harness matrix and installed invocation |
 | macOS, full | Skills prerequisites plus component toolchains; Bash 4+ for the native service installer; only shipped LaunchAgent templates | Pending binary, service, hook and real operation receipts |
-| Linux, skills | Git, Node 20.19+, Bash launcher; selected harness targets | Pending exact host/harness matrix and installed invocation |
+| Linux, skills | Git, Node 22.12+, Bash launcher; selected harness targets | Pending exact host/harness matrix and installed invocation |
 | Linux, full | Skills prerequisites plus component toolchains; Bash 4+; native supervision only for services with supplied Linux management | Pending native installation and real operation receipts |
-| Windows through Git Bash, skills | Node 20.19+, Git Bash; no full-profile native services | Pending native Windows evidence for the approved harness versions |
-| Windows through WSL, skills | Node 20.19+, Git and Bash in WSL; no Windows full profile | Pending separate WSL evidence; Linux evidence does not certify Windows |
+| Windows through Git Bash, skills | Node 22.12+, Git Bash; no full-profile native services | Pending native Windows evidence for the approved harness versions |
+| Windows through WSL, skills | Node 22.12+, Git and Bash in WSL; no Windows full profile | Pending separate WSL evidence; Linux evidence does not certify Windows |
 | Windows `cmd.exe`/PowerShell, full | Outside the full-pack installation matrix | Use the separately maintained portable mini where its install-scope rule permits |
 
 The full manifest has exactly 14 target IDs. This is a directory matrix, not 14

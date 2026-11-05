@@ -93,8 +93,9 @@ generated OpenSpec skills/commands while preserving authored specs, changes and
 custom configuration. Read the receipt: failed or pending refresh is unresolved,
 not current-version proof. A cached offline version is explicitly unverified for
 latest freshness. Resolve reported conflicts before dependent phase mutations.
-Native KBD projects remain usable without adopting OpenSpec; the helper skips
-projects without an existing OpenSpec root.
+OpenSpec is the primary spec engine for new projects (`/kbd-init` initializes
+it); existing native KBD projects keep working, and the helper skips projects
+without an existing OpenSpec root.
 
 Use the same preflight in harnesses without startup hooks and before raw
 `prometheus kbd` phase commands that bypass the lifecycle scripts. Invoke

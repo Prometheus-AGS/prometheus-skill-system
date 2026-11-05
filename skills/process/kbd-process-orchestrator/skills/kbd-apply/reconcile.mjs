@@ -101,7 +101,8 @@ export async function scanReconcile(root, requested, { readCanonical, resolveIde
       if (issues.length) throw new Error(`phase ${phase}: ${issues.join('; ')}; explicit signed identity repair required`);
     }
     const projectFile = path.join(root, '.kbd-orchestrator', 'project.json');
-    const pinned = existsSync(projectFile) ? readJson(projectFile).specBackend : undefined;
+    const projectConfig = existsSync(projectFile) ? readJson(projectFile) : {};
+    const pinned = projectConfig.specBackend ?? projectConfig.change_backend ?? undefined;
     const aliases = state ? retiredAliases(state, phase) : new Map();
     const changes = state ? Object.keys(state.phases[phase].changes ?? {}) : [...rows.keys()];
     // Projection-only changes must also be inspected: silently dropping them would hide drift.

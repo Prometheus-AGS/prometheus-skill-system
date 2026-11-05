@@ -113,7 +113,7 @@ Treat `exactNextCommand` as the operator's stated intent — useful context for
 
 | Command | Effect |
 |---|---|
-| `detect [dir]` | print backend id: `openspec`, `speckit`, or empty |
+| `detect [dir]` | print backend id: `openspec`, `speckit`, `native-kbd`, or empty |
 | `list <change>` | tasks as TSV `id⇥done⇥title` |
 | `progress <change>` | `total complete remaining` |
 | `begin-task <change> <id> <i> <n> <title>` | open a missing `change:before`, then fire `task:before` + position signals |
@@ -138,13 +138,15 @@ Run reconciliation before Reflect and at delivery-cadence refresh boundaries.
 
 ## Backends
 
-Three spec engines are supported; **`openspec` is the default**:
+Three spec engines are supported. **`openspec` (1.16.0+) is the primary engine**,
+**`speckit` is the supported backup**, and `native-kbd` is kept for existing
+native changes and explicit pins:
 
 | Engine | Artifacts | Adapter |
 |---|---|---|
-| `openspec` (default) | `openspec/changes/<change>/{proposal.md,tasks.md}` | `os_*` in `kbd-apply.sh` |
-| `speckit` (GitHub Spec Kit v1.x) | `.specify/` + `specs/<change>/{spec.md,plan.md,tasks.md}` | `sk_*` in `kbd-apply.sh` |
-| `native-kbd` | `.kbd-orchestrator/changes/<change>/tasks.json` | `nk_*` in `kbd-apply.sh` |
+| `openspec` (primary) | `openspec/changes/<change>/{proposal.md,tasks.md}` | `os_*` in `kbd-apply.sh` |
+| `speckit` (backup; GitHub Spec Kit v1.x) | `.specify/` + `specs/<change>/{spec.md,plan.md,tasks.md}` | `sk_*` in `kbd-apply.sh` |
+| `native-kbd` (compatibility) | `.kbd-orchestrator/changes/<change>/tasks.json` | `nk_*` in `kbd-apply.sh` |
 
 ### Detection and pinning
 
@@ -152,6 +154,8 @@ Backend resolution is change-scoped first, then repo-wide:
 
 1. `.kbd-orchestrator/project.json` `specBackend` pins the backend
    (`"openspec"`, `"speckit"`, `"native-kbd"`, or `"auto"`). A pin always wins.
+   The legacy key `change_backend` is read when `specBackend` is absent.
+   `/kbd-init --spec-engine` writes this pin for new projects.
 2. Change-scoped: `.kbd-orchestrator/changes/<c>/{tasks.json,change.md}` →
    `native-kbd`; `openspec/changes/<c>/{proposal.md,tasks.md}` → `openspec`;
    `specs/<c>/{tasks.md,spec.md,plan.md}` → `speckit`.

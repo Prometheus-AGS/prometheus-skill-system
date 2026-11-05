@@ -98,10 +98,11 @@ backend_detect() {
   # under a different backend.
   local change="${1:-}"
 
-  # Explicit override wins: project.json.specBackend pins the backend.
+  # Explicit override wins: project.json.specBackend pins the backend
+  # (legacy key change_backend is read when specBackend is absent).
   local pinned=""
   if [ -f .kbd-orchestrator/project.json ]; then
-    pinned="$(jq -r '.specBackend // empty' .kbd-orchestrator/project.json 2>/dev/null)"
+    pinned="$(jq -r '.specBackend // .change_backend // empty' .kbd-orchestrator/project.json 2>/dev/null)"
   fi
   case "$pinned" in
     openspec|native-kbd|speckit) printf '%s' "$pinned"; return 0 ;;

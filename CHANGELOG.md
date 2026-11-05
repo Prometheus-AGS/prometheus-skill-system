@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-11-05
+
+### Changed
+
+- OpenSpec is the primary spec engine, at **1.16.0** (exact pin and runner
+  minimum). The managed runner treats a cached selection below the minimum as
+  stale and installs the current release, and refuses Node.js older than
+  22.12.0 (OpenSpec 1.16's npm floor) with a receipt naming the standalone
+  binary. The root `engines.node` floor is now `>=22.12.0`.
+- `/kbd-init --spec-engine openspec|speckit|native-kbd` (default `openspec`)
+  adopts an engine for a new project and records `specBackend`; existing
+  projects are never switched. The runner gains an `init` operation wrapping a
+  non-interactive `openspec init`.
+- `kbd-spec`, `kbd-plan` and the plan prompt write OpenSpec changes by default
+  and no longer fall back silently to native files. They read the same
+  `specBackend` key as `kbd-apply`; the legacy `change_backend` key is honored
+  when `specBackend` is absent.
+- GitHub Spec Kit is the supported backup engine, pinned at **1.3.0**; the
+  `sk_*` adapter was checked against a real `specify init` project. `native-kbd`
+  is kept for compatibility and is no longer offered as a default.
+
+### Removed
+
+- The retired zeespec boundary (`BoundaryKind::Zeespec`) is gone from
+  kbd-runtime and the `prometheus` CLI, with its replay fixture and test.
+  **Breaking:** a journal signed by 1.11.x that contains zeespec receipts no
+  longer replays.
+- Stale slash commands: `scripts/generate-commands.js` and
+  `scripts/register-slash-commands.sh` now delete the command and prompt files
+  they generated for skills that no longer exist (for example the old
+  `zeespec-*` and `sync-*` commands). Files without the generator's marker are
+  left alone.
+
 ## [1.13.0] - 2026-10-18
 
 ### Added

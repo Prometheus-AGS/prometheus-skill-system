@@ -1,6 +1,6 @@
 # 21 · Contributing
 
-Use the maintained [contributor workflow](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/CONTRIBUTING.md) for setup, skill structure, local gates and pull requests. The root package requires Node.js 20.19.0 or later; team helpers require Node 22 or later. Pin tools and imported sources deliberately rather than advancing all submodules to arbitrary branch heads.
+Use the maintained [contributor workflow](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/CONTRIBUTING.md) for setup, skill structure, local gates and pull requests. The root package requires Node.js 22.12.0 or later; team helpers require Node 22 or later. Pin tools and imported sources deliberately rather than advancing all submodules to arbitrary branch heads.
 
 A new skill needs a directory whose name matches its frontmatter, concise instructions, declared prerequisites and accurate helper examples. Strict validation is required at the final boundary. Imported skills and vendored tools have independent owners and release histories; fix their source under the proper ownership, then update the selected pointer with approval where required.
 
