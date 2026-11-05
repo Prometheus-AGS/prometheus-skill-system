@@ -6,7 +6,7 @@ description: Latest-stable OpenSpec selection, automatic project refresh and rec
 
 # OpenSpec lifecycle updates
 
-The release baseline is **OpenSpec 1.14.0**, confirmed on 2026-10-03 from the official npm latest tag and [upstream release](https://github.com/Fission-AI/OpenSpec/releases/tag/v1.14.0). Source dependencies pin this version. The managed KBD runner checks the latest stable release, with 1.14.0 as its minimum, whenever it performs a refresh.
+OpenSpec is the primary spec engine for KBD projects. The release baseline is **OpenSpec 1.16.0**, confirmed on 2026-11-05 from the official npm latest tag and [upstream release](https://github.com/Fission-AI/OpenSpec/releases/tag/v1.16.0). Source dependencies pin this version. The managed KBD runner checks the latest stable release, with 1.16.0 as its minimum, whenever it performs a refresh; a cached older selection is replaced. OpenSpec 1.16.0 needs Node.js 22.12.0 or newer, and the runner refuses an older Node with a clear receipt. New projects adopt OpenSpec through `/kbd-init`, which calls the runner's `init` operation; GitHub Spec Kit is the supported backup engine.
 
 ## What updates automatically
 
@@ -22,6 +22,7 @@ From this pack's source checkout:
 
 ```text
 node skills/process/kbd-process-orchestrator/shared/openspec/cli.mjs refresh --project /path/to/project --timeout-ms 120000
+node skills/process/kbd-process-orchestrator/shared/openspec/cli.mjs init --project /path/to/project --tools claude,codex
 node skills/process/kbd-process-orchestrator/shared/openspec/cli.mjs run --project /path/to/project -- list --json
 node skills/process/kbd-process-orchestrator/shared/openspec/cli.mjs run --project /path/to/project -- validate change-id --type change --strict
 ```
@@ -41,7 +42,7 @@ For a separately installed global CLI, use the package manager that owns that in
 | Cold startup with insufficient time to install | Report pending (exit 75); complete the longer refresh before OpenSpec work |
 | Concurrent managed operation | Report contention (exit 75); no parallel updater or background daemon |
 | PROMETHEUS_OPENSPEC_HOME | Set a different managed cache, receipt and backup root |
-| PROMETHEUS_OPENSPEC_VERSION | Pin an exact stable version at or above 1.14.0; report operator-pin, not latest |
+| PROMETHEUS_OPENSPEC_VERSION | Pin an exact stable version at or above 1.16.0; report operator-pin, not latest |
 | PROMETHEUS_OPENSPEC_DISABLE=1 | Record disabled refresh; managed run exits 2 without executing OpenSpec |
 
 The normal refresh budget is 120 seconds. Startup uses a shorter budget and never begins installation with fewer than 60 seconds remaining. A timeout can leave partially regenerated files; use the recorded backup or retry after resolving the failure.

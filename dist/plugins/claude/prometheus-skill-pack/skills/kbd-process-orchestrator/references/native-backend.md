@@ -1,6 +1,6 @@
 # native-kbd spec backend
 
-The PMPO-native spec backend — the always-available fallback behind the same
+The PMPO-native spec backend — kept for compatibility behind the same
 SpecBackend interface as OpenSpec and Spec Kit (`spec-backend-interface.md`),
 purpose-built for one-task-per-turn driving by `kbd-apply`. There is no "do
 everything" command to mis-invoke, which is the entire control-model mismatch
@@ -71,8 +71,10 @@ subsequent state lives in `tasks.json`.
 
 `project.json` gains `"specBackend": "openspec" | "native-kbd" | "speckit" | "auto"`.
 Default (absent or `auto`) detection order: openspec → speckit → native-kbd.
-An explicit value pins the backend. New `kbd-init` projects should default to
-`native-kbd`.
+An explicit value pins the backend (legacy `change_backend` is read when
+`specBackend` is absent). New `kbd-init` projects default to `openspec`, with
+`speckit` as the backup; `native-kbd` is chosen only on explicit request or
+when a project already keeps native changes.
 
 ## Adapter functions (in kbd-apply.sh)
 

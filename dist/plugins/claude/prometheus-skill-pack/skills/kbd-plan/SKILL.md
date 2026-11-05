@@ -43,25 +43,27 @@ before ordering changes (schema:
 
 When no `library-candidates.json` exists (Analyze skipped), plan as before.
 
-## OpenSpec Detection
+## Spec engine detection
 
-Before emitting changes, detect the change management backend:
+OpenSpec (1.16.0+) is the primary change engine; Spec Kit is the supported
+backup; native KBD change files are kept for existing native projects. Resolve
+the engine exactly as `kbd-apply detect` does:
 
-1. **Check for `openspec/` directory** at project root
-2. **Check for `openspec/` directory** inside the skill being developed
-3. **Check `.kbd-orchestrator/project.json`** for `"change_backend": "openspec"`
-
-If any of these exist, emit changes as OpenSpec structures. Otherwise, use
-native KBD change files.
+1. `.kbd-orchestrator/project.json` `specBackend` pin (legacy `change_backend`
+   is read when `specBackend` is absent)
+2. the store a change already lives in
+3. an `openspec/` directory → OpenSpec; `.specify/` or `specs/*/tasks.md` → Spec Kit;
+   existing `.kbd-orchestrator/changes/*/tasks.json` → native KBD
 
 ```
-OpenSpec detected?
-  YES → emit /opsx:new <change-id> commands
-      → create openspec/changes/<change-id>/proposal.md
-      → tasks tracked in openspec/changes/<change-id>/tasks.md
-  NO  → create .kbd-orchestrator/changes/<change-id>/change.md
-      → tasks tracked inline with [ ] / [/] / [x] markers
+openspec  → emit /opsx:new <change-id> through the managed runner
+          → openspec/changes/<change-id>/{proposal.md,design.md,specs/,tasks.md}
+speckit   → specs/<change-id>/{spec.md,plan.md,tasks.md}
+native-kbd→ .kbd-orchestrator/changes/<change-id>/{spec.md,tasks.json}
 ```
+
+When nothing resolves, initialize OpenSpec (`shared/openspec/cli.mjs init`) and
+pin `"specBackend": "openspec"` rather than defaulting to native files.
 
 ## Evolver Bridge
 
@@ -100,8 +102,9 @@ generated OpenSpec skills/commands while preserving authored specs, changes and
 custom configuration. Read the receipt: failed or pending refresh is unresolved,
 not current-version proof. A cached offline version is explicitly unverified for
 latest freshness. Resolve reported conflicts before dependent phase mutations.
-Native KBD projects remain usable without adopting OpenSpec; the helper skips
-projects without an existing OpenSpec root.
+OpenSpec is the primary spec engine for new projects (`/kbd-init` initializes
+it); existing native KBD projects keep working, and the helper skips projects
+without an existing OpenSpec root.
 
 Use the same preflight in harnesses without startup hooks and before raw
 `prometheus kbd` phase commands that bypass the lifecycle scripts. Invoke
@@ -167,7 +170,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 3. **Confirm the active phase** — from argument or waypoint
 4. **Load assessment** — from `.kbd-orchestrator/phases/<phase>/assessment.md`
 5. **Read project constraints** — from `AGENTS.md` and project spec files
-6. **Detect change backend** — OpenSpec or native KBD (see OpenSpec Detection)
+6. **Detect change backend** — OpenSpec, Spec Kit or native KBD (see Spec engine detection)
 7. **Check for evolver bridge** — is this phase driven by an evolution cycle?
 8. **Follow the plan protocol**: in a nested orchestrator installation, read
    `../../prompts/plan.md`; in a flat skill installation, read
@@ -182,7 +185,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
    "Unresolved review findings" section appended). WARNING findings → carry
    into the stage handoff summary. Vet **before** emitting change
    structures, so a corrected plan never leaves stale changes behind.
-11. **Emit change structures** via OpenSpec or native KBD; add non-task references
+11. **Emit change structures** via the resolved engine; add non-task references
     to matching plan assignments without changing checkbox syntax or task titles.
     Reconcile all emitted task IDs with the table before handoff; re-vet material
     changes to scope or routing, then reconcile again.

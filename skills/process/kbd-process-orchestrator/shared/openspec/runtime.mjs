@@ -70,7 +70,11 @@ export function cachedRuntime(home, version) {
 
 export function selectedRuntime(home) {
   const selection = readJson(path.join(home, 'selected.json'));
-  return selection ? cachedRuntime(home, selection.version) : null;
+  if (!selection) return null;
+  // A selection below the current minimum (for example a cached 1.14.0) is not
+  // an error: it is stale, so the caller resolves and installs a newer one.
+  try { acceptedVersion(selection.version); } catch { return null; }
+  return cachedRuntime(home, selection.version);
 }
 
 export async function selectVersion(home, remaining) {

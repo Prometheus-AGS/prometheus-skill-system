@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.13.2",
+  "sourceVersion": "1.14.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -433,7 +433,7 @@
     },
     {
       "path": "shared/scripts/spec-engine-info.mjs",
-      "sha256": "96cfe6c2ab1efb3cda74eb4f0f3783f422b7cb1d373ec360bf9da0a11b7e6bb5",
+      "sha256": "8b32628b8f05827637f07a830ece5ab8bf4c486d51dac6f3eea772d24a831e5b",
       "executable": false
     },
     {
@@ -532,5 +532,5 @@
       "executable": true
     }
   ],
-  "bundleId": "a1497dc59b77642a40096319012355aada1a78c436e4d63eeeb2a254fa394c5a"
+  "bundleId": "74cb5ab51999f0eefe38b766390cb1279915b6f1857a06b349b366e45368e1b1"
 }

@@ -87,10 +87,10 @@ Spec Kit's `/speckit.implement` is the "do everything" command and is therefore
 **not** used as the per-task executor — the driver implements each task itself
 (or delegates a single task), consistent with the hard invariant above.
 
-## Adapter: native-kbd  (PMPO-native backend — the always-available fallback)
+## Adapter: native-kbd  (PMPO-native backend — compatibility)
 
-The default backend for projects with no OpenSpec/Spec Kit, and the default
-for new `kbd-init` projects. Purpose-built for one-task-per-turn driving with
+Kept for projects that already keep native changes or pin `native-kbd`. New
+`kbd-init` projects default to OpenSpec, with Spec Kit as the backup. Purpose-built for one-task-per-turn driving with
 no "do everything" command to mis-invoke. Full layout: `native-backend.md`.
 
 | Op | Concrete command | Mapping |

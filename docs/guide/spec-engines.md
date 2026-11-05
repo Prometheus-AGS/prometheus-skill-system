@@ -12,24 +12,28 @@ Engine metadata (CLI, pinned version, adapter pointer) is registered in
 prints the registry and — with `--root <dir>` — the same detection result the
 bash driver computes.
 
-## OpenSpec — the default
+## OpenSpec — the primary engine
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) (`@fission-ai/openspec`,
-CLI `openspec`) is the **default engine**. Its artifacts live under
+CLI `openspec`) is the **primary engine**. New projects adopt it through
+`/kbd-init` (`--spec-engine openspec`, the default), which runs `openspec init`
+through the managed runner (`shared/openspec/cli.mjs init`). Its artifacts live under
 `openspec/changes/<change>/{proposal.md,design.md,specs/,tasks.md}`. The pack
 pins the exact version in `package.json` (`@fission-ai/openspec`, exact pin —
-currently 1.14.0; the authoritative value is whatever `package.json` says).
+currently 1.16.0, which needs Node.js 22.12.0 or newer; the authoritative value is whatever `package.json` says).
 The adapter is `os_*` in `kbd-apply.sh`: `list` and `progress` come from
 `openspec instructions apply --change <id> --json`, `mark_done` flips the
 matching checkbox in `tasks.md`, `verify` runs `openspec validate`, and
 `archive` runs `openspec archive <id> --yes` (the `--yes` is required — the
 interactive prompt has no stdin here).
 
-## Spec Kit — fully supported alternative
+## Spec Kit — the supported backup
 
 [GitHub Spec Kit](https://github.com/github/spec-kit) (v1.x, CLI `specify`,
-installed with `uv tool install specify-cli`, pinned 1.1.2 in
-`config/spec-engines.json`) writes its artifacts under `.specify/` (templates
+installed with `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1.3.0`,
+pinned 1.3.0 in `config/spec-engines.json`) is the backup engine. Choose it for a
+new project with `/kbd-init --spec-engine speckit`, which runs
+`specify init --here --force --non-interactive --integration <harness>`. It writes its artifacts under `.specify/` (templates
 and scripts) and `specs/<slug>/{spec.md,plan.md,tasks.md}`. A "change" for the
 adapter is the feature-dir slug under `specs/`.
 
@@ -51,7 +55,8 @@ Pin the engine explicitly in `.kbd-orchestrator/project.json`:
 
 Valid values: `"openspec"`, `"speckit"`, `"native-kbd"`, `"auto"` (detect from
 the repository shape; `openspec` wins when `openspec/` exists). A pin always
-overrides detection.
+overrides detection. The legacy key `change_backend` is read when `specBackend`
+is absent.
 
 ### Updating when a new Spec Kit release ships
 
@@ -79,8 +84,10 @@ The pack-owned backend. Source of truth:
 `.kbd-orchestrator/changes/<change>/tasks.json` (schema:
 `references/schemas/change-tasks.schema.json`); `tasks.md` is a regenerated
 view. Detected change-scoped by `tasks.json` or a legacy `change.md`, and
-repo-wide by `.kbd-orchestrator/changes/*/tasks.json|change.md`. It is the
-always-available fallback; no external pin.
+repo-wide by `.kbd-orchestrator/changes/*/tasks.json|change.md`. It is kept
+for compatibility: projects that already keep native changes, or pin
+`native-kbd`, continue to use it. It is not offered as a default for new
+projects; no external pin.
 
 ## The adapter contract
 

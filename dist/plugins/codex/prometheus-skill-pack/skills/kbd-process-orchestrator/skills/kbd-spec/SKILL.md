@@ -1,11 +1,12 @@
 ---
 license: MIT
 name: kbd-spec
-version: '1.0.0'
+version: '1.1.0'
 description: >
   Run the Spec stage of the KBD lifecycle: turn an assessment and analysis into
-  concrete, ordered changes — native-kbd specs (spec.md + tasks.json +
-  verification.md), OpenSpec proposals, or Spec Kit feature specs.
+  concrete, ordered changes — OpenSpec proposals (the primary engine), Spec
+  Kit feature specs (the backup), or native-kbd specs for existing native
+  projects.
 metadata:
   tags: [process, orchestration, automation]
 ---
@@ -20,14 +21,25 @@ Converts `assessment.md` (and `analysis.json` / `library-candidates.json` when
 the Analyze stage ran) into concrete change specs that the Plan stage will
 order and the Execute stage will drive one task per turn:
 
-- **native-kbd backend** (default): writes
+- **openspec backend** (primary, OpenSpec 1.16.0+): emits `/opsx:new <change-id>`
+  per change through the managed runner, producing
+  `openspec/changes/<change-id>/{proposal.md, design.md, specs/, tasks.md}`.
+  Every `Scenario:` carries a WHEN (or GIVEN) step and a THEN step;
+  `openspec validate --strict` fails a scenario missing either.
+- **speckit backend** (backup): writes `specs/<change-id>/{spec.md, plan.md, tasks.md}`
+  with the `specify` CLI.
+- **native-kbd backend** (compatibility): writes
   `.kbd-orchestrator/changes/<change-id>/{spec.md, tasks.json, verification.md}`
-  per the layout in `references/native-backend.md`.
-- **openspec backend**: emits `/opsx:new <change-id>` per change, producing
-  `openspec/changes/<change-id>/{proposal.md, tasks.md}`.
+  per `references/native-backend.md`, only when the project pins `native-kbd`
+  or already keeps its changes there.
 
 Backend is resolved exactly as `kbd-apply` resolves it (`project.json.specBackend`
-→ openspec → speckit → native-kbd).
+→ the change's existing store → openspec → speckit → native-kbd). When nothing
+resolves — no pin, no `openspec/`, no Spec Kit tree and no native changes — do
+not fall back silently: initialize OpenSpec with
+`node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" init --project "<project-root>"`
+and set `"specBackend": "openspec"` in `project.json`, unless the operator chose
+Spec Kit (see `/kbd-init --spec-engine`).
 
 ## Progress Signals (MANDATORY)
 
@@ -60,7 +72,7 @@ Never guess. Emit to plain response text — no tool call needed.
    `library-candidates.json` if Analyze ran (adopt/adapt candidates become
    "reuse this library" tasks, not "build it" tasks).
 5. **Resolve backend** — `kbd-apply detect` semantics.
-6. **Write change specs** — native-kbd files or `/opsx:new` per change, with a
+6. **Write change specs** — `/opsx:new` (or Spec Kit / native-kbd files) per change, with a
    declared `scope:` and explicit task list each. Apply
    `references/templates/acceptance.template.md` for every specified behavior:
    copy its populated contract into native `verification.md`, or the OpenSpec

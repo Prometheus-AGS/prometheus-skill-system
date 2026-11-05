@@ -3,7 +3,9 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 
-export const MINIMUM_VERSION = '1.14.0';
+export const MINIMUM_VERSION = '1.16.0';
+// OpenSpec 1.16.0 requires Node.js 22.12.0 or newer for npm installs.
+export const NODE_MINIMUM = '22.12.0';
 export const REGISTRY = 'https://registry.npmjs.org';
 export const cacheHome = () => path.resolve(process.env.PROMETHEUS_OPENSPEC_HOME || path.join(os.homedir(), '.prometheus', 'openspec'));
 export const readJson = file => fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
@@ -24,6 +26,17 @@ export function acceptedVersion(version) {
     if (actual[i] < minimum[i]) throw new Error(`OpenSpec ${version} is below minimum ${MINIMUM_VERSION}`);
   }
   return version;
+}
+
+export function assertNodeFloor(version = process.versions.node) {
+  const actual = version.split('.').map(Number);
+  const minimum = NODE_MINIMUM.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    if (actual[i] > minimum[i]) return;
+    if (actual[i] < minimum[i]) {
+      throw new Error(`OpenSpec ${MINIMUM_VERSION}+ needs Node.js ${NODE_MINIMUM} or newer (running ${version}); upgrade Node, or install the standalone binary: curl -fsSL https://openspec.dev/cli/install.sh | sh`);
+    }
+  }
 }
 
 export function findProject(start, requireKbd = true) {

@@ -4,7 +4,7 @@ Use the repository's [agent rules](AGENTS.md) and [canonical operating rules](CL
 
 ## Prerequisites and setup
 
-The root `package.json` requires Node.js 20.19.0 or later and pins Node 22.23.1 through Volta. Team helpers require Node 22 or later. Use the checked-in lockfile. Rust work follows the relevant workspace toolchain and dependency pins; load `prometheus-rust-workspace` for static guidance before Rust or Cargo work. Native service installation needs Bash 4 or later and has component-specific platform limits.
+The root `package.json` requires Node.js 22.12.0 or later and pins Node 22.23.1 through Volta. Team helpers require Node 22 or later. Use the checked-in lockfile. Rust work follows the relevant workspace toolchain and dependency pins; load `prometheus-rust-workspace` for static guidance before Rust or Cargo work. Native service installation needs Bash 4 or later and has component-specific platform limits.
 
 ```bash
 git clone --recurse-submodules https://github.com/Prometheus-AGS/prometheus-skill-system.git

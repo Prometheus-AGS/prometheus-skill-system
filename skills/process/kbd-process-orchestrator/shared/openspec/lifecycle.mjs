@@ -1,5 +1,6 @@
+import fs from 'node:fs';
 import path from 'node:path';
-import { cacheHome, findProject, deadline, acquireLock, receipt, writeJson } from './state.mjs';
+import { cacheHome, findProject, deadline, acquireLock, receipt, writeJson, assertNodeFloor } from './state.mjs';
 import { cachedRuntime, selectedRuntime, selectVersion, ensureRuntime, nodeProcess } from './runtime.mjs';
 import { updateFootprint, backupArtifacts, auditAuthored } from './backup.mjs';
 
@@ -15,6 +16,7 @@ export async function refresh({ project: requested = process.cwd(), timeoutMs = 
   let snapshot;
   const remaining = deadline(timeoutMs);
   try {
+    assertNodeFloor();
     release = acquireLock(home, 'refresh', project);
     selection = await selectVersion(home, remaining);
     const runtime = await ensureRuntime(home, selection, remaining);
@@ -50,6 +52,7 @@ export async function run({ project: requested = process.cwd(), args = [], timeo
   let runtime;
   const remaining = deadline(timeoutMs);
   try {
+    assertNodeFloor();
     release = acquireLock(home, 'run', project);
     const pin = process.env.PROMETHEUS_OPENSPEC_VERSION;
     runtime = pin ? cachedRuntime(home, pin) : selectedRuntime(home);
@@ -63,4 +66,16 @@ export async function run({ project: requested = process.cwd(), args = [], timeo
   } catch (error) {
     return finish(error.status || 'failed', { version: runtime?.version, reason: error.message, output: error.output || '' }, error.status === 'pending' || error.status === 'contended' ? 75 : 1);
   } finally { release?.(); }
+}
+
+// Adopt OpenSpec as a project's spec engine: `openspec init` non-interactively.
+// A project that already has an openspec/ root is left untouched.
+export async function init({ project: requested = process.cwd(), tools = 'claude,codex', timeoutMs = 240000 } = {}) {
+  const project = path.resolve(requested);
+  if (fs.existsSync(path.join(project, 'openspec'))) {
+    const home = cacheHome();
+    return { code: 0, ...receipt(home, { operation: 'init', project, status: 'already-initialized' }) };
+  }
+  const result = await run({ project, timeoutMs, args: ['init', project, '--tools', tools, '--no-animation', '--no-copilot-cloud'] });
+  return { ...result, operation: 'init', tools };
 }

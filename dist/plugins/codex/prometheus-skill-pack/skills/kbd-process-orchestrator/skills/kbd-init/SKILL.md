@@ -1,7 +1,7 @@
 ---
 license: MIT
 name: kbd-init
-version: '1.1.0'
+version: '1.2.0'
 description: >
   Initialize KBD in a project. Auto-discovers project identity, stack, and
   constraints from existing context files (AGENTS.md, CLAUDE.md, README.md,
@@ -51,8 +51,9 @@ generated OpenSpec skills/commands while preserving authored specs, changes and
 custom configuration. Read the receipt: failed or pending refresh is unresolved,
 not current-version proof. A cached offline version is explicitly unverified for
 latest freshness. Resolve reported conflicts before dependent phase mutations.
-Native KBD projects remain usable without adopting OpenSpec; the helper skips
-projects without an existing OpenSpec root.
+OpenSpec is the primary spec engine for new projects (`/kbd-init` initializes
+it); existing native KBD projects keep working, and the helper skips projects
+without an existing OpenSpec root.
 
 Use the same preflight in harnesses without startup hooks and before raw
 `prometheus kbd` phase commands that bypass the lifecycle scripts. Invoke
@@ -133,6 +134,34 @@ Check in order:
 2. `docs/specs/*.md` — if `docs/specs/` exists
 3. `docs/*.md` — fallback
 4. None — set `openspec_available: false`
+
+### Step 4a: Spec engine
+
+OpenSpec (1.16.0+) is the primary spec engine; GitHub Spec Kit is the supported
+backup. Take `--spec-engine openspec|speckit|native-kbd` (default `openspec`)
+and record the choice as `"specBackend"` in `project.json`.
+
+- **Existing projects are never switched.** If `project.json` already pins
+  `specBackend`, or the project already has `openspec/`, a Spec Kit tree
+  (`.specify/` or `specs/*/tasks.md`) or native changes
+  (`.kbd-orchestrator/changes/*/tasks.json`), keep that engine and record it.
+- **`openspec`** — initialize through the managed runner, naming the harnesses
+  in use (comma-separated OpenSpec tool ids, e.g. `claude,codex,opencode`):
+
+  ```bash
+  node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" init --project "<project-root>" --tools claude,codex
+  ```
+
+  The receipt reports `already-initialized` when `openspec/` exists. A failed
+  receipt (for example Node.js below 22.12.0) leaves the project unpinned;
+  report it instead of falling back to native files.
+- **`speckit`** — run `specify init --here --force --non-interactive --integration <harness>`
+  (Spec Kit CLI pinned in `config/spec-engines.json`, installed with
+  `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1.3.0`).
+  If `specify` is absent, report it as a prerequisite.
+- **`native-kbd`** — only on explicit request; no external CLI is needed.
+
+Set `openspec_available` to `true` only when `openspec/` exists after this step.
 
 ### Step 5: Constraints
 
@@ -282,6 +311,7 @@ Use the project name from the argument or the discovered project name. Emit to p
 /kbd-init "HotSeaters"             # Override project name
 /kbd-init --force                  # Overwrite existing project.json
 /kbd-init --dry-run                # Preview without writing
+/kbd-init --spec-engine speckit    # Use GitHub Spec Kit instead of OpenSpec
 ```
 
 ## After Init
