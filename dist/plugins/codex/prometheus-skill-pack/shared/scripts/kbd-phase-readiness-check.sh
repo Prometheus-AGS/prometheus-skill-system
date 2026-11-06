@@ -20,7 +20,8 @@
 #   adoption   latest non-superseded adoption decision for the contract path
 #              carries the same digest (frozen normalization) — mismatch or
 #              superseded => REJECT-STALE; absent => BLOCKED (adoption)
-#   coverage   every scenarioMatrix ownerTask exists in the phase tasks.json
+#   coverage   every scenarioMatrix ownerTask resolves uniquely in canonical
+#              phase change tasks from `prometheus kbd status --json`
 #   quality    unique scenario ids; per-scenario productionEntry/oracle/
 #              negativeControl/ownerTask/evidence/fixtures non-empty;
 #              userOperation, exclusions, requiredSafetyChecks present (B1)
@@ -147,19 +148,27 @@ elif [ "$LATEST" != "BOUND" ]; then
   fi
 fi
 
-# --- scenario coverage vs tasks.json ---
-TASKS_FILE="$PHASE_DIR/tasks.json"
-if [ -f "$TASKS_FILE" ]; then
-  COV_MISSING="$(jq -r --slurpfile tasks "$TASKS_FILE" '
-    [$tasks[0].tasks[].id] as $have
-    | [.scenarioMatrix[] | . as $s | (.ownerTask | split("+"))[]
-       | select(. as $t | [$have[] | select(. == $t)] | length == 0)
-       | "\($s.id):\(.)"]
+# --- scenario coverage vs canonical phase tasks ---
+# tasks.json is an optional compatibility projection, not the task authority.
+# Reject missing and ambiguous owners; never union a stale file into this set.
+if printf '%s' "$STATUS_JSON" | jq -e --arg phase "$PHASE" '
+  .phases[$phase] | type == "object"
+' >/dev/null; then
+  CANONICAL_TASKS="$(printf '%s' "$STATUS_JSON" | jq -c --arg phase "$PHASE" '
+    [.phases[$phase].changes | to_entries[]? | .key as $change
+      | .value.tasks[]? | {id: .id, qualified: ($change + "/" + .id)}]
+  ')"
+  COV_MISSING="$(jq -r --argjson have "$CANONICAL_TASKS" '
+    [.scenarioMatrix[] | . as $scenario | (.ownerTask | split("+"))[]
+       | . as $owner | [$have[] | select(.id == $owner or .qualified == $owner)] | length
+       | if . == 0 then "\($scenario.id):\($owner)"
+         elif . > 1 then "\($scenario.id):\($owner)(ambiguous)"
+         else empty end]
     | join(",")
-  ' "$CONTRACT" 2>/dev/null)"
+  ' "$CONTRACT")"
   [ -z "$COV_MISSING" ] || MISSING="${MISSING:+$MISSING,}coverage($COV_MISSING)"
 else
-  MISSING="${MISSING:+$MISSING,}coverage(tasks.json absent)"
+  MISSING="${MISSING:+$MISSING,}coverage(canonical phase tasks absent)"
 fi
 
 # --- verdict ---

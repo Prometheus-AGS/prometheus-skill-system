@@ -100,7 +100,8 @@
     "test:host-portable-activation": "npm run test:host-capability-probing && npm run test:key-protection && npm run test:generation-identity && npm run test:activation-pointer && npm run test:hook-dispatch",
     "verify:host-leg": "node scripts/verify-host-leg.mjs",
     "verify:host-matrix": "node scripts/compare-host-legs.mjs",
-    "verify:host-matrix:gate": "node scripts/compare-host-legs.mjs --require-all"
+    "verify:host-matrix:gate": "node scripts/compare-host-legs.mjs --require-all",
+    "check:selected-method": "node scripts/check-selected-method-core.mjs"
   },
   "keywords": [
     "claude-code",

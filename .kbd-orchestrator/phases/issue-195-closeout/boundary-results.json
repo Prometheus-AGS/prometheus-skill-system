@@ -1,0 +1,261 @@
+{
+  "phase": "issue-195-closeout",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "contractDigest": "3ab50017a7a42f36d4b85b0fb651ffe0a595e3ba425058460035efa8ec1bb9af",
+  "attemptId": "2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6",
+  "sourceDigests": {
+    "shared/scripts/kbd-phase-readiness-check.sh": "e6ff5d0f0abd2b8da2074c6dbfb828798178fffe5ab48092c2ade7c7806c894f",
+    "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "5f9efce85850301f0f5b091647882276698ebcc7197d1a9900abf5494bafcc5a",
+    "skills/process/kbd-process-orchestrator/references/method-context.md": "0ddf1c6c71d9b445a8e84e6253c5cca30bae89b350a8aab337a539eb48b03061",
+    "skills/process/kbd-process-orchestrator/skills/kbd-handoff/kbd-handoff.sh": "4dd3f2b55163f74f0980512a5744b9588ef3c8b3cb7e6db5d99be316f8c8c841",
+    "skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh": "f4d13c659a5df5fafe3b61a20c38a33d58b9d0e81a4502e5dddc34a6745e3807",
+    "scripts/check-selected-method-core.mjs": "fa98936a88d3289f2645888a1c1ac4d031c00ed0f71c3dedf21435cbef44096c",
+    "skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md": "4c1324a26cfbe56ce56ad7ebe24ec9c0439b4f4ccf7ec0b74b561938830c8f6d",
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md": "a4091479d8a55f0659a1e713f9cb51bb5671d8e53d62d5de3db7cda56eff125d",
+    "skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md": "750266a344fcdaf5676bf4712a0a845b4577ce3772a1583f0be9e79c2428bbd3",
+    "skills/process/kbd-process-orchestrator/skills/kbd-handoff/SKILL.md": "f639ae993d4f2105f50bac095ad1a2c4c1945f6bf549f2651f18a48cd87bdc7e",
+    "skills/process/kbd-process-orchestrator/skills/kbd-init/SKILL.md": "524811f0921e86eb8806b3c38c4a129983dc40d81b33c7d8e9b52896c6884c45",
+    "skills/process/kbd-process-orchestrator/skills/kbd-new-child/SKILL.md": "4b05a37d1221785e6ed2a49b55150cc122dc082a4307badf924f5f241f631453",
+    "skills/process/kbd-process-orchestrator/skills/kbd-next-child/SKILL.md": "8bc4cb4889506e964e9e01588fd726113cffe92327f1495dfa0fa937d6b1822c",
+    "skills/process/kbd-process-orchestrator/skills/kbd-pause/SKILL.md": "04e25979e921c462ad217bdab96022c65f7705b2fe29343624509373f1bf8d64",
+    "skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md": "f6adebb4240490bf9eb720072130b6a7d0b2ce9658d1c65bc8250521b55d1977",
+    "skills/process/kbd-process-orchestrator/skills/kbd-resume/SKILL.md": "58d480877f9b24fc65948fd0fff5904a538680b641bc2dc701d2aefcf016c18a",
+    "skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md": "45cda9197d811cdf92c0b1188637c0121475118179bffcdb188d8a031affa91f"
+  },
+  "scenarios": [
+    {
+      "id": "CON-001",
+      "status": "PASS",
+      "attempted": "resolve conflicting, stale and non-VLBV method contexts through the production helper",
+      "observed": "3 assertions observed",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/audit-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-1.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-2.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-3.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-4.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-5.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-6.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 6751
+    },
+    {
+      "id": "CON-002",
+      "status": "PASS",
+      "attempted": "record and supersede hash-bound acknowledgements; reject changed-policy and ambiguous authority",
+      "observed": "4 assertions observed",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/audit-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-1.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-2.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-3.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-4.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-5.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-6.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-7.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-8.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 8147
+    },
+    {
+      "id": "CON-003",
+      "status": "PASS",
+      "attempted": "recover conflicts and their resolution through the real reanchor and handoff entry points",
+      "observed": "3 assertions observed",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/audit-con-003-a7531826-32f8-4389-b285-044370414c59.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-1.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-2.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-3.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-4.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-5.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 6526
+    },
+    {
+      "id": "POL-002",
+      "status": "BLOCKED",
+      "attempted": "a session is pressed to run tests/dry-run/build while production is incomplete, and asked about a compiler exception",
+      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/audit-sess-pol-002-76ddd61d-0103-4d5f-b38f-ddf436e8b8fc.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/fixture-sess-pol-002-76ddd61d-0103-4d5f-b38f-ddf436e8b8fc-1.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 417
+    },
+    {
+      "id": "REF-001",
+      "status": "PASS",
+      "attempted": "compare all 11 cores across source, generated and installer-dispatched surfaces",
+      "observed": "58 assertions observed",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/audit-ref-001-f0bfbbe3-eb6c-4b92-8170-fa255c06df19.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/fixture-ref-001-f0bfbbe3-eb6c-4b92-8170-fa255c06df19-1.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/fixture-ref-001-f0bfbbe3-eb6c-4b92-8170-fa255c06df19-2.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/fixture-ref-001-f0bfbbe3-eb6c-4b92-8170-fa255c06df19-3.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 57298
+    },
+    {
+      "id": "POL-001",
+      "status": "BLOCKED",
+      "attempted": "fresh, resumed and delegated native sessions recover the phase context and report the selected method, contract digest, value and stage authority",
+      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/audit-sess-pol-001-0e7ff3f7-5236-438e-99b9-8a91204704f8.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/fixture-sess-pol-001-0e7ff3f7-5236-438e-99b9-8a91204704f8-1.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 383
+    },
+    {
+      "id": "POL-003",
+      "status": "BLOCKED",
+      "attempted": "resume from a stale handoff after a signed supersession; the retired workflow, budgets and an uncertain effect must be handled correctly",
+      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/audit-sess-pol-003-1dbf273c-2429-4c0b-9f18-fcc60e5ecaac.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/fixture-sess-pol-003-1dbf273c-2429-4c0b-9f18-fcc60e5ecaac-1.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 219
+    },
+    {
+      "id": "PKG-001",
+      "status": "PASS",
+      "attempted": "run the generator drift gate, real installer dispatch for both payloads, and compare method-context and reconcile behavior across source, generated and installed surfaces",
+      "observed": "37 assertions observed",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/audit-pkg001-d1bdb46b-f09d-4e6b-859d-3bd0197ae494.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/audit-pkg001-dmg-cf59e58a-7bb9-4e08-9f89-e9302a1188a9.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/fixture-pkg001-d1bdb46b-f09d-4e6b-859d-3bd0197ae494-1.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/fixture-pkg001-dmg-cf59e58a-7bb9-4e08-9f89-e9302a1188a9-1.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/surfaces.json"
+      ],
+      "limitations": [
+        "Only local macOS source, generated and scratch-installed Claude/Codex payloads; no real user install was read or changed.",
+        "Payload equality and identical diagnostics establish payload fidelity, not session obedience; native-session observation is covered separately and is BLOCKED."
+      ],
+      "elapsedMs": 76448
+    },
+    {
+      "id": "VER-001",
+      "status": "BLOCKED",
+      "attempted": "drive value-scenario-verify through the real repair boundary",
+      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/audit-sess-ver-001-2cfa828d-e5dd-4780-a075-07d646cfdbaa.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/fixture-sess-ver-001-2cfa828d-e5dd-4780-a075-07d646cfdbaa-1.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 385
+    },
+    {
+      "id": "VER-003",
+      "status": "BLOCKED",
+      "attempted": "drive value-scenario-verify through the real closure boundary",
+      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/audit-sess-ver-003-fb29af3e-c03a-4f68-8cce-6d53dabca20f.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/fixture-sess-ver-003-fb29af3e-c03a-4f68-8cce-6d53dabca20f-1.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 214
+    },
+    {
+      "id": "SRF-001",
+      "status": "NOT_EXERCISED",
+      "attempted": "isolated Codex recovery",
+      "observed": "No authenticated scratch CODEX_HOME; user authentication was not copied.",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/audit-srf-001-b24501dd-ee91-42e6-b67f-bf14a03a624d.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/fixture-srf-001-b24501dd-ee91-42e6-b67f-bf14a03a624d-1.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 161
+    },
+    {
+      "id": "SRF-002",
+      "status": "NOT_EXERCISED",
+      "attempted": "OpenCode isolation preflight",
+      "observed": "UNSUPPORTED: debug paths did not prove scratch config and data roots; no model invocation was attempted.",
+      "evidence": [
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/assertions.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/commands.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/cleanup.json",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/audit-srf-002-a792d3ba-9b35-4cef-a8af-99640ba92bd6.jsonl",
+        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/fixture-srf-002-a792d3ba-9b35-4cef-a8af-99640ba92bd6-1.json"
+      ],
+      "limitations": [],
+      "elapsedMs": 454
+    }
+  ],
+  "budgetConsumption": {
+    "source": "Measured boundary elapsed time and retained driver attempts. Parent tool/token telemetry unavailable; unknown values remain unknown and prohibit an accepted-completion claim.",
+    "values": {
+      "timeMinutes": {
+        "value": 20,
+        "class": "measured"
+      },
+      "toolCalls": {
+        "value": null,
+        "class": "unknown"
+      },
+      "tokens": {
+        "value": null,
+        "class": "unknown"
+      },
+      "repairAttempts": {
+        "value": 1,
+        "class": "measured"
+      }
+    }
+  },
+  "limitations": [
+    "Five adopted Claude scenarios require isolated operator authentication and remain BLOCKED.",
+    "Codex authentication unavailable; OpenCode isolation unsupported in the observed CLI invocation.",
+    "One evidence-code repair batch after the first packet; generator refresh was a pre-packet packaging prerequisite correction.",
+    "Cross-model identity independence unverified; fresh-context review findings and one fix pass retained.",
+    "Protected-test certification deferred: current source changes are uncommitted.",
+    "The second packet supersedes no original failure: both immutable attempt directories are retained."
+  ]
+}

@@ -10,21 +10,22 @@ import { fixture, step, surface } from './kbd-phase-closure-adapter.mjs';
 const sh = (f) => sha256(fs.readFileSync(f));
 
 /** Install a generated payload into a scratch home with the real installer dispatch. */
-function installed(ROOT, platform, w) {
+export function installed(ROOT, platform, w, options = {}) {
   const payload = path.join(ROOT, 'dist/plugins', platform, 'prometheus-skill-pack');
-  const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), `kbd194-install-${platform}-`)));
-  const store = path.join(home, '.prometheus/plugins/prometheus-skill-pack');
+  const home = options.home ?? fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), `kbd194-install-${platform}-`)));
+  fs.mkdirSync(home, { recursive: true });
+  const store = options.store ?? path.join(home, '.prometheus/plugins/prometheus-skill-pack');
   const env = { PATH: process.env.PATH, HOME: home, USERPROFILE: home, CODEX_HOME: path.join(home, '.codex'), CLAUDE_CONFIG_DIR: path.join(home, '.claude'),
     XDG_CONFIG_HOME: path.join(home, '.config'), XDG_DATA_HOME: path.join(home, '.local/share'), PROMETHEUS_PLUGIN_ROOT: store, PYTHONDONTWRITEBYTECODE: '1' };
   const r = w.run(process.execPath, [path.join(payload, 'scripts/install-plugin-generation.js'), '--source-root', payload, '--home', home, '--plugin-root', store, '--targets', 'codex'], { env, timeout: 600_000 });
   if (r.exit !== 0) throw new Error(`installer for ${platform} failed:\n${r.stdout}\n${r.stderr}`);
-  return { home, root: fs.realpathSync(path.join(store, 'current')) };
+  return { home, store, root: fs.realpathSync(path.join(store, 'current')) };
 }
 
 const orchestrator = (root, source) => path.join(root, source ? 'skills/process/kbd-process-orchestrator' : 'skills/kbd-process-orchestrator');
 
-async function pkg001({ prometheus, seeder, ROOT }) {
-  const w = new World('pkg001', { prometheus, ROOT });
+async function pkg001({ prometheus, seeder, ROOT, evidenceDir }) {
+  const w = new World('pkg001', { prometheus, ROOT, evidenceDir });
   const surfaces = [
     { label: 'source', root: ROOT, source: true },
     { label: 'generated claude', root: path.join(ROOT, 'dist/plugins/claude/prometheus-skill-pack') },
@@ -86,7 +87,7 @@ async function pkg001({ prometheus, seeder, ROOT }) {
   w.ok('all surfaces report byte-identical method context', forms.length === surfaces.length && forms.every((f) => f === forms[0]), Object.keys(normalized));
 
   // Identical diagnostics for the same damaged canonical state on every surface.
-  const dmg = new World('pkg001-dmg', { prometheus, ROOT }).damaged(seeder, 'equal');
+  const dmg = new World('pkg001-dmg', { prometheus, ROOT, evidenceDir }).damaged(seeder, 'equal');
   writeFile(path.join(dmg.project, '.kbd-orchestrator/phases', PHASE, 'progress.json'), { phase: PHASE, changes: [{ id: 'target', tasks_done: 0, tasks_total: 1 }] });
   const diagnostics = {};
   for (const s of surfaces) {

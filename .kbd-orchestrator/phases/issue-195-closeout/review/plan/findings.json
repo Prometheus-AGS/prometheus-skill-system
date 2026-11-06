@@ -1,0 +1,55 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "glm-5.3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "i195-02 is named as the C-01 reconciliation change but the plan omits the constraint-mandated twice-run generator execution with byte-identical tracked-hash proof, so executing the plan as written produces a C-01 violation and a BLOCKED change at the QA gate.",
+      "evidence": "Constraint C-01: \"The reconciliation change must run the generator twice, prove byte-identical tracked hashes, and run the applicable drift validators before phase certification.\" The plan's i195-02 only says \"regenerate and commit tracked outputs. Named C-01 reconciliation owner for both 01 and 02 source edits\" and task 2 says \"run generators (one at a time)\"; the boundary packet runs \"node scripts/generate-skill-system-distribution.js --check\" once. No step anywhere runs a generator twice and compares tracked hashes.",
+      "suggested_fix": "Add an explicit twice-run + byte-identical tracked-hash comparison step to i195-02 task 2 and require the hash evidence in the boundary packet receipts (e.g. evidence/reconciliation.json) before phase certification."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Goal B is satisfied in a form that contradicts the goal text (keeping 11 identical inline cores plus a reference instead of replacing the paragraphs with one reference file), and no owner decision in the packet approves this deviation.",
+      "evidence": "Goal B: \"replace the selected-method paragraph copied into 11 stage skills with one reference file; regenerate distributions.\" Plan i195-02: \"replace 11 copies with the canonical core from the spec ... Goal B satisfied in adapted form (single reference + identical inline core).\" The adopted owner decisions table covers only \"Risk acceptance\", \"Budgets\", \"Acknowledgement\", and \"Review route\" \u2014 nothing accepts the goal-B reformulation, so the assessed gap (11 duplicated sections) is only guarded, not removed.",
+      "suggested_fix": "Either record an explicit owner decision accepting the adapted form (inline identical core + single reference + equality check) or restore the single-reference replacement the goal specifies."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The signed KBD-METHOD decision is declared a non-blocking open item, yet the method-context helper that CON-001/CON-002 exercise requires it, and i195-01 task 1 lists its prerequisites as \"none\".",
+      "evidence": "Plan open item: \"the method-context helper requires a signed `KBD-METHOD` decision bound to the adopted digest. It is recorded only on explicit operator selection and is requested after adoption.\" Scenario coverage: \"CON-001, CON-002 | i195-01-policy-conflict-ack/1\" \u2014 the task-model row for i195-01 task 1 lists Prerequisites: \"none\". The plan never states whether scenario fixtures supply a signed decision, so round 1 can block or burn repair budget on an unrecorded prerequisite.",
+      "suggested_fix": "State that CON-001/CON-002 fixtures carry a synthetic signed KBD-METHOD decision bound to the adopted digest, or add the operator's signed decision as an explicit prerequisite of i195-01 task 1."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The plan instructs registering three changes \"already authored at Spec\", but the spec handoff only records one spec artifact as output, leaving i195-02 and i195-03 specs unevidenced in the packet.",
+      "evidence": "Plan COMMANDS TO RUN: \"Changes already authored at Spec under `.kbd-orchestrator/changes/i195-0{1,2,3}-*` (generator `gen_i195_specs.mjs`); register them and their backend task IDs\". spec.handoff.json \"outputs\": [\"i195-01-policy-conflict-ack/spec.md\"] only. If the i195-02/i195-03 specs were not actually persisted, registration and the 12-scenario contract cannot proceed.",
+      "suggested_fix": "Before execution, verify `.kbd-orchestrator/changes/i195-02-single-method-reference/` and `.kbd-orchestrator/changes/i195-03-delivery-qualification/` exist and match the spec handoff summary, and record the verification in the plan handoff."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "REF-001 is reclassified as a no-session scenario without reconciling the analyze handoff's placement of it in the session-driver group, leaving how its installer-dispatched scratch generation is produced unspecified.",
+      "evidence": "analyze.handoff.json summaryForNext: \"adopt existing session driver for VER-001/VER-003 + CON-001/002/REF-001 (C)\". Plan scenario table: \"REF-001, PKG-001 | i195-02-single-method-reference/2 | no\". The recalled lesson (\"REF-001 and PKG-001 observe an installer-dispatched scratch generation\") motivates the change but the plan never says what dispatches the installer in a no-session run or where in the boundary packet it is sequenced.",
+      "suggested_fix": "Add one sentence to i195-03 task 1 or the boundary packet stating how REF-001's installer-dispatched generation is triggered without a CLI session and that it runs after owned scratch resources exist."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "zai-coding",
+    "providerId": "zai",
+    "modelId": "glm-5.3"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

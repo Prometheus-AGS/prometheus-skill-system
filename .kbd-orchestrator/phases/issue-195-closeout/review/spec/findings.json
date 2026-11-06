@@ -1,0 +1,76 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "glm-5.3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "i195-01-policy-conflict-ack/spec.md",
+      "claim": "i195-01 edits skill-tree sources that feed the distribution generator but neither regenerates the outputs in-change nor names i195-02 as the C-01 reconciliation change, so the planned deferral omits the required named owner.",
+      "evidence": "i195-01 Scope lists 'skills/process/kbd-process-orchestrator/shared/method-context.mjs', 'skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh', 'skills/process/kbd-process-orchestrator/skills/kbd-handoff/kbd-handoff.sh' with no regeneration step, while sibling i195-02 declares 'Regenerate and commit tracked outputs in the same change: npm run build:distribution (dist/plugins/claude/**, dist/plugins/codex/**, ...)' for the same skill tree. C-01 requires: 'every earlier change must identify that reconciliation change in persisted execution evidence' and 'A deferral that crosses the parent-phase boundary, omits the named owner ... is a violation.'",
+      "suggested_fix": "State in i195-01's spec/constraints that i195-02 task 2 is the named C-01 reconciliation change (and record it in execution evidence), or regenerate the distribution outputs within i195-01 itself."
+    },
+    {
+      "severity": "WARNING",
+      "file": "i195-02-single-method-reference/spec.md",
+      "claim": "i195-02 claims dist/plugins/** as committed tracked outputs, but the packet's file tree contains no dist directory at all, leaving the change's core deliverable framing unverifiable or wrong.",
+      "evidence": "Spec: 'Regenerate and commit tracked outputs in the same change: npm run build:distribution (dist/plugins/claude/**, dist/plugins/codex/**, .claude-plugin/marketplace.json, .agents/plugins/marketplace.json)'. The file_tree lists other generated/tracked surfaces (./site/build, ./.claude-plugin/marketplace.json, ./.agents/plugins) but has no ./dist entry; C-01 requires generated outputs to be 'regenerated and committed before the owning parent phase completes'. Either dist is tracked and the tree contradicts the plan, or dist is untracked and the commit claim (and C-01 sync proof for it) is false.",
+      "suggested_fix": "State explicitly whether dist/** is tracked. If untracked, reframe task 2 as local regeneration with recorded untracked hashes (as the verification rows already do) and reconcile that with C-01's commit requirement for generator outputs."
+    },
+    {
+      "severity": "WARNING",
+      "file": "i195-03-delivery-qualification/spec.md",
+      "claim": "The cross-model review mechanism is unspecified: goal D names liter-llm, the analyze handoff resolved 'labelled per-run override', and the spec carries neither, leaving the executor to invent the route.",
+      "evidence": "Goal D: 'one cross-model review via liter-llm'. Analyze handoff: 'judge via labelled per-run override (G)'. i195-03 task 3 says only 'Cross-model review of the cumulative diff (judge not Claude-family; label recorded honestly)' \u2014 no tool or route is named anywhere in the three specs, and tools/liter-llm exists in the file tree.",
+      "suggested_fix": "Name the review route in task 3 (liter-llm or the labelled per-run override) and record why it deviates from the goal's named tool, so goal D can be mapped to evidence in task 4."
+    },
+    {
+      "severity": "WARNING",
+      "file": "i195-02-single-method-reference/spec.md",
+      "claim": "The change reinterprets goal B's 'one reference file' as eleven byte-identical inline cores plus a link, without acknowledging the deviation from the goal text.",
+      "evidence": "Goal B: 'replace the selected-method paragraph copied into 11 stage skills with one reference file'. The spec instead does: 'Replace the section in the 11 stage skills ... with one identical short core (below) that keeps the load-bearing rules inline and links references/method-context.md for the rest. A bare link is rejected'. Duplication across 11 files \u2014 the drift problem goal B targets \u2014 is retained, only mitigated by the new check script; no sentence records that the goal's letter is amended.",
+      "suggested_fix": "Add an explicit note that this deviates from goal B's literal 'one reference file' and why, so i195-03 task 4's '#195 acceptance-to-evidence' mapping does not claim the goal as literally satisfied."
+    },
+    {
+      "severity": "WARNING",
+      "file": "i195-01-policy-conflict-ack/verification.md",
+      "claim": "Every scenario's canonical-identity row carries the literal 'undefined' in the change component, across all 12 rows in all three verification files, so evidence cannot be tied to the owning change.",
+      "evidence": "'Canonical identity | issue-195-closeout / undefined / task 1; scenario CON-001' \u2014 the identical 'undefined' appears in every row of i195-01, i195-02 and i195-03 verification.md (e.g. CON-002, REF-001, VER-003, SRF-001), while the tasks.json files set distinct changeIds ('i195-01-policy-conflict-ack', 'i195-02-single-method-reference', 'i195-03-delivery-qualification').",
+      "suggested_fix": "Bind the changeId into the canonical-identity template so each scenario row names its owning change."
+    },
+    {
+      "severity": "WARNING",
+      "file": "i195-03-delivery-qualification/verification.md",
+      "claim": "SRF-001 and SRF-002 declare 'negative controls' that are actually skip conditions, providing no oracle sensitivity for the surface-recovery claims.",
+      "evidence": "SRF-001: 'Negative control | not logged in under scratch CODEX_HOME: NOT_EXERCISED, never run against ~/.codex'; SRF-002: 'Negative control | isolation preflight shows config or auth resolving outside the scratch roots: NOT_EXERCISED (unsupported isolation), no session run'. Neither can fail if recovery is broken; the positive result ('reply names the selected method, contract digest and the CONFLICT') could pass from prompt echo. Contrast CON-001's genuine control: 'same project with a KBD-METHOD selecting a non-VLBV method: status RESOLVED_REFERENCES, exit 0'.",
+      "suggested_fix": "Add a sensitivity control for each surface scenario, e.g. a scratch project whose journal/decision state should yield a different method or digest, asserting the session reports that state rather than the expected one."
+    },
+    {
+      "severity": "WARNING",
+      "file": "i195-01-policy-conflict-ack/tasks.json",
+      "claim": "No per-change review is scheduled for i195-01 and i195-02 despite the project constraint requiring independent cumulative diff review before archive for every change, including small ones.",
+      "evidence": "Constraints: 'Every change requires deterministic artifact validation followed by independent cumulative diff review before archive and final certification, including small and documentation-only changes.' The only review task in the phase is i195-03 task 3 ('Cross-model review of the cumulative diff'), which runs after changes 01 and 02 would already have archived; their tasks.json entries contain no review/receipt step and 'verify': null.",
+      "suggested_fix": "Add a review/receipt (or recorded waiver) step to i195-01 and i195-02 so each change satisfies the QA gate before archive."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "i195-03-delivery-qualification/spec.md",
+      "claim": "The goal requires posting the acceptance-to-evidence mapping on #195, but the plan only drafts it and defers posting to unspecified future owner authorization, with no checkpoint recording the owner's decision.",
+      "evidence": "Goal: 'post acceptance-to-evidence mapping on #195'. Task 4: 'draft the #195 acceptance-to-evidence comment. Posting the comment and closing the issue are outward-facing and need explicit owner authorization at that time.' No task or gate records whether authorization was requested or granted, so the phase can close with the goal unmet and no trace of the decision.",
+      "suggested_fix": "Make task 4 record the authorization request and outcome (granted/posted, or denied with reason) so closure state is honest against the goal."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "zai-coding",
+    "providerId": "zai",
+    "modelId": "glm-5.3"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

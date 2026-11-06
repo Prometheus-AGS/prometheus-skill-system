@@ -95,7 +95,7 @@ function baseContract(status) {
 }
 
 /** One isolated project at the corpus fixture state. */
-export function fixture(scratch, caseId, prometheusBin) {
+export function fixture(scratch, caseId, prometheusBin, { observe } = {}) {
   const base = path.join(scratch, caseId);
   const home = path.join(base, 'home');
   fs.mkdirSync(path.join(base, 'tmp'), { recursive: true });
@@ -104,6 +104,7 @@ export function fixture(scratch, caseId, prometheusBin) {
     HOME: home, USERPROFILE: home, CODEX_HOME: path.join(home, '.codex'), CLAUDE_CONFIG_DIR: path.join(home, '.claude'),
     XDG_CONFIG_HOME: path.join(home, '.config'), XDG_DATA_HOME: path.join(home, '.local/share'), XDG_CACHE_HOME: path.join(home, '.cache'),
     TMPDIR: path.join(base, 'tmp'), PROMETHEUS_DATA_DIR: path.join(base, 'data'), PROMETHEUS_DEVICE_KEY_FILE: path.join(base, 'device-key.json'),
+    PROMETHEUS_PLUGIN_ROOT: path.join(base, 'plugins'),
     PROMETHEUS_KBD_CONTROL_PLANE: '0', PROMETHEUS_CONTROL_ENDPOINT: 'http://127.0.0.1:1', PROMETHEUS_LEARNING_CORTEX: '0', PROMETHEUS_LEARNING_PK: '0',
     PYTHONDONTWRITEBYTECODE: '1', GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: os.devNull,
   };
@@ -116,7 +117,7 @@ export function fixture(scratch, caseId, prometheusBin) {
     `${OPERATOR} namespaces="${NAMESPACE}" ${operatorPub}\n`);
   const project = path.join(base, 'project');
   fs.mkdirSync(path.join(project, '.kbd-orchestrator'), { recursive: true });
-  const ctx = { base, env, keys, project, prometheusBin, phase: PHASE, labels: {}, phaseDir: path.join(project, '.kbd-orchestrator/phases', PHASE) };
+  const ctx = { base, env, keys, project, prometheusBin, phase: PHASE, labels: {}, phaseDir: path.join(project, '.kbd-orchestrator/phases', PHASE), observe };
   const setup = [
     ['status', '--json'],
     ['phase', 'create', '--command-id', 'fixture-create', '--id', PHASE, '--title', 'Closure phase'],
@@ -137,7 +138,12 @@ export function fixture(scratch, caseId, prometheusBin) {
   return ctx;
 }
 
-const kbd = (ctx, args, env = ctx.env) => run(ctx.prometheusBin, ['kbd', '--path', ctx.project, ...args], { cwd: ctx.project, env });
+const kbd = (ctx, args, env = ctx.env) => {
+  const argv = ['kbd', '--path', ctx.project, ...args];
+  const result = run(ctx.prometheusBin, argv, { cwd: ctx.project, env });
+  ctx.observe?.({ argv: [ctx.prometheusBin, ...argv], ...result });
+  return result;
+};
 const status = (ctx) => JSON.parse(kbd(ctx, ['status', '--json']).stdout);
 export function disposition(ctx, phase = ctx.phase) {
   const out = kbd(ctx, ['phase', 'disposition', '--id', phase, '--json']);

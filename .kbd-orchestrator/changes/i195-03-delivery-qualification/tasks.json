@@ -1,0 +1,56 @@
+{
+  "changeId": "i195-03-delivery-qualification",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "After production completes: author driver isolation fix, OpenCode harness, VER-001/VER-003 bodies and CON/REF/SRF scenarios",
+      "done": true,
+      "doneAt": "2026-10-31T16:59:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/tests/lib/kbd-194-196-sessions.mjs",
+        "scripts/tests/lib/kbd-195-closeout.mjs",
+        "scripts/tests/kbd-194-196.integration.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Run the consolidated boundary packet once; batch fixes; one confirming rerun",
+      "done": true,
+      "doneAt": "2026-11-06T00:04:07Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".kbd-orchestrator/phases/issue-195-closeout/evidence/**"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Cross-model review, strict validation, distribution check and protected-test certification",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        ".kbd-orchestrator/phases/issue-195-closeout/review/final/**"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Typed closure, partial disposition of issues-194-195-196, draft #195 evidence comment (posting needs owner authorization)",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        ".kbd-orchestrator/phases/issue-195-closeout/closure-report.md"
+      ],
+      "verify": null,
+      "notes": null
+    }
+  ]
+}

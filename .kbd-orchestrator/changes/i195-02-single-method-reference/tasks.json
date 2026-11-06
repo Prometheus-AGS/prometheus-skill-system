@@ -1,0 +1,46 @@
+{
+  "changeId": "i195-02-single-method-reference",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Replace the selected-method section in the 11 stage skills with the identical canonical core",
+      "done": true,
+      "doneAt": "2026-10-31T16:50:29Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-handoff/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-init/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-new-child/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-next-child/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-pause/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-resume/SKILL.md",
+        "skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add check-selected-method-core.mjs and npm script; C-01 reconciliation: run the generators twice, prove byte-identical tracked hashes, run drift validators",
+      "done": true,
+      "doneAt": "2026-10-31T17:02:20Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/check-selected-method-core.mjs",
+        "package.json",
+        "dist/plugins/claude/**",
+        "dist/plugins/codex/**",
+        ".claude-plugin/marketplace.json",
+        ".agents/plugins/marketplace.json",
+        "SKILLS.md"
+      ],
+      "verify": null,
+      "notes": null
+    }
+  ]
+}

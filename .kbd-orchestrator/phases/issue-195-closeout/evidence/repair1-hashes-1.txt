@@ -1,0 +1,4 @@
+96ae184241a580979cde7c889c366974dccba00bb8139e87749967ab741415b7  hooks/codex-hooks.json
+a9181f28bd7e9b965201288d534da61ee3874abaa1d4dbd4b4d30af902e68d23  hooks/hooks.json
+a9181f28bd7e9b965201288d534da61ee3874abaa1d4dbd4b4d30af902e68d23  shared/harnesses/generated/claude-hooks.json
+eafbd917343642a8e28d26c5c92f2925188f4c1f154ca6afe26ee80a8838c8d4  shared/harnesses/generated/release-manifest.json

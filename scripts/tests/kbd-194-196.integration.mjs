@@ -46,6 +46,9 @@ const sha256 = (v) => crypto.createHash('sha256').update(v).digest('hex');
 const fileSha = (f) => sha256(fs.readFileSync(f));
 const git = (...args) => spawnSync('git', ['-C', ROOT, ...args], { encoding: 'utf8' }).stdout ?? '';
 fs.mkdirSync(evidenceRoot, { recursive: true });
+const attemptId = `${new Date().toISOString().replaceAll(':', '-')}-${crypto.randomUUID()}`;
+const attemptRoot = path.join(evidenceRoot, 'attempts', attemptId);
+fs.mkdirSync(attemptRoot, { recursive: true });
 
 /** Identity frozen before any scenario runs: the dirty candidate tree, the binaries and every file holding an assertion. */
 const productionEntries = [
@@ -58,16 +61,18 @@ const identity = {
   startedAt: new Date().toISOString(),
   baseHead: git('rev-parse', 'HEAD').trim(),
   candidateTree: { trackedDiffSha256: sha256(git('diff', 'HEAD', '--', '.', ':!.kbd-orchestrator', ':!dist', ':!.agents')),
-    untrackedSha256: sha256(git('ls-files', '--others', '--exclude-standard', '--', 'substrate', 'skills', 'scripts', 'docs', 'tools')) },
+    untrackedSha256: sha256(git('ls-files', '--others', '--exclude-standard', '-z', '--', 'substrate', 'skills', 'scripts', 'docs', 'tools')
+      .split('\0').filter(Boolean).sort().map(f => `${f}\0${fs.existsSync(path.join(ROOT, f)) && fs.statSync(path.join(ROOT, f)).isFile() ? fileSha(path.join(ROOT, f)) : 'non-file'}`).join('\0')) },
   productionEntries: Object.fromEntries(productionEntries.map((f) => [f, fileSha(path.join(ROOT, f))])),
   contractFileSha256: fileSha(contractFile),
   prometheusBinarySha256: fileSha(prometheus),
   seederBinarySha256: fileSha(seeder),
   driverSha256: fileSha(fileURLToPath(import.meta.url)),
-  scenarioLibSha256: Object.fromEntries(fs.readdirSync(LIB).filter((f) => f.startsWith('kbd-194-196-')).sort().map((f) => [f, fileSha(path.join(LIB, f))])),
+  scenarioLibSha256: Object.fromEntries(fs.readdirSync(LIB).filter((f) => /^kbd-(?:194-196|195)-/.test(f) || f === 'kbd-phase-closure-adapter.mjs').sort().map((f) => [f, fileSha(path.join(LIB, f))])),
   node: process.version, platform: `${os.platform()} ${os.release()}`,
 };
-fs.writeFileSync(path.join(evidenceRoot, 'identity.json'), `${JSON.stringify(identity, null, 2)}\n`);
+fs.writeFileSync(path.join(attemptRoot, 'identity.json'), `${JSON.stringify(identity, null, 2)}\n`);
+fs.appendFileSync(path.join(evidenceRoot, 'attempts.jsonl'), `${JSON.stringify({ attemptId, identity, selected: only ? [...only] : declaredIds })}\n`);
 
 const results = [];
 // The adopted contract, not the driver's own registry, defines what must be reported.
@@ -76,7 +81,7 @@ for (const declared of contract.scenarioMatrix) {
   if (only && !only.has(id)) continue;
   const scenario = modules.get(id);
   if (!scenario) { results.push({ id, status: 'NOT_EXERCISED', attempted: 'none', observed: 'the adopted contract declares this scenario but the driver has no module for it', evidence: [], limitations: [] }); continue; }
-  const dir = path.join(evidenceRoot, id);
+  const dir = path.join(attemptRoot, id);
   fs.mkdirSync(dir, { recursive: true });
   const started = Date.now();
   let outcome;
@@ -84,24 +89,52 @@ for (const declared of contract.scenarioMatrix) {
     outcome = await scenario({ ROOT, prometheus, seeder, evidenceDir: dir, declared });
   } catch (error) {
     // An unclassified exception is not evidence of a pass; it stays a failure until triaged.
-    outcome = { status: 'FAIL', attempted: 'scenario execution', observed: `unclassified driver or product exception, triage required: ${error.stack ?? error}`, assertions: [], commands: [] };
+    outcome = { status: 'BLOCKED', attempted: 'scenario execution', observed: `unclassified driver/prerequisite exception; no product verdict inferred: ${error.stack ?? error}`, assertions: [], commands: [] };
+    // Worlds append observations outside their scratch roots before cleanup.
+    for (const file of fs.readdirSync(dir).filter(f => /^audit-.*\.jsonl$/.test(f))) {
+      for (const line of fs.readFileSync(path.join(dir, file), 'utf8').split('\n').filter(Boolean)) {
+        try {
+          const entry = JSON.parse(line);
+          if (entry.event === 'command-result' || entry.event === 'fixture-command') outcome.commands.push(entry.value);
+          if (entry.event === 'assertion') outcome.assertions.push(entry.value);
+          if (entry.event === 'cleanup') {
+            outcome.cleanupChildren ??= [];
+            outcome.cleanupChildren.push(entry.value);
+          }
+        } catch { /* the original audit remains retained; malformed evidence cannot qualify BLOCKED */ }
+      }
+    }
+    if (outcome.cleanupChildren?.length) outcome.cleanup = {
+      status: outcome.cleanupChildren.every(c => c.status === 'REMOVED') ? 'REMOVED' : 'FAILED', resources: outcome.cleanupChildren };
   }
   const assertions = outcome.assertions ?? [];
   const failed = assertions.filter((a) => !a.ok);
-  const status = outcome.status ?? (failed.length ? 'FAIL' : assertions.length ? 'PASS' : 'NOT_EXERCISED');
+  const cleanupFailed = outcome.cleanup && outcome.cleanup.status !== 'REMOVED';
+  const retained = fs.readdirSync(dir).filter(f => /^(?:audit-|fixture-)/.test(f));
+  const missingFixtureManifest = !retained.some(f => /^fixture-.*\.json$/.test(f));
+  const status = cleanupFailed || missingFixtureManifest ? 'BLOCKED' : outcome.status === 'BLOCKED' ? 'BLOCKED'
+    : failed.length ? 'FAIL' : outcome.status ?? (assertions.length ? 'PASS' : 'NOT_EXERCISED');
   fs.writeFileSync(path.join(dir, 'assertions.json'), `${JSON.stringify(assertions, null, 2)}\n`);
   fs.writeFileSync(path.join(dir, 'commands.json'), `${JSON.stringify(outcome.commands ?? [], null, 2)}\n`);
+  fs.writeFileSync(path.join(dir, 'cleanup.json'), `${JSON.stringify(outcome.cleanup ?? { status: 'UNKNOWN' }, null, 2)}\n`);
   for (const [name, text] of Object.entries(outcome.artifacts ?? {})) fs.writeFileSync(path.join(dir, name), text);
   const result = {
     id, status,
     attempted: outcome.attempted,
     observed: outcome.observed ?? (failed.length ? `unmet: ${failed.map((a) => a.name).join('; ')}` : assertions.length ? `${assertions.length} assertions observed` : 'no assertion was made'),
-    evidence: [`${id}/assertions.json`, `${id}/commands.json`, ...Object.keys(outcome.artifacts ?? {}).map((n) => `${id}/${n}`)],
+    evidence: ['assertions.json', 'commands.json', 'cleanup.json', ...retained, ...Object.keys(outcome.artifacts ?? {})].map(n => `attempts/${attemptId}/${id}/${n}`),
     limitations: outcome.limitations ?? [], elapsedMs: Date.now() - started,
   };
   results.push(result);
   console.log(`${status.padEnd(13)} ${id}  ${result.observed.slice(0, 160)}`);
 }
-fs.writeFileSync(path.join(evidenceRoot, only ? `results-${[...only].join('_')}.json` : 'results.json'),
-  `${JSON.stringify({ identity, scenarios: results }, null, 2)}\n`);
+const report = `${JSON.stringify({ attemptId, identity, scenarios: results }, null, 2)}\n`;
+fs.writeFileSync(path.join(attemptRoot, 'results.json'), report);
+const fixtures = results.map(r => ({ id: r.id, manifestFiles: r.evidence.filter(f => /\/fixture-/.test(f)), cleanup: r.evidence.find(f => f.endsWith('/cleanup.json')) }));
+fs.writeFileSync(path.join(attemptRoot, 'candidate-and-fixtures.json'), JSON.stringify({ identity, fixtures }, null, 2) + '\n');
+fs.writeFileSync(path.join(evidenceRoot, 'candidate-and-fixtures.json'), JSON.stringify({ attemptId, identity, fixtures }, null, 2) + '\n');
+const cleanupReport = results.map(r => ({ id: r.id, ...JSON.parse(fs.readFileSync(path.join(attemptRoot, r.id, 'cleanup.json'), 'utf8')) }));
+fs.writeFileSync(path.join(attemptRoot, 'cleanup.json'), JSON.stringify(cleanupReport, null, 2) + '\n');
+fs.writeFileSync(path.join(evidenceRoot, 'cleanup.json'), JSON.stringify({ attemptId, resources: cleanupReport }, null, 2) + '\n');
+fs.writeFileSync(path.join(evidenceRoot, only ? `results-${[...only].join('_')}.json` : 'results.json'), report);
 process.exit(results.some((r) => r.status !== 'PASS') ? 1 : 0);

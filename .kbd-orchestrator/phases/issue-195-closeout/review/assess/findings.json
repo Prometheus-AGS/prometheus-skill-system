@@ -1,0 +1,41 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "glm-5.3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Goal D's explicit requirement of one cross-model review via liter-llm has no corresponding gap analysis: no gap assesses liter-llm's operational status, and the only related evidence (a degraded model preflight) is buried in GOAL PROGRESS and excluded from the unresolved calibration inputs.",
+      "evidence": "Goal D reads \"attempt Codex and OpenCode surfaces once each; report unsupported/not-exercised honestly; one cross-model review via liter-llm\", but SPEC GAP SUMMARY Gap D covers only \"Codex and OpenCode never exercised. Both CLIs are installed now (codex-cli 0.160.1, opencode v2.2.0); scratch logins do not exist.\" The sole related note \u2014 \"preflight `degraded` (one distinct non-Claude model, MiniMax-M3, as judge and critic; no backup)\" \u2014 appears under GOAL PROGRESS, and \"Unresolved calibration inputs\" lists only risk/budgets, the acknowledgement mechanism, and operator logins, never cross-model review feasibility. liter-llm itself is never mentioned anywhere in the artifact despite tools/liter-llm being the named vehicle in the goals.",
+      "suggested_fix": "Add a gap or calibration input stating whether tools/liter-llm is installed and runnable, and whether a degraded preflight with a single non-Claude model serving as both judge and critic with no backup satisfies the goal's cross-model review requirement, so the analysis/plan stages can scope an honest fallback."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment plans to attempt the OpenCode surface (Gap D) but its environment gap and its own Required safety checks omit any OpenCode scratch isolation or login, leaving one of the two surfaces Goal D requires with no defined isolation boundary.",
+      "evidence": "Gap E covers only \"fresh scratch Claude config (and Codex if attempted)\" at `~/.prometheus-scratch/kbd194/{claude,codex}`, and the Required safety checks row enumerates only \"(`HOME`/`CODEX_HOME`/`PROMETHEUS_PLUGIN_ROOT`/data dir scratch; memory URLs at a dead port)\" \u2014 neither mentions OpenCode, despite Gap D stating \"Codex and OpenCode never exercised\" and the goal requiring \"attempt Codex and OpenCode surfaces once each\".",
+      "suggested_fix": "Extend Gap E and the Required safety checks to name the OpenCode config/env isolation (e.g., its config home under the scratch tree) and the operator login step, so an OpenCode attempt cannot read or write the operator's real OpenCode configuration."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The gap summary maps gaps to numbered acceptances (\"acceptance 2\", \"acceptance 4 and 6\", \"acceptance 5\") from the prior contract, but the packet's goals define only lettered goals A\u2013D plus close-out, so the acceptance-to-goal mapping the phase's terminal deliverable depends on is not verifiable from the packet.",
+      "evidence": "Gap A cites \"(acceptance 2)\", Gap C cites \"(acceptance 4 and 6)\", Gap D cites \"(acceptance 5, surfaces)\", while the goals text enumerates only \"A: \u2026 B: \u2026 C: \u2026 D: \u2026\" and \"post acceptance-to-evidence mapping on #195\"; no acceptance list or acceptance\u2192goal table appears in the assessment or the packet.",
+      "suggested_fix": "Include the prior contract's acceptance list (or an acceptance-number \u2192 goal-letter mapping table) in the assessment so the final #195 acceptance-to-evidence mapping can be traced and validated."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "zai-coding",
+    "providerId": "zai",
+    "modelId": "glm-5.3"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

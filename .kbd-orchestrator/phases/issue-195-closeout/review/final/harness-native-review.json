@@ -1,0 +1,24 @@
+{
+  "reviewedAt": "2026-10-31T17:13:28.715Z",
+  "isolation_mode": "harness-native",
+  "model": "gpt-6-astra",
+  "cross_model_check": "unverified-producer-unknown",
+  "verdict": "IMPORTANT_FINDINGS",
+  "findings": [
+    "Codex scratch plugin root dropped after fixture selection",
+    "VER-001 missing wrong-expectation and missing-assertion controls",
+    "VER-003 missing successor pressure and event-count observation",
+    "Nested cleanup was not acceptance-bearing",
+    "Thrown scenarios lost observations and fixture manifests were absent",
+    "REF-001 missing actual-checker one-character mutation"
+  ],
+  "fixDisposition": "One coherent repair batch: explicit Codex root; real-path oracle variants; successor-pressure/event counts; nested cleanup; append-before-cleanup raw audit/fixture identities; real checker scratch mutation. Qualification pending confirming packet; no second review inferred.",
+  "minorDeferred": [
+    "CON-002 does not separately retire a valid acknowledgement (existing ambiguity, wrong hash and supersession cases remain)."
+  ],
+  "limitations": [
+    "Read-only review; no tests or builds by reviewer",
+    "Exact producer model identity unavailable; independent-model review requirement is not certified",
+    "Mandatory Claude session remains unauthenticated"
+  ]
+}

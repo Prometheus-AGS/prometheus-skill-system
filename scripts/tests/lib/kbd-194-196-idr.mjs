@@ -27,8 +27,8 @@ function repair(world, mapping, { expectedRevision, commandId, reason = 'operato
 
 const stable = (state) => JSON.stringify({ phases: state.phases, obligations: state.boundaryObligations, repairs: state.changeIdentityRepairs });
 
-async function idr001({ prometheus, seeder, ROOT }) {
-  const w = new World('idr001', { prometheus, ROOT }).healthy();
+async function idr001({ prometheus, seeder, ROOT, evidenceDir }) {
+  const w = new World('idr001', { prometheus, ROOT, evidenceDir }).healthy();
   const before = w.state();
   const original = before.phases[PHASE].changes.C1;
 
@@ -54,7 +54,7 @@ async function idr001({ prometheus, seeder, ROOT }) {
   w.ok('an ambiguous title names the multiple matches', /has 2 matches/.test(ambiguous.stdout + ambiguous.stderr), (ambiguous.stdout + ambiguous.stderr).slice(0, 400));
 
   // Duplicate legacy input is refused with every competing identity named and the bytes untouched.
-  const legacy = new World('idr001-legacy', { prometheus, ROOT });
+  const legacy = new World('idr001-legacy', { prometheus, ROOT, evidenceDir });
   const phaseDir = path.join(legacy.project, '.kbd-orchestrator/phases/legacy-dup');
   const progress = `${JSON.stringify({ phase: 'legacy-dup', status: 'in_progress', changes: [
     { id: 'dup-id', title: 'first', status: 'complete', tasks_done: 1, tasks_total: 1 },
@@ -66,7 +66,7 @@ async function idr001({ prometheus, seeder, ROOT }) {
   w.ok('legacy input bytes are unchanged', fs.readFileSync(path.join(phaseDir, 'progress.json'), 'utf8') === progress, 'sha256 compare');
 
   // Reconcile names a duplicated progress ID and a canonical key/embedded-ID mismatch.
-  const dmg = new World('idr001-dmg', { prometheus, ROOT }).damaged(seeder, 'equal');
+  const dmg = new World('idr001-dmg', { prometheus, ROOT, evidenceDir }).damaged(seeder, 'equal');
   const dmgDir = path.join(dmg.project, '.kbd-orchestrator/phases', PHASE);
   writeFile(path.join(dmgDir, 'progress.json'), { phase: PHASE, changes: [{ id: 'target', tasks_done: 0, tasks_total: 1 }, { id: 'target', tasks_done: 0, tasks_total: 1 }] });
   const dupRows = dmg.run('bash', [KBD_APPLY(ROOT), 'reconcile', PHASE, '--json'], { env: { ...dmg.env, KBD_ORCHESTRATOR_ROOT: ORCH(ROOT) } });
@@ -84,8 +84,8 @@ async function idr001({ prometheus, seeder, ROOT }) {
   return outcome;
 }
 
-async function idr002({ prometheus, seeder, ROOT }) {
-  const w = new World('idr002', { prometheus, ROOT }).damaged(seeder, 'equal');
+async function idr002({ prometheus, seeder, ROOT, evidenceDir }) {
+  const w = new World('idr002', { prometheus, ROOT, evidenceDir }).damaged(seeder, 'equal');
   const start = w.state();
   const startJournal = w.journalKinds();
   const refuse = (name, mapping, extra, expect) => {
@@ -110,7 +110,7 @@ async function idr002({ prometheus, seeder, ROOT }) {
   w.ok('a signer that is not the journal operator is refused', noAuthority.exit !== 0 && /is not the journal's active enrolled operator/.test(noAuthority.stdout + noAuthority.stderr), (noAuthority.stdout + noAuthority.stderr).slice(0, 300));
   w.ok('unauthorized signer left the journal unchanged', JSON.stringify(w.journalKinds()) === JSON.stringify(startJournal), w.journalKinds());
 
-  const conflictWorld = new World('idr002-conflict', { prometheus, ROOT }).damaged(seeder, 'conflict');
+  const conflictWorld = new World('idr002-conflict', { prometheus, ROOT, evidenceDir }).damaged(seeder, 'conflict');
   const cres = resolution(conflictWorld);
   const conflict = repair(conflictWorld, cres.mapping, { commandId: 'neg-conflict', expectedRevision: conflictWorld.state().revision });
   w.ok('conflicting task outcomes are refused without fabricating completion', conflict.exit !== 0 && /conflicting outcomes\/content mapped to task/.test(conflict.stdout + conflict.stderr), (conflict.stdout + conflict.stderr).slice(0, 300));
@@ -155,12 +155,12 @@ function backend(world, change) {
   writeFile(path.join(dir, 'spec.md'), '# spec\n');
 }
 
-async function idr003({ prometheus, seeder, ROOT }) {
+async function idr003({ prometheus, seeder, ROOT, evidenceDir, expectedTaskStatus = "complete", omitTaskStateAssertion = false }) {
   const env = (w) => ({ ...w.env, KBD_ORCHESTRATOR_ROOT: ORCH(ROOT) });
   const apply = (w, verb) => w.run('bash', [KBD_APPLY(ROOT), verb, 'alias-a', '1', '1', '1', SHARED_TITLE], { env: env(w) });
 
   // Positive: a started task survives repair and is completed exactly once through the retired key.
-  const w = new World('idr003', { prometheus, ROOT }).damaged(seeder, 'equal');
+  const w = new World('idr003', { prometheus, ROOT, evidenceDir }).damaged(seeder, 'equal');
   const pre = w.state();
   const { mapping } = resolution(w);
   const rep = repair(w, mapping, { commandId: 'repair-for-continuation', expectedRevision: pre.revision });
@@ -173,7 +173,7 @@ async function idr003({ prometheus, seeder, ROOT }) {
   const taskKeys = Object.keys(after.phases?.[PHASE]?.changes?.target?.tasks ?? {});
   w.ok('end-task through the retired key exits 0 with no failing lifecycle hook', done.exit === 0 && /Completed task 1 out of 1/.test(done.stdout) && !/hook .* failed/.test(done.stdout + done.stderr), (done.stdout + done.stderr).slice(-500));
   w.ok('the registered task key was reused, no duplicate change or task exists', changeKeys.join() === 'target' && taskKeys.join() === TARGET_TASK, { changeKeys, taskKeys });
-  w.ok('the task is complete in the canonical ledger', after.phases[PHASE].changes.target?.tasks?.[TARGET_TASK]?.status === 'complete', after.phases[PHASE].changes.target?.tasks);
+  if (!omitTaskStateAssertion) w.ok('the task is complete in the canonical ledger', after.phases[PHASE].changes.target?.tasks?.[TARGET_TASK]?.status === expectedTaskStatus, after.phases[PHASE].changes.target?.tasks);
   w.ok('the start receipts were consumed by the single completion', ['change:target', `task:target/${TARGET_TASK}`].every((k) => !(k in (after.boundaryObligations ?? {})) && k in (repaired.boundaryObligations ?? {})), Object.keys(after.boundaryObligations ?? {}));
   const again = apply(w, 'end-task');
   w.ok('a second completion is refused rather than duplicating work', again.exit !== 0 && /has no matching start receipt/.test(again.stdout + again.stderr)
@@ -186,7 +186,7 @@ async function idr003({ prometheus, seeder, ROOT }) {
   w.ok('reconcile created no new change or task', Object.keys(w.state().phases[PHASE].changes).join() === 'target', Object.keys(w.state().phases[PHASE].changes));
 
   // Negative: no start receipt ever existed; completion must stay blocked and no evidence may be synthesized.
-  const n = new World('idr003-nostart', { prometheus, ROOT }).damaged(seeder, 'equal-nostart');
+  const n = new World('idr003-nostart', { prometheus, ROOT, evidenceDir }).damaged(seeder, 'equal-nostart');
   const nres = resolution(n, { omitReceipt: true });
   const nrep = repair(n, nres.mapping, { commandId: 'repair-nostart', expectedRevision: n.state().revision });
   w.ok('precondition: repair of the no-receipt fixture succeeded', nrep.exit === 0, nrep.stderr);
@@ -200,6 +200,8 @@ async function idr003({ prometheus, seeder, ROOT }) {
 
   const outcome = w.result('repair a damaged identity, complete the started task through the retired key, reconcile, and block a task with no start receipt');
   outcome.commands = [...w.log, ...n.log];
+  outcome.cleanupChildren = [w.cleanupReceipt, n.cleanupReceipt];
+  outcome.fixtureManifests = [...w.manifests, ...n.manifests];
   w.cleanup(); n.cleanup();
   return outcome;
 }
