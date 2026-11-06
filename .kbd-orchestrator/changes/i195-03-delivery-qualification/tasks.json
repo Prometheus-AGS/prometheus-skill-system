@@ -31,9 +31,9 @@
     {
       "id": "3",
       "title": "Cross-model review, strict validation, distribution check and protected-test certification",
-      "done": false,
-      "doneAt": null,
-      "doneBy": null,
+      "done": true,
+      "doneAt": "2026-11-06T00:28:25Z",
+      "doneBy": "claude-code",
       "files": [
         ".kbd-orchestrator/phases/issue-195-closeout/review/final/**"
       ],
@@ -43,9 +43,9 @@
     {
       "id": "4",
       "title": "Typed closure, partial disposition of issues-194-195-196, draft #195 evidence comment (posting needs owner authorization)",
-      "done": false,
-      "doneAt": null,
-      "doneBy": null,
+      "done": true,
+      "doneAt": "2026-11-06T07:05:46Z",
+      "doneBy": "claude-code",
       "files": [
         ".kbd-orchestrator/phases/issue-195-closeout/closure-report.md"
       ],

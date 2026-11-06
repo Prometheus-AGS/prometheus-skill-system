@@ -1,61 +1,81 @@
-# Closeout checkpoint — BLOCKED
+# Closure report: issue-195-closeout
 
-The requested three-phase plan is incomplete. Phase 1 production and integration authoring are implemented; its native-session acceptance is blocked. Phases 2 (#184 canonical runtime) and 3 (mini parity) have not started. No issue was closed, no publication/global installation occurred, and no commit or protected-test certification is claimed. Mini received only the authorized OpenSpec integration refresh.
+**Canonical disposition:** CLOSED, verdict PASS, recorded 2026-11-06 by
+`shared/scripts/kbd-phase-close-eval.sh --phase issue-195-closeout`. A retry was
+a no-op (ALREADY-CLOSED). No successor phase was created (17 phases before and
+after).
 
-## Current evidence
+| Field | Value |
+|---|---|
+| Contract | `36e11d1bbb7a07a8d465f0efafb7bebfe6638b460fe941175f23bbf5ca2ea235` (amendment-2, binding revision 3) |
+| Evidence | `boundary-results.json`, sha256 `0dd78362b601c202c0c9441b8d4d34db51b529e6ff0a43f503be5d7278d70dfe` |
+| Final attempt | `evidence/attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4` |
+| Candidate | main `5d575cdc` (PR #209 on #208); `prometheus` 1.14.0 built from that commit, sha256 `66c9d2f7…` |
+| Run | `sovereign-sync-service-reliability-20260829` |
 
-Confirming attempt: 2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6. 5 PASS, 0 FAIL, 5 BLOCKED, 2 NOT_EXERCISED. Original attempts are immutable under evidence/attempts/. Raw command audits and fixture-byte manifests are retained before cleanup.
+## Six claims, reported separately
 
-| Scenario | Disposition | First evidence reference (relative to evidence/) |
-| --- | --- | --- |
-| CON-001 | PASS | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/assertions.json |
-| CON-002 | PASS | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/assertions.json |
-| CON-003 | PASS | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/assertions.json |
-| POL-002 | BLOCKED | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/assertions.json |
-| REF-001 | PASS | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/assertions.json |
-| POL-001 | BLOCKED | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/assertions.json |
-| POL-003 | BLOCKED | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/assertions.json |
-| PKG-001 | PASS | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/assertions.json |
-| VER-001 | BLOCKED | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/assertions.json |
-| VER-003 | BLOCKED | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/assertions.json |
-| SRF-001 | NOT_EXERCISED | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/assertions.json |
-| SRF-002 | NOT_EXERCISED | attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/assertions.json |
+1. **Authored implementation: complete.** PR #209 (merged as 5d575cdc):
+   - Unacknowledged policy conflicts set `CONFLICT`, and `--require-resolved` exits 2. A hash-bound `KBD-POLICY-ACK` decision clears it.
+   - The 11 stage skills carry one identical selected-method core, enforced by `scripts/check-selected-method-core.mjs`.
+   - VER-001 and VER-003 bodies, the CON, REF and PKG scenarios, and driver isolation.
+   - Repair 2 changed the product instructions in `value-scenario-verify` and in the conflict bullet of the core.
+2. **Measured contract acceptance: 10 of 10 bound scenarios PASS** on merged main:
+   - CON-001..003, POL-001..003, REF-001, PKG-001, VER-001, VER-003.
+   - The core check and the distribution check both exit 0.
+3. **Demonstrated runtime value: within scope.**
+   - Claude Code sessions recover the selected method and contract.
+   - They stop before dependent execution on an unacknowledged conflict, and proceed after a matching acknowledgement.
+   - n=1 sample per scenario: this shows the behaviour occurs, not that it is reliable.
+4. **Unresolved obligations:**
+   - Codex (SRF-001) and OpenCode (SRF-002) were removed from scope by signed amendment-2, and no claim is made for them. Reasons: the scratch `CODEX_HOME` was not logged in, and OpenCode isolation is unsupported.
+   - Review warnings W2–W4 and S1–S2 (spec wording vs. code; no effect on results) are carried as known gaps.
+   - The #194 portion of `issues-194-195-196` is outside this phase.
+5. **Release eligibility: not established.** No release certification was run for this phase.
+6. **Release authority: not granted.** Nothing was released, tagged or globally installed. The main-built binary lives in `tools/prometheus-cli/target/release` only.
 
-## Acceptance mapping
+Cross-model review (glm-5.3 via a per-run override) found 0 CRITICAL issues and 4 warnings. One warning was disproved; the other three are listed above. The review is labelled `unverified-producer-unknown` because the producer identity is not configured.
 
-| Requested outcome | Current evidence and limitation |
-| --- | --- |
-| #195: fresh/delegated recovery | POL-001 BLOCKED; no native qualification claimed |
-| #195: conflicts stop dependent work | CON-001/002/003 PASS for real CLI, acknowledgement, reanchor and handoff; POL-002 BLOCKED |
-| #195: resume preserves supersession and effects | POL-003 BLOCKED |
-| #195/#196: completed real-value journey and oracle sensitivity | VER-001 authoring replaced the stub; native invocation BLOCKED |
-| #195/#196: source/generated/selected installed agreement | REF-001 PASS (58 assertions), PKG-001 PASS (37 assertions); optional host sessions unverified |
-| #195/#196: six separate claims and no automatic successor | VER-003 authoring replaced the stub; native invocation BLOCKED |
-| #196: discovery and author-only workflow | Existing shipped procedures retained; closeout adds no new observed native discovery/authoring acceptance |
-| #184: canonical envelope, admission, replay and D1–D6 | NOT STARTED; only the qualified-owner readiness prerequisite was corrected |
-| Mini feature parity | NOT STARTED; OpenSpec preflight refreshed to 1.16.0 without authored-spec migration |
+## Attempt and amendment lineage
 
-## Local checks
+All attempts are retained under `evidence/attempts/`; none was overwritten.
 
-- Managed OpenSpec refresh: full and mini PASS, 1.16.0, authoredPathsChanged=[]; receipts in execution-reconciliation.json and preflight tool output.
-- Fixture seeder build PASS: cargo build --manifest-path substrate/kbd-runtime/Cargo.toml --example seed_damaged_identity --locked.
-- Source core check PASS, 11/11 identical. Final generation passes hash-identical across 4,492 tracked outputs (evidence/reconciliation.json).
-- Distribution drift, skills-index and harness-adapter checks PASS (evidence/packaging-checks.json and named logs).
-- npm ci --ignore-scripts --no-audit --no-fund restored missing lockfile dependencies; npm run validate:strict then passed with existing warnings.
-- Fresh-context review: gpt-6-astra, harness-native, producer identity unverified. Six Important findings received one coherent repair pass; no second review or independent-model certification is inferred.
-- git diff --check reports eight EOF blank-line warnings from the intentionally identical canonical section terminators; no passing whitespace claim.
-- Protected-test certification NOT RUN against this uncommitted candidate.
+| Attempt | Contract | Non-passing (excluding NOT_EXERCISED) |
+|---|---|---|
+| 2026-10-31T17-00 / T17-13 | 3ab50017 | session scenarios BLOCKED (no scratch login) |
+| 2026-11-05T23-18 | d546e3a6 (amendment-1) | REF-001, PKG-001 BLOCKED; VER-003 FAIL |
+| repair 1: regenerated hashes; `noProgress` reported by fixture | | |
+| 2026-11-05T23-29 | d546e3a6 | POL-002, VER-001, VER-003 FAIL |
+| repair 2: product instructions | | |
+| 2026-11-05T23-54 | d546e3a6 | none (SRF-001/002 NOT_EXERCISED) |
+| 2026-11-06T06-55 | 36e11d1b (amendment-2) | none |
 
-## Blocker and resume
+- **Amendment-1** (signed 2026-11-05): one fresh boundary for the candidate rebased onto #207.
+- **Amendment-2** (signed 2026-11-06): removed SRF-001/002 and authorised one confirming run on merged main, with zero repairs and unchanged ceilings. It was needed for two reasons:
+  - PR #208 changed `substrate/kbd-runtime/src/change_identity.rs` after the amendment-1 boundary.
+  - The evaluator never counts NOT_EXERCISED as PASS.
 
-The adopted contract requires Claude Code sessions authenticated under /Users/gqadonis/.prometheus-scratch/kbd194/claude. The current owner plan says mandatory scenarios cannot be relaxed without the existing amendment mechanism. Authenticate that isolated configuration; never copy credentials or use the real user configuration as a substitute. Then resume only currently unexercised native cases unless a source/fixture/assertion identity changed. Reconcile unknown parent tool telemetry and preserved budget consumption before dependent execution; do not reset elapsed time, prior attempts or the earlier phase's UNKNOWN consumption.
+## Budget
 
-Canonical status remains OPEN/REFUSED_BLOCKED. Subsequent #184 and mini work stays pending under the owner-selected staged order.
+These figures are cumulative since the amendment-1 meter start (2026-11-05T23:18:22Z) and are self-reported.
 
-## Reviewable optional-host contract reconciliation
+| Dimension | Value | Class | Ceiling |
+|---|---|---|---|
+| timeMinutes | 54 (boundary elapsed: 45 + 9) | measured | 180 |
+| toolCalls | 125 | estimate: transcript count of parent-session calls, excluding nested sessions | 240 |
+| repairAttempts | 2 | measured | 2 (at ceiling: `budget-exhausted` note) |
+| noProgress | 1 (attempt 2 did not reduce the failing count) | measured | 2 |
+| tokens | unknown | unknown | none |
 
-The real typed evaluator also blocks on SRF-001/002 because v1 treats every bound scenario as required, although this plan and the existing release claim accept those hosts as best-effort/unverified. Authentication of Claude alone therefore cannot produce accepted closure under the unchanged binding.
+Wall-clock time is longer than measured boundary time; it was mostly idle, waiting on the operator merge and signature.
 
-Prepared, not applied: adopted-contract.optional-hosts.proposed.json removes only SRF-001/002 from the mandatory matrix, and optional-host-scenarios.proposed.json retains their full definitions and original digest. All ten mandatory cases, budgets, production scope and original evidence remain. The authoritative adopted-contract.json and its signed binding are unchanged.
+## Posting outcome
 
-The existing scope-authority helper explicitly states that it NEVER signs and that the signature is the operator's act. Applying the proposal therefore requires the owner to place the reviewed bytes at the canonical contract path, generate an amend-contract manifest for that path with shared/scripts/kbd-scope-authority-template.sh, sign it under prometheus-kbd-scope-amendment, and invoke kbd-contract-adopt.sh with --supersedes contract-adoption-issue-195-closeout-3ab50017 --amendment <manifest> --signature <signature>. No trusted-signer configuration or signature was fabricated.
+- **#195 and #196:** closed automatically when PR #209 merged. The PR body carries the acceptance-to-evidence table. No separate evidence comment was posted.
+- **#201** (zeespec replay): commented with the #207 regression and the #208 re-fix; it was already closed.
+- **`issues-194-195-196`:** partial disposition recorded as the canonical decision `issues-194-195-196-partial-disposition`, with a note in `../issues-194-195-196/DISPOSITION.md`.
+
+## Operational notes
+
+- **Checkout:** fast-forwarded to 5d575cdc so closure could hash the merged sources. The local pre-rebase drafts are kept in `git stash` ("pre-ff-to-5d575cdc …"), and the live `.kbd-orchestrator` state was restored over the fast-forward.
+- **Installed binary:** `~/.local/bin/prometheus` is still 1.13.2. Run `scripts/install-binaries.sh` to bring it in line with main.

@@ -1,65 +1,55 @@
 {
-  "attemptId": "2026-11-05T23-54-15.275Z-9e8c85eb-0759-40ee-8499-b340004f3600",
+  "attemptId": "2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4",
   "resources": [
     {
       "id": "CON-001",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-001-H4NZOr"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-001-FkZvS8"
     },
     {
       "id": "CON-002",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-002-RYw6vQ"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-002-3qza5p"
     },
     {
       "id": "CON-003",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-003-ay1t9d"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-003-njU5OB"
     },
     {
       "id": "POL-002",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-002-OnHIOR"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-002-QZlIFb"
     },
     {
       "id": "REF-001",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-ref-001-A3Kha3"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-ref-001-aiw5qA"
     },
     {
       "id": "POL-001",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-001-EaubFi"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-001-tek8iq"
     },
     {
       "id": "POL-003",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-003-GR6Zsh"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-003-AR7b2g"
     },
     {
       "id": "PKG-001",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-pkg001-k0xfUk"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-pkg001-VtEL7P"
     },
     {
       "id": "VER-001",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-ver-001-z1PmsJ"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-ver-001-N5Vjct"
     },
     {
       "id": "VER-003",
       "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-ver-003-OcAxNX"
-    },
-    {
-      "id": "SRF-001",
-      "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-srf-001-rZictJ"
-    },
-    {
-      "id": "SRF-002",
-      "status": "REMOVED",
-      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-srf-002-zbWN08"
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-ver-003-LPOP2g"
     }
   ]
 }

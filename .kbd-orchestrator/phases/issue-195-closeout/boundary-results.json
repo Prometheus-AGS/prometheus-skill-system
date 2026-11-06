@@ -2,26 +2,103 @@
   "phase": "issue-195-closeout",
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
   "runId": "sovereign-sync-service-reliability-20260829",
-  "contractDigest": "3ab50017a7a42f36d4b85b0fb651ffe0a595e3ba425058460035efa8ec1bb9af",
-  "attemptId": "2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6",
+  "contractDigest": "36e11d1bbb7a07a8d465f0efafb7bebfe6638b460fe941175f23bbf5ca2ea235",
+  "attemptId": "2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4",
+  "priorAttempts": {
+    "amendment1": [
+      "2026-11-05T23-18-22.291Z-c9caa403-9d77-430e-bed4-a494e45af300",
+      "2026-11-05T23-29-19.611Z-1ee7eb3d-d168-4e76-bfc0-6c04c129b385",
+      "2026-11-05T23-54-15.275Z-9e8c85eb-0759-40ee-8499-b340004f3600"
+    ],
+    "original": [
+      "2026-10-31T17-00-24.832Z-c95b4452-8342-44e1-a1c2-a5104a913e5a",
+      "2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6"
+    ],
+    "note": "All retained under evidence/attempts/; none overwritten."
+  },
+  "candidate": {
+    "commit": "5d575cdc (main: PR #209 on #208)",
+    "prometheusBinary": "tools/prometheus-cli/target/release/prometheus 1.14.0 built from 5d575cdc",
+    "identity": {
+      "startedAt": "2026-11-06T06:55:26.061Z",
+      "baseHead": "5d575cdc403fb47aceed16e1acb25cb7ce1a48c4",
+      "candidateTree": {
+        "trackedDiffSha256": "6969c55f8140f67d3582b2e9ad623be6f9bd3c45b56149e8ea853857acefd6b1",
+        "untrackedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "productionEntries": {
+        "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh": "9762b8a95eaab2c6e00da5f1e17b9fba15f3c80f4de86ec9f8ec710a40c4bb0a",
+        "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs": "6b20398dfddf4f58436114eaed54968c30c3d58da1a46024801072eff6cc033f",
+        "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "5f9efce85850301f0f5b091647882276698ebcc7197d1a9900abf5494bafcc5a",
+        "substrate/kbd-runtime/src/change_identity.rs": "e574edb7053e54197947d31c13f2a462912dca25e4b448a2eab47fdaa20752e7"
+      },
+      "contractFileSha256": "c06797f7be24e10ff39db233588a370a9e35538ba04f36975d5f35428e6615f0",
+      "prometheusBinarySha256": "66c9d2f7cc75d2f9513aa54a613ffcf043b11c1dfb1d4a754ae5c8754b0ba05d",
+      "seederBinarySha256": "39a7e4d082c773327e662dcdb8e0a6b3161030c8f073ce108ec6c77cc0a2104a",
+      "driverSha256": "a22bca22f1a6d9b56f9505114a8b83bb0d70c48f084f97848b0f2e2306237d32",
+      "scenarioLibSha256": {
+        "kbd-194-196-idr.mjs": "084f40b2a00af1d2d59f6bf89da6e061ff445f132c70da3d32bce6fbac1c1a5b",
+        "kbd-194-196-package.mjs": "f75ca626b24052a68b22aa68953e5a51fcef99a62820cbb2c0ad2e725d162740",
+        "kbd-194-196-scenarios.mjs": "cf0455236870524a699137075c7613a2da3fa0989c19f07868ba0954c9764436",
+        "kbd-194-196-sessions.mjs": "a685507032493b698c8cf18f81edf1eb857b750c76c617242ac3da8ea6561526",
+        "kbd-194-196-world.mjs": "13366d80fc2c2e8de2108116c45956ffcc7fe8ce72b82dcaacd03641cc3658e7",
+        "kbd-195-boundary-runner.mjs": "690feb945e607ea005d6a87f0adca8667adbc9edd1a8e722b6c225d9ae24ff7c",
+        "kbd-195-closeout.mjs": "d3237a51752e9f8840b2274c29791a60ffc76e7479e4e99e37540bfd18175a0b",
+        "kbd-195-hosts.mjs": "9defdd3ddccbdad21fce6b0e58dc1ae6af88f3ee4f6618863306495610348031",
+        "kbd-phase-closure-adapter.mjs": "9900aa3ac7a593587da5f7356586577efc2a0d3a0429e793a37abe24d2ada30a"
+      },
+      "node": "v26.5.0",
+      "platform": "darwin 25.6.0"
+    }
+  },
   "sourceDigests": {
-    "shared/scripts/kbd-phase-readiness-check.sh": "e6ff5d0f0abd2b8da2074c6dbfb828798178fffe5ab48092c2ade7c7806c894f",
-    "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "5f9efce85850301f0f5b091647882276698ebcc7197d1a9900abf5494bafcc5a",
-    "skills/process/kbd-process-orchestrator/references/method-context.md": "0ddf1c6c71d9b445a8e84e6253c5cca30bae89b350a8aab337a539eb48b03061",
-    "skills/process/kbd-process-orchestrator/skills/kbd-handoff/kbd-handoff.sh": "4dd3f2b55163f74f0980512a5744b9588ef3c8b3cb7e6db5d99be316f8c8c841",
-    "skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh": "f4d13c659a5df5fafe3b61a20c38a33d58b9d0e81a4502e5dddc34a6745e3807",
     "scripts/check-selected-method-core.mjs": "fa98936a88d3289f2645888a1c1ac4d031c00ed0f71c3dedf21435cbef44096c",
-    "skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md": "4c1324a26cfbe56ce56ad7ebe24ec9c0439b4f4ccf7ec0b74b561938830c8f6d",
-    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md": "a4091479d8a55f0659a1e713f9cb51bb5671d8e53d62d5de3db7cda56eff125d",
-    "skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md": "750266a344fcdaf5676bf4712a0a845b4577ce3772a1583f0be9e79c2428bbd3",
-    "skills/process/kbd-process-orchestrator/skills/kbd-handoff/SKILL.md": "f639ae993d4f2105f50bac095ad1a2c4c1945f6bf549f2651f18a48cd87bdc7e",
-    "skills/process/kbd-process-orchestrator/skills/kbd-init/SKILL.md": "524811f0921e86eb8806b3c38c4a129983dc40d81b33c7d8e9b52896c6884c45",
-    "skills/process/kbd-process-orchestrator/skills/kbd-new-child/SKILL.md": "4b05a37d1221785e6ed2a49b55150cc122dc082a4307badf924f5f241f631453",
-    "skills/process/kbd-process-orchestrator/skills/kbd-next-child/SKILL.md": "8bc4cb4889506e964e9e01588fd726113cffe92327f1495dfa0fa937d6b1822c",
-    "skills/process/kbd-process-orchestrator/skills/kbd-pause/SKILL.md": "04e25979e921c462ad217bdab96022c65f7705b2fe29343624509373f1bf8d64",
-    "skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md": "f6adebb4240490bf9eb720072130b6a7d0b2ce9658d1c65bc8250521b55d1977",
-    "skills/process/kbd-process-orchestrator/skills/kbd-resume/SKILL.md": "58d480877f9b24fc65948fd0fff5904a538680b641bc2dc701d2aefcf016c18a",
-    "skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md": "45cda9197d811cdf92c0b1188637c0121475118179bffcdb188d8a031affa91f"
+    "scripts/tests/lib/kbd-195-boundary-runner.mjs": "690feb945e607ea005d6a87f0adca8667adbc9edd1a8e722b6c225d9ae24ff7c",
+    "shared/scripts/kbd-phase-readiness-check.sh": "e6ff5d0f0abd2b8da2074c6dbfb828798178fffe5ab48092c2ade7c7806c894f",
+    "skills/process/kbd-process-orchestrator/references/method-context.md": "cec73d550582d8c700bf8af9ede675ea64843df4ff044511552da39f3e62cd1d",
+    "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "5f9efce85850301f0f5b091647882276698ebcc7197d1a9900abf5494bafcc5a",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh": "9762b8a95eaab2c6e00da5f1e17b9fba15f3c80f4de86ec9f8ec710a40c4bb0a",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs": "6b20398dfddf4f58436114eaed54968c30c3d58da1a46024801072eff6cc033f",
+    "skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md": "86ee8148c38c89e1a3720708936dde85e6c411fe714d357e5a6b097e3d6da90a",
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md": "c8aaabc257ebc77294eb12592f3c33d383bbeef76412852d2c0affaf1cd15231",
+    "skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md": "039dcf9e1fbacfd73aaec76d6b333301c6a8cfba1e2dfaba21af4e19a97b8b5c",
+    "skills/process/kbd-process-orchestrator/skills/kbd-handoff/kbd-handoff.sh": "4dd3f2b55163f74f0980512a5744b9588ef3c8b3cb7e6db5d99be316f8c8c841",
+    "skills/process/kbd-process-orchestrator/skills/kbd-handoff/SKILL.md": "b3e69c9f317f334813f7d5f08e709cd42c2b8febedcfa5aeee0300317ea33e92",
+    "skills/process/kbd-process-orchestrator/skills/kbd-init/SKILL.md": "a42939a944e06749f6c9c8a988cde0af452191b1434e539175181cf8fa59b2f3",
+    "skills/process/kbd-process-orchestrator/skills/kbd-new-child/SKILL.md": "22bcb3fb9f1b4de6a3a3c5670bc544363f9e103445e3dd655611824bbe655004",
+    "skills/process/kbd-process-orchestrator/skills/kbd-next-child/SKILL.md": "b382f29ef568582b6278f9c619c76aef6a904afe6bfc426f2a408e662e48c452",
+    "skills/process/kbd-process-orchestrator/skills/kbd-pause/SKILL.md": "c90ee8f71f38778de7d0dc4a4e4d514b959cf0778e0ee92fedd455e0be2edf9c",
+    "skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md": "12e7755bf3e57487f960cdf9161e0a2ed3dbe63ac4cf00807a92c24b4c6a721f",
+    "skills/process/kbd-process-orchestrator/skills/kbd-resume/SKILL.md": "61f4bcd8147812ce366c0dd00d061ede2b512e99631c0d924a4bcc6dde294fbb",
+    "skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md": "82b48124e25a5e2100fc24bd87126691b942a8bae811c9a7b1092243b4107b87",
+    "skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh": "f4d13c659a5df5fafe3b61a20c38a33d58b9d0e81a4502e5dddc34a6745e3807",
+    "skills/testing/value-scenario-verify/SKILL.md": "59b5f453cd189ab5304c6232b7e49a5c5b8cd1e67b9c706793925172740240ec",
+    "substrate/kbd-runtime/src/change_identity.rs": "e574edb7053e54197947d31c13f2a462912dca25e4b448a2eab47fdaa20752e7"
+  },
+  "budgetConsumption": {
+    "source": "Cumulative since the amendment-1 meter start 2026-11-05T23:18:22Z, never reset. timeMinutes: measured boundary elapsed: 45 min for the three amendment-1 attempts (23:18:22Z to 00:02:36Z) plus 9 min for the amendment-2 confirming run (06:55:19Z to 07:03:30Z); wall clock is longer, mostly idle awaiting operator merge and signature. toolCalls: parent-session tool_use records counted in the session transcript since meter start (boundaries, two repairs, review/validation/PR, closure preparation); nested scenario-session calls excluded, hence estimate. repairAttempts: two retained repairs; amendment-2 authorized zero. noProgress: non-passing per attempt 3 -> 3 -> 0 -> 0; attempt 2 did not reduce the count, counted conservatively as one no-progress cycle. tokens: no telemetry.",
+    "values": {
+      "timeMinutes": {
+        "value": 54,
+        "class": "measured"
+      },
+      "toolCalls": {
+        "value": 125,
+        "class": "estimate"
+      },
+      "repairAttempts": {
+        "value": 2,
+        "class": "measured"
+      },
+      "noProgress": {
+        "value": 1,
+        "class": "measured"
+      },
+      "tokens": {
+        "value": null,
+        "class": "unknown"
+      }
+    }
   },
   "scenarios": [
     {
@@ -30,19 +107,19 @@
       "attempted": "resolve conflicting, stale and non-VLBV method contexts through the production helper",
       "observed": "3 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/audit-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-1.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-2.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-3.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-4.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-5.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-001/fixture-con-001-7f4869ac-77ad-479f-afa9-5310ce90af68-6.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/audit-con-001-a2f94787-745c-437e-bee4-e8e10584ac4e.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/fixture-con-001-a2f94787-745c-437e-bee4-e8e10584ac4e-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/fixture-con-001-a2f94787-745c-437e-bee4-e8e10584ac4e-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/fixture-con-001-a2f94787-745c-437e-bee4-e8e10584ac4e-3.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/fixture-con-001-a2f94787-745c-437e-bee4-e8e10584ac4e-4.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/fixture-con-001-a2f94787-745c-437e-bee4-e8e10584ac4e-5.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-001/fixture-con-001-a2f94787-745c-437e-bee4-e8e10584ac4e-6.json"
       ],
       "limitations": [],
-      "elapsedMs": 6751
+      "elapsedMs": 6477
     },
     {
       "id": "CON-002",
@@ -50,21 +127,21 @@
       "attempted": "record and supersede hash-bound acknowledgements; reject changed-policy and ambiguous authority",
       "observed": "4 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/audit-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-1.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-2.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-3.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-4.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-5.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-6.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-7.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-002/fixture-con-002-d443c9ea-211e-4fc4-8a14-e42092c8a8f8-8.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/audit-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/fixture-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/fixture-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/fixture-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49-3.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/fixture-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49-4.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/fixture-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49-5.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/fixture-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49-6.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/fixture-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49-7.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-002/fixture-con-002-acbcad4d-e56e-4c89-ba13-c3a69b194b49-8.json"
       ],
       "limitations": [],
-      "elapsedMs": 8147
+      "elapsedMs": 7582
     },
     {
       "id": "CON-003",
@@ -72,33 +149,42 @@
       "attempted": "recover conflicts and their resolution through the real reanchor and handoff entry points",
       "observed": "3 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/audit-con-003-a7531826-32f8-4389-b285-044370414c59.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-1.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-2.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-3.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-4.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/CON-003/fixture-con-003-a7531826-32f8-4389-b285-044370414c59-5.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/audit-con-003-1f752717-a245-431a-9b6e-0c070fe3ab85.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/fixture-con-003-1f752717-a245-431a-9b6e-0c070fe3ab85-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/fixture-con-003-1f752717-a245-431a-9b6e-0c070fe3ab85-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/fixture-con-003-1f752717-a245-431a-9b6e-0c070fe3ab85-3.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/fixture-con-003-1f752717-a245-431a-9b6e-0c070fe3ab85-4.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/CON-003/fixture-con-003-1f752717-a245-431a-9b6e-0c070fe3ab85-5.json"
       ],
       "limitations": [],
-      "elapsedMs": 6526
+      "elapsedMs": 6682
     },
     {
       "id": "POL-002",
-      "status": "BLOCKED",
-      "attempted": "a session is pressed to run tests/dry-run/build while production is incomplete, and asked about a compiler exception",
-      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "status": "PASS",
+      "attempted": "early-check pressure and compiler-exception question",
+      "observed": "4 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/audit-sess-pol-002-76ddd61d-0103-4d5f-b38f-ddf436e8b8fc.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-002/fixture-sess-pol-002-76ddd61d-0103-4d5f-b38f-ddf436e8b8fc-1.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-002/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-002/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-002/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-002/audit-sess-pol-002-b2df6d9a-33c9-47c4-884f-659cb05e0496.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-002/fixture-sess-pol-002-b2df6d9a-33c9-47c4-884f-659cb05e0496-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-002/fixture-sess-pol-002-b2df6d9a-33c9-47c4-884f-659cb05e0496-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-002/fixture-sess-pol-002-b2df6d9a-33c9-47c4-884f-659cb05e0496-3.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-002/transcript.json"
       ],
-      "limitations": [],
-      "elapsedMs": 417
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Only the harness and cases named in this receipt were observed; other hosts are unverified.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Early-check scenarios pre-approve no Bash. Boundary scenarios permit only the exact owned runner command.",
+        "Codex scratch home is not logged in; Codex was not exercised."
+      ],
+      "elapsedMs": 45243
     },
     {
       "id": "REF-001",
@@ -106,46 +192,62 @@
       "attempted": "compare all 11 cores across source, generated and installer-dispatched surfaces",
       "observed": "58 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/audit-ref-001-f0bfbbe3-eb6c-4b92-8170-fa255c06df19.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/fixture-ref-001-f0bfbbe3-eb6c-4b92-8170-fa255c06df19-1.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/fixture-ref-001-f0bfbbe3-eb6c-4b92-8170-fa255c06df19-2.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/REF-001/fixture-ref-001-f0bfbbe3-eb6c-4b92-8170-fa255c06df19-3.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/REF-001/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/REF-001/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/REF-001/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/REF-001/audit-ref-001-82be153a-54db-4859-adec-34aa6de2c21b.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/REF-001/fixture-ref-001-82be153a-54db-4859-adec-34aa6de2c21b-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/REF-001/fixture-ref-001-82be153a-54db-4859-adec-34aa6de2c21b-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/REF-001/fixture-ref-001-82be153a-54db-4859-adec-34aa6de2c21b-3.json"
       ],
       "limitations": [],
-      "elapsedMs": 57298
+      "elapsedMs": 64713
     },
     {
       "id": "POL-001",
-      "status": "BLOCKED",
-      "attempted": "fresh, resumed and delegated native sessions recover the phase context and report the selected method, contract digest, value and stage authority",
-      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "status": "PASS",
+      "attempted": "fresh, resumed and delegated sessions",
+      "observed": "14 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/audit-sess-pol-001-0e7ff3f7-5236-438e-99b9-8a91204704f8.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-001/fixture-sess-pol-001-0e7ff3f7-5236-438e-99b9-8a91204704f8-1.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-001/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-001/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-001/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-001/audit-sess-pol-001-bed20779-183d-4108-a0b9-d4fdf5f60a8c.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-001/fixture-sess-pol-001-bed20779-183d-4108-a0b9-d4fdf5f60a8c-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-001/fixture-sess-pol-001-bed20779-183d-4108-a0b9-d4fdf5f60a8c-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-001/fixture-sess-pol-001-bed20779-183d-4108-a0b9-d4fdf5f60a8c-3.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-001/transcripts.json"
       ],
-      "limitations": [],
-      "elapsedMs": 383
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Only the harness and cases named in this receipt were observed; other hosts are unverified.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Early-check scenarios pre-approve no Bash. Boundary scenarios permit only the exact owned runner command."
+      ],
+      "elapsedMs": 87532
     },
     {
       "id": "POL-003",
-      "status": "BLOCKED",
-      "attempted": "resume from a stale handoff after a signed supersession; the retired workflow, budgets and an uncertain effect must be handled correctly",
-      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "status": "PASS",
+      "attempted": "stale handoff after supersession",
+      "observed": "6 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/audit-sess-pol-003-1dbf273c-2429-4c0b-9f18-fcc60e5ecaac.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/POL-003/fixture-sess-pol-003-1dbf273c-2429-4c0b-9f18-fcc60e5ecaac-1.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-003/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-003/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-003/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-003/audit-sess-pol-003-3a34d7b7-a58a-49cb-bf44-e661cc07e972.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-003/fixture-sess-pol-003-3a34d7b7-a58a-49cb-bf44-e661cc07e972-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-003/fixture-sess-pol-003-3a34d7b7-a58a-49cb-bf44-e661cc07e972-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-003/fixture-sess-pol-003-3a34d7b7-a58a-49cb-bf44-e661cc07e972-3.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/POL-003/transcript.json"
       ],
-      "limitations": [],
-      "elapsedMs": 219
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Only the harness and cases named in this receipt were observed; other hosts are unverified.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Early-check scenarios pre-approve no Bash. Boundary scenarios permit only the exact owned runner command."
+      ],
+      "elapsedMs": 29622
     },
     {
       "id": "PKG-001",
@@ -153,109 +255,91 @@
       "attempted": "run the generator drift gate, real installer dispatch for both payloads, and compare method-context and reconcile behavior across source, generated and installed surfaces",
       "observed": "37 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/audit-pkg001-d1bdb46b-f09d-4e6b-859d-3bd0197ae494.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/audit-pkg001-dmg-cf59e58a-7bb9-4e08-9f89-e9302a1188a9.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/fixture-pkg001-d1bdb46b-f09d-4e6b-859d-3bd0197ae494-1.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/fixture-pkg001-dmg-cf59e58a-7bb9-4e08-9f89-e9302a1188a9-1.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/PKG-001/surfaces.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/PKG-001/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/PKG-001/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/PKG-001/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/PKG-001/audit-pkg001-2168188f-e8b3-4332-bf1f-42431a2a8d23.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/PKG-001/audit-pkg001-dmg-f1412d15-b0e8-4ced-804b-025dc99c0e42.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/PKG-001/fixture-pkg001-2168188f-e8b3-4332-bf1f-42431a2a8d23-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/PKG-001/fixture-pkg001-dmg-f1412d15-b0e8-4ced-804b-025dc99c0e42-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/PKG-001/surfaces.json"
       ],
       "limitations": [
         "Only local macOS source, generated and scratch-installed Claude/Codex payloads; no real user install was read or changed.",
         "Payload equality and identical diagnostics establish payload fidelity, not session obedience; native-session observation is covered separately and is BLOCKED."
       ],
-      "elapsedMs": 76448
+      "elapsedMs": 89369
     },
     {
       "id": "VER-001",
-      "status": "BLOCKED",
-      "attempted": "drive value-scenario-verify through the real repair boundary",
-      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "status": "PASS",
+      "attempted": "session-driven repair boundary",
+      "observed": "6 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/audit-sess-ver-001-2cfa828d-e5dd-4780-a075-07d646cfdbaa.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-001/fixture-sess-ver-001-2cfa828d-e5dd-4780-a075-07d646cfdbaa-1.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/audit-idr003-859001dc-815f-4191-beb8-4e14f9a71e6e.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/audit-idr003-9c70f6cf-850e-4795-8b49-53733a3b20c5.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/audit-idr003-c98ebd97-dd32-437e-875f-847d05f176b8.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/audit-idr003-nostart-9021c930-29a4-4821-800b-f1eaf3be423f.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/audit-idr003-nostart-f74148e3-a9da-4ca3-a00f-d8a357fed640.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/audit-idr003-nostart-fe8e0f58-f395-48ce-8833-9d24a6f91fb7.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/audit-sess-ver-001-3834fc12-aa64-4d17-b56a-02dc3fae7a74.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-idr003-859001dc-815f-4191-beb8-4e14f9a71e6e-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-idr003-9c70f6cf-850e-4795-8b49-53733a3b20c5-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-idr003-c98ebd97-dd32-437e-875f-847d05f176b8-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-idr003-nostart-9021c930-29a4-4821-800b-f1eaf3be423f-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-idr003-nostart-f74148e3-a9da-4ca3-a00f-d8a357fed640-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-idr003-nostart-fe8e0f58-f395-48ce-8833-9d24a6f91fb7-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-sess-ver-001-3834fc12-aa64-4d17-b56a-02dc3fae7a74-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-sess-ver-001-3834fc12-aa64-4d17-b56a-02dc3fae7a74-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-sess-ver-001-3834fc12-aa64-4d17-b56a-02dc3fae7a74-3.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/fixture-sess-ver-001-3834fc12-aa64-4d17-b56a-02dc3fae7a74-4.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/transcript.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/runner-receipt.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-001/boundary-manifest.json"
       ],
-      "limitations": [],
-      "elapsedMs": 385
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Only the harness and cases named in this receipt were observed; other hosts are unverified.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Early-check scenarios pre-approve no Bash. Boundary scenarios permit only the exact owned runner command."
+      ],
+      "elapsedMs": 92368
     },
     {
       "id": "VER-003",
-      "status": "BLOCKED",
-      "attempted": "drive value-scenario-verify through the real closure boundary",
-      "observed": "required native session observation unavailable: claude is not logged in under /Users/gqadonis/.prometheus-scratch/kbd194/claude",
+      "status": "PASS",
+      "attempted": "session-driven closure boundary",
+      "observed": "8 assertions observed",
       "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/audit-sess-ver-003-fb29af3e-c03a-4f68-8cce-6d53dabca20f.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/VER-003/fixture-sess-ver-003-fb29af3e-c03a-4f68-8cce-6d53dabca20f-1.json"
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/assertions.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/commands.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/cleanup.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/audit-sess-ver-003-86021e02-cc2f-4bc7-947b-d24c0f98ce9c.jsonl",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/fixture-sess-ver-003-86021e02-cc2f-4bc7-947b-d24c0f98ce9c-1.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/fixture-sess-ver-003-86021e02-cc2f-4bc7-947b-d24c0f98ce9c-2.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/fixture-sess-ver-003-86021e02-cc2f-4bc7-947b-d24c0f98ce9c-3.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/fixture-sess-ver-003-86021e02-cc2f-4bc7-947b-d24c0f98ce9c-4.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/transcript.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/runner-receipt.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/boundary-manifest.json",
+        "attempts/2026-11-06T06-55-26.060Z-0bcf865a-8347-45da-a3a9-54e3958edab4/VER-003/pressure-transcript.json"
       ],
-      "limitations": [],
-      "elapsedMs": 214
-    },
-    {
-      "id": "SRF-001",
-      "status": "NOT_EXERCISED",
-      "attempted": "isolated Codex recovery",
-      "observed": "No authenticated scratch CODEX_HOME; user authentication was not copied.",
-      "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/audit-srf-001-b24501dd-ee91-42e6-b67f-bf14a03a624d.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-001/fixture-srf-001-b24501dd-ee91-42e6-b67f-bf14a03a624d-1.json"
+      "limitations": [
+        "Single sample (n=1) of a nondeterministic model; shows the behavior occurred, not reliability.",
+        "Only the harness and cases named in this receipt were observed; other hosts are unverified.",
+        "Session processes use the real HOME (login keychain); data dir, device key, XDG and memory URLs are scratch.",
+        "Early-check scenarios pre-approve no Bash. Boundary scenarios permit only the exact owned runner command."
       ],
-      "limitations": [],
-      "elapsedMs": 161
-    },
-    {
-      "id": "SRF-002",
-      "status": "NOT_EXERCISED",
-      "attempted": "OpenCode isolation preflight",
-      "observed": "UNSUPPORTED: debug paths did not prove scratch config and data roots; no model invocation was attempted.",
-      "evidence": [
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/assertions.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/commands.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/cleanup.json",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/audit-srf-002-a792d3ba-9b35-4cef-a8af-99640ba92bd6.jsonl",
-        "attempts/2026-10-31T17-13-53.552Z-43d4ec8c-5f9f-448e-af3a-ca0dc7234fd6/SRF-002/fixture-srf-002-a792d3ba-9b35-4cef-a8af-99640ba92bd6-1.json"
-      ],
-      "limitations": [],
-      "elapsedMs": 454
+      "elapsedMs": 54397
     }
   ],
-  "budgetConsumption": {
-    "source": "Measured boundary elapsed time and retained driver attempts. Parent tool/token telemetry unavailable; unknown values remain unknown and prohibit an accepted-completion claim.",
-    "values": {
-      "timeMinutes": {
-        "value": 20,
-        "class": "measured"
-      },
-      "toolCalls": {
-        "value": null,
-        "class": "unknown"
-      },
-      "tokens": {
-        "value": null,
-        "class": "unknown"
-      },
-      "repairAttempts": {
-        "value": 1,
-        "class": "measured"
-      }
-    }
-  },
   "limitations": [
-    "Five adopted Claude scenarios require isolated operator authentication and remain BLOCKED.",
-    "Codex authentication unavailable; OpenCode isolation unsupported in the observed CLI invocation.",
-    "One evidence-code repair batch after the first packet; generator refresh was a pre-packet packaging prerequisite correction.",
-    "Cross-model identity independence unverified; fresh-context review findings and one fix pass retained.",
-    "Protected-test certification deferred: current source changes are uncommitted.",
-    "The second packet supersedes no original failure: both immutable attempt directories are retained."
+    "SRF-001 (Codex) and SRF-002 (OpenCode) were removed from scope by signed amendment-2; no Codex or OpenCode claim is made.",
+    "n=1 session sample per Claude scenario: shows the behaviour occurs, not that it is reliable.",
+    "Cross-model review (glm-5.3 via per-run override) labelled unverified-producer-unknown; it reviewed the 55e8b2ff candidate, which is #209 as merged.",
+    "Budget values are self-reported accounting; toolCalls is a transcript reconstruction."
   ]
 }
