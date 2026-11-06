@@ -35,12 +35,18 @@ path = Path(sys.argv[1])
 with path.open("rb") as handle:
     plist = plistlib.load(handle)
 
-actual = plist["EnvironmentVariables"].get("SURREAL_ROCKSDB_BLOCK_CACHE_SIZE")
-expected = "1073741824"
+env = plist["EnvironmentVariables"]
+actual = env.get("SURREAL_STARTUP_OPERATION_TIMEOUT")
+expected = "30m"
 if actual != expected:
     raise SystemExit(
-        f"expected rendered SURREAL_ROCKSDB_BLOCK_CACHE_SIZE={expected}, got {actual!r}"
+        f"expected rendered SURREAL_STARTUP_OPERATION_TIMEOUT={expected}, got {actual!r}"
     )
+if "SURREAL_ROCKSDB_BLOCK_CACHE_SIZE" in env:
+    raise SystemExit("SurrealDB 4.0 has no RocksDB engine; drop SURREAL_ROCKSDB_BLOCK_CACHE_SIZE")
+datastore = plist["ProgramArguments"][-1]
+if not datastore.startswith("surrealkv:"):
+    raise SystemExit(f"expected a surrealkv: datastore, got {datastore!r}")
 PY
 
 reload_body="$(sed -n '/^reload_launch_agent()/,/^}/p' "$REPO_ROOT/scripts/install-mcp-services.sh")"
