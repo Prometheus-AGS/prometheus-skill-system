@@ -1,0 +1,65 @@
+{
+  "attemptId": "2026-11-05T23-54-15.275Z-9e8c85eb-0759-40ee-8499-b340004f3600",
+  "resources": [
+    {
+      "id": "CON-001",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-001-H4NZOr"
+    },
+    {
+      "id": "CON-002",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-002-RYw6vQ"
+    },
+    {
+      "id": "CON-003",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-con-003-ay1t9d"
+    },
+    {
+      "id": "POL-002",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-002-OnHIOR"
+    },
+    {
+      "id": "REF-001",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-ref-001-A3Kha3"
+    },
+    {
+      "id": "POL-001",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-001-EaubFi"
+    },
+    {
+      "id": "POL-003",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-pol-003-GR6Zsh"
+    },
+    {
+      "id": "PKG-001",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-pkg001-k0xfUk"
+    },
+    {
+      "id": "VER-001",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-ver-001-z1PmsJ"
+    },
+    {
+      "id": "VER-003",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-sess-ver-003-OcAxNX"
+    },
+    {
+      "id": "SRF-001",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-srf-001-rZictJ"
+    },
+    {
+      "id": "SRF-002",
+      "status": "REMOVED",
+      "ownedRoot": "/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/kbd194-srf-002-zbWN08"
+    }
+  ]
+}

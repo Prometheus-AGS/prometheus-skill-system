@@ -1,0 +1,190 @@
+{
+  "phase": "issue-195-closeout",
+  "generated_at": "2026-10-27T22:00:00Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1_internal_repo": 7,
+      "tier2_context7": 2,
+      "tier3_registry": 0,
+      "tier4_web": 0
+    }
+  },
+  "gaps_addressed": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "G"
+  ],
+  "candidates": [
+    {
+      "id": "kbd-decision-policy-ack",
+      "name": "Existing signed KBD decision surface (KBD-METHOD prefix pattern) for KBD-POLICY-ACK",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "A: operator acknowledgement of a governing-policy conflict, bound to the policy file SHA-256, replaceable through --supersedes",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "license": "MIT (in-repo)",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "method-context.mjs:70-80 parses `KBD-METHOD <json>` decision summaries and drops superseded ones; the same loop can read `KBD-POLICY-ACK <json>`"
+        },
+        {
+          "tier": 1,
+          "claim": "`prometheus kbd decision record --id --summary --supersedes` exists; no new event kind or CLI command is needed"
+        },
+        {
+          "tier": 1,
+          "claim": "kbd-runtime Decision state is {id, summary, plan_revision, supersedes}; it carries no actor, so acknowledgement authority equals KBD-METHOD's existing trust model"
+        }
+      ],
+      "risks": [
+        "Authority is a decision recorded by whoever runs the CLI; the operator-label trust model is a deferred, pre-existing issue (#185-adjacent) and must be stated, not implied away",
+        "A hash-bound acknowledgement must be re-raised when the policy file changes; otherwise a stale ack silently covers new text"
+      ],
+      "decision_rationale": "Reuses the exact pattern already shipped for method selection; satisfies 'operator acknowledgement with provenance' without a new ledger, event or schema."
+    },
+    {
+      "id": "method-context-reference",
+      "name": "skills/process/kbd-process-orchestrator/references/method-context.md",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "B: single canonical text for the selected-method rules referenced by 11 stage skills",
+      "verdict": "adapt",
+      "coverage_estimate": 0.8,
+      "license": "MIT (in-repo)",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "All 11 stage SKILL.md sections already link references/method-context.md; the 13-line reference already holds the full rules"
+        },
+        {
+          "tier": 1,
+          "claim": "generate-skill-system-distribution.js has no include/transclusion mechanism"
+        },
+        {
+          "tier": 1,
+          "claim": "No test in scripts/tests or the orchestrator asserts on the copied section text"
+        }
+      ],
+      "risks": [
+        "A bare pointer may not be opened by a model; inline rules are followed more reliably. Mitigation: keep a short identical core (helper command, VLBV boundary, conflict surfacing) plus the pointer; POL-002 rerun measures it",
+        "Without a drift check the core can diverge again; add an equality check to an existing validator"
+      ],
+      "decision_rationale": "Adapt rather than build: shrink copies to an identical short core that points at the existing reference, and enforce identity with a check instead of inventing an include system."
+    },
+    {
+      "id": "kbd-194-196-session-driver",
+      "name": "scripts/tests/lib/kbd-194-196-sessions.mjs scenario()/selectedProject()/claude() helpers",
+      "kind": "skeleton",
+      "registry": "none",
+      "fit_for_gap": "C: implement VER-001 and VER-003 session bodies in place of stub()",
+      "verdict": "adopt",
+      "coverage_estimate": 0.75,
+      "license": "MIT (in-repo)",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "VER-001/VER-003 are stub() entries at sessions.mjs:314-316; VER-002 and POL-003 show the full scenario shape (scratch project, signed decision, session, observed tool calls, assertions)"
+        },
+        {
+          "tier": 1,
+          "claim": "kbd-phase-closure-adapter.mjs exports fixture/step/disposition/eventCounts for driving and observing canonical closure"
+        },
+        {
+          "tier": 1,
+          "claim": "IDR-002/IDR-003 (kbd-194-196-idr.mjs) already drive the real repair-and-resume operation directly; VER-001 can reuse it as the runner under value-scenario-verify"
+        }
+      ],
+      "risks": [
+        "Requires an operator-logged-in scratch Claude config; absent today (Gap E)",
+        "n=1 sample per scenario shows the behavior can happen, not that it is reliable"
+      ],
+      "decision_rationale": "All machinery exists; only the two scenario bodies are missing."
+    },
+    {
+      "id": "opencode-headless",
+      "name": "OpenCode 2.2.0 `opencode run --format json --standalone`",
+      "kind": "service",
+      "registry": "none",
+      "fit_for_gap": "D/E: observe OpenCode as an additional installed surface under scratch isolation",
+      "verdict": "adapt",
+      "coverage_estimate": 0.5,
+      "license": "MIT (upstream)",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "Local `opencode run --help` (v2.2.0) lists --format json, --standalone, --model, --agent"
+        },
+        {
+          "tier": 2,
+          "claim": "OPENCODE_CONFIG_DIR is loaded after the global config and can override it; it does not replace or isolate it",
+          "source_url": "https://opencode.ai/docs/config"
+        },
+        {
+          "tier": 2,
+          "claim": "Auth and session data live in ~/.local/share/opencode/ (auth.json); OPENCODE_DISABLE_CLAUDE_CODE disables reading ~/.claude prompt and skills",
+          "source_url": "https://opencode.ai/docs/cli"
+        }
+      ],
+      "risks": [
+        "Isolation needs scratch XDG_CONFIG_HOME/XDG_DATA_HOME; whether 2.2.0 honors XDG on macOS is UNVERIFIED and must be checked before any session",
+        "Without OPENCODE_DISABLE_CLAUDE_CODE=1 the run loads the operator's real ~/.claude skills, invalidating the surface under test",
+        "Event stream semantics of --format json are unverified for tool-call observation"
+      ],
+      "decision_rationale": "Usable only with explicit isolation; if XDG isolation cannot be confirmed, report OpenCode UNSUPPORTED/NOT_EXERCISED rather than run against real config."
+    },
+    {
+      "id": "liter-llm-env-override-judge",
+      "name": "dispatch-judge.sh with PROMETHEUS_KBD_JUDGE_* per-run override",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G: cross-model review when models.toml judge and critic collide",
+      "verdict": "adopt",
+      "coverage_estimate": 0.7,
+      "license": "MIT (in-repo)",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "This phase's assess review ran with glm-5.3 via the override; gpt-5.5 via openai-proxy returned HTTP 400"
+        },
+        {
+          "tier": 1,
+          "claim": "dispatch-judge.sh:142-153 refuses when judge identity equals critic or producer identity, or no backup exists"
+        }
+      ],
+      "risks": [
+        "Findings are labelled unverified-producer-unknown until the producer identity is configured",
+        "The durable fix (distinct judge/critic or backup in models.toml) edits owner-owned config"
+      ],
+      "decision_rationale": "Works today with an honest label; the config fix is the owner's choice, not this phase's code."
+    }
+  ],
+  "build_required": [
+    {
+      "need": "Conflict status semantics in method-context.mjs: unacknowledged policyConflicts set a blocking status and make --require-resolved exit 2; a hash-matching KBD-POLICY-ACK clears it",
+      "why_no_candidate": "Behavior change to the in-repo helper; no external component applies",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Equality check that all 11 stage skills carry the identical selected-method core",
+      "why_no_candidate": "Repo-specific invariant; fits an existing validator script",
+      "capability_gap_id": null
+    },
+    {
+      "need": "VER-001 and VER-003 scenario bodies; CON-001/CON-002/REF-001 scenarios; OpenCode scratch-isolation runner",
+      "why_no_candidate": "Scenario content is specific to this contract",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Set a scratch PROMETHEUS_PLUGIN_ROOT for every session harness (Claude, Codex, OpenCode) in kbd-194-196-sessions.mjs so hook bootstrap cannot activate bundles or re-point skill symlinks under the real ~/.prometheus/plugins",
+      "why_no_candidate": "Isolation defect in the existing in-repo driver",
+      "capability_gap_id": null
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "recordedAt": "2026-10-31T16:46:04.342Z",
+  "authority": "Owner requested implementation of the three-phase plan in this chat on 2026-10-31",
+  "priorLifecycle": {
+    "phase": "issues-194-195-196",
+    "consumption": "UNKNOWN",
+    "knownRepairAttempts": 2,
+    "disposition": "historical unresolved consumption retained; no new allowance or reset granted to that phase"
+  },
+  "closeout": {
+    "phase": "issue-195-closeout",
+    "verificationAttemptsBeforeThisSession": 0,
+    "verificationMeterStarts": "at the first boundary invocation, per existing budgets.tokenFallback",
+    "ceilings": {
+      "timeMinutes": 180,
+      "toolCalls": 240,
+      "repairAttempts": 2,
+      "noProgressLimit": 2,
+      "tokenBudget": "UNKNOWN",
+      "tokenFallback": "Token usage UNKNOWN; owner-approved final-boundary time/tool/repair/no-progress ceilings apply from the boundary.",
+      "consumedAtAuthoring": {
+        "priorLifecycleConsumption": "UNKNOWN; retained from issues-194-195-196, never reset",
+        "generatedCodeVerificationAttempts": 0
+      },
+      "exhaustion": "Final-boundary ceilings; exhaustion => checkpoint + BLOCKED. Extensions need an authorized amendment and never drop mandatory scenarios."
+    }
+  },
+  "newPhases": {
+    "aggregate": {
+      "timeMinutes": 480,
+      "toolCalls": 800,
+      "repairAttempts": 2,
+      "noProgressLimit": 2
+    },
+    "reserveSubset": {
+      "timeMinutes": 120,
+      "toolCalls": 200
+    },
+    "tokenUsage": "UNKNOWN; time/tool/retry fallback governs"
+  },
+  "preflight": {
+    "full": "refreshed 1.16.0; authoredPathsChanged=[]",
+    "mini": "refreshed 1.16.0; authoredPathsChanged=[]"
+  },
+  "publication": "Not authorized by current plan"
+}

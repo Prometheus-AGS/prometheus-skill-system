@@ -1,0 +1,11 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-10-27T21:53:47Z",
+  "outputs": [
+    "i195-01-policy-conflict-ack/spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "3 native-kbd changes: i195-01-policy-conflict-ack (2 tasks), i195-02-single-method-reference (2 tasks), i195-03-delivery-qualification (4 tasks; test authoring and the single boundary run only after all production). 12 scenarios (CON-001..003, POL-001..003, REF-001, PKG-001, VER-001, VER-003, SRF-001, SRF-002). Draft adopted-contract.json (DRAFT_SPEC) validates; budgets PROPOSED. Review PASS 0/7/1, all addressed. Plan must obtain owner adoption: risk acceptance, budgets, KBD-POLICY-ACK, scratch logins, review route; goal B is satisfied in adapted form (inline core + single reference).",
+  "skipped": false,
+  "skipReason": null
+}

@@ -213,7 +213,7 @@
     },
     {
       "path": "shared/scripts/kbd-phase-readiness-check.sh",
-      "sha256": "dcf08137023b510ec853ee21c8e47c71e7fd7399f3e4c0fd5912eff059e2bb29",
+      "sha256": "e6ff5d0f0abd2b8da2074c6dbfb828798178fffe5ab48092c2ade7c7806c894f",
       "executable": true
     },
     {
@@ -532,5 +532,5 @@
       "executable": true
     }
   ],
-  "bundleId": "74cb5ab51999f0eefe38b766390cb1279915b6f1857a06b349b366e45368e1b1"
+  "bundleId": "240931d1a089829caceeac3e9c1d08bd3b6f15ccf44404f46d70914a801cd6d6"
 }

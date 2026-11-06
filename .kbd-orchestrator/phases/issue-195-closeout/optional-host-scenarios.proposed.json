@@ -1,0 +1,38 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_ADOPTED",
+  "sourceContractDigest": "3ab50017a7a42f36d4b85b0fb651ffe0a595e3ba425058460035efa8ec1bb9af",
+  "reason": "Reconcile accepted best-effort host qualification with v1 canonical closure, which treats every bound scenario as mandatory.",
+  "scenarios": [
+    {
+      "id": "SRF-001",
+      "name": "A Codex session recovers the selected method and reports the conflict",
+      "ownerTask": "i195-03-delivery-qualification/1",
+      "productionEntry": "codex exec --json -s read-only --ephemeral with the installed Codex payload under scratch CODEX_HOME and PROMETHEUS_PLUGIN_ROOT",
+      "realCollaborators": [
+        "codex-cli",
+        "installed Codex payload",
+        "method-context.mjs",
+        "scratch project"
+      ],
+      "oracle": "reply names the selected method, contract digest and the CONFLICT; no attempted generated-code check",
+      "negativeControl": "sensitivity: a second scratch project whose signed KBD-METHOD selects a different method and digest must be reported as that method and digest, not the expected one. Not logged in under scratch CODEX_HOME: NOT_EXERCISED, never run against ~/.codex",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. CODEX_HOME=~/.prometheus-scratch/kbd194/codex (operator login). Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/SRF-001/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "SRF-002",
+      "name": "An OpenCode session under verified isolation recovers the selected method and reports the conflict",
+      "ownerTask": "i195-03-delivery-qualification/1",
+      "productionEntry": "opencode run --format json --standalone with scratch XDG roots and OPENCODE_DISABLE_CLAUDE_CODE=1",
+      "realCollaborators": [
+        "opencode 2.2.0",
+        "pack skills made available inside the scratch config root",
+        "method-context.mjs"
+      ],
+      "oracle": "isolation preflight passes; reply names the selected method and the CONFLICT",
+      "negativeControl": "sensitivity: a second scratch project with a different signed method and digest must be reported as such. Isolation preflight shows config or auth resolving outside the scratch roots: NOT_EXERCISED (unsupported isolation), no session run",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. XDG_CONFIG_HOME/XDG_DATA_HOME under ~/.prometheus-scratch/kbd194/opencode; OPENCODE_DISABLE_CLAUDE_CODE=1; OPENCODE_DISABLE_AUTOUPDATE=1. Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/SRF-002/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    }
+  ]
+}

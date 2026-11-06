@@ -52,6 +52,9 @@ if [[ -f "$wp" ]] && command -v jq >/dev/null 2>&1; then
     echo "Method recovery: $method_dir/method-context.md; contract: $method_dir/adopted-contract.json"
     if [[ -f "$method_dir/method-context.json" ]]; then
       echo "Method snapshot (derived; re-resolve canonical authority): $(jq -c '{selectedMethod, phaseId, sourceRevision, status, blockers, policyConflicts, control}' "$method_dir/method-context.json" 2>/dev/null || echo '<unparseable>')"
+      while IFS= read -r conflict; do
+        [[ -n "$conflict" ]] && echo "BLOCKING policy conflict: $conflict — stop dependent work; resolve with a current hash-bound KBD-POLICY-ACK, never by rewriting operator rules."
+      done < <(jq -r '.policyConflicts[]? | select(.acknowledged != true) | .path' "$method_dir/method-context.json" 2>/dev/null)
     else
       echo "Method snapshot unavailable: resolve selected method and contract before dependent work; do not infer them from old commands or memory."
     fi

@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 2487,
+  "derivedRevision": 2487,
+  "frontier": {
+    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "ae1d970b-c060-4b28-9a7f-a9624bca0ed8": 65,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
+  },
+  "conflictCount": 0,
+  "phase": "issue-195-closeout",
+  "phaseId": "issue-195-closeout",
+  "parentPhase": null,
+  "last_updated": "2026-11-06T00:04:13.775045Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 3,
+  "changes_completed": 2,
+  "implementation_total": 3,
+  "implementation_completed": 2,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 2,
+      "total": 3,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 103,
+      "total": 107,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "i195-01-policy-conflict-ack",
+      "title": "Governing-policy conflicts block dependent work until acknowledged",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Surface unacknowledged conflicts in reanchor.sh and kbd-handoff.sh; document acknowledgement in references/method-context.md",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "i195-02-single-method-reference",
+      "title": "One identical selected-method core in all stage skills",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Add check-selected-method-core.mjs and npm script; C-01 reconciliation: run the generators twice, prove byte-identical tracked hashes, run drift validators",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "i195-03-delivery-qualification",
+      "title": "Author and run the issue #195 closeout evidence; close honestly",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 4,
+      "tasks_done": 2,
+      "last_task_completed": "Run the consolidated boundary packet once; batch fixes; one confirming rerun",
+      "next_task_pending": "Cross-model review, strict validation, distribution check and protected-test certification",
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

@@ -1,0 +1,26 @@
+{
+  "recordedAt": "2026-10-31T17:00:24.815Z",
+  "passed": true,
+  "commands": [
+    [
+      "distribution-drift",
+      [
+        "scripts/generate-skill-system-distribution.js",
+        "--check"
+      ]
+    ],
+    [
+      "skills-index",
+      [
+        "scripts/generate-skills-index.js",
+        "--check"
+      ]
+    ],
+    [
+      "harness-adapters",
+      [
+        "scripts/check-harness-adapters.js"
+      ]
+    ]
+  ]
+}

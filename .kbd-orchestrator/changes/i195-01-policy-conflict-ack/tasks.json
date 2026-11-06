@@ -1,0 +1,32 @@
+{
+  "changeId": "i195-01-policy-conflict-ack",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Resolve KBD-POLICY-ACK decisions and add CONFLICT status and exit semantics to method-context.mjs",
+      "done": true,
+      "doneAt": "2026-10-31T16:47:36Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/kbd-process-orchestrator/shared/method-context.mjs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Surface unacknowledged conflicts in reanchor.sh and kbd-handoff.sh; document acknowledgement in references/method-context.md",
+      "done": true,
+      "doneAt": "2026-10-31T16:49:28Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh",
+        "skills/process/kbd-process-orchestrator/skills/kbd-handoff/kbd-handoff.sh",
+        "skills/process/kbd-process-orchestrator/references/method-context.md"
+      ],
+      "verify": null,
+      "notes": null
+    }
+  ]
+}

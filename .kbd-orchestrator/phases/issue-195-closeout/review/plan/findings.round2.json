@@ -1,0 +1,50 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "glm-5.3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The Contract binding section points to an \"Adoption record\" section that does not exist anywhere in the plan, and no round, task, or session is assigned responsibility for actually running the contract adoption.",
+      "evidence": "\"Digest: computed by `kbd-contract-adopt.sh` \u2026 stamped into the contract and recorded in the plan handoff identity. See \\\"Adoption record\\\" below.\" \u2014 the plan's sections after this sentence are Owner decisions, Recalled lessons, CHANGE LIST, TASK MODEL ASSIGNMENTS, EXECUTION ROUND ORDER, Contract binding, Scenario \u2192 task coverage, Boundary execution packet, Method decision and fixture prerequisites, Spec artifact verification, COMMANDS TO RUN; no \"Adoption record\" exists, and neither the round order nor any task model row mentions executing `kbd-contract-adopt.sh`, even though the KBD-METHOD decision must be \"recorded immediately after adoption\" and boundary command 3 requires `--contract .kbd-orchestrator/phases/issue-195-closeout/adopted-contract.json`.",
+      "suggested_fix": "Add the missing \"Adoption record\" section (or fix the pointer) and place contract adoption explicitly before Round 1 in the EXECUTION ROUND ORDER, naming the session that runs `kbd-contract-adopt.sh` and stamps the digest."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "C-01's deferral conditions for the earlier change are not encoded in i195-01: nothing requires i195-01 to identify i195-02 as the reconciliation owner in persisted execution evidence or to withhold distribution certification in the interim, so i195-01 as planned risks being marked BLOCKED at the QA gate.",
+      "evidence": "Constraint C-01: \"every earlier change must identify that reconciliation change in persisted execution evidence, and none may claim distribution certification in the interim.\" i195-01's Details cover only \"`method-context.mjs` resolves current `KBD-POLICY-ACK` decisions, adds `CONFLICT` status and exit 2 under `--require-resolved`; `reanchor.sh` and `kbd-handoff.sh` show unacknowledged conflicts; `references/method-context.md` documents the payload and trust model\" \u2014 the reconciliation-owner identification appears only inside i195-02's entry (\"Named C-01 reconciliation owner for both 01 and 02 source edits\") and i195-01's own tasks, receipts, and verification obligations are silent on recording the deferral.",
+      "suggested_fix": "Add to i195-01's task details and verification requirements: record i195-02-single-method-reference as the named C-01 reconciliation change in persisted execution evidence, and mark i195-01 as not distribution-certified until the reconciliation receipts land."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The scenario-to-task coverage table and the i195-03 change details contradict each other about who authors the CON and REF scenarios, leaving it undetermined which change's verification owns those scenario outcomes and when they are demonstrated.",
+      "evidence": "i195-03 Details: \"task 1 authors driver isolation, OpenCode harness with isolation preflight, VER-001/VER-003 bodies and CON/REF/SRF scenarios\" \u2014 but the coverage table assigns \"CON-001, CON-002 | i195-01-policy-conflict-ack/1\", \"CON-003 | i195-01-policy-conflict-ack/2\", and \"REF-001, PKG-001 | i195-02-single-method-reference/2\", all of which close in Rounds 1\u20132 while actual scenario execution happens only in the Round 4 \"Boundary execution packet (one, post-implementation only)\"; the plan never states that i195-01/i195-02's scenario coverage is deferred to the boundary run.",
+      "suggested_fix": "Reconcile the two mappings: either reword i195-03/1 to \"implements bodies specified by the i195-01/i195-02 specs\" or re-own the coverage rows, and state explicitly that all scenario outcomes (including CON/POL/REF/PKG) are demonstrated only in the Round 4 boundary packet, so Rounds 1\u20132 verifications cannot claim them."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Task 4 does not carry the owner-approved closeout scope: closing #195 and #196 appears in no task's details, and posting authorization is listed as an open prerequisite even though the 2026-10-30 owner decision already approved posting and closing.",
+      "evidence": "Owner decisions table: \"Closeout scope (2026-10-30) | Owner approved full closeout with evidence for #195 and #196 \u2026 posting the acceptance-to-evidence mappings and closing #195/#196\" \u2014 versus i195-03 task 4: \"typed closure, partial disposition of issues-194-195-196, draft #195 comment with recorded posting decision\" (no closing action for #195/#196 stated) and its Prerequisites column: \"explicit owner authorization to post on #195\".",
+      "suggested_fix": "Add \"close #195 and #196\" as explicit task-4 actions matching the recorded owner approval, and replace the open posting-authorization prerequisite with a requirement to cite/record the already-granted 2026-10-30 approval (or state why fresh authorization is needed)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "The OpenCode isolation specifics the analysis committed to (scratch XDG roots and OPENCODE_DISABLE_CLAUDE_CODE=1) are dropped from the plan's authoring task, leaving only a generic \"isolation preflight\".",
+      "evidence": "analyze handoff: \"OpenCode only with scratch XDG roots + OPENCODE_DISABLE_CLAUDE_CODE=1 after an isolation preflight, else UNSUPPORTED\" \u2014 versus i195-03 task 1: \"OpenCode harness with isolation preflight\"; neither the env var nor scratch XDG roots appear anywhere in plan.md.",
+      "suggested_fix": "Carry \"scratch XDG roots + OPENCODE_DISABLE_CLAUDE_CODE=1, else UNSUPPORTED\" into i195-03 task 1's details so the SRF-002 scenario body is authored against the analyzed isolation mechanism."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "zai-coding",
+    "providerId": "zai",
+    "modelId": "glm-5.3"
+  }
+}

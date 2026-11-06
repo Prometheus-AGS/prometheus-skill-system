@@ -52,6 +52,12 @@ entry point. No new universal runner, forced browser/video stack, substitute
 mock boundary or broad unit suite is needed. Missing tool, permission, fixture,
 identity or usable isolation is BLOCKED; do not silently skip an adopted case.
 
+Invoke each packet command exactly as given, once: no appended commands, pipes,
+`echo` wrappers or retries. The runner's receipt records its own exit status and
+observations. Read receipts, results and evidence files with file-reading tools;
+do not run additional commands to inspect, re-run or summarize them. Any command
+outside the packet is outside this boundary's authority.
+
 Freeze source/build/configuration/fixture/reference identities and observe the
 actual process/network/filesystem/database/UI boundary. Assert the contract's
 externally meaningful observation, with the expected truth's independent source.

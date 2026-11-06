@@ -96,11 +96,26 @@ export function discoverMethodContext({ project = process.cwd(), phase, canonica
     return [{ ...actual, expectedSha256: expected.sha256, matches }];
   });
   const governingInstructions = ['AGENTS.md', 'CLAUDE.md', '.kbd-orchestrator/constraints.md'].map(file => fileReference(root, file));
+  const acknowledgements = decisions.flatMap(decision => {
+    if (retired.has(decision.id) || typeof decision.summary !== 'string' || !decision.summary.startsWith('KBD-POLICY-ACK ')) return [];
+    try {
+      const acknowledgement = JSON.parse(decision.summary.slice('KBD-POLICY-ACK '.length));
+      return acknowledgement && typeof acknowledgement === 'object' ? [{ decision, acknowledgement }] : [];
+    } catch { return []; }
+  });
   const policyConflicts = [];
   if (method === 'VLBV') {
     for (const ref of governingInstructions.filter(item => item.observation === 'observed')) {
       const text = readFileSync(ownedPath(root, ref.path), 'utf8');
-      if (/compiler.{0,100}(exception|unblock)|(?:narrow|targeted|intermediate|package-scoped).{0,60}compiler check/is.test(text)) policyConflicts.push({ path: ref.path, issue: 'Host compiler exception may conflict with selected VLBV; do not infer permission to run generated-code checks during generation.' });
+      const compilerException = /compiler.{0,100}(exception|unblock)|(?:narrow|targeted|intermediate|package-scoped).{0,60}compiler (?:check|run)/is.test(text);
+      const hourlyException = /(?:hourly|this hour).{0,160}(?:integration gate|delivery boundary)|(?:hourly|hour).{0,100}(?:test|verif)/is.test(text);
+      if (!compilerException && !hourlyException) continue;
+      const issue = 'Host compiler or cadence exception may conflict with selected VLBV; do not infer permission to run generated-code checks during generation.';
+      const matches = acknowledgements.filter(({ acknowledgement: ack }) => ack.phaseId === phaseId
+        && ack.path === ref.path && ack.sha256 === ref.sha256 && ack.issue === issue
+        && typeof ack.note === 'string' && ack.note.trim().length > 0);
+      policyConflicts.push({ path: ref.path, sha256: ref.sha256, issue,
+        acknowledged: matches.length === 1, ackDecisionId: matches.length === 1 ? matches[0].decision.id : null });
     }
   }
   const implementationComplete = Object.values(state.phases[phaseId].changes ?? {}).length > 0 && Object.values(state.phases[phaseId].changes).every(change => complete(change.implementationStatus ?? change.status));
@@ -125,7 +140,7 @@ export function discoverMethodContext({ project = process.cwd(), phase, canonica
     preserve: preservation,
     hostCapabilities: { platform: process.platform, nodeVersion: process.version, observedInterfaces: ['canonical status', 'typed phase disposition', 'project-owned file identity'], executionInterception: 'not provided by this helper', commandInventoryIsPermission: false },
     control: { mode: 'instruction-only', observed: ['canonical references and file identities'], enforced: ['only named existing signed runtime mutations; no generic shell/tool interception claimed'], unsupported: ['universal model obedience or arbitrary tool interception'] },
-    status: blockers.length ? 'BLOCKED' : 'RESOLVED_REFERENCES', blockers,
+    status: blockers.length ? 'BLOCKED' : policyConflicts.some(conflict => !conflict.acknowledged) ? 'CONFLICT' : 'RESOLVED_REFERENCES', blockers,
   };
 }
 
@@ -179,7 +194,7 @@ if (invokedDirectly()) {
     const context = discoverMethodContext({ project, phase });
     if (write) writeMethodContext(project, context);
     process.stdout.write(json ? JSON.stringify(context, null, 2) + '\n' : renderMethodContext(context));
-    if (requireReady && context.status === 'BLOCKED') process.exitCode = 2;
+    if (requireReady && context.status !== 'RESOLVED_REFERENCES') process.exitCode = 2;
   } catch (error) {
     process.stderr.write(`method-context: ${error.message}\n`); process.exitCode = 2;
   }

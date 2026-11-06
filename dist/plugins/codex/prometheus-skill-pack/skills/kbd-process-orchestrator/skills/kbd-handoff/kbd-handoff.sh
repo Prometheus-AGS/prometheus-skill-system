@@ -391,6 +391,9 @@ if [ -n "$method_helper" ] && command -v node >/dev/null 2>&1; then
     done < <(printf '%s' "$METHOD_CONTEXT" | jq -r '.references[]? | select(.path | test("[\\u0000-\\u001f]") | not) | .path')
     method_status="$(printf '%s' "$METHOD_CONTEXT" | jq -r '.status // "UNKNOWN"')"
     [ "$method_status" = "RESOLVED_REFERENCES" ] || warn "selected method references unresolved: read method-context/contract and current canonical decisions before dependent work"
+    while IFS= read -r policy_conflict; do
+      [ -n "$policy_conflict" ] && warn "BLOCKING policy conflict: $policy_conflict; stop dependent work until a current hash-bound KBD-POLICY-ACK resolves it"
+    done < <(printf '%s' "$METHOD_CONTEXT" | jq -r '.policyConflicts[]? | select(.acknowledged != true) | .path')
   else
     warn "selected method discovery unavailable; no method or stage authority inferred from the handoff"
     METHOD_CONTEXT=""

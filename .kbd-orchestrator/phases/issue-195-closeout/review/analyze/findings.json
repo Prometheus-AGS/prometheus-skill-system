@@ -1,0 +1,44 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "glm-5.3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 25,
+      "claim": "The Codex surface (Goal D) is decided as 'Adopt existing driver path' with candidate 'session driver', but no candidate is ever evaluated for Codex and no evidence in the packet supports the existence of a Codex driver, its scratch-home/login mechanics, or its isolation requirements.",
+      "evidence": "Decision table row: '| D/E \u2014 Codex | **Adopt** existing driver path (attempted only when its scratch home is logged in) | session driver | Same as above |'. In library-candidates.json, \"gaps_addressed\": [\"A\", \"B\", \"C\", \"D\", \"E\", \"G\"] claims D is addressed, yet the only D/E candidate is `opencode-headless` (\"fit_for_gap\": \"D/E: observe OpenCode...\"); the `kbd-194-196-session-driver` candidate's fit_for_gap is \"C: implement VER-001 and VER-003 session bodies in place of stub()\" and its evidence describes only `claude()` helpers for scratch Claude sessions. OpenCode got Tier 2 doc research and explicit isolation requirements; Codex got an unevidenced 'existing driver path' assertion.",
+      "suggested_fix": "Either add a Codex candidate entry with Tier 1 evidence (driver location, scratch CODEX_HOME/login detection, isolation env, analogous to the OpenCode isolation requirements section) or mark the Codex attempt UNVERIFIED in the table and drop D from gaps_addressed so the plan stage knows it must design the Codex attempt from scratch or report NOT_EXERCISED."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 43,
+      "claim": "Goal B's regeneration obligation is specified only as `dist/`, a path that does not exist in the file tree, and the analysis never names the tracked generated surfaces that constraint C-01 requires to be regenerated and committed when the 11 stage SKILL.md sources change.",
+      "evidence": "'**REF-001** (non-session: equality across source, generated `dist/` and the installed generation)' and the recalled lesson 'Goal B regenerates `dist/`' \u2014 but the file tree contains no `dist` entry, and the visible tracked distribution targets (e.g. `.agent/skills`, `.agents/skills`, `.claude/skills`, `.codex/skills`, `.cursor/skills`, `.devin/skills`, `.opencode/skills` produced by scripts/generate-skill-system-distribution.js) are never enumerated. build_required lists only the source-side 'Equality check that all 11 stage skills carry the identical selected-method core', with no item identifying which tracked generator outputs must be regenerated, validated, and committed in the same change per C-01.",
+      "suggested_fix": "Name the generator and enumerate its tracked output paths for skill distributions, and state explicitly what must be regenerated and committed in the same change (C-01) when the 11 stage skills change; treat `dist/` as a local untracked artifact only if that is what it is."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "line": 54,
+      "claim": "Open question 4 offers 'fix `models.toml`' as a route, but models.toml is absent from the repository and the analysis never records where it actually lives, leaving that route unactionable if the owner selects it.",
+      "evidence": "cited_paths reports 'MISSING models.toml'; analysis open question 4: 'Cross-model route: keep labelled override, or fix `models.toml` and producer identity.'; the candidate risk only says 'The durable fix (distinct judge/critic or backup in models.toml) edits owner-owned config' without a path.",
+      "suggested_fix": "Record models.toml's actual location (owner-local config outside the repo) alongside the open question, so the plan stage can either point the owner at the right file or explicitly scope the durable fix as out-of-repo."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "zai-coding",
+    "providerId": "zai",
+    "modelId": "glm-5.3"
+  },
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

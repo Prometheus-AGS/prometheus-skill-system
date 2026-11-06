@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-10-27T21:42:10Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "5 candidates, all in-repo except OpenCode: adopt signed-decision KBD-POLICY-ACK pattern (A, build only CONFLICT status semantics in method-context.mjs); adapt references/method-context.md with an identical short core + equality check (B); adopt existing session driver for VER-001/VER-003 + CON-001/002/REF-001 (C); Codex via existing driver but PROMETHEUS_PLUGIN_ROOT must be made scratch; OpenCode only with scratch XDG roots + OPENCODE_DISABLE_CLAUDE_CODE=1 after an isolation preflight, else UNSUPPORTED; judge via labelled per-run override (G). READY to spec. Open owner inputs: risk/budgets, ack mechanism, scratch logins, models.toml route. Review WARNINGs (verified partly mistaken, substance incorporated): Codex evidence, generated-surface list.",
+  "skipped": false,
+  "skipReason": null
+}

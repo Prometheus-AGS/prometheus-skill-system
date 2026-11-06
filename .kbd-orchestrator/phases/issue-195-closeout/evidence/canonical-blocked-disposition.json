@@ -1,0 +1,102 @@
+{
+  "schema": "kbd.phase-disposition/v1",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "phaseId": "issue-195-closeout",
+  "phaseStatus": "in_progress",
+  "contractBound": true,
+  "disposition": "REFUSED_BLOCKED",
+  "binding": {
+    "contractPath": ".kbd-orchestrator/phases/issue-195-closeout/adopted-contract.json",
+    "contractDigest": "3ab50017a7a42f36d4b85b0fb651ffe0a595e3ba425058460035efa8ec1bb9af",
+    "scenarioDigests": {
+      "CON-001": "f65fd41db9cb565006c713806ff769f7605adf08acb0787b320badbebc24a9df",
+      "CON-002": "a96786633db4f5f86ca020a1a5047827c1dac8fc2277f4f91035cf7c691661ce",
+      "CON-003": "49d5bd0c1ed66eab872ef23e7a7de71a7ad49989fc52d1927288181260304ca1",
+      "PKG-001": "86bfc0101d1a2f32fad3ff9bbdd1daef87d8d392dc92a90ae28615a613ef93e2",
+      "POL-001": "d782877b6a20b4556c3977484484f69b2c3ae567e5da14f74fe8aae3734c7534",
+      "POL-002": "9fd1c526c9fa57c5678d83b9efa53ff8c1f4d5f821ec546fffb4e22108b6c78d",
+      "POL-003": "a01de5a62506140f6d50e385c7bf72ac84148cae09bf9f8f7bc2602cdb47c629",
+      "REF-001": "13248997d64d2cd265429910e3115d054b2f52a83886aea294383de418be52c4",
+      "SRF-001": "a21a92169b8cf4443d264e99a2d4a6faeb3a5d9adf8937c1c78c93c088002012",
+      "SRF-002": "2c6efd54c64b53437a570aaa38ca5232db5b45bd999ff92839eee29779f49a8d",
+      "VER-001": "4a1d82fcecbb79664259732d73f75a3f10696a7251b255982a0f1e1be56c1e15",
+      "VER-003": "b4c925d45a9c28001e71fe2f70c15d68221e0f0574839d9885d266d6f7f8a070"
+    },
+    "planRevision": 17,
+    "adoptionDecisionId": "contract-adoption-issue-195-closeout-3ab50017",
+    "bindingRevision": 1
+  },
+  "closure": null,
+  "lastRefusal": {
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "contractDigest": "3ab50017a7a42f36d4b85b0fb651ffe0a595e3ba425058460035efa8ec1bb9af",
+    "evidenceDigest": "d0bfa5bde40f58cf609fb2d33297f802c23b2517d13ac514fee73505bbd0f0cc",
+    "disposition": "blocked",
+    "reasonCode": "not-pass:POL-002",
+    "scenarios": [
+      {
+        "id": "CON-001",
+        "status": "PASS"
+      },
+      {
+        "id": "CON-002",
+        "status": "PASS"
+      },
+      {
+        "id": "CON-003",
+        "status": "PASS"
+      },
+      {
+        "id": "POL-002",
+        "status": "BLOCKED"
+      },
+      {
+        "id": "REF-001",
+        "status": "PASS"
+      },
+      {
+        "id": "POL-001",
+        "status": "BLOCKED"
+      },
+      {
+        "id": "POL-003",
+        "status": "BLOCKED"
+      },
+      {
+        "id": "PKG-001",
+        "status": "PASS"
+      },
+      {
+        "id": "VER-001",
+        "status": "BLOCKED"
+      },
+      {
+        "id": "VER-003",
+        "status": "BLOCKED"
+      },
+      {
+        "id": "SRF-001",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "SRF-002",
+        "status": "NOT_EXERCISED"
+      }
+    ],
+    "budgetConsumption": {
+      "repairAttempts": 1,
+      "timeMinutes": 20
+    },
+    "closureKey": "c888df4b3d1a2de7586635e3b97222c549990a65133555552a7410bcbf162f28",
+    "recordedAtRevision": 2479
+  },
+  "successor": null,
+  "consumptionHighWater": {
+    "repairAttempts": 1,
+    "timeMinutes": 20
+  },
+  "awaitingSuccessor": false,
+  "dispatchAllowed": true,
+  "successorAllowed": false
+}

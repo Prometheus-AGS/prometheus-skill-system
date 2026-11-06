@@ -4,5 +4,6 @@
 import { idrScenarios } from './kbd-194-196-idr.mjs';
 import { packageScenarios } from './kbd-194-196-package.mjs';
 import { sessionScenarios } from './kbd-194-196-sessions.mjs';
+import { closeoutScenarios } from './kbd-195-closeout.mjs';
 
-export const scenarioModules = [...idrScenarios, ...sessionScenarios, ...packageScenarios];
+export const scenarioModules = [...idrScenarios, ...sessionScenarios, ...packageScenarios, ...closeoutScenarios];

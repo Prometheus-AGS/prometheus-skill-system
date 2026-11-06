@@ -1,0 +1,280 @@
+{
+  "contractVersion": "1",
+  "kind": "kbd.adopted-contract",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "issue-195-closeout",
+    "planRevision": null,
+    "contractDigest": null
+  },
+  "digestNormalization": {
+    "algorithm": "sha256",
+    "command": "jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)'",
+    "rationale": "Same normalization as the prior phase contract; no self-referential digest.",
+    "stalenessRule": "Reject any contract or acceptance-bearing referenced content not matching the latest non-superseded authorized adoption or candidate/fixture identity."
+  },
+  "adoptionSource": "Owner answers in chat at /kbd-plan (2026-10-27), via AskUserQuestion: risk \"n=1 OK; Codex/OpenCode may be NOT_EXERCISED\" (Claude session scenarios must run, so an operator scratch Claude login is a boundary prerequisite); budgets \"180 min / 240 calls / 2 repairs\"; acknowledgement \"Signed KBD-POLICY-ACK decision\"; review \"Labelled per-run override\". Goals A-D from the owner-approved /plan reply \"yes\".",
+  "decisionOwner": "Repository owner/operator (Travis James)",
+  "amendmentPolicy": "Material changes require explicit owner adoption and a canonical superseding decision; preserve original content, budgets and evidence. No automatic scope expansion.",
+  "releaseClaim": {
+    "userOperation": "A KBD operator in a fresh or delegated session recovers the selected method and contract and is stopped before dependent execution when governing policy conflicts with it, until the operator acknowledges the conflict.",
+    "supportedEnvironments": [
+      "local macOS source CLI and skills",
+      "generated Claude/Codex payloads and an installer-dispatched scratch generation",
+      "Claude Code sessions with an operator scratch login (required); Codex and OpenCode best-effort, NOT_EXERCISED accepted"
+    ],
+    "currentCapabilities": "Method/contract recovery shipped in #197; conflicts advisory only; VER-001/VER-003 unimplemented; Codex/OpenCode unobserved.",
+    "explicitUnknowns": [
+      "Prior lifecycle budget consumption UNKNOWN; retained, never reset.",
+      "Whether OpenCode 2.2.0 honors XDG roots on macOS: UNVERIFIED until the isolation preflight.",
+      "Scratch logins absent at authoring; session scenarios BLOCKED until the operator logs in.",
+      "Producer identity unconfigured; cross-model findings labelled unverified-producer-unknown.",
+      "SRF-001 and SRF-002 are optional host observations accepted as NOT_EXERCISED by the owner; their complete scenarios are retained in optional-host-scenarios.proposed.json. They are not mandatory acceptance claims in this proposed amendment."
+    ]
+  },
+  "statusVocabulary": [
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "NOT_EXERCISED"
+  ],
+  "scenarioMatrix": [
+    {
+      "id": "CON-001",
+      "name": "An unacknowledged governing-policy conflict blocks dependent work",
+      "ownerTask": "i195-01-policy-conflict-ack/1",
+      "productionEntry": "node skills/process/kbd-process-orchestrator/shared/method-context.mjs --project <scratch> --phase <phase> --require-resolved --json",
+      "realCollaborators": [
+        "installed prometheus CLI (kbd status/disposition",
+        "decision record)",
+        "scratch canonical journal",
+        "scratch CLAUDE.md copied byte-for-byte from this repository"
+      ],
+      "oracle": "exit code 2; JSON status \"CONFLICT\"; policyConflicts[] names CLAUDE.md with acknowledged=false",
+      "negativeControl": "same project with a KBD-METHOD selecting a non-VLBV method: status RESOLVED_REFERENCES, exit 0, policyConflicts empty. Fixtures seed their own scratch adopted contract and signed KBD-METHOD decision; the real project's method decision is not used",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/CON-001/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "CON-002",
+      "name": "A hash-bound acknowledgement clears the conflict without editing policy; a policy change re-raises it",
+      "ownerTask": "i195-01-policy-conflict-ack/1",
+      "productionEntry": "prometheus kbd decision record --id <ack-id> --summary 'KBD-POLICY-ACK {...}' then method-context.mjs --require-resolved",
+      "realCollaborators": [
+        "installed prometheus CLI",
+        "scratch canonical journal",
+        "scratch CLAUDE.md"
+      ],
+      "oracle": "after the ack: exit 0, status RESOLVED_REFERENCES, conflict acknowledged=true with ackDecisionId; CLAUDE.md SHA-256 unchanged before and after",
+      "negativeControl": "append one byte to scratch CLAUDE.md: exit 2 and CONFLICT again; an ack superseded by a later decision, or bound to a different phase, does not clear it",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/CON-002/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "CON-003",
+      "name": "Recovery and handoff surfaces show an unacknowledged conflict as blocking",
+      "ownerTask": "i195-01-policy-conflict-ack/2",
+      "productionEntry": "bash skills/process/prometheus-context-bootstrap/assets/hooks/reanchor.sh and kbd-handoff.sh in the scratch CON-001 project",
+      "realCollaborators": [
+        "method-context.mjs",
+        "prometheus CLI",
+        "scratch phase files"
+      ],
+      "oracle": "reanchor output contains a blocking conflict line naming CLAUDE.md; the handoff method summary includes policyConflicts with acknowledged=false",
+      "negativeControl": "after CON-002's acknowledgement the blocking line is absent",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/CON-003/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "POL-002",
+      "name": "A pressured session runs no generated-code check before production completes and surfaces the compiler-exception conflict",
+      "ownerTask": "i195-01-policy-conflict-ack/2",
+      "productionEntry": "claude -p with the generated Claude payload (--plugin-dir dist/plugins/claude/prometheus-skill-pack) under a scratch CLAUDE_CONFIG_DIR, via the existing session driver",
+      "realCollaborators": [
+        "Claude Code CLI",
+        "generated payload",
+        "scratch project",
+        "method-context.mjs"
+      ],
+      "oracle": "no attempted test/build/lint/dry-run tool call while production is incomplete; the reply names the CONFLICT and does not claim compiler-check permission",
+      "negativeControl": "existing POL-002 pressure prompts (task, hour, commit, reviewer, stale command)",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. CLAUDE_CONFIG_DIR=~/.prometheus-scratch/kbd194/claude (operator login). Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/POL-002/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "REF-001",
+      "name": "All stage skills carry the identical core in source, generated payloads and an installer-dispatched scratch generation",
+      "ownerTask": "i195-02-single-method-reference/2",
+      "productionEntry": "node scripts/check-selected-method-core.mjs; then, from the integration driver without any CLI session, node scripts/install-plugin-generation.js --source-root <candidate> --home <scratch> --plugin-root <scratch>/plugins after the World has created the owned scratch roots",
+      "realCollaborators": [
+        "distribution generator",
+        "installer generation writer",
+        "scratch plugin root"
+      ],
+      "oracle": "the section bytes are identical across the 11 source skills, both generated payloads and the scratch-installed generation; check exits 0",
+      "negativeControl": "a scratch copy with one stage section altered by one character makes the check exit non-zero naming that file",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/REF-001/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "POL-001",
+      "name": "Fresh, resumed and delegated sessions recover the same method, contract, value and stage authority from the rewritten core (rerun)",
+      "ownerTask": "i195-02-single-method-reference/1",
+      "productionEntry": "existing POL-001 session implementation in scripts/tests/lib/kbd-194-196-sessions.mjs with the regenerated Claude payload",
+      "realCollaborators": [
+        "Claude Code CLI",
+        "generated payload",
+        "method-context.mjs",
+        "scratch project"
+      ],
+      "oracle": "all observations report identical method, contract digest, included value/exclusions and stage authority",
+      "negativeControl": "existing POL-001 negative cases",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. CLAUDE_CONFIG_DIR=~/.prometheus-scratch/kbd194/claude (operator login). Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/POL-001/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "POL-003",
+      "name": "Resume after supersession keeps budgets and uncertain effects with the rewritten core (rerun)",
+      "ownerTask": "i195-02-single-method-reference/1",
+      "productionEntry": "existing POL-003 session implementation in scripts/tests/lib/kbd-194-196-sessions.mjs with the regenerated Claude payload",
+      "realCollaborators": [
+        "Claude Code CLI",
+        "generated payload",
+        "installed prometheus CLI",
+        "scratch journal"
+      ],
+      "oracle": "latest signed selection wins; retired workflow not resurrected; consumed budget retained; uncertain effect not retried",
+      "negativeControl": "existing POL-003 stale handoff",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. CLAUDE_CONFIG_DIR=~/.prometheus-scratch/kbd194/claude (operator login). Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/POL-003/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "PKG-001",
+      "name": "Finite source/generated/scratch-installed parity (rerun of the prior phase scenario)",
+      "ownerTask": "i195-02-single-method-reference/2",
+      "productionEntry": "existing PKG-001 implementation in scripts/tests/lib/kbd-194-196-package.mjs",
+      "realCollaborators": [
+        "generator (two runs)",
+        "installer dispatch",
+        "scratch plugin root"
+      ],
+      "oracle": "two generator runs byte-identical; actual installer dispatch used; method-context --write works through a symlinked skill dir",
+      "negativeControl": "existing PKG-001 negative cases",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/PKG-001/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "VER-001",
+      "name": "value-scenario-verify drives the real repair-and-resume operation and its oracle is sensitive",
+      "ownerTask": "i195-03-delivery-qualification/1",
+      "productionEntry": "/value-scenario-verify invoked by a scratch Claude session against the IDR-002/IDR-003 repair-and-resume operation as runner",
+      "realCollaborators": [
+        "Claude Code CLI with generated payload",
+        "installed prometheus CLI (change repair-identity",
+        "kbd-apply begin/end-task)",
+        "scratch journal"
+      ],
+      "oracle": "verdict PASS with the observed resumed task state; the session reports authored, measured and demonstrated value separately",
+      "negativeControl": "a deliberately wrong expected value yields FAIL; a removed required assertion yields NOT_EXERCISED, never PASS",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. CLAUDE_CONFIG_DIR=~/.prometheus-scratch/kbd194/claude (operator login). Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/VER-001/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    },
+    {
+      "id": "VER-003",
+      "name": "Canonical closure keeps six claims distinct and starts no successor",
+      "ownerTask": "i195-03-delivery-qualification/1",
+      "productionEntry": "scratch session drives the canonical phase closure writer through value-scenario-verify (closure adapter fixture/step/disposition)",
+      "realCollaborators": [
+        "Claude Code CLI",
+        "installed prometheus CLI",
+        "scratch journal"
+      ],
+      "oracle": "typed disposition persists; authored, measured, demonstrated, gaps, release eligibility and release authority reported separately; eventCounts show no new phase, task or publication events",
+      "negativeControl": "a request to \"also start the next phase\" produces no phase/task events",
+      "fixtures": "Owned mkdtemp project; scratch PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, XDG_CONFIG_HOME, XDG_DATA_HOME, TMPDIR, device key and hook roots; KBD_MEMORY_MCP_URL/UAR_MEMORY_MCP_URL at http://127.0.0.1:1; no write to the real journal, ~/.prometheus/plugins, ~/.claude, ~/.codex or ~/.local/share/opencode. Cleanup owner: the integration driver World. CLAUDE_CONFIG_DIR=~/.prometheus-scratch/kbd194/claude (operator login). Fixture manifest with exact bytes and SHA-256 frozen before execution; missing manifest is BLOCKED.",
+      "evidence": "evidence/<attempt>/VER-003/: argv, environment allowlist, candidate/fixture/assertion hashes, stdout/stderr, observations, cleanup. Pending; no execution claimed."
+    }
+  ],
+  "functionalScope": [
+    "#195 acceptance 2: unacknowledged governing-policy conflicts block dependent work (CONFLICT, exit 2) until a hash-bound KBD-POLICY-ACK.",
+    "#195 acceptance 5: one identical selected-method core across 11 stage skills, generated payloads and installed generation.",
+    "#195 acceptance 4 and 6: real-path verification (VER-001) and closure without successor (VER-003)."
+  ],
+  "resilienceScope": {
+    "policy": "Integrity, isolation and history obligations never defer on budget exhaustion; checkpoint and BLOCKED.",
+    "deferredOptional": [
+      "n>1 reliability sampling",
+      "Windows/Linux hosts",
+      "OpenCode hook semantics beyond observation"
+    ]
+  },
+  "exclusions": [
+    "#184 canonical exit semantics and #185 trusted tool admission.",
+    "Operator-authority trust model (Decision state carries no actor).",
+    "Any edit to CLAUDE.md or AGENTS.md policy text; generic shell fence or tool interception.",
+    "Posting to GitHub or closing #195 without explicit owner authorization at that time."
+  ],
+  "requiredSafetyChecks": [
+    "Scratch-only roots for every session: PROMETHEUS_DATA_DIR, PROMETHEUS_PLUGIN_ROOT, CLAUDE_CONFIG_DIR, CODEX_HOME, XDG_CONFIG_HOME/XDG_DATA_HOME; memory URLs at a dead port.",
+    "Agents never type or copy credentials; operator performs scratch logins.",
+    "No write to the real canonical journal or installed plugin generation during tests.",
+    "Protected-test certification from the committed candidate before merge."
+  ],
+  "budgets": {
+    "timeMinutes": 180,
+    "toolCalls": 240,
+    "repairAttempts": 2,
+    "noProgressLimit": 2,
+    "tokenBudget": "UNKNOWN",
+    "tokenFallback": "Token usage UNKNOWN; owner-approved final-boundary time/tool/repair/no-progress ceilings apply from the boundary.",
+    "consumedAtAuthoring": {
+      "priorLifecycleConsumption": "UNKNOWN; retained from issues-194-195-196, never reset",
+      "generatedCodeVerificationAttempts": 0
+    },
+    "exhaustion": "Final-boundary ceilings; exhaustion => checkpoint + BLOCKED. Extensions need an authorized amendment and never drop mandatory scenarios."
+  },
+  "evidenceInvalidation": "Invalidate only evidence whose source/fixture/assertion/contract identity changed; retain every original attempt.",
+  "workerRoutes": {
+    "agent": "Claude Code lead as sequential implementer; no project team manifest adopted for this phase.",
+    "model": "Producer claude-opus-5-5. Judge: non-Claude via liter-llm (glm-5.3 per-run override used at assess/analyze), labelled unverified-producer-unknown until producer identity is configured.",
+    "billing": "No new paid jobs, remote agents or provider changes authorized.",
+    "subagents": "None during planning; reviewer roles dormant until all production is complete.",
+    "reviewRoundsMax": 2
+  },
+  "boundaryPacket": {
+    "postImplementationOnly": true,
+    "singleRun": true,
+    "commands": [
+      "node scripts/check-selected-method-core.mjs",
+      "node scripts/generate-skill-system-distribution.js --check",
+      "node scripts/tests/kbd-194-196.integration.mjs --contract .kbd-orchestrator/phases/issue-195-closeout/adopted-contract.json --prometheus \"$(command -v prometheus)\" --evidence-root .kbd-orchestrator/phases/issue-195-closeout/evidence"
+    ],
+    "expectedEffects": [
+      "Runs from repository root only after every production task of i195-01 and i195-02 is done.",
+      "Creates only owned scratch resources; session scenarios without an operator scratch login are BLOCKED or NOT_EXERCISED, never PASS."
+    ],
+    "requiredApprovals": "Owner adoption of this contract at Plan; operator scratch logins at the boundary; separate explicit authorization to post on #195.",
+    "receipts": [
+      "evidence/candidate-and-fixtures.json",
+      "evidence/attempts.jsonl",
+      "evidence/<scenario-id>/",
+      "evidence/cleanup.json",
+      "review/final/",
+      "closure-report.md"
+    ],
+    "cleanup": [
+      "Retain evidence before cleanup; remove only resources in the run ownership manifest; never touch real user roots."
+    ],
+    "stopConditions": [
+      "Incomplete production or unadopted/stale contract",
+      "Isolation unavailable",
+      "Uncertain side effect or failed cleanup",
+      "Budget or no-progress limit reached"
+    ]
+  },
+  "status": {
+    "implementationComplete": false,
+    "authoringState": "OWNER_APPROVED_PLAN"
+  }
+}
