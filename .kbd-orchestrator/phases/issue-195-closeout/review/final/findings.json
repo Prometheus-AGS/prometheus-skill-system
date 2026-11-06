@@ -1,0 +1,69 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "glm-5.3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "shared/scripts/kbd-phase-readiness-check.sh",
+      "line": 154,
+      "claim": "The rewritten coverage check extracts task ids with `.value.tasks[]? | {id: .id, ...}`, but the packet's own scenario code treats canonical `changes.<id>.tasks` as an id-keyed map, so unless every task value redundantly embeds an `id` field every ownerTask resolves to null and coverage unconditionally fails.",
+      "evidence": "scripts/tests/lib/kbd-194-196-idr.mjs accesses canonical tasks as an object keyed by task id (`after.phases[PHASE].changes.target?.tasks?.[TARGET_TASK]?.status`, `Object.keys(after.phases?.[PHASE]?.changes?.target?.tasks ?? {})`), while the new jq iterates `.value.tasks[]?` (values) and reads `.id` from each value plus builds `qualified: ($change + \"/\" + .id)`; nothing in the packet shows a task value carrying an `id` field, and the old code matched against `tasks.json`'s `tasks[].id` array projection. If ids live only in the keys, `select(.id == $owner or .qualified == $owner)` never matches and every phase is rejected with `coverage(...)` missing, breaking readiness/closure for all phases (including VER-003's evaluator path).",
+      "suggested_fix": "Key extraction must match the canonical shape: use `to_entries` on `.value.tasks` (e.g. `.value.tasks | to_entries[]? | {id: .key, qualified: ($change + \"/\" + .key)}`) or verify against a live `prometheus kbd status --json` payload that task values expose `id`, and add a fixture asserting a qualified `change/task` ownerTask resolves."
+    },
+    {
+      "severity": "WARNING",
+      "file": "scripts/tests/lib/kbd-195-hosts.mjs",
+      "line": 80,
+      "claim": "SRF-002 makes the pack skills available in the scratch project (`.opencode/skills/`) instead of inside the scratch config root as the verification declaration requires.",
+      "evidence": "The SRF-002 acceptance row declares \"Real collaborators | opencode 2.2.0, pack skills made available inside the scratch config root, method-context.mjs\", but the implementation does `fs.cpSync(generated, path.join(ctx.project, '.opencode/skills/kbd-process-orchestrator'), { recursive: true })` \u2014 project-local discovery \u2014 while the scratch config root (`$root/config/opencode`, proven by the `debug paths` preflight) never receives the skills; the evidence receipt will therefore not match the declared collaborator provenance.",
+      "suggested_fix": "Either install the generated orchestrator skills under the scratch `OPENCODE_CONFIG_DIR` skill location the preflight proves, or amend the adopted contract's Real-collaborators declaration to state project-local `.opencode/skills` discovery."
+    },
+    {
+      "severity": "WARNING",
+      "file": "scripts/tests/kbd-194-196.integration.mjs",
+      "line": 140,
+      "claim": "The gate's unchanged exit rule makes every contract-declared NOT_EXERCISED outcome fatal, contradicting the acceptance criteria that mark NOT_EXERCISED as an allowed outcome for SRF-001/SRF-002 with optional operator login.",
+      "evidence": "`process.exit(results.some((r) => r.status !== 'PASS') ? 1 : 0)` is unchanged, while the SRF-001/SRF-002 verification rows state \"Not logged in under scratch CODEX_HOME: NOT_EXERCISED, never run against ~/.codex\", \"Limitations: n=1; NOT_EXERCISED is an allowed outcome\", and list the logins as optional prerequisites \u2014 so on a machine without scratch Codex/OpenCode login the two scenarios correctly report NOT_EXERCISED and the declared \"Final local gate\" command still exits 1, making the optional prerequisites effectively mandatory for the whole phase closeout.",
+      "suggested_fix": "Either define the gate's pass predicate to accept contract-flagged optional scenarios in NOT_EXERCISED (e.g. a per-scenario `notExercisedAllowed` contract field), or record in the adopted contract that SRF-001/SRF-002 NOT_EXERCISED blocks certification and the logins are therefore required."
+    },
+    {
+      "severity": "WARNING",
+      "file": "scripts/tests/lib/kbd-195-boundary-runner.mjs",
+      "line": 34,
+      "claim": "VER-001's boundary runner exercises only IDR-003, while the acceptance criterion names the IDR-002/IDR-003 repair-and-resume operation as the production entry point.",
+      "evidence": "The VER-001 verification row declares \"Production entry point | /value-scenario-verify invoked by a scratch Claude session against the IDR-002/IDR-003 repair-and-resume operation as runner\", but `runBoundary`'s repair branch selects only `idrScenarios.find(([id]) => id === 'IDR-003')[1]`; none of IDR-002's refusal paths (non-operator signer, conflicting outcomes, duplicate identity) are driven through the session boundary, so the criterion is satisfied only for the IDR-003 half.",
+      "suggested_fix": "Either run IDR-002 (or its refusal assertions) inside the repair boundary as well, or narrow the adopted contract's entry-point declaration to name IDR-003 only."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "scripts/check-selected-method-core.mjs",
+      "line": 12,
+      "claim": "The checker enforces uniqueness of the `selected-method-core:start` marker but not of the `end` marker, so a duplicated end marker silently truncates the canonical core.",
+      "evidence": "`if (!core || reference.split('<!-- selected-method-core:start -->').length !== 2)` checks only the start marker; the lazy `([\\s\\S]*?)` capture stops at the first `<!-- selected-method-core:end -->`, so a second end marker (or a stray one elsewhere in the reference) passes the check while the compared core bytes are the truncated first block.",
+      "suggested_fix": "Add `reference.split('<!-- selected-method-core:end -->').length !== 2` to the same guard."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/process/kbd-process-orchestrator/shared/method-context.mjs",
+      "line": 106,
+      "claim": "The new hourly-cadence conflict heuristic is broad enough to raise spurious CONFLICT statuses (exit 2 under `--require-resolved`) on governing docs that merely mention hours and testing in proximity.",
+      "evidence": "`const hourlyException = /(?:hourly|this hour).{0,160}(?:integration gate|delivery boundary)|(?:hourly|hour).{0,100}(?:test|verif)/is` \u2014 the second alternative matches the bare word `hour` within 100 characters of `test`/`verif` (e.g. \"within an hour, tests will\u2026\", \"hours of verification\"), and any match forces status CONFLICT and exit 2 for `--require-resolved` callers like kbd-handoff.sh, blocking dependent work on projects whose AGENTS.md/CLAUDE.md contain incidental wording.",
+      "suggested_fix": "Anchor the heuristic to actual cadence-authority phrasing (e.g. require `(?:hourly|per hour)` adjacent to gate/test-granting verbs, or reuse the existing `narrow|targeted` qualifier pattern) and document the intended match corpus."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "zai-coding",
+    "providerId": "zai",
+    "modelId": "glm-5.3"
+  },
+  "checked_classes": [],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

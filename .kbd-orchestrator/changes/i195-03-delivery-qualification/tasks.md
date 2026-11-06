@@ -4,5 +4,5 @@
 
 - [x] 1 After production completes: author driver isolation fix, OpenCode harness, VER-001/VER-003 bodies and CON/REF/SRF scenarios
 - [x] 2 Run the consolidated boundary packet once; batch fixes; one confirming rerun
-- [ ] 3 Cross-model review, strict validation, distribution check and protected-test certification
-- [ ] 4 Typed closure, partial disposition of issues-194-195-196, draft #195 evidence comment (posting needs owner authorization)
+- [x] 3 Cross-model review, strict validation, distribution check and protected-test certification
+- [x] 4 Typed closure, partial disposition of issues-194-195-196, draft #195 evidence comment (posting needs owner authorization)

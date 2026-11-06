@@ -2,31 +2,31 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 2487,
-  "derivedRevision": 2487,
+  "sourceRevision": 2500,
+  "derivedRevision": 2500,
   "frontier": {
     "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
-    "ae1d970b-c060-4b28-9a7f-a9624bca0ed8": 65,
+    "ae1d970b-c060-4b28-9a7f-a9624bca0ed8": 78,
     "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
   },
   "conflictCount": 0,
   "phase": "issue-195-closeout",
   "phaseId": "issue-195-closeout",
   "parentPhase": null,
-  "last_updated": "2026-11-06T00:04:13.775045Z",
+  "last_updated": "2026-11-06T07:05:55.958540Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 3,
-  "changes_completed": 2,
+  "changes_completed": 3,
   "implementation_total": 3,
-  "implementation_completed": 2,
+  "implementation_completed": 3,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 2,
+      "completed": 3,
       "total": 3,
-      "status": "IN_PROGRESS"
+      "status": "COMPLETE"
     },
     "evidence": {
       "status": "NOT_TRACKED",
@@ -53,7 +53,7 @@
     "runId": "sovereign-sync-service-reliability-20260829",
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 103,
+      "completed": 104,
       "total": 107,
       "status": "IN_PROGRESS"
     },
@@ -99,12 +99,12 @@
     {
       "id": "i195-03-delivery-qualification",
       "title": "Author and run the issue #195 closeout evidence; close honestly",
-      "status": "PENDING",
-      "implementation_status": "PENDING",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
       "tasks_total": 4,
-      "tasks_done": 2,
-      "last_task_completed": "Run the consolidated boundary packet once; batch fixes; one confirming rerun",
-      "next_task_pending": "Cross-model review, strict validation, distribution check and protected-test certification",
+      "tasks_done": 4,
+      "last_task_completed": "Typed closure, partial disposition of issues-194-195-196, draft #195 evidence comment (posting needs owner authorization)",
+      "next_task_pending": null,
       "blockers": []
     }
   ],
