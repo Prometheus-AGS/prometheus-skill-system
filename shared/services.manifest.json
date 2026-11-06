@@ -437,7 +437,7 @@
         "--user=root",
         "--pass=root",
         "--bind=127.0.0.1:28000",
-        "rocksdb:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db"
+        "surrealkv:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db"
       ],
       "binding": {
         "kind": "tcp",

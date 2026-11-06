@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The native SurrealDB service is certified against SurrealDB 4.0.0
+  (`SURREALDB_VERSION`), matching surreal-memory-server's `=4.0.0` SDK pin.
+  SurrealDB 4.0 has no RocksDB engine, so the launchd and systemd templates
+  start the same data directory as `surrealkv:` and drop
+  `SURREAL_ROCKSDB_BLOCK_CACHE_SIZE`. They set
+  `SURREAL_STARTUP_OPERATION_TIMEOUT=30m`: startup runs SurrealDB's own data
+  migrations inside one bounded step, and the 60 s default aborts a 3.x
+  upgrade of a real store.
+- Upgrading an existing 3.x store is a one-way, opt-in operation. With both
+  services stopped, take a `surreal export` of every namespace/database and a
+  copy of the data directory, install surreal 4.0.0 to
+  `~/.prometheus/bin/surreal`, start it once by hand with
+  `SURREAL_EXPERIMENTAL_UPGRADE_FROM_3X=true` on the `surrealkv:` path until
+  queries succeed, stop it, then run `scripts/install-mcp-services.sh
+  --restart`. A 3.x release cannot open the converted files; restore from the
+  copy or the export to go back.
+
 ### Fixed
 
 - Journals signed by 1.11.x that contain zeespec stage receipts replay again.
