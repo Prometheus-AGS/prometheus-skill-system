@@ -51,10 +51,11 @@ else
   fi
 
   words="$(wc -w < "$A" | tr -d ' ')"
-  # Tool-owned regions carried from a migration are not part of the managed
-  # region's budget — they are another tool's contract. Count them separately.
-  carried="$(awk '/<!-- prometheus-base:end -->/{f=1;next} f' "$A" 2>/dev/null | wc -w | tr -d ' ')"
-  managed=$(( words - carried ))
+  # The ceiling governs only what this skill writes: the text between the
+  # markers. Operator prose and tool-owned regions outside them belong to the
+  # project and to other tools; the combined-resident check bounds the total.
+  managed="$(awk '/<!-- prometheus-base:start v1 -->/{f=1} f; /<!-- prometheus-base:end -->/{f=0}' "$A" 2>/dev/null | wc -w | tr -d ' ')"
+  carried=$(( words - managed ))
   prof="$(grep -o '<!-- profile: [a-z]* ' "$A" 2>/dev/null | head -1 | awk '{print $3}')"
   prof="${prof:-unknown}"
   case "$prof" in
@@ -62,9 +63,9 @@ else
     *)     ceiling=1500 ;;
   esac
   if [[ "$managed" -le "$ceiling" ]]; then
-    ok "AGENTS.md size" "$managed managed words (profile $prof, ceiling $ceiling)$( [[ $carried -gt 0 ]] && printf ' + %s carried' "$carried")"
+    ok "AGENTS.md size" "$managed managed words (profile $prof, ceiling $ceiling)$( [[ $carried -gt 0 ]] && printf ' + %s project/carried' "$carried")"
   else
-    no "AGENTS.md size" "$managed managed words exceeds $ceiling for profile $prof — move detail to .claude/rules/"
+    no "AGENTS.md size" "$managed managed words exceeds $ceiling for profile $prof — the skill template overflows; trim references/AGENTS.base.md or AGENTS.scaffold.md"
   fi
 
   # The scaffold must match the declared profile, or the declaration is a lie.

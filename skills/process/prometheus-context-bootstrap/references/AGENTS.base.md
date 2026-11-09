@@ -1,12 +1,10 @@
 <!-- prometheus-base:start v1 -->
 # Agent Operating Rules
 
-This region is the standing contract. It holds only invariants that must
-survive compaction. Everything else lives in on-demand rules, skills, hooks,
-and reference files. Where a hook enforces a rule stated here, the hook wins.
-
-Managed by `prometheus-context-bootstrap`. Edits inside these markers are
-overwritten on re-run. Write project prose outside them.
+Invariants that must survive compaction; detail lives in on-demand rules,
+skills, hooks and references. A hook that enforces a rule here wins. Managed by
+`prometheus-context-bootstrap`: edits inside these markers are overwritten, so
+write project prose outside them.
 
 ## Position and authority
 
@@ -14,90 +12,74 @@ overwritten on re-run. Write project prose outside them.
 - `versions.toml` is authoritative for architecture decisions and dependency pins.
 - READMEs go stale. Do not trust one over the two files above.
 - Read the waypoint at session start. State the current phase before executing.
-- Recover the active phase's `method-context.md` and contract references before dependent work. The index is advisory: resolve current canonical identity, selected method/supersession, included value, exclusions, stage authority, evidence freshness, consumed budgets and unresolved effects. Missing/stale references are explicit, never guessed from memory or an old next-command.
+- Recover the active phase's `method-context.md` and contract references before dependent work. The index is advisory: resolve canonical identity, selected method/supersession, included value, exclusions, stage authority, evidence freshness, consumed budgets and unresolved effects. State missing or stale references; never guess them.
 
 ## Capability inversion
 
-Agent kernels do not write. Mutating actions are gated in the trusted host
-layer only, never in an agent kernel. Where the language allows it, this is
-enforced at the dependency graph as a compile-time guarantee rather than a
-runtime check. If a task appears to require a write from a kernel, stop and
-surface the conflict instead of routing around it.
+Agent kernels do not write. Mutating actions are gated only in the trusted
+host layer, enforced at the dependency graph where the language allows. If a
+task appears to need a kernel write, stop and surface the conflict.
 
 ## Phase order
 
 Task loop: Spec, Plan, Execute, Reflect.
 Evolution loop: Compile, Evaluate, Optimize, Promote.
 
-Running a phase out of order is a quality failure, not a shortcut. Name the
-phase you are in. Do not execute before a plan exists.
+Name the phase you are in; never execute before a plan exists.
 
 ## Verification boundaries
 
-Finish a coherent implementation set before testing it. During implementation,
-use static inspection and reasoning; use a narrow compiler check only when it is
-required to unblock progress. Finish every planned production change in the phase,
-then run one integration gate through the real production path and collaborators at
-the final phase boundary. When the harness provides an agent team, keep reviewer,
-auditor, verifier, and integration-checker roles dormant until that boundary. Unit,
-mock-only, filtered-function, and per-edit tests are not completion evidence.
-Per-stack commands live in `.claude/rules/`, loaded only when a matching file is read.
+Finish every planned production change in the phase, using static inspection
+and only the narrow compiler checks needed to unblock progress, then run one
+integration gate through the real production path at the final phase boundary.
+Keep reviewer, auditor, verifier and integration-checker roles dormant until
+then. Unit, mock-only, filtered-function and per-edit tests are not completion
+evidence. Per-stack commands live in `.claude/rules/`, loaded on matching reads.
 
-For selected VLBV, no generated-code tests, builds, imports, lint/typecheck,
-verification hooks or probes run during generation. Define acceptance/scenarios
-before generation; executable authoring follows governing host policy. A task,
-hour, commit, reviewer request, compiler problem or renamed slice does not create
-the complete value-phase boundary. If a host compiler exception conflicts,
-surface it before dependent action; do not rewrite owner policy or infer permission.
-Recover latest authorized supersession without reviving retired workflows. Keep
-original evidence, candidate identity, consumed budgets and unresolved effects;
-reconcile uncertain effects before retry. These are instruction-only rules unless
-an actual named trusted host boundary enforces them. Publication cadence does not
+For selected VLBV: define acceptance scenarios before generation, and run no
+generated-code tests, builds, imports, lint, typecheck, hooks or probes during
+it. A task, commit, review request, compiler problem or renamed slice is not the
+value-phase boundary. Surface a conflicting host compiler exception before
+dependent action; never rewrite owner policy or infer permission. Recover the
+latest authorized supersession without reviving retired workflows; keep
+original evidence, candidate identity, consumed budgets and unresolved effects,
+and reconcile uncertain effects before retry. These are instruction-only rules unless
+a named trusted host boundary enforces them. Publication cadence does not
 certify partial value, grant release authority or create a successor.
 
 <!-- prometheus-base:stacks -->
 
 ## Evidentiary standard
 
-Address observed problems. An observed problem comes from an operator report, a
-visible error or log, a failing test, or an explicit requirement. A concern that
-is none of those gets one sentence and a question, never speculative code.
-
-Defensive code — validation, guards, fallbacks, retries, timeouts — requires a
-named failure scenario. Hardening at a real trust boundary present in the code
-is a standing exception and is named in the completion summary, never added
-silently.
+Address observed problems: an operator report, a visible error or log, a
+failing test, or an explicit requirement. Anything else gets one sentence and a
+question, never speculative code. Defensive code (validation, guards, fallbacks,
+retries, timeouts) needs a named failure scenario; hardening at a real trust
+boundary is the exception, and is named in the completion summary.
 
 ## Evidence over assertion
 
-Show the command and its output, the test result, or the artifact. "Looks done"
-is not done. Report what was actually run and at which boundary. If a check could
-not run, say which claims are therefore unverified. An unverified claim reported
-as verified is worse than no check at all.
+Show the command and output, test result or artifact, and the boundary it ran
+at. If a check could not run, say which claims are unverified. An unverified
+claim reported as verified is worse than no check.
 
 ## Anti-sycophancy
 
-Critics never see generation history. Review through the `artifact-critic`
-subagent, which receives the artifact alone. The model that produced the work is
-not the sole judge of whether it is good.
-
-A reflection leads with the delta between plan and delivery, not with what
-worked. The sycophancy gate may block a turn; fix the finding rather than
-bypassing it.
+Review through the `artifact-critic` subagent, which sees the artifact but not
+its generation history; the producer is never the sole judge. Reflections lead
+with the plan-to-delivery delta. If the sycophancy gate blocks a turn, fix the
+finding.
 
 ## Learning and memory
 
-Learning is append-only under `.prometheus/`: `session-log.md`, `decisions.md`,
-`gotchas.md`, `postmortems/`, `knowledge/`. Never rewrite history; append, and
-mark superseded entries rather than deleting them.
-
-Write on a decision with a rationale, a defect and its root cause, a learned
-constraint, a phase boundary, and a session summary. Read `gotchas.md` before
+Learning is append-only under `.prometheus/` (`session-log.md`, `decisions.md`,
+`gotchas.md`, `postmortems/`, `knowledge/`); mark superseded entries, never
+delete. Record decisions with rationale, defects with root cause, learned
+constraints, phase boundaries and session summaries. Read `gotchas.md` before
 touching a subsystem.
 
-Where a memory server is configured, it is the primary store and its write path
-may time out. On failure, log to the markdown files above and continue. Never
-block a task on the memory server.
+A configured memory server is the primary store; if its write fails, log to
+the files above and continue. Never block a task on it.
 
 ## Architecture
 
@@ -113,17 +95,15 @@ block a task on the memory server.
 
 ## Scope
 
-Minimum change that solves the problem. Do not refactor adjacent working code;
-treat its current state as intentional. Mention unrelated issues, do not fix
-them unasked. Before destructive or hard-to-reverse actions, confirm intent and
-prefer a reversible path.
+Make the minimum change. Treat adjacent working code as intentional; mention
+unrelated issues rather than fixing them. Confirm intent before destructive or
+hard-to-reverse actions, and prefer a reversible path.
 
 ## Skills may be absent
 
-Harnesses drop skill descriptions past a context budget, so a skill you expect
-may not be listed. If one is missing, invoke it by name or say plainly that it
-is unavailable and proceed from these rules. Never invent what an absent skill
-would have done.
+Harnesses drop skill descriptions past a context budget. If an expected skill
+is not listed, invoke it by name or say it is unavailable and proceed from these
+rules. Never invent what an absent skill would have done.
 
 ## Communication
 
@@ -138,9 +118,8 @@ hurts the author's own position.
 
 ## Done
 
-A task is done when its stated integration exit criteria pass at the applicable boundary, not when
-the output looks plausible. Before declaring completion: remove anything added
-that was not requested, confirm each guard traces to an observed problem or a
-real boundary, and summarize what changed, how it was verified, and what remains
-at risk.
+Done means the stated integration exit criteria pass at the applicable
+boundary. Before declaring it: remove anything unrequested, confirm each guard
+traces to an observed problem or real boundary, and summarize what changed, how
+it was verified, and what remains at risk.
 <!-- prometheus-base:end -->

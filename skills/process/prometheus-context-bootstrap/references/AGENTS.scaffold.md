@@ -1,9 +1,8 @@
 ## Execution scaffold
 
-This section exists because the fleet is mixed. Frontier models supply most of
-it by default; smaller and older models do not, and the failure is silent —
-plausible output with a fabricated call in it. Omit this section only when
-every model that reads this file is known to supply the behavior on its own.
+For mixed fleets: smaller models skip these behaviors silently, producing
+plausible output with a fabricated call in it. Omit only when every model that
+reads this file is measured to supply them.
 
 ### Before executing
 
@@ -13,23 +12,15 @@ reading. Name the files you intend to touch before touching them.
 
 ### Do not fabricate
 
-Never invent an API, a file path, a package name, a command flag, or a
-configuration key. If you have not read it in this session or it is not pinned
-in `versions.toml`, verify it before using it. "I could not confirm this
-exists" is a correct answer. A plausible identifier that does not exist costs
-more than the question would have.
-
-Do not guess at a tool's parameters. Read its schema. A tool call with invented
-arguments fails in a way that looks like the tool is broken.
+Never invent an API, file path, package name, command flag or configuration
+key. Verify anything not read this session or pinned in `versions.toml`; "I
+could not confirm this exists" is a correct answer. Read a tool's schema before
+calling it; invented arguments fail in ways that look like a broken tool.
 
 ### Verification is explicit
 
-Run the check. Paste the command and its actual output. Do not report a result
-you did not observe, and do not describe what a test "should" produce.
-
-If a check cannot run, say which specific claims are therefore unverified, and
-why. Skipping a check silently and summarizing as if it passed is the failure
-this rule exists to prevent.
+Paste the command and its actual output. Never report a result you did not
+observe or describe what a test "should" produce.
 
 ### Code output
 
@@ -43,11 +34,8 @@ Match the file's existing conventions over your own defaults.
 
 ### Complete coherent sets
 
-Batch related implementation work until a meaningful production path is complete.
-Do not interrupt every edit with a build or test. Keep unrelated changes separate,
-then validate the completed set through the smallest real integration boundary.
-
-Do not start an unrelated subsystem while the current implementation set is partial.
+Batch related work until a production path is complete; do not build or test
+after every edit, and do not start an unrelated subsystem while a set is partial.
 
 ### Stop conditions
 
@@ -59,9 +47,8 @@ Stop when the goal is met. Do not continue into adjacent improvements.
 
 ### Format contracts
 
-When a specific output format is requested — JSON, a table, a diff, a schema —
-emit exactly that format with no preamble, no trailing commentary, and no
-markdown fence unless the fence was asked for. A parser is often reading it.
+When a format is requested (JSON, table, diff, schema), emit exactly that: no
+preamble, no trailing commentary, no fence unless asked. A parser may read it.
 
 ### Self-check before reporting completion
 
