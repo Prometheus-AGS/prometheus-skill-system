@@ -18,6 +18,7 @@
     "check:docs-exec-examples": "node scripts/check-prometheus-exec-doc-examples.mjs",
     "docs:examples": "bash scripts/run-prometheus-exec-doc-examples.sh",
     "test:docs-sync": "node scripts/tests/docs-sync.test.mjs",
+    "test:context-bootstrap-budget": "bash skills/process/prometheus-context-bootstrap/tests/test-resident-budget.sh",
     "test:marketplace-bootstrap": "bash scripts/tests/marketplace-bootstrap.test.sh",
     "check:workflow-policy": "node scripts/check-workflow-policy.mjs",
     "test:workflow-policy": "bash scripts/tests/test-workflow-policy.sh",

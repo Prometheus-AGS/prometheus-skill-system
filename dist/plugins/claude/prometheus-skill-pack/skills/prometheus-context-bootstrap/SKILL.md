@@ -299,7 +299,7 @@ is not — it is the position record, not a permission switch.
 ## What it writes
 
 ```
-AGENTS.md                    # single source of truth; ~750 words lean, ~1200 mixed
+AGENTS.md                    # single source of truth; ~950 words lean, ~1350 mixed
 CLAUDE.md                    # symlink to AGENTS.md, or an @AGENTS.md import line
 .claude/settings.json        # permissions, skill budget, hook wiring
 .claude/hooks/*.sh           # tier-guard, single-writer, sycophancy-gate, reanchor
