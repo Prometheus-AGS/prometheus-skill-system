@@ -45,7 +45,7 @@
     },
     {
       "repository": "https://github.com/pbakaus/impeccable",
-      "revision": "414603bf14c7a344edb466bb1f85690c77ce8b7d",
+      "revision": "924bbd194d02e5e15a227e75b5901fb0d7a4ecad",
       "license": "Apache-2.0",
       "evidence": "LICENSE"
     },
@@ -2348,8 +2348,8 @@
     {
       "id": "impeccable",
       "upstreamName": "impeccable",
-      "source": "https://github.com/pbakaus/impeccable/tree/414603bf14c7a344edb466bb1f85690c77ce8b7d/.agents/skills/impeccable",
-      "revision": "414603bf14c7a344edb466bb1f85690c77ce8b7d",
+      "source": "https://github.com/pbakaus/impeccable/tree/924bbd194d02e5e15a227e75b5901fb0d7a4ecad/.agents/skills/impeccable",
+      "revision": "924bbd194d02e5e15a227e75b5901fb0d7a4ecad",
       "license": "Apache-2.0",
       "full": {
         "path": "skills/ui-ux/impeccable",
@@ -2363,8 +2363,8 @@
       "assets": [
         {
           "path": "SKILL.md",
-          "sha256": "8013e0362f79ae787b9a329de1f8e823e1924d491697ca166c8421d7c2c9ca24",
-          "upstreamSha256": "fab04b31f946573b00a8559db1fc070f8ea5825254d491c2b13156e5661a86d7"
+          "sha256": "24bda0245ae596ce74782c4eb26031b9dc889fbe6e4cf6409b3c837052a69d1b",
+          "upstreamSha256": "ec5c81f17af6476cafd351875d9109b7d03329e05b3f845cb2d0bbbd4bc31b2c"
         },
         {
           "path": "agents/impeccable_asset_producer.toml",
@@ -2373,18 +2373,18 @@
         },
         {
           "path": "agents/impeccable_documenter.toml",
-          "sha256": "2feb3768125ba6469c92a50d516727e6d42f44579165ddfd33409948e2a3803d",
-          "upstreamSha256": "2feb3768125ba6469c92a50d516727e6d42f44579165ddfd33409948e2a3803d"
+          "sha256": "e7778229d8f31433fc11e29dd2caac8e85281e27ea5c9410474703bb0185100f",
+          "upstreamSha256": "e7778229d8f31433fc11e29dd2caac8e85281e27ea5c9410474703bb0185100f"
         },
         {
           "path": "agents/impeccable_finish_reviewer.toml",
-          "sha256": "1b80232e22d52b06a7278b9ca1f24f871a181c62cd91f4b18728807e7cf49dbd",
-          "upstreamSha256": "1b80232e22d52b06a7278b9ca1f24f871a181c62cd91f4b18728807e7cf49dbd"
+          "sha256": "f52cdfbaeea0623c31c25442cab373e93f10e96c65838cd8b672cd345f610d7e",
+          "upstreamSha256": "f52cdfbaeea0623c31c25442cab373e93f10e96c65838cd8b672cd345f610d7e"
         },
         {
           "path": "agents/impeccable_manual_edit_applier.toml",
-          "sha256": "6c9ce3e27ec4520ead001da3aad2a2ebba481c4e5cd22873db8890259ee579fe",
-          "upstreamSha256": "6c9ce3e27ec4520ead001da3aad2a2ebba481c4e5cd22873db8890259ee579fe"
+          "sha256": "4b01f4eb8a49fb00bc88248735c3b5442beb1791ec71d98e6d203f268a24010b",
+          "upstreamSha256": "4b01f4eb8a49fb00bc88248735c3b5442beb1791ec71d98e6d203f268a24010b"
         },
         {
           "path": "agents/openai.yaml",
@@ -2458,23 +2458,23 @@
         },
         {
           "path": "reference/degraded/asset-producer.md",
-          "sha256": "d23b9af8560c4b63276e5670a41b32e59a26a41ef591ea646eda5c598b6d84e6",
-          "upstreamSha256": "877d274f41500c780bad25b2bca7fa95eff1a32a7b95397dd388c72848e86a6c"
+          "sha256": "52756324a8f1599157ea8e35db7a7dd7de8e9e9e5b00565e747d596ef85608a9",
+          "upstreamSha256": "cf726ce0c7dd1005078fbf560745d4114afe363319648cc9de42d1536370d117"
         },
         {
           "path": "reference/degraded/documenter.md",
-          "sha256": "bcc05ea92faebb5c74037a9d4263a5ce9a56f5ab07c8ab3c59ee704d8cade745",
-          "upstreamSha256": "bcc05ea92faebb5c74037a9d4263a5ce9a56f5ab07c8ab3c59ee704d8cade745"
+          "sha256": "17b6328d809c86622789dcbe1bb1b12ec8937118ef6aa4b37bfd9130d79a205c",
+          "upstreamSha256": "17b6328d809c86622789dcbe1bb1b12ec8937118ef6aa4b37bfd9130d79a205c"
         },
         {
           "path": "reference/degraded/finish-reviewer.md",
-          "sha256": "c33c4cfa7f0ce0bedde80d4fc3b595e747d0e9b43a77f06cacb8e899802f709d",
-          "upstreamSha256": "c33c4cfa7f0ce0bedde80d4fc3b595e747d0e9b43a77f06cacb8e899802f709d"
+          "sha256": "04ba3571cd0f405dffb6b51d892add0e4f19fd7e2bc4815320f2bd2ab5bd2a8a",
+          "upstreamSha256": "04ba3571cd0f405dffb6b51d892add0e4f19fd7e2bc4815320f2bd2ab5bd2a8a"
         },
         {
           "path": "reference/degraded/manual-edit-applier.md",
-          "sha256": "5fae7f8a2fc3ddd49ad0a413446dc44daedef5b6b7de5eb935bd2fbfad646d58",
-          "upstreamSha256": "5fae7f8a2fc3ddd49ad0a413446dc44daedef5b6b7de5eb935bd2fbfad646d58"
+          "sha256": "357b19acc7ef688c337a4f020633a49db23c84620b13636f9ff20d3ab934df1a",
+          "upstreamSha256": "357b19acc7ef688c337a4f020633a49db23c84620b13636f9ff20d3ab934df1a"
         },
         {
           "path": "reference/delight.md",
@@ -2513,13 +2513,13 @@
         },
         {
           "path": "reference/hooks.md",
-          "sha256": "025682d0e8f88f3d91115201f436182808bf2c1b84af99b31d900173d73a35b9",
-          "upstreamSha256": "827c9018836942166536c5e4f087f6523d058e94b161fcf7d3e04f0fb599434c"
+          "sha256": "3d62eb8fe89eac05e84980fc5c4712b7a73c2003ff87f8e7a6a0099b9453d85b",
+          "upstreamSha256": "22f99dc8f891dcc620fb6dc670eab09b84585c1810bf7a3c2063a6e6f7f42152"
         },
         {
           "path": "reference/init.md",
-          "sha256": "51349b3a32c7f907102dd680d8e2df9da27082caf46ee15c673be7ce14a5363b",
-          "upstreamSha256": "51349b3a32c7f907102dd680d8e2df9da27082caf46ee15c673be7ce14a5363b"
+          "sha256": "c2826a6369f86a325e84edb324021753fa8331b86f22a23c884b0b36b7a15488",
+          "upstreamSha256": "c2826a6369f86a325e84edb324021753fa8331b86f22a23c884b0b36b7a15488"
         },
         {
           "path": "reference/ios.md",
@@ -2538,8 +2538,8 @@
         },
         {
           "path": "reference/live.md",
-          "sha256": "e4c711b0c4e5cabd468991fb6c1c45a6cfe6e51a1453ac57974f6c4985174ca3",
-          "upstreamSha256": "a4251b0282f987d723f9d1bcff8f1bcde87d25cdd297bcc2343695082903535a"
+          "sha256": "33004030a0fc3a2a3de113650a1215b87ef9ed2381ece3d58867fe621cc95239",
+          "upstreamSha256": "b8ff9aaf183187e52eb10a24b1036b4725ff51eb11abd97a360d5678e32561dc"
         },
         {
           "path": "reference/mode-operate.md",
@@ -2558,8 +2558,8 @@
         },
         {
           "path": "reference/new-work.md",
-          "sha256": "8505ff2aa421e99eda6ccf47f3b638bd99fd809919b9d8229285e2cfcf04165f",
-          "upstreamSha256": "e23f8944f8962a36dc01e1b0bfacc55bb754633b3686e83ae53a40af97444118"
+          "sha256": "44a8de44e5c79f38316e9966c5b4c1283443ee280be84778d24fa4051a34f51b",
+          "upstreamSha256": "4d9410bf9dfdb0890769a2f45e634be809392ac293abd91ee9553e8eabb18fe5"
         },
         {
           "path": "reference/onboard.md",
@@ -2618,8 +2618,8 @@
         },
         {
           "path": "scripts/VERSION",
-          "sha256": "447836d46f39c5900faf74ad6a6554b8e1fafeca1f78de0416d5f05c6e09a080",
-          "upstreamSha256": "447836d46f39c5900faf74ad6a6554b8e1fafeca1f78de0416d5f05c6e09a080"
+          "sha256": "b6961620d618f9cb3418be09f15e730af410a3e0a3e1d3a649c8892bfa7317d4",
+          "upstreamSha256": "b6961620d618f9cb3418be09f15e730af410a3e0a3e1d3a649c8892bfa7317d4"
         },
         {
           "path": "scripts/command-metadata.json",
@@ -2638,8 +2638,8 @@
         },
         {
           "path": "scripts/engine-checksums.txt",
-          "sha256": "2f0235179cbc515d7c7ec71a9a08283d0cb88a5238d35ffa5a5f42122e78fe35",
-          "upstreamSha256": "2f0235179cbc515d7c7ec71a9a08283d0cb88a5238d35ffa5a5f42122e78fe35"
+          "sha256": "d1acb01e7e1ab1e5a1f691af710146de82c1915a3e360ae94e9d8eaa6fc3c875",
+          "upstreamSha256": "d1acb01e7e1ab1e5a1f691af710146de82c1915a3e360ae94e9d8eaa6fc3c875"
         },
         {
           "path": "scripts/live-browser-dom.js",
@@ -2658,8 +2658,8 @@
         },
         {
           "path": "scripts/live-browser.js",
-          "sha256": "718b7e3c5c9cc3cc8fb75ed99b32a7ebce627e3b6a108e21656fa0fd298e34f0",
-          "upstreamSha256": "718b7e3c5c9cc3cc8fb75ed99b32a7ebce627e3b6a108e21656fa0fd298e34f0"
+          "sha256": "e8e6a4c013254e241a5a33977424581215c987a533968eadda759e2488ae09e5",
+          "upstreamSha256": "e8e6a4c013254e241a5a33977424581215c987a533968eadda759e2488ae09e5"
         },
         {
           "path": "scripts/modern-screenshot.umd.js",
