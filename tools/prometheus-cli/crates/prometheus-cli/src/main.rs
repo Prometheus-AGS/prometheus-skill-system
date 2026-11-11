@@ -516,6 +516,11 @@ enum KbdAction {
         #[command(subcommand)]
         action: KbdBlockerAction,
     },
+    /// Share this machine's key, or enroll teammates' devices and co-operators
+    Device {
+        #[command(subcommand)]
+        action: commands::kbd::DeviceAction,
+    },
 }
 
 #[derive(Clone, clap::ValueEnum)]
@@ -1521,6 +1526,7 @@ async fn run() -> Result<()> {
                         },
                     ),
                 },
+                KbdAction::Device { action } => commands::kbd::Action::Device(action),
                 KbdAction::Decision { action } => match action {
                     KbdDecisionAction::Record {
                         mutation,

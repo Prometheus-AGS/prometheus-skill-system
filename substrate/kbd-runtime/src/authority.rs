@@ -157,6 +157,19 @@ pub(crate) fn verify_and_apply(state: &mut KbdStateV2, event: &Event) -> Result<
                 state.operator_key_ids.insert(replacement.key_id.clone());
             }
         }
+        EventKind::OperatorGranted { key_id } => {
+            require_operator(event, "grant operator authority")?;
+            if !SignerRequirement::ActiveDevice.accepts(state, key_id) {
+                return Err(RuntimeError::InvalidState(format!(
+                    "operator authority can only be granted to an enrolled active device; {key_id} is not one"
+                )));
+            }
+            if !state.operator_key_ids.insert(key_id.clone()) {
+                return Err(RuntimeError::InvalidState(format!(
+                    "{key_id} already holds operator authority"
+                )));
+            }
+        }
         _ => {}
     }
     Ok(())

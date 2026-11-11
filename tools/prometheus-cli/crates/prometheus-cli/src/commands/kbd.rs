@@ -129,11 +129,28 @@ pub enum Action {
         command: CommandKind,
     },
     PhaseClosure(PhaseClosureAction),
+    Device(DeviceAction),
 }
 
 #[path = "kbd_phase.rs"]
 mod phase;
 pub use phase::PhaseClosureAction;
+
+#[path = "kbd_device.rs"]
+mod device;
+pub use device::DeviceAction;
+
+/// Commands the runtime admits only under a signed operator key.
+fn requires_operator(command: &CommandKind) -> bool {
+    matches!(
+        command,
+        CommandKind::ChangeRepairIdentity { .. }
+            | CommandKind::DeviceEnroll { .. }
+            | CommandKind::DeviceRevoke { .. }
+            | CommandKind::DeviceRotate { .. }
+            | CommandKind::OperatorGrant { .. }
+    )
+}
 
 pub async fn run(path: &str, action: Action) -> Result<()> {
     let action = match action {
@@ -735,6 +752,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             Ok(())
         }
         Action::PhaseClosure(action) => phase::run(&runtime, &client, action).await,
+        Action::Device(action) => device::run(&runtime, &client, action).await,
         Action::Projects { .. }
         | Action::MigrateProjections { .. }
         | Action::Register { .. }
@@ -758,7 +776,7 @@ async fn submit_typed(
         command_id,
         frontier: Some(state.frontier.clone()),
         expected_revision: state.revision,
-        actor: current_actor(if matches!(&command, CommandKind::ChangeRepairIdentity { .. }) { ActorKind::Operator } else { ActorKind::Harness }),
+        actor: current_actor(if requires_operator(&command) { ActorKind::Operator } else { ActorKind::Harness }),
         command,
     };
     match client.submit(envelope.clone()).await {
