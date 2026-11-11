@@ -194,6 +194,17 @@ pub struct DeviceRecord {
     pub revoked_at_revision: Option<u64>,
 }
 
+const ENROLLMENT_HINT: &str = "run `prometheus kbd device identity` and ask a project operator to enroll this key (`prometheus kbd device enroll`, adding `--operator` for run lifecycle and enrolling others), or restore an existing enrolled key";
+
+/// The public half of a machine's signing key, as shared with an operator for enrollment.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct DeviceIdentity {
+    pub device_id: String,
+    pub key_id: String,
+    pub public_key: String,
+}
+
 #[derive(Debug, Clone)]
 pub struct DeviceSigner {
     key_id: String,
@@ -904,6 +915,10 @@ pub enum EventKind {
     DeviceKeyRotated {
         previous_key_id: String,
         replacement: DeviceRecord,
+    },
+    /// An operator granted co-operator authority to an enrolled device.
+    OperatorGranted {
+        key_id: String,
     },
     ConflictRecorded {
         conflict: ConflictRecord,
@@ -1628,6 +1643,9 @@ pub enum CommandKind {
     DeviceRotate {
         previous_key_id: String,
         replacement: DeviceRecord,
+    },
+    OperatorGrant {
+        key_id: String,
     },
     ConflictResolve {
         conflict_id: String,
@@ -2424,7 +2442,8 @@ impl KbdStateV2 {
             }
             EventKind::DeviceEnrolled { .. }
             | EventKind::DeviceRevoked { .. }
-            | EventKind::DeviceKeyRotated { .. } => {}
+            | EventKind::DeviceKeyRotated { .. }
+            | EventKind::OperatorGranted { .. } => {}
             EventKind::ConflictRecorded { conflict } => {
                 self.conflicts
                     .entry(conflict.id.clone())
@@ -2836,6 +2855,26 @@ fn phase_implementation_counts(phase: &Phase) -> (u64, u64) {
         + new_completed as i128)
         .clamp(0, total as i128) as u64;
     (completed, total)
+}
+
+impl DeviceRecord {
+    /// An active device record for enrollment at `revision`, with the key id derived from (and
+    /// validated against) the base64 Ed25519 public key a teammate shared.
+    pub fn enrollable(device_id: &str, public_key: &str, revision: u64) -> Result<Self> {
+        let decoded = BASE64
+            .decode(public_key.trim())
+            .map_err(|error| RuntimeError::InvalidState(format!("public key is not base64: {error}")))?;
+        let device = Self {
+            device_id: device_id.into(),
+            key_id: format!("ed25519:{:x}", Sha256::digest(&decoded)),
+            public_key: public_key.trim().into(),
+            status: DeviceStatus::Active,
+            enrolled_at_revision: revision,
+            revoked_at_revision: None,
+        };
+        validate_device_record(&device, revision)?;
+        Ok(device)
+    }
 }
 
 fn validate_device_record(device: &DeviceRecord, revision: u64) -> Result<()> {
@@ -3611,6 +3650,33 @@ impl Runtime {
         )
     }
 
+    /// This machine's signing identity for the project, discovered in the same order used when
+    /// signing (explicit key file, managed sovereign-sync key, then project key storage). The key
+    /// is created in local key storage if absent; the journal is never written. A teammate shares
+    /// the result with an operator, who enrolls it with `prometheus kbd device enroll`.
+    pub fn local_device_identity(&self) -> Result<DeviceIdentity> {
+        let signer = if let Some(path) = std::env::var_os("PROMETHEUS_DEVICE_KEY_FILE") {
+            load_device_key(Path::new(&path))?
+        } else if let Some(path) = self
+            .uses_managed_canonical_data_root()
+            .then(managed_device_key_path)
+            .flatten()
+            .filter(|path| path.is_file())
+        {
+            load_device_key(&path)?
+        } else {
+            match self.key_storage {
+                KeyStorage::LegacyRuntimeFile => self.legacy_file_device_signer()?,
+                KeyStorage::PlatformCredentialStore => self.platform_device_signer()?,
+            }
+        };
+        Ok(DeviceIdentity {
+            device_id: device_identity(),
+            key_id: signer.key_id().into(),
+            public_key: signer.public_key().into(),
+        })
+    }
+
     fn device_signer_for_actor(&self, state: &KbdStateV2, actor: &Actor) -> Result<DeviceSigner> {
         self.device_signer_for_requirement(
             state,
@@ -3629,7 +3695,7 @@ impl Runtime {
                 return Ok(signer);
             }
             return Err(RuntimeError::InvalidState(format!(
-                "explicit PROMETHEUS_DEVICE_KEY_FILE signer {} is not the journal's {}",
+                "explicit PROMETHEUS_DEVICE_KEY_FILE signer {} is not the journal's {}; {ENROLLMENT_HINT}",
                 signer.key_id(),
                 requirement.label()
             )));
@@ -3671,7 +3737,7 @@ impl Runtime {
             return Ok(signer);
         }
         Err(RuntimeError::InvalidState(format!(
-            "no discoverable key satisfies the journal's {}; enroll or restore an existing key before writing",
+            "no discoverable key satisfies the journal's {}; {ENROLLMENT_HINT}",
             requirement.label()
         )))
     }
@@ -8193,7 +8259,8 @@ fn command_scope(command: &CommandKind) -> Option<String> {
         | CommandKind::ConflictResolve { .. }
         | CommandKind::DeviceEnroll { .. }
         | CommandKind::DeviceRevoke { .. }
-        | CommandKind::DeviceRotate { .. } => return None,
+        | CommandKind::DeviceRotate { .. }
+        | CommandKind::OperatorGrant { .. } => return None,
         CommandKind::RunStart { .. }
         | CommandKind::Pause { .. }
         | CommandKind::Cancel { .. }
@@ -8556,6 +8623,16 @@ fn prepare_command_event(
             EventKind::DeviceKeyRotated {
                 previous_key_id: previous_key_id.clone(),
                 replacement: replacement.clone(),
+            }
+        }
+        CommandKind::OperatorGrant { key_id } => {
+            if actor.kind != ActorKind::Operator {
+                return Err(RuntimeError::InvalidState(
+                    "only an operator may grant operator authority".into(),
+                ));
+            }
+            EventKind::OperatorGranted {
+                key_id: key_id.clone(),
             }
         }
         CommandKind::ConflictResolve {
