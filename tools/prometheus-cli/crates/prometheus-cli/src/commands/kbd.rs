@@ -1761,6 +1761,7 @@ fn ensure_runtime(root: &Path, runtime: &Runtime) -> Result<RuntimeState> {
         Err(error) => return Err(error.into()),
     }
     let waypoint = read_waypoint(root);
+    refuse_silent_fork(&waypoint)?;
     let project_id = runtime
         .project_manifest(true)?
         .ok_or_else(|| anyhow!("failed to establish immutable project identity"))?
@@ -2317,6 +2318,30 @@ fn find_manifest_project_root(start: &Path) -> Result<PathBuf> {
     Err(anyhow!(
         "no .prometheus/project.json found from {}",
         start.display()
+    ))
+}
+
+/// Set to `1` to deliberately start a new journal when a checked-in plan's journal is lost.
+const NEW_JOURNAL_ENV: &str = "PROMETHEUS_KBD_NEW_JOURNAL";
+
+/// A waypoint written by `kbd-runtime` at revision > 0 means this plan already has a signed
+/// journal on some machine. Signing a fresh genesis here would make this machine the sole
+/// operator of a second journal for the same project and split the plan without warning.
+fn refuse_silent_fork(waypoint: &Value) -> Result<()> {
+    let revision = waypoint["sourceRevision"].as_u64().unwrap_or(0);
+    let opted_in = std::env::var_os(NEW_JOURNAL_ENV).is_some_and(|value| value == "1");
+    if waypoint["generatedBy"] != "kbd-runtime" || revision == 0 || opted_in {
+        return Ok(());
+    }
+    Err(anyhow!(
+        "this checkout's KBD plan comes from a signed journal that is not on this machine \
+         (project {}, run {}, revision {revision}). Writing now would start a separate journal \
+         that only this machine controls, splitting the plan. Sync the project's journal to this \
+         machine or restore it, and ask a project operator to enroll this device (run \
+         `prometheus kbd device identity`). If that journal is permanently lost, rerun with \
+         {NEW_JOURNAL_ENV}=1 to start a new one.",
+        string_field(waypoint, &["projectId"]).unwrap_or_else(|| "unknown".into()),
+        string_field(waypoint, &["runId"]).unwrap_or_else(|| "unknown".into()),
     ))
 }
 
