@@ -1253,6 +1253,7 @@ fn verified_codex_memory_helper(home: &Path, plugin_root: &Path, codex_home: &Pa
         "lib/jcs.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/jcs.js")),
         "lib/key-protection.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/key-protection.js")),
         "lib/payload-manifest.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/payload-manifest.js")),
+        "lib/reviewed-skill-closures.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/reviewed-skill-closures.js")),
         "lib/skill-system.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/skill-system.js")),
         "lib/store-paths.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/store-paths.js")),
     });
@@ -1279,8 +1280,8 @@ function moduleUrl(name) {
   let source = input.sources[name];
   if (typeof source !== 'string') throw new Error('verifier dependency is not embedded');
   const imports = name === 'install-plugin-generation.js'
-    ? ['capabilities', 'jcs', 'key-protection', 'payload-manifest', 'skill-system', 'store-paths'].map(stem => [`'./lib/${stem}.js'`, `lib/${stem}.js`])
-    : name === 'lib/payload-manifest.js' ? [["'./jcs.js'", 'lib/jcs.js']] : [];
+    ? ['capabilities', 'jcs', 'key-protection', 'payload-manifest', 'reviewed-skill-closures', 'skill-system', 'store-paths'].map(stem => [`'./lib/${stem}.js'`, `lib/${stem}.js`])
+    : name === 'lib/payload-manifest.js' || name === 'lib/reviewed-skill-closures.js' ? [["'./jcs.js'", 'lib/jcs.js']] : [];
   for (const [specifier, dependency] of imports) {
     if (source.split(specifier).length !== 2) throw new Error('verifier import contract changed');
     source = source.replace(specifier, JSON.stringify(moduleUrl(dependency)));
