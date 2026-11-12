@@ -893,7 +893,7 @@ fn codex_memories_is_skipped_when_codex_is_not_installed() {
 }
 
 #[test]
-fn codex_memories_warns_with_repair_command_for_unset_config() {
+fn codex_memories_warns_and_blocks_repair_without_a_verified_installation() {
     let (project_root, home_dir) = prepared_environment("doctor-codex-mem-unset");
     write_file(
         &home_dir.join(".codex/config.toml"),
@@ -906,9 +906,15 @@ fn codex_memories_warns_with_repair_command_for_unset_config() {
     assert_eq!(item["status"], "warn", "unset config must warn: {item}");
     assert_eq!(item["severity"], "yellow", "{item}");
     assert_eq!(item["optional"], true, "{item}");
+    // The repair helper is offered only from a verified installed generation; this
+    // fixture has none, so doctor names the installation remediation instead.
+    let action = &item["actions"][0];
+    assert_eq!(action["id"], "codex.disable-memories", "{item}");
+    assert!(action["command_hint"].is_null(), "no unverified repair command: {item}");
+    assert!(action["reason_blocked"].is_string(), "{item}");
     assert!(
-        joined(item).contains("bash shared/scripts/codex-memories-config.sh"),
-        "must carry the exact repair command: {item}"
+        joined(item).contains("Installation remediation required"),
+        "must name the installation remediation: {item}"
     );
     assert!(
         !failed_check_ids(&report).contains(&"codex.memories".to_string()),
@@ -940,7 +946,7 @@ fn codex_memories_passes_once_disabled_and_never_increments_failed() {
     let (project_root, home_dir) = prepared_environment("doctor-codex-mem-green");
     write_file(
         &home_dir.join(".codex/config.toml"),
-        "model = \"gpt-5\"\n\n[memories]\ngenerate_memories = false # managed\n",
+        "model = \"gpt-5\"\n\n[features]\nmemories = false\n\n[memories]\ngenerate_memories = false # managed\nuse_memories = false\n",
     );
 
     let before = codex_memories_report(&project_root, &home_dir);
