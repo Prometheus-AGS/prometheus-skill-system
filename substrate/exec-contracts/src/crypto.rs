@@ -62,11 +62,12 @@ pub fn sign_request_ed25519(
 }
 
 pub fn sign_request_p256(request: &mut SignedExecRequest, key: &P256SigningKey) -> Result<()> {
-    let public = key.verifying_key().to_encoded_point(true);
+    let public = key.verifying_key().to_sec1_point(true);
     request.sig_alg = SignatureAlgorithm::P256;
     request.signer_key_id = Some(key_id(request.sig_alg, public.as_bytes()));
     request.signature = None;
-    let signature: p256::ecdsa::Signature = key.sign(&request.canonical_unsigned()?);
+    let signature: p256::ecdsa::Signature =
+        p256::ecdsa::signature::Signer::sign(key, &request.canonical_unsigned()?);
     request.signature = Some(URL_SAFE_NO_PAD.encode(signature.to_bytes()));
     Ok(())
 }
@@ -82,11 +83,12 @@ pub fn sign_receipt_ed25519(receipt: &mut ExecutionReceipt, key: &Ed25519Signing
 }
 
 pub fn sign_receipt_p256(receipt: &mut ExecutionReceipt, key: &P256SigningKey) -> Result<()> {
-    let public = key.verifying_key().to_encoded_point(true);
+    let public = key.verifying_key().to_sec1_point(true);
     receipt.executing_device.sig_alg = SignatureAlgorithm::P256;
     receipt.executing_device.key_id = key_id(receipt.executing_device.sig_alg, public.as_bytes());
     receipt.signature = None;
-    let signature: p256::ecdsa::Signature = key.sign(&receipt.canonical_unsigned()?);
+    let signature: p256::ecdsa::Signature =
+        p256::ecdsa::signature::Signer::sign(key, &receipt.canonical_unsigned()?);
     receipt.signature = Some(URL_SAFE_NO_PAD.encode(signature.to_bytes()));
     Ok(())
 }

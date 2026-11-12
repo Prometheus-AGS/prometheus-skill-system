@@ -2,7 +2,7 @@ pub mod tools;
 
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
-    model::{Implementation, ServerCapabilities, ServerInfo},
+    model::{Implementation, ServerCapabilities, ServerConfig},
     serve_server, tool_handler, tool_router,
     transport::io::stdio,
     ServerHandler,
@@ -297,8 +297,8 @@ pub fn validate_package(dir: &std::path::Path) -> anyhow::Result<ExportSummary> 
 
 #[tool_handler(router = self.tool_router)]
 impl ServerHandler for ResearchMcpServer {
-    fn get_info(&self) -> ServerInfo {
-        ServerInfo::new(ServerCapabilities::builder().enable_tools().build())
+    fn get_info(&self) -> ServerConfig {
+        ServerConfig::new(ServerCapabilities::builder().enable_tools().build())
             .with_server_info(Implementation::new("prometheus-research", "0.1.0"))
     }
 }

@@ -1,0 +1,30 @@
+# Example DSPy Rust config
+# You can place this file as:
+#  - ./config.yaml
+#  - $HOME/.dspy/config.yaml
+#  - or point to it with CONFIG_FILE
+#  - or pass it with --config/-c
+
+environment: development
+
+logging:
+  level: debug
+  json: false
+
+server:
+  bind: 0.0.0.0
+  port: 3000
+  dev_mode: true
+
+llm:
+  provider: gateway
+  model: gpt-4o-mini
+  timeout_ms: 60000
+  retries: 2
+  gateway:
+    base_url: http://localhost:8080
+    api_key: null
+    project_id: null
+
+integrations:
+  promcraft: null

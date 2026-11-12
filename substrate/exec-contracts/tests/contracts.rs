@@ -205,8 +205,8 @@ fn ed25519_receipt_mutation_fails() {
 
 #[test]
 fn p256_receipt_verifies_and_algorithm_mismatch_fails() {
-    let key = P256SigningKey::random(&mut OsRng);
-    let encoded = key.verifying_key().to_encoded_point(true);
+    let key = P256SigningKey::from_slice(&[7; 32]).unwrap();
+    let encoded = key.verifying_key().to_sec1_point(true);
     let public = VerificationKey::p256_sec1(encoded.as_bytes());
     let mut receipt = receipt(request().request_hash().unwrap());
     sign_receipt_p256(&mut receipt, &key).unwrap();

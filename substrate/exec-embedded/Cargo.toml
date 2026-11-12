@@ -2,7 +2,7 @@
 name = "prometheus-exec-embedded"
 version = "1.7.0"
 edition = "2021"
-rust-version = "1.94"
+rust-version = "1.97"
 license = "MIT"
 description = "Process-runtime-neutral embedded API for Prometheus Exec"
 

@@ -77,6 +77,7 @@ pub fn parse_skill_to_signature(skill_path: &Path) -> anyhow::Result<SkillSignat
 #[cfg(feature = "optimize")]
 mod inner {
     use super::*;
+    use crate::trace::ExecutionTrace;
     use dspy::{
         BootstrapFewShot, Dataset, Example, LanguageModel, Metric, OpenAIModel, Predict, Record,
         Signature as DspySignature, Value,
@@ -92,9 +93,9 @@ mod inner {
         ///
         /// Routes through local model by default (sovereignty-safe — no data egress).
         /// Uses the same routing pattern as pk-librarian's ModelRouter:
-        /// - `$OPTIMIZER_LLM_URL` → local endpoint (default: http://localhost:1234/v1)
-        /// - `$OPTIMIZER_LLM_MODEL` → model name (default: qwen2.5-14b-instruct)
-        /// - Set `$OPTIMIZER_USE_CLOUD=true` to route through cloud API instead
+        /// - `$OPTIMIZER_LLM_URL` → local endpoint (default: http://localhost:8181/v1)
+        /// - `$OPTIMIZER_LLM_MODEL` → model name (default: gpt-5.4-mini locally, gpt-5.5 in cloud mode)
+        /// - `$OPTIMIZER_USE_CLOUD=true` or `1` → use `$CLOUD_LLM_URL` and optional `$CLOUD_LLM_API_KEY`
         pub fn new() -> anyhow::Result<Self> {
             let use_cloud = std::env::var("OPTIMIZER_USE_CLOUD")
                 .map(|v| v == "true" || v == "1")
@@ -125,9 +126,7 @@ mod inner {
 
             // OpenAIModel uses the OpenAI-compatible API format, which works
             // with local servers (LM Studio, Ollama, vLLM) that expose /v1/chat/completions
-            let mut model = OpenAIModel::new(&model_name);
-            model.base_url = Some(base_url);
-            model.api_key = api_key;
+            let model = OpenAIModel::with_endpoint(model_name.clone(), base_url, api_key);
 
             tracing::info!(
                 model = %model_name,

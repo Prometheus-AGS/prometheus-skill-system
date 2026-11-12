@@ -2,7 +2,7 @@
 name = "prometheus-exec-tier-w"
 version = "1.7.0"
 edition = "2021"
-rust-version = "1.94"
+rust-version = "1.97"
 license = "MIT"
 description = "Deterministic Wasm component adapter for Prometheus Exec"
 
@@ -35,8 +35,8 @@ serde_jcs = { version = "0.1", optional = true }
 serde_json = { version = "1", optional = true }
 sha2 = "0.10"
 thiserror = "2"
-wasmtime = { version = "=46.0.2", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
-wasmtime-wasi = { version = "=46.0.2", default-features = false, features = ["p2"] }
+wasmtime = { version = "=50.0.1", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
+wasmtime-wasi = { version = "=50.0.1", default-features = false, features = ["p2"] }
 
 [dev-dependencies]
 base64 = "0.22"

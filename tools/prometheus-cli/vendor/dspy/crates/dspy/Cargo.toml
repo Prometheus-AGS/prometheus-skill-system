@@ -1,0 +1,26 @@
+# Modified for the Prometheus Skill System vendored optimizer. See PROVENANCE.md.
+[package]
+name = "dspy"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+
+[features]
+default = ["openai"]
+openai = ["dep:dotenvy", "dep:eventsource-stream", "dep:reqwest"]
+
+[dependencies]
+dspy-core = { path = "../dspy-core" }
+async-trait = "0.1"
+dotenvy = { version = "0.15.7", optional = true }
+eventsource-stream = { version = "0.2", optional = true }
+futures = "0.3"
+regex = "1.10"
+reqwest = { version = "=0.13.5", default-features = false, features = ["charset", "http2", "json", "native-tls", "stream", "system-proxy"], optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+
+[dev-dependencies]
+tokio = { version = "1.37", features = ["macros", "rt"] }

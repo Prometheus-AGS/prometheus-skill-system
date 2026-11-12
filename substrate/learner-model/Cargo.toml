@@ -30,4 +30,7 @@ rs-fsrs = "1.2.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
-tempdir = "0.3"
+
+[patch.crates-io]
+heapless = { path = "../../vendor/patches/heapless-0.7.17" }
+loro-internal = { path = "../../vendor/patches/loro-internal-1.13.9" }

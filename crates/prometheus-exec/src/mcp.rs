@@ -21,7 +21,7 @@ use prometheus_exec_service::{
 use prometheus_exec_tier_w::ComponentAuthorizer;
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
-    model::{Implementation, ServerCapabilities, ServerInfo},
+    model::{Implementation, ServerCapabilities, ServerConfig},
     serve_server, tool_handler, tool_router,
     transport::io::stdio,
     ServerHandler,
@@ -523,8 +523,8 @@ impl ExecMcpServer {
 
 #[tool_handler(router = self.tool_router)]
 impl ServerHandler for ExecMcpServer {
-    fn get_info(&self) -> ServerInfo {
-        ServerInfo::new(ServerCapabilities::builder().enable_tools().build()).with_server_info(
+    fn get_info(&self) -> ServerConfig {
+        ServerConfig::new(ServerCapabilities::builder().enable_tools().build()).with_server_info(
             Implementation::new("prometheus-exec", env!("CARGO_PKG_VERSION")),
         )
     }
