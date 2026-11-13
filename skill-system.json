@@ -109,7 +109,7 @@
       "id": "liter-llm",
       "path": "tools/liter-llm",
       "repository": "https://github.com/GQAdonis/liter-llm.git",
-      "commit": "a6047386cc9fae4258b4a8577f6a016022095586",
+      "commit": "9abe78ce37befd64c496d3827b575fc318ac8286",
       "requiredFor": [
         "full"
       ]
@@ -136,7 +136,7 @@
       "id": "surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
-      "commit": "63eb413ebf520a4a525ffd3b8d1d07f1389d48d4",
+      "commit": "f74c53d8e5383eff833ebc8bc9ec6f9b0397bd11",
       "requiredFor": [
         "full"
       ]

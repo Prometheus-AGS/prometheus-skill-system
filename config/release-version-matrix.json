@@ -165,8 +165,8 @@
     },
     {
       "surface": "surreal-memory-server submodule",
-      "version": "1.10.2",
-      "reason": "independently released pinned submodule (pin tag v1.10.2; Cargo package version)"
+      "version": "1.11.0",
+      "reason": "independently released pinned submodule (pinned past tag v1.11.0; Cargo package version)"
     },
     {
       "surface": "prometheus-exec",
@@ -181,7 +181,7 @@
     {
       "surface": "surreal-memory-server OpenAPI spec",
       "version": "1.10.1",
-      "reason": "published spec inside the pinned v1.10.2 submodule declares 1.10.1; the static site copy mirrors it exactly"
+      "reason": "published spec inside the pinned submodule (Cargo package 1.11.0) still declares 1.10.1; the static site copy mirrors it exactly"
     }
   ]
 }
