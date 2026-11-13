@@ -7,7 +7,8 @@
   <string>ai.prometheus.surrealdb-native</string>
 
   <!-- Runs SurrealDB natively on 127.0.0.1:28000 (same host port as the former Docker mapping 28000:8000).
-       Data lives at ~/.prometheus/data/surrealdb/database.db (RocksDB directory). -->
+       Data lives at ~/.prometheus/data/surrealdb/database.db (SurrealKV directory; SurrealDB 4.0
+       has no RocksDB engine). -->
   <key>ProgramArguments</key>
   <array>
     <string>__SURREAL_BIN__</string>
@@ -16,7 +17,7 @@
     <string>--user=root</string>
     <string>--pass=root</string>
     <string>--bind=127.0.0.1:28000</string>
-    <string>rocksdb:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db</string>
+    <string>surrealkv:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db</string>
   </array>
 
   <key>WorkingDirectory</key>
@@ -30,10 +31,11 @@
     <string>__PROMETHEUS_USER__</string>
     <key>PATH</key>
     <string>__PROMETHEUS_PATH__</string>
-    <!-- SurrealDB otherwise reserves roughly half of host memory for RocksDB.
-         Keep its block cache bounded while AI tools coexist. -->
-    <key>SURREAL_ROCKSDB_BLOCK_CACHE_SIZE</key>
-    <string>1073741824</string>
+    <!-- Startup runs SurrealDB's own data migrations inside one bounded step.
+         The default 60s ceiling aborts the 3.x -> 4.0 upgrade of a real store
+         (one migration took ~6 minutes on a 540 MB datastore). -->
+    <key>SURREAL_STARTUP_OPERATION_TIMEOUT</key>
+    <string>30m</string>
   </dict>
 
   <key>RunAtLoad</key>

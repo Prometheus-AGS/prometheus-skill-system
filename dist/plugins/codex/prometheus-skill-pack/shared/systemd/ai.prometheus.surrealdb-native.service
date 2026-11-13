@@ -14,9 +14,9 @@ WorkingDirectory=__PROMETHEUS_HOME__
 Environment=HOME=__PROMETHEUS_HOME__
 Environment=USER=__PROMETHEUS_USER__
 Environment=PATH=__PROMETHEUS_PATH__
-Environment=SURREAL_ROCKSDB_BLOCK_CACHE_SIZE=1073741824
+Environment=SURREAL_STARTUP_OPERATION_TIMEOUT=30m
 ExecStartPre=/bin/mkdir -p __PROMETHEUS_HOME__/.prometheus/data/surrealdb
-ExecStart=__SURREAL_BIN__ start --log=info --user=root --pass=root --bind=127.0.0.1:28000 rocksdb:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db
+ExecStart=__SURREAL_BIN__ start --log=info --user=root --pass=root --bind=127.0.0.1:28000 surrealkv:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db
 Restart=on-failure
 RestartSec=10
 StandardOutput=append:__PROMETHEUS_LOG_DIR__/surrealdb-native.stdout.log
