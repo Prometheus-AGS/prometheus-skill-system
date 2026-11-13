@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "2",
+  "projectId": "62eb243b-3c21-4bea-a4a1-0fcb45f56ddb",
+  "runId": "project-20261113T075258Z",
+  "revision": 10,
+  "frontier": {
+    "5a4042d0-f98f-44f0-851b-5422cefa6d37": 10
+  },
+  "replicaHeads": {
+    "5a4042d0-f98f-44f0-851b-5422cefa6d37": {
+      "eventId": "f582682f-6ae2-44f1-a7d7-a93fb3ab79d0",
+      "integrityHash": "be69634174b14c8638caee5320e6a2686806be46591c54778a04772353bfe0a2",
+      "lamport": 10
+    }
+  },
+  "lastEventId": "f582682f-6ae2-44f1-a7d7-a93fb3ab79d0",
+  "lastEventHash": "be69634174b14c8638caee5320e6a2686806be46591c54778a04772353bfe0a2",
+  "lastEventAt": "2026-11-13T07:53:07.449226Z",
+  "phaseDefinitionOrder": [
+    "closure-phase"
+  ],
+  "lifecycle": "ready",
+  "planRevision": 1,
+  "checkpoint": null,
+  "exactNextWork": null,
+  "activePath": {
+    "phasePath": [
+      "closure-phase"
+    ],
+    "phaseId": "closure-phase",
+    "stageId": null,
+    "changeId": "C1",
+    "taskId": "T1"
+  },
+  "phases": {
+    "closure-phase": {
+      "id": "closure-phase",
+      "slug": "closure-phase",
+      "title": "Closure phase",
+      "parentPhaseId": null,
+      "status": "complete",
+      "stages": {},
+      "changes": {
+        "C1": {
+          "id": "C1",
+          "title": "Closure change",
+          "sequence": 0,
+          "status": "pending",
+          "implementationStatus": "pending",
+          "tasks": {
+            "T1": {
+              "id": "T1",
+              "title": "Closure task",
+              "sequence": 0,
+              "status": "pending",
+              "summary": null
+            }
+          }
+        }
+      },
+      "legacyReadOnly": false
+    }
+  },
+  "completion": {
+    "implementation": {
+      "completed": 0,
+      "total": 1,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "evidence": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "completed": 0,
+      "total": 0,
+      "status": "pending",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "decisions": {
+    "contract-adoption-closure-phase-f69f5e4d": {
+      "id": "contract-adoption-closure-phase-f69f5e4d",
+      "summary": "ADOPTED-CONTRACT path=.kbd-orchestrator/phases/closure-phase/adopted-contract.json sha256=f69f5e4d77333ed5ce45628f785859cb34c56e3d6432f71d1586c258a9d4f6b7 planRevision=1 adoptionSource=conformance fixture owner=conformance operator scenarios=CS-1,CS-2",
+      "planRevision": 1,
+      "supersedes": null
+    }
+  },
+  "blockers": {},
+  "boundaryObligations": {
+    "phase:closure-phase": {
+      "key": "phase:closure-phase",
+      "receiptId": "b21319548bea09eab35a1f547e30a165812ae6f316918caf0146cf072b75d9c6",
+      "boundary": "phase",
+      "subject": "closure-phase",
+      "sourceRevision": 3,
+      "exactSignal": "Starting phase 1 out of 1: Closure phase"
+    }
+  },
+  "latestBoundaryReceipts": {
+    "phase:closure-phase": {
+      "id": "b21319548bea09eab35a1f547e30a165812ae6f316918caf0146cf072b75d9c6",
+      "boundary": "phase",
+      "edge": "before",
+      "subject": "closure-phase",
+      "phaseId": "closure-phase",
+      "changeId": null,
+      "taskId": null,
+      "sourceRevision": 3,
+      "position": "closure-phase",
+      "exactSignal": "Starting phase 1 out of 1: Closure phase",
+      "outcome": "repaired",
+      "findings": [],
+      "repairedProjections": [
+        "current-waypoint.json",
+        "phases/closure-phase/progress.json",
+        "position-reminder.txt",
+        "position.json"
+      ],
+      "observedAt": "2026-11-13T07:53:00.574805Z"
+    }
+  },
+  "claims": {},
+  "submodulePins": {},
+  "replicaView": {
+    "replicaId": "5a4042d0-f98f-44f0-851b-5422cefa6d37",
+    "localHead": null,
+    "activePathStatus": "unknown",
+    "submodules": {}
+  },
+  "conflicts": {},
+  "devices": {
+    "ed25519:e63f9baa14de29353532573d375b8a711928fdf38034dab685b566a78ab04e85": {
+      "deviceId": "unknown-device",
+      "keyId": "ed25519:e63f9baa14de29353532573d375b8a711928fdf38034dab685b566a78ab04e85",
+      "publicKey": "LVXYtwT/0O7pVa2rQ0hsJJJKthY20Zv1393rTVunBlc=",
+      "status": "active",
+      "enrolledAtRevision": 1,
+      "revokedAtRevision": null
+    }
+  },
+  "operatorKeyIds": [
+    "ed25519:e63f9baa14de29353532573d375b8a711928fdf38034dab685b566a78ab04e85"
+  ],
+  "commandRevisions": {
+    "1a2f624b-1665-4e80-aec7-6ce7700a0b4a": 1,
+    "cdf14bd9-15f7-4a58-8888-e2dcbb668334": 4,
+    "contract-adopt-closure-phase-f69f5e4d": 9,
+    "fixture-activate": 3,
+    "fixture-change": 6,
+    "fixture-create": 2,
+    "fixture-start": 5,
+    "fixture-task": 7,
+    "phase-bind:closure-phase:f69f5e4d77333ed5": 8,
+    "phase-close:closure-phase:915586aa4ceb1c5d": 10
+  },
+  "phaseClosure": {
+    "phases": {
+      "closure-phase": {
+        "binding": {
+          "contractPath": ".kbd-orchestrator/phases/closure-phase/adopted-contract.json",
+          "contractDigest": "f69f5e4d77333ed5ce45628f785859cb34c56e3d6432f71d1586c258a9d4f6b7",
+          "scenarioDigests": {
+            "CS-1": "ded5ce793e361be985d9ad656c5984132a86ceb21f0e1acf5087422ce444e623",
+            "CS-2": "64d5133f5d428050fb4ba830a0d6f1efae2e18c8a5453804f60f0fa9954914bb"
+          },
+          "planRevision": 1,
+          "adoptionDecisionId": "contract-adoption-closure-phase-f69f5e4d",
+          "bindingRevision": 1
+        },
+        "boundAtRevision": 8,
+        "terminal": {
+          "runId": "project-20261113T075258Z",
+          "contractDigest": "f69f5e4d77333ed5ce45628f785859cb34c56e3d6432f71d1586c258a9d4f6b7",
+          "evidenceDigest": "bf57de2ab723b8cd00541f135c4208c55d2219fa7a134aec9c581009bb33c61b",
+          "disposition": "pass",
+          "scenarios": [
+            {
+              "id": "CS-1",
+              "status": "PASS"
+            },
+            {
+              "id": "CS-2",
+              "status": "PASS"
+            }
+          ],
+          "budgetConsumption": {
+            "noProgress": 0,
+            "repairAttempts": 0,
+            "timeMinutes": 1,
+            "toolCalls": 1
+          },
+          "closureKey": "915586aa4ceb1c5d0205820b286f6bb0c9a98e85801956ccfcf2b03b87fb46cd",
+          "recordedAtRevision": 10
+        },
+        "consumptionHighWater": {
+          "noProgress": 0,
+          "repairAttempts": 0,
+          "timeMinutes": 1,
+          "toolCalls": 1
+        }
+      }
+    },
+    "awaitingSuccessor": "closure-phase"
+  }
+}

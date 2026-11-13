@@ -1,0 +1,119 @@
+{
+  "id": "22-empty-observation-fields-are-refused",
+  "acceptance": [
+    1
+  ],
+  "description": "An entry owned by a bound scenario with an empty attempted, observed or evidence field is refused by both routes; complete S-<sub> entries satisfy bound scenario S and close.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1-a": "PASS",
+          "CS-1-b": "PASS",
+          "CS-2": "PASS"
+        },
+        "blank": {
+          "CS-1-b": [
+            "observed"
+          ]
+        }
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 7,
+        "stderr": "empty-evidence:CS-1-b"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "OPEN",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 0
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "^BLOCKED .*reason=empty-evidence:CS-1-b"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 1,
+          "phase_successor_started": 0
+        }
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 7,
+        "stderr": "empty-evidence:CS-1-b"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1-a": "PASS",
+          "CS-1-b": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "\"disposition\": \"CLOSED\""
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "phaseStatus": "complete",
+        "events": {
+          "phase_disposition_recorded": 2,
+          "phase_successor_started": 0
+        }
+      }
+    }
+  ]
+}

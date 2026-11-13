@@ -248,13 +248,18 @@ function writeEvidence(ctx, args) {
     return item;
   });
   for (const extra of args.extra ?? []) scenarios.push(entry(extra.id, extra.status));
+  for (const [id, fields] of Object.entries(args.blank ?? {})) {
+    for (const field of fields) scenarios.find((item) => item.id === id)[field] = '';
+  }
+  const currentSource = sha256(fs.readFileSync(path.join(ctx.project, 'src.txt')));
+  const sourceDigests = { current: { 'src.txt': currentSource }, stale: { 'src.txt': sha256('an earlier revision of the source\n') } }[args.sources ?? 'current'];
   const measured = typeof args.budget === 'object' ? args.budget : BUDGETS[args.budget ?? 'ok'];
   const values = Object.fromEntries(Object.entries(measured ?? BUDGETS.ok).map(([k, v]) => [k, { value: v, class: 'measured' }]));
   if (args.budget === 'unmeasured') values.timeMinutes = { value: null, class: 'unknown' };
   values.noProgress = { value: 0, class: 'measured' };
   values.tokens = { value: null, class: 'unknown' };
-  const evidence = { phase: ctx.phase, projectId: s.projectId, runId: args.run === 'prefix' ? `${s.runId}x` : s.runId,
-    contractDigest, sourceDigests: { 'src.txt': sha256(fs.readFileSync(path.join(ctx.project, 'src.txt'))) },
+  const evidence = { phase: args.phase ?? ctx.phase, projectId: args.project ?? s.projectId, runId: args.run === 'prefix' ? `${s.runId}x` : s.runId,
+    contractDigest, ...(sourceDigests ? { sourceDigests } : {}),
     budgetConsumption: { source: 'conformance fixture (self-reported)', values }, scenarios };
   if (args.approvedBy) evidence.approvedBy = args.approvedBy;
   writeFile(path.join(ctx.phaseDir, 'boundary-results.json'), evidence);
@@ -305,6 +310,7 @@ export async function step(ctx, { op, args = {} }) {
     }
     case 'edit-contract': editContract(ctx, args); return null;
     case 'evidence': writeEvidence(ctx, args); return null;
+    case 'edit-source': fs.appendFileSync(path.join(ctx.project, 'src.txt'), 'edited after the evidence was produced\n'); return null;
     case 'close-eval': return closeEval(ctx, args);
     case 'cli-close': return kbd(ctx, ['phase', 'close', '--id', ctx.phase, '--evidence-file',
       path.join(ctx.phaseDir, 'boundary-results.json'), '--disposition', args.disposition]);

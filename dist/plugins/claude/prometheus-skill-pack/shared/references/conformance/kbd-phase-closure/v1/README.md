@@ -40,7 +40,8 @@ and `intruder` (not listed).
 |---|---|
 | `adopt` | Run the pack's contract-adopt entry point on the working contract. `args.amendment` (optional) is a manifest spec, below; adding it passes `--supersedes <latest> --amendment --signature`. |
 | `edit-contract` | Change the working contract: `args.addScenario` appends a scenario (an imported or "tempting" requirement); `args.modifyScenario` changes one scenario's oracle; `args.setField` sets a top-level field (e.g. `"approved": true`). |
-| `evidence` | Write `boundary-results.json`. `args.statuses` maps scenario id to status; `args.extra` adds entries for ids outside the contract; `args.run` is `canonical` (default) or `prefix` (canonical run id plus `x`); `args.budget` is `ok`, `at-ceiling`, `exceeded`, `unmeasured`, or an object of measured values; `args.carry` lists scenario ids recorded as carried from the previously bound digest; `args.marker` changes observed text so the evidence digest differs. |
+| `evidence` | Write `boundary-results.json`. `args.statuses` maps scenario id to status; `args.extra` adds entries for ids outside the contract; `args.run` is `canonical` (default) or `prefix` (canonical run id plus `x`); `args.budget` is `ok`, `at-ceiling`, `exceeded`, `unmeasured`, or an object of measured values; `args.carry` lists scenario ids recorded as carried from the previously bound digest; `args.marker` changes observed text so the evidence digest differs. Defects for evidence admission (#219): `args.phase` / `args.project` name a different phase / project; `args.sources` is `current` (default), `stale` (a digest the file no longer has) or `none` (no `sourceDigests`); `args.blank` maps an entry id to observation fields written empty. |
+| `edit-source` | Append to `src.txt`, so digests recorded earlier no longer match the file. |
 | `close-eval` | Run the terminal evaluator. `args.writer` = `unenrolled` runs it with a device key the journal does not trust. `args.parallel` = 2 runs two evaluators concurrently. |
 | `cli-close` | `prometheus kbd phase close --id {{phase}} --evidence-file <evidence> --disposition <args.disposition>`. |
 | `stage-gate-execute` | Run the Plan→Execute stage gate with a plan handoff bound to the canonical binding. |
@@ -62,6 +63,16 @@ recorded earlier under that label. Private keys are generated per run and
 never committed.
 
 Placeholders: `{{phase}}`, `{{runId}}`, `{{projectId}}`, `{{boundDigest}}`.
+
+## Evidence admission (cases 18-23)
+
+`prometheus kbd phase close` is the one authority for a PASS closure, so direct
+close and the evaluator must refuse the same evidence with the same reason
+code (`evidence-phase-mismatch`, `evidence-project-mismatch`,
+`evidence-source-digests-missing`, `evidence-stale-sources`,
+`empty-evidence:<id>`): exit 7 on direct close, exit 2 from the evaluator,
+never CLOSED. Entries `S-<sub>` satisfy bound scenario `S`. A recorded closure
+is never re-validated against current files.
 
 ## Expectations
 

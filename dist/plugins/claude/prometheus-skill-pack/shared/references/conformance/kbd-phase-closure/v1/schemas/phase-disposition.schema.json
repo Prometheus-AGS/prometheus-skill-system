@@ -107,6 +107,29 @@
         },
         "disposition": {
           "const": "pass"
+        },
+        "admissionVersion": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Stamped by the admitting runtime on closures recorded with evidence admission (issue #219). Absent on closures recorded before it; those replay with their recorded semantics."
+        },
+        "evidenceFacts": {
+          "type": "object",
+          "description": "Evidence phase, projectId and sourceDigests as offered at admission.",
+          "properties": {
+            "phase": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "sourceDigests": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },

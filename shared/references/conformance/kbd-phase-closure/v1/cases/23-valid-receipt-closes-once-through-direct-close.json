@@ -1,0 +1,120 @@
+{
+  "id": "23-valid-receipt-closes-once-through-direct-close",
+  "acceptance": [
+    1
+  ],
+  "description": "A valid receipt closes once through direct canonical close; repeats, a later source edit and a restart are no-ops, recorded history is not re-validated against current files, and no successor starts.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        }
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "\"duplicate\": false"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "phaseStatus": "complete",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "\"duplicate\": true"
+      }
+    },
+    {
+      "op": "edit-source"
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 0,
+        "stdout": "\"duplicate\": true"
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 0,
+        "stdout": "^ALREADY-CLOSED "
+      }
+    },
+    {
+      "op": "restart",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "phaseStatus": "complete",
+        "events": {
+          "phase_disposition_recorded": 1,
+          "phase_successor_started": 0
+        }
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "marker": "new receipt against edited source",
+        "sources": "stale"
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 6
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "CLOSED",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    }
+  ]
+}

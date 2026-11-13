@@ -1,0 +1,83 @@
+{
+  "id": "18-evidence-for-another-phase-is-refused",
+  "acceptance": [
+    1
+  ],
+  "description": "Evidence naming a different phase is refused by direct canonical close and by the evaluator with the same reason, and the phase is not closed.",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "phase": "some-other-phase"
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 7,
+        "stderr": "evidence-phase-mismatch"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "OPEN",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 0
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "^BLOCKED .*reason=evidence-phase-mismatch"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 1,
+          "phase_successor_started": 0
+        }
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 7,
+        "stderr": "evidence-phase-mismatch"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    }
+  ]
+}

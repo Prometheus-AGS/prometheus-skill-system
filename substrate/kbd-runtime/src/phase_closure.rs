@@ -17,7 +17,12 @@
 //!   start-successor manifest, exactly once.
 //!
 //! Phases that were never bound keep their legacy behaviour unchanged.
+//!
+//! Evidence admission (issue #219): disposition events stamped
+//! `admissionVersion >= 2` also carry the evidence facts and are checked by
+//! `evidence_admission`. Events without the stamp replay as recorded.
 
+use crate::evidence_admission::{self, EvidenceFacts, EVIDENCE_ADMISSION_VERSION};
 use crate::scope_authority::{
     self, ScenarioChanges, ScopeAction, ScopeAuthorityInput, ScopeAuthorityManifest,
     ScopeAuthorityRecord,
@@ -26,6 +31,7 @@ use crate::{
     ActivePath, CommandKind, EventKind, KbdStateV2, Phase, Result, RuntimeError, WorkStatus,
 };
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -78,6 +84,13 @@ pub struct ScenarioOutcome {
     pub scenario_digest: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub carried_from_contract: Option<String>,
+    /// Observation fields of the evidence entry, passed through unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attempted: Option<Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub observed: Option<Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub evidence: Option<Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -93,6 +106,10 @@ pub struct PhaseCloseInput {
     pub scenarios: Vec<ScenarioOutcome>,
     #[serde(default)]
     pub budget_consumption: BTreeMap<String, u64>,
+    /// Absent on closures recorded before evidence admission and on
+    /// refusals recorded without an evidence file.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub evidence_facts: Option<EvidenceFacts>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -101,6 +118,10 @@ pub struct PhaseClosure {
     #[serde(flatten)]
     pub input: PhaseCloseInput,
     pub closure_key: String,
+    /// Set by the admitting runtime, never by the caller. Absent on events
+    /// written before evidence admission; those replay as recorded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub admission_version: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -312,6 +333,7 @@ pub(crate) fn prepare_close(
         closure: Box::new(PhaseClosure {
             closure_key: closure_key(&state.project_id, phase_id, input)?,
             input: input.clone(),
+            admission_version: Some(EVIDENCE_ADMISSION_VERSION),
         }),
     })
 }
@@ -720,6 +742,11 @@ pub(crate) fn apply_disposition(
             existing_key: terminal.closure.closure_key.clone(),
         });
     }
+    let enforces_evidence = input.disposition == PhaseDisposition::Pass
+        && evidence_admission::enforces_evidence(closure.admission_version);
+    if enforces_evidence {
+        evidence_admission::check_identity(&state.project_id, phase_id, input)?;
+    }
     if input.run_id != state.run_id {
         return Err(refused(
             phase_id,
@@ -737,6 +764,9 @@ pub(crate) fn apply_disposition(
             phase_id,
             "closureKey does not match the closure identity",
         ));
+    }
+    if enforces_evidence {
+        evidence_admission::check_sources_declared(phase_id, input)?;
     }
     let mut high_water = entry.consumption_high_water.clone();
     // A refusal only raises the high-water mark. A PASS must report
@@ -773,6 +803,13 @@ pub(crate) fn apply_disposition(
     entry.consumption_high_water = high_water;
     match input.disposition {
         PhaseDisposition::Pass => {
+            if enforces_evidence {
+                evidence_admission::check_observations(
+                    phase_id,
+                    binding.scenario_digests.keys(),
+                    &input.scenarios,
+                )?;
+            }
             require_pass_evidence(phase_id, &binding, &input.scenarios)?;
             let was_active = state.active_path.phase_id.as_deref() == Some(phase_id);
             let phase = state.phase_mut(phase_id)?;
