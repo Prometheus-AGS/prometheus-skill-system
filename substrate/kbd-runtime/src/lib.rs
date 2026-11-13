@@ -4730,14 +4730,13 @@ impl Runtime {
     }
 
     /// Command-time evidence admission for a PASS phase closure: the only
-    /// place the evidence sources are hashed. The reducer never reads files.
+    /// place the evidence sources and the bound contract snapshot are read.
+    /// The reducer never reads files.
     fn admit_close_evidence(&self, state: &KbdStateV2, command: &CommandKind) -> Result<()> {
         let CommandKind::PhaseClose { phase_id, closure } = command else {
             return Ok(());
         };
-        evidence_admission::admit_close(state, phase_id, closure, &|path| {
-            evidence_admission::observe_source(&self.project_root, path)
-        })
+        evidence_admission::admit_close(state, phase_id, closure, Some(&self.project_root))
     }
 
     pub fn execute_command(&self, envelope: CommandEnvelope) -> Result<CommandResult> {
@@ -8044,9 +8043,7 @@ pub fn prepare_host_signed_event(
     // A filesystem-free replica cannot hash the evidence sources, so it
     // cannot admit a PASS closure.
     if let CommandKind::PhaseClose { phase_id, closure } = &envelope.command {
-        evidence_admission::admit_close(state, phase_id, closure, &|_| {
-            evidence_admission::SourceObservation::Unverifiable
-        })?;
+        evidence_admission::admit_close(state, phase_id, closure, None)?;
     }
     let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
     let run_id = command_event_run_id(state, &envelope.command).to_owned();

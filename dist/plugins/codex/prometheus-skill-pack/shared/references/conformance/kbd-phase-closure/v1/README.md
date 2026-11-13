@@ -64,14 +64,16 @@ never committed.
 
 Placeholders: `{{phase}}`, `{{runId}}`, `{{projectId}}`, `{{boundDigest}}`.
 
-## Evidence admission (cases 18-23)
+## Evidence admission (cases 18-24)
 
 `prometheus kbd phase close` is the one authority for a PASS closure, so direct
 close and the evaluator must refuse the same evidence with the same reason
 code (`evidence-phase-mismatch`, `evidence-project-mismatch`,
 `evidence-source-digests-missing`, `evidence-stale-sources`,
 `empty-evidence:<id>`): exit 7 on direct close, exit 2 from the evaluator,
-never CLOSED. Entries `S-<sub>` satisfy bound scenario `S`. A recorded closure
+never CLOSED. Budget ceilings come from the bound snapshot on both routes
+(`budget-exceeded`, `budget-unmeasured`; exactly at a ceiling closes). Entries
+`S-<sub>` satisfy bound scenario `S`. A recorded closure
 is never re-validated against current files.
 
 ## Expectations

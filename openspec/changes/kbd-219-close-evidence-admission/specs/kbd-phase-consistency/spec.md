@@ -20,6 +20,16 @@ scenario entry owned by a bound scenario has non-empty `attempted`, `observed` a
 - **WHEN** a valid receipt is offered twice, and again after its source file changed
 - **THEN** one disposition event exists, repeats are no-ops, and no successor starts
 
+### Requirement: Canonical close admission enforces the bound budget ceilings
+The canonical phase-close admission SHALL take budget ceilings from the bound contract snapshot
+and SHALL refuse a new PASS closure whose metered consumption exceeds a ceiling or whose enforced
+dimension (time, tool calls, repair attempts, no-progress cycles) has no metered value.
+
+#### Scenario: Ceilings agree between routes
+- **WHEN** evidence over a ceiling, or with an unmeasured enforced dimension, is offered through
+  `prometheus kbd phase close` and through `kbd-phase-close-eval.sh`
+- **THEN** both refuse (`budget-exceeded`, `budget-unmeasured`); evidence exactly at a ceiling closes
+
 ### Requirement: Recorded closures replay with their recorded semantics
 The reducer SHALL apply the evidence fact checks only to disposition events stamped
 `admissionVersion >= 2` by the admitting runtime, and SHALL NOT read files during replay.

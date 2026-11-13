@@ -5,8 +5,9 @@
 //! 6 the phase is already closed under a different identity; 7 refused as
 //! invalid (unbound, missing PASS evidence, budget regression, run/contract
 //! mismatch, evidence naming another phase or project, missing or stale
-//! source digests, empty observation fields, or missing/invalid scope
-//! authority).
+//! source digests, empty observation fields, consumption above a bound
+//! budget ceiling or unmetered, an invalid bound contract snapshot, or
+//! missing/invalid scope authority).
 
 use super::{state_or_initialize, state_or_replay, submit_typed, ControlClient};
 use anyhow::{anyhow, Context, Result};
@@ -275,6 +276,9 @@ fn evidence_facts(evidence: &Value) -> EvidenceFacts {
                     .collect()
             })
             .unwrap_or_default(),
+        budget_source: Some(&evidence["budgetConsumption"])
+            .filter(|budget| !budget.is_null() && budget.as_bool() != Some(false))
+            .map(|budget| budget["source"].as_str().unwrap_or_default().to_string()),
     }
 }
 

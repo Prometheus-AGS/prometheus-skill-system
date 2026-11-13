@@ -26,8 +26,13 @@ supported routes disagreed.
   reducer never reads files, so replay cannot be changed by later edits. A filesystem-free
   replica cannot admit a PASS closure.
 
+- The same admission step reads the bound contract snapshot
+  (`.kbd-orchestrator/phases/<id>/adopted/<digest>.json`, verified against the bound digest) and
+  refuses a PASS closure whose metered consumption is above a ceiling (`budget-exceeded`), whose
+  enforced dimension has no metered value (`budget-unmeasured`), or whose snapshot is missing or
+  altered (`snapshot-invalid`). Exactly at a ceiling closes. The cumulative high-water rule is
+  unchanged. Operator decision 2026-11-13: direct close enforces the ceilings the evaluator does.
+
 ## Out of scope
 
-- Budget ceilings stay where they are (evaluator reads them from the bound snapshot; the runtime
-  keeps the cumulative high-water rule).
 - #184/#192/#196 scope, raw assertion or provenance strengthening, a new ledger or controller.

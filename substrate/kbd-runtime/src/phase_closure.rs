@@ -845,7 +845,7 @@ pub(crate) fn apply_disposition(
     Ok(())
 }
 
-fn require_pass_evidence(
+pub(crate) fn require_pass_evidence(
     phase_id: &str,
     binding: &ContractBinding,
     outcomes: &[ScenarioOutcome],

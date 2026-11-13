@@ -115,7 +115,7 @@
         },
         "evidenceFacts": {
           "type": "object",
-          "description": "Evidence phase, projectId and sourceDigests as offered at admission.",
+          "description": "Evidence phase, projectId, sourceDigests and budgetConsumption.source as offered at admission.",
           "properties": {
             "phase": {
               "type": "string"
@@ -128,6 +128,9 @@
               "additionalProperties": {
                 "type": "string"
               }
+            },
+            "budgetSource": {
+              "type": "string"
             }
           }
         }
