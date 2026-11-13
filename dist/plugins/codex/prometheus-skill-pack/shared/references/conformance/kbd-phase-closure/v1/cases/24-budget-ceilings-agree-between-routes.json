@@ -1,0 +1,110 @@
+{
+  "id": "24-budget-ceilings-agree-between-routes",
+  "acceptance": [
+    4
+  ],
+  "description": "Direct canonical close enforces the bound budget ceilings exactly as the evaluator does: an unmeasured enforced dimension and consumption above a ceiling are refused by both routes with the same reason. (Case 10 closes exactly at a ceiling through the same admission.)",
+  "steps": [
+    {
+      "op": "adopt",
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "budget": "unmeasured"
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 7,
+        "stderr": "budget-unmeasured\\(timeMinutes\\)"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "OPEN",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 0
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "^BLOCKED .*reason=budget-unmeasured\\(timeMinutes\\)"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    },
+    {
+      "op": "evidence",
+      "args": {
+        "statuses": {
+          "CS-1": "PASS",
+          "CS-2": "PASS"
+        },
+        "budget": "exceeded"
+      }
+    },
+    {
+      "op": "cli-close",
+      "args": {
+        "disposition": "pass"
+      },
+      "expect": {
+        "exit": 7,
+        "stderr": "budget-exceeded\\(exceeded:toolCalls\\(101>100"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 1
+        }
+      }
+    },
+    {
+      "op": "close-eval",
+      "expect": {
+        "exit": 2,
+        "stdout": "^BLOCKED .*reason=budget-exceeded\\(exceeded:toolCalls\\(101>100"
+      }
+    },
+    {
+      "op": "assert",
+      "args": {
+        "disposition": "REFUSED_BLOCKED",
+        "phaseStatus": "in_progress",
+        "events": {
+          "phase_disposition_recorded": 2,
+          "phase_successor_started": 0
+        }
+      }
+    }
+  ]
+}

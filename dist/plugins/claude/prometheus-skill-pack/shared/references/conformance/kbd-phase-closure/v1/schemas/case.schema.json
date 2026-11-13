@@ -40,6 +40,7 @@
               "adopt",
               "edit-contract",
               "evidence",
+              "edit-source",
               "close-eval",
               "cli-close",
               "stage-gate-execute",

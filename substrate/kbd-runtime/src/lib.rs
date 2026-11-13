@@ -19,6 +19,7 @@ use project_document::ProjectDocument;
 
 mod authority;
 pub mod change_identity;
+pub mod evidence_admission;
 pub mod phase_closure;
 pub mod project_document;
 pub mod registry;
@@ -4728,6 +4729,16 @@ impl Runtime {
         self.append_unchecked(state, project_id, run_id, actor, command_id, kind)
     }
 
+    /// Command-time evidence admission for a PASS phase closure: the only
+    /// place the evidence sources and the bound contract snapshot are read.
+    /// The reducer never reads files.
+    fn admit_close_evidence(&self, state: &KbdStateV2, command: &CommandKind) -> Result<()> {
+        let CommandKind::PhaseClose { phase_id, closure } = command else {
+            return Ok(());
+        };
+        evidence_admission::admit_close(state, phase_id, closure, Some(&self.project_root))
+    }
+
     pub fn execute_command(&self, envelope: CommandEnvelope) -> Result<CommandResult> {
         self.ensure_writable_replica()?;
         if !matches!(envelope.schema_version.as_str(), "1" | "2") {
@@ -4822,6 +4833,7 @@ impl Runtime {
         validate_command_frontier(&state, &envelope)?;
         validate_claim_write(&state, &envelope.actor, &envelope.command)?;
         self.validate_replica_write(&state, &envelope.actor, &envelope.command)?;
+        self.admit_close_evidence(&state, &envelope.command)?;
         let kind = prepare_command_event(&state, &envelope.actor, &envelope.command)?;
         let project_id = state.project_id.clone();
         let run_id = command_event_run_id(&state, &envelope.command).to_owned();
@@ -4884,6 +4896,7 @@ impl Runtime {
         validate_command_frontier(state, &envelope)?;
         validate_claim_write(state, &envelope.actor, &envelope.command)?;
         self.validate_replica_write(state, &envelope.actor, &envelope.command)?;
+        self.admit_close_evidence(state, &envelope.command)?;
         let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
         let run_id = command_event_run_id(state, &envelope.command).to_owned();
         let (event, _, _) = self.prepare_originated_event(
@@ -8027,6 +8040,11 @@ pub fn prepare_host_signed_event(
     validate_command_frontier(state, &envelope)?;
     validate_claim_write(state, &envelope.actor, &envelope.command)?;
     validate_replica_write_state(state, &envelope.actor, &envelope.command)?;
+    // A filesystem-free replica cannot hash the evidence sources, so it
+    // cannot admit a PASS closure.
+    if let CommandKind::PhaseClose { phase_id, closure } = &envelope.command {
+        evidence_admission::admit_close(state, phase_id, closure, None)?;
+    }
     let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
     let run_id = command_event_run_id(state, &envelope.command).to_owned();
     let replica_head = state.replica_heads.get(replica_id);

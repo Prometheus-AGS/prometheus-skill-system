@@ -4,10 +4,14 @@
 //! Exit codes: 0 recorded or identical no-op; 1 usage/IO; 4 phase not found;
 //! 6 the phase is already closed under a different identity; 7 refused as
 //! invalid (unbound, missing PASS evidence, budget regression, run/contract
-//! mismatch, or missing/invalid scope authority).
+//! mismatch, evidence naming another phase or project, missing or stale
+//! source digests, empty observation fields, consumption above a bound
+//! budget ceiling or unmetered, an invalid bound contract snapshot, or
+//! missing/invalid scope authority).
 
 use super::{state_or_initialize, state_or_replay, submit_typed, ControlClient};
 use anyhow::{anyhow, Context, Result};
+use kbd_runtime::evidence_admission::EvidenceFacts;
 use kbd_runtime::phase_closure::{self, ScenarioOutcome};
 use kbd_runtime::{
     CommandKind, ContractBindingInput, PhaseCloseInput, PhaseDisposition, Runtime, RuntimeError,
@@ -224,6 +228,7 @@ fn close_input(
             reason_code,
             scenarios: Vec::new(),
             budget_consumption: BTreeMap::new(),
+            evidence_facts: None,
         });
     };
     let bytes = std::fs::read(file).with_context(|| format!("read evidence {}", file.display()))?;
@@ -244,7 +249,41 @@ fn close_input(
         reason_code,
         scenarios: scenario_outcomes(&evidence),
         budget_consumption: metered_consumption(&evidence),
+        evidence_facts: Some(evidence_facts(&evidence)),
     })
+}
+
+/// The evidence facts the canonical admission validates. They are passed
+/// through as written; the runtime, not this adapter, decides.
+fn evidence_facts(evidence: &Value) -> EvidenceFacts {
+    EvidenceFacts {
+        phase: evidence["phase"].as_str().unwrap_or_default().to_string(),
+        project_id: evidence["projectId"]
+            .as_str()
+            .filter(|value| !value.is_empty())
+            .map(str::to_string),
+        source_digests: evidence["sourceDigests"]
+            .as_object()
+            .map(|sources| {
+                sources
+                    .iter()
+                    .map(|(path, digest)| {
+                        (
+                            path.clone(),
+                            digest.as_str().unwrap_or_default().to_string(),
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default(),
+        budget_source: Some(&evidence["budgetConsumption"])
+            .filter(|budget| !budget.is_null() && budget.as_bool() != Some(false))
+            .map(|budget| budget["source"].as_str().unwrap_or_default().to_string()),
+    }
+}
+
+fn present(value: &Value) -> Option<Value> {
+    (!value.is_null()).then(|| value.clone())
 }
 
 fn scenario_outcomes(evidence: &Value) -> Vec<ScenarioOutcome> {
@@ -261,6 +300,9 @@ fn scenario_outcomes(evidence: &Value) -> Vec<ScenarioOutcome> {
                         carried_from_contract: entry["carriedFrom"]["contractDigest"]
                             .as_str()
                             .map(str::to_string),
+                        attempted: present(&entry["attempted"]),
+                        observed: present(&entry["observed"]),
+                        evidence: present(&entry["evidence"]),
                     })
                 })
                 .collect()
