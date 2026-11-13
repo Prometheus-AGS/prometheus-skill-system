@@ -97,6 +97,8 @@ SCRATCHPAD.md
 .prometheus/knowledge/*
 !.prometheus/knowledge/wiki/
 !.prometheus/knowledge/wiki/**
+# pk's advisory index lock is runtime state, never source.
+.prometheus/knowledge/wiki/.index.lock
 .kbd-orchestrator/**/project.json
 # Hooks run from a nested crate used to create its own runtime state; never source.
 crates/*/.prometheus/
