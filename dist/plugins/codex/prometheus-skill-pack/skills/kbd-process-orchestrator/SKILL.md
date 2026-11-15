@@ -25,6 +25,7 @@ model_routing:
     kbd-audit: small
     kbd-handoff: small
     kbd-reflect: frontier
+    # opsx-* below are compatibility-only routing labels (OpenSpec 2.0 removed /opsx:*)
     opsx-new: small
     opsx-apply: tiered
     opsx-verify: medium
@@ -52,6 +53,14 @@ metadata:
 ---
 
 # KBD Process Orchestrator
+
+> **Invoking skills on any harness.** Skill names in this pack (`kbd-plan`,
+> `kbd-apply`, `value-scenario-verify`, …) are written without a command prefix.
+> Invoke one with your harness's syntax — `/kbd-plan` in Claude Code and OpenCode,
+> `$kbd-plan` in Codex, `/skill:kbd-plan` in Kimi Code — or ask for it by name.
+> The harness-neutral control surface is the `prometheus kbd` CLI. Each harness's
+> syntax is recorded in its profile (`shared/harnesses/capabilities.json`).
+
 
 The universal process orchestrator for any software project. Implements the Knowledge-Based Development lifecycle defined in **TJ-KBD-UNIVERSAL-001** using PMPO orchestration at three nested levels: phase, change, and artifact.
 
@@ -93,7 +102,7 @@ generated OpenSpec skills/commands while preserving authored specs, changes and
 custom configuration. Read the receipt: failed or pending refresh is unresolved,
 not current-version proof. A cached offline version is explicitly unverified for
 latest freshness. Resolve reported conflicts before dependent phase mutations.
-OpenSpec is the primary spec engine for new projects (`/kbd-init` initializes
+OpenSpec is the primary spec engine for new projects (`kbd-init` initializes
 it); existing native KBD projects keep working, and the helper skips projects
 without an existing OpenSpec root.
 
@@ -116,7 +125,7 @@ preflight and defer it until a writable invocation.
 On every invocation, before acting, KBD MUST:
 
 1. **Identify the project name** — read, in priority order:
-   - Explicit argument (`/kbd-plan my-project`)
+   - Explicit argument (`kbd-plan my-project`)
    - `.kbd-orchestrator/project.json` if it exists
    - `AGENTS.md` header or `CLAUDE.md` header
    - `README.md` first heading
@@ -141,10 +150,10 @@ planner backend, or a designated AI tool.
 
 ### Level 2 — OpenSpec Change (inner loop)
 
-`/opsx:new` (change created in **plan**) → **`/kbd-apply`** (drives the spec
+the managed runner's `new change` (change created in **plan**) → **`kbd-apply`** (drives the spec
 backend task-by-task in **execute**) → `verify` → `archive`.
-`/kbd-apply` wraps the OpenSpec CLI **one task at a time** so KBD hooks fire and
-`progress.json`/the waypoint stay in sync. Never invoke bare `/opsx:apply` — it
+`kbd-apply` wraps the OpenSpec CLI **one task at a time** so KBD hooks fire and
+`progress.json`/the waypoint stay in sync. Never invoke the bare `openspec-apply-change` skill (formerly `/opsx:apply`) — it
 runs outside KBD. Delegates QA to `artifact-refiner` when available.
 
 ### Level 3 — Artifact QA (innermost)
@@ -281,7 +290,7 @@ OpenSpec is **optional**. KBD adapts:
 
 ### When OpenSpec IS available (`openspec/` directory exists)
 
-- Use `/opsx:new` to create structured changes with proposal → design → tasks
+- Use the managed runner's `new change <id>` (OpenSpec 2.0; the `/opsx:*` commands were removed) to create structured changes with proposal → design → tasks
 - Progress tracked in `openspec/changes/<id>/tasks.md`
 - Execute tasks through `kbd-apply begin-task` / `end-task`; driver `verify`
   and `archive` feed the reflection phase after the required review gates
@@ -330,7 +339,7 @@ them.
   represents a child. Default `null` (top-level phase).
 - `childPhases: string[]` — ordered list of child-phase names owned by this
   row's phase. Default `[]`. The order is the canonical iteration order used by
-  `/kbd-next-child`.
+  `kbd-next-child`.
 - `childPointer: string | null` — name of the currently-active child within
   `childPhases`, or `null` when no child is active. Default `null`.
 
@@ -339,16 +348,16 @@ them.
 - `childPointer`, when non-null, MUST be a member of `childPhases`.
 - `childPhases` MUST NOT contain duplicates.
 
-Writers (`/kbd-new-child`, `/kbd-next-child`) reject inconsistent waypoints;
-readers (`/kbd-status`) render best-effort and warn on violations.
+Writers (`kbd-new-child`, `kbd-next-child`) reject inconsistent waypoints;
+readers (`kbd-status`) render best-effort and warn on violations.
 
 **Arbitrary-depth nesting (v3 `path[]`).** The waypoint also carries `path:
 string[]` — the canonical position chain for *any* nesting depth, synthesized
-additively from the v2 fields when absent. Lifecycle: `/kbd-new-child` →
-`/kbd-next-child` (select) → `/kbd-child-exit --enter` (descend) →
-`/kbd-child-exit` (close + roll up + pop). **Full depth model, node-dir
+additively from the v2 fields when absent. Lifecycle: `kbd-new-child` →
+`kbd-next-child` (select) → `kbd-child-exit --enter` (descend) →
+`kbd-child-exit` (close + roll up + pop). **Full depth model, node-dir
 resolution, and the critical selected-vs-entered invariant (when
-`/kbd-new-child` nests vs. siblings — read before invoking lifecycle helpers):
+`kbd-new-child` nests vs. siblings — read before invoking lifecycle helpers):
 [`references/nested-phases.md`](references/nested-phases.md).**
 
 **Template versioning.** `references/schemas/current-waypoint.template.json`
@@ -362,7 +371,7 @@ legacy templates over canonical projections.
 > correctly in live operation.
 
 **Worktree integration.** `project.json`'s `worktreeRoot` (default
-`${HOME}/.claude/worktrees`) is consumed by `/kbd-status` to render the active
+`${HOME}/.claude/worktrees`) is consumed by `kbd-status` to render the active
 checkout and warn when outside the configured root. See `skills/kbd-status/SKILL.md`.
 
 ---
@@ -425,7 +434,7 @@ surreal-memory service passes `GET /health`, KBD mirrors every hook fire through
 the canonical entity REST API; it cleanly no-ops when the service is
 unreachable. Lessons flow separately: `reflect:after` and the
 `assess|analyze|plan:after` stage write-backs store attributed lessons, and
-`/kbd-memory-recall` writes a lesson-bearing `prior-context.md` at every stage
+`kbd-memory-recall` writes a lesson-bearing `prior-context.md` at every stage
 start (surreal-memory, then pk, then the learning log). Built-in hooks:
 `kbd-memory-log` (`*:*`), `auto-memory-recall*` (`<stage>:before`),
 `kbd-stage-writeback-*` and `memory-reflection-writeback`. **Detection contract, what the
@@ -445,10 +454,10 @@ integration provides, and the entity schema are in
 ```
 
 > **IMPORTANT — project.json is GENERATED, not shipped.**
-> `/kbd-init` discovers full project configuration. Phase creation/advancement
+> `kbd-init` discovers full project configuration. Phase creation/advancement
 > helpers maintain `activePhase`, preserve unrelated keys, and remove the legacy
 > `active_phase` alias. They may bootstrap minimal missing identity/phase
-> metadata; that does not replace `/kbd-init` for full configuration.
+> metadata; that does not replace `kbd-init` for full configuration.
 > It lives in the project repository, not in this skill directory.
 > The skill ships the generation template at
 > `references/schemas/project.template.json` and the writer contract at
@@ -457,25 +466,25 @@ integration provides, and the entity schema are in
 
 ### Ongoing workflow
 
-- `/kbd-init [--force] [--dry-run]` — Initialize or re-initialize project context
-- `/kbd-assess [phase-name]` — Assess current codebase against active phase goals
-- `/kbd-plan [phase-name]` — Create prioritized change list for current phase
-- `/kbd-execute [phase-name]` — Select execution backend and dispatch phase
-- `/kbd-apply <change>` — Drive the spec backend (OpenSpec/Spec Kit/native-kbd) one task at a time, firing per-task hooks + position signals (implemented in `skills/kbd-apply/`). Replaces bare `/opsx:apply`.
-- `/kbd-reflect [phase-name]` — Generate phase reflection report + seed next phase
-- `/kbd-status` — Show current phase, change inventory, and waypoint-guided next action
-- `/kbd-pause` — Checkpoint and suspend the active run
-- `/kbd-resume` — Resume a paused run at a validated plan revision
-- `/kbd-cancel` — Gracefully terminate the active run
-- `/kbd-audit` — Inspect causal history, ownership, and drift
-- `/kbd-handoff --to <harness>` — Write a lease-free handoff packet so another harness can continue the active phase
-- `/kbd-new-phase <name> [goals...]` — Start a new named phase with goals (implemented in `skills/kbd-new-phase/`)
-- `/kbd-new-child <name> [goals...]` — Spawn a child phase inside the active top-level phase (implemented in `skills/kbd-new-child/`)
-- `/kbd-next-child [<name>]` — Advance childPointer (implicit) or jump to a named child (implemented in `skills/kbd-next-child/`)
-- `/kbd-child-exit [--enter]` — Exit the active child (handoff-out + roll up + pop path) or, with `--enter`, descend into the selected child so new children nest under it (implemented in `skills/kbd-child-exit/`)
-- `/kbd-memory-recall [<phase>] [<stage>]` — Populate `prior-context.md` with recalled lessons, pk knowledge, the previous reflection and knowledge gaps (implemented in `skills/kbd-memory-recall/`)
-- `/kbd-inject-agent-rules [--target …] [--refresh] [--dry-run]` — Inject Karpathy + Boris Cherny rule sets into CLAUDE.md / AGENTS.md (implemented in `skills/kbd-inject-agent-rules/`)
-- `/kbd-full-phase <name>` — Run full Assess → Plan → Execute → Reflect cycle
+- `kbd-init [--force] [--dry-run]` — Initialize or re-initialize project context
+- `kbd-assess [phase-name]` — Assess current codebase against active phase goals
+- `kbd-plan [phase-name]` — Create prioritized change list for current phase
+- `kbd-execute [phase-name]` — Select execution backend and dispatch phase
+- `kbd-apply <change>` — Drive the spec backend (OpenSpec/Spec Kit/native-kbd) one task at a time, firing per-task hooks + position signals (implemented in `skills/kbd-apply/`). Replaces the bare `openspec-apply-change` skill (formerly `/opsx:apply`).
+- `kbd-reflect [phase-name]` — Generate phase reflection report + seed next phase
+- `kbd-status` — Show current phase, change inventory, and waypoint-guided next action
+- `kbd-pause` — Checkpoint and suspend the active run
+- `kbd-resume` — Resume a paused run at a validated plan revision
+- `kbd-cancel` — Gracefully terminate the active run
+- `kbd-audit` — Inspect causal history, ownership, and drift
+- `kbd-handoff --to <harness>` — Write a lease-free handoff packet so another harness can continue the active phase
+- `kbd-new-phase <name> [goals...]` — Start a new named phase with goals (implemented in `skills/kbd-new-phase/`)
+- `kbd-new-child <name> [goals...]` — Spawn a child phase inside the active top-level phase (implemented in `skills/kbd-new-child/`)
+- `kbd-next-child [<name>]` — Advance childPointer (implicit) or jump to a named child (implemented in `skills/kbd-next-child/`)
+- `kbd-child-exit [--enter]` — Exit the active child (handoff-out + roll up + pop path) or, with `--enter`, descend into the selected child so new children nest under it (implemented in `skills/kbd-child-exit/`)
+- `kbd-memory-recall [<phase>] [<stage>]` — Populate `prior-context.md` with recalled lessons, pk knowledge, the previous reflection and knowledge gaps (implemented in `skills/kbd-memory-recall/`)
+- `kbd-inject-agent-rules [--target …] [--refresh] [--dry-run]` — Inject Karpathy + Boris Cherny rule sets into CLAUDE.md / AGENTS.md (implemented in `skills/kbd-inject-agent-rules/`)
+- `kbd-full-phase <name>` — Run full Assess → Plan → Execute → Reflect cycle
 
 See `references/domain/kbd.md` (KBD philosophy), `references/cross-tool-handoff.md` (multi-tool coordination), and `prompts/` (detailed phase execution protocols).
 
@@ -483,7 +492,7 @@ See `references/domain/kbd.md` (KBD philosophy), `references/cross-tool-handoff.
 
 ## Evolver Bridge — Reflect Read-back
 
-When `/kbd-reflect` runs and `.kbd-orchestrator/phases/<phase>/evolver-bridge.json`
+When `kbd-reflect` runs and `.kbd-orchestrator/phases/<phase>/evolver-bridge.json`
 exists, the reflect phase must propagate KBD results back to the evolver's
 outer state so `/evolve-status` shows accurate per-item completion.
 
@@ -520,7 +529,7 @@ outer state so `/evolve-status` shows accurate per-item completion.
    which allows `/evolve-reflect` to proceed without waiting for another
    executor run.
 
-5. **No bridge → no-op** — when `evolver-bridge.json` is absent, `/kbd-reflect`
+5. **No bridge → no-op** — when `evolver-bridge.json` is absent, `kbd-reflect`
    runs as normal with no evolver state writes.
 
 ### Bridge file schema

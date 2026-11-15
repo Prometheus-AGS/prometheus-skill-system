@@ -5,6 +5,33 @@
   "note": "GENERATED — do not hand-edit. Regenerate after any change to shared/launchagents/*.plist or shared/systemd/* (constraint C-01). Placeholders such as __PROMETHEUS_ROOT__ are substituted at install time.",
   "services": [
     {
+      "label": "ai.prometheus.apple-fm",
+      "program": "__PROMETHEUS_ROOT__/shared/scripts/apple-fm-launch.sh",
+      "args": [],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.apple-fm.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": true,
+            "throttleInterval": 10,
+            "processType": "Interactive"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/apple-fm.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/apple-fm.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_ROOT__"
+        },
+        "linux": null
+      }
+    },
+    {
       "label": "ai.prometheus.exec",
       "program": "__PROMETHEUS_EXEC_BIN__",
       "args": [

@@ -1,90 +1,75 @@
 ---
 name: bdd-lifecycle-loop
-version: '1.1.0'
+version: '2.0.0'
 license: MIT
 description: >
-  Codifies the define → author → run → triage → maintain workflow for BDD
-  test suites, with execution only at the authorized phase boundary.
-  Includes outside-in scenario authoring, flake-budget enforcement wrapping
-  cucumber's --retry-tag-filter primitive, an immutable-tests guard, and a
-  visual-baseline refresh workflow with paper trail. Use when
-  standing up a new BDD suite, growing an existing suite past 100
-  scenarios, or when flakiness starts eroding trust in CI.
+  Codifies the VLBV define → author → execute (once, at the value-phase
+  boundary) → triage → maintain workflow for BDD suites. Includes outside-in
+  scenario authoring, the stochastic profile for nondeterministic claims (no
+  retry-until-green), an immutable-tests guard, and a visual-baseline refresh
+  workflow with paper trail. Use when standing up a BDD suite, growing one past
+  100 scenarios, or when nondeterminism starts eroding trust in results.
 metadata:
   author: prometheus-skill-pack
   category: testing
-  tags: [testing, bdd, cucumber, lifecycle, flake-budget, immutable-tests, ci]
+  tags: [testing, bdd, cucumber, lifecycle, vlbv, stochastic, immutable-tests]
 ---
 
 # BDD Lifecycle Loop
 
-A repeatable workflow for the four phases of a BDD suite's life. Pairs
-with `bdd-cucumber-js` and `bdd-cucumber-rs` (which cover *how to author*)
-and `bdd-video-proof` (which covers *how to certify*).
+A repeatable workflow for the life of a BDD suite under VLBV, the pack's single
+verification method. Pairs with `bdd-cucumber-js` and `bdd-cucumber-rs` (which
+cover *how to author*), `value-scenario-verify` (which *executes*) and
+`bdd-video-proof` (which covers *how to certify*). Boundaries are defined once in
+`skills/process/kbd-process-orchestrator/references/boundaries.md`.
 
 ## Definition, authoring and execution are three different acts
 
 | Act | When | Skill |
 |---|---|---|
-| **Define** scenarios (actor, outcome, source, oracle, false positive) | Before generation, from the specification | `value-scenario-discovery` |
-| **Author** features, real assertions and steps | Per host policy; where production is implemented first, only after the complete agreed production work | `bdd-cucumber-js` / `bdd-cucumber-rs` `author-only` |
-| **Execute** against the real path | Only at the separately authorized complete value-phase boundary | `value-scenario-verify` |
+| **Define** scenarios (actor, outcome, source, oracle, negative control) | Before generation, from the specification; adopted into the phase contract | `value-scenario-discovery` |
+| **Author** features, real assertions and steps | After the complete agreed production work (static inspection only) | `bdd-cucumber-js` / `bdd-cucumber-rs` `author-only` |
+| **Execute** against the real path | Only at B4 (the boundary packet, once) and an authorized B5 repair | `value-scenario-verify` |
 
-Defining a scenario does not authorize running anything. Where the repository
-requires implementation first (for example Prometheus: complete the whole
-agreed production batch, then run one integration gate), the phases below
-describe the loop *after* that boundary; do not run Phases 2-3 against an
-intentionally incomplete codebase, per change, per task or per edit. A
-selected method or host policy always outranks this loop's defaults, and no
-step here repeals an operator rule or modifies a protected scenario without its
-existing signed approval.
+Defining a scenario does not authorize running anything. Do not run a scenario
+against an intentionally incomplete codebase, per change, per task or per edit. A
+scenario that has never run is `NOT_EXERCISED` — never "red", never "green". A
+different execution cadence exists only as a signed `KBD-METHOD` deviation for one
+phase, disclosed in its closure packet. No step here modifies a protected scenario
+without its existing signed approval.
 
 ## The loop
 
 ```
       ┌──────────────┐
-      │  1. Author   │  Features → real assertions → step definitions
+      │  1. Author   │  Features → real assertions → step definitions (no runs)
       └──────┬───────┘
              ↓
       ┌──────────────┐
-      │  2. Run      │  cucumber-js / cargo test → cucumber.json
+      │  2. Execute  │  B4 step 3: the boundary packet runs each scenario once
       └──────┬───────┘
              ↓
       ┌──────────────┐
-      │  3. Triage   │  Fail? Real bug or flake?
-      │              │  Tag @flaky, open ticket, retry
+      │  3. Triage   │  PASS / FAIL / BLOCKED / NOT_EXERCISED — never rerun to green
       └──────┬───────┘
              ↓
       ┌──────────────┐
-      │  4. Maintain │  Refresh baselines, prune stale scenarios,
-      │              │  enforce flake budget, enforce immutable tests
+      │  4. Maintain │  Refresh baselines, prune stale scenarios, review
+      │              │  stochastic declarations, enforce immutable tests
       └──────┬───────┘
-             ↓ (loop back to 1)
+             ↓ (next value phase)
 ```
-
-Skip any phase and the loop breaks:
-- Skip **Author outside-in** → step definitions bake in implementation details, tests become brittle
-- Skip **Triage** → flakes accumulate, CI signal degrades
-- Skip **Maintain** → visual baselines drift, scenarios rot, budget explodes
 
 ## Phase 1: Author (outside-in)
 
-Work outside-in: begin from the observable user outcome, not from step code
-that mirrors the implementation. Whether the scenario is expected to fail
-first depends on the declared timing policy:
+Work outside-in: begin from the observable user outcome, not from step code that
+mirrors the implementation. Write the features, assertions and oracle mapping
+from the adopted scenario IDs, and stop after static inspection.
 
-- **Continuous-testing projects** may write the feature, observe it fail for
-  the right reason, then implement the smallest slice and watch it pass.
-- **Production-first or selected-VLBV projects** (including this repository)
-  write the features, assertions and oracle mapping from the adopted
-  scenario IDs, but do **not** run them while production is incomplete. A
-  scenario that has never run is `NOT_EXERCISED`, never "red" and never
-  "green". Use `author-only` and stop after static inspection.
-
-In either policy each assertion must be real: it observes the production
-operation's externally meaningful result against an independent source of
-expected truth. A step that only returns, or asserts a process exit code, is
-not an assertion.
+Each assertion must be real: it observes the production operation's externally
+meaningful result against an independent source of expected truth. A step that
+only returns, or asserts a process exit code, is not an assertion. Each scenario's
+negative control must make that assertion fail when the behavior is absent.
 
 ### Feature file conventions
 
@@ -93,122 +78,90 @@ not an assertion.
 - Use `Background` for shared preconditions across scenarios in a file
 - Use `Scenario Outline` for data variations
 - Tag every scenario:
+  - Contract identity: the adopted scenario ID (for example `@SCN-AUTH-001`)
   - Layer: `@api`, `@ui`, `@system`
-  - Speed/stability: `@smoke`, `@slow`, `@flaky`
   - Ownership: `@team:auth`, `@owner:alice`
 - Reference `data-testid` selectors when the scenario is `@ui`
 
-## Phase 2: Run
+## Phase 2: Execute (B4 step 3)
 
-Run only at the authorized boundary (see the table above); under production-first
-policy that is the single complete-phase gate, never a per-change loop.
-
-The cucumber runner writes `cucumber.json` (machine-readable) alongside
-whatever human-readable report you configured (`html`, `progress-bar`,
-etc.). The lifecycle loop's tooling reads `cucumber.json` — do not skip it.
+The adopted boundary packet lists the exact commands; `value-scenario-verify`
+invokes each once. The cucumber runner writes `cucumber.json` beside any
+human-readable report; the packet's receipts and `boundary-results.json` read it.
 
 ```bash
-# cucumber-js
+# cucumber-js (as a boundary-packet entry)
 npx cucumber-js --format json:tests/reports/cucumber.json
 
-# cucumber-rs
+# cucumber-rs (as a boundary-packet entry)
 cargo test --test features -- --format=json > tests/reports/cucumber.json
 ```
 
-Feed `cucumber.json` into:
-- `bdd-video-proof` — bundle for certification
-- `scripts/flake-budget.sh` — enforce the flake budget
-
 ## Phase 3: Triage
 
-When a scenario fails, the triage rule is:
+Every scenario ends with exactly one of the four verdicts. Nothing is rerun to
+obtain a different one.
 
-| Failure looks like | Action |
-|--------------------|--------|
-| Real regression (assertion caught a genuine change in behavior) | Open a bug; do NOT re-run; do NOT tag `@flaky` |
-| Timeout under load | Increase timeout; investigate throughput regression |
-| Race between test and system | Add a wait/expect; do NOT sleep |
-| Passes on rerun; no timing/data reason found | Tag `@flaky`, open a ticket, put on the budget |
-| Third-party service down | Skip via tag, page the vendor's on-call |
+| Observation | Verdict and action |
+|-------------|--------|
+| Assertion caught a genuine behavior difference | FAIL. Keep the receipt. The owner may authorize a bounded B5 repair; the rerun covers only affected scenarios and consumes `repairAttempts` |
+| Timeout, race or environment fault the contract did not anticipate | BLOCKED (not FAIL). Record the cause; fixing the fixture or environment is a B5 repair or a contract amendment |
+| Runner, fixture, permission or isolation unavailable | BLOCKED |
+| Adopted scenario never ran | NOT_EXERCISED; it cannot pass |
+| Result differs between identical runs | Not a verdict: the scenario is nondeterministic and needs a declared stochastic profile (below). Until then it is BLOCKED |
 
-**Do NOT** re-tag a scenario `@flaky` to make CI green. That's how a
-suite degrades to a rubber stamp.
+A later green receipt never overwrites an earlier failure.
 
-Retry the flake-only subset with cucumber's built-in filter:
+### Nondeterministic claims: the stochastic profile
 
-```bash
-# cucumber-js
-npx cucumber-js --retry 2 --retry-tag-filter "@flaky"
-
-# cucumber-rs — no built-in retry filter; wrap with scripts/flake-budget.sh
-```
-
-## Phase 4: Maintain
-
-### Flake budget
-
-The flake budget is a **hard cap on the number of `@flaky` scenarios and
-their age**. Wraps cucumber's `--retry-tag-filter @flaky` primitive with an
-enforcement script.
-
-`.bdd-flake-budget.json` at the project root:
+There are no `@flaky` tags, retry flags or flake budgets: retrying until green
+hides failures and changes the denominator. A behavior that is genuinely
+nondeterministic (model output, timing-dependent UI, distributed timing) is
+declared **before any result exists**, in the scenario's `stochastic` block of the
+adopted contract (schema v2):
 
 ```json
-{
-  "max_flaky_scenarios": 5,
-  "max_flaky_age_days": 14,
-  "grace_scenarios": []
+"stochastic": {
+  "samples": 20,
+  "grader": "fraction of samples whose observation meets the oracle",
+  "stoppingRule": "run all 20; PASS iff >= 18 meet the oracle; no early stop"
 }
 ```
 
-After the complete production implementation, run locally as part of the
-repository's final integration gate:
+The boundary packet then runs the declared number of samples, once, and the verdict
+follows the stopping rule. Adoption lint rejects a scenario marked nondeterministic
+that has no `stochastic` block.
 
-```bash
-bash "${CLAUDE_PLUGIN_ROOT}/skills/testing/bdd-lifecycle-loop/scripts/flake-budget.sh" \
-  tests/features \
-  .bdd-flake-budget.json
-```
+## Phase 4: Maintain
 
-Exits non-zero when:
-- More than `max_flaky_scenarios` are tagged `@flaky`, OR
-- Any `@flaky` scenario has been tagged longer than `max_flaky_age_days`
-  (unless listed in `grace_scenarios`)
-
-A failing local gate requires a recorded disposition: fix the production
-cause or propose an approved scenario/grace-budget change with a linked ticket.
-Protected scenarios cannot be deleted or weakened to obtain a pass; their
-changes require the repository's signed approval. Hosted CI is not validation
-evidence for Prometheus repositories.
+- **Stochastic declarations.** Review each `stochastic` block when its scenario's
+  amendment history or the closure packet shows drift. Changing samples, grader or
+  stopping rule is a signed contract amendment, never an edit after results.
+- **Pruning.** Retire scenarios through a contract amendment so history stays.
 
 ### Immutable tests
 
 The **immutable-tests rule** is enforced once, at final local certification.
-Agent-time Bash, Python, Edit, and Write calls remain unrestricted. The
+Agent-time Bash, Python, Edit and Write calls remain unrestricted. The
 method-independent verifier compares the certified base and candidate Git
-commits and detects protected modifications, deletions, renames, and mode
-changes. Intentional changes require an SSH-signed canonical approval
-manifest; see [references/immutable-tests.md](references/immutable-tests.md).
+commits and detects protected modifications, deletions, renames and mode
+changes. Intentional changes require an SSH-signed canonical approval manifest;
+see [references/immutable-tests.md](references/immutable-tests.md).
 
 ### Visual baseline refresh
 
-Playwright's `--update-snapshots` overwrites baselines silently. Coupled
-with the immutable-tests rule, baseline changes need a paper trail. See
+Playwright's `--update-snapshots` overwrites baselines silently. Coupled with the
+immutable-tests rule, baseline changes need a paper trail. See
 [references/visual-baseline-refresh.md](references/visual-baseline-refresh.md)
 for the branch-and-review workflow.
 
 ## See also
 
 - [value-scenario-discovery](../value-scenario-discovery/SKILL.md) — define scenarios before generation
-- [value-scenario-verify](../value-scenario-verify/SKILL.md) — execute at the authorized phase boundary
+- [value-scenario-verify](../value-scenario-verify/SKILL.md) — execute at the value-phase boundary
+- [vlbv](../vlbv/SKILL.md) — the method entry skill
 - [bdd-cucumber-js](../bdd-cucumber-js/SKILL.md) — how to author TS scenarios
 - [bdd-cucumber-rs](../bdd-cucumber-rs/SKILL.md) — how to author Rust scenarios
 - [bdd-video-proof](../bdd-video-proof/SKILL.md) — certification bundles
 - [references/immutable-tests.md](references/immutable-tests.md)
 - [references/visual-baseline-refresh.md](references/visual-baseline-refresh.md)
-- `docs/future-work/02-bdd-testing-evolution/BDD-002-flake-quarantine.md`
-- `docs/future-work/02-bdd-testing-evolution/BDD-005-testid-drift-detection.md`
-- `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`
-- `docs/future-work/02-bdd-testing-evolution/BDD-007-candidate-test-drafts.md`
-- [`STATUS.md`](../../../docs/future-work/02-bdd-testing-evolution/STATUS.md) — BDD-* implementation matrix
-- `scripts/verify-protected-tests.mjs` — canonical local verifier

@@ -6,7 +6,7 @@ KBD owns the loop; the backend is a subroutine that answers four questions and
 performs two mutations.
 
 > **Hard invariant:** `kbd-apply` NEVER hands the turn to a backend's own
-> "implement everything" command (e.g. bare `/opsx:apply` or
+> "implement everything" command (e.g. the bare `openspec-apply-change` skill (formerly `/opsx:apply`) or
 > `/speckit.implement` with no task scope). Those commands run outside KBD and
 > are exactly the seam this phase repairs. KBD calls the backend per task.
 
@@ -50,8 +50,8 @@ Record acceptance separately from source progress and publication.
 | `list_tasks` | `openspec instructions apply --change <c> --json` | `.tasks[] → {id, title:.description, done}` |
 | `progress` | same call, read `.progress` | `{total, complete, remaining}` (verified keys) |
 | `mark_done` | edit the task checkbox in `openspec/changes/<c>/tasks.md` (`- [ ]` → `- [x]`) | OpenSpec tracks task state in `tasks.md`; `apply --json` re-reads it |
-| `verify` | `openspec validate <c>` (and/or `/opsx:verify`) | non-zero exit = fail |
-| `archive` | `openspec archive <c>` (or `/opsx:archive`) | moves to `openspec/changes/archive/` and updates specs |
+| `verify` | `openspec validate <c> --strict` (static document check; allowed at change end, B2) | non-zero exit = fail |
+| `archive` | `openspec archive <c> --yes`, only after the phase is CLOSED (B4 step 7, `references/boundaries.md`) | moves to `openspec/changes/archive/` and updates specs |
 
 **Verified JSON shape** of `openspec instructions apply --change <c> --json`:
 

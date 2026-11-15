@@ -4,8 +4,9 @@ paths: ['**/*.py', '**/pyproject.toml']
 
 # Python
 
-Batch implementation until a production path is complete. Use a narrow type or lint check earlier only to
-unblock work. At a completed change boundary, run the smallest integration-marked scenario that exercises
+Batch implementation until the agreed value phase is complete; editor/LSP diagnostics
+are reading, not execution. Run no type or lint check, build or test before the value-phase
+boundary (VLBV B4). There, the boundary packet runs the smallest integration-marked scenario that exercises
 the real entry point and collaborators. Unit, mock-only, filtered-function, and per-edit tests are not
 completion evidence. Reserve broad and slow integration suites for the final applicable phase or release.
 

@@ -69,7 +69,7 @@ identity into every handoff. See `references/model-routing.md` for policy contex
 | `manual`        | Human                | Operations requiring judgment or external tools             |
 
 > Spec backends (`openspec`, `speckit`) are always driven through `/kbd-apply`
-> task-by-task — never via a bare `/opsx:apply` or `/speckit.implement`.
+> task-by-task — never via the bare `openspec-apply-change` skill (formerly `/opsx:apply`) or `/speckit.implement`.
 > `/kbd-apply detect` selects the backend automatically (openspec directory →
 > `openspec`; `.specify/` or `specs/*/tasks.md` → `speckit`).
 
@@ -204,9 +204,9 @@ HANDOFF NOTE for <tool>:
 
 ### If backend = `openspec` (or any spec backend) and self-executing
 
-**Route task execution through `/kbd-apply` — never invoke bare `/opsx:apply`.**
+**Route task execution through `/kbd-apply` — never invoke the bare `openspec-apply-change` skill (formerly `/opsx:apply`).**
 
-Plan/execute boundary (F3): `/kbd-plan` *creates* the change (`/opsx:new`);
+Plan/execute boundary (F3): `/kbd-plan` *creates* the change (runner `new change`);
 `/kbd-execute` *drives* it via `/kbd-apply`. Do not re-create changes here.
 
 1. Confirm the active change from the waypoint (created in `kbd-plan`).
@@ -222,7 +222,7 @@ Plan/execute boundary (F3): `/kbd-plan` *creates* the change (`/opsx:new`);
    → `kbd-apply archive` through the managed OpenSpec CLI. Do not run per-task or
    per-change QA gates while production implementation remains unfinished.
 
-> **Why not bare `/opsx:apply`?** It is unmodified upstream OpenSpec: it fires
+> **Why not the bare `openspec-apply-change` skill (formerly `/opsx:apply`)?** It is unmodified upstream OpenSpec: it fires
 > no KBD hooks, writes no `progress.json`, and refreshes no waypoint. Invoking
 > it directly drops the turn out of KBD entirely — the plan→execute seam this
 > design repairs. `/kbd-apply` wraps the same OpenSpec CLI task-by-task instead.

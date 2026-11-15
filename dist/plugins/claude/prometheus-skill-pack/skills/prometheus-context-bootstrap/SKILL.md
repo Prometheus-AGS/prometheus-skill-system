@@ -10,11 +10,11 @@ description: >
   only when measured. Creates what is absent, splices a marked region into what
   exists, and never overwrites operator prose.
 license: MIT
-version: '1.0.0'
+version: '1.1.0'
 compatibility: bash >=4, git; jq optional
 metadata:
   author: prometheus
-  version: '1.0.0'
+  version: '1.1.0'
   category: process
   tags: [bootstrap, context-engineering, agents-md, claude-md, hooks, scaffold]
 ---
@@ -29,9 +29,13 @@ ledger. Canonical signed status/decisions remain authoritative. Compaction/sessi
 reanchor restores pointers and a labelled derived snapshot; missing/stale context
 is explicit. Preserve latest authorized supersession, original evidence, candidate
 freshness, consumed budgets and unresolved effects, and reconcile unknown effects
-before retry. For selected VLBV retain the complete agreed value-phase boundary
-and separate execution authority. Surface host compiler/skill-policy conflicts
-before dependent action without changing operator-owned policy. Template guidance
+before retry. Generated files carry VLBV as the single verification method: the
+marked `<!-- kbd-policy:begin/end -->` block (verification VLBV, compiler exception
+retired, execution only at B4/B5), a first-action recovery protocol that works
+without hooks, and precedence over built-in TDD/verify/apply workflow skills.
+`CLAUDE.md` imports `@AGENTS.md`, so Claude Code reads the same policy. Surface
+host-policy conflicts before dependent action without changing operator-owned
+policy. Template guidance
 is instruction-only unless an actual named host boundary enforces it; no global
 context rewrite, universal interception, release or automatic-successor authority
 is implied.
@@ -69,7 +73,7 @@ This skill does not reimplement work that already exists in the pack.
 
 | Concern | Owner | Relationship |
 |---|---|---|
-| `.kbd-orchestrator/project.json`, `constraints.md` | `kbd-init` | Bootstrap writes a waypoint stub only. Run `/kbd-init` after. |
+| `.kbd-orchestrator/project.json`, `constraints.md` | `kbd-init` | Bootstrap writes a waypoint stub only. Run `kbd-init` after. |
 | Karpathy + Claude Code rule packs in agent files | `kbd-inject-agent-rules` | Same `<!-- pack:start v1 -->` marker contract, different pack name. Both regions coexist in one file. |
 | Sycophancy detection | `sycophancy-correction` | The installed Stop hook calls it and degrades to exit 0 when the binary is absent. |
 | Rust skill routing and Cargo timing | `prometheus-rust-workspace` | Bootstrap emits a compact path rule that loads this skill only for Rust work. |
@@ -249,10 +253,10 @@ as a SKIP with a warning rather than assumed.
 
 The settings template does not deny edits under `.kbd-orchestrator/`, and must
 not. KBD stage artifacts — `assessment.md`, `analysis.md`, `plan.md`,
-`reflection.md`, defect ledgers — and the two files `/kbd-init` owns are
+`reflection.md`, defect ledgers — and the two files `kbd-init` owns are
 agent-written. Releases up to 1.10.0 shipped `deny: Edit(.kbd-orchestrator/**)`,
-which blocked `/kbd-init` and every stage skill in the same breath as telling
-the operator to run `/kbd-init` next.
+which blocked `kbd-init` and every stage skill in the same breath as telling
+the operator to run `kbd-init` next.
 
 `bootstrap.sh` now removes exactly that entry from an existing `settings.json`
 (reported as `REPAIR`, `.bak` kept). `verify.sh` fails a repo whose deny list

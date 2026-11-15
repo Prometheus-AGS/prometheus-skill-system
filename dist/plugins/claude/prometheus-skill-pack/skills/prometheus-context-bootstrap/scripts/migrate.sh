@@ -100,14 +100,16 @@ done < "$MAP"
 # written by other tools (kbd-inject-agent-rules, the Zed workspace tool). They
 # are self-delimited, so they can be carried over verbatim rather than handed to
 # a human. An earlier version scanned only '^## ' headings, so these were
-# indistinguishable from prose and were silently orphaned.
+# indistinguishable from prose and were silently orphaned. The kbd-policy block
+# belongs to the regenerated base region, so it is never carried over (a copy
+# would leave two policy blocks).
 regions_tmp="$cov_tmp.regions"
 region_names_tmp="$cov_tmp.rnames"
 : > "$regions_tmp"; : > "$region_names_tmp"
 
 grep -oE '<!-- [a-z][a-z0-9-]*:(start|begin)' "$src" 2>/dev/null \
   | sed -E 's/<!-- ([a-z0-9-]+):(start|begin)/\1/' \
-  | grep -v '^prometheus-base$' | sort -u > "$region_names_tmp" || true
+  | grep -v -E '^(prometheus-base|kbd-policy)$' | sort -u > "$region_names_tmp" || true
 region_count="$(wc -l < "$region_names_tmp" | tr -d ' ')"
 
 while IFS= read -r rn; do

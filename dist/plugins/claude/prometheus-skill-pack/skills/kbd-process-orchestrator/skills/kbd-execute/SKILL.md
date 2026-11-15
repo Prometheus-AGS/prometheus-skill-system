@@ -6,7 +6,7 @@ description: >
   Select an execution backend for the active KBD phase, write canonical phase
   execution state, dispatch the phase to the appropriate tool or OpenSpec, and
   maintain KBD as the source of truth. Supports multi-tool handoff via
-  progress.json protocol. Runs integration and review gates once at phase completion.
+  progress.json protocol. Runs the B4 boundary sequence once at phase completion.
 metadata:
   tags: [process, orchestration, automation]
 ---
@@ -47,7 +47,7 @@ generated OpenSpec skills/commands while preserving authored specs, changes and
 custom configuration. Read the receipt: failed or pending refresh is unresolved,
 not current-version proof. A cached offline version is explicitly unverified for
 latest freshness. Resolve reported conflicts before dependent phase mutations.
-OpenSpec is the primary spec engine for new projects (`/kbd-init` initializes
+OpenSpec is the primary spec engine for new projects (`kbd-init` initializes
 it); existing native KBD projects keep working, and the helper skips projects
 without an existing OpenSpec root.
 
@@ -78,39 +78,35 @@ routes remain unresolved; record any deliberate alternative selection and its
 rationale before running it. Other eligible tasks can continue. liter-llm inference
 requires a tool-enabled execution mechanism; KBD retains task completion ownership.
 
-## Final phase QA gate
+## Value-phase boundary (B4)
 
-Do not run tests, verification builds, artifact refinement, or adversarial review
-after individual tasks or changes. Complete every planned production change first.
-When the active harness provides an agent team, assign implementation to executor
-roles and keep reviewer, auditor, verifier, and integration-checker roles dormant
-until every production change is complete. Then run one production-path integration
-gate and one cumulative artifact/adversarial review. The result is evidence and
-certification state; it must not reopen the implementation counter:
+Do not run tests, verification builds, compiler checks, artifact refinement or
+adversarial review after individual tasks or changes (B1/B2 run nothing but
+journaling and `openspec validate`). Complete every planned production change
+first. When the active harness provides an agent team, assign implementation to
+executor roles and keep reviewer, auditor, verifier and integration-checker roles
+dormant until every production change is complete. Then run the **B4 sequence**
+exactly as `references/boundaries.md` defines it — this skill does not restate or
+vary it:
 
 ```
-all phase implementation complete via typed KBD transitions (projected in progress.json)
+all phase production complete (typed KBD transitions) + contract amended to implementationComplete
   │
-  ├─ /refine-validate "<change-id>"
-  │   ├─ reads constraints from .kbd-orchestrator/constraints.md
-  │   ├─ validates all produced artifacts
-  │   └─ writes .refiner/artifacts/<change-id>/refinement_log.md
-  │
-  ├─ ALL PASS → /adversarial-review --mode diff "<change-id>"
-  │   ├─ cross-model fresh-context judge (cheap checklist first, judgment second)
-  │   ├─ writes .kbd-orchestrator/phases/<phase>/review/<change-id>/findings.json
-  │   │
-  │   ├─ verdict PASS → proceed to archive
-  │   │   ├─ if OpenSpec: kbd-apply verify → kbd-apply archive
-  │   │   └─ if native: kbd-apply verify → kbd-apply archive
-  │   │   (WARNING findings: logged in the review dir, archive proceeds;
-  │   │    SUGGESTION: informational)
-  │   │
-  │   └─ verdict BLOCK (any CRITICAL) → record certification BLOCKED through typed KBD commands
-  │       └─ fix, then re-run only the failed final gate
-  │
-  └─ ANY FAIL → record certification BLOCKED through typed KBD commands
-      └─ fix the phase-level finding, then re-run only the failed final gate
+  ├─ 1 admit            kbd-phase-readiness-check.sh (latest digest, method, authority)
+  ├─ 2 freeze           candidate identities (cadence `candidate freeze` is this step)
+  ├─ 3 boundary packet  adopted-contract boundaryPacket.commands, once, in order
+  │                     (build → run → scenario → negativeControl) — value-scenario-verify
+  ├─ 4 record           boundary-results.json: PASS | FAIL | BLOCKED | NOT_EXERCISED + executedBy
+  ├─ 5 static QA        one cumulative /refine-validate (no build) + one /adversarial-review --mode diff
+  ├─ 6 close            kbd-phase-close-eval.sh → closure object + closure-packet.md
+  ├─ 7 after CLOSED     kbd-apply verify + archive for every change of the phase
+  └─ 8 reflect          /kbd-reflect (contract-accuracy metrics)
+
+Any FAIL at step 3 → steps 5–7 do not run. The owner either authorizes a bounded
+B5 repair (rerun only the affected scenarios and negative controls; consumes
+budgets.repairAttempts) or closes the phase unmet. A CRITICAL adversarial finding
+at step 5 is handled the same way: record certification BLOCKED through typed KBD
+commands; fixing it is a B5 repair, never a free rerun.
 ```
 
 See `references/integrations/artifact-refiner.md` for the QA invocation
@@ -203,8 +199,9 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 9. **Register planned changes and tasks** with `prometheus kbd change|task`
 10. **Dispatch** and write `execute-dispatch.json`; keep Execute active
 11. Complete every planned production change without intermediate verification
-12. Run one production-path integration gate and one cumulative final review
-13. Verify and archive changes through `kbd-apply` after the final phase gates pass
+12. Run the B4 sequence once (`references/boundaries.md`): boundary packet, record,
+    cumulative static QA and review, close
+13. Verify and archive changes through `kbd-apply` only after the phase is CLOSED (B4 step 7)
 14. **Complete Execute only at the phase boundary** — use the checklist below; dispatch is not completion
 
 ## Backend Types
@@ -231,16 +228,16 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 Fire `execute:before` when entering Execute, before selecting a backend.
 Fire `execute:after` only at the completed Execute boundary described below,
 never after merely writing `execution.md` or dispatching work. **`task:before`/`task:after` are fired per task by
-`/kbd-apply`** — the KBD-owned apply driver — not by `/kbd-execute` and **not**
-by bare `/opsx:apply`. `/kbd-execute` writes the dispatch contract; `/kbd-apply`
+`kbd-apply`** — the KBD-owned apply driver — not by `kbd-execute` and **not**
+by the bare `openspec-apply-change` skill (formerly `/opsx:apply`). `kbd-execute` writes the dispatch contract; `kbd-apply`
 walks the tasks, firing the per-task hooks and emitting the plain-text position
 signal on each boundary. See the `kbd-apply` SKILL for the per-task contract.
 
 > **Corrected (2026-06-03):** earlier versions of this file claimed bare
-> `/opsx:apply` fired the per-task KBD hooks. It does **not** — `/opsx:apply` is
+> `openspec-apply-change` fired the per-task KBD hooks. It does **not** — `openspec-apply-change` is
 > unmodified upstream OpenSpec with no KBD awareness (no hooks, no
 > `progress.json`, no waypoint). Driving it directly is the seam that broke
-> plan→execute. Always route task execution through `/kbd-apply`.
+> plan→execute. Always route task execution through `kbd-apply`.
 
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
@@ -264,8 +261,9 @@ actual evidence. All of the following must hold:
 1. Every change and task assigned to this phase’s execution scope is complete;
    none remains pending, in progress, or blocked. Completion of one delegated
    change does not complete the parent stage.
-2. The cumulative phase satisfies the single final integration, QA and independent
-   review gates, with real receipts or an explicitly permitted signed waiver. A
+2. The B4 sequence (`references/boundaries.md`) has run once — boundary packet,
+   `boundary-results.json`, cumulative QA and independent review — with real
+   receipts or an explicitly permitted signed waiver. A
    skip flag or `pending_review` is not a passing result. Per-change QA is forbidden.
 3. Required `kbd-apply verify` and `kbd-apply archive` operations have
    succeeded for every applicable change, including any reconciliation work
@@ -344,8 +342,8 @@ handoffs, journals, or receipts.
 Before dependent work, run `node shared/method-context.mjs --project <project-root> --phase <canonical-phase-id> --write` from the resolved orchestrator root (or read the phase-local `method-context.md` when Node is unavailable) and act on its `status`:
 
 - `RESOLVED_REFERENCES` — continue with the recovered method, contract and stage authority; preserve the same references in role inputs, dispatch and handoff read order.
-- `BLOCKED` — a method decision, contract, calibration or supersession is missing or changed; resolve it explicitly. Prior commands, memory and tool inventories are not fresh authority.
-- `CONFLICT` — governing host policy conflicts with the selected method. Stop before dependent work and show the conflict; continue only after the operator records a `KBD-POLICY-ACK` decision for that file's current hash. Never rewrite operator-owned policy. When host policy grants an exception — for example one narrow, targeted compiler check after a blocking compile error — name it as host policy, state that it conflicts with the selected method, and say it does not authorize tests, dry-runs or generated-code verification.
+- `BLOCKED` — the contract, its binding, a calibration reference, a supersession or a deviation's cadence/reason is missing or changed; resolve it explicitly. Prior commands, memory and tool inventories are not fresh authority.
+- `CONFLICT` — a governing rule file the active harness loads grants an exception VLBV forbids (for example a compiler check during generation). Stop before dependent work and show the conflict; continue only after the operator records a `KBD-POLICY-ACK` decision for that file's current hash. Never rewrite operator-owned policy, and never treat an exception as authority for tests, builds, dry-runs or generated-code verification.
 
-For selected VLBV, define acceptance before generation and finish the whole agreed value phase before any generated-code verification; tasks, hours, commits, reviewer requests and compiler problems create no boundary. Preserve original evidence, consumed budgets and unresolved effects across resume and supersession; reconcile an uncertain effect before any retry. Full rules: `references/method-context.md`.
+VLBV is the method for every phase (project default `verificationMethod: "VLBV"`); a deviation exists only as a signed `KBD-METHOD` decision naming the method, its execution cadence and its reason, and it is disclosed in the closure packet. Define acceptance before generation; generated code executes only at the value-phase boundary (B4) and, after an authorized repair, at B5 — see `references/boundaries.md`. Tasks, hours, commits, reviewer requests and compiler problems create no boundary. Preserve original evidence, consumed budgets and unresolved effects across resume and supersession; reconcile an uncertain effect before any retry. Full rules: `references/method-context.md`.
 

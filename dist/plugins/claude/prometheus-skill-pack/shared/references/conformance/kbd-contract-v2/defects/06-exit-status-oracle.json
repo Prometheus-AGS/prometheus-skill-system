@@ -1,0 +1,153 @@
+{
+  "contractVersion": "2",
+  "kind": "kbd.adopted-contract",
+  "identity": {
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "runId": "fixture-run",
+    "phaseId": "fixture-phase",
+    "planRevision": null,
+    "contractDigest": null
+  },
+  "digestNormalization": {
+    "algorithm": "sha256",
+    "command": "jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)'",
+    "stalenessRule": "digest mismatch against the latest non-superseded adoption decision for this contract path"
+  },
+  "adoptionSource": "Operator instruction recorded in the fixture phase handoff",
+  "decisionOwner": "fixture operator",
+  "amendmentPolicy": "Material scope or acceptance changes need a signed amend-contract manifest with supersedes lineage.",
+  "releaseClaim": {
+    "userOperation": "A user exports their notes as a single Markdown file",
+    "supportedEnvironments": ["macOS 26 arm64, Node 22"],
+    "currentCapabilities": "Export of plain-text notes is implemented through the notes CLI.",
+    "explicitUnknowns": ["Behavior with attachments larger than 10 MB"]
+  },
+  "statusVocabulary": ["PASS", "FAIL", "BLOCKED", "NOT_EXERCISED"],
+  "scenarioMatrix": [
+    {
+      "id": "SCN-EXPORT-1",
+      "name": "Export writes every note in creation order",
+      "actor": "A note-taking user leaving the app",
+      "usefulOutcome": "One Markdown file containing every note, oldest first",
+      "sourceRequirement": "openspec:notes-export#export-all-notes",
+      "reasonNow": "Export is the phase's only user-visible deliverable",
+      "likelihood": "qualitative: every departing user runs it once",
+      "mandatory": true,
+      "scopeRefs": ["Export all notes to Markdown"],
+      "ownerTask": "T1",
+      "productionEntry": "notes export --out out.md",
+      "realCollaborators": ["SQLite notes store on disk", "local filesystem"],
+      "substitutedBoundaries": [],
+      "oracle": {
+        "observation": "Headings in out.md, in order",
+        "expectedTruthSource": "The three notes inserted into the scratch store by the fixture, with their insertion timestamps",
+        "comparator": "exit code 0"
+      },
+      "negativeControl": {
+        "input": "Store with one note deliberately corrupted",
+        "expectedRejection": "Export exits non-zero and names the corrupted note; out.md is not written",
+        "commandRef": "neg-export-1"
+      },
+      "fixtures": "Scratch HOME with a fresh SQLite store holding exactly three notes",
+      "evidence": "argv, exit code, out.md digest, stderr excerpt",
+      "limitations": ["Attachments are not exercised"],
+      "invalidationKeys": ["src/export/**", "fixtures/notes.sql"],
+      "restoration": "Delete the scratch HOME"
+    }
+  ],
+  "functionalScope": [
+    "Export all notes to Markdown",
+    {
+      "item": "Internal refactor of the export module",
+      "nonObservable": true,
+      "reason": "No externally observable behavior"
+    }
+  ],
+  "resilienceScope": {
+    "policy": "Adopted requirements never defer via budget overflow.",
+    "deferredOptional": []
+  },
+  "exclusions": ["Attachment export"],
+  "requiredSafetyChecks": [
+    {
+      "id": "SAFE-1",
+      "description": "Export never overwrites an existing file without confirmation",
+      "scenarioIds": ["SCN-EXPORT-1"]
+    }
+  ],
+  "budgets": {
+    "timeMinutes": 60,
+    "toolCalls": 200,
+    "repairAttempts": 1,
+    "noProgressLimit": 3,
+    "tokenBudget": "UNKNOWN",
+    "tokenFallback": "toolCalls ceiling",
+    "exhaustion": "checkpoint + BLOCKED; never silent PASS"
+  },
+  "evidenceInvalidation": "Per-scenario invalidationKeys; only affected evidence is invalidated.",
+  "workerRoutes": {
+    "agent": "claude-code",
+    "model": "claude-opus-5-5"
+  },
+  "boundaryPacket": {
+    "postImplementationOnly": true,
+    "singleRun": true,
+    "commands": [
+      {
+        "id": "build",
+        "argv": ["npm", "run", "build"],
+        "kind": "build"
+      },
+      {
+        "id": "scn-export-1",
+        "argv": [
+          "node",
+          "tests/integration/export.mjs",
+          "--scenario",
+          "SCN-EXPORT-1"
+        ],
+        "kind": "scenario",
+        "scenarioIds": ["SCN-EXPORT-1"]
+      },
+      {
+        "id": "neg-export-1",
+        "argv": [
+          "node",
+          "tests/integration/export.mjs",
+          "--negative",
+          "SCN-EXPORT-1"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": ["SCN-EXPORT-1"]
+      }
+    ],
+    "expectedEffects": ["out.md written inside the scratch HOME"],
+    "requiredApprovals": "none beyond boundary authority",
+    "receipts": ["boundary-results.json"],
+    "cleanup": ["remove scratch HOME"],
+    "stopConditions": ["any FAIL stops before static QA"]
+  },
+  "status": {
+    "implementationComplete": false
+  },
+  "calibration": {
+    "examplesPath": ".kbd-orchestrator/phases/fixture-phase/calibration.json",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "method": {
+    "name": "VLBV",
+    "packVersion": "1.15.0",
+    "referenceSha256": "83becd798cfb1524ec2395907050beb970381b1833d59bff8a7f9270a69480c2",
+    "openspecVersion": "2.0.0"
+  },
+  "closure": {
+    "implementationComplete": false,
+    "behaviorAccepted": false,
+    "releaseEligible": false,
+    "releaseAuthorized": false
+  },
+  "_expect": {
+    "code": "weak-oracle",
+    "note": "06-exit-status-oracle"
+  }
+}

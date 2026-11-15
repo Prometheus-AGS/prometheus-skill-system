@@ -3,8 +3,12 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 
-export const MINIMUM_VERSION = '1.16.0';
-// OpenSpec 1.16.0 requires Node.js 22.12.0 or newer for npm installs.
+export const MINIMUM_VERSION = '2.0.0';
+// The pack is certified against exactly this release. Refresh never follows the
+// registry past it; a newer release is reported (newerAvailable /
+// migrationRequired) and adopted only by a pack release or an operator pin.
+export const PINNED_VERSION = '2.0.0';
+// OpenSpec 2.0.0 (like 1.16.0) requires Node.js 22.12.0 or newer for npm installs.
 export const NODE_MINIMUM = '22.12.0';
 export const REGISTRY = 'https://registry.npmjs.org';
 export const cacheHome = () => path.resolve(process.env.PROMETHEUS_OPENSPEC_HOME || path.join(os.homedir(), '.prometheus', 'openspec'));
@@ -15,6 +19,13 @@ export function writeJson(file, value) {
   const temporary = `${file}.${crypto.randomUUID()}.tmp`;
   fs.writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
   fs.renameSync(temporary, file);
+}
+
+export function compareVersions(left, right) {
+  const a = left.split('.').map(Number);
+  const b = right.split('.').map(Number);
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1;
+  return 0;
 }
 
 export function acceptedVersion(version) {

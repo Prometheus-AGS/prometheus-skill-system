@@ -17,7 +17,9 @@
 #                         exit code: it is reported, not enforced here.
 #
 # Exit 0 done; 1 operational failure (dirty/diverged worktree, failed step);
-# 2 unusable input (bad flags, unreadable state, non-numeric iteration). Never
+# 2 unusable input (bad flags, unreadable state, non-numeric iteration);
+# 3 refused: a KBD phase with a bound contract is open (VLBV CR-16 — the pack's
+# procedure text must not change under a bound phase; refresh between phases). Never
 # defaults a missing iteration: a guess silently turned every run into a full one.
 # Bash 3.2 compatible.
 set -euo pipefail
@@ -103,8 +105,24 @@ PY
   echo "cadence iteration $ITERATION: $MODE" >&2
 fi
 
+# --- VLBV CR-16: never change procedure text under an open, bound phase
+open_bound_phase() {
+  local root="${KBD_ROOT:-$PWD}" status phase disposition
+  [ -d "$root/.kbd-orchestrator" ] || return 1
+  command -v prometheus >/dev/null 2>&1 || { echo "refresh-skill-pack: prometheus CLI absent; open-phase check skipped" >&2; return 1; }
+  status="$(prometheus kbd --path "$root" status --json 2>/dev/null)" || return 1
+  phase="$(printf '%s' "$status" | jq -r '.activePath.phaseId // empty' 2>/dev/null)"
+  [ -n "$phase" ] || return 1
+  disposition="$(prometheus kbd --path "$root" phase disposition --id "$phase" --json 2>/dev/null | jq -r '.disposition // .status // empty' 2>/dev/null)"
+  [ "$disposition" = "OPEN" ] || return 1
+  printf '%s' "$phase"
+}
+
 # --- full refresh
 if [ "$MODE" = "full" ]; then
+  if [ "$TEST_MODE" != "1" ] && OPEN_PHASE="$(open_bound_phase)"; then
+    die 3 "refusing to refresh the skill pack while phase '$OPEN_PHASE' is open with a bound contract; refresh between phases (VLBV CR-16)"
+  fi
   [ -z "$(git -C "$DEPLOY" status --porcelain)" ] \
     || die 1 "refusing to refresh a dirty deploy worktree: $DEPLOY"
   git -C "$DEPLOY" fetch --quiet origin main >&2 || die 1 "git fetch origin main failed in $DEPLOY"

@@ -19,14 +19,14 @@ metadata:
 
 **Domain-landscape-first evolution** for KBD-orchestrated projects.
 
-## When to use vs `/kbd-next-phase`
+## When to use vs `kbd-next-phase`
 
 | Command | Trigger | What it does |
 |---------|---------|-------------|
-| `/kbd-next-phase` | Planned roadmap has a clear next step | Advances to the next phase in the existing plan |
-| `/kbd-evolve` | Unclear what to build next; want external validation | Surveys the domain landscape, scores opportunities, produces a fresh brief |
+| `kbd-next-phase` | Planned roadmap has a clear next step | Advances to the next phase in the existing plan |
+| `kbd-evolve` | Unclear what to build next; want external validation | Surveys the domain landscape, scores opportunities, produces a fresh brief |
 
-Use `/kbd-evolve` when the KBD roadmap is empty, exhausted, or you want to recalibrate against external reality rather than follow internal plans.
+Use `kbd-evolve` when the KBD roadmap is empty, exhausted, or you want to recalibrate against external reality rather than follow internal plans.
 
 ## Inputs
 
@@ -170,7 +170,7 @@ If surreal-memory is available, the evolution cycle is also recorded as an entit
 
 ## Integration with /kbd-new-phase
 
-After `/kbd-evolve` completes:
+After `kbd-evolve` completes:
 ```
 /kbd-new-phase <suggested-name> --seed .kbd-orchestrator/evolution-briefs/<name>.md
 ```

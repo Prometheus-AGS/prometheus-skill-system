@@ -1,6 +1,6 @@
 ---
 name: value-scenario-discovery
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 description: >
   Propose a finite, owner-calibrated set of useful behavioral scenarios before
@@ -15,7 +15,7 @@ metadata:
 
 # Value scenario discovery
 
-Invoke `/value-scenario-discovery <phase-or-contract-reference>` to propose
+Invoke `value-scenario-discovery <phase-or-contract-reference>` to propose
 scenarios, not to run them. This is instruction-only integration of the
 independently usable [VLBV method](https://ipfs.prometheusags.ai/ipfs/bafybeihp44qigr3g5zoalkt3p6xvovaglcuzbsp3l4os5vba26glfz6zya/index.html).
 
@@ -36,6 +36,13 @@ constraints, exclusions and decision owner. Reuse calibration already reviewed i
 this phase; do not ask for the same approval again. If examples are absent, draft
 a few useful-positive, rejected/deferred and rare-critical examples for owner
 review before dependent generation. Examples remain proposals until reviewed.
+
+Reviewed examples live in the phase artifact `calibration.json` — positive,
+rejected/deferred and rare-critical examples, each with the owner's verdict. A v2
+contract binds it by `calibration.examplesPath` and `calibration.sha256`. A later
+phase reuses the previous phase's `calibration.json` (and the prior-context
+accuracy counts written by `kbd-reflect`) instead of asking for the same approval
+again; a harness handoff repeats only a held-out calibration check.
 
 ## Produce the finite frontier
 
@@ -70,8 +77,13 @@ mandatory constraints. Report assumptions, rejected alternatives, UNKNOWNs and
 the specific pending owner decision. Do not label unreviewed output adopted.
 
 Assess uses the proposal to refine usefulness. Spec/Plan map only adopted cases
-into the existing `adopted-contract.json` scenarioMatrix: stable ID, owner task,
-production entry, oracle, negativeControl, fixtures and evidence. Acceptance-bearing
+into the existing `adopted-contract.json` scenarioMatrix (contract v2): stable
+ID, actor, useful outcome, source requirement or `assumption:`, reason now,
+likelihood, mandatory flag, owner task, production entry, structured oracle with an
+independent truth source, negative control bound to a packet command, real and
+substituted boundaries, limitations, invalidation keys, restoration, and a
+`stochastic` block for anything nondeterministic. `kbd-contract-adopt.sh` lints
+these before adoption. Acceptance-bearing
 calibration/supporting documents must be identity-bound through that contract's
 current adoption/amendment mechanism; never create a competing acceptance ledger.
 

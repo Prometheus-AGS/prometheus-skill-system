@@ -48,7 +48,16 @@ import { POINTER_PATTERN, isWithin, resolveCodexHome } from './lib/store-paths.j
 let CAPABILITIES = null;
 let VERIFIED_TRUST_STORE_DIGEST = null;
 
-const TARGETS = [
+// The signed target matrix. `.agents/skills` is the canonical root, installed
+// ONCE as real directories: Codex ignores symlinked skill directories, and
+// OpenCode, Kimi Code, Cursor, Gemini, Zed, Cline and the rest read it directly.
+// Claude Code and Qwen Code do not read it, so they keep a symlink shim.
+const TARGETS = ['.agents/skills', '.claude/skills', '.qwen/skills'];
+const COPY_TARGETS = new Set(['.agents/skills']);
+// The 14-entry matrix every generation before the canonical-root change was
+// signed with. Old generations stay verifiable (rollback, copy ownership,
+// receipts, retirement) by matching the matrix they recorded, never this one.
+const LEGACY_TARGETS = [
   '.claude/skills',
   '.opencode/skills',
   '.kimi-code/skills',
@@ -64,7 +73,14 @@ const TARGETS = [
   '.zed/skills',
   '.cline/skills',
 ];
-const COPY_TARGETS = new Set(['.minimax/skills', '.codex/skills']);
+const LEGACY_COPY_TARGETS = new Set(['.minimax/skills', '.codex/skills']);
+const KNOWN_TARGET_MATRICES = [
+  { targets: TARGETS, copyTargets: COPY_TARGETS },
+  { targets: LEGACY_TARGETS, copyTargets: LEGACY_COPY_TARGETS },
+];
+// Former per-harness projections. Install removes only what the pack provably
+// owns there (see cleanupRetiredTargets); the directories themselves stay.
+const RETIRED_TARGETS = LEGACY_TARGETS.filter(target => !TARGETS.includes(target));
 const REQUIRED_SCRIPTS = [
   'kbd-contract-adopt.sh',
   'kbd-phase-readiness-check.sh',
@@ -1131,6 +1147,36 @@ function targetPayloads(skills, executionComponent) {
   }));
 }
 
+/**
+ * The target matrix a generation was signed with, or a failure.
+ *
+ * A generation certifies exactly one known matrix, entry for entry and in
+ * order: the current canonical-root matrix, or the legacy 14-target matrix of
+ * every generation signed before it. Old generations are therefore verified
+ * against what they recorded, and an edited or partial matrix still fails.
+ */
+function recordedTargetMatrix(manifest) {
+  const payloads = manifest.targetPayloads;
+  if (!Array.isArray(payloads)) fail('generation has no target payload matrix');
+  const known = KNOWN_TARGET_MATRICES.find(
+    matrix =>
+      payloads.length === matrix.targets.length &&
+      matrix.targets.every(
+        (target, index) =>
+          payloads[index]?.target === target &&
+          payloads[index]?.mode === (matrix.copyTargets.has(target) ? 'copy' : 'symlink')
+      )
+  );
+  if (!known) fail('generation target payload matrix matches no known signed matrix');
+  return known.targets;
+}
+
+/** The requested targets this generation actually certifies, in request order. */
+function certifiedTargets(manifest, targets) {
+  const recorded = new Set(recordedTargetMatrix(manifest));
+  return targets.filter(target => recorded.has(target));
+}
+
 function verifyExecutionComponent(generationPath, manifest) {
   const component = manifest.executionComponent;
   if (
@@ -1414,20 +1460,15 @@ function verifyGeneration(
     trustStorePath
   );
   if (manifest.signerKeyId !== signerKeyId) fail('manifest signer does not match its signature');
-  if (!Array.isArray(manifest.targetPayloads) || manifest.targetPayloads.length !== TARGETS.length)
-    fail('generation does not certify all 14 targets');
+  recordedTargetMatrix(manifest);
   verifyExecutionComponent(generationPath, manifest);
-  for (let index = 0; index < TARGETS.length; index += 1) {
-    const payload = manifest.targetPayloads[index];
-    const wantedMode = COPY_TARGETS.has(TARGETS[index]) ? 'copy' : 'symlink';
+  for (const payload of manifest.targetPayloads) {
     if (
-      payload?.target !== TARGETS[index] ||
-      payload?.mode !== wantedMode ||
       payload?.executionComponentSha256 !== manifest.executionComponent.sha256 ||
       payload?.executionCapabilitySha256 !== manifest.executionComponent.capabilityMetadataSha256 ||
       payload?.executionComponentIndexSha256 !== manifest.executionComponent.indexSha256
     ) {
-      fail('generation target payload matrix does not match the canonical 14 targets');
+      fail('generation target payload does not certify its execution component');
     }
   }
   if (manifest.schemaVersion === 1) {
@@ -1783,6 +1824,16 @@ function isManagedCopy(
   return false;
 }
 
+// A target that changed from symlink to copy mode (`.agents/skills`) still
+// holds the pack's own links. They are replaced by the copy, never treated as a
+// foreign collision. Anything that is not a pack-owned link is left alone.
+function releaseManagedLink(destination, pluginRoot, skill) {
+  const stat = fs.lstatSync(destination, { throwIfNoEntry: false });
+  if (stat?.isSymbolicLink() && isManagedSkillLink(destination, pluginRoot, skill)) {
+    fs.unlinkSync(destination);
+  }
+}
+
 function copySkill(
   source,
   targetRoot,
@@ -1795,6 +1846,8 @@ function copySkill(
 ) {
   ensureDirectory(targetRoot);
   let destination = path.join(targetRoot, skill.name);
+  releaseManagedLink(destination, pluginRoot, skill);
+  releaseManagedLink(path.join(targetRoot, `prometheus-${skill.name}`), pluginRoot, skill);
   if (
     fs.existsSync(destination) &&
     !isManagedCopy(destination, target, pluginRoot, trustStorePath)
@@ -1843,9 +1896,91 @@ function targetIsCopy(target) {
 }
 
 function targetRootFor(home, target) {
-  return target === '.codex/skills'
-    ? path.join(resolveCodexHome(home), 'skills')
-    : path.join(home, ...target.split('/'));
+  const root =
+    target === '.codex/skills'
+      ? path.join(resolveCodexHome(home), 'skills')
+      : path.join(home, ...target.split('/'));
+  return resolveRootLink(root);
+}
+
+// A skill root may itself be a symlink (e.g. ~/.agents/skills -> a shared skills
+// tree). Install INTO the directory it names and never replace the link.
+function resolveRootLink(root) {
+  if (!fs.lstatSync(root, { throwIfNoEntry: false })?.isSymbolicLink()) return root;
+  try {
+    return fs.realpathSync(root);
+  } catch {
+    fail(`skill root is a dangling symlink; repair or remove it, then reinstall: ${root}`);
+  }
+}
+
+/**
+ * Remove the pack's own entries from retired per-harness skill roots.
+ *
+ * Ownership is proven per entry, never assumed from location:
+ *   - a symlink whose target resolves inside this plugin root, or
+ *   - a directory that isManagedCopy() proves is a pack-managed copy.
+ * Everything else, and every root directory itself, is left in place. Failures
+ * are reported and never abort the install: a stranded copy is harmless and the
+ * next install retries.
+ */
+function cleanupRetiredTargets(home, pluginRoot, trustStorePath) {
+  const removed = [];
+  const liveRoots = new Set(TARGETS.map(target => realRootOrNull(home, target)).filter(Boolean));
+  for (const target of RETIRED_TARGETS) {
+    let targetRoot;
+    try {
+      targetRoot = targetRootFor(home, target);
+      if (!fs.lstatSync(targetRoot, { throwIfNoEntry: false })?.isDirectory()) continue;
+      // A retired root aliased onto a live one (e.g. ~/.opencode/skills linked to
+      // ~/.agents/skills) holds the CURRENT projection: never clean it.
+      if (liveRoots.has(fs.realpathSync(targetRoot))) continue;
+      for (const name of fs.readdirSync(targetRoot).sort()) {
+        const kind = removeRetiredEntry(path.join(targetRoot, name), target, targetRoot, pluginRoot, trustStorePath);
+        if (kind) removed.push({ target, path: path.join(targetRoot, name), kind });
+      }
+      syncDirectory(targetRoot);
+    } catch (error) {
+      process.stderr.write(`Retired target cleanup skipped ${targetRoot ?? target}: ${error.message}\n`);
+    }
+  }
+  return removed;
+}
+
+function realRootOrNull(home, target) {
+  try {
+    return fs.realpathSync(targetRootFor(home, target));
+  } catch {
+    return null;
+  }
+}
+
+function removeRetiredEntry(destination, target, targetRoot, pluginRoot, trustStorePath) {
+  const stat = fs.lstatSync(destination, { throwIfNoEntry: false });
+  if (stat?.isSymbolicLink()) {
+    if (!isWithin(pluginRoot, path.resolve(targetRoot, fs.readlinkSync(destination)))) return null;
+    fs.unlinkSync(destination);
+    return 'symlink';
+  }
+  if (stat?.isDirectory() && isManagedCopy(destination, target, pluginRoot, trustStorePath)) {
+    fs.rmSync(destination, { recursive: true, force: true });
+    return 'copy';
+  }
+  return null;
+}
+
+function recordRetiredCleanup(pluginRoot, home, generation, removed) {
+  if (removed.length === 0) return;
+  atomicWrite(
+    path.join(pluginRoot, 'receipts', 'retired-target-cleanup.json'),
+    canonicalJson({ schemaVersion: 1, generation, home, removed }),
+    0o600
+  );
+  process.stderr.write(
+    `Retired target cleanup: removed ${removed.length} pack-owned entr${removed.length === 1 ? 'y' : 'ies'} ` +
+      `from ${new Set(removed.map(entry => entry.target)).size} retired root(s); ` +
+      `see ${path.join(pluginRoot, 'receipts', 'retired-target-cleanup.json')}\n`
+  );
 }
 
 function installTargets(
@@ -1983,8 +2118,7 @@ function writeTargetReceipts(pluginRoot, manifest, identity, targets = TARGETS) 
 }
 
 function verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets = TARGETS) {
-  if (manifest.targetPayloads.length !== TARGETS.length)
-    fail('target receipt matrix is incomplete');
+  recordedTargetMatrix(manifest);
   const selected = new Set(targets);
   const verified = [];
   for (const targetPayload of manifest.targetPayloads.filter(entry => selected.has(entry.target))) {
@@ -2324,6 +2458,7 @@ function uninstall(
     }
     syncDirectory(targetRoot);
   }
+  if (removePluginRoot) cleanupRetiredTargets(home, pluginRoot, trustStorePath);
   if (removePluginRoot && fs.existsSync(pluginRoot)) {
     fs.rmSync(pluginRoot, { recursive: true, force: true });
     syncDirectory(path.dirname(pluginRoot));
@@ -2421,7 +2556,7 @@ function validateActivationRecord(args, record) {
     !Array.isArray(body.targets) ||
     body.targets.length === 0 ||
     new Set(body.targets).size !== body.targets.length ||
-    body.targets.some(target => !TARGETS.includes(target))
+    body.targets.some(target => !TARGETS.includes(target) && !LEGACY_TARGETS.includes(target))
   ) {
     fail('activation journal context is invalid; use the original home and CODEX_HOME to recover');
   }
@@ -2453,13 +2588,16 @@ function completeActivation(args, record, contract) {
   }
   validateBundleIndex(args.pluginRoot, generationPath, manifest, args.trustStore);
   const skills = collectSkills(path.join(generationPath, 'skills'));
+  // A journal written before the canonical-root change can name retired
+  // targets. Their receipts stay valid, but only current targets are projected.
+  const materialized = body.targets.filter(target => TARGETS.includes(target));
   installTargets(
     args.home,
     args.pluginRoot,
     generationPath,
     body.generation,
     skills,
-    body.targets,
+    materialized,
     manifest,
     args.trustStore
   );
@@ -2469,7 +2607,7 @@ function completeActivation(args, record, contract) {
     generationPath,
     body.generation,
     skills,
-    body.targets,
+    materialized,
     args.trustStore
   );
   assertNoCollisions(false);
@@ -2490,9 +2628,11 @@ function completeActivation(args, record, contract) {
     `generations/${body.generation}`
   );
   createStableDispatchers(args.pluginRoot);
-  verifyActive(args.pluginRoot, args.trustStore, contract, body.targets, args.home, true);
+  verifyActive(args.pluginRoot, args.trustStore, contract, materialized, args.home, true);
   fs.unlinkSync(path.join(args.pluginRoot, ACTIVATION_JOURNAL));
   syncDirectory(path.join(args.pluginRoot, 'pointers'));
+  const removed = cleanupRetiredTargets(args.home, args.pluginRoot, args.trustStore);
+  recordRetiredCleanup(args.pluginRoot, args.home, body.generation, removed);
   return body.generation;
 }
 
@@ -2522,8 +2662,8 @@ function cancelPendingActivation(args, contract) {
     const manifest = verifyGeneration(generationPath, path.basename(body.previous), args.trustStore);
     assertMinimumActiveVersion(manifest.sourceVersion, contract, 'pre-install generation');
     const identity = ensureSigningIdentity(args.signingKey, args.trustStore);
-    const cancellation = activationRecord(args, manifest, identity, body.targets,
-      currentTarget(args.pluginRoot, 'previous'), true);
+    const cancellation = activationRecord(args, manifest, identity,
+      certifiedTargets(manifest, body.targets), currentTarget(args.pluginRoot, 'previous'), true);
     atomicWrite(path.join(args.pluginRoot, 'pointers/cancelled-activations', `${body.generation}.json`), canonicalJson(record), 0o600);
     atomicWrite(journal, canonicalJson(cancellation), 0o600);
     return completeActivation(args, cancellation, contract);
@@ -2534,7 +2674,9 @@ function activate(args, manifest, identity, targets, contract, rollback = false)
   const active = currentTarget(args.pluginRoot, 'current');
   const target = `generations/${manifest.generation}`;
   const previous = active !== target ? active : currentTarget(args.pluginRoot, 'previous');
-  const record = activationRecord(args, manifest, identity, targets, previous, rollback);
+  const certified = certifiedTargets(manifest, targets);
+  if (certified.length === 0) fail('generation certifies none of the selected targets');
+  const record = activationRecord(args, manifest, identity, certified, previous, rollback);
   atomicWrite(path.join(args.pluginRoot, ACTIVATION_JOURNAL), canonicalJson(record), 0o600);
   return completeActivation(args, record, contract);
 }
@@ -2557,6 +2699,8 @@ function verifyActive(
     fail('active pointer escapes generations directory');
   const manifest = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
   if (contract) assertMinimumActiveVersion(manifest.sourceVersion, contract, 'active generation');
+  // A legacy generation (rollback) certifies no `.qwen/skills`; verify what it signed.
+  targets = certifiedTargets(manifest, targets);
   verifyPointerLink(pluginRoot, 'current', target);
   verifyPointerLink(pluginRoot, 'previous', currentTarget(pluginRoot, 'previous'));
   verifyStableDispatchers(pluginRoot, manifest);
@@ -2884,7 +3028,9 @@ function install(args) {
 }
 
 function copyTargetReferencesGeneration(home, generation) {
-  for (const target of TARGETS.filter(targetIsCopy)) {
+  // Retired copy roots are scanned too: pruning a generation that a stranded
+  // copy still names would make that copy unprovable and so never cleaned up.
+  for (const target of new Set([...TARGETS.filter(targetIsCopy), ...LEGACY_COPY_TARGETS])) {
     const targetRoot = targetRootFor(home, target);
     if (!fs.existsSync(targetRoot)) continue;
     for (const name of fs.readdirSync(targetRoot)) {

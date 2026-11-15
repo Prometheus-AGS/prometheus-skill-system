@@ -32,7 +32,7 @@ for ref in immutable-tests.md visual-baseline-refresh.md; do
 done
 
 # --- scripts parse ---
-for s in flake-budget.sh test-file-diff-guard.sh; do
+for s in test-file-diff-guard.sh; do
     if bash -n "$SKILL_DIR/scripts/$s"; then
         pass "$s parses"
     else
@@ -53,14 +53,11 @@ else
     fail "test-file-diff-guard: clean range did not exit 0"
 fi
 
-# --- flake-budget: bad-args path exits non-zero ---
-TMP=$(mktemp -d)
-if bash "$SKILL_DIR/scripts/flake-budget.sh" /nonexistent /nonexistent \
-        >/dev/null 2>&1; then
-    fail "flake-budget: expected non-zero exit on missing paths"
+# --- retired flake budget stays retired (VLBV: no retry-until-green) ---
+if [ -e "$SKILL_DIR/scripts/flake-budget.sh" ]; then
+    fail "flake-budget.sh was retired by the stochastic profile and must not return"
 else
-    pass "flake-budget: rejects missing paths"
+    pass "flake-budget.sh retired"
 fi
-rm -rf "$TMP"
 
 exit "$FAIL"

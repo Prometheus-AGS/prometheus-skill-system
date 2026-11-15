@@ -63,8 +63,10 @@ For each action in the phase:
 **Software domain**:
 
 - Code changes → file editing tools
-- Build verification → terminal commands (`cargo check`, `npm build`, etc.)
-- Test execution → terminal commands (`cargo test`, `pytest`, etc.)
+- Build and test commands → **not run here** when the evolution drives KBD/VLBV
+  work: they are boundary-packet entries executed once at the value-phase
+  boundary (`kbd-process-orchestrator/references/boundaries.md`). Record the
+  intended commands as packet candidates instead.
 - Documentation → file creation/editing
 
 **Business domain**:

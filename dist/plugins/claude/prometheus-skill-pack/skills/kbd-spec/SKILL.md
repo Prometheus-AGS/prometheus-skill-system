@@ -21,8 +21,9 @@ Converts `assessment.md` (and `analysis.json` / `library-candidates.json` when
 the Analyze stage ran) into concrete change specs that the Plan stage will
 order and the Execute stage will drive one task per turn:
 
-- **openspec backend** (primary, OpenSpec 1.16.0+): emits `/opsx:new <change-id>`
-  per change through the managed runner, producing
+- **openspec backend** (primary, OpenSpec 2.0.0, pack-pinned): creates each change
+  with the CLI through the managed runner (`node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" run --project <root> -- new change <change-id>`;
+  OpenSpec 2.0 removed the `/opsx:*` commands), producing
   `openspec/changes/<change-id>/{proposal.md, design.md, specs/, tasks.md}`.
   Every `Scenario:` carries a WHEN (or GIVEN) step and a THEN step;
   `openspec validate --strict` fails a scenario missing either.
@@ -39,7 +40,7 @@ resolves — no pin, no `openspec/`, no Spec Kit tree and no native changes — 
 not fall back silently: initialize OpenSpec with
 `node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" init --project "<project-root>"`
 and set `"specBackend": "openspec"` in `project.json`, unless the operator chose
-Spec Kit (see `/kbd-init --spec-engine`).
+Spec Kit (see `kbd-init --spec-engine`).
 
 ## Progress Signals (MANDATORY)
 
@@ -72,7 +73,7 @@ Never guess. Emit to plain response text — no tool call needed.
    `library-candidates.json` if Analyze ran (adopt/adapt candidates become
    "reuse this library" tasks, not "build it" tasks).
 5. **Resolve backend** — `kbd-apply detect` semantics.
-6. **Write change specs** — `/opsx:new` (or Spec Kit / native-kbd files) per change, with a
+6. **Write change specs** — runner `new change <change-id>` (or Spec Kit / native-kbd files) per change, with a
    declared `scope:` and explicit task list each. Apply
    `references/templates/acceptance.template.md` for every specified behavior:
    copy its populated contract into native `verification.md`, or the OpenSpec
@@ -89,7 +90,12 @@ Never guess. Emit to plain response text — no tool call needed.
    `references/integrations/adversarial-review.md`). CRITICAL findings → revise
    the affected `spec.md` / `tasks.json` / `verification.md` and re-vet (max 2
    rounds, then accept with an "Unresolved review findings" section appended).
-   WARNING findings → carry into the stage handoff.
+   WARNING findings → carry into the stage handoff. **Exception (VLBV CR-30):** an
+   unresolved CRITICAL on the contract's acceptance content (`scenarioMatrix`,
+   oracles, negative controls, `boundaryPacket`) is never accepted this way —
+   adoption waits for an owner decision (`kbd-contract-adopt.sh --owner-decision`).
+   Review that content against AT 01–22 and ask, per oracle, what false result
+   would pass it.
 
    The packet collects **every change named in the spec handoff**, not one change
    at a time: a spec is only coherent against its siblings. The failures this
@@ -133,18 +139,22 @@ negative control, fixture identity (scratch roots + digests), evidence
 requirements, and owning task ID per scenario — using
 references/templates/acceptance.template.md fields. Separate functional scope
 from resilience scope; adopted resilience requirements never defer via budget
-overflow. Author the phase `adopted-contract.json`
-(schema: references/schemas/adopted-contract.schema.json) in this stage.
+overflow. Author the phase `adopted-contract.json` as **contract v2**
+(schema: references/schemas/adopted-contract.v2.schema.json; field list generated
+into references/templates/adopted-contract.template.md) in this stage. Stamp
+`method.specDeltaDigest` with `shared/scripts/kbd-spec-delta-digest.sh --phase <id>`
+and bind owner-reviewed examples through `calibration`. Check it with
+`kbd-contract-adopt.sh --lint-only <contract>` before asking for adoption.
 
 ## Selected-method recovery and authority
 
 Before dependent work, run `node shared/method-context.mjs --project <project-root> --phase <canonical-phase-id> --write` from the resolved orchestrator root (or read the phase-local `method-context.md` when Node is unavailable) and act on its `status`:
 
 - `RESOLVED_REFERENCES` — continue with the recovered method, contract and stage authority; preserve the same references in role inputs, dispatch and handoff read order.
-- `BLOCKED` — a method decision, contract, calibration or supersession is missing or changed; resolve it explicitly. Prior commands, memory and tool inventories are not fresh authority.
-- `CONFLICT` — governing host policy conflicts with the selected method. Stop before dependent work and show the conflict; continue only after the operator records a `KBD-POLICY-ACK` decision for that file's current hash. Never rewrite operator-owned policy. When host policy grants an exception — for example one narrow, targeted compiler check after a blocking compile error — name it as host policy, state that it conflicts with the selected method, and say it does not authorize tests, dry-runs or generated-code verification.
+- `BLOCKED` — the contract, its binding, a calibration reference, a supersession or a deviation's cadence/reason is missing or changed; resolve it explicitly. Prior commands, memory and tool inventories are not fresh authority.
+- `CONFLICT` — a governing rule file the active harness loads grants an exception VLBV forbids (for example a compiler check during generation). Stop before dependent work and show the conflict; continue only after the operator records a `KBD-POLICY-ACK` decision for that file's current hash. Never rewrite operator-owned policy, and never treat an exception as authority for tests, builds, dry-runs or generated-code verification.
 
-For selected VLBV, define acceptance before generation and finish the whole agreed value phase before any generated-code verification; tasks, hours, commits, reviewer requests and compiler problems create no boundary. Preserve original evidence, consumed budgets and unresolved effects across resume and supersession; reconcile an uncertain effect before any retry. Full rules: `references/method-context.md`.
+VLBV is the method for every phase (project default `verificationMethod: "VLBV"`); a deviation exists only as a signed `KBD-METHOD` decision naming the method, its execution cadence and its reason, and it is disclosed in the closure packet. Define acceptance before generation; generated code executes only at the value-phase boundary (B4) and, after an authorized repair, at B5 — see `references/boundaries.md`. Tasks, hours, commits, reviewer requests and compiler problems create no boundary. Preserve original evidence, consumed budgets and unresolved effects across resume and supersession; reconcile an uncertain effect before any retry. Full rules: `references/method-context.md`.
 
 ## Value scenario discovery
 

@@ -101,6 +101,7 @@ if command -v kbd_resolve_role >/dev/null 2>&1; then
   ADV_ROLE_CRITIC="$(kbd_resolve_role critic 2>/dev/null || true)"
   ADV_ROLE_BACKUP="$(kbd_resolve_role backup 2>/dev/null || true)"
   ADV_ROLE_GENERATOR="$(kbd_resolve_role generator 2>/dev/null || true)"
+  ADV_ROLE_LOCAL="$(kbd_resolve_role local 2>/dev/null || true)"   # on-device Apple FM; reported only, never a judge
   ADV_ID_JUDGE="$(kbd_resolve_role_identity judge 2>/dev/null || true)"
   ADV_ID_CRITIC="$(kbd_resolve_role_identity critic 2>/dev/null || true)"
   ADV_ID_BACKUP="$(kbd_resolve_role_identity backup 2>/dev/null || true)"
@@ -110,7 +111,7 @@ if command -v kbd_resolve_role >/dev/null 2>&1; then
   ADV_SRC_GENERATOR="$(kbd_resolve_source generator 2>/dev/null || true)"
   ADV_GATEWAY="$(kbd_resolve_gateway 2>/dev/null || true)"
 fi
-export ADV_ROLE_JUDGE ADV_ROLE_CRITIC ADV_ROLE_BACKUP ADV_ROLE_GENERATOR
+export ADV_ROLE_JUDGE ADV_ROLE_CRITIC ADV_ROLE_BACKUP ADV_ROLE_GENERATOR ADV_ROLE_LOCAL
 export ADV_ID_JUDGE ADV_ID_CRITIC ADV_ID_BACKUP
 export ADV_SRC_JUDGE ADV_SRC_CRITIC ADV_SRC_BACKUP ADV_SRC_GENERATOR ADV_GATEWAY
 

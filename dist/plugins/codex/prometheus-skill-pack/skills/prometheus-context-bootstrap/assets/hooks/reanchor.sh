@@ -61,7 +61,7 @@ if [[ -f "$wp" ]] && command -v jq >/dev/null 2>&1; then
   fi
 fi
 echo "Recovery preserves latest supersession, original evidence, candidate freshness, consumed budgets and unresolved effects. Reconcile uncertain effects before retry."
-echo "For selected VLBV: only the complete agreed value-phase boundary with separate authority permits generated-code verification. Host-policy conflicts remain explicit; no generic tool interception is claimed."
+echo "VLBV (pack default): generated code executes only at the value-phase boundary (B4) or an authorized repair (B5). State the boundary rule before acting; host-policy conflicts remain explicit; no generic tool interception is claimed."
 
 # Surface the most recent learned constraints. Three lines, not the file.
 g="$root/.prometheus/gotchas.md"

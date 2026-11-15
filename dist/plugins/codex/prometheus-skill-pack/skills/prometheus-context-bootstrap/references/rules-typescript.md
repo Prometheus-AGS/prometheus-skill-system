@@ -6,9 +6,9 @@ paths: ['**/*.ts', '**/*.tsx', '**/package.json', '**/tsconfig.json']
 
 Loaded when a TypeScript file is read. Not resident.
 
-Batch implementation until a production path is complete. Use a narrow type check
-earlier only when it is needed to unblock work. At a completed change boundary, run
-the smallest browser, API, process, or build integration that exercises the real
+Batch implementation until the agreed value phase is complete; editor/LSP diagnostics
+are reading, not execution. Run no build, check, lint or test before the value-phase
+boundary (VLBV B4). There, the boundary packet runs the smallest browser, API, process, or build integration that exercises the real
 entry point and collaborators. Unit, component-only, snapshot, and per-edit tests are
 not completion evidence. Reserve broad end-to-end, visual, and bundle gates for the
 final applicable phase or release boundary.
@@ -34,4 +34,4 @@ component. No browser storage in artifacts.
 
 ## Selected phase method
 
-Before this stack work, recover the active phase method-context.md and adopted contract from signed canonical KBD status/decisions. For selected VLBV, complete the agreed whole value phase before generated-code builds, tests, imports, lint/typecheck or verification probes; a stack-specific compiler/check example is not permission. Surface host-policy conflicts before dependent action. Retain supersession, evidence/candidate freshness, consumed budgets and unresolved effects; reconcile uncertain effects before retry. This path rule is instruction-only, not universal interception.
+Before this stack work, recover the active phase method-context.md and adopted contract from signed canonical KBD status/decisions. Under VLBV (the pack default; deviations are signed KBD-METHOD decisions), complete the agreed whole value phase before generated-code builds, tests, imports, lint/typecheck or verification probes; a stack-specific compiler/check example is not permission. Surface host-policy conflicts before dependent action. Retain supersession, evidence/candidate freshness, consumed budgets and unresolved effects; reconcile uncertain effects before retry. This path rule is instruction-only, not universal interception.

@@ -40,12 +40,12 @@ Triggers are defined in `workflow_triggers` within the evolution state or in a s
       }
     },
     {
-      "id": "run-tests-after-execute",
+      "id": "notify-after-execute",
       "event": "on_phase_complete",
       "condition": "phase == 'execute' && domain == 'software'",
       "action": {
         "type": "command",
-        "target": "cargo test",
+        "target": "echo 'execute phase complete; generated-code checks run at the KBD value-phase boundary (B4)'",
         "inputs": {},
         "timeout": 300
       }

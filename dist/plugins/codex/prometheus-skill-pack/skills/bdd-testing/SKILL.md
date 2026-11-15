@@ -11,11 +11,12 @@ metadata:
   category: testing
   tags: [testing, bdd, deprecated, redirect]
   supersededBy: bdd-cucumber-js
+  removalPlanned: '3.0.0'
 ---
 
 # bdd-testing (deprecated alias)
 
-**This skill is superseded by [bdd-cucumber-js](../bdd-cucumber-js/SKILL.md).**
+**This skill is superseded by [bdd-cucumber-js](../bdd-cucumber-js/SKILL.md) and will be removed in pack 3.0.0.** Verification follows VLBV — see [vlbv](../vlbv/SKILL.md).
 
 `bdd-testing` used to bundle cucumber-js + Playwright guidance with
 Next.js SSR wording. It has been replaced by four project-agnostic skills:
@@ -24,7 +25,7 @@ Next.js SSR wording. It has been replaced by four project-agnostic skills:
 |-----------|---------|
 | [bdd-cucumber-js](../bdd-cucumber-js/SKILL.md) | Author + run cucumber-js 13 + playwright-bdd + tsx |
 | [bdd-cucumber-rs](../bdd-cucumber-rs/SKILL.md) | Author + run cucumber 0.23 + thirtyfour for Rust |
-| [bdd-lifecycle-loop](../bdd-lifecycle-loop/SKILL.md) | create → run → triage → maintain workflow |
+| [bdd-lifecycle-loop](../bdd-lifecycle-loop/SKILL.md) | VLBV define → author → execute (B4) → triage → maintain |
 | [bdd-video-proof](../bdd-video-proof/SKILL.md) | Certification bundle format |
 
 **If you invoked this skill:** switch to `bdd-cucumber-js`. All of the

@@ -6,7 +6,7 @@ export function phasePolicyPrompt(inputs = []) {
     return 'Phase policy: before dependent work resolve the active phase method-context.md and adopted contract from current signed KBD status/decisions. ' +
         `Selected role input references: ${JSON.stringify(references)}. ` +
         'Missing/stale references are explicit prerequisites, never guessed from memory, tool inventory or exactNextCommand. Recover selected method, current contract revision/digest, included value, exclusions and stage authority. ' +
-        'For selected VLBV finish the complete agreed value phase before generated-code tests/builds/imports/lint/typecheck/hooks/probes used as verification; task/hour/commit/reviewer requests and compiler problems are not boundaries. ' +
+        'Verification follows VLBV (pack default; a deviation is a signed KBD-METHOD decision): finish the complete agreed value phase before any generated-code tests/builds/imports/lint/typecheck/hooks/probes; generated code executes only at the boundary packet (B4) or an authorized repair (B5); task/hour/commit/reviewer requests and compiler problems are not boundaries. ' +
         'Scenario definition precedes generation; executable authoring follows governing host policy. Surface policy conflicts without rewriting operator-owned rules. ' +
         'Retain latest authorized supersession, original evidence, candidate freshness, consumed budgets and unresolved effects; reconcile uncertain effects before retry. ' +
         'This export is instruction-only; existing named runtime mutations/native host permissions retain their authority. No automatic successor or release authority.';

@@ -7,7 +7,13 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 SKILL_REL="skills/process/kbd-process-orchestrator/skills/kbd-next-phase"
 SKILL_DIR="${REPO_ROOT}/${SKILL_REL}"
 CANONICAL_SCRIPT="${SKILL_DIR}/scripts/kbd-next-phase.sh"
-CODEX_SCRIPT="${REPO_ROOT}/.codex/skills/kbd-next-phase/scripts/kbd-next-phase.sh"
+# Standalone project mirrors. Owner decision D3 makes .agents/skills the
+# canonical root (Codex reads it directly); a legacy .codex/skills mirror is
+# still checked while it exists, but neither location is assumed alone.
+STANDALONE_SCRIPTS=(
+  "${REPO_ROOT}/.agents/skills/kbd-next-phase/scripts/kbd-next-phase.sh"
+  "${REPO_ROOT}/.codex/skills/kbd-next-phase/scripts/kbd-next-phase.sh"
+)
 COMMAND_PATH="${SKILL_REL}/scripts/kbd-next-phase.sh"
 
 fail() {
@@ -20,8 +26,14 @@ pass() {
 }
 
 [[ -x "$CANONICAL_SCRIPT" ]] || fail "bundled helper is missing or not executable"
-[[ -x "$CODEX_SCRIPT" ]] || fail "standalone Codex helper is missing or not executable"
-cmp -s "$CANONICAL_SCRIPT" "$CODEX_SCRIPT" || fail "standalone Codex helper differs from canonical helper"
+standalone_found=0
+for standalone in "${STANDALONE_SCRIPTS[@]}"; do
+  [[ -e "$standalone" || -d "$(dirname "$(dirname "$standalone")")" ]] || continue
+  [[ -x "$standalone" ]] || fail "standalone helper is missing or not executable: ${standalone#"$REPO_ROOT"/}"
+  cmp -s "$CANONICAL_SCRIPT" "$standalone" || fail "standalone helper differs from canonical helper: ${standalone#"$REPO_ROOT"/}"
+  standalone_found=$((standalone_found + 1))
+done
+[[ "$standalone_found" -gt 0 ]] || fail "no standalone kbd-next-phase helper in .agents/skills or .codex/skills"
 pass "installed skill payloads contain the executable helper"
 
 COMMAND_FILES=(

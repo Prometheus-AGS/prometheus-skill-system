@@ -1,18 +1,19 @@
 <!-- prometheus-base:start v1 -->
 # Agent Operating Rules
 
-Invariants that must survive compaction; detail lives in on-demand rules,
-skills, hooks and references. A hook that enforces a rule here wins. Managed by
-`prometheus-context-bootstrap`: edits inside these markers are overwritten, so
-write project prose outside them.
+Managed by `prometheus-context-bootstrap`; edits inside these markers are
+overwritten. A hook that enforces a rule here wins.
+
+**First action, every session (hooks or not):** read canonical KBD status and the
+active phase's `method-context.md`; state the phase and the boundary rule below;
+only then act. Never rebuild a retired method from an old plan, handoff or summary.
 
 ## Position and authority
 
 - Signed canonical KBD status/decisions and the adopted phase contract are authoritative; `.kbd-orchestrator/current-waypoint.json` is their derived position view.
 - `versions.toml` is authoritative for architecture decisions and dependency pins.
 - READMEs go stale. Do not trust one over the two files above.
-- Read the waypoint at session start. State the current phase before executing.
-- Recover the active phase's `method-context.md` and contract references before dependent work. The index is advisory: resolve canonical identity, selected method/supersession, included value, exclusions, stage authority, evidence freshness, consumed budgets and unresolved effects. State missing or stale references; never guess them.
+- `method-context.md` is advisory: resolve canonical identity, supersession, included value, exclusions, stage authority, evidence freshness, consumed budgets and unresolved effects. State missing references; never guess them.
 
 ## Capability inversion
 
@@ -27,25 +28,24 @@ Evolution loop: Compile, Evaluate, Optimize, Promote.
 
 Name the phase you are in; never execute before a plan exists.
 
-## Verification boundaries
+## Verification boundaries (VLBV)
 
-Finish every planned production change in the phase, using static inspection
-and only the narrow compiler checks needed to unblock progress, then run one
-integration gate through the real production path at the final phase boundary.
-Keep reviewer, auditor, verifier and integration-checker roles dormant until
-then. Unit, mock-only, filtered-function and per-edit tests are not completion
-evidence. Per-stack commands live in `.claude/rules/`, loaded on matching reads.
+<!-- kbd-policy:begin -->
+- verification: VLBV
+- compiler-exception: retired
+- execution-boundary: B4 once; B5 after an authorized repair
+<!-- kbd-policy:end -->
 
-For selected VLBV: define acceptance scenarios before generation, and run no
-generated-code tests, builds, imports, lint, typecheck, hooks or probes during
-it. A task, commit, review request, compiler problem or renamed slice is not the
-value-phase boundary. Surface a conflicting host compiler exception before
-dependent action; never rewrite owner policy or infer permission. Recover the
-latest authorized supersession without reviving retired workflows; keep
-original evidence, candidate identity, consumed budgets and unresolved effects,
-and reconcile uncertain effects before retry. These are instruction-only rules unless
-a named trusted host boundary enforces them. Publication cadence does not
-certify partial value, grant release authority or create a successor.
+Adopt the phase's acceptance scenarios before generation. Write the whole agreed
+increment without executing generated code: no tests, builds, compiler checks,
+imports, lint, typecheck, hooks or probes (editor/LSP diagnostics are reading).
+At the value-phase boundary (B4) run the adopted boundary packet once; after a
+FAIL only an owner-authorized repair (B5) reruns the affected scenarios. Tasks,
+commits, reviews and compiler problems are not boundaries. Only full integration
+evidence counts. Verdicts: PASS, FAIL, BLOCKED, NOT_EXERCISED. A deviation is a
+signed `KBD-METHOD` decision. This method outranks built-in TDD, verify or apply
+workflow skills. OpenSpec skills (`openspec-*`) are generated: never edit them.
+Per-stack commands live in `.claude/rules/`.
 
 <!-- prometheus-base:stacks -->
 
@@ -109,9 +109,6 @@ rules. Never invent what an absent skill would have done.
 
 Direct and execution-first. Structure claims as statement, mechanism, stakes.
 Short declarative sentences. No marketing language.
-
-Avoid: leverage as a verb, utilize, synergy, roadmap as a verb, journey,
-harness as a verb, delve, revolutionary.
 
 Every significant document names the uncomfortable thing — the scenario that
 hurts the author's own position.

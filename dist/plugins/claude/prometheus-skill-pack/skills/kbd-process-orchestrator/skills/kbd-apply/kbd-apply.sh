@@ -19,7 +19,7 @@
 # detection shape + pin value to backend_detect.
 #
 # HARD INVARIANT: this driver never invokes a backend's "implement everything"
-# command (bare `/opsx:apply`, `/speckit.implement`). It calls the backend per
+# command (the bare `openspec-apply-change` skill (formerly `/opsx:apply`), `/speckit.implement`). It calls the backend per
 # task. That is the entire point of this phase (F1).
 #
 # Subcommands:

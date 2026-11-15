@@ -27,35 +27,27 @@ Generates `.kbd-orchestrator/phases/<phase-name>/reflection.md` summarizing:
 - Lessons captured for the knowledge base — one bullet per lesson, `[GLOBAL]` /
   `[USER]` prefixes for wider scopes; `reflect:after` writes them back through
   `memory-writeback.sh` (Codify as Skill? is never written back)
-- Next Phase Seed for `/kbd-next-phase`
+- Next Phase Seed for `kbd-next-phase`
 
-## Artifact Quality Summary
+## Contract accuracy (VLBV)
 
-Aggregate artifact-refiner results from all changes in the phase:
+Reflection measures how accurate the phase's adopted contract was, so the next
+phase's spec starts from real numbers. Read the counts from the closure packet,
+`boundary-results.json`, the contract lineage and the KBD journal — never estimate:
 
-1. **Read refinement logs** — `.refiner/artifacts/<change-id>/refinement_log.md`
-   for each change in `progress.json`
-2. **Compute pass rate** — `changes_passed / total_changes`
-3. **List constraint violations** — group by constraint name, count occurrences
-4. **Identify recurring patterns** — constraints that failed across 2+ changes
+| Metric | Value |
+| --- | --- |
+| Contract amendments after adoption | 1 (scope correction, signed) |
+| BLOCKED caused by the contract (missing fixture, wrong entry point, unrunnable oracle) | 0 |
+| NOT_EXERCISED scenarios | 1 (SCN-7, fixture unavailable) |
+| Repair attempts used / allowed | 1 / 2 |
+| Post-closure escapes (defects found after CLOSED that a scenario should have caught) | 0 |
+| Static QA / review findings at B4 step 5 (critical / warning) | 0 / 3 |
 
-Include in `reflection.md` under `## Artifact Quality Summary`:
-
-```markdown
-## Artifact Quality Summary
-
-| Metric                       | Value     |
-| ---------------------------- | --------- |
-| Changes with QA              | 8/10      |
-| First-pass pass rate         | 6/8 (75%) |
-| Changes requiring refinement | 2         |
-| Total refinement iterations  | 5         |
-
-### Recurring Constraint Violations
-
-- `no-any-types`: 3 changes (change-002, change-005, change-007)
-- `test-coverage-80`: 2 changes (change-003, change-008)
-```
+Write the same block to `.kbd-orchestrator/phases/<phase>/accuracy.json`; the
+prior-context writer carries it into the next phase so discovery and spec review
+cite it. Recurring constraint violations from the B4 step-5 refiner pass are listed
+underneath, by constraint and file — not by change.
 
 ## Evolver Feedback
 
@@ -65,7 +57,7 @@ When this phase is part of an iterative-evolver cycle:
 2. **Map change completion to evolver items** — using `item_to_change_map`
 3. **Write evolver execution results** — update `.evolver/evolutions/<name>/state.json`:
    - Set `execution_results` with per-item completion status
-   - Include artifact quality metrics
+   - Include the contract-accuracy metrics
 4. **Trigger evolver reflect** — the outer evolver loop picks up from here
 
 This bridges the KBD inner loop back to the iterative-evolver outer loop,
@@ -74,16 +66,20 @@ strategic goals.
 
 ## Prerequisites
 
-All changes for this phase must be:
+The phase must have completed the B4 sequence (`references/boundaries.md`):
 
-- Implemented (`implementation_status: COMPLETE` in `progress.json`)
-- QA gate passed (artifact-refiner, unless skipped)
-- If OpenSpec: verified (`kbd-apply verify`) and archived (`kbd-apply archive`)
-- If native KBD: moved to `.kbd-orchestrator/changes/archive/<date>-<id>/`
+- Every change implemented (`implementation_status: COMPLETE` in `progress.json`)
+- The boundary packet ran once (plus any authorized B5 repair) and
+  `boundary-results.json` exists
+- The cumulative B4 step-5 QA and adversarial review ran (or carry a signed waiver)
+- `kbd-phase-close-eval.sh` wrote the closure object and `closure-packet.md`
+- After CLOSED: OpenSpec changes verified and archived through `kbd-apply`; native
+  changes moved to `.kbd-orchestrator/changes/archive/<date>-<id>/`
 
 These are separate prerequisites: implementation completion drives the N/N
-counter, while QA, verification, and archival drive evidence, certification,
-and publication/lifecycle fields.
+counter, while the boundary verdicts, QA, verification and archival drive
+evidence, certification and publication/lifecycle fields. A phase closed unmet
+(FAIL or BLOCKED) is still reflected; record what remains.
 
 ## Progress Signals (MANDATORY)
 
@@ -156,7 +152,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
     step — the human runs the printed command. An unreviewed candidate stays
     pending.
 11. **If evolver bridge exists**: write execution results back to evolver state
-12. **Advance only when authorized** through `/kbd-next-phase`. For a contract-bound phase that authorization is an operator-signed start-successor manifest (`kbd-next-phase.sh --authorize-successor <manifest> --signature <sig>`); closure alone never starts a successor, and reflection cannot supply that authority
+12. **Advance only when authorized** through `kbd-next-phase`. For a contract-bound phase that authorization is an operator-signed start-successor manifest (`kbd-next-phase.sh --authorize-successor <manifest> --signature <sig>`); closure alone never starts a successor, and reflection cannot supply that authority
 13. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
 
 ## Examples
@@ -168,10 +164,10 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 
 ## Hook integration
 
-`/kbd-reflect` is the canonical *phase-end* boundary. After the
+`kbd-reflect` is the canonical *phase-end* boundary. After the
 reflection report is written, fire `reflect:after`, then immediately
 fire `phase:after` for the closing phase. `phase:before` for the *next*
-phase is fired by `/kbd-new-phase` / `/kbd-next-phase`, not here.
+phase is fired by `kbd-new-phase` / `kbd-next-phase`, not here.
 
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
@@ -214,7 +210,7 @@ and never start a successor.
 
 Both phase guard evaluations and the phase transition (or, for a bound phase,
 the evaluator's CLOSED result) must succeed before `phase:after` fires. This ordering prevents a rejected or partial reflection
-from producing a completion memory record. `/kbd-next-phase` reads canonical
+from producing a completion memory record. `kbd-next-phase` reads canonical
 phase status and skips this terminal transition and completion hook when
 reflection has already completed the phase.
 
@@ -224,7 +220,7 @@ See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.
 
 The reflect gate requires the execute handoff. After the reflection report
 is written (and passes the sycophancy gate), record the closing handoff —
-`/kbd-next-phase` seeds the next phase from it plus `reflection.md`:
+`kbd-next-phase` seeds the next phase from it plus `reflection.md`:
 
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/stage-gate.sh"

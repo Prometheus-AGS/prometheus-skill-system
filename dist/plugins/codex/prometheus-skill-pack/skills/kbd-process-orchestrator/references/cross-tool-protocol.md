@@ -27,19 +27,29 @@ when implementation is complete, or claim phase certification from run totals.
    task identity. The driver records canonical state, regenerates projections,
    and emits task hooks and progress signals. Never increment counters manually.
 
-## Change completion
+## Change completion (B2)
 
 1. Record implementation completion through a typed KBD change transition
    once the implementation is complete. The compatibility completion helper
    delegates to the runtime for generated ledgers; it is not permission to
    edit JSON. Pending evidence never reopens implemented work.
-2. Run the applicable QA and independent review gates, recording actual
-   completion outcomes through typed commands. Keep phase-scoped evidence
-   distinct from run-wide completion.
-3. Use `kbd-apply verify` then `kbd-apply archive`. OpenSpec and native
-   backends both stay behind this driver; never invoke bare OpenSpec apply.
-4. Review and commit the intended artifacts and projections under project
+2. Nothing else runs at change completion: no QA, no review, no tests, no
+   build, no OpenSpec verify or archive. `openspec validate --strict` (a static
+   check of the change's spec documents) is the only permitted command.
+3. Review and commit the intended artifacts and projections under project
    policy. Git provides review/history, not a lock for concurrent writers.
+
+## Phase boundary (B4)
+
+When every planned change of the phase is implementation-complete, run the B4
+sequence exactly as `references/boundaries.md` defines it: admit, freeze, run
+the adopted boundary packet once, record `boundary-results.json` (with
+`executedBy` naming this harness), one cumulative QA and independent review,
+close with `kbd-phase-close-eval.sh`, and only after CLOSED run `kbd-apply
+verify` then `kbd-apply archive` for each change. OpenSpec and native backends
+both stay behind this driver; never invoke the bare `openspec-apply-change`
+skill. A harness whose profile cannot execute the packet hands the phase off
+before B4 instead of running part of it.
 
 ## Blockers and handoff
 

@@ -36,7 +36,7 @@ Tag each feature with its layer and the stable adopted scenario ID (not a
 change number), so the assertion map traces to the contract:
 
 ```gherkin
-@api @SCN-EXAMPLE-001
+@api @SCN-EXAMPLE-1
 Feature: Preference survives the defined restart
 ```
 

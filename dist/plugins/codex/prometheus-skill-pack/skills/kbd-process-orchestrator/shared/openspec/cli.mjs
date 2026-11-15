@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { refresh, run, init } from './lifecycle.mjs';
+import { refresh, run, init, verify } from './lifecycle.mjs';
 
 export async function main(argv = process.argv.slice(2)) {
   const [command, ...rest] = argv;
-  if (!['refresh', 'run', 'init'].includes(command)) throw new Error('Usage: refresh --project <root> [--timeout-ms N] | init --project <root> [--tools <list>] | run --project <root> -- <openspec args>');
+  if (!['refresh', 'run', 'init', 'verify'].includes(command)) throw new Error('Usage: verify --project <root> | refresh --project <root> [--timeout-ms N] | init --project <root> [--tools <list>] | run --project <root> -- <openspec args>');
   const options = { project: process.cwd(), timeoutMs: 120000, args: [] };
   for (let i = 0; i < rest.length; i++) {
     if (rest[i] === '--') { options.args = rest.slice(i + 1); break; }
@@ -15,7 +15,7 @@ export async function main(argv = process.argv.slice(2)) {
   }
   if (!Number.isSafeInteger(options.timeoutMs) || options.timeoutMs < 1000) throw new Error('--timeout-ms must be an integer of at least 1000');
   if (command === 'run' && !options.args.length) throw new Error('run requires OpenSpec arguments after --');
-  const result = await (command === 'refresh' ? refresh(options) : command === 'init' ? init(options) : run(options));
+  const result = await (command === 'verify' ? verify(options) : command === 'refresh' ? refresh(options) : command === 'init' ? init(options) : run(options));
   // Keep run stdout exclusively for the CLI, including its machine-readable JSON.
   process.stderr.write(`${JSON.stringify(result)}\n`);
   return result.code;

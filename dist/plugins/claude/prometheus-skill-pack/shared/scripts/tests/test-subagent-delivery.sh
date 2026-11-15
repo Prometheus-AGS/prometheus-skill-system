@@ -165,7 +165,7 @@ BUNDLE="$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(pr
 grep -q -- "--bundle $BUNDLE --hook subagentstart-learning" "$CODEX_PKG/hooks/hooks.json" || fail "codex package bundle differs from claude package"
 # Hook dispatch is read-only; fixture setup explicitly installs its generated payload.
 node "$CLAUDE_PKG/scripts/install-plugin-generation.js" --source-root "$CLAUDE_PKG" \
-  --home "$HOME" --plugin-root "$PROMETHEUS_PLUGIN_ROOT" --targets claude,codex >"$S/install.log" 2>&1 \
+  --home "$HOME" --plugin-root "$PROMETHEUS_PLUGIN_ROOT" --targets claude,agents >"$S/install.log" 2>&1 \
   || { cat "$S/install.log" >&2; fail "could not install the generated bundle in the scratch PROMETHEUS_PLUGIN_ROOT"; }
 hook_direct() { # <harness> <payload>   -> stdout of the generated entry
   printf '%s' "$2" | CLAUDE_PLUGIN_ROOT="$CLAUDE_PKG" node "$CLAUDE_PKG/scripts/hook-entry.mjs" \
