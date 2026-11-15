@@ -135,7 +135,7 @@ case "$MODE" in
   install)
     detect
     if [ "$ELIGIBLE" -ne 1 ]; then
-      [ "$MODEL_STATUS" = "unavailable" ] && warn "$REASON" || say "Apple Foundation Models: skipped — $REASON"
+      say "Apple Foundation Models: skipped — $REASON"   # silent under --quiet (optional capability)
       exit 0
     fi
     if [ -z "$APFEL" ]; then

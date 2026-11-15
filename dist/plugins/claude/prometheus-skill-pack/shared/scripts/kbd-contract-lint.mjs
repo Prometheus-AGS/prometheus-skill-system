@@ -30,7 +30,10 @@ const readJson = file => {
   }
 };
 const status = readJson(opt('--status'));
-const review = readJson(opt('--review'));
+const reviewPath = opt('--review');
+const review = readJson(reviewPath);
+// An existing review file that cannot be read must not silently disable the gate.
+const reviewUnreadable = Boolean(reviewPath && fs.existsSync(reviewPath) && (!review || !Array.isArray(review.findings)));
 const ownerDecision = opt('--owner-decision');
 
 const defects = [];
@@ -90,7 +93,10 @@ if (v2) {
   }
 
   // Unresolved CRITICAL review findings on acceptance content block adoption (CR-30, FR-C6).
-  if (review) {
+  if (reviewUnreadable) add('review-unreadable', `${reviewPath} exists but is not valid findings JSON (findings[]); fix it before adoption`);
+  // The override must name a canonical decision that actually exists.
+  const decisionKnown = id => Boolean(id && status && Object.values(status.decisions ?? {}).some(d => d?.id === id) || (status?.decisions && id in status.decisions));
+  if (review && !reviewUnreadable) {
     const critical = (review.findings ?? []).filter(
       f =>
         f.severity === 'CRITICAL' &&
@@ -102,6 +108,11 @@ if (v2) {
       add(
         'review-critical',
         `${critical.length} unresolved CRITICAL review finding(s) on acceptance content; adoption waits for an owner decision (--owner-decision <decision-id>)`
+      );
+    else if (critical.length && !decisionKnown(ownerDecision))
+      add(
+        'review-critical',
+        `--owner-decision ${ownerDecision} is not a recorded canonical decision; record it with prometheus kbd decision record first`
       );
   }
 

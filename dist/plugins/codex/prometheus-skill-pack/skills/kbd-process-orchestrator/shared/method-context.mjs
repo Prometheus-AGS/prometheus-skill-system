@@ -38,7 +38,10 @@ function projectMethodPin(root) {
   const file = path.join(root, '.kbd-orchestrator', 'project.json');
   try {
     const value = existsSync(file) ? read(file).verificationMethod : undefined;
-    return safeMethodName(value) ? { method: value, source: 'project-pin' } : { method: DEFAULT_METHOD, source: 'pack-default' };
+    if (value === undefined || value === null) return { method: DEFAULT_METHOD, source: 'pack-default' };
+    if (value === DEFAULT_METHOD) return { method: DEFAULT_METHOD, source: 'project-pin' };
+    // A project file cannot deviate: only a signed KBD-METHOD decision (with cadence and reason) can.
+    return { method: DEFAULT_METHOD, source: 'project-pin-rejected', rejected: String(value) };
   } catch { return { method: DEFAULT_METHOD, source: 'pack-default' }; }
 }
 
@@ -150,6 +153,7 @@ export function discoverMethodContext({ project = process.cwd(), phase, canonica
   const pin = projectMethodPin(root);
   let method = selected?.selection.method ?? pin.method;
   const methodSource = selected ? 'signed-decision' : pin.source;
+  if (!selected && pin.rejected) blockers.push(`project.json verificationMethod "${pin.rejected}" is not VLBV; a deviation needs a signed KBD-METHOD decision with cadence and reason`);
   let deviation = null;
   if (selected && method !== DEFAULT_METHOD) {
     const { cadence, reason } = selected.selection;

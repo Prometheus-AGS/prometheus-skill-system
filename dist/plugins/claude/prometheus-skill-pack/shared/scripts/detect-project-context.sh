@@ -28,6 +28,8 @@ OPENSPEC_VERIFY="$(node "$OPENSPEC_RUNNER" verify --project "$PWD" 2>&1 >/dev/nu
 case "$OPENSPEC_VERIFY" in
   *'"status":"refresh-needed"'*)
     echo "OpenSpec integration is not at the pack-pinned version; run the KBD phase-entry refresh before phase work." ;;
+  *'"status":"current"'*|*'"status":"skipped"'*|*'"status":"disabled"'*|"") ;;
+  *) echo "OpenSpec session check did not complete; run: node $OPENSPEC_RUNNER verify --project \"\$PWD\"" ;;
 esac
 
 echo "═══ Prometheus GitOps Skills — Project Context ═══"

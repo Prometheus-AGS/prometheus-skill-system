@@ -95,9 +95,15 @@ record() { # <pass|fail|blocked> <reason-code|"">
 # evidence. Best effort and never changes the verdict or exit code.
 closure_packet() { # <disposition> <reason>
   [ -n "${SNAPSHOT:-}" ] && [ -f "${SNAPSHOT:-}" ] || return 0
-  command -v node >/dev/null 2>&1 || return 0
-  node "$(dirname "${BASH_SOURCE[0]}")/kbd-closure-packet.mjs" --snapshot "$SNAPSHOT" --evidence "$EVIDENCE" \
-    --out-dir "$PHASE_DIR" --disposition "$1" --reason "$2" >/dev/null 2>&1 || true
+  command -v node >/dev/null 2>&1 || { printf 'WARN closure-packet not generated for phase=%s (node unavailable)\n' "$PHASE"; return 0; }
+  if ! node "$(dirname "${BASH_SOURCE[0]}")/kbd-closure-packet.mjs" --snapshot "$SNAPSHOT" --evidence "$EVIDENCE" \
+    --out-dir "$PHASE_DIR" --disposition "$1" --reason "$2" >/dev/null 2>"$ERRF.packet" \
+    || [ ! -f "$PHASE_DIR/closure-packet.md" ]; then
+    # Visible, never verdict-changing: the canonical disposition is the authority.
+    printf 'WARN closure-packet not generated for phase=%s (%s); rerun: node %s --snapshot %s --evidence %s --out-dir %s --disposition %s\n' \
+      "$PHASE" "$(tr '\n' ' ' < "$ERRF.packet" 2>/dev/null | cut -c1-160)" "$(dirname "${BASH_SOURCE[0]}")/kbd-closure-packet.mjs" "$SNAPSHOT" "$EVIDENCE" "$PHASE_DIR" "$1"
+  fi
+  rm -f "$ERRF.packet"
 }
 
 refuse() { # <verdict:FAIL|BLOCKED> <exit> <reason>
