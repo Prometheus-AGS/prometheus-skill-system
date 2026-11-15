@@ -1,0 +1,24 @@
+{
+  "mode": "artifact",
+  "schema": "adversarial-review findings summary",
+  "round": 2,
+  "judge_model": "k3.1-pro",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "verified-distinct",
+  "target": "plan (OpenSpec-only, revised)",
+  "verdict": "BLOCK",
+  "counts": {
+    "critical": 2,
+    "warning": 4
+  },
+  "findings": [
+    "CRITICAL: reconcile all 84 pre-existing backup entries, not only deletions",
+    "CRITICAL: Cargo.lock must be regenerated, not hand-edited",
+    "WARNING: installer audit must be a gate",
+    "WARNING: idempotence must hash untracked footprint",
+    "WARNING: routing-key grep allowlist",
+    "WARNING: delivery/Amazon Q audit"
+  ],
+  "disposition": "all folded into the plan"
+}

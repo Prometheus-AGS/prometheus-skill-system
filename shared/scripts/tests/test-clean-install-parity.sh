@@ -5,9 +5,10 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 TEST_HOME="$(mktemp -d)"
 trap 'rm -rf "$TEST_HOME"' EXIT
 
-for parent in \
-    .claude .opencode .kimi-code .minimax .cursor .codex .gemini .roo \
-    .windsurf .codeium/windsurf .agents .config/zed .zed .cline; do
+# Live targets (canonical .agents root, Claude and Qwen shims) plus a few retired
+# harness homes, which must receive no pack payload of their own.
+RETIRED_ROOTS=(.opencode/skills .kimi-code/skills .minimax/skills .cursor/skills .codex/skills)
+for parent in .claude .qwen .agents .opencode .kimi-code .minimax .cursor .codex; do
     mkdir -p "$TEST_HOME/$parent"
 done
 
@@ -54,6 +55,17 @@ PY
         exit 1
     fi
 done
+
+for relative in "${RETIRED_ROOTS[@]}"; do
+    if [[ -d "$TEST_HOME/$relative" ]] && find "$TEST_HOME/$relative" -name SKILL.md | grep -q .; then
+        echo "retired root $relative received pack payloads" >&2
+        exit 1
+    fi
+done
+if [[ ! -d "$TEST_HOME/.agents/skills" || -L "$(find "$TEST_HOME/.agents/skills" -mindepth 1 -maxdepth 1 | head -n 1)" ]]; then
+    echo ".agents/skills must hold real skill directories, not links" >&2
+    exit 1
+fi
 
 if grep -RIlE --include=SKILL.md '/Users/[^/]+/Projects/prometheus' "${TARGETS[@]/#/$TEST_HOME/}" | grep -q .; then
     echo "installed payloads contain a machine-specific repository path" >&2

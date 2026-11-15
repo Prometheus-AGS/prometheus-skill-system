@@ -15,7 +15,7 @@ flowchart LR
   Index --> Manifest
   Manifest --> Sign["Ed25519 signature"]
   Sign --> Verify["Independent trust-store verification"]
-  Verify --> Receipts["14 signed target receipts"]
+  Verify --> Receipts["3 signed target receipts"]
   Receipts --> Current["Atomic current pointer"]
   Current --> Host["Host search"]
   Current --> Agent["Generated agents"]

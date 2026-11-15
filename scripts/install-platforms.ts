@@ -1,7 +1,9 @@
 #!/usr/bin/env npx tsx
 /**
  * Multi-platform installer for prometheus-skill-pack.
- * Installs skills to Claude Code, OpenCode, Cursor, Codex, and other AI tool directories.
+ * Activates the immutable generation: skills land once, as real directories, in
+ * the canonical root ~/.agents/skills (read by Codex, OpenCode, Cursor, Kimi,
+ * MiniMax, Gemini, ...), plus symlink shims for Claude Code and Qwen Code.
  *
  * Usage:
  *   npx tsx scripts/install-platforms.ts                     # install all platforms
@@ -32,11 +34,44 @@ const HOME = homedir();
 
 interface Platform {
   name: string;
+  /** Where this harness reads user skills after owner decision D3. */
   globalSkillsDir: string;
   projectSkillsDir: string;
+  /** Directory whose presence means the harness is installed. */
+  detectDir: string;
+  /** Retired per-harness skill dir, scanned only to remove a legacy bundle link. */
+  legacySkillsDir?: string;
   description: string;
   supportsPlugins: boolean;
   pluginDir?: string;
+}
+
+// Install target matrix (owner decision D3, see skill-system.json `targets`):
+// skills are installed ONCE as real directories into the canonical root
+// ~/.agents/skills, which every harness below reads directly. Only Claude Code
+// and Qwen Code do not read it, so they get a symlink shim. The former
+// per-harness skill dirs are retired; the generation installer removes only the
+// pack-owned entries there.
+const CANONICAL_SKILLS_DIR = join(HOME, '.agents', 'skills');
+const CANONICAL_PROJECT_SKILLS_DIR = '.agents/skills';
+
+function canonicalPlatform(
+  name: string,
+  detectDir: string,
+  legacySkillsDir: string | undefined,
+  description: string,
+  extra: Partial<Platform> = {}
+): Platform {
+  return {
+    name,
+    globalSkillsDir: CANONICAL_SKILLS_DIR,
+    projectSkillsDir: CANONICAL_PROJECT_SKILLS_DIR,
+    detectDir,
+    legacySkillsDir,
+    description,
+    supportsPlugins: false,
+    ...extra,
+  };
 }
 
 const PLATFORMS: Platform[] = [
@@ -44,95 +79,80 @@ const PLATFORMS: Platform[] = [
     name: 'claude-code',
     globalSkillsDir: join(HOME, '.claude', 'skills'),
     projectSkillsDir: '.claude/skills',
-    description: 'Claude Code (CLI, Desktop, IDE extensions)',
+    detectDir: join(HOME, '.claude'),
+    description: 'Claude Code (CLI, Desktop, IDE extensions) — symlink shim',
     supportsPlugins: true,
     pluginDir: join(HOME, '.claude', 'plugins'),
   },
   {
-    name: 'opencode',
-    globalSkillsDir: join(HOME, '.opencode', 'skills'),
-    projectSkillsDir: '.opencode/skills',
-    description: 'OpenCode (CLI, VS Code extension)',
-    supportsPlugins: true,
-    pluginDir: join(HOME, '.opencode'),
-  },
-  {
-    name: 'kimi-code',
-    globalSkillsDir: join(HOME, '.kimi-code', 'skills'),
-    projectSkillsDir: '.kimi-code/skills',
-    description: 'Kimi Code CLI (Moonshot AI)',
+    name: 'qwen-code',
+    globalSkillsDir: join(HOME, '.qwen', 'skills'),
+    projectSkillsDir: '.qwen/skills',
+    detectDir: join(HOME, '.qwen'),
+    description: 'Qwen Code — symlink shim',
     supportsPlugins: false,
   },
-  {
-    name: 'minimax',
-    globalSkillsDir: join(HOME, '.minimax', 'skills'),
-    projectSkillsDir: '.minimax/skills',
-    description: 'MiniMax Desktop / Mavis CLI',
-    supportsPlugins: false,
-  },
-  {
-    name: 'cursor',
-    globalSkillsDir: join(HOME, '.cursor', 'skills'),
-    projectSkillsDir: '.cursor/skills',
-    description: 'Cursor AI Editor',
-    supportsPlugins: false,
-  },
-  {
-    name: 'codex',
-    globalSkillsDir: join(HOME, '.codex', 'skills'),
-    projectSkillsDir: '.codex/skills',
-    description: 'OpenAI Codex CLI',
-    supportsPlugins: false,
-  },
-  {
-    name: 'gemini-cli',
-    globalSkillsDir: join(HOME, '.gemini', 'skills'),
-    projectSkillsDir: '.gemini/skills',
-    description: 'Google Gemini CLI',
-    supportsPlugins: false,
-  },
-  {
-    name: 'roo-code',
-    globalSkillsDir: join(HOME, '.roo', 'skills'),
-    projectSkillsDir: '.roo/skills',
-    description: 'Roo Code (VS Code extension)',
-    supportsPlugins: false,
-  },
-  {
-    name: 'devin',
-    globalSkillsDir: join(HOME, '.devin', 'skills'),
-    projectSkillsDir: '.devin/skills',
-    description: 'Devin',
-    supportsPlugins: false,
-  },
-  {
-    name: 'amp',
-    globalSkillsDir: join(HOME, '.agents', 'skills'),
-    projectSkillsDir: '.agents/skills',
-    description: 'Amp AI Agent',
-    supportsPlugins: false,
-  },
-  {
-    name: 'zed',
-    globalSkillsDir: join(HOME, '.config', 'zed', 'skills'),
-    projectSkillsDir: '.zed/skills',
-    description: 'Zed Editor',
-    supportsPlugins: false,
-  },
-  {
-    name: 'antigravity',
-    globalSkillsDir: join(HOME, '.zed', 'skills'),
-    projectSkillsDir: '.zed/skills',
-    description: 'Antigravity (Zed fork)',
-    supportsPlugins: false,
-  },
+  canonicalPlatform(
+    'opencode',
+    join(HOME, '.opencode'),
+    join(HOME, '.opencode', 'skills'),
+    'OpenCode (CLI, VS Code extension)',
+    { supportsPlugins: true, pluginDir: join(HOME, '.opencode') }
+  ),
+  canonicalPlatform(
+    'kimi-code',
+    join(HOME, '.kimi-code'),
+    join(HOME, '.kimi-code', 'skills'),
+    'Kimi Code CLI (Moonshot AI)'
+  ),
+  canonicalPlatform(
+    'minimax',
+    join(HOME, '.minimax'),
+    join(HOME, '.minimax', 'skills'),
+    'MiniMax Desktop / Mavis CLI'
+  ),
+  canonicalPlatform(
+    'cursor',
+    join(HOME, '.cursor'),
+    join(HOME, '.cursor', 'skills'),
+    'Cursor AI Editor'
+  ),
+  canonicalPlatform(
+    'codex',
+    join(HOME, '.codex'),
+    join(HOME, '.codex', 'skills'),
+    'OpenAI Codex CLI (reads ~/.agents/skills; real directories)'
+  ),
+  canonicalPlatform(
+    'gemini-cli',
+    join(HOME, '.gemini'),
+    join(HOME, '.gemini', 'skills'),
+    'Google Gemini CLI'
+  ),
+  canonicalPlatform(
+    'roo-code',
+    join(HOME, '.roo'),
+    join(HOME, '.roo', 'skills'),
+    'Roo Code (VS Code extension)'
+  ),
+  canonicalPlatform('devin', join(HOME, '.devin'), join(HOME, '.devin', 'skills'), 'Devin'),
+  canonicalPlatform('amp', join(HOME, '.agents'), undefined, 'Amp AI Agent'),
+  canonicalPlatform(
+    'zed',
+    join(HOME, '.config', 'zed'),
+    join(HOME, '.config', 'zed', 'skills'),
+    'Zed Editor'
+  ),
+  canonicalPlatform(
+    'antigravity',
+    join(HOME, '.zed'),
+    join(HOME, '.zed', 'skills'),
+    'Antigravity (Zed fork)'
+  ),
 ];
 
 function detectInstalledPlatforms(): Platform[] {
-  return PLATFORMS.filter(p => {
-    const parentDir = resolve(p.globalSkillsDir, '..');
-    return existsSync(parentDir);
-  });
+  return PLATFORMS.filter(p => existsSync(p.detectDir));
 }
 
 function isRepoOwnedSymlink(linkPath: string): boolean {
@@ -184,28 +204,6 @@ function removeLegacyBundleLink(targetDir: string): void {
   }
 }
 
-function installMinimaxPayloads(targetDir: string, uninstall = false): void {
-  const args = [
-    join(REPO_ROOT, 'scripts', 'install-minimax-skills.js'),
-    '--repo-root',
-    REPO_ROOT,
-    '--target-dir',
-    targetDir,
-  ];
-  if (uninstall) args.push('--uninstall');
-  execFileSync(process.execPath, args, { stdio: 'inherit' });
-}
-
-function syncCodexSkills(targetDir: string, uninstall = false): void {
-  removeLegacyBundleLink(targetDir);
-  const args = [join(REPO_ROOT, 'scripts', 'codex-sync-skills.sh')];
-  if (uninstall) args.push('--uninstall');
-  execFileSync('bash', args, {
-    stdio: 'inherit',
-    env: { ...process.env, CODEX_HOME: dirname(targetDir) },
-  });
-}
-
 function installPlatform(platform: Platform, scope: 'global' | 'project'): void {
   const targetDir =
     scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
@@ -215,11 +213,8 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
   console.log(`    Target: ${linkPath}`);
 
   if (scope === 'global') {
+    if (platform.legacySkillsDir) removeLegacyBundleLink(platform.legacySkillsDir);
     console.log(`    ✅ Skills managed by the verified immutable generation`);
-  } else if (platform.name === 'minimax') {
-    installMinimaxPayloads(targetDir);
-  } else if (platform.name === 'codex') {
-    syncCodexSkills(targetDir);
   } else if (createSymlink(REPO_ROOT, linkPath)) {
     console.log(`    ✅ Symlink created`);
   }
@@ -391,8 +386,9 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
   }
 
   // For Codex: regenerate the plugin + marketplace artifacts (idempotent) so
-  // `codex plugin marketplace add .` sees current output. Skills sync separately
-  // via codex-sync-skills.sh (real dirs — Codex ignores symlinked skill dirs).
+  // `codex plugin marketplace add .` sees current output. Codex reads skills from
+  // the canonical ~/.agents/skills root, where the generation installer places
+  // real directories (Codex ignores symlinked skill dirs).
   if (platform.name === 'codex') {
     try {
       const command = scope === 'global' ? 'npm run validate:codex' : 'npm run build:codex';
@@ -415,12 +411,7 @@ function uninstallPlatform(platform: Platform, scope: 'global' | 'project'): voi
 
   if (scope === 'global') {
     removeLegacyBundleLink(targetDir);
-  } else if (platform.name === 'minimax') {
-    installMinimaxPayloads(targetDir, true);
-    return;
-  } else if (platform.name === 'codex') {
-    syncCodexSkills(targetDir, true);
-    return;
+    if (platform.legacySkillsDir) removeLegacyBundleLink(platform.legacySkillsDir);
   } else if (pathExistsOrIsSymlink(linkPath) && isRepoOwnedSymlink(linkPath)) {
     try {
       unlinkSync(linkPath);

@@ -90,7 +90,9 @@ function exercise(label, payload, box, installed = false) {
   run('bash', ['-c', '. "$1"; kbd_stage_handoff_write plan "Consumer contract adopted" "$2"', 'handoff', gateFile, phaseDir], project,
     { ...env, KBD_HANDOFF_IDENTITY_JSON: JSON.stringify(read(file).identity) });
   gate(); gate(0, base); // explicit consumer phase, unrelated working directory
-  if (installed) gate(0, project, path.join(box.home, '.codex/skills/kbd-process-orchestrator/shared/lib/stage-gate.sh'));
+  // The copied skill lives in the canonical root ~/.agents/skills (D3), which
+  // Codex and the other non-shim harnesses read directly.
+  if (installed) gate(0, project, path.join(box.home, '.agents/skills/kbd-process-orchestrator/shared/lib/stage-gate.sh'));
   const skillDir = path.join(payload, source ? 'skills/process/kbd-process-orchestrator/skills' : 'skills');
   for (const [name, marker] of [['kbd-plan', 'ALREADY-ADOPTED'], ['kbd-execute', 'READY'], ['kbd-apply', 'READY']]) {
     const text = fs.readFileSync(path.join(skillDir, name, 'SKILL.md'), 'utf8');
@@ -138,7 +140,7 @@ try {
     box.store = path.join(box.home, '.prometheus/plugins/prometheus-skill-pack');
     console.log(`Installing ${platform} payload into temporary home`);
     run(process.execPath, [path.join(payload, 'scripts/install-plugin-generation.js'), '--source-root', payload,
-      '--home', box.home, '--plugin-root', box.store, '--targets', 'codex'], box.base, box.env);
+      '--home', box.home, '--plugin-root', box.store, '--targets', 'agents'], box.base, box.env);
     const installed = fs.realpathSync(path.join(box.store, 'current'));
     exercise(`installed ${platform}`, installed, box, true);
   }

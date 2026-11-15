@@ -1,0 +1,24 @@
+{
+  "mode": "artifact",
+  "schema": "adversarial-review findings summary",
+  "round": 1,
+  "judge_model": "k3.1-pro",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "verified-distinct",
+  "target": "plan (OpenSpec-only draft)",
+  "verdict": "BLOCK",
+  "counts": {
+    "critical": 3,
+    "warning": 3
+  },
+  "findings": [
+    "CRITICAL: forced refresh before backup-footprint audit (~/.codex/prompts)",
+    "CRITICAL: Kimi /skill: spelling missing from waypoint rewrite",
+    "CRITICAL: plan added new unit-test cases (policy forbids)",
+    "WARNING: Windows core.symlinks guidance missing",
+    "WARNING: assumed resolver path for opsx routing keys",
+    "WARNING: /opsx grep had no allowlist"
+  ],
+  "disposition": "all folded into the plan"
+}

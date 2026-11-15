@@ -32,7 +32,7 @@ function installed(platform) {
     CLAUDE_CONFIG_DIR: path.join(home, '.claude'), XDG_CONFIG_HOME: path.join(home, '.config'),
     XDG_DATA_HOME: path.join(home, '.local/share'), PROMETHEUS_PLUGIN_ROOT: store, PYTHONDONTWRITEBYTECODE: '1' };
   const result = spawnSync(process.execPath, [path.join(payload, 'scripts/install-plugin-generation.js'), '--source-root', payload,
-    '--home', home, '--plugin-root', store, '--targets', 'codex'], { env, encoding: 'utf8', timeout: 600_000 });
+    '--home', home, '--plugin-root', store, '--targets', 'agents'], { env, encoding: 'utf8', timeout: 600_000 });
   assert.equal(result.status, 0, `installer for ${platform} failed:\n${result.stdout}\n${result.stderr}`);
   return surface(`installed ${platform}`, fs.realpathSync(path.join(store, 'current')), { sourceLayout: false });
 }

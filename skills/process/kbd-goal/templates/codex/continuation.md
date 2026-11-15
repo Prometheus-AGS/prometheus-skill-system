@@ -13,9 +13,11 @@ Read `.kbd-orchestrator/goals/{{GOAL_SLUG}}/STATE.md` to understand current prog
 
 1. Read `STATE.md` → find the first task with status `in_progress` or the next
    unchecked `[ ]` task in `TASKS.md`.
-2. Implement the task: write code and tests.
-3. Run the tests and capture output to `.goal-run/{{TASK_ID}}/test-output.txt`.
-4. Run the linter and capture output to `.goal-run/{{TASK_ID}}/lint-output.txt`.
+2. Implement the task: write the production code (and, after all production
+   work is complete, the agreed scenario steps — author only).
+3. Do not run tests, builds or linters per task: generated code executes only
+   at the value-phase boundary (VLBV B4), as boundary-packet entries.
+4. Record what you changed and any blocker in `.goal-run/{{TASK_ID}}/notes.md`.
 5. Update `STATE.md` with your progress.
 6. Do NOT mark yourself as complete — the evaluator checks completion.
 

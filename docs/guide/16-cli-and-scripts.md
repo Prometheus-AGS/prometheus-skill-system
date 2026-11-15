@@ -41,7 +41,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 
 | Script | Purpose |
 |---|---|
-| `install-plugin-generation.js` | Stage, hash, verify, activate, roll back, or uninstall an immutable 14-target generation. `[--verify] [--rollback] [--uninstall]` |
+| `install-plugin-generation.js` | Stage, hash, verify, activate, roll back, or uninstall an immutable generation (canonical `~/.agents/skills` copies plus Claude/Qwen shims). `[--verify] [--rollback] [--uninstall]` |
 | `install-prometheus-exec.sh` | Build/select, version-check, stage, sign, atomically install, and hash-readback `prometheus-exec` at its approved artifact-manifest version. Builds from inside the crate dir so `rust-toolchain.toml` is honored. `[--dry-run]` |
 | `install-prometheus-exec-service.sh` | Render and optionally load the private macOS execution LaunchAgent (`ai.prometheus.exec`, socket daemon). Called automatically by `install-mcp-services.sh`. `[--dry-run] [--no-load]` |
 | `install-platforms.ts` | Multi-platform symlink installer for Claude Code, OpenCode, Cursor, Codex, etc. `[--platform] [--scope] [--uninstall] [--list]` |

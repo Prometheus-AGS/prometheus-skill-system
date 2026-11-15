@@ -6,8 +6,9 @@ paths: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/package.json', '**/tsconfig*.json
 
 Loaded when a TypeScript file is read. Not resident.
 
-Batch implementation until a production path is complete. Use a narrow type check earlier only when it
-is needed to unblock work. At a completed change boundary, run the smallest browser, API, process, or
+Batch implementation until the agreed value phase is complete; editor/LSP diagnostics
+are reading, not execution. Run no type check, build or test before the value-phase
+boundary (VLBV B4). There, the boundary packet runs the smallest browser, API, process, or
 build integration that exercises the real entry point and collaborators. Unit, component-only, snapshot,
 and per-edit tests are not completion evidence. Reserve broad end-to-end, visual, bundle, architecture,
 and file-size gates for the final applicable phase or release boundary.

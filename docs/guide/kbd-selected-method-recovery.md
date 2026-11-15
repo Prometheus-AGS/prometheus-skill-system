@@ -56,12 +56,13 @@ role inputs/prompt fields; task handoffs add index/contract/reference hashes to
 existing source-file provenance. Receiving inspection compares current identities;
 a digest of an old pointer is not proof of latest authorized supersession.
 
-For selected VLBV, define acceptance/scenarios before generation, finish the
-complete agreed value-phase production, then separately authorize the actual
-phase-end verification. Executable test authoring follows the governing host
-policy. A task, hour, commit, reviewer request, compiler problem or renamed slice
-does not create that boundary. A host compiler exception is surfaced as a
-potential conflict, not permission to run early checks. Never silently rewrite
+VLBV is the method for every phase (project default; a deviation is a signed
+`KBD-METHOD` decision). Define acceptance/scenarios before generation, finish the
+complete agreed value-phase production, then run the boundary packet once at B4
+(`skills/process/kbd-process-orchestrator/references/boundaries.md`). Executable
+test authoring happens after production is complete. A task, hour, commit, reviewer request, compiler problem or renamed slice
+does not create that boundary. The compiler exception is retired (D1); any remaining host exception is surfaced
+as a conflict, not permission to run early checks. Never silently rewrite
 operator-owned policy to make the conflict disappear.
 
 Control is instruction-only on a host without a named interception mechanism.

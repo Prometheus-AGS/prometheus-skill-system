@@ -7,21 +7,12 @@ trap 'rm -rf "$TMP_ROOT"' EXIT
 
 prepare_home() {
     local test_home="$1"
+    # Canonical root, the Claude/Qwen shims, and Codex (served by .agents/skills).
     mkdir -p \
-        "$test_home/.claude" \
-        "$test_home/.opencode" \
-        "$test_home/.kimi-code" \
-        "$test_home/.minimax" \
-        "$test_home/.cursor" \
-        "$test_home/.codex" \
-        "$test_home/.gemini" \
-        "$test_home/.roo" \
-        "$test_home/.devin" \
-        "$test_home/.codeium/windsurf" \
         "$test_home/.agents" \
-        "$test_home/.config/zed" \
-        "$test_home/.zed" \
-        "$test_home/.cline"
+        "$test_home/.claude" \
+        "$test_home/.qwen" \
+        "$test_home/.codex"
 }
 
 strict_home="$TMP_ROOT/strict-home"

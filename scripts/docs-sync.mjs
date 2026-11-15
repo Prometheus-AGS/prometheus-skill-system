@@ -134,6 +134,8 @@ function cliCommands(source) {
   );
 }
 
+// Reads the CURRENT signed matrix (`const TARGETS`), never LEGACY_TARGETS: the
+// canonical root `.agents/skills` (verified copy) plus the Claude/Qwen shims.
 function pluginTargets(source) {
   const match = source.match(/const TARGETS = \[([\s\S]*?)\];/);
   if (!match) throw new Error('Plugin target matrix not found');
@@ -196,7 +198,10 @@ ${table(
   ['Capability', 'Code-backed status'],
   [
     ['Learner model', 'Loro immutable evidence with deterministic derived-state fold'],
-    ['Plugin distribution', 'Ed25519-signed generation, shared index, and 14 signed receipts'],
+    [
+      'Plugin distribution',
+      `Ed25519-signed generation, shared index, and ${targets.length} signed receipts`,
+    ],
     ['Validation', 'Local certification; hosted automation limited to docs sync and Pages'],
   ]
 )}

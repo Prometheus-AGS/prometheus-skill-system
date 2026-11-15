@@ -16,7 +16,7 @@ flowchart LR
   Stage --> Hash["Canonical manifest + skill index"]
   Hash --> Sign["Ed25519 signature + trust verification"]
   Sign --> Generation["generations/hash"]
-  Generation --> Receipts["Validate 14 target receipts"]
+  Generation --> Receipts["Validate 3 target receipts"]
   Receipts --> Previous["previous pointer"]
   Previous --> Current["Atomic current switch"]
   Current --> Stable["Stable dispatchers"]

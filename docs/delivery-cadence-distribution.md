@@ -11,20 +11,17 @@ node scripts/distribute-delivery-cadence.mjs --targets all
 
 | Target ID | Global skill directory | Discovery basis |
 | --- | --- | --- |
-| `codex` | `$CODEX_HOME/skills/delivery-cadence`, default `~/.codex/skills/delivery-cadence` | Shared full-pack effective Codex home resolver |
+| `agents` | `~/.agents/skills/delivery-cadence` | Canonical skill root (owner decision D3), read directly by Codex, OpenCode, Kimi Code, MiniMax, Cursor, Gemini CLI, [Zed](https://zed.dev/docs/ai/skills) and other AgentSkills harnesses |
 | `claude` | `~/.claude/skills/delivery-cadence` | Claude Code personal skill directory |
-| `kimi-code` | `$KIMI_CODE_HOME/skills/delivery-cadence`, default `~/.kimi-code/skills/delivery-cadence` | [Kimi native skills](https://github.com/moonshotai/kimi-code/blob/main/docs/en/customization/skills.md) |
-| `minimax` | `~/.minimax/skills/delivery-cadence` | Existing `scripts/install-minimax-skills.js` copy and `_meta.json` convention |
-| `zed` | `~/.agents/skills/delivery-cadence` | [Zed native skills](https://zed.dev/docs/ai/skills); this shared directory also serves compatible agents |
-| `opencode` | `$XDG_CONFIG_HOME/opencode/skills/delivery-cadence`, default `~/.config/opencode/skills/delivery-cadence` | [OpenCode native skills](https://opencode.ai/docs/skills) |
+| `qwen` | `~/.qwen/skills/delivery-cadence` | Qwen Code personal skill directory |
 
-This targeted installer uses the full pack's shared Codex home resolver. A nonempty
-`CODEX_HOME` takes precedence; otherwise the effective home from `--home` or the
-default home supplies the `.codex` fallback.
+The former per-harness IDs `codex`, `kimi-code`, `minimax`, `zed` and
+`opencode` are accepted as aliases of `agents`, so existing invocations install
+once into the canonical root instead of into retired per-harness directories.
 
-Use a comma-separated subset with `--targets codex,claude`. `--home PATH` changes the home fallback and deliberately ignores the real session's `KIMI_CODE_HOME` and `XDG_CONFIG_HOME`. A nonempty `CODEX_HOME` still takes precedence: for a scratch integration run, explicitly set it to the scratch Codex directory or unset/empty it to use the scratch home fallback. `--source-root PATH` selects another full-pack checkout or packaged full-pack distribution. The source contract must name `prometheus-skill-pack`; mini cannot use this global installer. The source layout is `skills/process/delivery-cadence` in the checkout or `skills/delivery-cadence` in a packaged distribution, alongside the declared pack adapters and their dependencies. Mini receives the shared skill through the existing full-to-mini synchronization workflow.
+Use a comma-separated subset with `--targets agents,claude`. `--home PATH` changes the home used for every destination. `--source-root PATH` selects another full-pack checkout or packaged full-pack distribution. The source contract must name `prometheus-skill-pack`; mini cannot use this global installer. The source layout is `skills/process/delivery-cadence` in the checkout or `skills/delivery-cadence` in a packaged distribution, alongside the declared pack adapters and their dependencies. Mini receives the shared skill through the existing full-to-mini synchronization workflow.
 
-Every destination is a complete directory copy. The installer creates no symlinks and preserves existing parent-directory aliases. It refuses a symlink at the skill destination and refuses symlinks inside payloads. MiniMax receives the existing numeric skill ID convention, the skill version, `platform: minimax`, and an `updated_at` timestamp derived from the source skill file modification time so repeated installations remain unchanged.
+Every destination is a complete directory copy. The installer creates no symlinks and preserves existing parent-directory aliases. It refuses a symlink at the skill destination and refuses symlinks inside payloads. When `~/.agents/skills` is itself a symlink to a shared tree, the copy lands in the directory it names. Selected targets that resolve to the same physical directory are refused.
 
 ## Ownership and recovery
 
@@ -50,4 +47,4 @@ Reload or start fresh native sessions after installation. On-disk receipt and ch
 
 Complete shared source wiring before copying. The full-to-mini copier preflights all owned bytes, refuses changed/added/deleted user content, stages the full directory, and retains the previous directory plus ownership manifest in `.prometheus/delivery-cadence-backups/`. Retired unchanged owned files disappear only as part of that backed-up replacement. The payload digest identifies copied bytes even before source commits; record the eventual full and mini commits separately. Never describe the copier's source HEAD as the commit of uncommitted bytes.
 
-The global installer recursively includes the KBD dispatch adapter and its imports for every existing target listed above. No new installer or extra service is required. Perform installation only after the completed production boundary, stop old mutators, then explicitly migrate the selected run with its backup. Updating source files alone does not migrate live state. Preserve v1/v2 event history, receipts, command IDs, unresolved effects and publication obligations. Update project bindings to the accepted payload deliberately.
+The global installer recursively includes the KBD dispatch adapter and its imports for every target listed above. No new installer or extra service is required. Perform installation only after the completed production boundary, stop old mutators, then explicitly migrate the selected run with its backup. Updating source files alone does not migrate live state. Preserve v1/v2 event history, receipts, command IDs, unresolved effects and publication obligations. Update project bindings to the accepted payload deliberately.

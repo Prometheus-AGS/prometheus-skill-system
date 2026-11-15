@@ -53,7 +53,7 @@ for (const file of ['hooks/hooks.json', 'shared/harnesses/generated/claude-hooks
 
 function argv(source, extra = []) {
   return [path.join(source, 'scripts/install-plugin-generation.js'), '--source-root', source,
-    '--home', home, '--plugin-root', store, '--targets', 'claude,codex', ...extra];
+    '--home', home, '--plugin-root', store, '--targets', 'claude,agents', ...extra];
 }
 function record(label, command, args, result) {
   const index = String(logs.length).padStart(2, '0');
@@ -79,7 +79,8 @@ function snapshot() {
     else entries[key] = [stat.mode & 0o777, hash(fs.readFileSync(file))];
   }
   for (const file of ['pointers', 'runtime', 'receipts', 'current', 'previous']) walk(path.join(store, file));
-  for (const file of ['.claude/skills', '.codex/skills']) walk(path.join(home, file));
+  // Canonical root (copies) + Claude shim; .codex/skills is a retired root.
+  for (const file of ['.claude/skills', '.agents/skills']) walk(path.join(home, file));
   return entries;
 }
 function consistent() {

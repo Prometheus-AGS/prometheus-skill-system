@@ -18,7 +18,7 @@ node scripts/install-plugin-generation.js --verify
 
 Installation stages with private permissions, verifies the manifest signature
 against the plugin trust store, validates all files, the shared skill index, and
-14 signed projections, updates `previous`, and atomically switches `current`. A
+3 signed projections (canonical root plus Claude/Qwen shims), updates `previous`, and atomically switches `current`. A
 failed verification leaves the active generation unchanged.
 
 ## Roll back

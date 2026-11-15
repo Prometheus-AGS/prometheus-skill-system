@@ -165,6 +165,23 @@ PY
 # kbd_resolve_role <role> [explicit]
 kbd_resolve_role() {
     _role="$1"; _explicit="${2:-}"
+    # The on-device Apple Foundation Model (`local` role, 4,096-token window) is
+    # for small private/offline work only; it never judges or criticizes.
+    case "$_role" in
+        judge|critic)
+            _v="$(_kbd_resolve_role_inner "$_role" "$_explicit")" || return 1
+            if [ "$_v" = "apple-foundationmodel" ]; then
+                printf 'kbd-model-resolve: %s cannot be the on-device apple-foundationmodel; using the default\n' "$_role" >&2
+                case "$_role" in judge) printf '%s\n' "$_KBD_DEFAULT_JUDGE" ;; critic) printf '%s\n' "$_KBD_DEFAULT_CRITIC" ;; esac
+                return 0
+            fi
+            printf '%s\n' "$_v"; return 0 ;;
+    esac
+    _kbd_resolve_role_inner "$_role" "$_explicit"
+}
+
+_kbd_resolve_role_inner() {
+    _role="$1"; _explicit="${2:-}"
 
     if [ -n "$_explicit" ]; then printf '%s\n' "$_explicit"; return 0; fi
 
@@ -182,6 +199,9 @@ kbd_resolve_role() {
         critic)    printf '%s\n' "$_KBD_DEFAULT_CRITIC" ;;
         generator) printf '%s\n' "$_KBD_DEFAULT_GENERATOR" ;;
         backup)    return 1 ;;
+        # local: set by shared/scripts/apple-foundation-models.sh on an eligible Mac
+        # ([roles] local = "apple-foundationmodel"); no built-in default.
+        local)     return 1 ;;
         *)         return 1 ;;
     esac
 }

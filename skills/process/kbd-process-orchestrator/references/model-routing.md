@@ -37,6 +37,12 @@ assignments in `plan.md`. `/kbd-execute` and `/kbd-apply` honor those assignment
 For legacy plans, analyze and record explicit task selections before dispatch,
 using `design.md`, `tasks.md` and the current harness/provider capabilities.
 
+> **Routing labels, not commands.** The `opsx-new`, `opsx-apply-{low,medium,high}`,
+> `opsx-verify` and `opsx-archive` keys predate OpenSpec 2.0, which removed the
+> `/opsx:*` commands. They are kept unchanged as compatibility-only model-routing
+> labels because existing `project.json` files carry them; they name a class of
+> work (create, implement, verify, archive a change), never a command to invoke.
+
 ### Low → `opsx-apply-low` (small model)
 
 - Task count ≤ 3

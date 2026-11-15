@@ -54,6 +54,13 @@ conflicting workflow, skill, plan, testing convention, and lower section in this
 file. It may be changed only by an explicit repository-owner instruction that
 directly names this policy.
 
+<!-- kbd-policy:begin -->
+- verification: VLBV
+- compiler-exception: retired
+- cadence-exception: none
+- execution-boundary: B4 (boundary packet, once); B5 after an authorized repair
+<!-- kbd-policy:end -->
+
 ### Complete the implementation before testing
 
 - Deliver the complete, coherent implementation for the active specification or
@@ -62,12 +69,14 @@ directly names this policy.
 - Read specifications and existing protected integration scenarios as requirements,
   then implement the production path in batches. A test failure caused only by a
   known unimplemented requirement is not useful evidence.
-- During implementation, use static reasoning and code inspection. If compiler
-  feedback is genuinely necessary, wait until the current coherent edit batch is
-  complete and run one narrowly targeted check.
-- After implementation is complete, run the smallest relevant full-integration
-  gate, fix failures in batches, and run the applicable final integration gate once
-  more before commit, push, release, or phase completion.
+- During implementation, use static reasoning, code inspection and editor/LSP
+  diagnostics only. Run no compiler check, build, test or other execution of
+  generated code before the value-phase boundary (owner decision D1, 2026-11-15,
+  retired the former compiler exception).
+- After implementation is complete, run the boundary packet once (B4, defined in
+  `skills/process/kbd-process-orchestrator/references/boundaries.md`). If it fails
+  and the owner authorizes a bounded repair, complete the repair and rerun only the
+  affected checks (B5) before commit, push, release, or phase completion.
 
 ### Full integration tests are the only accepted test evidence
 
@@ -99,14 +108,15 @@ directly names this policy.
   command execution. Finish every planned production change in the phase, then run
   one consolidated integration batch at the final phase boundary. A task/change
   boundary, reviewer request, or available check command does not authorize earlier
-  verification. Use an intermediate package-scoped compiler check only when an
-  observed compiler error blocks further implementation.
+  verification. There is no intermediate compiler check (D1); rust-analyzer
+  diagnostics are static reading.
 - Start with the smallest integration target that exercises the real production path
   and collaborators. Unit, module-local, mock-only, and filtered function tests do
   not count as completion evidence. Escalate only when the change or diagnostics
   cross package boundaries. Repository acceptance still requires the full
   integration gates defined above.
-- Read all diagnostics, batch fixes, and rerun only the smallest confirming command.
+- On a boundary failure, read all diagnostics, batch the authorized repair, and
+  rerun only the affected entries (B5).
   Reserve workspace-wide, all-target, release, Clippy, specialized, and feature
   matrix commands for the applicable final boundary.
 - Only one Cargo/rustc build process may operate on the development machine at a
@@ -728,7 +738,7 @@ Before releasing:
 - [ ] All skills validate strict: `npm run validate:strict`
 - [ ] Skills index regenerated: `npm run generate:skills-index` (verify: `npm run check:skills-index`)
 - [ ] Marketplace builds: `npm run build`
-- [ ] Version bumped in `package.json`, `.claude-plugin/plugin.json`, `site/package.json`, and every plugin entry in `.claude-plugin/marketplace.json` (then `npm run build:codex` to re-mirror)
+- [ ] Version bumped in every surface `config/release-version-matrix.json` lists (`package.json`/lock, `site/package.json`/lock, `skill-system.json` `releaseVersion`, `config/prometheus-exec-component.json`, `tools/prometheus-cli/Cargo.toml` + `cargo update --workspace --offline` for its lock); `npm run build` regenerates the marketplaces and `dist/`; verify with `npm run check:release-version`
 - [ ] CHANGELOG updated
 - [ ] README reflects new skills
 - [ ] Git tag created: `git tag v1.x.x`
@@ -933,6 +943,27 @@ A `.so` that links but returns empty results passes a build check and fails a
 round trip. `substrate/skill-ffi` has 7 tests asserting on **returned values**.
 
 Full documentation: [`site/docs/mobile/`](site/docs/mobile/overview.md).
+
+## OpenSpec 2.0 layout and VLBV (1.15.0)
+
+- **OpenSpec is pinned exactly at 2.0.0** (`package.json`, `config/spec-engines.json`,
+  `PINNED_VERSION` in `skills/process/kbd-process-orchestrator/shared/openspec/state.mjs`).
+  Skills live once in `.agents/skills/openspec-*` with per-skill links in
+  `.claude/skills`; the `/opsx:*` commands no longer exist. Never edit an
+  `openspec-*` skill — `openspec update` overwrites it; put project instructions in
+  `openspec/config.yaml` (`context`, `rules`). Session start runs the runner's
+  `verify` (never writes); the mutating `refresh` runs at phase entry.
+- **Windows:** the `.claude/skills` entries are committed symlinks. Use
+  `git config --global core.symlinks true` and Developer Mode, or `openspec update`
+  replaces each link with a plain copy.
+- **VLBV is the single verification method.** Boundaries are defined once in
+  `skills/process/kbd-process-orchestrator/references/boundaries.md`; the method
+  entry skill is `skills/testing/vlbv`. Contract v2 is linted by
+  `kbd-contract-adopt.sh --lint-only`.
+- **Apple Foundation Models:** on an eligible Mac the installer runs
+  `shared/scripts/apple-foundation-models.sh --install` (apfel on `:11437`, KBD
+  `local` role). Optional and silent elsewhere — see
+  `site/docs/operations/apple-foundation-models.md`.
 
 ## Learn Domain
 
@@ -1147,20 +1178,30 @@ Scratch acceptance must explicitly set all three of `HOME`, `CODEX_HOME` and
 
 ### Codex does not follow symlinked skill directories
 
-`install-skills-flat.sh` symlinks skills into every platform's skill dir. **Codex silently
-ignores symlinked skill directories** — they contribute zero skills, with no error, no
-warning, and no entry in `codex doctor`. Before this was found, all 138 pack skills were
-present in `~/.codex/skills` as symlinks and Codex loaded **none** of them.
+**Codex silently ignores symlinked skill directories** — they contribute zero skills, with
+no error, no warning, and no entry in `codex doctor`. Before this was found, all 138 pack
+skills were present in `~/.codex/skills` as symlinks and Codex loaded **none** of them.
 
-Codex therefore gets **real directories**, synced by
-[`scripts/codex-sync-skills.sh`](scripts/codex-sync-skills.sh), not symlinks.
-`install_to_codex()` in `install-skills-flat.sh` delegates to it. Never add Codex back
-into the `install_to_dir` (symlinking) list.
+Codex reads the canonical root **`~/.agents/skills`** (verified on codex-cli 0.166.0;
+evidence: [`docs/decisions/harness-evidence/codex-skill-roots-2026-11-15.txt`](docs/decisions/harness-evidence/codex-skill-roots-2026-11-15.txt)).
+Under owner decision D3 the signed generation installer (`install-plugin-generation.js`)
+installs every pack skill **once** there as a **real directory** with a
+`.prometheus-generation` marker; Claude Code and Qwen Code get symlink shims
+(`~/.claude/skills`, `~/.qwen/skills`). When `~/.agents/skills` is itself a symlink to a
+shared tree, the installer resolves it through `realpath` and installs into the directory
+it names — the link is never replaced. Never switch the canonical root to symlink mode.
 
-Global Codex copies are owned by the immutable generation: `install-plugin-generation.js`
-writes them with a `.prometheus-generation` marker, and they are refreshed on every pack
-install or update (`scripts/update-skill-pack.sh`), not continuously. A repo edit to a
-skill reaches Codex only after the next update.
+`~/.codex/skills` (resolved through a nonempty `CODEX_HOME`) is a **retired** root, along
+with the other former per-harness roots. On install the generation installer removes only
+entries it can prove are pack-owned there and records them in
+`<pluginRoot>/receipts/retired-target-cleanup.json`. `scripts/codex-sync-skills.sh` no
+longer copies anything; it only retires its own legacy `.prometheus-pack` copies there.
+Do not reintroduce pack copies into `~/.codex/skills`: a second copy duplicates every
+catalog entry and halves the description budget.
+
+The canonical copies are refreshed on every pack install or update
+(`scripts/update-skill-pack.sh`), not continuously. A repo edit to a skill reaches Codex
+only after the next update.
 
 The former `ai.prometheus.codex-skills-sync` LaunchAgent is **retired**. It used a
 different ownership marker and competed with generation receipts, so
@@ -1188,10 +1229,12 @@ child as separate catalog entries.
 Which skills enter the catalog is curated in
 [`config/codex-catalog.txt`](config/codex-catalog.txt) and **applied by
 [`shared/scripts/codex-catalog-config.sh`](shared/scripts/codex-catalog-config.sh)**,
-which every install and update runs (`scripts/lib/install-codex-catalog.sh`). It writes
-one managed block of `[[skills.config]] path = ... enabled = false` entries into
-`~/.codex/config.toml` (backup first, everything outside the block untouched, `--uninstall`
-removes it). Nothing on disk is deleted, so the signed generation stays intact.
+which every install and update runs (`scripts/lib/install-codex-catalog.sh`). The pack
+root it manages is the canonical `~/.agents/skills` (matched by both its lexical and its
+resolved path, since it may be a symlink). It writes one managed block of
+`[[skills.config]] path = ... enabled = false` entries into `$CODEX_HOME/config.toml`
+(backup first, everything outside the block untouched, `--uninstall` removes it). Nothing
+on disk is deleted, so the signed generation stays intact.
 
 The listing Codex prints is **truncated at its character cap**, so it is only a lower
 bound: 378 printed entries came from 3,113 distinct `SKILL.md` files on one machine,

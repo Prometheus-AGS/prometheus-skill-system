@@ -161,6 +161,27 @@ for (const hook of contractHooks) {
   }
 }
 
+// VLBV CR-23 / FR-H7: unknown is not supported. A profile capability may say
+// "supported" only when the profile records an actual exercised run with a
+// committed evidence file; vendor documentation alone stays "unknown".
+{
+  const profiles = read('shared/harnesses/capabilities.json').profiles ?? {};
+  for (const [harness, profile] of Object.entries(profiles)) {
+    if (harness.startsWith('_')) continue;
+    const verified = profile.verified ?? {};
+    const exercised = verified.exercised === true && typeof verified.evidence === 'string'
+      && fs.existsSync(path.join(root, verified.evidence));
+    for (const [capability, value] of Object.entries(profile)) {
+      if (value && typeof value === 'object' && value.status === 'supported' && !exercised) {
+        failures.push(`${harness}: profile claims ${capability} supported without exercised evidence (verified.exercised + committed verified.evidence)`);
+      }
+    }
+    for (const key of ['rulesFiles', 'skillRoots', 'invocation', 'canExecuteBoundary', 'verified']) {
+      if (!(key in profile)) failures.push(`${harness}: profile omits ${key}`);
+    }
+  }
+}
+
 for (const harness of ['claude-code', 'codex', 'opencode', 'kimi']) {
   const events = read('shared/harnesses/capabilities.json').harnesses[harness]?.events ?? {};
   for (const required of ['sessionStart', 'preCompact', 'postCompact', 'stop']) {

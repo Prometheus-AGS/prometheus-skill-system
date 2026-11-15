@@ -41,8 +41,8 @@ graph TD
     A[User intent or loop prompt] --> B{Discovery mechanism}
     B -->|Claude Code| C[Slash command + auto-trigger from description]
     B -->|OpenCode| D[plugin.ts tools + registered commands]
-    B -->|Codex| E[~/.codex/skills + prompt files]
-    B -->|Kimi / MiniMax / Cursor / others| F[skills dir + native matching]
+    B -->|Codex| E[~/.agents/skills + prompt files]
+    B -->|Kimi / MiniMax / Cursor / others| F[~/.agents/skills + native matching]
     C & D & E & F --> G[Skill SKILL.md loaded into context]
     G --> H[references/ loaded on demand]
 ```

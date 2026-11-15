@@ -16,7 +16,15 @@ const packageVersion = JSON.parse(fs.readFileSync(path.join(root, 'package.json'
 assert.equal(contract.releaseVersion, packageVersion);
 // A patch release must not raise the floor: the installer refuses to run while an enabled umbrella is below it.
 assert(contract.minimumActiveVersion.split('.')[0] === packageVersion.split('.')[0] && contract.minimumActiveVersion <= packageVersion);
-assert.equal(contract.targets.length, 14);
+// One canonical copy root plus the Claude Code and Qwen Code symlink shims.
+assert.deepEqual(
+  contract.targets.map(target => [target.id, target.path, target.mode, target.sourceTreeLifecycle]),
+  [
+    ['agents', '.agents/skills', 'copy', 'required'],
+    ['claude', '.claude/skills', 'symlink', 'install-only'],
+    ['qwen', '.qwen/skills', 'symlink', 'install-only'],
+  ]
+);
 assert.equal(new Set(skills.map(skill => skill.name)).size, skills.length);
 assert(skills.some(skill => skill.name === 'artifact-refiner'));
 assert(skills.some(skill => skill.name === 'sycophancy-correction'));

@@ -2,7 +2,7 @@
   "$schema": "./schemas/skill-system.schema.json",
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
-  "releaseVersion": "1.14.0",
+  "releaseVersion": "1.15.0",
   "minimumActiveVersion": "1.11.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
@@ -181,7 +181,7 @@
       {
         "name": "prometheus-testing-skills",
         "path": "skills/testing",
-        "version": "1.5.2",
+        "version": "1.6.0",
         "category": "testing"
       },
       {
@@ -224,6 +224,26 @@
   },
   "targets": [
     {
+      "id": "agents",
+      "path": ".agents/skills",
+      "mode": "copy",
+      "sourceTreeLifecycle": "required",
+      "detect": [
+        ".agents",
+        ".codex",
+        ".opencode",
+        ".kimi-code",
+        ".minimax",
+        ".cursor",
+        ".gemini",
+        "command:codex",
+        "command:opencode",
+        "command:kimi",
+        "command:cursor",
+        "command:gemini"
+      ]
+    },
+    {
       "id": "claude",
       "path": ".claude/skills",
       "mode": "symlink",
@@ -234,129 +254,13 @@
       ]
     },
     {
-      "id": "opencode",
-      "path": ".opencode/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "required",
-      "detect": [
-        ".opencode",
-        "command:opencode"
-      ]
-    },
-    {
-      "id": "kimi-code",
-      "path": ".kimi-code/skills",
+      "id": "qwen",
+      "path": ".qwen/skills",
       "mode": "symlink",
       "sourceTreeLifecycle": "install-only",
       "detect": [
-        ".kimi-code",
-        "command:kimi"
-      ]
-    },
-    {
-      "id": "minimax",
-      "path": ".minimax/skills",
-      "mode": "copy",
-      "sourceTreeLifecycle": "install-only",
-      "detect": [
-        ".minimax"
-      ]
-    },
-    {
-      "id": "cursor",
-      "path": ".cursor/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "required",
-      "detect": [
-        ".cursor",
-        "command:cursor"
-      ]
-    },
-    {
-      "id": "codex",
-      "path": ".codex/skills",
-      "mode": "copy",
-      "sourceTreeLifecycle": "required",
-      "detect": [
-        ".codex",
-        "command:codex"
-      ]
-    },
-    {
-      "id": "gemini",
-      "path": ".gemini/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "install-only",
-      "detect": [
-        ".gemini",
-        "command:gemini"
-      ]
-    },
-    {
-      "id": "roo",
-      "path": ".roo/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "install-only",
-      "detect": [
-        ".roo"
-      ]
-    },
-    {
-      "id": "devin",
-      "path": ".devin/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "required",
-      "detect": [
-        ".devin",
-        ".windsurf",
-        "command:devin",
-        "command:windsurf"
-      ]
-    },
-    {
-      "id": "codeium-windsurf",
-      "path": ".codeium/windsurf/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "install-only",
-      "detect": [
-        ".codeium/windsurf"
-      ]
-    },
-    {
-      "id": "agents",
-      "path": ".agents/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "required",
-      "detect": [
-        ".agents"
-      ]
-    },
-    {
-      "id": "zed-config",
-      "path": ".config/zed/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "install-only",
-      "detect": [
-        ".config/zed",
-        "command:zed"
-      ]
-    },
-    {
-      "id": "zed",
-      "path": ".zed/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "install-only",
-      "detect": [
-        ".zed"
-      ]
-    },
-    {
-      "id": "cline",
-      "path": ".cline/skills",
-      "mode": "symlink",
-      "sourceTreeLifecycle": "install-only",
-      "detect": [
-        ".cline"
+        ".qwen",
+        "command:qwen"
       ]
     }
   ],

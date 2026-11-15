@@ -43,17 +43,18 @@ assert.deepEqual(snapshot(valid), before, 'validation must be idempotent');
 const omitted = fixture(({ contract }) => delete contract.targets[0].sourceTreeLifecycle);
 assert.throws(
   () => readSkillSystem(omitted),
-  /target claude must declare sourceTreeLifecycle/,
+  new RegExp(`target ${canonical.targets[0].id} must declare sourceTreeLifecycle`),
   'omitted lifecycle policy must fail and name the target'
 );
 
+const firstRequired = canonical.targets.find(entry => entry.sourceTreeLifecycle === 'required').id;
 const missing = fixture(({ directory, contract }) => {
   const target = contract.targets.find(entry => entry.sourceTreeLifecycle === 'required');
   fs.rmSync(path.join(directory, target.path), { recursive: true });
 });
 assert.throws(
   () => readSkillSystem(missing),
-  /required target source tree is missing: opencode/,
+  new RegExp(`required target source tree is missing: ${firstRequired}\\b`),
   'missing required tree must fail and name the target'
 );
 
@@ -64,7 +65,7 @@ const empty = fixture(({ directory, contract }) => {
 });
 assert.throws(
   () => readSkillSystem(empty),
-  /required target source tree is empty: opencode/,
+  new RegExp(`required target source tree is empty: ${firstRequired}\\b`),
   'empty required tree must fail and name the target'
 );
 

@@ -17,7 +17,7 @@ export function installed(ROOT, platform, w, options = {}) {
   const store = options.store ?? path.join(home, '.prometheus/plugins/prometheus-skill-pack');
   const env = { PATH: process.env.PATH, HOME: home, USERPROFILE: home, CODEX_HOME: path.join(home, '.codex'), CLAUDE_CONFIG_DIR: path.join(home, '.claude'),
     XDG_CONFIG_HOME: path.join(home, '.config'), XDG_DATA_HOME: path.join(home, '.local/share'), PROMETHEUS_PLUGIN_ROOT: store, PYTHONDONTWRITEBYTECODE: '1' };
-  const r = w.run(process.execPath, [path.join(payload, 'scripts/install-plugin-generation.js'), '--source-root', payload, '--home', home, '--plugin-root', store, '--targets', 'codex'], { env, timeout: 600_000 });
+  const r = w.run(process.execPath, [path.join(payload, 'scripts/install-plugin-generation.js'), '--source-root', payload, '--home', home, '--plugin-root', store, '--targets', 'agents'], { env, timeout: 600_000 });
   if (r.exit !== 0) throw new Error(`installer for ${platform} failed:\n${r.stdout}\n${r.stderr}`);
   return { home, store, root: fs.realpathSync(path.join(store, 'current')) };
 }

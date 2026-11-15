@@ -15,6 +15,10 @@ cp "$REPO_ROOT/scripts/update-skill-pack.sh" "$FIXTURE_REPO/scripts/update-skill
 touch "$FIXTURE_REPO/scripts/generate-harness-adapters.js"
 touch "$FIXTURE_REPO/scripts/build-codex-plugin.js"
 touch "$FIXTURE_REPO/scripts/install-plugin-generation.js"
+# The updater checks the active generation's target matrix against the
+# contract's `targets` (owner decision D3: .agents/skills, .claude/skills,
+# .qwen/skills), so the fixture carries the real contract.
+cp "$REPO_ROOT/skill-system.json" "$FIXTURE_REPO/skill-system.json"
 
 cat > "$FIXTURE_REPO/scripts/refresh-native-plugin-installs.sh" <<'SH'
 #!/usr/bin/env bash
@@ -64,13 +68,14 @@ case "$entry" in
     mkdir -p "$plugin_root/generations/fixture-generation"
     "$real_node" -e '
 const fs=require("fs"), path=require("path");
-const [root,commit]=process.argv.slice(1);
+const [root,commit,contract]=process.argv.slice(1);
+const targets=JSON.parse(fs.readFileSync(contract,"utf8")).targets;
 fs.writeFileSync(path.join(root,"generations/fixture-generation/manifest.json"), JSON.stringify({
  generation:"fixture-generation",
  sourceProvenance:{sourceCommit:commit,sourceTreeState:"clean"},
- targetPayloads:Array.from({length:14},(_,index)=>({target:String(index)}))
+ targetPayloads:targets.map(target=>({target:target.path,mode:target.mode}))
 })+"\n");
-' "$plugin_root" "$expected"
+' "$plugin_root" "$expected" "${PROMETHEUS_TEST_CONTRACT:?}"
     ln -sfn generations/fixture-generation "$plugin_root/current"
     echo fixture-generation
     ;;
@@ -92,6 +97,7 @@ git -C "$FIXTURE_REPO" push -u origin main >/dev/null
 export PATH="$FAKE_BIN:$PATH"
 export PROMETHEUS_TEST_REAL_NODE="$REAL_NODE"
 export PROMETHEUS_TEST_LOG="$TMP_ROOT/commands.log"
+export PROMETHEUS_TEST_CONTRACT="$FIXTURE_REPO/skill-system.json"
 receipt="$FIXTURE_HOME/.prometheus/skill-pack-install-ref"
 mkdir -p "$(dirname "$receipt")"
 

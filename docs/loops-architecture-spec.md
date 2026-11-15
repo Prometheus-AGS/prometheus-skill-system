@@ -23,7 +23,7 @@ Every harness gets the *same* command surface installed by `scripts/install-skil
 
 | Harness | Command/skill dir | Driver mechanism |
 |---|---|---|
-| Claude Code | `.claude/commands/kbd-*.md`, `.claude/commands/opsx/` | slash commands + hooks + `/loop` |
+| Claude Code | `.claude/commands/kbd-*.md`, `.claude/skills/openspec-*` (links to `.agents/skills`) | slash commands + hooks + `/loop` |
 | OpenCode | `.opencode/commands/*.md` + `.opencode/plugin.ts` (`kbd`/`evolve`/`gitops` tools) | plugin tools + headless `opencode run` |
 | Codex | `.codex/skills/*` + `.codex/config.toml` | skills + MCP + headless `codex exec` |
 | Cursor / Windsurf / Cline | `.cursor/commands/`, `.windsurf/workflows/`, `.clinerules/workflows/` | workflow files |
@@ -110,16 +110,20 @@ openspec/
   changes/archive/          # applied + archived changes
 ```
 
-The `opsx-*` command set wraps the `openspec` CLI:
+OpenSpec 2.0 removed the `/opsx:*` commands; each became a skill of the same
+name (formerly `/opsx:<name>`), installed once in `.agents/skills`. Under KBD,
+implementation still goes through `/kbd-apply`, and verify/archive run only after
+the phase closes (see `skills/process/kbd-process-orchestrator/references/boundaries.md`).
+The skills wrap the `openspec` CLI:
 
 | Command | CLI it wraps | Purpose |
 |---|---|---|
-| `/opsx-new <name>` | `openspec new change` → `openspec status` → `openspec instructions` | scaffold a change, show first artifact, **stop** |
-| `/opsx-continue` | `openspec instructions <next-ready-artifact>` | draft the next dependency‑ready artifact |
-| `/opsx-verify` | `openspec validate` | check artifacts are complete + consistent |
-| `/opsx-apply` | apply spec deltas to `specs/` | promote the change into the living spec |
-| `/opsx-archive` | move to `changes/archive/` | close out an applied change |
-| `/opsx-explore`, `/opsx-ff`, `/opsx-sync`, `/opsx-onboard`, `/opsx-bulk-archive` | — | discovery, fast‑forward, spec sync, onboarding, batch close |
+| `openspec-new-change <name>` | `openspec new change` → `openspec status` → `openspec instructions` | scaffold a change, show first artifact, **stop** |
+| `openspec-continue-change` | `openspec instructions <next-ready-artifact>` | draft the next dependency‑ready artifact |
+| `openspec-verify-change` | `openspec validate` | check artifacts are complete + consistent |
+| `openspec-apply-change` | apply spec deltas to `specs/` | promote the change into the living spec |
+| `openspec-archive-change` | move to `changes/archive/` | close out an applied change |
+| `openspec-explore`, `openspec-ff-change`, `openspec-sync-specs`, `openspec-onboard`, `openspec-bulk-archive-change` | — | discovery, fast‑forward, spec sync, onboarding, batch close |
 
 The gate that matters for loops: **an artifact only becomes "ready" when its dependencies are satisfied.** That is your built‑in per‑tick termination signal — the loop advances one artifact per tick and cannot skip ahead.
 
@@ -159,7 +163,7 @@ You construct L3 cadence on top of whatever each harness gives you natively.
 | Primitive | What it is | Use for |
 |---|---|---|
 | `.opencode/plugin.ts` tools (`kbd`, `evolve`, `gitops`) | typed entry points; `kbd` returns an `invoke_skill` action pointing at `kbd-process-orchestrator` + `/kbd-<command>`, auto‑detecting `openspec/`, `constraints.md`, and the active waypoint | in‑session L1/L2 from the TUI |
-| `.opencode/commands/*.md` (`kbd-*`, `opsx-*`) | markdown slash commands | same surface as Claude Code |
+| `.opencode/commands/*.md` (`kbd-*`); OpenSpec skills from `.agents/skills` | markdown slash commands | same surface as Claude Code |
 | `opencode run -p "<prompt>"` (headless, non‑interactive) | single‑shot run; all permissions auto‑approved for the run | the body of an external loop |
 | `shell.env` hook | injects `PROMETHEUS_SKILL_PACK=1` into every shell env | provenance / guards |
 | Plan vs Build agents | Plan reads‑only and proposes; Build edits + runs | map Plan→`assess/plan`, Build→`execute` |
@@ -204,8 +208,8 @@ This is the full nesting with the actual skills wired in.
                 ├─ execute  (tiered) ──────────┐
                 │    └─ /kbd-execute           │ L1: KBD inner loop
                 │         ├─ /kbd-plan         │   decompose → openspec change(s)
-                │         ├─ backend=openspec  │   /opsx-new → /opsx-continue* → /opsx-verify
-                │         │     → /opsx-apply → /opsx-archive
+                │         ├─ backend=openspec  │   openspec-new-change → openspec-continue-change* → openspec-verify-change
+                │         │     → openspec-apply-change → openspec-archive-change
                 │         └─ artifact-refiner QA per completed change
                 ├─ reflect  (frontier) ────────┘  Delta→RootCause→Corrective (sycophancy gate)
                 └─ persist  → state provider (surreal-memory | .evolver/)
@@ -229,11 +233,11 @@ Three guards keep it bounded: `max_ticks` (hard ceiling), `max_no_progress_ticks
 
 ```bash
 # 1. Scaffold the change — produces openspec/changes/<name>/ and shows the first artifact
-/opsx-new add-deed-template-matrix
+openspec-new-change add-deed-template-matrix
 
 # 2. Draft artifacts one dependency-ready step at a time (proposal → tasks → spec deltas)
-/opsx-continue        # repeat until `openspec status --change add-deed-template-matrix` is N/N
-/opsx-verify          # openspec validate — gate before any code is written
+openspec-continue-change        # repeat until `openspec status --change add-deed-template-matrix` is N/N
+openspec-verify-change          # openspec validate — gate before any code is written
 
 # 3. Hand the verified spec to the KBD inner loop for implementation
 /kbd-plan add-deed-template-matrix          # decompose tasks → fine-grained changes
@@ -242,8 +246,8 @@ Three guards keep it bounded: `max_ticks` (hard ceiling), `max_no_progress_ticks
 /kbd-reflect add-deed-template-matrix       # Delta→RootCause→Corrective (sycophancy-gated)
 
 # 4. Promote + close
-/opsx-apply add-deed-template-matrix        # fold spec deltas into openspec/specs/
-/opsx-archive add-deed-template-matrix
+openspec-apply-change add-deed-template-matrix        # fold spec deltas into openspec/specs/
+openspec-archive-change add-deed-template-matrix
 ```
 
 **Make it a loop (unattended):** the termination predicate is *"`cargo test` green AND `openspec validate` clean AND artifact‑refiner score ≥ threshold."* Wrap steps 3–4 in L3:
@@ -282,7 +286,7 @@ Three guards keep it bounded: `max_ticks` (hard ceiling), `max_no_progress_ticks
    # reflect: gaps remaining → next cycle or escalate via /pmpo-elicit
 
 # 4. When convergent, hand off to OpenSpec to make it executable
-/opsx-new hotseater-v2-core       # the ideation spec becomes the proposal artifact's seed
+openspec-new-change hotseater-v2-core       # the ideation spec becomes the proposal artifact's seed
 ```
 
 **Make it a loop:** feedback_source is *coverage of the idea space* (open questions remaining from the interrogator) + *landscape freshness*. Terminate when open questions = 0 and all `measurable_criteria` are stated. Cadence `manual` — ideation wants you in the escalation loop. The evolver chains end‑state → start‑state, so a second `/evolve "hotseater-v2-ideation"` resumes from the prior cycle's finalized spec rather than from scratch.
@@ -357,7 +361,7 @@ The L1/L2/L3 skills are identical across harnesses — only the *driver* and *ca
 ```
 /kbd status
 /evolve "harden-uar-runtime" domain=software phase=full
-/opsx-new add-deed-template-matrix
+openspec-new-change add-deed-template-matrix
 ```
 The `kbd` tool auto‑detects `openspec/`, `constraints.md`, and `current-waypoint.json` and routes to `/kbd-<command>` — so the loop logic is identical; OpenCode just dispatches it.
 
@@ -444,7 +448,7 @@ A practical daily setup once loops are the default unit of work.
 /loop-report <name>            # tick table + narrative
 
 # Spec-first codegen
-/opsx-new <change> → /opsx-continue* → /opsx-verify → /kbd-execute <change> → /opsx-apply → /opsx-archive
+openspec-new-change <change> → openspec-continue-change* → openspec-verify-change → /kbd-execute <change> → openspec-apply-change → openspec-archive-change
 
 # Evolve a codebase
 /evolve "<name>" domain=software phase=full

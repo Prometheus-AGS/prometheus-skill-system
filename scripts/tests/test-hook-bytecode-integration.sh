@@ -121,7 +121,7 @@ try:
         store = owned / ('store-' + client)
         client_home, child = harness_environment(client, cache, store)
         installer = cache / 'scripts/install-plugin-generation.js'
-        command = [tools / 'node', installer, '--source-root', cache, '--home', client_home, '--plugin-root', store, '--targets', 'codex']
+        command = [tools / 'node', installer, '--source-root', cache, '--home', client_home, '--plugin-root', store, '--targets', 'agents']
         installed = call(command, child, client + '-actual-generation-install')
         generation_id = installed.stdout.strip().splitlines()[-1]
         generation = store / 'generations' / generation_id
@@ -208,7 +208,7 @@ try:
     cache = owned / 'legacy-payload'; shutil.copytree(legacy, cache, symlinks=True)
     store = owned / 'legacy-store'
     legacy_home, child = harness_environment('legacy', cache, store)
-    command = [tools / 'node', cache / 'scripts/install-plugin-generation.js', '--source-root', cache, '--home', legacy_home, '--plugin-root', store, '--targets', 'codex']
+    command = [tools / 'node', cache / 'scripts/install-plugin-generation.js', '--source-root', cache, '--home', legacy_home, '--plugin-root', store, '--targets', 'agents']
     installed = call(command, child, 'historical-generation-install')
     generation = store / 'generations' / installed.stdout.strip().splitlines()[-1]
     bundle = json.loads((generation / 'manifest.json').read_text())['bundleId']

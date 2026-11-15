@@ -44,11 +44,17 @@ See `references/model-routing.md` for the full routing contract.
 
 ## Prerequisites
 
-Before running reflect, verify all changes in this phase are complete:
+Before running reflect, verify the phase completed the B4 sequence
+(`references/boundaries.md`):
 
 - `progress.json` shows all changes as `DONE`
-- If OpenSpec: all changes show `kbd-apply verify` and `kbd-apply archive` complete
-- If native KBD: all change directories have been moved to `archive/`
+- `boundary-results.json` and `closure-packet.md` exist for the phase
+- After CLOSED: OpenSpec changes verified and archived through `kbd-apply`; native
+  change directories moved to `archive/`
+
+Record the contract-accuracy block (amendments, contract-caused BLOCKED,
+NOT_EXERCISED, repair attempts used/allowed, post-closure escapes) in
+`reflection.md` and `accuracy.json`.
 
 If any changes are `BLOCKED`, note them explicitly and proceed with reflection on what was completed.
 

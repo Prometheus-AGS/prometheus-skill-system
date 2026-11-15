@@ -181,13 +181,26 @@ test_platform_installs() {
         echo "    ⚠️  claude-code: ~/.claude/skills not found — run: bash scripts/install-skills-flat.sh"
     fi
 
-    # Kimi Code — skills dir
-    if [[ -d "$HOME/.kimi-code/skills" ]]; then
+    # Canonical root — every non-Claude/Qwen harness (Codex, OpenCode, Kimi
+    # Code, MiniMax, Cursor, Gemini, ...) reads ~/.agents/skills, where the pack
+    # installs real directories. Per-harness skill dirs are retired.
+    if [[ -d "$HOME/.agents/skills" ]]; then
         PASS=$((PASS + 1))
-        echo "    ✅ kimi-code: ~/.kimi-code/skills exists"
+        echo "    ✅ canonical root: ~/.agents/skills exists"
     else
         SKIP=$((SKIP + 1))
-        echo "    ⚠️  kimi-code: ~/.kimi-code/skills not found — run: bash scripts/install-skills-flat.sh"
+        echo "    ⚠️  canonical root: ~/.agents/skills not found — run: bash scripts/install-skills-flat.sh"
+    fi
+
+    # Qwen Code — symlink shim (only when Qwen Code is present)
+    if [[ -d "$HOME/.qwen" ]]; then
+        if [[ -d "$HOME/.qwen/skills" ]]; then
+            PASS=$((PASS + 1))
+            echo "    ✅ qwen-code: ~/.qwen/skills exists"
+        else
+            SKIP=$((SKIP + 1))
+            echo "    ⚠️  qwen-code: ~/.qwen/skills not found — run: bash scripts/install-skills-flat.sh"
+        fi
     fi
 
     # Kimi Code — MCP config
@@ -197,15 +210,6 @@ test_platform_installs() {
     else
         SKIP=$((SKIP + 1))
         echo "    ⚠️  kimi-code: config.toml missing surreal-memory — run: bash scripts/install-skills-flat.sh"
-    fi
-
-    # MiniMax — skills dir
-    if [[ -d "$HOME/.minimax/skills" ]]; then
-        PASS=$((PASS + 1))
-        echo "    ✅ minimax: ~/.minimax/skills exists"
-    else
-        SKIP=$((SKIP + 1))
-        echo "    ⚠️  minimax: ~/.minimax/skills not found — run: bash scripts/install-skills-flat.sh"
     fi
 
     # MiniMax — MCP config

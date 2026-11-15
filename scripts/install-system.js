@@ -54,7 +54,7 @@ function parseArgs(argv) {
 function help() {
   process.stdout.write(`Usage: ./install.sh [options]\n\n` +
     `  --profile skills|full       Installation profile (default: skills)\n` +
-    `  --targets detected|all|IDs  Detected clients, all 14, or comma-separated IDs\n` +
+    `  --targets detected|all|IDs  Detected clients, all (agents,claude,qwen), or IDs\n` +
     `  --home PATH                 Fallback home; explicit CODEX_HOME takes precedence\n` +
     `  --non-interactive           Disable prompts\n` +
     `  --yes                       Approve the displayed mutation summary\n` +
@@ -64,18 +64,35 @@ function help() {
     `  --best-effort               Continue after failures; never reports certification\n`);
 }
 
+const CANONICAL_TARGET_ID = 'agents';
+
 function commandExists(command) {
   return spawnSync(process.platform === 'win32' ? 'where' : 'sh', process.platform === 'win32' ? [command] : ['-c', `command -v "$1" >/dev/null 2>&1`, 'sh', command]).status === 0;
 }
 
+function probeDetected(probe, home) {
+  if (probe.startsWith('command:')) return commandExists(probe.slice('command:'.length));
+  const destination = probe === '.codex' || probe.startsWith('.codex/')
+    ? path.join(resolveCodexHome(home), ...probe.split('/').slice(1))
+    : path.join(home, ...probe.split('/'));
+  return fs.existsSync(destination);
+}
+
+// `.agents/skills` is the canonical root every non-shim harness reads, so it is
+// always part of a detected install; the shims follow their own detection.
 function detectedTargets(contract, home) {
-  return contract.targets.filter(target => target.detect.some(probe => {
-    if (probe.startsWith('command:')) return commandExists(probe.slice('command:'.length));
-    const destination = probe === '.codex' || probe.startsWith('.codex/')
-      ? path.join(resolveCodexHome(home), ...probe.split('/').slice(1))
-      : path.join(home, ...probe.split('/'));
-    return fs.existsSync(destination);
-  }));
+  return contract.targets.filter(target =>
+    target.id === CANONICAL_TARGET_ID || target.detect.some(probe => probeDetected(probe, home)));
+}
+
+// Codex is served by the canonical root, not a target of its own, so its
+// policies follow its presence on this machine.
+function codexPresent(home) {
+  return probeDetected('command:codex', home) || probeDetected('.codex', home);
+}
+
+function servesCodex(targets, home) {
+  return targets.some(target => target.id === CANONICAL_TARGET_ID) && codexPresent(home);
 }
 
 function resolveTargets(contract, selection, home) {
@@ -93,7 +110,7 @@ function rejectObsoleteNativeUmbrella(contract, targets, home) {
       if (row && compareVersions(row.version, contract.minimumActiveVersion) < 0) fail(`enabled Claude umbrella ${row.version} is below minimum ${contract.minimumActiveVersion}`);
     }
   }
-  if (ids.has('codex') && commandExists('codex')) {
+  if (commandExists('codex')) {
     const result = spawnSync('codex', ['plugin', 'list', '--json'], { encoding: 'utf8', env });
     if (result.status === 0) {
       const row = (JSON.parse(result.stdout).installed ?? []).find(candidate => candidate.pluginId === 'prometheus-skill-pack@prometheus-skill-pack' && candidate.enabled);
@@ -214,6 +231,22 @@ function generationArgs(args, targets) {
   ];
 }
 
+// MCP configuration is per harness. Claude follows its shim target; harnesses
+// served by the canonical root follow their own detection.
+function mcpTools(targets, home) {
+  const tools = [];
+  if (targets.some(target => target.id === 'claude')) tools.push('claude-code');
+  if (!targets.some(target => target.id === CANONICAL_TARGET_ID)) return tools;
+  for (const [tool, probes] of [
+    ['codex', ['command:codex', '.codex']],
+    ['opencode', ['command:opencode', '.opencode']],
+    ['kimi-code', ['command:kimi', '.kimi-code']],
+  ]) {
+    if (probes.some(probe => probeDetected(probe, home))) tools.push(tool);
+  }
+  return tools;
+}
+
 function configureFull(args, targets, contract) {
   const supported = contract.platforms.full.includes(platformKind());
   if (!supported) fail('full installation is supported on macOS and Linux only. On Windows, use --profile skills from Git Bash or WSL.');
@@ -223,11 +256,9 @@ function configureFull(args, targets, contract) {
     run('bash', [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh'), '--install'], { cwd: args.sourceRoot });
   }
   run('bash', [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh'), '--build-tools'], { cwd: args.sourceRoot });
-  const mcpTargets = targets.filter(target => ['claude', 'codex', 'opencode', 'kimi-code'].includes(target.id));
   run('bash', [path.join(args.sourceRoot, 'scripts/install-mcp-services.sh')], { cwd: args.sourceRoot });
-  const mcpNames = new Map([['claude', 'claude-code'], ['codex', 'codex'], ['opencode', 'opencode'], ['kimi-code', 'kimi-code']]);
-  for (const target of mcpTargets) {
-    run('bash', [path.join(args.sourceRoot, 'scripts/configure-mcp-all-tools.sh'), '--tool', mcpNames.get(target.id)], { cwd: args.sourceRoot });
+  for (const tool of mcpTools(targets, args.home)) {
+    run('bash', [path.join(args.sourceRoot, 'scripts/configure-mcp-all-tools.sh'), '--tool', tool], { cwd: args.sourceRoot });
   }
   run('bash', [path.join(args.sourceRoot, 'scripts/check-mcp-health.sh')], { cwd: args.sourceRoot });
   run('npm', ['run', 'doctor'], { cwd: args.sourceRoot });
@@ -262,7 +293,7 @@ async function main() {
     `  imports: ${args.verify || args.uninstall ? 'none' : imports.join(', ')}`,
     `  plugin root: ${path.join(args.home, '.prometheus/plugins/prometheus-skill-pack')}`,
     `  Codex root: ${args.codexHome}`,
-    ...(operation === 'install' && targets.some(target => target.id === 'codex')
+    ...(operation === 'install' && servesCodex(targets, args.home)
       ? ['  Codex memory policy: disable startup/generation/use; archive known v1/v2 summaries'] : []),
     `  certification: ${args.bestEffort ? 'disabled (--best-effort)' : 'required'}`,
   ];
@@ -290,7 +321,7 @@ async function main() {
   else if (args.uninstall) installerArgs.push('--uninstall');
   else attempt('submodule initialization', () => initializeImports(args.sourceRoot, contract, profile));
   const generation = attempt(operation, () => run(process.execPath, installerArgs, { capture: true }));
-  if (!args.verify && !args.uninstall && targets.some(target => target.id === 'codex')) {
+  if (!args.verify && !args.uninstall && servesCodex(targets, args.home)) {
     attempt('Codex memory policy', () => {
       if (!applyCodexMemories({ home: args.home })) fail('could not apply Codex memory policy');
     });

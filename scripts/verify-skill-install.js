@@ -38,24 +38,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { CANONICAL_TARGET_PATHS } from './lib/skill-system.js';
 
-const TARGETS = [
-  '.claude/skills',
-  '.opencode/skills',
-  '.kimi-code/skills',
-  '.minimax/skills',
-  '.cursor/skills',
-  '.codex/skills',
-  '.gemini/skills',
-  '.roo/skills',
-  '.devin/skills',
-  '.codeium/windsurf/skills',
-  '.agents/skills',
-  '.config/zed/skills',
-  '.zed/skills',
-  '.cline/skills',
-];
-const COPY_TARGETS = new Set(['.minimax/skills', '.codex/skills']);
+// The signed target matrix (owner decision D3): the canonical root
+// `.agents/skills` holds real-directory copies; `.claude/skills` and
+// `.qwen/skills` are symlink shims into the active generation. The former
+// per-harness roots are retired and deliberately not checked here.
+const TARGETS = [...CANONICAL_TARGET_PATHS];
+const COPY_TARGETS = new Set(['.agents/skills']);
 
 const HOME = process.env.VERIFY_HOME || os.homedir();
 const PLUGIN_ROOT =
@@ -140,7 +130,10 @@ if (!skills) {
 const failures = [];
 let checked = 0;
 for (const target of TARGETS) {
-  const targetRoot = path.join(HOME, ...target.split('/'));
+  // A root may itself be a symlink (e.g. ~/.agents/skills -> a shared tree);
+  // the installer writes INTO the directory it names, so verify there too.
+  const lexicalRoot = path.join(HOME, ...target.split('/'));
+  const targetRoot = fs.existsSync(lexicalRoot) ? fs.realpathSync(lexicalRoot) : lexicalRoot;
   if (!fs.existsSync(targetRoot)) {
     failures.push({ target, skill: '(all)', reason: 'target directory does not exist' });
     continue;

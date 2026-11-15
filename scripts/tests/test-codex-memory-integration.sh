@@ -288,7 +288,7 @@ try:
     unhealthy = json.loads(call([tools/'bash',helper,'--check'],env,'helper-read-only-unhealthy').stdout)
     require(not unhealthy['ok'] and unhealthy['summary_v1_present'] and unhealthy['summary_v2_present'], 'helper check did not expose both summary versions')
     require(before == snap(codex), '--check changed configuration/artifacts')
-    install = [tools/'node',source/'scripts/install-system.js','--source-root',source,'--home',home,'--profile','skills','--targets','codex','--non-interactive','--yes']
+    install = [tools/'node',source/'scripts/install-system.js','--source-root',source,'--home',home,'--profile','skills','--targets','agents','--non-interactive','--yes']
     call(install,env,'actual-full-pack-installer-memory-dispatch',cwd=source)
     parsed = tomllib.loads(config.read_text())
     expected = tomllib.loads(original)

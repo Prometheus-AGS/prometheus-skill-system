@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
-import { acceptedVersion, readJson, writeJson, REGISTRY } from './state.mjs';
+import { acceptedVersion, compareVersions, readJson, writeJson, REGISTRY, PINNED_VERSION } from './state.mjs';
 
 export function nodeProcess(entry, args, { cwd, remaining, inherit = false }) {
   const budget = remaining();
@@ -77,22 +77,40 @@ export function selectedRuntime(home) {
   return cachedRuntime(home, selection.version);
 }
 
+// The registry is consulted only to report a newer release; it never moves the
+// selection. PROMETHEUS_OPENSPEC_LATEST_URL replaces the registry endpoint for
+// isolated runs (it must answer like `GET /@fission-ai%2fopenspec/latest`).
+async function registryLatest(remaining) {
+  const url = process.env.PROMETHEUS_OPENSPEC_LATEST_URL || `${REGISTRY}/@fission-ai%2fopenspec/latest`;
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(Math.max(1, Math.min(5000, remaining() - 500))), redirect: 'error',
+  });
+  if (!response.ok) throw new Error(`npm registry returned HTTP ${response.status}`);
+  const body = await response.json();
+  if (body.name !== '@fission-ai/openspec') throw new Error('npm registry returned another package');
+  if (!/^\d+\.\d+\.\d+$/.test(body.version || '')) throw new Error('npm registry returned a non-stable version');
+  return body.version;
+}
+
 export async function selectVersion(home, remaining) {
   const pin = process.env.PROMETHEUS_OPENSPEC_VERSION;
   if (pin) return { version: acceptedVersion(pin), latestVerified: false, policy: 'operator-pin' };
+  const selection = { version: acceptedVersion(PINNED_VERSION), latestVerified: false, policy: 'pack-pin' };
   try {
-    const response = await fetch(`${REGISTRY}/@fission-ai%2fopenspec/latest`, {
-      signal: AbortSignal.timeout(Math.max(1, Math.min(5000, remaining() - 500))), redirect: 'error',
-    });
-    if (!response.ok) throw new Error(`npm registry returned HTTP ${response.status}`);
-    const body = await response.json();
-    if (body.name !== '@fission-ai/openspec') throw new Error('npm registry returned another package');
-    return { version: acceptedVersion(body.version), latestVerified: true, policy: 'registry-latest' };
+    const latest = await registryLatest(remaining);
+    selection.registryLatest = latest;
+    const order = compareVersions(latest, PINNED_VERSION);
+    if (order === 0) selection.latestVerified = true;
+    if (order > 0) {
+      selection.newerAvailable = latest;
+      if (Number(latest.split('.')[0]) > Number(PINNED_VERSION.split('.')[0])) {
+        selection.migrationRequired = `OpenSpec ${latest} is a new major release; the pack stays on ${PINNED_VERSION} until a pack release ports it (or an operator pins PROMETHEUS_OPENSPEC_VERSION).`;
+      }
+    }
   } catch (error) {
-    const selected = selectedRuntime(home);
-    if (!selected) throw error;
-    return { version: selected.version, latestVerified: false, policy: 'cached-offline', registryError: error.message };
+    selection.registryError = error.message;
   }
+  return selection;
 }
 
 export async function ensureRuntime(home, selection, remaining) {

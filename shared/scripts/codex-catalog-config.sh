@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Keep Codex's skill catalog inside its fixed size budget without deleting a file.
 #
+# The pack root it manages is the canonical ~/.agents/skills (resolved with
+# realpath when it is a symlink); ~/.codex/skills may hold no pack skills at all.
+#
 # Codex lists every SKILL.md it finds under every skill root with no de-duplication,
 # and names plus paths use most of a ~29.6K-character budget; descriptions get the
 # remainder. This helper asks Codex itself what it lists (`codex debug prompt-input`),
@@ -70,6 +73,12 @@ config = home / "config.toml"
 BEGIN = "# >>> prometheus-codex-catalog (managed by shared/scripts/codex-catalog-config.sh; do not edit) >>>"
 END = "# <<< prometheus-codex-catalog <<<"
 MARKERS = (".prometheus-generation", ".prometheus-pack")
+# The canonical pack root: the generation installer copies every pack skill ONCE
+# into ~/.agents/skills (Codex reads it directly). It may be a symlink to a shared
+# tree, so match both its lexical path and its resolved path. ~/.codex/skills no
+# longer holds pack copies; legacy ones there are only redundant duplicates.
+_agents_lexical = os.path.join(os.path.expanduser("~"), ".agents", "skills")
+AGENTS_ROOTS = tuple(dict.fromkeys([_agents_lexical, os.path.realpath(_agents_lexical)]))
 try:
     import tomllib
 except ImportError:
@@ -228,7 +237,7 @@ def pack_copy(path, name, pack_names, tops):
         return True
     # Walk up to the skill root. A bundle holds nested `skills/` folders of its own,
     # so stop at a known root, never at the first directory merely named `skills`.
-    skill_roots = {str(home / "skills"), os.path.join(os.path.expanduser("~"), ".agents", "skills"),
+    skill_roots = {str(home / "skills"), *AGENTS_ROOTS,
                    str(repo / ".agents" / "skills"), str(repo / ".codex" / "skills")}
     directory = os.path.dirname(path)
     while directory and directory != os.path.dirname(directory) and directory not in skill_roots:
@@ -242,13 +251,19 @@ def pack_copy(path, name, pack_names, tops):
     return any(path.startswith(str(repo / root) + os.sep) for root in (".agents/skills", ".codex/skills")) and name in pack_names
 
 
+def agents_root_of(path):
+    return next((root for root in AGENTS_ROOTS if path.startswith(root + os.sep)), None)
+
+
 def priority(path, name):
+    # The copy kept enabled is the canonical one in ~/.agents/skills; a legacy
+    # copy under $CODEX_HOME/skills is only ever a redundant duplicate.
     codex_skills = str(home / "skills") + os.sep
-    agents_skills = os.path.join(os.path.expanduser("~"), ".agents", "skills") + os.sep
-    direct = os.path.dirname(path) == str(home / "skills" / name)
-    if path.startswith(codex_skills):
+    agents_root = agents_root_of(path)
+    if agents_root:
+        direct = os.path.dirname(path) == os.path.join(agents_root, name)
         rank = 0 if direct and has_marker(os.path.dirname(path)) else 1 if direct else 2
-    elif path.startswith(agents_skills):
+    elif path.startswith(codex_skills):
         rank = 3
     elif path.startswith(str(repo) + os.sep):
         rank = 4
@@ -266,7 +281,7 @@ def decide(entries, roots, old_paths):
     aliases = {}
     # Static roots first: Codex drops a root from its table once every skill in it
     # is disabled, so the table alone would make the universe shrink between runs.
-    static_roots = [str(home / "skills"), os.path.join(os.path.expanduser("~"), ".agents", "skills"),
+    static_roots = [*AGENTS_ROOTS, str(home / "skills"),
                     str(repo / ".agents" / "skills"), str(repo / ".codex" / "skills")]
     for path in [p for _, p in entries] + old_paths + walk_skills(static_roots + roots):
         if os.path.exists(path):
