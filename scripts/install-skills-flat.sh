@@ -18,6 +18,11 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Lives in scripts/, not scripts/lib/: everything under scripts/lib/ is hashed
+# into the hook bundle id, so a build-only helper there would change every
+# generated hook file.
+# shellcheck source=cargo-release-dir.sh
+. "$REPO_ROOT/scripts/cargo-release-dir.sh"
 # Resolve once before dispatch. A nonempty inherited root wins over HOME;
 # lexical normalization also works before the selected directory exists.
 CODEX_HOME="$(node -e 'const path = require("node:path"); process.stdout.write(path.resolve(process.env.CODEX_HOME || path.join(process.env.HOME, ".codex")));')"
@@ -529,7 +534,7 @@ install_learn_substrate() {
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
         install_substrate_bin "learner-model" \
-            "$substrate_dir/learner-model/target/release/learner-model" \
+            "$(cargo_release_dir "$substrate_dir/learner-model")/learner-model" \
             "$bin_dir/learner-model" || return 1
         echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model"
     else
@@ -543,7 +548,7 @@ install_learn_substrate() {
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
         install_substrate_bin "surface-bridge" \
-            "$substrate_dir/surface-bridge/target/release/surface-bridge" \
+            "$(cargo_release_dir "$substrate_dir/surface-bridge")/surface-bridge" \
             "$bin_dir/surface-bridge" || return 1
         echo "  ℹ️  learn-substrate: run 'npm run install:daemons' to install/start the surface-bridge service (macOS + Linux)"
     else
