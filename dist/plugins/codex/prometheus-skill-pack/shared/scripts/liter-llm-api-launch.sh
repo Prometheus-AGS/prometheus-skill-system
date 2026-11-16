@@ -25,4 +25,9 @@ if [ -z "${LITER_LLM_BIN:-}" ]; then
         LITER_LLM_BIN="$(command -v liter-llm || echo /usr/local/bin/liter-llm)"
     fi
 fi
-exec "$LITER_LLM_BIN" api --config "$HOME/.config/liter-llm/liter-llm-proxy.toml"
+# Bind to loopback by default. liter-llm's own default is 0.0.0.0, which exposes the
+# gateway (and every provider key behind the master key) to the whole LAN; the config
+# file has no host setting, so it must be passed here. Set LITER_LLM_HOST=0.0.0.0 in
+# the LaunchAgent only if another machine really needs to reach this gateway.
+exec "$LITER_LLM_BIN" api --host "${LITER_LLM_HOST:-127.0.0.1}" \
+    --config "$HOME/.config/liter-llm/liter-llm-proxy.toml"
