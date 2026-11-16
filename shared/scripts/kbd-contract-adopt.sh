@@ -6,6 +6,7 @@
 # Usage:
 #   kbd-contract-adopt.sh <contract.json> [--supersedes <decision-id>] [--command-id <id>]
 #       [--amendment <manifest.json> --signature <manifest.json.sig>]
+#       [--owner-decision <decision-id>] [--lint-only]
 #
 # Issue #192: adoption binds the phase in canonical state
 # (`prometheus kbd phase bind-contract`) and writes a byte-exact snapshot
@@ -17,6 +18,12 @@
 # Behavior:
 #   1. Validate the contract structurally (schema-lite; full schema:
 #      skills/process/kbd-process-orchestrator/references/schemas/adopted-contract.schema.json).
+#   1b. Adoption lint (VLBV CR-19/CR-30; shared/scripts/kbd-contract-lint.mjs):
+#      document checks only — scope coverage, packet command coverage, safety-check
+#      mapping, weak oracles, undeclared nondeterminism, placeholders, ownerTask
+#      against the registered task surface, and unresolved CRITICAL review findings
+#      on acceptance content (override only with --owner-decision <decision-id>).
+#      --lint-only stops here (exit 0 clean, 2 defects) and writes nothing.
 #   2. Cross-check identity against canonical state (projectId, runId, phaseId).
 #   3. Compute the digest with the FROZEN normalization:
 #        jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)'
@@ -36,19 +43,22 @@ set -euo pipefail
 
 fail() { printf 'kbd-contract-adopt: %s\n' "$1" >&2; exit "${2:-1}"; }
 command -v jq >/dev/null || fail "jq is required" 1
-command -v prometheus >/dev/null || fail "prometheus CLI is required" 1
 
 CONTRACT=""
 SUPERSEDES=""
 COMMAND_ID=""
 AMENDMENT=""
 AMEND_SIG=""
+OWNER_DECISION=""
+LINT_ONLY=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --supersedes) SUPERSEDES="${2:?--supersedes needs a decision id}"; shift 2 ;;
     --command-id) COMMAND_ID="${2:?--command-id needs a value}"; shift 2 ;;
     --amendment) AMENDMENT="${2:?--amendment needs a manifest path}"; shift 2 ;;
     --signature) AMEND_SIG="${2:?--signature needs a signature path}"; shift 2 ;;
+    --owner-decision) OWNER_DECISION="${2:?--owner-decision needs a decision id}"; shift 2 ;;
+    --lint-only) LINT_ONLY=1; shift ;;
     -h|--help) sed -n '1,30p' "$0"; exit 0 ;;
     -*) fail "unknown flag: $1" 1 ;;
     *) [ -z "$CONTRACT" ] && CONTRACT="$1" || fail "unexpected argument: $1" 1; shift ;;
@@ -56,6 +66,7 @@ while [ $# -gt 0 ]; do
 done
 [ -n "$CONTRACT" ] || fail "usage: kbd-contract-adopt.sh <contract.json> [--supersedes <id>]" 1
 [ -f "$CONTRACT" ] || fail "contract not found: $CONTRACT" 1
+[ "$LINT_ONLY" -eq 1 ] || command -v prometheus >/dev/null || fail "prometheus CLI is required" 1
 
 # Repo root: walk up for .kbd-orchestrator.
 ROOT="$PWD"
@@ -83,7 +94,7 @@ SCHEMA_ERR="$(jq -r '
     needstr(["releaseClaim","currentCapabilities"]),
     (if (.statusVocabulary // [] | length) >= 4 then empty else "statusVocabulary-too-short" end),
     (if (.scenarioMatrix // [] | length) > 0 then empty else "scenarioMatrix-empty" end),
-    (if ([.scenarioMatrix[]? | select((.id // "" | test("^[A-Z]+-[0-9]+$")) | not)] | length) == 0 then empty else "scenario-id-pattern" end),
+    (if ([.scenarioMatrix[]? | select((.id // "" | test("^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*-[0-9]+$")) | not)] | length) == 0 then empty else "scenario-id-pattern" end),
     (if ([.scenarioMatrix[]? | select((.productionEntry // "" | length) == 0 or (.oracle // "" | length) == 0 or (.negativeControl // "" | length) == 0 or (.ownerTask // "" | length) == 0 or (.evidence // "" | length) == 0)] | length) == 0 then empty else "scenario-fields-missing" end),
     (if (.functionalScope // [] | length) > 0 then empty else "functionalScope-empty" end),
     (if (.exclusions // [] | length) > 0 then empty else "exclusions-empty" end),
@@ -103,6 +114,28 @@ SCHEMA_ERR="$(jq -r '
 if [ -n "$SCHEMA_ERR" ]; then
   printf 'kbd-contract-adopt: contract fails structural validation:\n%s\n' "$SCHEMA_ERR" >&2
   exit 2
+fi
+
+# --- 1b. Adoption lint (document checks; legal before the value-phase boundary) ---
+LINT="$(dirname "${BASH_SOURCE[0]}")/kbd-contract-lint.mjs"
+LINT_ARGS=(--contract "$CONTRACT")
+LINT_PHASE="$(jq -r '.identity.phaseId // empty' "$CONTRACT")"
+REVIEW_FILE="$ROOT/.kbd-orchestrator/phases/$LINT_PHASE/review/contract/findings.json"
+[ -f "$REVIEW_FILE" ] && LINT_ARGS+=(--review "$REVIEW_FILE")
+[ -n "$OWNER_DECISION" ] && LINT_ARGS+=(--owner-decision "$OWNER_DECISION")
+if [ "$LINT_ONLY" -eq 0 ]; then
+  LINT_STATUS="$(mktemp)"
+  prometheus kbd --path "$ROOT" status --json > "$LINT_STATUS" 2>/dev/null && LINT_ARGS+=(--status "$LINT_STATUS")
+fi
+LINT_RC=0; LINT_OUT="$(node "$LINT" "${LINT_ARGS[@]}" 2>&1)" || LINT_RC=$?
+[ -n "${LINT_STATUS:-}" ] && rm -f "$LINT_STATUS"
+if [ "$LINT_RC" -ne 0 ]; then
+  printf 'kbd-contract-adopt: contract fails adoption lint:\n%s\n' "$LINT_OUT" >&2
+  exit 2
+fi
+if [ "$LINT_ONLY" -eq 1 ]; then
+  printf '%s\n' "$LINT_OUT"
+  exit 0
 fi
 
 PHASE_ID="$(jq -r '.identity.phaseId' "$CONTRACT")"

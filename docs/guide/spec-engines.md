@@ -20,11 +20,15 @@ CLI `openspec`) is the **primary engine**. New projects adopt it through
 through the managed runner (`shared/openspec/cli.mjs init`). Its artifacts live under
 `openspec/changes/<change>/{proposal.md,design.md,specs/,tasks.md}`. The pack
 pins the exact version in `package.json` (`@fission-ai/openspec`, exact pin —
-currently 1.16.0, which needs Node.js 22.12.0 or newer; the authoritative value is whatever `package.json` says).
+currently 2.0.0, which needs Node.js 22.12.0 or newer; the authoritative value is whatever `package.json` says).
+The managed runner uses the same exact pin and never follows the registry past it.
+OpenSpec 2.0 writes its skills once to `.agents/skills/openspec-*` and has no
+`/opsx:*` commands; KBD creates changes with `openspec new change <id>` through the
+runner and implements them only through `/kbd-apply`.
 The adapter is `os_*` in `kbd-apply.sh`: `list` and `progress` come from
 `openspec instructions apply --change <id> --json`, `mark_done` flips the
-matching checkbox in `tasks.md`, `verify` runs `openspec validate`, and
-`archive` runs `openspec archive <id> --yes` (the `--yes` is required — the
+matching checkbox in `tasks.md`, `verify` runs `openspec validate` (a static document check), and
+`archive` runs `openspec archive <id> --yes` — only after the phase is CLOSED (the `--yes` is required — the
 interactive prompt has no stdin here).
 
 ## Spec Kit — the supported backup

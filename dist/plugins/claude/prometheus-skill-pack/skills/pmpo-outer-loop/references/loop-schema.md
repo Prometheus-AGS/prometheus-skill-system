@@ -168,7 +168,7 @@ goal state using this slug. Not present on loops created by `/loop-define`.
     ]
   },
   "feedback_sources": [
-    { "type": "command", "run": "npm test", "interpret": "exit-code" },
+    { "type": "command", "run": "npm test", "interpret": "exit-code", "note": "Under KBD/VLBV read this from the phase's boundary-results.json; do not rerun it per loop iteration" },
     { "type": "gh-query", "run": "gh issue list --label auth --state open --json number", "interpret": "count-delta" }
   ],
   "termination": {

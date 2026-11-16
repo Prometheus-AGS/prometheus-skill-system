@@ -170,7 +170,7 @@
       "event": "on_change_complete",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Change complete \u2014 record it with prometheus kbd change transition --status complete, then run /opsx:verify + /opsx:archive (if OpenSpec)'"
+        "command": "echo '[kbd-orchestrator] Change complete \u2014 record it with prometheus kbd change transition --status complete, then continue. OpenSpec verify and archive run only after the phase closes (B4 step 7, references/boundaries.md).'"
       }
     },
     {

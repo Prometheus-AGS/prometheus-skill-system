@@ -30,6 +30,75 @@ const safeReferencePath = value => typeof value === 'string' && value.length > 0
   && !path.isAbsolute(value) && !value.split('/').includes('..');
 const safeMethodName = value => typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._ -]{0,63}$/.test(value);
 
+// Pack default (VLBV CR-05, owner decision D2): every phase uses VLBV unless a
+// signed KBD-METHOD decision names a deviation for that phase and contract.
+export const DEFAULT_METHOD = 'VLBV';
+
+function projectMethodPin(root) {
+  const file = path.join(root, '.kbd-orchestrator', 'project.json');
+  try {
+    const value = existsSync(file) ? read(file).verificationMethod : undefined;
+    if (value === undefined || value === null) return { method: DEFAULT_METHOD, source: 'pack-default' };
+    if (value === DEFAULT_METHOD) return { method: DEFAULT_METHOD, source: 'project-pin' };
+    // A project file cannot deviate: only a signed KBD-METHOD decision (with cadence and reason) can.
+    return { method: DEFAULT_METHOD, source: 'project-pin-rejected', rejected: String(value) };
+  } catch { return { method: DEFAULT_METHOD, source: 'pack-default' }; }
+}
+
+// Effective governing instructions (CR-25). The active harness profile names the
+// rule files that host actually loads; a first-match host (Zed) may never read
+// AGENTS.md when an earlier file exists. Profiles live in the pack's harness
+// registry; without it, the historical file set is used and that is reported.
+const DEFAULT_RULE_FILES = ['AGENTS.md', 'CLAUDE.md', '.kbd-orchestrator/constraints.md'];
+function harnessProfiles() {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const candidates = [process.env.PROMETHEUS_HARNESS_PROFILES,
+    path.resolve(here, '../../../../shared/harnesses/capabilities.json'),
+    path.resolve(here, '../../../shared/harnesses/capabilities.json')].filter(Boolean);
+  for (const file of candidates) {
+    try { if (existsSync(file)) return read(file).profiles ?? null; } catch { /* try next */ }
+  }
+  return null;
+}
+
+export function effectiveRuleFiles(root, harness = process.env.PROMETHEUS_HARNESS) {
+  const profiles = harnessProfiles();
+  const profile = harness && profiles ? profiles[harness] : null;
+  if (!profile?.rulesFiles?.precedence) {
+    return { harness: harness ?? null, profile: profiles ? 'not-found' : 'unavailable', files: DEFAULT_RULE_FILES, shadowing: null };
+  }
+  const precedence = profile.rulesFiles.precedence;
+  const present = precedence.filter(file => existsSync(path.join(root, file)));
+  let files = present;
+  let shadowing = null;
+  if (profile.rulesFiles.firstMatchOnly) {
+    files = present.slice(0, 1);
+    if (present.length && present[0] !== 'AGENTS.md' && present.includes('AGENTS.md')) {
+      shadowing = `${harness} loads only ${present[0]}; AGENTS.md is shadowed and its policy is not applied by this host`;
+    }
+  }
+  if (profile.rulesFiles.overrideFile && existsSync(path.join(root, profile.rulesFiles.overrideFile))) {
+    shadowing = `${profile.rulesFiles.overrideFile} replaces AGENTS.md for ${harness}`;
+  }
+  return { harness, profile: 'found', files: [...new Set([...files, '.kbd-orchestrator/constraints.md'])], shadowing };
+}
+
+// A governing file states policy in a marked block; free-text matching is only the
+// fallback for files that predate the block (bootstrap/AGENTS.base.md emits it).
+const POLICY_BLOCK = /<!--\s*kbd-policy:begin\s*-->([\s\S]*?)<!--\s*kbd-policy:end\s*-->/;
+function policyExceptions(text) {
+  const block = text.match(POLICY_BLOCK);
+  if (block) {
+    const value = key => (block[1].match(new RegExp(`^\\s*-?\\s*${key}:\\s*([A-Za-z-]+)`, 'mi')) ?? [])[1]?.toLowerCase();
+    return { marked: true, compiler: value('compiler-exception') === 'allowed', cadence: value('cadence-exception') === 'allowed' };
+  }
+  return {
+    marked: false,
+    compiler: /compiler.{0,100}(exception|unblock)|(?:narrow|targeted|intermediate|package-scoped).{0,60}compiler (?:check|run)/is.test(text),
+    cadence: /(?:hourly|this hour).{0,160}(?:integration gate|delivery boundary)|(?:hourly|hour).{0,100}(?:test|verif)/is.test(text),
+  };
+}
+
 function phaseDirectory(root, state, id) {
   const chain = []; const visited = new Set(); let cursor = id;
   while (cursor) {
@@ -45,7 +114,7 @@ function phaseDirectory(root, state, id) {
 }
 
 /** Read-only discovery. A caller may supply a canonical status already read by its lifecycle. */
-export function discoverMethodContext({ project = process.cwd(), phase, canonicalStatus, disposition } = {}) {
+export function discoverMethodContext({ project = process.cwd(), phase, canonicalStatus, disposition, harness } = {}) {
   const root = realpathSync(project);
   if (!existsSync(path.join(root, '.kbd-orchestrator'))) throw new Error('project has no existing KBD context; discovery does not initialize one');
   const state = canonicalStatus ?? command(['status', '--json'], root);
@@ -78,9 +147,21 @@ export function discoverMethodContext({ project = process.cwd(), phase, canonica
     if (!selection || typeof selection !== 'object') continue;
     if (selection.phaseId === phaseId && selection.contractDigest === digest) selections.push({ decision, selection });
   }
+  if (selections.length > 1) blockers.push('multiple current selected-method decisions');
   const selected = selections.length === 1 ? selections[0] : null;
-  if (!selected) blockers.push(selections.length ? 'multiple current selected-method decisions' : 'no current contract-bound selected-method decision');
-  let method = selected?.selection.method ?? 'UNKNOWN';
+  // No decision is the normal case: the project pin (default VLBV) applies.
+  const pin = projectMethodPin(root);
+  let method = selected?.selection.method ?? pin.method;
+  const methodSource = selected ? 'signed-decision' : pin.source;
+  if (!selected && pin.rejected) blockers.push(`project.json verificationMethod "${pin.rejected}" is not VLBV; a deviation needs a signed KBD-METHOD decision with cadence and reason`);
+  let deviation = null;
+  if (selected && method !== DEFAULT_METHOD) {
+    const { cadence, reason } = selected.selection;
+    deviation = { method, decisionId: selected.decision.id, cadence: cadence ?? null, reason: reason ?? null };
+    if (typeof cadence !== 'string' || !cadence.trim() || typeof reason !== 'string' || !reason.trim()) {
+      blockers.push('a method deviation must name its execution cadence and reason (disclosed in the closure packet)');
+    }
+  }
   if (selected && !safeMethodName(method)) { blockers.push('selected method name is not a short plain label'); method = 'UNKNOWN'; }
   const rawRefs = selected?.selection.references ?? [];
   const methodRefs = Array.isArray(rawRefs) ? rawRefs : [];
@@ -95,7 +176,8 @@ export function discoverMethodContext({ project = process.cwd(), phase, canonica
     if (!matches) blockers.push(`selected method reference changed or missing: ${expected.path}`);
     return [{ ...actual, expectedSha256: expected.sha256, matches }];
   });
-  const governingInstructions = ['AGENTS.md', 'CLAUDE.md', '.kbd-orchestrator/constraints.md'].map(file => fileReference(root, file));
+  const effectiveRules = effectiveRuleFiles(root, harness);
+  const governingInstructions = effectiveRules.files.map(file => fileReference(root, file));
   const acknowledgements = decisions.flatMap(decision => {
     if (retired.has(decision.id) || typeof decision.summary !== 'string' || !decision.summary.startsWith('KBD-POLICY-ACK ')) return [];
     try {
@@ -106,11 +188,9 @@ export function discoverMethodContext({ project = process.cwd(), phase, canonica
   const policyConflicts = [];
   if (method === 'VLBV') {
     for (const ref of governingInstructions.filter(item => item.observation === 'observed')) {
-      const text = readFileSync(ownedPath(root, ref.path), 'utf8');
-      const compilerException = /compiler.{0,100}(exception|unblock)|(?:narrow|targeted|intermediate|package-scoped).{0,60}compiler (?:check|run)/is.test(text);
-      const hourlyException = /(?:hourly|this hour).{0,160}(?:integration gate|delivery boundary)|(?:hourly|hour).{0,100}(?:test|verif)/is.test(text);
-      if (!compilerException && !hourlyException) continue;
-      const issue = 'Host compiler or cadence exception may conflict with selected VLBV; do not infer permission to run generated-code checks during generation.';
+      const exceptions = policyExceptions(readFileSync(ownedPath(root, ref.path), 'utf8'));
+      if (!exceptions.compiler && !exceptions.cadence) continue;
+      const issue = 'Host compiler or cadence exception conflicts with VLBV; do not infer permission to run generated-code checks during generation.';
       const matches = acknowledgements.filter(({ acknowledgement: ack }) => ack.phaseId === phaseId
         && ack.path === ref.path && ack.sha256 === ref.sha256 && ack.issue === issue
         && typeof ack.note === 'string' && ack.note.trim().length > 0);
@@ -131,10 +211,10 @@ export function discoverMethodContext({ project = process.cwd(), phase, canonica
     authority: 'derived-read-only-index; canonical signed decisions, phase binding, contract and governing host policy remain authority',
     projectId: state.projectId, runId: state.runId, phaseId, sourceRevision: state.revision,
     phaseDirectory: relativeDirectory, contract: { ...contractRef, contractDigest: digest, binding, identity: contract?.identity ?? null },
-    selectedMethod: method, methodDecision: selected?.decision ?? null, retiredMethods: selected?.selection.retiredMethods ?? [], references,
+    selectedMethod: method, methodSource, deviation, methodDecision: selected?.decision ?? null, retiredMethods: selected?.selection.retiredMethods ?? [], references,
     includedValue: contract?.functionalScope ?? [], exclusions: contract?.exclusions ?? [],
     stage, stageAuthority: { operations: stage === 'execute' ? ['author agreed production without generated-code verification'] : ['discover/define/plan within governing policy'], implementationComplete, verificationAuthority: 'separately authorized whole-value-phase boundary required; this index grants none', executableTestAuthoring: 'governed by host policy; where that policy is production-first, defer until the complete agreed production work' },
-    governingInstructions, policyConflicts, candidateAndEvidence: { freshness: contract?.evidenceInvalidation ?? 'UNKNOWN', paths: contract?.boundaryPacket?.receipts ?? [] },
+    governingInstructions, effectiveRules, policyConflicts, candidateAndEvidence: { freshness: contract?.evidenceInvalidation ?? 'UNKNOWN', paths: contract?.boundaryPacket?.receipts ?? [] },
     budgets: { adopted: contract?.budgets ?? null, consumption: state.phaseClosure?.phases?.[phaseId]?.consumptionHighWater ?? 'UNKNOWN; recover original canonical/evidence receipts before execution' },
     unresolved: { boundaryObligations: state.boundaryObligations ?? {}, blockers: Object.values(state.blockers ?? {}).filter(item => !item.resolved), instruction: 'Unknown side effects require reconciliation before retry, not a fresh attempt assumption.' },
     preserve: preservation,
@@ -146,7 +226,7 @@ export function discoverMethodContext({ project = process.cwd(), phase, canonica
 
 export function renderMethodContext(context) {
   return '# Derived method context\n\n' +
-    `Method: ${context.selectedMethod}; phase: ${context.phaseId}; revision: ${context.sourceRevision}; status: ${context.status}.\n\n` +
+    `Method: ${context.selectedMethod} (${context.methodSource ?? 'unknown source'}); phase: ${context.phaseId}; revision: ${context.sourceRevision}; status: ${context.status}.\n\n` +
     'This is a recovery index, not execution permission. Resolve current canonical decisions and contract before dependent action.\n\n' +
     '```json\n' + JSON.stringify(context, null, 2) + '\n```\n';
 }
@@ -182,18 +262,20 @@ export function writeMethodContext(project, context) {
 const invokedDirectly = () => { try { return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; } };
 if (invokedDirectly()) {
   try {
-    const args = process.argv.slice(2); let project = process.cwd(); let phase; let write = false; let json = false; let requireReady = false;
+    const args = process.argv.slice(2); let project = process.cwd(); let phase; let harness; let write = false; let json = false; let requireReady = false;
     for (let i = 0; i < args.length; i++) {
       if (args[i] === '--project' && args[i + 1]) project = args[++i];
       else if (args[i] === '--phase' && args[i + 1]) phase = args[++i];
+      else if (args[i] === '--harness' && args[i + 1]) harness = args[++i];
       else if (args[i] === '--write') write = true;
       else if (args[i] === '--json') json = true;
       else if (args[i] === '--require-resolved') requireReady = true;
       else throw new Error(`unknown or incomplete argument: ${args[i]}`);
     }
-    const context = discoverMethodContext({ project, phase });
+    const context = discoverMethodContext({ project, phase, harness });
     if (write) writeMethodContext(project, context);
     process.stdout.write(json ? JSON.stringify(context, null, 2) + '\n' : renderMethodContext(context));
+    if (context.deviation) process.stderr.write(`method-context: phase deviates from VLBV to ${context.deviation.method}; disclose it in the closure packet\n`);
     if (requireReady && context.status !== 'RESOLVED_REFERENCES') process.exitCode = 2;
   } catch (error) {
     process.stderr.write(`method-context: ${error.message}\n`); process.exitCode = 2;

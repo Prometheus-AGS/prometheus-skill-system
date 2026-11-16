@@ -15,7 +15,7 @@ Full native service installation requires Bash 4+. Execution and liter-llm API t
 
 ## Harness projections
 
-`skill-system.json` defines current targets and modes. Full Codex and MiniMax use verified real-directory copies; other supported targets use the generation projection declared in that manifest. Mini uses copy mode for every target. Selected custom Codex homes are carried through installation and lifecycle operations.
+`skill-system.json` defines current targets and modes (owner decision D3): the canonical root `~/.agents/skills` receives verified real-directory copies and is read directly by Codex, OpenCode, Kimi Code, MiniMax, Cursor, Gemini, Zed and other AgentSkills harnesses; Claude Code and Qwen Code get symlink shims (`~/.claude/skills`, `~/.qwen/skills`). The former per-harness skill roots, including `$CODEX_HOME/skills`, are retired and keep only content the pack does not own. Mini uses copy mode for every target. Selected custom Codex homes are carried through configuration, memory policy and lifecycle operations.
 
 Native plugins, skill directories, agent definitions and MCP registration are separate. Codex configuration lives under the effective `CODEX_HOME`; Claude, OpenCode, Kimi and other clients retain their own formats and permissions. Generated hook adapters express supported events but never gate ordinary tool mutation on KBD state.
 

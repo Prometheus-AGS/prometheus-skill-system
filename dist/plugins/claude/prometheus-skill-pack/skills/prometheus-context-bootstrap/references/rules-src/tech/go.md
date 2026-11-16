@@ -4,8 +4,9 @@ paths: ['**/*.go', '**/go.mod']
 
 # Go
 
-Batch implementation until a production path is complete. Use a narrow build or vet command earlier only
-to unblock work. At a completed change boundary, run the smallest integration target that exercises the
+Batch implementation until the agreed value phase is complete; editor/LSP diagnostics
+are reading, not execution. Run no build, vet or test before the value-phase
+boundary (VLBV B4). There, the boundary packet runs the smallest integration target that exercises the
 real package entry point and external collaborators, commonly a repository selector with
 `-tags=integration`. Unit, filtered-function, mock-only, and per-edit tests are not completion evidence.
 Reserve broad race-detector and workspace gates for the final applicable phase or release.

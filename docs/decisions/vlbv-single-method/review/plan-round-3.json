@@ -1,0 +1,27 @@
+{
+  "mode": "artifact",
+  "schema": "adversarial-review findings summary",
+  "round": 3,
+  "judge_model": "MiniMax-M3",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1 (critic fallback after judge HTTP 524)",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "verified-distinct",
+  "target": "plan (OpenSpec 2.0 + VLBV combined)",
+  "verdict": "BLOCK",
+  "counts": {
+    "critical": 6,
+    "warning": 3
+  },
+  "findings": [
+    "CRITICAL (rejected): protected BDD immutability vs bdd skill edits \u2014 rule covers .feature scenarios, not skill text",
+    "CRITICAL: MiniMax shim not authorized by D3",
+    "CRITICAL (rejected): /opsx:apply recognizer is input-only, never emitted",
+    "CRITICAL: 1.x deletion fixture + parsed delivery check",
+    "CRITICAL: profiles must not claim supported without exercise",
+    "CRITICAL: full FR traceability table",
+    "WARNING: v1 contract for the release phase",
+    "WARNING: exact pin vs 2.1.0",
+    "WARNING: idempotence footprint from final topology"
+  ],
+  "disposition": "7 folded in, 2 rejected with reasons recorded in the plan"
+}

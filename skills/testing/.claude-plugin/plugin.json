@@ -1,20 +1,29 @@
 {
   "name": "prometheus-testing-skills",
-  "description": "BDD integration testing with Cucumber.js, Playwright, and video recording",
-  "version": "1.5.2",
+  "description": "VLBV \u2014 Value-Led Behavioral Verification: scenario discovery, author-only BDD (Cucumber.js / cucumber-rs), boundary verification and certification bundles",
+  "version": "1.6.0",
   "author": {
     "name": "Travis James",
     "url": "https://travisjames.ai"
   },
   "license": "MIT",
   "skills": [
-    "./bdd-testing",
-    "./bdd-video-proof"
+    "./vlbv",
+    "./value-scenario-discovery",
+    "./value-scenario-verify",
+    "./bdd-lifecycle-loop",
+    "./bdd-cucumber-js",
+    "./bdd-cucumber-rs",
+    "./bdd-video-proof",
+    "./bdd-testing"
   ],
   "keywords": [
+    "vlbv",
+    "verification",
     "bdd",
     "testing",
     "cucumber",
-    "playwright"
+    "playwright",
+    "scenarios"
   ]
 }

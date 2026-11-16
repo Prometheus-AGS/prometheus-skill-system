@@ -4,7 +4,7 @@ description: Route Rust and Cargo work to the minimum relevant installed skills 
 license: MIT
 metadata:
   tags: "rust, cargo, routing, verification"
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Prometheus Rust Workspace
@@ -38,14 +38,14 @@ against the same workspace or target directory.
 
 Before the first Cargo command, read
 [phase-gated verification](references/phase-gated-verification.md). Choose the
-smallest integration gate that exercises the completed production path, run one
-consolidated batch, and escalate only when the change or diagnostics cross that
-scope. A narrow compiler check during implementation is allowed only when compiler
-feedback is genuinely required to unblock progress or the user requests it.
+smallest set of boundary-packet entries that exercises the completed production
+path. Under VLBV, Cargo build/check/lint/test commands run only as packet entries at
+the value-phase boundary (B4) or an authorized repair (B5) — there is no
+change-level gate and no intermediate compiler check; rust-analyzer diagnostics are
+static reading and stay available.
 
 When routing to a testing, review, performance, safety, or verification skill,
-collect its recommended checks but defer execution until the next phase boundary
-unless an immediate check is necessary to unblock implementation.
+collect its recommended checks as candidate packet entries; none runs before B4.
 
 ## Finish accurately
 

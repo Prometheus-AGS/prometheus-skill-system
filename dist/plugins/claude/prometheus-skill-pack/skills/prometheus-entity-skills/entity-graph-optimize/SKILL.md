@@ -77,7 +77,7 @@ Five tabs: **Tree** (entities by type with stale/fetching/patched badges + store
 
 ### Pre-flight UI/UX research
 
-Before writing UI for the explorer or consuming apps' custom views, follow the routing discipline in the host project's `CLAUDE.md` / `AGENTS.md` `<!-- uiux-routing:start v1 -->` region (managed by `/kbd-inject-agent-rules --pack uiux-routing`): memory consult → UI/UX Pro Max → Impeccable → Anthropic frontend-design + ux-designer → Vercel skills + web search → distill → write code. The devtools surface itself documents its consultations in `prometheus-entity-management/docs/devtools-design-notes.md`.
+Before writing UI for the explorer or consuming apps' custom views, follow the routing discipline in the host project's `CLAUDE.md` / `AGENTS.md` `<!-- uiux-routing:start v1 -->` region (managed by `kbd-inject-agent-rules --pack uiux-routing`): memory consult → UI/UX Pro Max → Impeccable → Anthropic frontend-design + ux-designer → Vercel skills + web search → distill → write code. The devtools surface itself documents its consultations in `prometheus-entity-management/docs/devtools-design-notes.md`.
 
 ### Realtime data source
 

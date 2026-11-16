@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import os from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { writeJson } from './state.mjs';
 
@@ -55,6 +56,12 @@ export async function updateFootprint(runtime, project) {
   }
   add('openspec/AGENTS.md');
   add(global.getGlobalConfigPath());
+  // OpenSpec 2.0 `update --force` also deletes legacy global Codex prompts
+  // (opsx-*.md). The computed adapter paths do not always enumerate them.
+  const codexPrompts = path.join(process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), 'prompts');
+  if (fs.existsSync(codexPrompts)) {
+    for (const name of fs.readdirSync(codexPrompts)) if (/^opsx-.*\.md$/.test(name)) add(path.join(codexPrompts, name));
+  }
   for (const file of ['.github/workflows/copilot-setup-steps.yml', '.github/agents/openspec.agent.md', '.github/agents/openspec.md']) add(file);
   return { paths: [...paths].sort(), legacyProject: detected.hasProjectMd };
 }

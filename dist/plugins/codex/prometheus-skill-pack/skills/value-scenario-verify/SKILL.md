@@ -1,6 +1,6 @@
 ---
 name: value-scenario-verify
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 description: >
   Verify an adopted finite scenario set at the authorized complete value-phase
@@ -15,8 +15,11 @@ metadata:
 
 # Value scenario verification
 
-Invoke `/value-scenario-verify <contract-reference>`. This instruction-only
-procedure routes an adopted boundary packet through existing tools. It neither
+Invoke the `value-scenario-verify` skill with a contract reference. This
+instruction-only procedure is steps 1–4 of the B4 sequence (admit, freeze, run the
+boundary packet once, record) and the targeted rerun of an authorized B5 repair,
+as defined once in `kbd-process-orchestrator/references/boundaries.md`. It routes
+an adopted boundary packet through existing tools. It neither
 intercepts arbitrary commands nor grants permissions the host does not provide.
 
 Emit `Starting value-scenario-verify — <phase>` before work. Emit completion with
@@ -88,15 +91,17 @@ Save original runner outputs and observations before deriving a verdict. Record:
 
 Exit 2 never passes. Do not overwrite an earlier failure with a later green
 receipt. Budget exhaustion checkpoints BLOCKED without dropping mandatory
-constraints. Authorized repair must finish its complete agreed implementation
-before targeted reverification; preserve prior consumption and affected-evidence
+constraints. An authorized repair (B5) must finish its complete agreed implementation
+before targeted reverification of only the affected scenarios and their negative
+controls, consuming `budgets.repairAttempts`; preserve prior consumption and affected-evidence
 invalidation. Do not install tools or start automatic repair loops on failure.
 
 ## Use the actual canonical writer
 
 For KBD retain the current `boundary-results.json` contract consumed by
 `shared/scripts/kbd-phase-close-eval.sh`: phase/projectId/runId/contractDigest,
-sourceDigests, scenarios with id/status/attempted/observed/evidence, and
+sourceDigests, scenarios with id/status/attempted/observed/evidence,
+`executedBy` (`harness`, `version`, `model` of the session that ran the packet), and
 budgetConsumption with its source and measured/estimate/unknown classes. Keep
 original assertions and negative-control receipts linked; do not fabricate fields
 from exit status. Use only supported native writer/evaluator commands and

@@ -39,7 +39,7 @@
       "source_type": "primary_doc",
       "confidence": 0.97,
       "is_misconception": false,
-      "content_summary": "kbd-execute reads plan.md, writes execution.md, and applies changes in order. Per completed change: run artifact-refiner QA gate (if ≥3 files modified, not docs-only). Archive via /opsx:verify → /opsx:archive for OpenSpec changes. Updates progress.json after each change."
+      "content_summary": "kbd-execute reads plan.md, writes execution.md, and drives each change task-by-task through kbd-apply; completing a change records its status only (B2). After every planned production change is complete, the single value-phase boundary (B4) runs the adopted boundary packet once, then one cumulative artifact-refiner pass and one adversarial review over the whole phase. OpenSpec verify and bulk archive run only after the phase is CLOSED. Updates progress.json after each change."
     },
     {
       "source_ref": "skills/process/kbd-reflect/SKILL.md",
@@ -60,7 +60,7 @@
       "source_type": "primary_doc",
       "confidence": 0.95,
       "is_misconception": false,
-      "content_summary": "OpenSpec (openspec/ directory) is the change management backend. Changes are tracked as openspec/changes/<change-id>/proposal.md and tasks.md. Status values: PROPOSED → IN_PROGRESS → DONE → ARCHIVED. kbd-plan emits /opsx:new commands to create changes. kbd-execute uses /opsx:apply via /kbd-apply."
+      "content_summary": "OpenSpec (openspec/ directory) is the change management backend. Changes are tracked as openspec/changes/<change-id>/proposal.md and tasks.md. Status values: PROPOSED → IN_PROGRESS → DONE → ARCHIVED. kbd-plan creates changes with the managed runner (openspec new change <id>; OpenSpec 2.0 removed the /opsx:* commands). kbd-execute implements them task-by-task through /kbd-apply, never through the bare openspec-apply-change skill."
     },
     {
       "source_ref": "CLAUDE.md — Waypoint Files section",

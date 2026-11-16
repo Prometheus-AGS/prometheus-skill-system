@@ -7,27 +7,27 @@ description: >
   speckit adapter) and drives it ONE task at a time, so KBD stays the source of
   truth: every task boundary fires KBD hooks, emits a plain-text position
   signal, and syncs progress.json and the waypoint. Replaces the broken pattern
-  of handing the turn to a bare /opsx:apply that runs outside KBD.
+  of handing the turn to the bare openspec-apply-change skill (formerly /opsx:apply) that runs outside KBD.
 metadata:
   tags: [process, orchestration, automation, openspec, spec-kit]
 ---
 
 # /kbd-apply
 
-The execute-phase work surface. `/kbd-execute` selects the backend and writes
-the dispatch contract; **`/kbd-apply` walks the tasks.**
+The execute-phase work surface. `kbd-execute` selects the backend and writes
+the dispatch contract; **`kbd-apply` walks the tasks.**
 
 ## Why this exists
 
-Previously, after `/kbd-plan` emitted `/opsx:new`, implementation happened by
-invoking bare `/opsx:apply` — an unmodified upstream OpenSpec skill that knows
+Previously, after `kbd-plan` created the change, implementation happened by
+invoking the bare `openspec-apply-change` skill (formerly `/opsx:apply`) — an unmodified upstream OpenSpec skill that knows
 nothing about KBD. It fired no KBD hooks, wrote no `progress.json`, refreshed no
 waypoint. The user "got funneled into openspec and lost all connection to the
 execute phase." This driver fixes that by making **KBD own the loop** and
 calling the spec backend per task.
 
 > **Hard invariant:** never invoke a backend's "do everything" command (bare
-> `/opsx:apply`, `/speckit.implement` without a single-task scope). Drive one
+> `openspec-apply-change`, `/speckit.implement` without a single-task scope). Drive one
 > task at a time through this skill.
 
 ## The per-task loop (what the model does each turn)
@@ -68,8 +68,8 @@ read -r TOTAL COMPLETE REMAINING < <("$APPLY" progress "$CHANGE")
 
 # 3. After ALL planned production changes are complete, run the phase's
 #    production-path integration and cumulative review gates. Once they pass:
-"$APPLY" verify  "$CHANGE"   # backend verify (openspec validate / /opsx:verify)
-"$APPLY" archive "$CHANGE"   # backend archive (openspec archive / /opsx:archive)
+"$APPLY" verify  "$CHANGE"   # backend verify (openspec validate --strict; static)
+"$APPLY" archive "$CHANGE"   # backend archive (openspec archive --yes; only after phase CLOSED)
 ```
 
 The plain-text "Starting/Completed task i of n" lines are the **user-facing
@@ -79,7 +79,7 @@ the extensibility layer (memory mirror, custom reporters, overrides).
 ## Task identity
 
 The runtime keys tasks by ID. `begin-task` and `end-task` pass the backend
-task ID (the OpenSpec ordinal from `list`, e.g. `1`). When `/kbd-plan` already
+task ID (the OpenSpec ordinal from `list`, e.g. `1`). When `kbd-plan` already
 registered the change's tasks under other IDs (e.g. `<change>-t1`), the driver
 **reuses** them: an exact ID wins, then the task with the same normalized
 title (a leading `1.2 ` is ignored), then the unique task with the same
@@ -138,7 +138,7 @@ Run reconciliation before Reflect and at delivery-cadence refresh boundaries.
 
 ## Backends
 
-Three spec engines are supported. **`openspec` (1.16.0+) is the primary engine**,
+Three spec engines are supported. **`openspec` (2.0.0, pack-pinned) is the primary engine**,
 **`speckit` is the supported backup**, and `native-kbd` is kept for existing
 native changes and explicit pins:
 
@@ -155,7 +155,7 @@ Backend resolution is change-scoped first, then repo-wide:
 1. `.kbd-orchestrator/project.json` `specBackend` pins the backend
    (`"openspec"`, `"speckit"`, `"native-kbd"`, or `"auto"`). A pin always wins.
    The legacy key `change_backend` is read when `specBackend` is absent.
-   `/kbd-init --spec-engine` writes this pin for new projects.
+   `kbd-init --spec-engine` writes this pin for new projects.
 2. Change-scoped: `.kbd-orchestrator/changes/<c>/{tasks.json,change.md}` →
    `native-kbd`; `openspec/changes/<c>/{proposal.md,tasks.md}` → `openspec`;
    `specs/<c>/{tasks.md,spec.md,plan.md}` → `speckit`.
@@ -182,10 +182,10 @@ the driver's `begin-task`/`end-task` — relay them verbatim to the user.
 
 ## Relationship to other skills
 
-- `/kbd-execute` — selects backend, writes `execution.md`, then defers task
+- `kbd-execute` — selects backend, writes `execution.md`, then defers task
   execution to this skill.
-- `/kbd-reflect` — consumes the per-task `progress.json` this driver maintains.
-- Child loops (`/kbd-new-child`, `/kbd-next-child`) use this **same** driver, so
+- `kbd-reflect` — consumes the per-task `progress.json` this driver maintains.
+- Child loops (`kbd-new-child`, `kbd-next-child`) use this **same** driver, so
   nested phases get identical per-task reporting (see change-006).
 
 ## Pre-dispatch readiness gate (mandatory)

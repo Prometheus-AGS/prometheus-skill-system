@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
-# Install prometheus-skill-pack skills as flat symlinks into platform skill directories.
-# This makes each skill appear as a slash command (e.g., /evolve, /kbd-plan, /gitops-bootstrap).
+# Install prometheus-skill-pack skills through the signed generation installer.
+#
+# Skills are installed ONCE into the canonical root ~/.agents/skills as real
+# directories (Codex ignores symlinked skill dirs; OpenCode, Kimi Code, Cursor,
+# Gemini, Zed, Cline and others read that root directly). The only per-harness
+# shims are symlinks in ~/.claude/skills (Claude Code) and ~/.qwen/skills (Qwen
+# Code). Former per-harness roots (~/.opencode/skills, ~/.codex/skills,
+# ~/.minimax/skills, ...) are retired: the generation installer removes only the
+# entries it can prove the pack owns there and leaves everything else.
 #
 # Usage:
 #   ./scripts/install-skills-flat.sh                # all platforms + integrations
@@ -219,9 +226,10 @@ install_to_dir() {
     echo "  ✅ $platform_name: $count skills $action"
 }
 
-# Codex CLI does not traverse symlinked skill directories. The immutable
-# generation installer therefore owns its receipt-bearing real-directory copies.
-# codex-sync-skills.sh remains only as a legacy migration/uninstall utility.
+# Codex CLI does not traverse symlinked skill directories. It reads the canonical
+# root ~/.agents/skills, where the immutable generation installer owns the
+# receipt-bearing real-directory copies. Nothing is copied into ~/.codex/skills
+# any more; codex-sync-skills.sh only retires its own legacy copies there.
 # Kimi DESKTOP (/Applications/Kimi.app) is not the same target as Kimi Code.
 # Its daimon runtime reads skills only from inside a plugin package under
 # plugin-packages/, never from a flat skills dir, so install_to_dir cannot serve
@@ -238,6 +246,9 @@ install_to_codex() {
     if $UNINSTALL; then
         bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --uninstall
         bash "$REPO_ROOT/shared/scripts/codex-catalog-config.sh" --uninstall --repo-root "$REPO_ROOT" || true
+    else
+        # Retire legacy .prometheus-pack copies left in ~/.codex/skills.
+        bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --quiet || true
     fi
 
     # The former WatchPaths agent used a different ownership marker and competed
@@ -271,7 +282,11 @@ install_to_minimax() {
 }
 
 if $UNINSTALL; then
+    # Live shims first, then retired roots: install_to_dir removes only legacy
+    # links that resolve into this repo, and the generation uninstall below
+    # removes generation-owned links and copies from live and retired roots.
     install_to_dir "claude-code"     "$HOME/.claude/skills"
+    install_to_dir "qwen-code"       "$HOME/.qwen/skills"
     install_to_dir "opencode"        "$HOME/.opencode/skills"
     install_to_dir "kimi-code"       "$HOME/.kimi-code/skills"
     install_to_kimi_desktop
@@ -303,6 +318,7 @@ else
     # normal install reaches it. (The uninstall branch above calls the same
     # function with --uninstall.)
     install_to_kimi_desktop
+    install_to_codex
 
     # Apply at the real install entry point, including a new Codex config.
     # Uninstall does not rewrite user memory policy. Failures follow the same

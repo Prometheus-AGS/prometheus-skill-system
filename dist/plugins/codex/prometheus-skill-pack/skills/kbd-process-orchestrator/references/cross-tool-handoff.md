@@ -68,3 +68,21 @@ unfinished.
   lifecycle semantics.
 - Compatibility JSON may be migrated through supported helpers. Agents never
   hand-edit generated progress or waypoint files; use typed lifecycle commands.
+
+## VLBV receiver check
+
+A mid-phase handoff is a **B3 checkpoint** (`references/boundaries.md`): it saves
+state and executes nothing. The packet and its JSON sidecar (`vlbv` object) also
+record:
+
+- **Receiver profile** — the receiving harness's capability profile from
+  `shared/harnesses/capabilities.json`, including whether it can execute the
+  boundary packet (`canExecuteBoundary`). Anything other than `supported` is a
+  warning: hand the phase to a harness that can run the packet before B4, or
+  record the gap.
+- **Held-out calibration check** — the phase's `calibration.json` (path and
+  SHA-256); the receiver repeats a held-out check before dependent work instead of
+  re-asking for approval.
+- **Unresolved effects** — open boundary obligations the receiver inherits.
+- **`executedBy`** — whichever harness runs the boundary packet records its
+  harness, version and model in `boundary-results.json`.

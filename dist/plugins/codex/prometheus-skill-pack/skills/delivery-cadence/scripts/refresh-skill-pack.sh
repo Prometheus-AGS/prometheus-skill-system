@@ -17,7 +17,9 @@
 #                         exit code: it is reported, not enforced here.
 #
 # Exit 0 done; 1 operational failure (dirty/diverged worktree, failed step);
-# 2 unusable input (bad flags, unreadable state, non-numeric iteration). Never
+# 2 unusable input (bad flags, unreadable state, non-numeric iteration);
+# 3 refused: a KBD phase with a bound contract is open (VLBV CR-16 — the pack's
+# procedure text must not change under a bound phase; refresh between phases). Never
 # defaults a missing iteration: a guess silently turned every run into a full one.
 # Bash 3.2 compatible.
 set -euo pipefail
@@ -103,8 +105,32 @@ PY
   echo "cadence iteration $ITERATION: $MODE" >&2
 fi
 
+# --- VLBV CR-16: never change procedure text under an open, bound phase
+# Returns 0 and prints the phase when a bound phase is open; 1 when the project has
+# no KBD context or no open bound phase; 2 when it is a KBD project whose status or
+# disposition cannot be established (callers fail closed on 2).
+open_bound_phase() {
+  local root="${KBD_ROOT:-$PWD}" status phase disposition
+  [ -d "$root/.kbd-orchestrator" ] || return 1
+  command -v prometheus >/dev/null 2>&1 || { echo "prometheus CLI absent" ; return 2; }
+  status="$(prometheus kbd --path "$root" status --json 2>/dev/null)" || { echo "kbd status failed"; return 2; }
+  phase="$(printf '%s' "$status" | jq -r '.activePath.phaseId // empty' 2>/dev/null)" || { echo "kbd status unreadable"; return 2; }
+  [ -n "$phase" ] || return 1
+  disposition="$(prometheus kbd --path "$root" phase disposition --id "$phase" --json 2>/dev/null | jq -r '.disposition // .status // empty' 2>/dev/null)"
+  [ -n "$disposition" ] || { echo "disposition of $phase unavailable"; return 2; }
+  [ "$disposition" = "OPEN" ] || return 1
+  printf '%s' "$phase"
+}
+
 # --- full refresh
 if [ "$MODE" = "full" ]; then
+  if [ "$TEST_MODE" != "1" ]; then
+    OPEN_RC=0; OPEN_PHASE="$(open_bound_phase)" || OPEN_RC=$?
+    case "$OPEN_RC" in
+      0) die 3 "refusing to refresh the skill pack while phase '$OPEN_PHASE' is open with a bound contract; refresh between phases (VLBV CR-16)" ;;
+      2) die 3 "refusing to refresh: cannot establish whether a bound phase is open ($OPEN_PHASE); fix the KBD CLI/state first (VLBV CR-16 fails closed)" ;;
+    esac
+  fi
   [ -z "$(git -C "$DEPLOY" status --porcelain)" ] \
     || die 1 "refusing to refresh a dirty deploy worktree: $DEPLOY"
   git -C "$DEPLOY" fetch --quiet origin main >&2 || die 1 "git fetch origin main failed in $DEPLOY"

@@ -56,6 +56,13 @@ prometheus doctor --check learning
 prometheus doctor --check learning.surreal-memory
 ```
 
+Harness capability profile (VLBV; unknown capabilities are flagged, never assumed):
+
+```bash
+bash scripts/kbd-doctor.sh profile            # $PROMETHEUS_HARNESS
+bash scripts/kbd-doctor.sh profile zed --json
+```
+
 Dry-run repair planning:
 
 ```bash

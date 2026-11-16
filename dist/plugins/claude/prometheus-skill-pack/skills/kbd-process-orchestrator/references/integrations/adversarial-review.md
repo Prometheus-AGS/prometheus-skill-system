@@ -70,6 +70,15 @@ Findings schema:
   to the artifact so the next stage inherits them explicitly.
 - WARNING findings → summarized in the stage's `kbd_stage_handoff_write`.
 
+**Contract review (spec/plan, VLBV CR-30):** review the adopted contract's
+`scenarioMatrix` and `boundaryPacket` against AT 01–22 (`skills/testing/vlbv/references/requirements.md`)
+plus one question per oracle — *what false result would pass this oracle?* Write
+the findings to `.kbd-orchestrator/phases/<phase>/review/contract/findings.json`.
+An unresolved CRITICAL on acceptance content (scenarios, oracles, negative
+controls, packet) is **not** accepted after two rounds: `kbd-contract-adopt.sh`
+refuses adoption until the owner records a decision and passes it with
+`--owner-decision <decision-id>`.
+
 ## Model routing
 
 | Phase key | Class |

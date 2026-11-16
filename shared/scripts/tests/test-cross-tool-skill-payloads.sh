@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Proves copy-based installers preserve complete skill payloads and executable bits.
+# Proves the standalone copy-based MiniMax installer preserves complete skill
+# payloads and executable bits, and that the platform installer routes MiniMax to
+# the canonical .agents/skills root (owner decision D3) instead of .minimax/skills.
 
 set -euo pipefail
 
@@ -71,8 +73,11 @@ mkdir -p "$PROJECT_ROOT"
   "$REPO_ROOT/node_modules/.bin/tsx" "$REPO_ROOT/scripts/install-platforms.ts" \
     --platform minimax --scope project >/dev/null
 )
-verify_payloads "$PROJECT_ROOT/.minimax/skills" "$EXPECTED"
-echo "[PASS] TypeScript installer delegates to complete-copy MiniMax semantics"
+# Owner decision D3: MiniMax reads the canonical .agents/skills root, so the
+# platform installer no longer projects a per-harness .minimax/skills copy.
+[[ -L "$PROJECT_ROOT/.agents/skills/prometheus-skill-pack" ]]
+[[ ! -e "$PROJECT_ROOT/.minimax/skills" ]]
+echo "[PASS] TypeScript installer routes MiniMax to the canonical .agents/skills root"
 
 COLLISION_TARGET="$TMP_ROOT/collision-minimax"
 mkdir -p "$COLLISION_TARGET/feynman-loop"

@@ -29,10 +29,11 @@ metadata:
   using any runner/build command below. A task/hour/commit/reviewer request is
   not that boundary; process exit zero is not an assertion observation.
 
-With selected VLBV, define acceptance/scenarios before generation; executable
-feature/step authoring follows the host policy; where that policy is production-first
-(for example Prometheus repositories), defer authoring until the complete production
-implementation. Missing/unknown scenario adoption
+Under VLBV (the pack's single method; boundaries in
+`kbd-process-orchestrator/references/boundaries.md`), define acceptance/scenarios
+before generation, and author executable features/steps only after the complete
+agreed production implementation, with no runs until the boundary packet (B4).
+A different cadence exists only as a signed per-phase `KBD-METHOD` deviation. Missing/unknown scenario adoption
 blocks; available tools or example commands are not execution permission. Reuse
 existing owner-reviewed calibration rather than requesting the same approval.
 Record contract/scenario/assertion/oracle source and excluded false positive;
@@ -257,8 +258,9 @@ cargo test --test features -- --tags @api
 # Browser scenarios (@ui) — requires chromedriver / geckodriver
 cargo test --features ui --test features -- --tags @ui
 
-# All (excluding known flakes)
-cargo test --test features -- --tags "not @flaky"
+# All adopted scenarios (no flake exclusions: nondeterminism is declared in the
+# contract's stochastic block and sampled, never skipped or retried)
+cargo test --test features
 
 # Verbose Gherkin output
 cargo test --test features -- --format=libtest --show-output

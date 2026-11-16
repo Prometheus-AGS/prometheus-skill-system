@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+export const CANONICAL_TARGET_PATHS = Object.freeze(['.agents/skills', '.claude/skills', '.qwen/skills']);
+
 export function readSkillSystem(sourceRoot, { requireTargetSourceTrees = true } = {}) {
   const file = path.join(sourceRoot, 'skill-system.json');
   if (!fs.existsSync(file)) throw new Error(`distribution contract is missing: ${file}`);
@@ -8,8 +10,16 @@ export function readSkillSystem(sourceRoot, { requireTargetSourceTrees = true } 
   if (contract.schemaVersion !== 'prometheus-skill-system-v1') {
     throw new Error(`unsupported distribution contract: ${contract.schemaVersion ?? 'missing'}`);
   }
-  if (!Array.isArray(contract.targets) || contract.targets.length !== 14) {
-    throw new Error('distribution contract must declare the canonical 14 targets');
+  // The canonical root `.agents/skills` (copy mode) plus the Claude Code and
+  // Qwen Code shims. Every other harness reads `.agents/skills` directly.
+  if (
+    !Array.isArray(contract.targets) ||
+    contract.targets.length !== CANONICAL_TARGET_PATHS.length ||
+    contract.targets.some((target, index) => target?.path !== CANONICAL_TARGET_PATHS[index])
+  ) {
+    throw new Error(
+      `distribution contract must declare the canonical targets: ${CANONICAL_TARGET_PATHS.join(', ')}`
+    );
   }
   assertTargetLifecycles(contract);
   if (requireTargetSourceTrees) assertTargetSourceTrees(sourceRoot, contract, { lifecycleValidated: true });

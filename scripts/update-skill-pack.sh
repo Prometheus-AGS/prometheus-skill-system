@@ -79,9 +79,10 @@ if [[ "$VERIFIED_GENERATION" != "$GENERATION" ]]; then
     echo "ERROR: installed generation changed during verification: expected $GENERATION, found $VERIFIED_GENERATION" >&2
     exit 1
 fi
-node - "$PLUGIN_ROOT/current/manifest.json" "$CURRENT_SHA" "$GENERATION" <<'NODE'
+node - "$PLUGIN_ROOT/current/manifest.json" "$CURRENT_SHA" "$GENERATION" "$REPO_ROOT/skill-system.json" <<'NODE'
 const fs = require('fs');
-const [manifestPath, expectedCommit, expectedGeneration] = process.argv.slice(2);
+const [manifestPath, expectedCommit, expectedGeneration, contractPath] = process.argv.slice(2);
+const expectedTargets = JSON.parse(fs.readFileSync(contractPath, 'utf8')).targets.map(target => target.path);
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 if (manifest.generation !== expectedGeneration) {
   throw new Error(`manifest generation mismatch: ${manifest.generation}`);
@@ -92,7 +93,7 @@ if (manifest.sourceProvenance?.sourceCommit !== expectedCommit) {
 if (manifest.sourceProvenance?.sourceTreeState !== 'clean') {
   throw new Error(`manifest source tree is not clean: ${manifest.sourceProvenance?.sourceTreeState}`);
 }
-if (!Array.isArray(manifest.targetPayloads) || manifest.targetPayloads.length !== 14) {
+if (!Array.isArray(manifest.targetPayloads) || manifest.targetPayloads.map(p => p.target).join('\n') !== expectedTargets.join('\n')) {
   throw new Error(`manifest target matrix is incomplete: ${manifest.targetPayloads?.length}`);
 }
 NODE
@@ -110,6 +111,14 @@ fi
 bash "$REPO_ROOT/scripts/refresh-native-plugin-installs.sh" "${refresh_args[@]}"
 require_clean_source "after native refresh"
 
+# Optional capability (integration-contract rule 2): Apple's on-device
+# Foundation Model on an eligible Mac. Silent when ineligible or disabled
+# (PROMETHEUS_APPLE_FM=0); it can never fail the update.
+APPLE_FM="$REPO_ROOT/shared/scripts/apple-foundation-models.sh"
+if [ -f "$APPLE_FM" ]; then
+    bash "$APPLE_FM" --install --quiet || echo "  ⚠️  Apple Foundation Models setup did not complete (optional): bash $APPLE_FM --check" >&2
+fi
+
 echo ""
 echo "Step 5: Writing the local installation receipt..."
 mkdir -p "$(dirname "$INSTALL_REF_FILE")"
@@ -118,7 +127,7 @@ printf '%s\n' "$CURRENT_SHA" > "$TEMP_REF"
 mv "$TEMP_REF" "$INSTALL_REF_FILE"
 echo "  Source commit: $CURRENT_SHA"
 echo "  Generation:    $GENERATION"
-echo "  Targets:       14/14"
+echo "  Targets:       $(jq '.targets | length' "$REPO_ROOT/skill-system.json" 2>/dev/null || echo "?") (skill-system.json)"
 echo "  ✅ receipt advanced after all detected surfaces verified"
 
 if ! $RUN_DOCTOR_REFRESH; then

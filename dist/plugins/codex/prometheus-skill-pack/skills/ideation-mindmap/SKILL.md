@@ -24,7 +24,7 @@ triggers:
 
 # /ideation-mindmap
 
-Stage-zero onramp for the Prometheus build pipeline. Turns a one-line concept into a 6-branch concept tree using `surreal-memory`'s `generate_ideation_mindmap` tool. Output is formatted for immediate handoff to the spec engine (default OpenSpec, e.g. `/opsx propose`).
+Stage-zero onramp for the Prometheus build pipeline. Turns a one-line concept into a 6-branch concept tree using `surreal-memory`'s `generate_ideation_mindmap` tool. Output is formatted for immediate handoff to the spec engine (default OpenSpec, e.g. the `openspec-propose` skill).
 
 ## When to Use
 
@@ -166,7 +166,7 @@ After displaying all branches with their counts and scores, ask:
 > - **Select branches** — name the numbers (e.g., "1, 3, 5") to narrow focus
 > - **Refine** — describe what's missing and I'll regenerate
 >
-> When ready, proceed to the spec engine (default OpenSpec, e.g. `/opsx propose`) with the selected branches.
+> When ready, proceed to the spec engine (default OpenSpec, e.g. the `openspec-propose` skill) with the selected branches.
 
 ### Step 5 — Handoff
 

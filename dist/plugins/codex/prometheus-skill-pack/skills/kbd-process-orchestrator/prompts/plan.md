@@ -49,7 +49,8 @@ See `references/model-routing.md` for the full routing contract.
 Resolve the engine as `kbd-apply detect` does (`project.json.specBackend` pin →
 the change's existing store → `openspec/` → Spec Kit → native KBD).
 
-- **openspec** (primary) → emit `/opsx:new <change-id>` commands
+- **openspec** (primary) → emit managed-runner `new change <change-id>` commands
+  (OpenSpec 2.0 removed `/opsx:*`; never emit them)
 - **speckit** (backup) → write `specs/<change-id>/{spec.md,plan.md,tasks.md}`
 - **native-kbd** (existing native projects or an explicit pin) → emit
   `mkdir .kbd-orchestrator/changes/<id>` instructions
@@ -119,8 +120,8 @@ Round 2 (parallel): <change-ids depending on Round 1>
 
 COMMANDS TO RUN
 <if OpenSpec>:
-/opsx:new <change-id-1>
-/opsx:new <change-id-2>
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" run --project <root> -- new change <change-id-1>
+node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" run --project <root> -- new change <change-id-2>
 
 <if no OpenSpec>:
 mkdir -p .kbd-orchestrator/changes/<change-id-1>

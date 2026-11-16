@@ -32,13 +32,16 @@ try {
     '---\nname: clean-skill\n---\n# Test fixture\n'
   );
 
-  const installed = join(fixtureHome, '.minimax/skills/live-skill');
+  // Owner decision D3: the pack installs real directories once, into the
+  // canonical root ~/.agents/skills (verifier platform id `amp`); MiniMax and
+  // the other former per-harness roots are retired.
+  const installed = join(fixtureHome, '.agents/skills/live-skill');
   write(join(installed, 'SKILL.md'), '---\nname: live-skill\n---\n# Live skill\n');
-  write(join(installed, '_meta.json'), '{"platform":"minimax"}\n');
+  write(join(installed, '.prometheus-generation'), `${'a'.repeat(64)}\n`);
 
   const output = execFileSync(
     process.execPath,
-    [verifier, '--platform', 'minimax', '--json'],
+    [verifier, '--platform', 'amp', '--json'],
     {
       env: {
         ...process.env,
@@ -53,7 +56,7 @@ try {
     throw new Error(`fixture directories entered the install contract: ${output}`);
   }
   if (result.results[0]?.payloads_verified !== 1 || result.results[0]?.failures.length !== 0) {
-    throw new Error(`installed MiniMax payload was not verified: ${output}`);
+    throw new Error(`installed canonical-root payload was not verified: ${output}`);
   }
 
   console.log('installed skill verifier: test and fixture trees are excluded consistently');

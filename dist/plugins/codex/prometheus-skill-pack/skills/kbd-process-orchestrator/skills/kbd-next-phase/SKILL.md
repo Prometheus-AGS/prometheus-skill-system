@@ -53,22 +53,22 @@ Unbound legacy phases keep the flow below.
 3. Creates `.kbd-orchestrator/phases/<new-phase>/` with:
    - `goals.md` — seeded goals from the reflection
    - `progress.json` — skeleton (all complete flags false)
-4. Updates `current-waypoint.json`: stage → `assess_pending`, next → `/kbd-assess`
+4. Updates `current-waypoint.json`: stage → `assess_pending`, next → `kbd-assess`
 5. Updates `project.json` `activePhase` and removes the legacy `active_phase`
    alias
 6. Outputs a confirmation banner with seeded content preview
 
 ## When to use
 
-Run after `/kbd-reflect` completes **and** the operator has authorized the
+Run after `kbd-reflect` completes **and** the operator has authorized the
 next scope. Reflection alone never authorizes continuing: for a contract-bound
 phase the authorization is the signed start-successor manifest above. This is
 the bridge between phases — it reads the reflection, determines the next
 phase, and prepares all state so any tool can resume cleanly with
-`/kbd-assess`.
+`kbd-assess`.
 
-Unlike `/kbd-new-phase` (which requires you to supply a name and goals
-manually), `/kbd-next-phase` reads what KBD already knows from the reflection
+Unlike `kbd-new-phase` (which requires you to supply a name and goals
+manually), `kbd-next-phase` reads what KBD already knows from the reflection
 and seeds the new phase with those recommendations as proposals once the
 operator has authorized it.
 
@@ -86,7 +86,7 @@ Emit to plain response text — no tool call needed.
 
 - Contract-bound phase: CLOSED in canonical state plus a signed
   start-successor manifest (refused otherwise)
-- Unbound phase: `/kbd-reflect` must have completed and the operator must have
+- Unbound phase: `kbd-reflect` must have completed and the operator must have
   explicitly authorized the next scope; otherwise stop and ask (never continue
   on a warning)
 - `reflection.md` should exist at `.kbd-orchestrator/phases/<phase>/reflection.md`
@@ -105,7 +105,7 @@ Emit to plain response text — no tool call needed.
    the helper under a repository-level `shared/scripts/` directory; installed
    skill packages are self-contained.
 4. **Display goals.md** — show the user what was seeded so they can review/edit
-5. **Confirm next step** — remind user to run `/kbd-assess`
+5. **Confirm next step** — remind user to run `kbd-assess`
 
 ## Examples
 
@@ -117,10 +117,10 @@ Emit to plain response text — no tool call needed.
 
 ## Hook integration
 
-`/kbd-next-phase` is the canonical phase-bracket transition. It MUST
+`kbd-next-phase` is the canonical phase-bracket transition. It MUST
 fire `phase:before` for the new phase exactly once, after the new phase
 directory is created and `current-waypoint.json` is flipped to it. (The
-*closing* `phase:after` is the responsibility of `/kbd-reflect`, which
+*closing* `phase:after` is the responsibility of `kbd-reflect`, which
 fires it for the previous phase before this skill is invoked.)
 
 ```sh

@@ -18,17 +18,17 @@ skill examples.
 ## Phase-gated integration verification
 
 - Batch related edits and use static reasoning or rust-analyzer during implementation.
-- Run one consolidated Cargo validation batch after a meaningful production path is
-  complete at a change or phase boundary. Use a narrow compiler check earlier only
-  when compiler feedback is required to unblock progress or the user requests it.
+- Cargo build/check/test/clippy commands run only as entries of the boundary packet
+  at the value-phase boundary (VLBV B4), or after an authorized repair (B5). There is
+  no change-level gate and no intermediate compiler check.
 - Start with the smallest integration target that exercises the completed public
   entry point and real collaborators. Unit, module-local, mock-only, and filtered
   function tests do not count as completion evidence.
 - Escalate only when the change or diagnostics cross package boundaries. Reserve
   broad, release, cross-compile, feature-matrix, Miri, fuzzing, coverage, benchmark,
   and documentation commands for a final boundary or explicit request.
-- After failure, read all diagnostics, batch fixes, and rerun only the smallest
-  integration command that can confirm the completed behavior.
+- After a boundary failure and an authorized repair, rerun only the affected
+  scenarios' packet entries (B5).
 - Run formatting once at a coherent boundary and avoid unrelated churn.
 - Report commands, results, intentional deferrals, and any remaining integration gate.
 

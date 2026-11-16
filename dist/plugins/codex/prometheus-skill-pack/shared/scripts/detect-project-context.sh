@@ -12,21 +12,25 @@ command -v hook_log_start >/dev/null 2>&1 && hook_log_start "SessionStart" "dete
 command -v hook_log_end >/dev/null 2>&1 && trap 'hook_log_end $?' EXIT
 
 
-# Refresh OpenSpec within this context hook's 15-second budget. The one-second
-# KBD control hook never performs package or project updates.
+# Verify (never refresh) OpenSpec at session start (VLBV CR-03). A new session —
+# including a harness switch mid-phase — must not rewrite generated procedure text
+# under a bound phase contract. The mutating refresh runs at phase entry only
+# (kbd-new-phase / kbd-next-phase / kbd-new-child / kbd-next-child).
 BUNDLE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 OPENSPEC_RUNNER="$BUNDLE_ROOT/skills/process/kbd-process-orchestrator/shared/openspec/cli.mjs"
 if [[ ! -f "$OPENSPEC_RUNNER" ]]; then
   OPENSPEC_RUNNER="$BUNDLE_ROOT/skills/kbd-process-orchestrator/shared/openspec/cli.mjs"
 fi
-# The runner prints a JSON receipt, which it also saves under
-# ~/.prometheus/openspec/receipts. Hook output is session context, and Codex parses
-# output that opens with `{` as a structured hook response, so this receipt failed
-# the whole hook there. Redirecting to stderr is not enough: the dispatcher runs
-# this script with 2>&1. The exit status still reports a failed refresh.
-if ! node "$OPENSPEC_RUNNER" refresh --project "$PWD" --timeout-ms 12000 >/dev/null 2>&1; then
-  echo "OpenSpec refresh unresolved; rerun the KBD OpenSpec preflight before phase work." >&2
-fi
+# The runner prints a JSON receipt (also saved under ~/.prometheus/openspec/receipts).
+# Hook output is session context, and Codex parses output that opens with `{` as a
+# structured hook response, so the receipt is captured, never echoed.
+OPENSPEC_VERIFY="$(node "$OPENSPEC_RUNNER" verify --project "$PWD" 2>&1 >/dev/null || true)"
+case "$OPENSPEC_VERIFY" in
+  *'"status":"refresh-needed"'*)
+    echo "OpenSpec integration is not at the pack-pinned version; run the KBD phase-entry refresh before phase work." ;;
+  *'"status":"current"'*|*'"status":"skipped"'*|*'"status":"disabled"'*|"") ;;
+  *) echo "OpenSpec session check did not complete; run: node $OPENSPEC_RUNNER verify --project \"\$PWD\"" ;;
+esac
 
 echo "═══ Prometheus GitOps Skills — Project Context ═══"
 

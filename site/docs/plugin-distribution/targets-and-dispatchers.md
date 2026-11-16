@@ -1,35 +1,46 @@
 ---
 title: Targets and stable dispatchers
-description: The 14-target matrix, copy targets, symlink targets, and hook routing.
+description: The canonical-root target matrix, the Claude Code and Qwen Code shims, retired targets, and hook routing.
 ---
 
 # Targets and stable dispatchers
 
-The manifest declares fourteen logical skill targets. Codex resolves a nonempty inherited `CODEX_HOME` first, otherwise the selected `--home` or process home plus `.codex`; its row below describes the logical target, not a promise that a custom root lives under the default home. Paths are normalized consistently across installation, verification, rollback and uninstall:
+The manifest declares three logical skill targets (owner decision D3). Skills
+are installed **once** into the canonical root `~/.agents/skills` as real
+directories, and two symlink shims serve the harnesses that do not read it:
 
 | Target | Mode |
 | --- | --- |
+| `.agents/skills` | verified copy |
 | `.claude/skills` | symlink |
-| `.opencode/skills` | symlink |
-| `.kimi-code/skills` | symlink |
-| `.minimax/skills` | verified copy |
-| `.cursor/skills` | symlink |
-| `.codex/skills` | verified copy |
-| `.gemini/skills` | symlink |
-| `.roo/skills` | symlink |
-| `.windsurf/skills` | symlink |
-| `.codeium/windsurf/skills` | symlink |
-| `.agents/skills` | symlink |
-| `.config/zed/skills` | symlink |
-| `.zed/skills` | symlink |
-| `.cline/skills` | symlink |
+| `.qwen/skills` | symlink |
 
-Codex and MiniMax require real directories, so the installer copies their
-skills. Every target receives an Ed25519-signed receipt that binds its payload
-mode and hash to the generation and canonical skill-index hash. Every other
-target links through the active generation. A destination collision is
-preserved and reported; the installer does not overwrite unrelated user
+`~/.agents/skills` is read directly by Codex (verified on codex-cli 0.166.0,
+which ignores symlinked skill directories, hence copies), OpenCode, Kimi Code,
+MiniMax, Cursor, Gemini CLI, Zed, Cline and the other AgentSkills harnesses.
+When `~/.agents/skills` is itself a symlink to a shared skills tree, the
+installer resolves it with `realpath` and installs into the directory it names;
+the link is never replaced. Claude Code and Qwen Code do not read the canonical
+root, so their shims link each skill through the active generation.
+
+Every target receives an Ed25519-signed receipt that binds its payload mode and
+hash to the generation and canonical skill-index hash. A destination collision
+is preserved and reported; the installer does not overwrite unrelated user
 content.
+
+## Retired targets
+
+The former per-harness roots are retired: `.opencode/skills`,
+`.kimi-code/skills`, `.minimax/skills`, `.cursor/skills`, `.codex/skills`
+(resolved through a nonempty `CODEX_HOME`), `.gemini/skills`, `.roo/skills`,
+`.devin/skills`, `.codeium/windsurf/skills`, `.config/zed/skills`,
+`.zed/skills` and `.cline/skills`. On install the generation installer removes
+only entries the pack provably owns there (a symlink into the plugin root, or a
+copy whose generation marker verifies) and records them in
+`<pluginRoot>/receipts/retired-target-cleanup.json`. Everything else, and the
+directories themselves, stay in place. A retired root aliased onto a live one is
+never cleaned. Generations signed with the earlier 14-target matrix remain
+verifiable for rollback and retirement.
 
 Stable dispatchers live under
 `~/.prometheus/plugins/prometheus-skill-pack/stable/`. They resolve required

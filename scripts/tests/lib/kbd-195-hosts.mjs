@@ -76,8 +76,10 @@ const srf002 = scenario('SRF-002', async (w, env) => {
     return unavailable(w, 'isolated OpenCode recovery', 'No authenticated scratch OpenCode provider; real configuration and credentials were not used.');
   }
   const { ctx, digest } = await selectedProject(w, env, { implementationComplete: false });
+  // Project discovery through the canonical .agents/skills root (owner decision
+  // D3), which OpenCode reads alongside its own .opencode/skills.
   const generated = path.join(env.ROOT, 'dist/plugins/codex/prometheus-skill-pack/skills/kbd-process-orchestrator');
-  fs.cpSync(generated, path.join(ctx.project, '.opencode/skills/kbd-process-orchestrator'), { recursive: true });
+  fs.cpSync(generated, path.join(ctx.project, '.agents/skills/kbd-process-orchestrator'), { recursive: true });
   fs.copyFileSync(path.join(ctx.project, 'CLAUDE.md'), path.join(ctx.project, 'AGENTS.md'));
   const result = w.run('opencode', ['--standalone', 'run', '--format', 'json', PROMPT],
     { cwd: ctx.project, env: { ...hostEnv, PROMETHEUS_DATA_DIR: ctx.env.PROMETHEUS_DATA_DIR, PROMETHEUS_DEVICE_KEY_FILE: ctx.env.PROMETHEUS_DEVICE_KEY_FILE }, timeout: 420_000 });
@@ -92,7 +94,7 @@ const srf002 = scenario('SRF-002', async (w, env) => {
   let negative;
   try {
     const next = await alternate(control, env);
-    fs.cpSync(generated, path.join(next.ctx.project, '.opencode/skills/kbd-process-orchestrator'), { recursive: true });
+    fs.cpSync(generated, path.join(next.ctx.project, '.agents/skills/kbd-process-orchestrator'), { recursive: true });
     fs.copyFileSync(path.join(next.ctx.project, 'CLAUDE.md'), path.join(next.ctx.project, 'AGENTS.md'));
     negative = control.run('opencode', ['--standalone', 'run', '--format', 'json', PROMPT], { cwd: next.ctx.project,
       env: { ...hostEnv, PROMETHEUS_DATA_DIR: next.ctx.env.PROMETHEUS_DATA_DIR, PROMETHEUS_DEVICE_KEY_FILE: next.ctx.env.PROMETHEUS_DEVICE_KEY_FILE,

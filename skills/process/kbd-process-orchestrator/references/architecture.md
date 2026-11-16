@@ -100,7 +100,7 @@ ANALYZE (optional; skippable with recorded reason)
 
 SPEC
  └─ /kbd-spec (turns assessment + analysis into change specs)
-    └─ native-kbd specs (spec.md + tasks.json + verification.md) OR /opsx:new
+    └─ native-kbd specs (spec.md + tasks.json + verification.md) OR runner `new change` (OpenSpec 2.0)
 
 PLAN
  └─ /kbd-plan (orders the change list)
@@ -113,7 +113,7 @@ EXECUTE (per change)
     └─ no test, build or runner command until every planned production change is done
     └─ /refine-validate: constraint QA gate            ← artifact-refiner (when policy allows)
        └─ if FAIL: /refine-code for iterative refinement
-    └─ /opsx:archive or native archive
+    └─ openspec archive --yes (after phase CLOSED) or native archive
 
 PHASE-END VERIFY (separately authorized, complete value phase only)
  └─ /value-scenario-verify                             ← bdd-cucumber-js / -rs execute

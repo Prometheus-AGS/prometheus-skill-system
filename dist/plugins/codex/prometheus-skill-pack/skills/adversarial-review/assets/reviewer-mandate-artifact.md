@@ -31,6 +31,12 @@ achieve), `prior_handoffs` (what earlier stages concluded), `constraints`
 - Untestable or ambiguous acceptance criteria ("works correctly").
 - Scope smuggling: changes unrelated to any goal or assessment finding.
 - Changes that violate `constraints`.
+- When the packet includes an adopted contract (VLBV): check its scenarioMatrix
+  and boundaryPacket against AT 01–22 and, for every oracle, name the false
+  result that would still pass it. A weak oracle (exit status only, truth taken
+  from the system under test), a scenario with no negative-control command, or
+  undeclared nondeterminism is CRITICAL — downstream verification would accept
+  wrong behavior.
 
 ### target = research (research_report, research_provenance, research_plan)
 The packet carries the three files as separate fields plus `goals` (the query,

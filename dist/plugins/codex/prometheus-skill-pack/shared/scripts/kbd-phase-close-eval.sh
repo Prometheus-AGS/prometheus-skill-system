@@ -91,6 +91,21 @@ record() { # <pass|fail|blocked> <reason-code|"">
   prometheus kbd --path "$ROOT" phase close "${args[@]}" >/dev/null 2>"$ERRF"
 }
 
+# Derived closure view (VLBV CR-21): closure.json + closure-packet.md beside the
+# evidence. Best effort and never changes the verdict or exit code.
+closure_packet() { # <disposition> <reason>
+  [ -n "${SNAPSHOT:-}" ] && [ -f "${SNAPSHOT:-}" ] || return 0
+  command -v node >/dev/null 2>&1 || { printf 'WARN closure-packet not generated for phase=%s (node unavailable)\n' "$PHASE"; return 0; }
+  if ! node "$(dirname "${BASH_SOURCE[0]}")/kbd-closure-packet.mjs" --snapshot "$SNAPSHOT" --evidence "$EVIDENCE" \
+    --out-dir "$PHASE_DIR" --disposition "$1" --reason "$2" >/dev/null 2>"$ERRF.packet" \
+    || [ ! -f "$PHASE_DIR/closure-packet.md" ]; then
+    # Visible, never verdict-changing: the canonical disposition is the authority.
+    printf 'WARN closure-packet not generated for phase=%s (%s); rerun: node %s --snapshot %s --evidence %s --out-dir %s --disposition %s\n' \
+      "$PHASE" "$(tr '\n' ' ' < "$ERRF.packet" 2>/dev/null | cut -c1-160)" "$(dirname "${BASH_SOURCE[0]}")/kbd-closure-packet.mjs" "$SNAPSHOT" "$EVIDENCE" "$PHASE_DIR" "$1"
+  fi
+  rm -f "$ERRF.packet"
+}
+
 refuse() { # <verdict:FAIL|BLOCKED> <exit> <reason>
   local verdict="$1" code="$2" reason="$3" rc=0
   local lower; lower="$(printf '%s' "$verdict" | tr 'A-Z' 'a-z')"
@@ -99,6 +114,7 @@ refuse() { # <verdict:FAIL|BLOCKED> <exit> <reason>
     printf 'WRITER-FAILED phase=%s verdict=%s reason=%s writer-exit=%s (nothing recorded)\n' "$PHASE" "$verdict" "$reason" "$rc"
     exit 5
   fi
+  closure_packet "REFUSED_$verdict" "$reason"
   printf '%s phase=%s reason=%s\n' "$verdict" "$PHASE" "$reason"
   exit "$code"
 }
@@ -252,6 +268,7 @@ case "$RC" in
      exit 2 ;;
   *) printf 'WRITER-FAILED phase=%s verdict=PASS writer-exit=%s (phase NOT closed)\n' "$PHASE" "$RC"; exit 5 ;;
 esac
+closure_packet CLOSED "${PASS_REASON:-pass}"
 printf 'CLOSED phase=%s verdict=PASS evidence=sha256:%s contract=%s run=%s entries=%s%s%s%s (dispatch for this phase now refused)\n' \
   "$PHASE" "$EV_DIGEST" "$B_DIGEST" "$S_RUN" "$N_ENTRIES" \
   "${PASS_REASON:+ budget-note=$PASS_REASON}" "$SCOPE_NOTE" "$DRIFT_NOTE"

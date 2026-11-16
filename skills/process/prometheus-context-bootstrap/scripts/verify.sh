@@ -91,6 +91,11 @@ else
   fi
 fi
 
+# --- VLBV conformance of the generated governing file (BS-04) ---
+# shellcheck source=lib/vlbv-policy-check.sh
+. "$(dirname "${BASH_SOURCE[0]}")/lib/vlbv-policy-check.sh"
+vlbv_policy_check "AGENTS.md" "$A"
+
 # --- CLAUDE.md reaches AGENTS.md, and carries no second constitution ---
 C="$project_path/CLAUDE.md"
 if [[ -L "$C" ]]; then

@@ -149,7 +149,10 @@ JSON
   acc="$("$PK_BIN" candidates accept --kind skill skill-new-c3b0000000000001 2>&1)" || fail "pk candidates accept --kind skill failed: $acc"
   printf '%s' "$acc" | grep -q '/pmpo-skill-creator' || fail "accept did not print a /pmpo-skill-creator invocation: $acc"
   [ -f "$HOME/.prometheus/skill-candidates/accepted/skill-new-c3b0000000000001.json" ] || fail "accepted candidate not moved to accepted/"
-  [ ! -e "$HOME/.claude/skills" ] && [ ! -e "$CODEX_HOME/skills" ] || fail "accept created a skill directory"
+  # Canonical root + shims (owner decision D3); $CODEX_HOME/skills is retired
+  # but still must not be created.
+  [ ! -e "$HOME/.agents/skills" ] && [ ! -e "$HOME/.claude/skills" ] && [ ! -e "$HOME/.qwen/skills" ] \
+    && [ ! -e "$CODEX_HOME/skills" ] || fail "accept created a skill directory"
   acc="$("$PK_BIN" candidates accept --kind skill skill-upd-c3b0000000000002 --update kbd-reflect 2>&1)" || fail "accept --update failed: $acc"
   printf '%s' "$acc" | grep -q -- '/pmpo-skill-creator --update kbd-reflect' || fail "accept --update did not print the update invocation: $acc"
   out="$(snapshot "$PKDIR:$BASEPATH")"

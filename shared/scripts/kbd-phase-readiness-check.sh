@@ -148,6 +148,22 @@ elif [ "$LATEST" != "BOUND" ]; then
   fi
 fi
 
+# --- bound OpenSpec deltas (VLBV CR-04, contract v2) ---
+# A v2 contract stamps method.specDeltaDigest at adoption. Editing a bound
+# requirement after adoption changes the recomputed digest => REJECT-STALE until
+# a signed amendment adopts the new deltas.
+SPEC_DIGEST="$(jq -r 'if .contractVersion == "2" then (.method.specDeltaDigest // empty) else empty end' "$CONTRACT")"
+if [ -n "$SPEC_DIGEST" ]; then
+  STATUS_TMP="$(mktemp)"; printf '%s' "$STATUS_JSON" > "$STATUS_TMP"
+  NOW_DIGEST="$(bash "$(dirname "${BASH_SOURCE[0]}")/kbd-spec-delta-digest.sh" --phase "$PHASE" --root "$ROOT" --status-file "$STATUS_TMP" 2>/dev/null || true)"
+  rm -f "$STATUS_TMP"
+  if [ "$NOW_DIGEST" != "$SPEC_DIGEST" ]; then
+    printf 'REJECT-STALE specDeltaDigest(bound=%s now=%s) — a bound OpenSpec requirement changed; adopt the new deltas through a signed amendment (kbd-contract-adopt.sh --supersedes --amendment --signature)\n' \
+      "$SPEC_DIGEST" "${NOW_DIGEST:-none}"
+    exit 4
+  fi
+fi
+
 # --- scenario coverage vs canonical phase tasks ---
 # tasks.json is an optional compatibility projection, not the task authority.
 # Reject missing and ambiguous owners; never union a stale file into this set.

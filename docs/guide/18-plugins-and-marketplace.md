@@ -1,6 +1,6 @@
 # 18 · Plugins and Immutable Distribution
 
-The full pack distributes one source tree as harness-native plugins and as a verified 14-target AgentSkills generation. The generation is content-addressed; host paths never point at a mutable staging directory or a hardcoded release version.
+The full pack distributes one source tree as harness-native plugins and as a verified AgentSkills generation installed once into the canonical root `~/.agents/skills` (real directories) plus Claude Code and Qwen Code symlink shims. The generation is content-addressed; host paths never point at a mutable staging directory or a hardcoded release version.
 
 ## Packaging model
 

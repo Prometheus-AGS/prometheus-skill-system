@@ -128,6 +128,7 @@ check_http "surreal-memory"          "http://localhost:23001/health"
 check_http "forge-rs"                "http://localhost:8943/mcp"
 check_http "prometheus-knowledge"    "http://localhost:8942/mcp"
 check_http "surface-bridge"          "http://127.0.0.1:7890/health"
+check_http "apple-fm"                "http://127.0.0.1:${PROMETHEUS_APPLE_FM_PORT:-11437}/health"
 check_control_plane_extension
 
 # ── WASM target ───────────────────────────────────────────────────────────────
@@ -149,7 +150,7 @@ fi
 if $JSON_MODE; then
     echo "{"
     first=true
-    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model cowork dsg surreal-memory forge-rs prometheus-knowledge surface-bridge control-plane-extension wasm32; do
+    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model cowork dsg surreal-memory forge-rs prometheus-knowledge surface-bridge apple-fm control-plane-extension wasm32; do
         [[ -n "${STATUS[$key]:-}" ]] || continue
         $first || echo ","
         first=false
@@ -220,6 +221,7 @@ else
     item "forge-rs"             "forge-rs (:8943)"
     item "prometheus-knowledge" "prometheus-knowledge (:8942)"
     item "surface-bridge"  "surface-bridge (:7890)" "install: bash scripts/install-skills-flat.sh"
+    item "apple-fm"        "Apple Foundation Models (:${PROMETHEUS_APPLE_FM_PORT:-11437}, optional)" "install: bash shared/scripts/apple-foundation-models.sh --install"
     item "control-plane-extension" "control-plane extension (optional)"
 
     echo ""

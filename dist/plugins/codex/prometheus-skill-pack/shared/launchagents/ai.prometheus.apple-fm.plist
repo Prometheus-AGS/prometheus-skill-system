@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Apple on-device Foundation Model (Apple Intelligence) as a local
+       OpenAI-compatible endpoint, served by `apfel --serve`. Installed only when
+       shared/scripts/apple-foundation-models.sh --detect reports the machine
+       eligible (macOS 26+, Apple Silicon, Apple Intelligence enabled). Loopback
+       only; the port avoids Ollama's 11434 (apfel's default). -->
+  <key>Label</key>
+  <string>ai.prometheus.apple-fm</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__PROMETHEUS_ROOT__/shared/scripts/apple-fm-launch.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_ROOT__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+    <key>PROMETHEUS_APPLE_FM_PORT</key>
+    <string>__APPLE_FM_PORT__</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <!-- 10s throttle: a persistent failure (model unavailable, port bound) must
+       not hot-loop; see ai.prometheus.liter-llm-api.plist for the rationale. -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>ProcessType</key>
+  <string>Interactive</string>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/apple-fm.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/apple-fm.stderr.log</string>
+</dict>
+</plist>

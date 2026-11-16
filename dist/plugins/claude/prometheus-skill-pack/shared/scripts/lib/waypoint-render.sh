@@ -49,27 +49,26 @@ _wr_get() {
 
 # _wr_normalize_next_command <next-command> <change-id>
 # Self-heal legacy or leaked spec-backend handoffs so renderers keep steering
-# the loop back through KBD ownership. Bare `/opsx:apply` and
-# `/speckit.implement` are never valid continuations because they bypass
-# task-level KBD hooks and progress synchronization.
+# the loop back through KBD ownership. A bare OpenSpec apply — the 1.x
+# `/opsx:apply` (recognized here only so old waypoints heal; never emitted) or
+# the 2.0 `openspec-apply-change` skill in any harness spelling (`/name` in
+# Claude Code, `$name` in Codex, `/skill:name` in Kimi) — and
+# `/speckit.implement` are never valid continuations: they bypass task-level
+# KBD hooks and progress synchronization.
 _wr_normalize_next_command() {
-  local next="${1:-}" change="${2:-}" remainder=""
-  case "$next" in
-    "/opsx:apply")
+  local next="${1:-}" change="${2:-}" remainder="" prefix=""
+  for prefix in "/opsx:apply" "/openspec-apply-change" '$openspec-apply-change' \
+                "/skill:openspec-apply-change" "/speckit.implement"; do
+    if [[ "$next" == "$prefix" ]]; then
       [[ -n "$change" ]] && { printf '/kbd-apply %s' "$change"; return 0; }
-      ;;
-    "/opsx:apply "*)
-      remainder="${next#"/opsx:apply "}"
+      break
+    fi
+    if [[ "$next" == "$prefix "* ]]; then
+      remainder="${next#"$prefix "}"
       [[ -n "$remainder" ]] && { printf '/kbd-apply %s' "$remainder"; return 0; }
-      ;;
-    "/speckit.implement")
-      [[ -n "$change" ]] && { printf '/kbd-apply %s' "$change"; return 0; }
-      ;;
-    "/speckit.implement "*)
-      remainder="${next#"/speckit.implement "}"
-      [[ -n "$remainder" ]] && { printf '/kbd-apply %s' "$remainder"; return 0; }
-      ;;
-  esac
+      break
+    fi
+  done
   printf '%s' "$next"
 }
 

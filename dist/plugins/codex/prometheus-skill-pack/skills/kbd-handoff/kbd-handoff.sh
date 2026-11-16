@@ -462,7 +462,7 @@ next_text="${next_change:-none recorded}"
 [ -n "$next_task" ] && next_text="$next_text, task $next_task"
 
 start_prompt="You are taking over KBD phase \`$phase\` in \`$root\` on $target. Read \`$packet_rel\` first, then every file in its \"Read in order\" list. Run \`timeout $TIMEOUT_SECS prometheus kbd --path \"$root\" status --json </dev/null\` and confirm phase \`$phase\`, stage \`${stage:-unknown}\`, revision ${revision:-unknown}, next work $next_text before you change anything; if they differ, stop and report the difference. Drive every task through \`$apply_cmd begin-task\` and \`end-task\`, under timeout with stdin closed. Do nothing listed under \"Never do\"; ask the operator for any listed gate or open prerequisite, one batched question at a time."
-start_prompt="$start_prompt Resolve current selected method/contract/supersession from canonical decisions and method-context references before dependent action. For selected VLBV, preserve the complete value-phase boundary; task/hour/compiler/reviewer triggers grant no generated-code verification authority. Retain original evidence, candidate freshness, consumed budgets and unresolved effects; reconcile uncertain effects before retry. Instruction-only handoff grants no release authority or automatic successor."
+start_prompt="$start_prompt Resolve current selected method/contract/supersession from canonical decisions and method-context references before dependent action. Verification follows VLBV (pack default; deviations are signed KBD-METHOD decisions): preserve the complete value-phase boundary — generated code executes only at B4/B5 (references/boundaries.md); task/hour/compiler/reviewer triggers grant no generated-code verification authority. A mid-phase handoff is a B3 checkpoint and executes nothing. Retain original evidence, candidate freshness, consumed budgets and unresolved effects; reconcile uncertain effects before retry. Instruction-only handoff grants no release authority or automatic successor."
 
 render_list() { # <newline list> <empty text>
   if [ -n "$1" ]; then printf '%s\n' "$1" | sed '/^$/d; s/^/- /'; else printf -- '- %s\n' "$2"; fi
@@ -555,12 +555,41 @@ render_packet() {
   fi
   printf '\n'
 
+  printf '## VLBV receiver check\n\n'
+  printf -- '- This handoff is a B3 checkpoint: nothing executes until the value-phase boundary (references/boundaries.md).\n'
+  printf -- '- Receiving harness profile: `%s`; boundary execution capability: **%s**.\n' "$profile_id" "$can_execute"
+  if [ -n "$calibration_sha" ]; then
+    printf -- '- Calibration: repeat a held-out check against `%s` (sha256 %s) before dependent work.\n' "$(rel "$calibration_file")" "$calibration_sha"
+  else
+    printf -- '- Calibration: no calibration.json in the phase; owner calibration is still required before scenario selection.\n'
+  fi
+  printf -- '- Record `executedBy` (harness, version, model) in boundary-results.json if this harness runs the packet.\n\n'
+
   printf '## Open prerequisites\n\n'
   render_list "$WARNINGS" "None found by kbd-handoff."
   printf '\n'
 
   printf '## Start prompt\n\nPaste this into %s:\n\n```text\n%s\n```\n' "$target" "$start_prompt"
 }
+
+# ------------------------------------------------- VLBV receiver check (CR-27)
+# A mid-phase handoff is a B3 checkpoint: it executes nothing. The packet records
+# whether the receiving harness's profile says it can run the boundary packet, a
+# held-out calibration check to repeat, and effects the receiver inherits.
+profile_id="$target"
+case "$target" in kimi-code) profile_id="kimi" ;; claude) profile_id="claude-code" ;; esac
+profile_script="$(cd "$(dirname "$0")" && pwd)/../kbd-doctor/scripts/harness-profile.mjs"
+receiver_profile='{}'
+if [ -f "$profile_script" ] && command -v node >/dev/null 2>&1; then
+  receiver_profile="$(node "$profile_script" "$profile_id" --json 2>/dev/null || printf '{}')"
+fi
+printf '%s' "$receiver_profile" | jq -e 'type == "object"' >/dev/null 2>&1 || receiver_profile='{}'
+can_execute="$(printf '%s' "$receiver_profile" | jq -r '.profile.canExecuteBoundary.status // "unknown"')"
+calibration_file="$phase_dir/calibration.json"
+calibration_sha=""
+[ -f "$calibration_file" ] && calibration_sha="$(shasum -a 256 "$calibration_file" | awk '{print $1}')"
+unresolved_effects="$(printf '%s' "$status_json" | jq -c '[(.boundaryObligations // {}) | to_entries[] | .value | {boundary, subject, exactSignal}]' 2>/dev/null || printf '[]')"
+[ "$can_execute" = "supported" ] || warn "receiving harness $target: boundary execution capability is $can_execute in its profile; hand the phase to a harness that can run the boundary packet before B4, or record the gap"
 
 packet_text="$(render_packet)"
 
@@ -575,7 +604,11 @@ sidecar_text="$(jq -n \
   --arg skillsDir "~/$skills_rel" --argjson skillsDirExists "$([ -d "$skills_dir" ] && echo true || echo false)" \
   --arg broken "$BROKEN" --arg missingSkills "$MISSING_SKILLS" \
   --argjson teamDetected "$team_detected" --arg agentsDir "$agents_rel" --arg missingRoles "$MISSING_ROLES" \
-  --arg startPrompt "$start_prompt" '
+  --arg startPrompt "$start_prompt" \
+  --argjson receiverProfile "$(printf '%s' "$receiver_profile" | jq -c '.profile // null')" \
+  --arg profileId "$profile_id" --arg canExecute "$can_execute" \
+  --arg calibrationPath "$( [ -n "$calibration_sha" ] && rel "$calibration_file" )" --arg calibrationSha "$calibration_sha" \
+  --argjson unresolvedEffects "$unresolved_effects" '
   def lines($s): $s | split("\n") | map(select(length > 0));
   def nullable($s): if $s == "" then null else $s end;
   def num($s): if $s == "" then null else ($s | tonumber? // null) end;
@@ -612,7 +645,14 @@ sidecar_text="$(jq -n \
       missingRoleDefinitions: lines($missingRoles)
     },
     warnings: lines($warnings),
-    startPrompt: $startPrompt
+    startPrompt: $startPrompt,
+    vlbv: {
+      boundary: "B3",
+      receiverProfile: {harness: $profileId, canExecuteBoundary: $canExecute, profile: $receiverProfile},
+      mayExecuteBoundary: ($canExecute == "supported"),
+      calibrationCheck: {examplesPath: nullable($calibrationPath), sha256: nullable($calibrationSha), status: "held-out check pending on receiver"},
+      unresolvedEffects: $unresolvedEffects
+    }
   }')" || { printf '%s: failed to render the JSON sidecar\n' "$PROG" >&2; exit 1; }
 
 if [ "$dry_run" = 1 ]; then

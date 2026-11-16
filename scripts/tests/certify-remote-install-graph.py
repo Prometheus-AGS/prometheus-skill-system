@@ -97,7 +97,7 @@ def main():
             env.update(HOME=str(home),CODEX_HOME=str(selected),PROMETHEUS_PLUGIN_ROOT=str(home/'.prometheus/plugins'))
             if name=='full':
                 install=['node',full/'scripts/install-system.js','--source-root',full,'--home',home,
-                         '--profile','skills','--targets','codex','--non-interactive','--yes']
+                         '--profile','skills','--targets','agents','--non-interactive','--yes']
                 run(name+'-actual-fresh-install',install,full)
                 run(name+'-actual-fresh-verify',install+['--verify'],full)
                 run(name+'-selected-home-compiled-doctor',[args.doctor_bin,'doctor','--check','codex.memories','--json'],full)

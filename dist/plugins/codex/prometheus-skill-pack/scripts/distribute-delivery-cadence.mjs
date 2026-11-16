@@ -3,7 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { resolveCodexHome } from './lib/store-paths.js';
 
 const OWNER = 'prometheus-delivery-cadence';
 const RECEIPT = '.cadence-install.json';
@@ -39,18 +38,22 @@ function physicalPath(file) {
   return path.join(physicalPath(parent), path.basename(file));
 }
 
+// Install target matrix (owner decision D3): the canonical root ~/.agents/skills
+// (real directories; read by Codex, OpenCode, Kimi Code, MiniMax, Cursor, Gemini,
+// Zed, ...) plus the Claude Code and Qwen Code shims. Former per-harness IDs are
+// accepted as aliases of `agents` so existing invocations keep working.
+const LEGACY_TARGET_ALIASES = Object.freeze({
+  codex: 'agents', 'kimi-code': 'agents', minimax: 'agents', zed: 'agents', opencode: 'agents',
+});
+
 function targetRoots(args) {
-  const kimi = !args.isolated && process.env.KIMI_CODE_HOME || path.join(args.home, '.kimi-code');
-  const config = !args.isolated && process.env.XDG_CONFIG_HOME || path.join(args.home, '.config');
   const roots = {
-    codex: path.join(resolveCodexHome(args.home), 'skills'),
+    agents: path.join(args.home, '.agents/skills'),
     claude: path.join(args.home, '.claude/skills'),
-    'kimi-code': path.resolve(kimi, 'skills'),
-    minimax: path.join(args.home, '.minimax/skills'),
-    zed: path.join(args.home, '.agents/skills'),
-    opencode: path.resolve(config, 'opencode/skills'),
+    qwen: path.join(args.home, '.qwen/skills'),
   };
-  const selected = args.targets === 'all' ? Object.keys(roots) : [...new Set(args.targets.split(','))];
+  const requested = args.targets === 'all' ? Object.keys(roots) : args.targets.split(',');
+  const selected = [...new Set(requested.map(id => LEGACY_TARGET_ALIASES[id] ?? id))];
   if (!selected.length || selected.some(id => !Object.hasOwn(roots, id))) {
     fail(`Use --targets all or comma-separated IDs: ${Object.keys(roots).join(',')}`);
   }
@@ -166,8 +169,8 @@ function apply(plan, args, backupRoot) {
 function main() {
   const args = options(process.argv.slice(2));
   if (args.help) {
-    console.log('node scripts/distribute-delivery-cadence.mjs [--targets all|codex,claude,kimi-code,minimax,zed,opencode] [--home DIR] [--source-root DIR] [--dry-run] [--adopt-identical]');
-    console.log('Codex: nonempty CODEX_HOME takes precedence; --home changes the .codex fallback. For scratch destinations, set CODEX_HOME explicitly or unset it before using --home.');
+    console.log('node scripts/distribute-delivery-cadence.mjs [--targets all|agents,claude,qwen] [--home DIR] [--source-root DIR] [--dry-run] [--adopt-identical]');
+    console.log('agents = ~/.agents/skills, the canonical root Codex, OpenCode, Kimi Code, MiniMax, Cursor, Gemini and Zed read. Legacy IDs codex, kimi-code, minimax, zed and opencode alias agents.');
     return;
   }
   const contractPath = path.join(args.sourceRoot, 'skill-system.json');
@@ -183,14 +186,7 @@ function main() {
   const version = files.get('SKILL.md').toString('utf8').match(/^\s+version:\s*["']?([^"'\s]+)/m)?.[1];
   if (!version) fail('Cadence metadata.version is missing');
   const targets = targetRoots(args);
-  const plans = targets.map(target => {
-    const payload = new Map(files);
-    if (target.id === 'minimax') payload.set('_meta.json', json({
-      id: Number.parseInt(createHash('md5').update('delivery-cadence').digest('hex').slice(0, 8), 16),
-      version, name: 'delivery-cadence', updated_at: Math.floor(fs.statSync(path.join(source, 'SKILL.md')).mtimeMs), platform: 'minimax',
-    }));
-    return { ...target, files: payload };
-  });
+  const plans = targets.map(target => ({ ...target, files: new Map(files) }));
   const supportRoot = path.join(args.home, '.prometheus/delivery-cadence/support');
   plans.push({ id: 'support', destination: supportRoot, files: supportFiles(args.sourceRoot) });
   const destinations = new Set();

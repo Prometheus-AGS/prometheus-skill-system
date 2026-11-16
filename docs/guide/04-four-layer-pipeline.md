@@ -24,7 +24,7 @@ Layer 2's output is a set of task manifests: concrete, ordered units of work wit
 
 ## Layer 2 — OpenSpec Change Management
 
-Layer 3 turns each task into an auditable change. Every change gets a proposal with GIVEN/WHEN/THEN acceptance criteria, a documentation trail scoped to that change, and a lifecycle managed through the OpenSpec command set: `/opsx-new` creates the change, `/opsx-continue` advances to the next ready artifact, `/opsx-verify` validates, `/opsx-apply` implements selected change tasks, and `/opsx-archive` retires it. In the KBD orchestrator, `/kbd-apply` wraps the OpenSpec apply one task at a time so the loop advances a single artifact per tick.
+Layer 3 turns each task into an auditable change. Every change gets a proposal with GIVEN/WHEN/THEN acceptance criteria, a documentation trail scoped to that change, and a lifecycle managed through the OpenSpec 2.0 skills (the `/opsx:*` commands were removed): `openspec-new-change` creates the change, `openspec-continue-change` advances to the next ready artifact, `openspec-verify-change` validates, `openspec-apply-change` implements selected change tasks, and `openspec-archive-change` retires it. In the KBD orchestrator, `/kbd-apply` wraps the OpenSpec apply one task at a time so the loop advances a single artifact per tick.
 
 An explicitly configured liter-llm route can provide phase/model selection. Native harness execution uses the controls that harness actually exposes; a planned tier is not actual inference evidence. The expensive reasoning happens only where reasoning is expensive. (See [Tools Reference](13-tools-reference.md) for the routing detail.)
 
@@ -78,7 +78,7 @@ C4Container
 
     System_Boundary(pack, "prometheus-skill-pack") {
         Container(pmpo, "PMPO Orchestration", "iterative-evolver + kbd-process-orchestrator", "Layer 1 · phase execution")
-        Container(openspec, "OpenSpec + opsx-*", "Change management", "Layer 2 · auditable changes")
+        Container(openspec, "OpenSpec 2.0 (openspec-* skills)", "Change management", "Layer 2 · auditable changes")
         Container(forge, "forge-rs", "Rust enrichment engine", "Layer 3 · context injection")
     }
 

@@ -23,23 +23,41 @@
     "startPrompt"
   ],
   "properties": {
-    "schemaVersion": { "const": "1" },
-    "kind": { "const": "kbd-harness-handoff" },
+    "schemaVersion": {
+      "const": "1"
+    },
+    "kind": {
+      "const": "kbd-harness-handoff"
+    },
     "harness": {
-      "enum": ["claude-code", "codex", "kimi-code", "opencode"],
+      "enum": [
+        "claude-code",
+        "codex",
+        "kimi-code",
+        "opencode"
+      ],
       "description": "The receiving harness."
     },
     "fromHarness": {
       "type": "string",
       "description": "The sending harness from PROMETHEUS_HARNESS, or \"unknown\"."
     },
-    "project": { "type": "string", "description": "Absolute project root." },
-    "phase": { "type": "string", "minLength": 1 },
+    "project": {
+      "type": "string",
+      "description": "Absolute project root."
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1
+    },
     "phaseDir": {
       "type": "string",
       "description": "Phase node directory relative to the project root."
     },
-    "createdAt": { "type": "string", "format": "date-time" },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
     "packet": {
       "type": "string",
       "description": "Project-relative path of the Markdown packet."
@@ -50,26 +68,78 @@
     },
     "position": {
       "type": "object",
-      "required": ["stage", "lifecycle", "implementation", "nextChange", "nextTask"],
+      "required": [
+        "stage",
+        "lifecycle",
+        "implementation",
+        "nextChange",
+        "nextTask"
+      ],
       "properties": {
-        "stage": { "type": ["string", "null"] },
-        "lifecycle": { "type": ["string", "null"] },
-        "revision": { "type": ["integer", "null"] },
-        "planRevision": { "type": ["integer", "null"] },
+        "stage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lifecycle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revision": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "planRevision": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "implementation": {
           "type": "object",
-          "required": ["completed", "total"],
+          "required": [
+            "completed",
+            "total"
+          ],
           "properties": {
-            "completed": { "type": ["integer", "null"] },
-            "total": { "type": ["integer", "null"] }
+            "completed": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "total": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
           },
           "additionalProperties": false,
           "description": "This phase's completion.implementation counter."
         },
-        "nextChange": { "type": ["string", "null"] },
-        "nextTask": { "type": ["string", "null"] },
+        "nextChange": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nextTask": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "exactNextWork": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Operator note recorded by the runtime; intent, not a work selector."
         }
       },
@@ -79,16 +149,48 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["path", "branch", "head", "clean", "dirtyCount", "upstream", "ahead", "pushed"],
+        "required": [
+          "path",
+          "branch",
+          "head",
+          "clean",
+          "dirtyCount",
+          "upstream",
+          "ahead",
+          "pushed"
+        ],
         "properties": {
-          "path": { "type": "string" },
-          "branch": { "type": "string" },
-          "head": { "type": "string" },
-          "clean": { "type": "boolean" },
-          "dirtyCount": { "type": "integer", "minimum": 0 },
-          "upstream": { "type": ["string", "null"] },
-          "ahead": { "type": ["integer", "null"] },
-          "pushed": { "type": "boolean" }
+          "path": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "head": {
+            "type": "string"
+          },
+          "clean": {
+            "type": "boolean"
+          },
+          "dirtyCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "upstream": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ahead": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "pushed": {
+            "type": "boolean"
+          }
         },
         "additionalProperties": false
       }
@@ -96,7 +198,9 @@
     "readInOrder": {
       "type": "array",
       "minItems": 1,
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Project-relative paths; the packet itself is first."
     },
     "targetChecks": {
@@ -111,22 +215,98 @@
         "missingRoleDefinitions"
       ],
       "properties": {
-        "skillsDir": { "type": "string" },
-        "skillsDirExists": { "type": "boolean" },
-        "brokenSkills": { "type": "array", "items": { "type": "string" } },
-        "missingSkills": { "type": "array", "items": { "type": "string" } },
-        "teamDetected": { "type": "boolean" },
-        "agentsDir": { "type": ["string", "null"] },
-        "missingRoleDefinitions": { "type": "array", "items": { "type": "string" } }
+        "skillsDir": {
+          "type": "string"
+        },
+        "skillsDirExists": {
+          "type": "boolean"
+        },
+        "brokenSkills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missingSkills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "teamDetected": {
+          "type": "boolean"
+        },
+        "agentsDir": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "missingRoleDefinitions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       },
       "additionalProperties": false
     },
     "warnings": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Non-blocking findings: carried work outside the active position, dirty or unpushed worktrees, broken skills, missing role definitions, unchecked boundary obligations."
     },
-    "startPrompt": { "type": "string", "minLength": 1 }
+    "startPrompt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vlbv": {
+      "type": "object",
+      "description": "VLBV receiver check (CR-27). A mid-phase handoff is a B3 checkpoint and executes nothing.",
+      "required": [
+        "boundary",
+        "receiverProfile",
+        "mayExecuteBoundary",
+        "calibrationCheck",
+        "unresolvedEffects"
+      ],
+      "properties": {
+        "boundary": {
+          "const": "B3"
+        },
+        "receiverProfile": {
+          "type": "object"
+        },
+        "mayExecuteBoundary": {
+          "type": "boolean"
+        },
+        "calibrationCheck": {
+          "type": "object",
+          "properties": {
+            "examplesPath": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sha256": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "unresolvedEffects": {
+          "type": "array"
+        }
+      }
+    }
   },
   "additionalProperties": false
 }

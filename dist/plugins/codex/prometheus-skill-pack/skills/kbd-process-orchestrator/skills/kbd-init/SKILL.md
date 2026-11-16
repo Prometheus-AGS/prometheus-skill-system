@@ -16,11 +16,11 @@ metadata:
 
 Initialize the KBD orchestrator for the **current project**.
 
-> `/kbd-init` owns full project configuration discovery. Phase creation and
+> `kbd-init` owns full project configuration discovery. Phase creation and
 > advancement helpers own `project.json.activePhase`, preserve unrelated keys,
 > and remove the legacy `active_phase` alias. If metadata is missing, those
 > helpers may bootstrap minimal identity and active-phase metadata; this does
-> not replace `/kbd-init` for full stack, policy, and constraint discovery.
+> not replace `kbd-init` for full stack, policy, and constraint discovery.
 
 ## What this does
 
@@ -51,7 +51,7 @@ generated OpenSpec skills/commands while preserving authored specs, changes and
 custom configuration. Read the receipt: failed or pending refresh is unresolved,
 not current-version proof. A cached offline version is explicitly unverified for
 latest freshness. Resolve reported conflicts before dependent phase mutations.
-OpenSpec is the primary spec engine for new projects (`/kbd-init` initializes
+OpenSpec is the primary spec engine for new projects (`kbd-init` initializes
 it); existing native KBD projects keep working, and the helper skips projects
 without an existing OpenSpec root.
 
@@ -75,7 +75,7 @@ preflight and defer it until a writable invocation.
 
 Read in priority order:
 
-1. Explicit argument: `/kbd-init "My Project Name"`
+1. Explicit argument: `kbd-init "My Project Name"`
 2. `AGENTS.md` — first H1 or "Project Identity" section
 3. `CLAUDE.md` — first H1 or executive summary first sentence
 4. `README.md` — first H1
@@ -137,7 +137,7 @@ Check in order:
 
 ### Step 4a: Spec engine
 
-OpenSpec (1.16.0+) is the primary spec engine; GitHub Spec Kit is the supported
+OpenSpec (2.0.0, pack-pinned) is the primary spec engine; GitHub Spec Kit is the supported
 backup. Take `--spec-engine openspec|speckit|native-kbd` (default `openspec`)
 and record the choice as `"specBackend"` in `project.json`.
 
@@ -162,6 +162,20 @@ and record the choice as `"specBackend"` in `project.json`.
 - **`native-kbd`** — only on explicit request; no external CLI is needed.
 
 Set `openspec_available` to `true` only when `openspec/` exists after this step.
+
+OpenSpec 2.0 writes its skills once to `.agents/skills/openspec-*` and links them
+into `.claude/skills/` for Claude Code; it creates no `/opsx:*` commands. Never edit
+an `openspec-*` skill — put project instructions in `openspec/config.yaml`
+(`context`, `rules`).
+
+### Step 4b: Verification method
+
+Write `"verificationMethod": "VLBV"` to `project.json` (keep an existing value).
+VLBV is the pack's single verification method: acceptance scenarios are adopted
+before generation, and generated code executes only at the value-phase boundary
+(B4) or an authorized repair (B5) — `references/boundaries.md`. A phase that must
+deviate records a signed `KBD-METHOD` decision naming the method, its execution
+cadence and its reason; no per-phase decision is needed to use VLBV.
 
 ### Step 5: Constraints
 
@@ -283,8 +297,8 @@ mandatory Cargo environment propagation. It never writes project files.
 
 - If `.kbd-orchestrator/project.json` already exists, print a diff of what
   would change and ask for confirmation before overwriting.
-- Using `/kbd-init --force` skips confirmation and overwrites.
-- Running `/kbd-init --dry-run` prints the discovered values without writing files.
+- Using `kbd-init --force` skips confirmation and overwrites.
+- Running `kbd-init --dry-run` prints the discovered values without writing files.
   Apply the same command-policy and prerequisite checks in memory, including the
   execution-blocked warning when an external path is unavailable.
 
@@ -316,10 +330,10 @@ Use the project name from the argument or the discovered project name. Emit to p
 
 ## After Init
 
-Run `/kbd-status` to confirm KBD is correctly initialized, then:
+Run `kbd-status` to confirm KBD is correctly initialized, then:
 
-- `/kbd-new-phase <name>` to start the first phase, OR
-- `/kbd-assess` if a phase is already defined in `activePhase` (readers also
+- `kbd-new-phase <name>` to start the first phase, OR
+- `kbd-assess` if a phase is already defined in `activePhase` (readers also
   accept the legacy `active_phase` alias)
 
 ## Selected-method recovery and authority
@@ -327,8 +341,8 @@ Run `/kbd-status` to confirm KBD is correctly initialized, then:
 Before dependent work, run `node shared/method-context.mjs --project <project-root> --phase <canonical-phase-id> --write` from the resolved orchestrator root (or read the phase-local `method-context.md` when Node is unavailable) and act on its `status`:
 
 - `RESOLVED_REFERENCES` — continue with the recovered method, contract and stage authority; preserve the same references in role inputs, dispatch and handoff read order.
-- `BLOCKED` — a method decision, contract, calibration or supersession is missing or changed; resolve it explicitly. Prior commands, memory and tool inventories are not fresh authority.
-- `CONFLICT` — governing host policy conflicts with the selected method. Stop before dependent work and show the conflict; continue only after the operator records a `KBD-POLICY-ACK` decision for that file's current hash. Never rewrite operator-owned policy. When host policy grants an exception — for example one narrow, targeted compiler check after a blocking compile error — name it as host policy, state that it conflicts with the selected method, and say it does not authorize tests, dry-runs or generated-code verification.
+- `BLOCKED` — the contract, its binding, a calibration reference, a supersession or a deviation's cadence/reason is missing or changed; resolve it explicitly. Prior commands, memory and tool inventories are not fresh authority.
+- `CONFLICT` — a governing rule file the active harness loads grants an exception VLBV forbids (for example a compiler check during generation). Stop before dependent work and show the conflict; continue only after the operator records a `KBD-POLICY-ACK` decision for that file's current hash. Never rewrite operator-owned policy, and never treat an exception as authority for tests, builds, dry-runs or generated-code verification.
 
-For selected VLBV, define acceptance before generation and finish the whole agreed value phase before any generated-code verification; tasks, hours, commits, reviewer requests and compiler problems create no boundary. Preserve original evidence, consumed budgets and unresolved effects across resume and supersession; reconcile an uncertain effect before any retry. Full rules: `references/method-context.md`.
+VLBV is the method for every phase (project default `verificationMethod: "VLBV"`); a deviation exists only as a signed `KBD-METHOD` decision naming the method, its execution cadence and its reason, and it is disclosed in the closure packet. Define acceptance before generation; generated code executes only at the value-phase boundary (B4) and, after an authorized repair, at B5 — see `references/boundaries.md`. Tasks, hours, commits, reviewer requests and compiler problems create no boundary. Preserve original evidence, consumed budgets and unresolved effects across resume and supersession; reconcile an uncertain effect before any retry. Full rules: `references/method-context.md`.
 

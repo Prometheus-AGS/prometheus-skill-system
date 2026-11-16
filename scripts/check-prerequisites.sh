@@ -110,16 +110,16 @@ check_node() {
         local major
         major=$(echo "$ver" | sed 's/v//' | cut -d. -f1)
         if node -e 'const [major,minor]=process.versions.node.split(".").map(Number); process.exit(major > 22 || (major === 22 && minor >= 12) ? 0 : 1)'; then
-            echo "  ✅ Node.js $ver (>= 22.12 required (OpenSpec 1.16))"
+            echo "  ✅ Node.js $ver (>= 22.12 required (OpenSpec 2.0))"
         else
-            echo "  ❌ Node.js $ver is too old (>= 22.12 required (OpenSpec 1.16))"
+            echo "  ❌ Node.js $ver is too old (>= 22.12 required (OpenSpec 2.0))"
             MISSING=$((MISSING + 1))
             if $INSTALL; then
                 install_node
             fi
         fi
     else
-        echo "  ❌ Node.js not found (>= 22.12 required (OpenSpec 1.16))"
+        echo "  ❌ Node.js not found (>= 22.12 required (OpenSpec 2.0))"
         MISSING=$((MISSING + 1))
         if $INSTALL; then
             install_node

@@ -15,7 +15,7 @@ metadata:
 # /kbd-new-phase
 
 Create a fresh top-level KBD phase from scratch — the manual-entry
-counterpart to `/kbd-next-phase`.
+counterpart to `kbd-next-phase`.
 
 Before creating or entering a phase, the lifecycle script refreshes the latest
 stable OpenSpec CLI and existing project integrations through the orchestrator’s
@@ -53,11 +53,11 @@ Run when **any** of:
 - You're starting the very first phase of a project (no prior reflection
   exists).
 - You're pivoting away from the suggestion in the previous phase's
-  `reflection.md` (`/kbd-next-phase` is the auto-seed path).
+  `reflection.md` (`kbd-next-phase` is the auto-seed path).
 - You're initialising state by hand and want one canonical entry point
   instead of editing `current-waypoint.json` directly.
 
-Compare to `/kbd-next-phase`, which reads `reflection.md → "Recommended
+Compare to `kbd-next-phase`, which reads `reflection.md → "Recommended
 Next Phase"` and auto-seeds the new phase from it.
 
 ## Progress Signals (MANDATORY)
@@ -103,7 +103,7 @@ Or, step-by-step:
 3. Refuse if `.kbd-orchestrator/phases/<name>/` exists.
 4. When runtime authority is active, run `prometheus kbd status --json`. For
    terminal lifecycle state, run `prometheus kbd run start` with a unique run
-   ID, a reason naming the prior run, and `/kbd-new-phase <name>` as exact next
+   ID, a reason naming the prior run, and `kbd-new-phase <name>` as exact next
    work. The CLI commits and projects the successor before releasing `PAUSE`.
 5. `mkdir -p .kbd-orchestrator/phases/<name>`.
 6. Write `phases/<name>/goals.md` atomically (`# Goals` heading + bullets,
@@ -116,7 +116,7 @@ Or, step-by-step:
    clear error and **do not** modify any on-disk state.
 9. Update `.kbd-orchestrator/project.json` `activePhase` atomically, deleting
    the legacy `active_phase` alias; warn and continue if the file is absent
-   (run `/kbd-init` later).
+   (run `kbd-init` later).
 10. Source `shared/lib/waypoint.sh` and `shared/lib/hooks.sh` from
    `$KBD_ORCHESTRATOR_ROOT`, then call
    `kbd_hooks_fire phase before "$name" 1 1`. If the hooks subsystem is
@@ -134,7 +134,7 @@ Or, step-by-step:
 
 ## Hook integration
 
-`/kbd-new-phase` is a phase-bracket opening writer. It MUST fire
+`kbd-new-phase` is a phase-bracket opening writer. It MUST fire
 `phase:before` exactly once for the new phase, after the waypoint and
 `project.json` flips, and before the `Completed kbd-new-phase` Progress
 Signal — so any hook reading state sees the new phase as authoritative.
@@ -147,7 +147,7 @@ Signal — so any hook reading state sees the new phase as authoritative.
 kbd_hooks_fire phase before "$name" 1 1
 ```
 
-The closing `phase:after` is the responsibility of `/kbd-reflect` for
+The closing `phase:after` is the responsibility of `kbd-reflect` for
 the *previous* phase, which should have run already.
 
 See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload, and

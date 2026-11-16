@@ -89,14 +89,22 @@ try:
     unknown=codex/'skills/unknown-owner';unknown.mkdir();(unknown/'SKILL.md').write_text('unknown owner\n');(unknown/'.prometheus-generation').write_text('f'*64+'\n')
     malformed=codex/'skills/malformed-owner';malformed.mkdir();(malformed/'SKILL.md').write_text('malformed owner\n');(malformed/'.prometheus-generation').write_text('not-a-generation\n')
     sentinels={str(path):snapshot(path) for path in (unowned,unknown,malformed)}
-    install=[tools/'node',source/'scripts/install-system.js','--source-root',source,'--home',home,'--profile','skills','--targets','codex','--non-interactive','--yes']
+    # Owner decision D3: Codex reads the canonical root ~/.agents/skills, where
+    # the pack installs real directories. `codex` is no longer a target id; the
+    # Codex root still owns config, memory policy and MCP, and its skills/ dir is
+    # a retired root that keeps every entry the pack cannot prove it owns.
+    install=[tools/'node',source/'scripts/install-system.js','--source-root',source,'--home',home,'--profile','skills','--targets','agents','--non-interactive','--yes']
+    canonical=home/'.agents/skills'
     call(install,env,'actual-selected-root-install',cwd=source)
     store=home/'.prometheus/plugins/prometheus-skill-pack';env['PROMETHEUS_PLUGIN_ROOT']=str(store)
     current=(store/'pointers/current').read_text().strip();generation=store/current
     require(current.startswith('generations/'),'missing logical activation pointer')
     first=generation.name
-    copies=[path for path in (codex/'skills').iterdir() if (path/'.prometheus-generation').is_file() and (path/'.prometheus-generation').read_text().strip()==first]
-    require(copies and all(not path.is_symlink() for path in copies),'selected Codex surface is not a real copied projection')
+    copies=[path for path in canonical.iterdir() if (path/'.prometheus-generation').is_file() and (path/'.prometheus-generation').read_text().strip()==first]
+    require(copies and all(not path.is_symlink() for path in copies),'canonical ~/.agents/skills root is not a real copied projection')
+    require(not any((path/'.prometheus-generation').is_file() for path in (codex/'skills').iterdir() if str(path) not in sentinels),
+        'pack projected skills into the retired $CODEX_HOME/skills root')
+    for path,before in sentinels.items():require(snapshot(pathlib.Path(path))==before,'retired-root cleanup changed unowned/unknown/malformed entry')
     receipts=list((store/'receipts'/first).glob('*.json'))
     require(receipts,'logical signed target receipts missing')
     # Actual verification checks the selected copies in addition to store receipts.
@@ -117,7 +125,7 @@ try:
     payload=owned/'variant-payload';shutil.copytree(full/'dist/plugins/codex/prometheus-skill-pack',payload,symlinks=True)
     skill=next(path for path in (payload/'skills').rglob('SKILL.md') if path.is_file())
     original=skill.read_bytes()
-    lifecycle=[tools/'node',payload/'scripts/install-plugin-generation.js','--source-root',payload,'--home',home,'--plugin-root',store,'--targets','codex']
+    lifecycle=[tools/'node',payload/'scripts/install-plugin-generation.js','--source-root',payload,'--home',home,'--plugin-root',store,'--targets','agents']
     skill.write_bytes(original+b'\nScratch integration generation B.\n')
     second=call(lifecycle,env,'actual-generation-B').stdout.strip().splitlines()[-1]
     require(second!=first,'second real generation did not change identity')
@@ -144,15 +152,17 @@ try:
     require(snapshot(fallback)==fallback_before,'unused fallback changed during lifecycle')
     # Empty inherited CODEX_HOME means unset. Explicit --home supplies only the
     # fallback; a nonempty sibling CODEX_HOME above already won over --home.
-    explicit=owned/'explicit home';explicit.mkdir();empty_env=dict(env,CODEX_HOME='',HOME=str(owned/'unrelated'))
-    empty_install=[tools/'node',source/'scripts/install-system.js','--source-root',source,'--home',explicit,'--profile','skills','--targets','codex','--non-interactive','--yes']
+    # Codex is detected (not targeted) now, so the fallback root must exist for
+    # its memory policy to be applied under --home.
+    explicit=owned/'explicit home';explicit.mkdir();(explicit/'.codex').mkdir();empty_env=dict(env,CODEX_HOME='',HOME=str(owned/'unrelated'))
+    empty_install=[tools/'node',source/'scripts/install-system.js','--source-root',source,'--home',explicit,'--profile','skills','--targets','agents','--non-interactive','--yes']
     call(empty_install,empty_env,'empty-codex-home-explicit-home-fallback',cwd=source)
-    require((explicit/'.codex/config.toml').is_file() and (explicit/'.codex/skills').is_dir(),'empty CODEX_HOME ignored explicit --home fallback')
-    require(not (owned/'unrelated/.codex').exists(),'installer projected through ambient HOME instead of --home')
+    require((explicit/'.codex/config.toml').is_file() and (explicit/'.agents/skills').is_dir(),'empty CODEX_HOME ignored explicit --home fallback')
+    require(not (owned/'unrelated/.codex').exists() and not (owned/'unrelated/.agents').exists(),'installer projected through ambient HOME instead of --home')
     call(empty_install+['--verify'],empty_env,'empty-home-actual-verify',cwd=source)
     call(empty_install+['--uninstall'],empty_env,'empty-home-actual-uninstall',cwd=source)
     cases.append(dict(acceptance=['07/AC-1','07/AC-2'],status='PASS',generationIds=[first,second,third],
-        selectedRoot=str(codex),logicalReceiptRoot=str(store/'receipts'),prune=prune,
+        selectedRoot=str(canonical),codexHome=str(codex),logicalReceiptRoot=str(store/'receipts'),prune=prune,
         note='actual installer skills profile, MCP writer, compiled doctor and generation lifecycle; no host services started'))
     code=0
 except Blocked as error:code,reason=2,str(error)

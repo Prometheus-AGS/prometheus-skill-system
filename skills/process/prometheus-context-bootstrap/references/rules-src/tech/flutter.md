@@ -6,8 +6,9 @@ paths: ['**/*.dart', '**/pubspec.yaml', '**/analysis_options.yaml']
 
 Loaded when a Dart file is read. Not resident.
 
-Batch implementation until an app path is complete. Use narrow analyzer feedback earlier only to unblock
-work. At a completed change boundary, run the smallest app, platform, or device integration that exercises
+Batch implementation until the agreed value phase is complete; editor/LSP diagnostics
+are reading, not execution. Run no build, check, lint or test before the value-phase
+boundary (VLBV B4). There, the boundary packet runs the smallest app, platform, or device integration that exercises
 the real providers, repositories, and data sources. Unit, widget-only, mock-only, and per-edit tests are
 not completion evidence. Reserve broad platform, architecture, file-size, and device gates for the final
 applicable phase or release boundary.

@@ -456,7 +456,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--fg);line-height:1.
             <div class="layer-examples">
               <div class="lex-label">Entry commands (when OpenSpec available)</div>
               <div class="lex-items">
-                <div class="lex-item"><code>/opsx:new</code> · <code>/opsx:apply</code> · <code>/opsx:verify</code> · <code>/opsx:archive</code></div>
+                <div class="lex-item"><code>openspec-new-change</code> · <code>openspec-apply-change</code> · <code>openspec-verify-change</code> · <code>openspec-archive-change</code></div>
               </div>
             </div>
           </div>
@@ -603,12 +603,12 @@ body{font-family:var(--body);background:var(--bg);color:var(--fg);line-height:1.
           <span class="skill-name">artifact-refiner · Constraint-Driven Code QA Gate</span>
         </div>
         <div class="skill-body">
-          <div class="skill-desc">The <strong>artifact-refiner</strong> skill owns constraint-driven code quality enforcement at the artifact level. KBD invokes it per completed change — after the executing tool marks the change DONE in <code>progress.json</code>, and before <code>/opsx:archive</code> or native KBD archiving. Constraints are always sourced from <code>.kbd-orchestrator/constraints.md</code>, never defined independently. State backend: <code>.refiner/artifacts/&lt;n&gt;/</code>.</div>
+          <div class="skill-desc">The <strong>artifact-refiner</strong> skill owns constraint-driven code quality enforcement at the artifact level. KBD invokes it per completed change — after the executing tool marks the change DONE in <code>progress.json</code>, and before <code>openspec-archive-change</code> or native KBD archiving. Constraints are always sourced from <code>.kbd-orchestrator/constraints.md</code>, never defined independently. State backend: <code>.refiner/artifacts/&lt;n&gt;/</code>.</div>
           <div class="skill-invoke-label">KBD → Refiner lifecycle</div>
           <div class="skill-invoke-steps">
             <div class="si-step"><div class="si-num">1</div><div class="si-text">After a change is implemented, invoke <code>/refine-code "&lt;change-id&gt;"</code> with <code>artifact_type: code</code>, <code>content_type: direct:code</code>, and the project constraint list sourced from <code>.kbd-orchestrator/constraints.md</code>. Wire <code>on_iteration_complete</code> to run the project's build health command from <code>project.json</code>.</div></div>
             <div class="si-step"><div class="si-num">2</div><div class="si-text">The skill iterates — using constraint violations as the driver for refinement — until all blocking constraints pass or maximum iterations (5) are reached. Each iteration writes results to <code>.refiner/artifacts/&lt;change-id&gt;/refinement_log.md</code>.</div></div>
-            <div class="si-step"><div class="si-num">3</div><div class="si-text">On convergence, KBD reads the refinement log. If any blocking constraint remains FAIL, the change is marked BLOCKED in <code>progress.json</code>. If all blocking constraints pass, proceed to <code>/opsx:verify</code> and archive. The refinement log is committed to the repo as the audit trail for that change.</div></div>
+            <div class="si-step"><div class="si-num">3</div><div class="si-text">On convergence, KBD reads the refinement log. If any blocking constraint remains FAIL, the change is marked BLOCKED in <code>progress.json</code>. If all blocking constraints pass, proceed to <code>openspec-verify-change</code> and archive. The refinement log is committed to the repo as the audit trail for that change.</div></div>
           </div>
           <div class="skill-invoke-label" style="margin-top:1.25rem">Constraint wiring principle</div>
           <div class="skill-invoke-steps">
@@ -686,7 +686,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--fg);line-height:1.
             <span class="val"> └─ &lt;executing tool&gt; implements the change</span><br/>
             <span class="val">    └─ write step definitions + run: pnpm test:bdd:tag "@&lt;change-id&gt;"</span> <span class="comment">← bdd-testing</span><br/>
             <span class="val">    └─ /refine-code "&lt;change-id&gt;"</span> <span class="comment">← artifact-refiner (constraint QA gate)</span><br/>
-            <span class="val">    └─ /opsx:archive or native KBD archive</span><br/>
+            <span class="val">    └─ openspec-archive-change or native KBD archive</span><br/>
             <br/>
             REFLECT<br/>
             <span class="val"> └─ /kbd-reflect</span> <span class="comment">(phase retrospective)</span><br/>
@@ -720,7 +720,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--fg);line-height:1.
           <div class="layer-body">
             <div class="layer-ey">When OpenSpec IS available</div>
             <div class="layer-title">Structured change artifacts with full lifecycle</div>
-            <div class="layer-desc">Use <code>/opsx:new</code> to scaffold proposal → design → tasks → spec-delta. Progress tracked in <code>openspec/changes/&lt;id&gt;/tasks.md</code> via checkbox protocol. Archiving via <code>/opsx:archive</code> syncs spec deltas back to canonical specs and feeds the reflection phase.</div>
+            <div class="layer-desc">Use <code>openspec-new-change</code> to scaffold proposal → design → tasks → spec-delta. Progress tracked in <code>openspec/changes/&lt;id&gt;/tasks.md</code> via checkbox protocol. Archiving via <code>openspec-archive-change</code> syncs spec deltas back to canonical specs and feeds the reflection phase.</div>
             <div class="layer-examples">
               <div class="lex-label">OpenSpec artifact contract</div>
               <div class="lex-items">
@@ -799,10 +799,10 @@ body{font-family:var(--body);background:var(--bg);color:var(--fg);line-height:1.
         <div class="slash-item"><span class="slash-cmd">/kbd-reflect [phase-name]</span><span class="slash-desc">Generate phase reflection report from current progress state. Delegates to iterative-evolver for structured reflection. Writes <code>reflection.md</code> and seeds the next phase's <code>prior_assessments</code>.</span></div>
         <div class="slash-item"><span class="slash-cmd">/kbd-status</span><span class="slash-desc">Show current phase, change inventory with per-change status, and waypoint-guided next action. Reads <code>current-waypoint.json</code> and <code>progress.json</code>. Primary orientation command on session start.</span></div>
         <div class="slash-item"><span class="slash-cmd">/kbd-full-phase &lt;name&gt;</span><span class="slash-desc">Run the complete Assess → Plan → Execute → Reflect cycle in one invocation. For experienced use on well-understood phases. Pauses for human approval at the Plan → Execute boundary.</span></div>
-        <div class="slash-item"><span class="slash-cmd">/opsx:new &lt;change-name&gt;</span><span class="slash-desc">Scaffold a new OpenSpec change with proposal, tasks, design, and spec-delta artifacts. (Requires OpenSpec to be available in the project.)</span></div>
-        <div class="slash-item"><span class="slash-cmd">/opsx:apply [change-name]</span><span class="slash-desc">Implement tasks from an OpenSpec change. Loops through the checklist until complete or blocked. Dispatches to the configured execution backend.</span></div>
-        <div class="slash-item"><span class="slash-cmd">/opsx:verify [change-name]</span><span class="slash-desc">Verify implementation against change artifacts: completeness, correctness, coherence. Three-dimension QA check before archiving.</span></div>
-        <div class="slash-item"><span class="slash-cmd">/opsx:archive [change-name]</span><span class="slash-desc">Finalize and archive a completed change. Syncs spec deltas to canonical specs. Updates <code>progress.json</code> and advances the waypoint.</span></div>
+        <div class="slash-item"><span class="slash-cmd">openspec-new-change &lt;change-name&gt;</span><span class="slash-desc">Scaffold a new OpenSpec change with proposal, tasks, design, and spec-delta artifacts. (Requires OpenSpec to be available in the project.)</span></div>
+        <div class="slash-item"><span class="slash-cmd">openspec-apply-change [change-name]</span><span class="slash-desc">Implement tasks from an OpenSpec change. Loops through the checklist until complete or blocked. Dispatches to the configured execution backend.</span></div>
+        <div class="slash-item"><span class="slash-cmd">openspec-verify-change [change-name]</span><span class="slash-desc">Verify implementation against change artifacts: completeness, correctness, coherence. Three-dimension QA check before archiving.</span></div>
+        <div class="slash-item"><span class="slash-cmd">openspec-archive-change [change-name]</span><span class="slash-desc">Finalize and archive a completed change. Syncs spec deltas to canonical specs. Updates <code>progress.json</code> and advances the waypoint.</span></div>
       </div>
     </section>
 

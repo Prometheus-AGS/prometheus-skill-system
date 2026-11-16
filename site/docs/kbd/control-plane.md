@@ -162,7 +162,7 @@ key material to shell or browser code.
 
 Boundary receipts bind phase and task ordinals to the authoritative source
 revision. Their stable identity makes retries harmless and prevents a stale
-projection or direct `/opsx:apply` invocation from claiming completion without
+projection or direct `openspec-apply-change` invocation (formerly `/opsx:apply`) from claiming completion without
 the corresponding KBD receipt. See [Control-plane recovery](./control-plane-recovery).
 
 Use the CLI to inspect it:

@@ -92,11 +92,16 @@ provider_row() {
       # path cannot speak. `name` = "MiniMax-M3" — MiniMax 400s on any other
       # model string (see NAMING CONSTRAINT above).
       minimax-coding) echo 'MiniMax-M3|minimax/MiniMax-M3|https://api.minimax.io/v1|MINIMAX_KEY' ;;
+      # Apple's on-device Foundation Model (Apple Intelligence) served locally by
+      # `apfel --serve` (shared/scripts/apple-foundation-models.sh). Loopback only,
+      # no inbound key; `name` is the real upstream id apfel lists in /v1/models.
+      # 4,096-token context window on macOS 26 — never a judge or critic.
+      apple-fm)      echo "apple-foundationmodel|openai/apple-foundationmodel|http://127.0.0.1:${PROMETHEUS_APPLE_FM_PORT:-11437}/v1|" ;;
       *)             return 1 ;;
     esac
 }
 
-provider_names() { echo "local-proxy kimi minimax qwen glm glm-coding kimi-coding minimax-coding"; }
+provider_names() { echo "local-proxy kimi minimax qwen glm glm-coding kimi-coding minimax-coding apple-fm"; }
 
 # --- helpers ----------------------------------------------------------------
 cfg_has_master_key() {

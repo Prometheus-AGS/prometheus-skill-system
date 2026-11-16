@@ -1,5 +1,11 @@
 # Slash Command Formats by Tool
 
+> **Skills first (VLBV CR-24).** Every KBD stage is a skill and can be started
+> from its skill text on any harness (`/name` in Claude Code and OpenCode, `$name`
+> in Codex, `/skill:name` in Kimi Code). Generated command files are a convenience
+> for harnesses whose capability profile needs them; they are never the only way
+> to reach a stage, mirroring OpenSpec 2.0's removal of its `/opsx:*` commands.
+
 This document describes how each AI tool implements slash commands,
 and how `kbd-generate-commands.sh` maps the canonical `workflows.yaml`
 definition to each tool's native format.

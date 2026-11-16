@@ -13,12 +13,18 @@
 # an entry, so one skill installed as a real copy, a prometheus-* alias, a
 # symlink, a plugin-cache copy and a committed repo copy costs five entries.
 #
+# Pack skills are installed ONCE, as real directories, into the canonical root
+# ~/.agents/skills (resolved with realpath when it is a symlink), which Codex reads
+# directly. ~/.codex/skills holds no pack copies; a legacy copy left there is just
+# a redundant duplicate of the canonical one.
+#
 # This file selects which PACK skills Codex may AUTO-TRIGGER. The selection is
 # applied by shared/scripts/codex-catalog-config.sh, which writes a managed block
-# of `[[skills.config]] enabled = false` entries into ~/.codex/config.toml. Nothing
-# on disk is deleted or edited, so the signed generation stays intact. The same
-# helper also disables redundant duplicate copies of a skill (pack or not) so each
-# skill appears once.
+# of path-based `[[skills.config]] enabled = false` entries (resolved SKILL.md
+# paths under the canonical root) into ~/.codex/config.toml. Nothing on disk is
+# deleted or edited, so the signed generation stays intact. The same helper also
+# disables redundant duplicate copies of a skill (pack or not) so each skill
+# appears once, keeping the ~/.agents/skills copy.
 #
 # Excluding a skill here does NOT make it unavailable: scripts/register-slash-commands.sh
 # registers a slash command for EVERY skill in the repo, pointing at the SKILL.md in

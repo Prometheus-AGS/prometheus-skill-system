@@ -28,10 +28,11 @@ metadata:
   using any runner/build command below. A task/hour/commit/reviewer request is
   not that boundary; process exit zero is not an assertion observation.
 
-With selected VLBV, define acceptance/scenarios before generation; executable
-feature/step authoring follows the host policy; where that policy is production-first
-(for example Prometheus repositories), defer authoring until the complete production
-implementation. Missing/unknown scenario adoption
+Under VLBV (the pack's single method; boundaries in
+`kbd-process-orchestrator/references/boundaries.md`), define acceptance/scenarios
+before generation, and author executable features/steps only after the complete
+agreed production implementation, with no runs until the boundary packet (B4).
+A different cadence exists only as a signed per-phase `KBD-METHOD` deviation. Missing/unknown scenario adoption
 blocks; available tools or example commands are not execution permission. Reuse
 existing owner-reviewed calibration rather than requesting the same approval.
 Record contract/scenario/assertion/oracle source and excluded false positive;
@@ -127,7 +128,7 @@ Feature: User signs in with valid credentials
 - Declarative steps ("sign in with those credentials", not "click the button with data-testid X and type Y")
 - Use `Background` for shared preconditions
 - Use `Scenario Outline` for data variations
-- Tag every scenario: `@api`, `@ui`, `@system`, plus optional `@smoke`, `@slow`, `@flaky`
+- Tag every scenario with its adopted ID (for example `@SCN-AUTH-001`) and `@api`, `@ui` or `@system`, plus optional `@smoke`, `@slow`. Nondeterministic behavior is declared in the contract's `stochastic` block, never tagged `@flaky`
 - Prefer `data-testid` selectors when using `@ui`
 
 ### 2. Write the step definitions
@@ -224,7 +225,7 @@ api:
 
 ui:
   inherits: default
-  tags: '@ui and not @flaky'
+  tags: '@ui'
 ```
 
 `package.json` scripts:
@@ -252,13 +253,12 @@ npx cucumber-js -p ui
 
 # By tag
 npx cucumber-js --tags "@smoke"
-npx cucumber-js --tags "not @flaky"
 
 # Dry-run loads support code and skips steps: it is not author-only and is no assertion evidence
 npx cucumber-js --dry-run
 
-# Retry only flaky scenarios
-npx cucumber-js --retry 2 --retry-tag-filter "@flaky"
+# No retry flags: a nondeterministic scenario runs its declared stochastic samples
+# once (see bdd-lifecycle-loop "stochastic profile"); a FAIL is never rerun to green.
 ```
 
 ## Playwright integration (playwright-bdd; authorized execution only)
@@ -285,7 +285,7 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     video: 'retain-on-failure',
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
   },
 });
 ```

@@ -72,9 +72,14 @@ External workflows can be triggered at lifecycle events without modifying the sk
 ```json
 {
   "event": "on_cycle_complete",
-  "action": { "type": "command", "target": "cargo test" }
+  "action": { "type": "command", "target": "echo 'evolution cycle complete'" }
 }
 ```
+
+Under KBD/VLBV, a trigger never executes generated code (tests, builds, compiler
+checks): those run only as boundary-packet entries at the value-phase boundary
+(`kbd-process-orchestrator/references/boundaries.md`). Assess may read existing
+boundary receipts; Execute changes code without running it.
 
 See `references/workflow-integration.md` for trigger semantics.
 

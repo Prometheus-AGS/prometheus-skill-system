@@ -49,7 +49,7 @@ Emit to plain response text — no tool call needed.
 
 ## When to Use
 
-- After each Kimi Code execution turn within a `/kbd-goal` phase
+- After each Kimi Code execution turn within a `kbd-goal` phase
 - Whenever you need an impartial check of goal completion
 - Before calling `/goal next <next-phase-condition>` in Kimi Code
 

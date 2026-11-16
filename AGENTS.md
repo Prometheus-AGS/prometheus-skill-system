@@ -56,6 +56,13 @@ conflicting workflow, skill, plan, testing convention, and lower section in this
 file. It may be changed only by an explicit repository-owner instruction that
 directly names this policy.
 
+<!-- kbd-policy:begin -->
+- verification: VLBV
+- compiler-exception: retired
+- cadence-exception: none
+- execution-boundary: B4 (boundary packet, once); B5 after an authorized repair
+<!-- kbd-policy:end -->
+
 ### Complete the implementation before testing
 
 - Deliver the complete, coherent implementation for the active specification or
@@ -64,12 +71,14 @@ directly names this policy.
 - Read specifications and existing protected integration scenarios as requirements,
   then implement the production path in batches. A test failure caused only by a
   known unimplemented requirement is not useful evidence.
-- During implementation, use static reasoning and code inspection. If compiler
-  feedback is genuinely necessary, wait until the current coherent edit batch is
-  complete and run one narrowly targeted check.
-- After implementation is complete, run the smallest relevant full-integration
-  gate, fix failures in batches, and run the applicable final integration gate once
-  more before commit, push, release, or phase completion.
+- During implementation, use static reasoning, code inspection and editor/LSP
+  diagnostics only. Run no compiler check, build, test or other execution of
+  generated code before the value-phase boundary (owner decision D1, 2026-11-15,
+  retired the former compiler exception).
+- After implementation is complete, run the boundary packet once (B4, defined in
+  `skills/process/kbd-process-orchestrator/references/boundaries.md`). If it fails
+  and the owner authorizes a bounded repair, complete the repair and rerun only the
+  affected checks (B5) before commit, push, release, or phase completion.
 
 ### Full integration tests are the only accepted test evidence
 
@@ -101,14 +110,15 @@ directly names this policy.
   command execution. Finish every planned production change in the phase, then run
   one consolidated integration batch at the final phase boundary. A task/change
   boundary, reviewer request, or available check command does not authorize earlier
-  verification. Use an intermediate package-scoped compiler check only when an
-  observed compiler error blocks further implementation.
+  verification. There is no intermediate compiler check (D1); rust-analyzer
+  diagnostics are static reading.
 - Start with the smallest integration target that exercises the real production path
   and collaborators. Unit, module-local, mock-only, and filtered function tests do
   not count as completion evidence. Escalate only when the change or diagnostics
   cross package boundaries. Repository acceptance still requires the full
   integration gates defined above.
-- Read all diagnostics, batch fixes, and rerun only the smallest confirming command.
+- On a boundary failure, read all diagnostics, batch the authorized repair, and
+  rerun only the affected entries (B5).
   Reserve workspace-wide, all-target, release, Clippy, specialized, and feature
   matrix commands for the applicable final boundary.
 - Only one Cargo/rustc build process may operate on the development machine at a

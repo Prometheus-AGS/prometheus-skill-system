@@ -1,0 +1,10 @@
+# Codex skill roots observed on this machine
+# Command: codex debug prompt-input (codex-cli 0.166.0), 2026-11-15
+# Root legend printed in the Available skills catalog:
+- `r0` = `~/.codex/skills`
+- `r1` = `~/.TOOLS/skills/agents`
+- `r2` = `~/.codex/skills/.system`
+- `r3` = `~/.codex/plugins/cache/openai-bundled`
+- `r4` = `~/.codex/plugins/cache/openai-primary-runtime`
+- `r5` = `~/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.1112.11011/skills`
+# ~/.agents/skills -> ~/.TOOLS/skills/agents (symlinked root; r1 above is its realpath)

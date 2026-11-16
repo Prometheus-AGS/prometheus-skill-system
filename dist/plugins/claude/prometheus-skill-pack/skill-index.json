@@ -1,5 +1,5 @@
 {
-  "releaseVersion": "1.14.0",
+  "releaseVersion": "1.15.0",
   "schemaVersion": "prometheus-distribution-skill-index-v1",
   "skills": [
     {
@@ -857,6 +857,10 @@
     {
       "name": "vercel-react-native-skills",
       "path": "skills/vercel-react-native-skills"
+    },
+    {
+      "name": "vlbv",
+      "path": "skills/vlbv"
     },
     {
       "name": "web-design-guidelines",

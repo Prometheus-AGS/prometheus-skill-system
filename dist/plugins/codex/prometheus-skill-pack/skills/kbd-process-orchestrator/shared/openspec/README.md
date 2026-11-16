@@ -2,11 +2,12 @@
 
 This directory is self-contained and uses Node builtins. Copy the whole directory
 when packaging it for another harness. Node must meet OpenSpec's requirement
-(22.12.0 or newer since OpenSpec 1.16.0; the runner refuses an older Node with a
+(22.12.0 or newer, unchanged in OpenSpec 2.0; the runner refuses an older Node with a
 receipt naming the standalone binary); invoke JavaScript with `node`, without executable bits or
 shell shims.
 
 ```text
+node cli.mjs verify  --project /path/to/project
 node cli.mjs refresh --project /path/to/project --timeout-ms 120000
 node cli.mjs run --project /path/to/project -- list --json
 node cli.mjs init --project /path/to/project --tools claude,codex
@@ -18,13 +19,16 @@ OpenSpec command's stdout, including JSON output.
 
 ## Selection and installation
 
-Every explicit `refresh` queries the official npm registry's latest stable
-`@fission-ai/openspec`, with minimum version **1.16.0**. A previously selected version below that
-minimum is treated as stale and replaced on the next run. A registry failure permits
-the last successfully selected cached CLI, with `latestVerified: false` and an
-explicit `cached-offline` policy. It never claims an offline cache is latest.
-`run` reuses the selected CLI without a registry request or reinstall; its first
-invocation ensures a version if none is selected.
+The pack is certified against **exactly OpenSpec 2.0.0** (`PINNED_VERSION` in
+`state.mjs`; also `package.json` and `config/spec-engines.json`). `refresh`,
+`run` and `init` always use that version unless an operator pins another. The
+npm registry is consulted only to *report*: a newer release is recorded as
+`newerAvailable`, and a newer **major** adds `migrationRequired`. Neither moves
+the selection — adopting a new OpenSpec release is a pack release, never an
+unattended side effect (VLBV FR-O2: procedure text must not change under a bound
+phase contract). A registry failure is recorded as `registryError` and changes
+nothing. A cached selection below the minimum (**2.0.0**) is stale and is
+replaced by the pin.
 
 The default managed home is `~/.prometheus/openspec`. Exact versions live beneath
 `versions/<version>`. npm is resolved from the Node installation or PATH and its
@@ -40,8 +44,34 @@ Human overrides are explicit environment variables:
 | Variable | Behavior |
 | --- | --- |
 | `PROMETHEUS_OPENSPEC_HOME` | Override the managed home, including for isolated integration runs. |
-| `PROMETHEUS_OPENSPEC_VERSION` | Pin an exact stable version at or above 1.16.0; receipts say `operator-pin`, latest unverified. |
+| `PROMETHEUS_OPENSPEC_VERSION` | Pin an exact stable version at or above 2.0.0 instead of the pack pin; receipts say `operator-pin`. |
+| `PROMETHEUS_OPENSPEC_LATEST_URL` | Replace the registry `latest` endpoint (isolated runs and fixtures). It only affects `newerAvailable` reporting. |
 | `PROMETHEUS_OPENSPEC_DISABLE=1` | Disable managed activity; refresh records disabled and exits 0, run exits 2 without executing a CLI. |
+
+## Session start verifies; phase entry refreshes
+
+`verify` never installs, updates or writes project files. It compares the
+`generatedBy` stamp of each `.agents/skills/openspec-*` skill with the pinned
+version and reports `current` or `refresh-needed` (always exit 0). The
+SessionStart hook (`shared/scripts/detect-project-context.sh`) runs `verify`, so a
+new session — including a harness switch in the middle of a phase — cannot
+regenerate OpenSpec skills under a bound contract (VLBV CR-03). The mutating
+`refresh` runs at phase entry: `kbd-new-phase`, `kbd-next-phase`,
+`kbd-new-child`, `kbd-next-child`.
+
+## OpenSpec 2.0 layout
+
+OpenSpec 2.0 writes every skill once to `.agents/skills/openspec-*` and records
+owning tools in `.agents/skills/.openspec-target`. Claude Code (and a few other
+tools) get one relative symlink per skill in their own `skills/` folder; Codex,
+Cursor, OpenCode, Devin and Antigravity read `.agents/skills` directly. The
+`/opsx:*` command, workflow and prompt files are gone — each maps to a skill of
+the same name (`openspec-new-change`, `openspec-apply-change`, …). The first
+2.0 refresh of a 1.x project removes the per-tool copies; that one-time migration
+can exceed a short budget, so run it with `--timeout-ms 120000` or more. Never edit
+an `openspec-*` skill — `update` overwrites it without a backup; put project
+instructions in `openspec/config.yaml` (`context`, `rules`). Committed symlinks on
+Windows need `git config core.symlinks true` and Developer Mode.
 
 ## Refresh boundary
 
@@ -57,7 +87,7 @@ project's primary spec engine.
 Refresh runs `openspec update <project> --force` with stdin closed,
 `OPEN_SPEC_INTERACTIVE=0`, and `OPENSPEC_NO_UPDATE_CHECK=1`. Force permits the
 official generated-integration cleanup after backups. The audited implementation
-is [OpenSpec v1.16.0](https://github.com/Fission-AI/OpenSpec/tree/v1.16.0/src/core).
+is [OpenSpec v2.0.0](https://github.com/Fission-AI/OpenSpec/tree/v2.0.0/src/core).
 The selected package's own tool, skill, workflow, command, and legacy-migration
 declarations determine backup paths. An incompatible internal API fails before
 update instead of guessing paths.

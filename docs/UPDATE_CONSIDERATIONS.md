@@ -46,7 +46,8 @@ Release updates now differ deliberately from development installs:
 2. updates submodules and verifies the tree is still clean;
 3. checks generated harness and Codex artifacts without rewriting them;
 4. installs with the clean-source and expected-commit requirements;
-5. verifies the active generation, clean provenance, and all 14 target receipts;
+5. verifies the active generation, clean provenance, and every target receipt in
+   the `skill-system.json` matrix (currently 3);
 6. refreshes every detected native plugin surface through its supported tool;
 7. writes `~/.prometheus/skill-pack-install-ref` only after those checks pass.
 
@@ -55,20 +56,24 @@ It never bypasses source, manifest, signature, provenance, or receipt checks.
 
 ## Native plugin and cache policy
 
-The immutable generation remains authoritative for these 14 targets:
+The immutable generation remains authoritative for these 3 targets (owner
+decision D3):
 
 ```
-.claude/skills                 .opencode/skills
-.kimi-code/skills              .minimax/skills
-.cursor/skills                 .codex/skills
-.gemini/skills                 .roo/skills
-.windsurf/skills               .codeium/windsurf/skills
-.agents/skills                 .config/zed/skills
-.zed/skills                    .cline/skills
+.agents/skills    canonical root: receipt-bearing real-directory copies
+.claude/skills    symlink shim through .../prometheus-skill-pack/current
+.qwen/skills      symlink shim through .../prometheus-skill-pack/current
 ```
 
-Twelve targets link through `~/.prometheus/plugins/prometheus-skill-pack/current`.
-Codex and MiniMax receive receipt-bearing real-directory copies.
+Codex, OpenCode, Kimi Code, MiniMax, Cursor, Gemini, Zed, Cline and the other
+AgentSkills harnesses read `~/.agents/skills` directly. When that root is a
+symlink to a shared tree, the installer installs through `realpath` and never
+replaces the link. The twelve former per-harness targets (`.opencode/skills`,
+`.kimi-code/skills`, `.minimax/skills`, `.cursor/skills`, `.codex/skills`,
+`.gemini/skills`, `.roo/skills`, `.devin/skills`, `.codeium/windsurf/skills`,
+`.config/zed/skills`, `.zed/skills`, `.cline/skills`) are retired: install
+removes only pack-owned entries there and writes
+`<pluginRoot>/receipts/retired-target-cleanup.json`.
 
 Native plugin stores require separate supported refresh operations:
 
@@ -104,8 +109,10 @@ The immutable generation is now the sole global skill-copy authority:
 - project-scoped installs retain their prior repository-local behavior;
 - new installs no longer register `ai.prometheus.codex-skills-sync`;
 - updates remove that known legacy LaunchAgent if present;
-- `codex-sync-skills.sh` recognizes generation receipts and leaves those copies
-  alone without a false collision warning.
+- `codex-sync-skills.sh` no longer copies anything: Codex reads
+  `~/.agents/skills`, so it only retires its own legacy `.prometheus-pack`
+  copies in `~/.codex/skills` and leaves generation-owned copies to the
+  generation installer's retired-target cleanup.
 
 ## Regression coverage
 
@@ -132,7 +139,7 @@ not used as a test, diagnosis, or release gate.
 Activation evidence is intentionally not embedded as a generated hash in this
 tracked file: changing the file would create a new source commit and therefore a
 new content-addressed generation. The non-circular authorities are the signed
-active-generation manifest, its 14 signed target receipts,
+active-generation manifest, its signed target receipts (3 under D3),
 `~/.prometheus/skill-pack-install-ref`, and the updater's local terminal result.
 
 Final verification compares those receipts to the focused commit, checks the

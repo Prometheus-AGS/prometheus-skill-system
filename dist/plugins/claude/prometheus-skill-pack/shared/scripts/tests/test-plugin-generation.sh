@@ -41,7 +41,8 @@ cp "$ROOT/scripts/lib/"*.js "$SOURCE/scripts/lib/"
 jq '.inventory.roots = [{"path":"skills","scan":"recursive"}] | .imports = []' \
   "$ROOT/skill-system.json" > "$SOURCE/skill-system.json"
 cp "$ROOT/config/prometheus-exec-component.json" "$SOURCE/config/prometheus-exec-component.json"
-for required_tree in .opencode/skills .cursor/skills .codex/skills .devin/skills .agents/skills; do
+# Required trees come from the contract (OpenSpec 2.0 emptied the per-tool copies).
+for required_tree in $(jq -r '.targets[] | select(.sourceTreeLifecycle == "required") | .path' "$ROOT/skill-system.json"); do
   printf 'fixture source tree\n' > "$SOURCE/$required_tree/.fixture"
 done
 cp "$ROOT/skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm" \
@@ -103,17 +104,25 @@ git -C "$SOURCE" add .
 git -C "$SOURCE" commit -m "fixture source" >/dev/null
 SOURCE_COMMIT="$(git -C "$SOURCE" rev-parse HEAD)"
 
+# Retired per-harness roots hold pack-owned legacy entries next to user-owned ones.
 mkdir -p "$TMP/home/.codex/skills/example" "$TMP/home/.minimax/skills/example"
-mkdir -p "$TMP/home/.codex/skills/user-owned"
+mkdir -p "$TMP/home/.codex/skills/user-owned" "$TMP/home/.opencode/skills" "$TMP/foreign/skill"
 mkdir -p "$TMP/legacy-checkout/skills"
 ln -s "$SOURCE/skills/example" "$TMP/legacy-checkout/skills/example"
 mkdir -p "$TMP/home/.claude/skills"
 ln -s "$TMP/legacy-checkout/skills/example" "$TMP/home/.claude/skills/example"
 printf 'keep\n' > "$TMP/home/.codex/skills/user-owned/marker.txt"
 printf 'stale\n' > "$TMP/home/.codex/skills/example/SKILL.md"
-printf 'source=legacy\n' > "$TMP/home/.codex/skills/example/.prometheus-pack"
+printf 'source=skills/example\n' > "$TMP/home/.codex/skills/example/.prometheus-pack"
 printf 'stale\n' > "$TMP/home/.minimax/skills/example/SKILL.md"
-printf '{"platform":"minimax"}\n' > "$TMP/home/.minimax/skills/example/_meta.json"
+printf '{"platform":"minimax","name":"example"}\n' > "$TMP/home/.minimax/skills/example/_meta.json"
+ln -s "$PLUGIN_ROOT/current/skills/example" "$TMP/home/.opencode/skills/example"
+ln -s "$TMP/foreign/skill" "$TMP/home/.opencode/skills/foreign"
+# The canonical root is itself a symlink to a shared tree, holding a pack link
+# from the former symlink mode. The installer copies INTO the tree it names.
+mkdir -p "$TMP/shared-agents-skills" "$TMP/home/.agents"
+ln -s "$TMP/shared-agents-skills" "$TMP/home/.agents/skills"
+ln -s "$PLUGIN_ROOT/current/skills/example" "$TMP/shared-agents-skills/example"
 
 node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" \
   --require-clean-source --expected-source-commit "$SOURCE_COMMIT" >/dev/null
@@ -127,10 +136,11 @@ FIRST_BUNDLE="$(jq -r '.bundleId' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest
 [[ -x "$PLUGIN_ROOT/runtime/v1/run-hook" ]]
 PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
   --bundle "$FIRST_BUNDLE" --resolve-only >/dev/null
-[[ "$(jq '.targetPayloads | length' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == 14 ]]
+[[ "$(jq -c '[.targetPayloads[] | [.target, .mode]]' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == \
+  '[[".agents/skills","copy"],[".claude/skills","symlink"],[".qwen/skills","symlink"]]' ]]
 [[ -f "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json" ]]
 [[ "$(stat -f '%Lp' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json" 2>/dev/null || stat -c '%a' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json")" == 600 ]]
-[[ "$(find "$PLUGIN_ROOT/receipts/$FIRST_HASH" -type f -name '*.json' | wc -l | tr -d ' ')" == 14 ]]
+[[ "$(find "$PLUGIN_ROOT/receipts/$FIRST_HASH" -type f -name '*.json' | wc -l | tr -d ' ')" == 3 ]]
 [[ "$(jq -r '.executionComponent.sha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == \
   "ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78" ]]
 [[ "$(jq -r '.executionComponent.world' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == \
@@ -170,9 +180,23 @@ done
 [[ "$(readlink "$PLUGIN_ROOT/stable/lib")" == "../current/shared/scripts/lib" ]]
 cmp "$SOURCE/shared/scripts/lib/memory-bridge.sh" "$PLUGIN_ROOT/stable/lib/memory-bridge.sh"
 [[ "$(HOME="$TMP/home" bash "$PLUGIN_ROOT/stable/karpathy-hook-dispatch.sh")" == "karpathy-hook-dispatch-a" ]]
-[[ ! -e "$TMP/home/.codex/skills/prometheus-example" ]]
-[[ ! -e "$TMP/home/.minimax/skills/prometheus-example" ]]
+[[ ! -e "$TMP/home/.agents/skills/prometheus-example" ]]
 [[ ! -e "$TMP/home/.claude/skills/prometheus-example" ]]
+[[ ! -e "$TMP/home/.qwen/skills/prometheus-example" ]]
+# Canonical root: a real, receipt-bearing copy; the root symlink is preserved.
+[[ -L "$TMP/home/.agents/skills" ]]
+[[ -d "$TMP/shared-agents-skills/example" && ! -L "$TMP/shared-agents-skills/example" ]]
+[[ "$(cat "$TMP/shared-agents-skills/example/.prometheus-generation")" == "$FIRST_HASH" ]]
+[[ -L "$TMP/home/.claude/skills/example" && -L "$TMP/home/.qwen/skills/example" ]]
+# Retired roots: only provably pack-owned entries are removed; roots stay.
+[[ ! -e "$TMP/home/.codex/skills/example" && ! -e "$TMP/home/.minimax/skills/example" ]]
+[[ ! -L "$TMP/home/.opencode/skills/example" ]]
+[[ -L "$TMP/home/.opencode/skills/foreign" ]]
+[[ "$(cat "$TMP/home/.codex/skills/user-owned/marker.txt")" == keep ]]
+[[ -d "$TMP/home/.codex/skills" && -d "$TMP/home/.minimax/skills" && -d "$TMP/home/.opencode/skills" ]]
+[[ "$(jq -c '[.removed[] | [.target, .kind]] | sort' "$PLUGIN_ROOT/receipts/retired-target-cleanup.json")" == \
+  '[[".codex/skills","copy"],[".minimax/skills","copy"],[".opencode/skills","symlink"]]' ]]
+echo '[PASS] canonical copy root, Claude/Qwen shims, and ownership-safe retired-root cleanup'
 node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null
 cp "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json" "$TMP/manifest.sig.json"
 jq '.signature = "AAAA"' "$TMP/manifest.sig.json" > \
@@ -183,7 +207,7 @@ if node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null 2>&1; then
 fi
 cp "$TMP/manifest.sig.json" "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json"
 node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null
-echo '[PASS] signed generation, canonical index parity, and 14 signed target receipts verify'
+echo '[PASS] signed generation, canonical index parity, and 3 signed target receipts verify'
 echo '[PASS] manifest-signature tampering fails closed before activation'
 
 COMPONENT="$PLUGIN_ROOT/generations/$FIRST_HASH/skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm"
@@ -267,8 +291,8 @@ fi
 [[ ! -s "$TMP/unknown.out" ]]
 grep -q '"code":"NOT_ACTIVATED"' "$TMP/unknown.err"
 [[ "$(HOME="$TMP/home" bash "$PLUGIN_ROOT/stable/karpathy-hook-dispatch.sh")" == "karpathy-hook-dispatch-b" ]]
-grep -q 'fixture-b' "$TMP/home/.codex/skills/example/SKILL.md"
-grep -q 'fixture-b' "$TMP/home/.minimax/skills/example/SKILL.md"
+grep -q 'fixture-b' "$TMP/home/.agents/skills/example/SKILL.md"
+grep -q 'fixture-b' "$TMP/home/.qwen/skills/example/SKILL.md"
 for script in detect-project-context memory-outbox-flush pk-health; do
   cmp "$SOURCE/shared/scripts/$script.sh" "$PLUGIN_ROOT/stable/$script.sh"
 done
@@ -280,8 +304,8 @@ node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" --rollback >/d
 cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/skills.json" \
   "$PLUGIN_ROOT/stable/skill-index.json"
 [[ "$(HOME="$TMP/home" bash "$PLUGIN_ROOT/stable/karpathy-hook-dispatch.sh")" == "karpathy-hook-dispatch-a" ]]
-grep -q 'description: fixture$' "$TMP/home/.codex/skills/example/SKILL.md"
-grep -q 'description: fixture$' "$TMP/home/.minimax/skills/example/SKILL.md"
+grep -q 'description: fixture$' "$TMP/home/.agents/skills/example/SKILL.md"
+grep -q 'description: fixture$' "$TMP/home/.claude/skills/example/SKILL.md"
 echo '[PASS] pointer rollback restores the previous verified generation'
 
 git -C "$SOURCE" update-index --chmod=-x shared/scripts/pk-health.sh
@@ -308,19 +332,20 @@ fi
 [[ "$(readlink "$PLUGIN_ROOT/current")" == "$FIRST" ]]
 echo '[PASS] unresolved target collisions reject the candidate without moving activation'
 
-for target in \
-  .claude/skills .opencode/skills .kimi-code/skills .minimax/skills .cursor/skills \
-  .codex/skills .gemini/skills .roo/skills .devin/skills .codeium/windsurf/skills \
-  .agents/skills .config/zed/skills .zed/skills .cline/skills; do
+for target in .agents/skills .claude/skills .qwen/skills; do
   [[ -f "$TMP/home/$target/example/SKILL.md" ]]
 done
-[[ "$(jq -r '.platform' "$TMP/home/.minimax/skills/example/_meta.json")" == minimax ]]
-echo '[PASS] all 14 installed target payloads resolve through the certified generation'
+for target in .opencode/skills .codex/skills .minimax/skills; do
+  [[ ! -e "$TMP/home/$target/example" ]]
+done
+echo '[PASS] all 3 installed target payloads resolve through the certified generation'
 
 node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" --uninstall >/dev/null
 [[ ! -e "$PLUGIN_ROOT" ]]
 [[ "$(cat "$TMP/home/.codex/skills/user-owned/marker.txt")" == keep ]]
-for target in .claude/skills .codex/skills .minimax/skills .cline/skills; do
+[[ -L "$TMP/home/.opencode/skills/foreign" ]]
+[[ -L "$TMP/home/.agents/skills" ]]
+for target in .agents/skills .claude/skills .qwen/skills .codex/skills .minimax/skills; do
   [[ ! -e "$TMP/home/$target/example" ]]
 done
 echo '[PASS] uninstall removes only generation-managed projections and plugin state'

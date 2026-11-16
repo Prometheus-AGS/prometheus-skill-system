@@ -555,7 +555,13 @@ linux_unload() {
 }
 
 case "$OS/$ACTION" in
-    macos/install) macos_install ;;
+    macos/install)
+        macos_install
+        # Optional: Apple on-device Foundation Model service (silent when ineligible).
+        if ! $DRY_RUN; then
+            bash "$REPO_ROOT/shared/scripts/apple-foundation-models.sh" --install --quiet || true
+        fi
+        ;;
     macos/unload)  macos_unload ;;
     linux/install) linux_install ;;
     linux/unload)  linux_unload ;;

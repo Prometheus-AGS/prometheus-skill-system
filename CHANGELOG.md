@@ -7,7 +7,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-11-15
+
 ### Changed
+
+- **OpenSpec 2.0.0** is the primary spec engine, pinned exactly (`package.json`,
+  `config/spec-engines.json` and the managed runner's new `PINNED_VERSION`; the
+  runner minimum is now 2.0.0). The runner no longer follows npm `latest`: a newer
+  release is reported as `newerAvailable`, a newer major as `migrationRequired`,
+  and adopting either is a pack release or an operator pin
+  (`PROMETHEUS_OPENSPEC_VERSION`). OpenSpec skills now live once in
+  `.agents/skills/openspec-*`, with per-skill links in `.claude/skills`.
+- **Session start verifies, phase entry refreshes.** The SessionStart hook runs the
+  runner's new `verify` operation, which never installs or writes; the mutating
+  `refresh` runs only at phase entry. The backup footprint also covers legacy
+  `~/.codex/prompts/opsx-*.md`.
+- **VLBV is the single verification method.** Projects carry
+  `verificationMethod: "VLBV"` (the pack default); a per-phase deviation is a
+  signed `KBD-METHOD` decision naming the method, its execution cadence and its
+  reason, disclosed in the closure packet. No per-phase decision is needed.
+  `method-context.mjs` reads the files the active harness actually loads (harness
+  profiles; Zed first-match and Codex `AGENTS.override.md` shadowing are reported)
+  and a marked `<!-- kbd-policy:begin/end -->` block instead of free-text matching.
+- **One boundary taxonomy** (`references/boundaries.md`, B0–B6) and one eight-step
+  B4 sequence. Generated code executes only at B4 (the boundary packet, once) or
+  B5 (an owner-authorized repair). `kbd-execute`, `value-scenario-verify`,
+  `kbd-reflect`, `cross-tool-protocol.md`, the artifact-refiner integration
+  (one cumulative pass, no build trigger) and the Rust phase-gated rules now point
+  at it. OpenSpec verify and archive run only after the phase is CLOSED.
+- **Delivery cadence attaches to the boundary**: in KBD mode `checkpoint` runs only
+  boundary-packet entries, `report` derives `canonicalOutcome` from the KBD
+  closure, work-ahead needs the successor phase's contract to be promotable, and
+  `refresh-skill-pack.sh` refuses (exit 3) while a bound phase is open.
+- **Adopted contract v2** (`adopted-contract.v2.schema.json`; v1 contracts stay
+  valid until their phase closes): selection rationale, structured oracles with an
+  independent truth source, negative controls bound to typed packet commands, real
+  and substituted boundaries, limitations, per-scenario invalidation keys and
+  restoration, an optional stochastic profile, calibration and method identity
+  (with `specDeltaDigest`) and four closure states. `kbd-contract-adopt.sh` adds an
+  adoption lint (`--lint-only` runs it alone) and refuses adoption while a CRITICAL
+  review finding on acceptance content lacks an owner decision. Readiness returns
+  REJECT-STALE when a bound OpenSpec requirement changes. `kbd-phase-close-eval.sh`
+  writes `closure.json` and `closure-packet.md`. Templates' field lists are
+  generated from the schema (`npm run check:contract-templates`). The scenario ID
+  pattern is widened to `^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*-[0-9]+$`.
+- **One installed skill copy.** Skills install once to `~/.agents/skills` as real
+  directories, with symlink shims only for Claude Code (`~/.claude/skills`) and
+  Qwen Code (`~/.qwen/skills`). Install removes only pack-owned entries from the
+  12 retired per-harness roots and records them in
+  `receipts/retired-target-cleanup.json`. Older signed generations stay verifiable.
+- **Harness capability profiles** in `shared/harnesses/capabilities.json`
+  (Claude Code, Codex, OpenCode, Kimi, Zed, MiniMax Code, MiMo-Code, Qwen Code). A
+  capability is `supported` only with committed evidence of an exercised run;
+  `kbd-doctor.sh profile` prints them. Handoff packets carry the receiver's
+  profile, a held-out calibration check and unresolved effects. Skill text names
+  skills without a harness-specific prefix.
+- **Apple on-device Foundation Models**: on an eligible Mac (macOS 26+, Apple
+  Silicon, Apple Intelligence on) installation sets up `apfel` as the
+  `ai.prometheus.apple-fm` LaunchAgent on `127.0.0.1:11437`, registers
+  `apple-foundationmodel` with liter-llm and the KBD `local` role. Silent and
+  non-fatal elsewhere; never a judge or critic.
+- **prometheus-context-bootstrap** generates VLBV-conformant `AGENTS.md`,
+  `CLAUDE.md` and stack rules: the policy block, a first-action protocol that works
+  without hooks, precedence over built-in TDD/verify/apply skills, and no compiler
+  exception. `verify.sh`/`verify-v4.sh` check this on generated files.
+- New `vlbv` entry skill with the hash-pinned method text (VLBV 01–22, AT 01–22,
+  checklist, supersession record); the testing plugin (1.6.0) lists all VLBV skills.
+
 
 - The native SurrealDB service is certified against SurrealDB 4.0.0
   (`SURREALDB_VERSION`), matching surreal-memory-server's `=4.0.0` SDK pin.
@@ -25,6 +91,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   queries succeed, stop it, then run `scripts/install-mcp-services.sh
   --restart`. A 3.x release cannot open the converted files; restore from the
   copy or the export to go back.
+
+### Removed
+
+- **Breaking:** the pack no longer emits OpenSpec `/opsx:*` commands (removed by
+  OpenSpec 2.0); changes are created with `openspec new change` through the
+  managed runner, and the stale `.agents/skills/source-command-opsx-*` wrappers are
+  gone. The `opsx-*` model-routing keys remain as compatibility-only labels.
+- **Breaking:** the AGENTS.md/CLAUDE.md compiler-check exception is retired (owner
+  decision D1); the second final-gate run exists only as B5 reverification.
+- **Breaking:** BDD retry-until-green guidance (`--retry`, `@flaky`, flake budgets,
+  `scripts/flake-budget.sh`) and the continuous-testing branch are removed;
+  nondeterminism is declared in the contract's stochastic profile.
+- **Breaking:** the 12 per-harness skill install targets (OpenCode, Kimi, MiniMax,
+  Cursor, Codex, Gemini, Roo, Devin, Windsurf, Zed ×2, Cline) — those harnesses read
+  `~/.agents/skills`.
+- Existing `KBD-POLICY-ACK` acknowledgements match the reworded conflict issue
+  text only after being re-recorded; files carrying the policy block no longer
+  conflict.
 
 ### Fixed
 

@@ -1,0 +1,99 @@
+{
+  "mode": "diff",
+  "target": "feat/openspec-2-vlbv cumulative (main...HEAD)",
+  "judge_model": "MiniMax-M3",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1 (critic fallback; judge k3.1-pro HTTP 524)",
+  "producer_model": "claude-opus-5-5",
+  "cross_model_check": "verified-distinct",
+  "verdict": "BLOCK -> repaired (B5)",
+  "counts": {
+    "critical": 14
+  },
+  "dispositions": [
+    {
+      "n": 1,
+      "file": "shared/scripts/apple-foundation-models.sh",
+      "disposition": "fixed",
+      "note": "ineligible install is silent under --quiet"
+    },
+    {
+      "n": 2,
+      "file": "method-context.mjs",
+      "disposition": "fixed",
+      "note": "project.json can only pin VLBV; other values BLOCKED pending a signed KBD-METHOD deviation"
+    },
+    {
+      "n": 3,
+      "file": "delivery-cadence vlbv.mjs",
+      "disposition": "fixed",
+      "note": "cadence reads the phase's derived method context (signed deviation) and ignores unsigned project values"
+    },
+    {
+      "n": 4,
+      "file": "method-context.mjs",
+      "disposition": "rejected",
+      "note": "rule-file precedence only widens which files are scanned for conflicts (conservative); 'supported' gating applies to capabilities, enforced in check-harness-adapters; PROMETHEUS_HARNESS_PROFILES is an explicit operator override"
+    },
+    {
+      "n": 5,
+      "file": "kbd-contract-lint.mjs",
+      "disposition": "rejected",
+      "note": "schema has no primary commandRef: scenarios bind to kind=scenario commands via scenarioIds (checked); commandRef belongs to negativeControl (checked; fixture 04)"
+    },
+    {
+      "n": 6,
+      "file": "kbd-contract-lint.mjs",
+      "disposition": "fixed",
+      "note": "existing unreadable review file is a defect"
+    },
+    {
+      "n": 7,
+      "file": "kbd-contract-lint.mjs",
+      "disposition": "fixed",
+      "note": "--owner-decision must name a recorded canonical decision"
+    },
+    {
+      "n": 8,
+      "file": "kbd-contract-adopt.sh",
+      "disposition": "rejected",
+      "note": "adoption cannot continue without canonical status: step 2 reads it again and exits 1 on failure"
+    },
+    {
+      "n": 9,
+      "file": "kbd-phase-close-eval.sh",
+      "disposition": "fixed",
+      "note": "packet failure now prints a WARN with the rerun command; verdict unchanged by design (canonical disposition is authority)"
+    },
+    {
+      "n": 10,
+      "file": "refresh-skill-pack.sh",
+      "disposition": "fixed",
+      "note": "fails closed (exit 3) when a KBD project's status/disposition cannot be established"
+    },
+    {
+      "n": 11,
+      "file": "delivery-cadence vlbv.mjs",
+      "disposition": "fixed",
+      "note": "accepted only on canonical CLOSED disposition, all adopted scenarios PASS, digests consistent"
+    },
+    {
+      "n": 12,
+      "file": "delivery-cadence vlbv.mjs",
+      "disposition": "fixed",
+      "note": "successor contract must be kbd.adopted-contract for that phase with scenarios"
+    },
+    {
+      "n": 13,
+      "file": "install-plugin-generation.js",
+      "disposition": "rejected-as-warning",
+      "note": "rolling back to a legacy generation drops the qwen shim but the projection stays functional (links resolve through current/); documented follow-up"
+    },
+    {
+      "n": 14,
+      "file": "detect-project-context.sh",
+      "disposition": "fixed",
+      "note": "an incomplete verify result prints a rerun note; absent runner stays silent per integration contract"
+    }
+  ],
+  "reverification": "lint fixtures 11/11; unreadable review and unknown owner decision rejected; FM ineligible quiet output 0 bytes; method pin rejection BLOCKED; cadence outcome open->pending, CLOSED->accepted, missing->blocked; work-ahead junk/none refused; refresh guard exit 3 without CLI; cadence refresh procedure test 11/11"
+}

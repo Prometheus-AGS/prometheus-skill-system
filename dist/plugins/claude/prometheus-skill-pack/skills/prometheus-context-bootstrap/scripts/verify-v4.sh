@@ -32,6 +32,9 @@ fi
 
 # --- Layer 0 is the real file; the other names link to it ---
 if [[ -f "$C" && ! -L "$C" ]]; then ok "CLAUDE.md" "real file"; else no "CLAUDE.md" "must be a regular file in layout v4"; fi
+# shellcheck source=lib/vlbv-policy-check.sh
+. "$(dirname "${BASH_SOURCE[0]}")/lib/vlbv-policy-check.sh"
+vlbv_policy_check "CLAUDE.md" "$C"
 for name in AGENTS.md GEMINI.md; do
   f="$project_path/$name"
   if [[ -L "$f" && "$(readlink "$f")" == "CLAUDE.md" && -f "$f" ]]; then ok "$name" "-> CLAUDE.md"

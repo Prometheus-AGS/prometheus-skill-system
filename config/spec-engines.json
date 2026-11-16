@@ -3,9 +3,9 @@
   "engines": {
     "openspec": {
       "cli": "openspec",
-      "pinnedVersion": "1.16.0",
+      "pinnedVersion": "2.0.0",
       "pinSource": "package.json devDependencies @fission-ai/openspec (exact)",
-      "rationale": "Primary engine. Exact pin per the repo dependency-pin discipline; version matches package.json. Needs Node.js 22.12.0+. See docs/guide/spec-engines.md.",
+      "rationale": "Primary engine. Exact pin per the repo dependency-pin discipline; version matches package.json and the managed runner's PINNED_VERSION. OpenSpec 2.0 installs skills once in .agents/skills (per-tool links where needed) and removes the /opsx:* commands. Needs Node.js 22.12.0+. See docs/guide/spec-engines.md.",
       "adapter": "os_* in skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh"
     },
     "speckit": {

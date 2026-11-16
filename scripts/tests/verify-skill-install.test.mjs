@@ -24,23 +24,12 @@ const GATE = path.join(REPO, 'scripts/verify-skill-install.js');
 const PLUGIN_ROOT = path.join(os.homedir(), '.prometheus/plugins/prometheus-skill-pack');
 const GEN = path.join(PLUGIN_ROOT, 'current/skills');
 
-const TARGETS = [
-  '.claude/skills',
-  '.opencode/skills',
-  '.kimi-code/skills',
-  '.minimax/skills',
-  '.cursor/skills',
-  '.codex/skills',
-  '.gemini/skills',
-  '.roo/skills',
-  '.devin/skills',
-  '.codeium/windsurf/skills',
-  '.agents/skills',
-  '.config/zed/skills',
-  '.zed/skills',
-  '.cline/skills',
-];
-const COPY = new Set(['.minimax/skills', '.codex/skills']);
+// Owner decision D3: the canonical root `.agents/skills` holds real-directory
+// copies; `.claude/skills` and `.qwen/skills` are symlink shims. Read from the
+// same source the installer and gate use, never re-hardcoded.
+const { CANONICAL_TARGET_PATHS } = await import(path.join(REPO, 'scripts/lib/skill-system.js'));
+const TARGETS = [...CANONICAL_TARGET_PATHS];
+const COPY = new Set(['.agents/skills']);
 
 if (!fs.existsSync(GEN)) {
   process.stderr.write(`SKIP: no installed generation at ${GEN}\n`);
@@ -108,16 +97,16 @@ const cases = [
   },
   {
     name: 'skill absent from a target',
-    at: () => path.join(home, '.roo/skills/kbd-assess'),
+    at: () => path.join(home, '.qwen/skills/kbd-assess'),
     break: (p) => fs.rmSync(p),
     repair: (p) => fs.symlinkSync(path.join(GEN, 'kbd-assess'), p),
     expect: /absent/,
   },
   {
     // The failure that served four-month-old artifact-refiner across six
-    // targets: a symlink that resolves fine, but into a source checkout.
+    // (pre-D3) targets: a symlink that resolves fine, but into a source checkout.
     name: 'symlink resolves outside the active generation',
-    at: () => path.join(home, '.cursor/skills/artifact-refiner'),
+    at: () => path.join(home, '.claude/skills/artifact-refiner'),
     break: (p) => {
       fs.rmSync(p);
       fs.symlinkSync(path.join(REPO, 'skills/imported/artifact-refiner'), p);
@@ -130,7 +119,7 @@ const cases = [
   },
   {
     name: 'dangling symlink',
-    at: () => path.join(home, '.gemini/skills/kbd-plan'),
+    at: () => path.join(home, '.qwen/skills/kbd-plan'),
     break: (p) => {
       fs.rmSync(p);
       fs.symlinkSync(path.join(GEN, 'no-such-skill-xyz'), p);
@@ -144,7 +133,7 @@ const cases = [
   {
     // Old check hashed SKILL.md only, so a half-copied skill passed.
     name: 'copy target stale in a non-SKILL.md file',
-    at: () => path.join(home, '.codex/skills/deep-research'),
+    at: () => path.join(home, '.agents/skills/deep-research'),
     break: (p) => {
       const f = fs
         .readdirSync(path.join(p, 'references'), { withFileTypes: true })
@@ -159,7 +148,7 @@ const cases = [
   },
   {
     name: 'copy target missing a file',
-    at: () => path.join(home, '.minimax/skills/kbd-assess'),
+    at: () => path.join(home, '.agents/skills/kbd-assess'),
     break: (p) => fs.rmSync(path.join(p, 'SKILL.md')),
     repair: (p) => {
       fs.rmSync(p, { recursive: true });
@@ -176,6 +165,23 @@ for (const c of cases) {
   check(`RED  ${c.name}`, red.code === 1 && c.expect.test(red.out), `exit=${red.code}`);
   c.repair(p);
   check(`GREEN ${c.name} repaired`, run().code === 0);
+}
+
+// The canonical root may itself be a symlink to a shared skills tree. The
+// installer writes INTO the directory it names and never replaces the link, so
+// the gate must resolve it and still pass.
+{
+  const lexical = path.join(home, '.agents/skills');
+  const shared = path.join(home, 'shared-skills-tree');
+  fs.renameSync(lexical, shared);
+  fs.symlinkSync(shared, lexical);
+  check('canonical root behind a symlink passes', run().code === 0);
+  fs.rmSync(path.join(shared, 'kbd-assess', 'SKILL.md'));
+  const red = run();
+  check('RED  canonical root behind a symlink still checks contents', red.code === 1 && /missing file/.test(red.out), `exit=${red.code}`);
+  fs.rmSync(path.join(shared, 'kbd-assess'), { recursive: true });
+  fs.cpSync(path.join(GEN, 'kbd-assess'), path.join(shared, 'kbd-assess'), { recursive: true });
+  check('GREEN canonical root behind a symlink repaired', run().code === 0);
 }
 
 fs.rmSync(home, { recursive: true, force: true });

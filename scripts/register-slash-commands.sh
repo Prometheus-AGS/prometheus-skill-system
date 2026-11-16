@@ -39,6 +39,9 @@ from pathlib import Path
 
 HOME = Path.home()
 REPO_ROOT = Path("$REPO_ROOT")
+# Command templates this script owns reference a pack skill under one of these
+# roots: the canonical ~/.agents/skills, or the retired ~/.opencode/skills.
+PACK_SKILL_ROOT_MARKERS = (".agents/skills/", ".opencode/skills/")
 UNINSTALL = "$UNINSTALL" == "true"
 CODEX_ONLY = "$CODEX_ONLY" == "true"
 
@@ -104,7 +107,7 @@ for OPENCODE_JSON in ([] if CODEX_ONLY else OPENCODE_JSONS):
         removed = 0
         for skill_name in list(skills.keys()):
             template = cmds.get(skill_name, {}).get("template", "")
-            if skill_name in cmds and ".opencode/skills/" in template:
+            if skill_name in cmds and any(root in template for root in PACK_SKILL_ROOT_MARKERS):
                 del cmds[skill_name]
                 removed += 1
         if "evolve-instincts" in cmds and "evolve" not in cmds:
@@ -113,15 +116,17 @@ for OPENCODE_JSON in ([] if CODEX_ONLY else OPENCODE_JSONS):
             del cmds["evolve-instincts"]
         print(f"  opencode ({OPENCODE_JSON}): removed {removed} commands")
     else:
-        if "evolve" in cmds and ".opencode/skills/evolve/SKILL.md" not in cmds["evolve"].get("template", ""):
+        if "evolve" in cmds and not any(root + "evolve/SKILL.md" in cmds["evolve"].get("template", "") for root in PACK_SKILL_ROOT_MARKERS):
             if "evolve-instincts" not in cmds:
                 cmds["evolve-instincts"] = {**cmds["evolve"], "description": "Cluster ECC instincts into skills (evolve-instincts)"}
             del cmds["evolve"]
 
         added = skipped = dropped = 0
         for skill_name, meta in sorted(skills.items()):
-            primary = HOME / ".opencode" / "skills" / skill_name / "SKILL.md"
-            fallback = HOME / ".opencode" / "skills" / f"prometheus-{skill_name}" / "SKILL.md"
+            # The pack installs once into the canonical root ~/.agents/skills;
+            # ~/.opencode/skills is retired and no longer receives pack skills.
+            primary = HOME / ".agents" / "skills" / skill_name / "SKILL.md"
+            fallback = HOME / ".agents" / "skills" / f"prometheus-{skill_name}" / "SKILL.md"
             # OpenCode validates every {file:...} reference at STARTUP and refuses
             # to boot the whole server on the first miss:
             #   Error: Configuration is invalid ... bad file reference
