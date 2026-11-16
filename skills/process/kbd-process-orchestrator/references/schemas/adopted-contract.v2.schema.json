@@ -641,6 +641,14 @@
             "type": "string"
           }
         },
+        "runnerOutputGlobs": {
+          "type": "array",
+          "description": "Project-relative globs (* and **) naming runner output (reports, build artifacts). At closure, files under them modified before the B4 authorization event are listed in the closure packet (VLBV CR-33; passive evidence, never a guard).",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
         "stopConditions": {
           "type": "array",
           "items": {

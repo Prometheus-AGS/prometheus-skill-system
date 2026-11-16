@@ -57,6 +57,67 @@ const rows = scenarios.map(s => ({
 }));
 const mandatory = rows.filter(r => r.mandatory !== false);
 const methodContext = readJson(path.join(outDir, 'method-context.json'));
+
+// VLBV CR-33 passive scan (report only; never a guard and never verdict-changing):
+// runner output under the contract's declared runnerOutputGlobs whose mtime is
+// earlier than the recorded B4 authorization event.
+function findProjectRoot(start) {
+  let dir = path.resolve(start);
+  while (dir !== path.dirname(dir) && !fs.existsSync(path.join(dir, '.kbd-orchestrator'))) dir = path.dirname(dir);
+  return dir;
+}
+function globRegex(glob) {
+  let out = '';
+  for (let i = 0; i < glob.length; i += 1) {
+    const ch = glob[i];
+    if (ch === '*' && glob[i + 1] === '*') {
+      if (glob[i + 2] === '/') { out += '(?:.*/)?'; i += 2; } else { out += '.*'; i += 1; }
+    } else if (ch === '*') out += '[^/]*';
+    else if (ch === '?') out += '[^/]';
+    else out += ch.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+  }
+  return new RegExp(`^${out}$`);
+}
+function walkFiles(root, base) {
+  const start = path.join(root, base);
+  if (!fs.existsSync(start)) return [];
+  const found = [];
+  const walk = dir => {
+    for (const name of fs.readdirSync(dir)) {
+      if (name === '.git' || name === 'node_modules') continue;
+      const full = path.join(dir, name);
+      const stat = fs.lstatSync(full);
+      if (stat.isDirectory()) walk(full);
+      else if (stat.isFile()) found.push({ rel: path.relative(root, full).split(path.sep).join('/'), mtimeMs: stat.mtimeMs });
+    }
+  };
+  if (fs.lstatSync(start).isFile()) {
+    found.push({ rel: base, mtimeMs: fs.lstatSync(start).mtimeMs });
+    return found;
+  }
+  walk(start);
+  return found;
+}
+function preAuthorizationScan() {
+  const globs = contract.boundaryPacket?.runnerOutputGlobs ?? [];
+  const authorization = readJson(path.join(outDir, 'boundary-authorization.json'));
+  const event = (authorization?.events ?? []).find(e => e.boundary === 'B4');
+  const authorizedAt = event?.authorizedAt ?? null;
+  if (!globs.length) return { status: 'no-globs', authorizedAt, globs, scanned: 0, artifacts: [] };
+  if (!authorizedAt || Number.isNaN(Date.parse(authorizedAt))) return { status: 'no-authorization', authorizedAt: null, globs, scanned: 0, artifacts: [] };
+  const projectRoot = path.resolve(opt('--project-root') ?? findProjectRoot(outDir));
+  const authMs = Date.parse(authorizedAt);
+  const seen = new Map();
+  for (const glob of globs) {
+    const regex = globRegex(glob);
+    const base = glob.split('/').filter((part, i, parts) => !/[*?]/.test(parts.slice(0, i + 1).join('/'))).join('/');
+    for (const file of walkFiles(projectRoot, base)) if (regex.test(file.rel)) seen.set(file.rel, file.mtimeMs);
+  }
+  const artifacts = [...seen.entries()].filter(([, mtimeMs]) => mtimeMs < authMs).sort(([a], [b]) => a.localeCompare(b))
+    .map(([file, mtimeMs]) => ({ path: file, mtime: new Date(mtimeMs).toISOString() }));
+  return { status: artifacts.length ? 'found' : 'none', authorizedAt, globs, scanned: seen.size, artifacts };
+}
+const preAuthorization = preAuthorizationScan();
 const statusComplete =
   contract.closure?.implementationComplete ?? contract.status?.implementationComplete ?? false;
 const behaviorAccepted = disposition === 'CLOSED' && mandatory.every(r => r.verdict === 'PASS');
@@ -89,6 +150,7 @@ const closure = {
       }
     : { name: contract.method?.name ?? 'VLBV', source: 'contract', deviation: null },
   executedBy: evidence.executedBy ?? null,
+  preAuthorizationArtifacts: preAuthorization,
   scenarios: rows,
 };
 fs.mkdirSync(outDir, { recursive: true });
@@ -132,6 +194,18 @@ ${list(
   remains.map(r => `${r.id} — ${r.verdict}${r.mandatory === false ? ' (not mandatory)' : ''}`),
   'nothing: every scenario passed'
 )}
+
+## Pre-authorization runner artifacts
+
+${(() => {
+  const p = preAuthorization;
+  if (p.status === 'no-globs') return '- no runnerOutputGlobs declared in the contract; scan not possible';
+  if (p.status === 'no-authorization') return '- no B4 authorization event recorded (boundary-authorization.json); scan not possible';
+  if (p.status === 'none') return `- none found (${p.scanned} runner artifact(s) under ${p.globs.join(', ')}, all modified at or after the B4 authorization at ${p.authorizedAt})`;
+  return p.artifacts.map(a => `- ${a.path} (modified ${a.mtime}, before the B4 authorization at ${p.authorizedAt})`).join('\n');
+})()}
+
+This scan is passive evidence (VLBV 04, 10): it reports and never blocks.
 
 ## Closure states
 

@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "kind": "vlbv.machinery-report",
+  "negative": false,
+  "generatedAt": "2026-11-16T08:38:16Z",
+  "commit": "78abfd843d88ed5f6cb88e2bc139a22013452541",
+  "prometheus": "prometheus 1.14.0",
+  "scratchRetained": false,
+  "cases": [
+    {
+      "id": "AT05",
+      "at": "AT 05",
+      "requirement": "VLBV 05",
+      "class": "machinery",
+      "mode": "trigger",
+      "expected": "kbd-phase-close-eval.sh refuses (BLOCKED, evidence-missing); no behavioural verdict",
+      "verdict": "PASS",
+      "observed": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-missing(/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/vlbv-machinery-1HAnFf/AT05/project/.kbd-orchestrator/phases/closure-phase/boundary-results.json)",
+      "command": [
+        "bash",
+        "shared/scripts/kbd-phase-close-eval.sh",
+        "--phase",
+        "closure-phase"
+      ],
+      "runtimeCalls": 8
+    },
+    {
+      "id": "AT06",
+      "at": "AT 06",
+      "requirement": "VLBV 06",
+      "class": "machinery",
+      "mode": "trigger",
+      "expected": "close-eval refuses (BLOCKED, empty-evidence)",
+      "verdict": "PASS",
+      "observed": "exit=2 stdout=BLOCKED phase=closure-phase reason=empty-evidence:CS-1",
+      "command": [
+        "bash",
+        "shared/scripts/kbd-phase-close-eval.sh",
+        "--phase",
+        "closure-phase"
+      ],
+      "runtimeCalls": 10
+    },
+    {
+      "id": "AT09",
+      "at": "AT 09",
+      "requirement": "VLBV 09",
+      "class": "machinery",
+      "mode": "trigger",
+      "expected": "close-eval refuses (BLOCKED, evidence-run-mismatch)",
+      "verdict": "PASS",
+      "observed": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-run-mismatch(evidence=project-20261116T083756Zx canonical=project-20261116T083756Z)",
+      "command": [
+        "bash",
+        "shared/scripts/kbd-phase-close-eval.sh",
+        "--phase",
+        "closure-phase"
+      ],
+      "runtimeCalls": 10
+    },
+    {
+      "id": "AT10",
+      "at": "AT 10",
+      "requirement": "VLBV 10",
+      "class": "machinery",
+      "mode": "trigger",
+      "expected": "close-eval refuses (BLOCKED, not-pass) and the closure packet lists the scenario under What remains",
+      "verdict": "PASS",
+      "observed": "exit=2 stdout=BLOCKED phase=closure-phase reason=not-pass:CS-2(NOT_EXERCISED)",
+      "command": [
+        "bash",
+        "shared/scripts/kbd-phase-close-eval.sh",
+        "--phase",
+        "closure-phase"
+      ],
+      "runtimeCalls": 10
+    },
+    {
+      "id": "AT15",
+      "at": "AT 15",
+      "requirement": "VLBV 15",
+      "class": "machinery",
+      "mode": "trigger",
+      "expected": "close-eval refuses (BLOCKED, evidence-stale-sources)",
+      "verdict": "PASS",
+      "observed": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-stale-sources(stale(src.txt))",
+      "command": [
+        "bash",
+        "shared/scripts/kbd-phase-close-eval.sh",
+        "--phase",
+        "closure-phase"
+      ],
+      "runtimeCalls": 10
+    },
+    {
+      "id": "AT22",
+      "at": "AT 22",
+      "requirement": "VLBV 22",
+      "class": "machinery",
+      "mode": "trigger",
+      "expected": "scan-secrets.mjs exits non-zero and names the file",
+      "verdict": "PASS",
+      "observed": "scanner refused the secret artifact: true (json-token-field)",
+      "command": [
+        "node",
+        "evals/vlbv-protocol/scan-secrets.mjs",
+        "/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/vlbv-machinery-1HAnFf/AT22/candidate-report.json"
+      ]
+    }
+  ]
+}

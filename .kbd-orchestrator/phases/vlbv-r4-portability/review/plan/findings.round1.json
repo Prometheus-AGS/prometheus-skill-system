@@ -1,0 +1,65 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "glm-5.3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "The plan's Order never includes the v2 contract adoption step that the goals mandate before any generation, so the boundary packet would be run from an unadopted contract with a null digest.",
+      "evidence": "Goals: \"Adopt a v2 contract before any generation (the first live v2 adoption).\" Plan header: \"Contract: `adopted-contract.json` (v2, 10 scenarios, lint clean; not yet adopted)\" and the Order section: \"T1 \u2192 T4 \u2192 T2 \u2192 T3 \u2192 T5 \u2192 T6, then documentation (vlbv skill references, CHANGELOG Unreleased), then B4 authorization (owner) \u2192 the boundary packet once.\" \u2014 no adoption step exists anywhere in the Order, and the contract carries \"contractDigest\": null with \"planRevision\": null, so the digestNormalization stalenessRule (\"digest mismatch against the latest non-superseded adoption decision\") has no adoption decision to anchor to.",
+      "suggested_fix": "Add an explicit pre-T1 step in the Order: record the v2 adoption decision (digest computed per digestNormalization, planRevision pinned), and state that T1\u2013T6 are blocked until it is recorded."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "adopted-contract.json",
+      "claim": "EVAL-MACH-1's single negative control proves conditionality only for AT 06, so an implementation whose close-eval/closure/sanitization paths always refuse would still pass the refusal-shaped checks for AT 05, 09, 10, 15 and 22.",
+      "evidence": "Comparator: \"For each AT the real script produces the refusal/rejection the AT requires\" \u2014 but negativeControl input is only \"AT 06 fixture with the assertion present and passing\" (commandRef neg-machinery-1, one command). Plan T4's corresponding text is equally singular and ambiguous: \"plus a `--negative` mode where the AT condition is removed and the script must accept.\" Nothing in the scenarioMatrix or boundaryPacket removes the trigger condition for AT 05, 09, 10, 15 or 22.",
+      "suggested_fix": "Make neg-machinery-1 per-AT: for each of the six machinery ATs, remove that AT's trigger condition and require the real script to accept; state this explicitly in T4 so the boundary command exercises all six negatives."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "adopted-contract.json",
+      "claim": "The per-harness report comparator demands 'exactly 3 samples' for all 23 cases, which contradicts the run-machinery-once design: a truthful harness report with 1-sample machinery verdicts fails validation, while the wrong implementation (machinery re-run 3x per harness, or fabricated sample counts) passes \u2014 and the plan's 'about 345 harness sessions' spend figure encodes exactly that wrong assumption.",
+      "evidence": "Every EVAL-*-1 comparator: \"Report is accepted when: 23 cases present; each has exactly 3 samples or an explicit BLOCKED/NOT_EXERCISED reason\" vs EVAL-MACH-1 scopeRefs: \"Machinery cases executed once and counted in every report\" and usefulOutcome \"injected into every harness report as harness-independent\". A merged machinery case has 1 sample and is neither BLOCKED nor NOT_EXERCISED, so it satisfies no arm of the comparator. 345 = 23 cases x 3 samples x 5 harnesses, but the declared design yields 17 x 3 x 5 = 255 agent sessions + 6 machinery runs, so the spend basis stated in the plan and in requiredApprovals (\"about 345 harness sessions plus grading (D-R4-03)\") double-counts machinery by ~90 sessions.",
+      "suggested_fix": "Rewrite the comparator to: 23 cases present; the 17 agent cases have exactly 3 samples or an explicit BLOCKED/NOT_EXERCISED reason; the 6 machinery cases carry the single harness-independent verdict; and recompute the D-R4-03 spend figure from 17x3x5 + 6."
+    },
+    {
+      "severity": "WARNING",
+      "file": "adopted-contract.json",
+      "claim": "EVAL-MACH-1 and EVAL-NOTRUN-1 impose contradictory requirements on the zed/minimax-code/mimo-code reports: machinery verdicts must appear in 'every harness report', yet the not-run comparator requires all 23 cases NOT_EXERCISED with zero PASS.",
+      "evidence": "EVAL-MACH-1: \"injected into every harness report as harness-independent\" with comparator \"each harness report carries identical machinery verdicts\"; EVAL-NOTRUN-1 comparator: \"23 cases each NOT_EXERCISED with a reason naming the missing CLI; zero PASS\". If machinery verdicts (which can be PASS) are injected into the not-run reports, 'zero PASS' fails; if they are not, 'every harness report' fails. Reporting the 6 harness-independent machinery cases as blocked on a missing CLI is also factually false.",
+      "suggested_fix": "Scope EVAL-MACH-1's injection to the five installed-harness reports and change EVAL-NOTRUN-1's comparator to 'the 17 agent cases NOT_EXERCISED with a reason naming the missing CLI; the 6 machinery cases carry the shared machinery verdicts; zero agent PASS'."
+    },
+    {
+      "severity": "WARNING",
+      "file": "adopted-contract.json",
+      "claim": "AUTH-ISO-1's file-manifest oracle cannot observe claude-code's macOS Keychain credential store, so an eval run that mutates real keychain state still passes 'manifests identical', and the negative control only proves detection of file leftovers.",
+      "evidence": "AUTH-ISO-1 oracle: \"Before/after SHA-256 manifest of real harness config and auth files; search of scratch root and repo for auth file names\" with limitation \"Covers files the runner knows about\"; plan T2 concedes \"claude: keychain is per-user so HOME relocation must be verified\" and risk R1 is \"Claude Code's keychain login may not follow a relocated HOME\". Keychain writes (e.g. token refresh during the 69 claude-code sessions) are invisible to a file-hash manifest, and neg-iso-1 (--keep-scratch/--expect-leftover) exercises only the file-leftover path.",
+      "suggested_fix": "Extend the AUTH-ISO-1 oracle for claude-code with a keychain-observable check (e.g. `security dump-keychain` item-count/listing hash before and after) or explicitly declare keychain mutation as out of observable scope in the scenario limitations."
+    },
+    {
+      "severity": "WARNING",
+      "file": "adopted-contract.json",
+      "claim": "The neg-iso-1 boundary command re-invokes run.mjs for claude-code with the same report output path as EVAL-CLAUDE-1, so in the singleRun packet it can clobber the accepted claude-code report that cap-apply and the receipts depend on.",
+      "evidence": "neg-iso-1 argv: [\"node\",\"evals/vlbv-protocol/run.mjs\",\"--harness\",\"claude-code\",\"--samples\",\"1\",\"--keep-scratch\",\"--expect-leftover\"]; plan T3: \"Reports `evals/reports/<harness>.{json,md}`\"; boundaryPacket receipts: [\"boundary-results.json\",\"evals/reports/\"] and runnerOutputGlobs [\"evals/reports/**\",\"evals/runs/**\"]. Nothing in the contract or plan states the negative-control run writes to a separate report path, and it runs (command 20) after eval-claude-code (command 1) in a packet declared singleRun.",
+      "suggested_fix": "Route negative-control runs to a quarantine path (e.g. evals/reports/_negative/ or require --expect-leftover to imply --report-dir) and state that evals/reports/claude-code.json is written exactly once."
+    },
+    {
+      "severity": "WARNING",
+      "file": "adopted-contract.json",
+      "claim": "CAP-UPDATE-1's oracle checks only that an evidence path exists, not that the evidence corresponds to the capability field it is cited for, so a wrong evidence-to-capability mapping passes validation.",
+      "evidence": "Comparator: \"Every field changed to supported has verified.exercised true and an evidence path that exists\"; negativeControl input is only \"A capabilities.json copy with one field set supported and no exercised evidence\". An apply-capabilities.mjs that marks capability X supported while citing capability Y's (existing) report evidence satisfies both the comparator and the negative control, and 'no field without report evidence changes' is not mechanically defined.",
+      "suggested_fix": "Require the validator to resolve each cited evidence path to the case/harness whose report actually exercised that capability (field-to-case linkage declared in the case corpus), and add a negative control with a valid-but-mismatched evidence path."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "liter-llm-gateway",
+    "providerId": "zhipu",
+    "modelId": "glm-5.3"
+  },
+  "checked_classes": []
+}

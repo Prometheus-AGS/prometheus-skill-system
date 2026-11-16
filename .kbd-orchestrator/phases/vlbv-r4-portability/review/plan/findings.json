@@ -1,0 +1,74 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "glm-5.3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "adopted-contract.json",
+      "claim": "Every EVAL-*-1 oracle accepts reports whose PASS verdicts contradict the case's own deterministic evidence: the comparator only requires cited transcripts to exist, so a grader that returns PASS regardless of transcript content passes all five harness oracles and then promotes capabilities.",
+      "evidence": "Comparator: \"every agent PASS/FAIL cites a transcript digest that exists on disk\" \u2014 existence only. The sole negative control per harness is \"A planted report case whose verdict is PASS but whose cited transcript digest does not exist\". Plan T1 gives cases \"a deterministic check where one exists (file effects, forbidden commands in transcript)\" but neither T3 (\"Cross-model grading through liter-llm \u2026 Reports \u2026 with per-case k-of-3, pass/fail/not-run counts, transcript digests, grader identity\") nor validate-report.mjs is required to record or re-verify deterministic-check outcomes. A grade.mjs whose grader always returns PASS produces a fully valid report from real transcripts.",
+      "suggested_fix": "Require reports to record each case's deterministic-check outcome, require validate-report.mjs to mechanically re-verify deterministic checks (forbidden-command greps, captured file-effect diffs) from retained run artifacts, make PASS conditional on the deterministic check passing, and add a negative control planting a PASS whose transcript contains the forbidden command."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "adopted-contract.json",
+      "claim": "The aggregation threshold k in 'k-of-3' is never defined in the plan or the contract's stochastic declarations, so any decision rule (1-of-3, 2-of-3, 3-of-3) passes report validation and changes which capabilities reach `supported`.",
+      "evidence": "Plan T3: \"per-case k-of-3\"; contract limitations: \"3 samples give a k-of-3 signal, not a reliability estimate\"; stochastic stoppingRule: \"Fixed 3 samples per agent case; no early stop; every sample retained and counted\" \u2014 sampling is declared, the pass threshold is not. The comparator checks \"the 17 agent cases each have exactly 3 samples\" and that counts tally, but never how 3 samples combine into a case verdict.",
+      "suggested_fix": "Declare k before adoption (e.g. capability-gating cases require 3-of-3 PASS; others 2-of-3) and make the per-harness comparator enforce the declared k against the recorded per-sample verdicts."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "adopted-contract.json",
+      "claim": "CAP-UPDATE-1's comparator lets a capability field move to `supported` on the strength of a case whose verdict is FAIL, because it requires only 'verified.exercised true' plus a field-matching evidence path, never a PASS verdict.",
+      "evidence": "Comparator: \"Every field changed to supported has verified.exercised true and an evidence path that resolves to a report case of the same harness whose corpus entry declares that capability field \u2026 no field without such evidence changes; validator exits 0\" \u2014 no verdict requirement; plan T5 repeats it (\"only from report evidence whose case declares that capability field\"). The negative control covers (a) no evidence and (b) a different capability's evidence, but not a FAIL-verdict case of the right capability. An apply-capabilities.mjs that marks a field supported citing that capability's FAILED case passes validation and the negative controls.",
+      "suggested_fix": "Require the cited case's verdict to be PASS (BLOCKED/NOT_EXERCISED/FAIL count as no evidence) and add a third negative copy: a field set supported citing a FAIL-verdict case of the correct capability."
+    },
+    {
+      "severity": "WARNING",
+      "file": "adopted-contract.json",
+      "claim": "neg-notrun-1 invokes a harness named `stub-exit0` that no task in the plan provisions, so the control either fails spuriously or passes vacuously.",
+      "evidence": "boundaryPacket argv: [\"node\",\"evals/vlbv-protocol/run.mjs\",\"--harness\",\"stub-exit0\",\u2026] with fixtures \"None beyond PATH\"; no T1\u2013T6 deliverable creates a stub binary. If the stub is absent the runner marks cases NOT_EXERCISED (missing CLI) rather than the required BLOCKED, which still satisfies the literal \"never PASS\" half of expectedRejection (\"Cases become BLOCKED (no transcript), never PASS\").",
+      "suggested_fix": "Have run.mjs create the stub itself for this control (e.g. a --stub flag writing a temp exit-0 script) and make the expected rejection specifically BLOCKED-with-no-transcript, distinct from NOT_EXERCISED."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 15,
+      "claim": "No task implements the validator-side field-to-case linkage check that neg-cap-1(b) and CAP-UPDATE-1's comparator require; T5 builds only apply-capabilities.mjs and its --negative description covers only copy (a).",
+      "evidence": "Contract neg-cap-1 requires \"Validation exits non-zero for both\" copies including (b) mismatched-evidence, i.e. `npm run validate:harness-adapters` (scripts/check-harness-adapters.js) must newly reject evidence-to-capability mismatches; T5's deliverable list contains only apply-capabilities.mjs and says \"`--negative` writes a copy with an unexercised `supported` and expects `validate:harness-adapters` to reject it\" \u2014 no change to the validator is assigned anywhere, so the boundary command neg-cap-1 depends on behavior nothing implements.",
+      "suggested_fix": "Extend T5 to add the field-to-case linkage check (evidence path resolves to a case whose corpus entry declares that capability, verdict PASS) into validate:harness-adapters or a new check wired into it, and describe both negative copies (a) and (b) in T5."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 12,
+      "claim": "Transcripts and file effects captured under evals/runs/** are retained inside the repo and listed in runnerOutputGlobs, but the secret scan covers only reports, leaving a C-02 (no committed secrets) exposure.",
+      "evidence": "T2: \"Capture transcripts and file effects under `evals/runs/<harness>/<case>/<sample>/`\"; boundaryPacket runnerOutputGlobs: [\"evals/reports/**\",\"evals/runs/**\"]; T3: \"Reports are scanned for secrets before writing (AT 22)\"; SAFE-2: \"Reports contain no secrets, tokens or auth file contents\". Nothing scans or excludes evals/runs/**, where a harness echoing auth material into a transcript would land in the working tree.",
+      "suggested_fix": "Extend the AT 22 scan to evals/runs/** (or add evals/runs/ to .gitignore and state that transcripts are untracked local evidence only)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 15,
+      "claim": "T5 changes shared/harnesses/capabilities.json but no task or boundary command runs scripts/generate-harness-adapters.js afterwards, leaving the C-01 regeneration obligation (or a drift failure in cap-validate) unowned.",
+      "evidence": "File tree contains scripts/generate-harness-adapters.js alongside scripts/check-harness-adapters.js; the boundary packet's only capability commands are cap-apply and cap-validate; C-01 requires that when a generator's source changes its generated outputs be regenerated and committed in the same change or via a named reconciliation change. If capabilities.json feeds the harness-adapter generator (as the paired naming indicates), updating it via apply-capabilities.mjs without regenerating adapters violates C-01 or fails cap-validate.",
+      "suggested_fix": "Add regeneration and idempotency verification of harness adapters to T5 (or name the C-01 reconciliation change in T5's execution evidence and in this plan)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "adopted-contract.json",
+      "claim": "EVAL-NOTRUN-1's expectedTruthSource cites evidence/harness-baseline.txt, a path that does not exist in the file tree (the root has no evidence/ directory; only docs/evidence).",
+      "evidence": "EVAL-NOTRUN-1 expectedTruthSource: \"evidence/harness-baseline.txt (zed has no headless agent CLI; minimax and mimo absent)\"; the file tree enumerates root entries (./evals, ./examples, ./hooks, \u2026) with no ./evidence, and cited_paths never verifies this file.",
+      "suggested_fix": "Either create evidence/harness-baseline.txt as an explicit T1 deliverable before the boundary run or point the truth source at the file's actual path."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "liter-llm-gateway",
+    "providerId": "zhipu",
+    "modelId": "glm-5.3"
+  }
+}

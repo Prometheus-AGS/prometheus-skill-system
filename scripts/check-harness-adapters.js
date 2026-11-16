@@ -164,8 +164,36 @@ for (const hook of contractHooks) {
 // VLBV CR-23 / FR-H7: unknown is not supported. A profile capability may say
 // "supported" only when the profile records an actual exercised run with a
 // committed evidence file; vendor documentation alone stays "unknown".
+// vlbv-r4-portability T5: every supported field also carries its own evidence,
+// either a committed evidence file ({file}) or a protocol-eval report case
+// ({report, caseId}) of the same harness whose verdict is PASS and whose corpus
+// entry declares that capability field.
+const capabilitiesArg = process.argv.indexOf('--capabilities');
+const capabilitiesPath = capabilitiesArg > 0 ? path.resolve(process.argv[capabilitiesArg + 1]) : path.join(root, 'shared/harnesses/capabilities.json');
+const evalCorpusPath = path.join(root, 'evals/vlbv-protocol/cases/vlbv-protocol.json');
+function fieldEvidenceProblem(harness, capability, evidence) {
+  if (!evidence || typeof evidence !== 'object') return 'supported without field evidence ({file} or {report, caseId})';
+  if (typeof evidence.file === 'string') {
+    return fs.existsSync(path.join(root, evidence.file)) ? null : `evidence file ${evidence.file} does not exist`;
+  }
+  if (typeof evidence.report !== 'string' || typeof evidence.caseId !== 'string') return 'evidence must name {file} or {report, caseId}';
+  const reportFile = path.join(root, evidence.report);
+  if (!fs.existsSync(reportFile)) return `evidence report ${evidence.report} does not exist`;
+  let report;
+  try { report = JSON.parse(fs.readFileSync(reportFile, 'utf8')); } catch { return `evidence report ${evidence.report} is not JSON`; }
+  if (report.harness !== harness) return `evidence report is for harness ${report.harness}, not ${harness}`;
+  const reportCase = (report.cases ?? []).find(c => c.id === evidence.caseId);
+  if (!reportCase) return `evidence case ${evidence.caseId} is not in ${evidence.report}`;
+  if (reportCase.verdict !== 'PASS') return `evidence case ${evidence.caseId} has verdict ${reportCase.verdict}; only PASS counts`;
+  if (!fs.existsSync(evalCorpusPath)) return `eval corpus ${path.relative(root, evalCorpusPath)} is missing`;
+  const corpusCase = JSON.parse(fs.readFileSync(evalCorpusPath, 'utf8')).cases.find(c => c.id === evidence.caseId);
+  if (!(corpusCase?.capabilityFields ?? []).includes(capability)) {
+    return `evidence case ${evidence.caseId} exercises ${(corpusCase?.capabilityFields ?? []).join(',') || 'no capability'}, not ${capability}`;
+  }
+  return null;
+}
 {
-  const profiles = read('shared/harnesses/capabilities.json').profiles ?? {};
+  const profiles = JSON.parse(fs.readFileSync(capabilitiesPath, 'utf8')).profiles ?? {};
   for (const [harness, profile] of Object.entries(profiles)) {
     if (harness.startsWith('_')) continue;
     const verified = profile.verified ?? {};
@@ -174,6 +202,10 @@ for (const hook of contractHooks) {
     for (const [capability, value] of Object.entries(profile)) {
       if (value && typeof value === 'object' && value.status === 'supported' && !exercised) {
         failures.push(`${harness}: profile claims ${capability} supported without exercised evidence (verified.exercised + committed verified.evidence)`);
+      }
+      if (value && typeof value === 'object' && value.status === 'supported') {
+        const problem = fieldEvidenceProblem(harness, capability, value.evidence);
+        if (problem) failures.push(`${harness}: ${capability} ${problem}`);
       }
     }
     for (const key of ['rulesFiles', 'skillRoots', 'invocation', 'canExecuteBoundary', 'verified']) {

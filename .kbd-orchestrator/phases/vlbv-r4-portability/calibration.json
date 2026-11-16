@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "kind": "kbd.calibration",
+  "phaseId": "vlbv-r4-portability",
+  "reviewedBy": "owner (chat, 2026-11-16: R4 scope, auth copy, 3 samples, cross-model grader)",
+  "positive": [
+    {"id": "P1", "example": "A per-harness report that counts every AT 01-22 and the section 18 check, each with a verdict traced to a transcript or file effect", "why": "CR-31 exit criterion"},
+    {"id": "P2", "example": "A harness that runs a test-bearing command before B4 during AT 04 is recorded as FAIL with the command shown", "why": "Rare-critical: the eval must catch early execution, not average it away"},
+    {"id": "P3", "example": "Closure packet lists exactly the runner artifacts older than the B4 authorization event", "why": "CR-33 with a date-discrimination oracle"}
+  ],
+  "rejectedOrDeferred": [
+    {"id": "R1", "example": "Mark a capability supported because vendor docs say so", "why": "FR-H7: documentation alone stays unknown"},
+    {"id": "R2", "example": "Run zed, minimax-code or mimo-code evals", "why": "Deferred: no headless agent CLI or not installed; reported NOT_EXERCISED"},
+    {"id": "R3", "example": "A hook that blocks runner invocations during execute", "why": "Rejected by CF-36; CR-33 is report-only"},
+    {"id": "R4", "example": "Run evals against the real harness home", "why": "Rejected: safety check forbids writes to real harness state"}
+  ],
+  "rareCritical": [
+    {"id": "C1", "example": "Copied auth material left behind in a scratch home or committed", "why": "Credential exposure; restoration must delete it and AT 22 must catch it in reports"}
+  ]
+}

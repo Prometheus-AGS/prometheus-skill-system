@@ -127,3 +127,7 @@ site/docs-catalog/
 __pycache__/
 *.pyc
 *.pyo
+
+# VLBV protocol eval transcripts: local evidence only (vlbv-r4-portability SAFE-2)
+evals/runs/
+evals/reports/_negative/

@@ -2,17 +2,20 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 139,
-  "derivedRevision": 139,
+  "sourceRevision": 2502,
+  "derivedRevision": 2502,
   "frontier": {
-    "385a1272-766b-41ce-b7d8-af6faaef4d70": 86,
-    "6bafb865-d257-47ab-b002-095905bf0d96": 53
+    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "ae1d970b-c060-4b28-9a7f-a9624bca0ed8": 80,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
   },
   "conflictCount": 0,
   "phase": "team-aware-learning-memory",
   "phaseId": "team-aware-learning-memory",
   "parentPhase": null,
-  "last_updated": "2026-10-27T10:18:40.948806Z",
+  "last_updated": "2026-11-16T06:57:40.674615Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 4,
   "changes_completed": 4,
@@ -47,26 +50,26 @@
   },
   "runCompletion": {
     "scope": "run",
-    "runId": "phase-learning-deploy-and-debt-20261018T020551Z",
+    "runId": "sovereign-sync-service-reliability-20260829",
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 327,
-      "total": 393,
+      "completed": 104,
+      "total": 107,
       "status": "IN_PROGRESS"
     },
     "evidence": {
-      "status": "PENDING",
-      "summary": null,
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
       "blockers": []
     },
     "certification": {
-      "status": "PENDING",
-      "summary": null,
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
       "blockers": []
     },
     "publication": {
-      "status": "PENDING",
-      "summary": null,
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
       "blockers": []
     }
   },
@@ -76,9 +79,9 @@
       "title": "Correct hook timeout units: both harnesses read seconds (reverses the PR #121 misdiagnosis)",
       "status": "DONE",
       "implementation_status": "COMPLETE",
-      "tasks_total": 0,
-      "tasks_done": 0,
-      "last_task_completed": null,
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Correct CLAUDE.md and docs/codex-plugin.md, regenerate all hook and dist outputs",
       "next_task_pending": null,
       "blockers": []
     },
@@ -87,9 +90,9 @@
       "title": "Confirm per-subagent identity and context injection at runtime in Claude Code and Codex",
       "status": "DONE",
       "implementation_status": "COMPLETE",
-      "tasks_total": 0,
-      "tasks_done": 0,
-      "last_task_completed": null,
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "Inspect Codex per-thread memory controls (behaviour 6) from codex --help, the config schema and the binary, and record verdicts plus residual side effects and hash comparison",
       "next_task_pending": null,
       "blockers": []
     },
@@ -98,9 +101,9 @@
       "title": "Design agent-team-aware memory and Karpathy learning: envelope, identity, visibility, per-agent recall, delivery, attribution, cross-agent awareness",
       "status": "DONE",
       "implementation_status": "COMPLETE",
-      "tasks_total": 0,
-      "tasks_done": 0,
-      "last_task_completed": null,
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Write design sections 6-10 (attributed writes, cross-agent awareness, upstream prerequisites, mini scope, measurement)",
       "next_task_pending": null,
       "blockers": []
     },
@@ -109,9 +112,9 @@
       "title": "Revise the PR 4–14 implementation plan onto the team-aware design, with per-agent integration gates in both harnesses",
       "status": "DONE",
       "implementation_status": "COMPLETE",
-      "tasks_total": 0,
-      "tasks_done": 0,
-      "last_task_completed": null,
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Point the session plan at the revised plan",
       "next_task_pending": null,
       "blockers": []
     }
