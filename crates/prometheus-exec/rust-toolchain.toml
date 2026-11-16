@@ -12,9 +12,12 @@
 # rustup updates it, changing the release binary while the committed hash stays
 # fixed and making a clean install fail despite unchanged source.
 #
-# Changing this channel changes the binary hash. Recertify with
-# `bash scripts/build-prometheus-exec.sh --print-hash` and update
-# expectedBuildSha256 in config/prometheus-exec-binary.json in the same commit.
+# Changing this channel changes the binary hash for every target. Recertify
+# with `bash scripts/build-prometheus-exec.sh --print-hash` on a machine of each
+# target pinned in expectedBuildSha256ByTarget in
+# config/prometheus-exec-binary.json, and update all of those entries in the
+# same commit. A hash is specific to its target: one computed on Apple Silicon
+# never matches an Intel build.
 # Always certify through that script: a plain `cargo build --release` embeds
 # the checkout path and yields a hash no other checkout or worktree reproduces.
 [toolchain]

@@ -90,7 +90,15 @@ if [ "${PROMETHEUS_EXEC_TEST_REAL_BUILD:-0}" != "1" ]; then
     exit 0
 fi
 
-certified="$(awk -F'"' '/"expectedBuildSha256"/ { print $4; exit }' "$REPO_ROOT/config/prometheus-exec-binary.json")"
+# The pin is per Rust host target; read it through the installer's own lookup.
+# shellcheck source=../prometheus-exec-pin.sh
+. "$REPO_ROOT/scripts/prometheus-exec-pin.sh"
+build_target="$(prometheus_exec_host_target "$REPO_ROOT/crates/prometheus-exec")"
+certified="$(prometheus_exec_pin "$REPO_ROOT/config/prometheus-exec-binary.json" "$build_target")"
+if [[ ! "$certified" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "FAIL: no certified build hash for target '$build_target' in config/prometheus-exec-binary.json" >&2
+    exit 1
+fi
 
 primary_hash="$(bash "$REPO_ROOT/scripts/build-prometheus-exec.sh" --print-hash 2>"$TMP_ROOT/primary-build.err")" || {
     tail -20 "$TMP_ROOT/primary-build.err" >&2
@@ -114,11 +122,12 @@ for dep in "$REPO_ROOT"/substrate/exec-*/; do
 done
 copy_tree "$REPO_ROOT/wit" "$SECOND/wit"
 [ -d "$REPO_ROOT/.cargo" ] && copy_tree "$REPO_ROOT/.cargo" "$SECOND/.cargo"
-cp "$REPO_ROOT/scripts/build-prometheus-exec.sh" "$REPO_ROOT/scripts/install-prometheus-exec.sh" "$SECOND/scripts/"
+cp "$REPO_ROOT/scripts/build-prometheus-exec.sh" "$REPO_ROOT/scripts/install-prometheus-exec.sh" \
+    "$REPO_ROOT/scripts/prometheus-exec-pin.sh" "$SECOND/scripts/"
 cp "$REPO_ROOT/config/prometheus-exec-binary.json" "$SECOND/config/"
 
 # Drive the production entry point in the second checkout: it builds, then
-# gates on the committed expectedBuildSha256.
+# gates on the committed hash for this host target.
 mkdir -p "$TMP_ROOT/real/bin" "$TMP_ROOT/real/manifests" "$TMP_ROOT/real/backups"
 if ! env PROMETHEUS_EXEC_BIN_DIR="$TMP_ROOT/real/bin" \
     PROMETHEUS_EXEC_MANIFEST_DIR="$TMP_ROOT/real/manifests" \
@@ -138,7 +147,7 @@ if [ "$primary_hash" != "$second_hash" ]; then
     exit 1
 fi
 if [ "$primary_hash" != "$certified" ]; then
-    echo "FAIL: reproducible build $primary_hash does not match certified expectedBuildSha256 $certified" >&2
+    echo "FAIL: reproducible build $primary_hash does not match the certified hash for $build_target, $certified" >&2
     exit 1
 fi
 if strings -a "$SECOND/crates/prometheus-exec/target/release/prometheus-exec" | grep -Fq "a different depth"; then
@@ -146,4 +155,4 @@ if strings -a "$SECOND/crates/prometheus-exec/target/release/prometheus-exec" | 
     exit 1
 fi
 
-echo "PASS: prometheus-exec builds byte-identically from two checkout paths and matches the certified hash ($certified)"
+echo "PASS: prometheus-exec builds byte-identically from two checkout paths and matches the certified hash for $build_target ($certified)"

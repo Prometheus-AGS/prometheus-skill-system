@@ -2,8 +2,9 @@
 # Build crates/prometheus-exec --release so the binary is byte-identical no
 # matter which directory the repository is checked out in.
 #
-# config/prometheus-exec-binary.json pins expectedBuildSha256, so the release
-# binary must not depend on the checkout path. Measured 2026-10-04: one commit
+# config/prometheus-exec-binary.json pins one hash per Rust host target in
+# expectedBuildSha256ByTarget, so the release binary must not depend on the
+# checkout path. Measured 2026-10-04: one commit
 # built with plain `cargo build --release` in three checkouts gave three hashes
 # (3fd1376d…, 5341d3e0…, 7bd640ac…), so install-prometheus-exec.sh refused
 # every build outside the checkout that certified it, i.e. every git worktree.
@@ -31,7 +32,9 @@
 # Usage: build-prometheus-exec.sh [--print-hash]
 #   Builds, copies the binary to crates/prometheus-exec/target/release/, and
 #   prints that path, or its sha256 with --print-hash. To recertify, run with
-#   --print-hash and write the value to expectedBuildSha256.
+#   --print-hash on a machine of each pinned target and write each value to
+#   that target's entry in expectedBuildSha256ByTarget. The hash is specific to
+#   the target: a value computed on Apple Silicon never matches an Intel build.
 
 set -euo pipefail
 
@@ -127,6 +130,18 @@ CARGO_ENCODED_RUSTFLAGS="--remap-path-prefix=${CARGO_HOME_DIR}=/cargo"
 CARGO_ENCODED_RUSTFLAGS+="${SEP}--remap-path-prefix=${REPO_ROOT}=/prometheus-skill-pack"
 CARGO_ENCODED_RUSTFLAGS+="${SEP}--remap-path-prefix=${STAGE}=/prometheus-skill-pack"
 CARGO_ENCODED_RUSTFLAGS+="${SEP}--remap-path-prefix=${BUILD_DIR}=/cargo-build"
+# The standard library's own source paths. rustc records them as
+# /rustc/<commit>/library/..., but when the `rust-src` component is installed
+# it rewrites them to the local copy under the toolchain's sysroot, so the
+# binary embeds $RUSTUP_HOME and its hash changes with the set of installed
+# components. Measured 2026-11-16: `rust-src` arrived with rust-analyzer on
+# 2026-10-27 and every crate compiled after that embedded
+# ~/.rustup/toolchains/... instead of /rustc/8bab26f4.... Map them back.
+SYSROOT="$(rustc --print sysroot 2>/dev/null || true)"
+RUSTC_COMMIT="$(rustc -vV 2>/dev/null | awk '/^commit-hash:/ { print $2; exit }' || true)"
+if [ -n "$SYSROOT" ] && [ -n "$RUSTC_COMMIT" ] && [ "$RUSTC_COMMIT" != "unknown" ]; then
+    CARGO_ENCODED_RUSTFLAGS+="${SEP}--remap-path-prefix=${SYSROOT}/lib/rustlib/src/rust=/rustc/${RUSTC_COMMIT}"
+fi
 export CARGO_ENCODED_RUSTFLAGS
 unset RUSTFLAGS
 

@@ -150,7 +150,17 @@ if [ "$MODE" = "full" ]; then
     CERT="${CERT_EXEC:-}"
     PIN="$DEPLOY/config/prometheus-exec-binary.json"
     if [ -n "$CERT" ] && [ -f "$CERT" ] && [ -f "$PIN" ]; then
-      EXPECTED="$(awk -F'"' '/"expectedBuildSha256"/{print $4;exit}' "$PIN")"
+      # The pin is per Rust host target from pack 1.15.x on; the deploy
+      # checkout's own lookup knows the shape. An older checkout has neither the
+      # lookup nor the map, only the single legacy hash.
+      PIN_LOOKUP="$DEPLOY/scripts/prometheus-exec-pin.sh"
+      if [ -f "$PIN_LOOKUP" ]; then
+        # shellcheck source=/dev/null
+        . "$PIN_LOOKUP"
+        EXPECTED="$(prometheus_exec_pin "$PIN" "$(prometheus_exec_host_target "$DEPLOY/crates/prometheus-exec")")"
+      else
+        EXPECTED="$(awk -F'"' '/"expectedBuildSha256"/{print $4;exit}' "$PIN")"
+      fi
       if [ -n "$EXPECTED" ] && [ "$(shasum -a 256 "$CERT" | awk '{print $1}')" = "$EXPECTED" ]; then
         export PROMETHEUS_EXEC_SOURCE_BIN="$CERT"
       else

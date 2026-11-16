@@ -3,6 +3,8 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=prometheus-exec-pin.sh
+. "${REPO_ROOT}/scripts/prometheus-exec-pin.sh"
 EXPECTED_VERSION="${PROMETHEUS_EXEC_EXPECTED_VERSION:-prometheus-exec 1.7.0}"
 HASH_MANIFEST="${PROMETHEUS_EXEC_HASH_MANIFEST:-${REPO_ROOT}/config/prometheus-exec-binary.json}"
 EXPECTED_BUILD_HASH="${PROMETHEUS_EXEC_EXPECTED_SHA256:-}"
@@ -54,17 +56,20 @@ verify_signature() {
     "$signer" --verify --strict "$binary" >/dev/null
 }
 
-if [ -z "$EXPECTED_BUILD_HASH" ] && [ -f "$HASH_MANIFEST" ]; then
-    EXPECTED_BUILD_HASH="$(awk -F'"' '/"expectedBuildSha256"/ { print $4; exit }' "$HASH_MANIFEST")"
+# The certified hash is pinned per Rust host target: an x86_64 and an aarch64
+# release binary are different files, so one hash cannot serve both.
+BUILD_TARGET="$(prometheus_exec_host_target "${REPO_ROOT}/crates/prometheus-exec")"
+if [ -z "$EXPECTED_BUILD_HASH" ]; then
+    EXPECTED_BUILD_HASH="$(prometheus_exec_pin "$HASH_MANIFEST" "$BUILD_TARGET")"
 fi
 if [[ ! "$EXPECTED_BUILD_HASH" =~ ^[0-9a-f]{64}$ ]]; then
-    echo "prometheus-exec certified build hash is missing or invalid; set PROMETHEUS_EXEC_EXPECTED_SHA256 or update $HASH_MANIFEST" >&2
+    echo "prometheus-exec has no valid certified build hash for target '${BUILD_TARGET:-unknown}'; add it to expectedBuildSha256ByTarget in $HASH_MANIFEST (bash scripts/build-prometheus-exec.sh --print-hash) or set PROMETHEUS_EXEC_EXPECTED_SHA256" >&2
     exit 1
 fi
 
 if $DRY_RUN; then
     echo "[dry-run] would build crates/prometheus-exec --release via scripts/build-prometheus-exec.sh"
-    echo "[dry-run] would require source sha256:$EXPECTED_BUILD_HASH, then verify, stage, sign, atomically install, and read back $DESTINATION"
+    echo "[dry-run] would require source sha256:$EXPECTED_BUILD_HASH (target ${BUILD_TARGET:-unknown}), then verify, stage, sign, atomically install, and read back $DESTINATION"
     exit 0
 fi
 
@@ -73,7 +78,7 @@ if [ -z "${PROMETHEUS_EXEC_SOURCE_BIN:-}" ]; then
     # checkout path (staged workspace + --remap-path-prefix) and builds with
     # the crate's pinned toolchain. A plain `cargo build --release` embeds the
     # checkout path, so its hash matches only the checkout that certified it
-    # and every git worktree build fails the expectedBuildSha256 gate below.
+    # and every git worktree build fails the certified-hash gate below.
     bash "${REPO_ROOT}/scripts/build-prometheus-exec.sh" >/dev/null
 fi
 [ -f "$SOURCE_BIN" ] || { echo "prometheus-exec build artifact is missing: $SOURCE_BIN" >&2; exit 1; }
@@ -84,8 +89,8 @@ verify_version "$SOURCE_BIN" || {
 }
 BUILD_HASH="$(sha256_file "$SOURCE_BIN")"
 if [ "$BUILD_HASH" != "$EXPECTED_BUILD_HASH" ]; then
-    echo "prometheus-exec source hash mismatch; expected $EXPECTED_BUILD_HASH, got $BUILD_HASH" >&2
-    echo "if crates/prometheus-exec, substrate/exec-*, wit/ or the toolchain changed on purpose, recertify with: bash scripts/build-prometheus-exec.sh --print-hash" >&2
+    echo "prometheus-exec source hash mismatch for target ${BUILD_TARGET:-unknown}; expected $EXPECTED_BUILD_HASH, got $BUILD_HASH" >&2
+    echo "if crates/prometheus-exec, substrate/exec-*, wit/ or the toolchain changed on purpose, recertify EVERY target in expectedBuildSha256ByTarget, each on a machine of that target, with: bash scripts/build-prometheus-exec.sh --print-hash" >&2
     exit 1
 fi
 
@@ -154,6 +159,7 @@ cat >"$MANIFEST_STAGE" <<EOF
   "schemaVersion": 1,
   "name": "prometheus-exec",
   "version": "$EXPECTED_VERSION",
+  "target": "$BUILD_TARGET",
   "expectedBuildSha256": "$EXPECTED_BUILD_HASH",
   "source": "$SOURCE_BIN",
   "destination": "$DESTINATION",
