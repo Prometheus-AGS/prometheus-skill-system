@@ -383,9 +383,10 @@ if [ -f "${REPO_ROOT}/tools/<name>/Cargo.toml" ] && command -v cargo >/dev/null 
     (cd "${REPO_ROOT}/tools/<name>" && cargo build --release 2>&1 | tail -3) || _built=0
     if [ "${_built}" -eq 1 ]; then
         # `|| true` is REQUIRED: under set -e, an assignment from a failing
-        # command substitution is fatal, and `find` on a target/release that was
+        # command substitution is fatal, and `find` on a release dir that was
         # never built exits non-zero.
-        BIN=$(find "${REPO_ROOT}/tools/<name>/target/release" -maxdepth 1 \
+        # cargo_release_dir, never a hardcoded target/release: see below.
+        BIN=$(find "$(cargo_release_dir "${REPO_ROOT}/tools/<name>")" -maxdepth 1 \
                    -name "<name>" -type f 2>/dev/null | head -1) || true
         ...
     fi
@@ -397,9 +398,40 @@ fi
 Ask which failure the user should suffer. For a tool only some users need, the
 answer is a warning and a completed install — never a dead installer. See
 [`docs/decisions/openai-proxy-vendoring.md`](docs/decisions/openai-proxy-vendoring.md)
-for the worked example, and note that the `liter-llm` block at
-`install-binaries.sh:131` still lacks the `|| true` and survives only because its
-`target/` happens to exist.
+for the worked example. The `liter-llm` block in `install-binaries.sh` has the
+`|| true` on its lookup since 2026-11-16, but its `cargo build` is still
+unguarded: a liter-llm build failure still aborts the installer.
+
+#### Never read a built binary from a hardcoded `target/release`
+
+`<workspace>/target/release` is only cargo's default. `build.target-dir` in a
+cargo config file, or `CARGO_TARGET_DIR`, moves build output elsewhere. A
+hardcoded path is then either missing, or still holds a binary from an **older**
+build. On 2026-11-16 both happened on one machine: the installer aborted at the
+first missing path, and after that was fixed it installed `prometheus` 1.14.0
+immediately after compiling 1.15.0.
+
+- **Shell installers** source `scripts/cargo-release-dir.sh` and call
+  `cargo_release_dir <workspace>`, which asks `cargo metadata` and always
+  returns 0. The helper lives in `scripts/`, not `scripts/lib/`, because
+  everything under `scripts/lib/` is hashed into the hook bundle id.
+- **The `prometheus` CLI** uses `commands::cargo_paths::release_dir`, which reads
+  `CARGO_TARGET_DIR` and does **not** read cargo config files. A machine that
+  redirects build output exports that variable
+  ([guide](docs/guide/14-rust-toolchain.md#machines-that-keep-build-output-outside-the-repository)).
+- **`prometheus-exec`** is the exception: `scripts/build-prometheus-exec.sh`
+  always copies its certified output to
+  `crates/prometheus-exec/target/release/`.
+
+#### The `prometheus-exec` pin is per Rust host target
+
+`config/prometheus-exec-binary.json` pins `expectedBuildSha256ByTarget`, one hash
+per target, read through `scripts/prometheus-exec-pin.sh`. A hash computed on
+Apple Silicon never matches an Intel build. Recertify **every** pinned target,
+each on a machine of that target, in one commit, and only when exec source or the
+pinned toolchain changed on purpose. A cargo no-op build proves nothing about a
+pin; use `bash scripts/build-prometheus-exec.sh --print-hash`. Details:
+[`site/docs/execution/installation-doctor-and-recovery.md`](site/docs/execution/installation-doctor-and-recovery.md).
 
 ### Validation
 

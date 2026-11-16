@@ -16,6 +16,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `scripts/check-harness-adapters.js`: every `supported` capability field must carry its own evidence, either a committed file or a protocol-eval case of the same harness whose verdict is PASS and which declares that field. A new `--capabilities <file>` option validates a copy.
+- **The `prometheus-exec` build hash is pinned per Rust host target.** `config/prometheus-exec-binary.json` replaces the single `expectedBuildSha256` with `expectedBuildSha256ByTarget`, read through the new `scripts/prometheus-exec-pin.sh`. A manifest with only the old field still works. The installer names the target in its messages and records it in the install receipt. Recertifying now means every pinned target, each on a machine of that target. The `aarch64-apple-darwin` entry has not been re-measured since the build change below; run `bash scripts/build-prometheus-exec.sh --print-hash` on Apple Silicon and update it if it differs.
+
+### Fixed
+
+- **Installers read binaries from cargo's real target directory.** `install-binaries.sh` and `install-skills-flat.sh` assumed `<workspace>/target/release`. With `build.target-dir` or `CARGO_TARGET_DIR` set, that path was missing (the installer aborted and left later binaries uninstalled) or held an older build (which was installed as if new). Both now ask cargo through the shared `scripts/cargo-release-dir.sh`.
+- **`install-binaries.sh --dry-run` changes nothing.** The dsg and prometheus-research sections built for real, the dsg and cowork download paths fetched release archives, and the research section re-registered its launchd service during a dry run.
+- **A liter-llm or dsg lookup can no longer abort the installer.** `find` on a release directory that was never built exits non-zero, which is fatal in an assignment under `set -e`.
+- **`prometheus-exec` builds reproducibly with `rust-src` installed.** With that toolchain component present (it arrives with rust-analyzer), `rustc` rewrote standard-library paths to the local toolchain directory, so the binary embedded the home directory and its hash changed. `scripts/build-prometheus-exec.sh` now remaps that directory back to `/rustc/<commit>`.
+- **`prometheus doctor`, `prometheus setup` and `prometheus memory install` find built binaries through `CARGO_TARGET_DIR`.** They read a hardcoded in-repository path, so on a machine with a redirected target directory doctor reported the hash of a stale binary as the "source" of a newer installed one. The CLI does not read cargo config files; export the variable on such a machine.
+- **The liter-llm gateway binds to `127.0.0.1` by default.** liter-llm's own default is `0.0.0.0`, which exposed the gateway to the local network. The launch wrapper passes `--host`; `LITER_LLM_HOST` overrides it. A gateway that was already running keeps its old bind until it is restarted.
+
+### Documentation
+
+- New site pages: [boundary authorization and early-execution evidence](site/docs/kbd/boundary-authorization.md) and [protocol evals and capability evidence](site/docs/kbd/protocol-evals-and-capability-evidence.md).
+- The exec installation page documents the per-target pin, what makes the build reproducible and when to recertify. The operations pages document installer dry runs, where build output lives and the doctor's managed-binary check. The guide documents the loopback gateway bind and the boundary scripts.
 
 ## [1.15.0] - 2026-11-15
 

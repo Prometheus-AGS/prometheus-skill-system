@@ -29,6 +29,59 @@ prometheus doctor --json --refresh --dry-run \
 
 Review every action. Apply only safe, reversible, in-scope actions with explicit confirmation.
 
+## Managed binary check
+
+`binaries.manifest` covers six binaries: `prometheus`, `pk`, `pk-cherry`,
+`prometheus-learning-worker`, `surreal-memory-server` and `prometheus-exec`. It
+is required. It fails when one of them is missing from the command directory
+(`~/.local/bin`, or `PROMETHEUS_COMMAND_DIRECTORY`), is not executable, or on
+macOS has no valid code signature.
+
+When it passes, the details print two hashes per binary:
+
+```text
+prometheus: installed sha256 2552d31c…; source sha256 2552d31c…; signature valid
+```
+
+`installed` is the file in the command directory. `source` is the freshly built
+file in the repository's build output. The pair answers one question: **is what is
+installed the thing that was last built?**
+
+| Details show | Meaning | Action |
+|---|---|---|
+| Both hashes equal | The installed binary is the current build | None |
+| Hashes differ | A newer or older build exists than the one installed | Preview with `bash scripts/install-binaries.sh --dry-run`, then install |
+| `source sha256 not-built` | No built file at the expected path | Build it, or correct where doctor looks (below) |
+
+A difference does not fail the check. Doctor reports the hashes and leaves the
+judgement to the reader, because building without installing is a normal state
+during development.
+
+### Where doctor looks for the source
+
+For the five Cargo-built binaries, doctor reads
+`<workspace>/<target dir>/release/<name>`, where the target directory is
+`CARGO_TARGET_DIR` when that variable is set and non-empty, and `target`
+otherwise. A relative value is resolved against the workspace. Doctor does not
+read Cargo config files.
+
+`prometheus-exec` is the exception. Its build helper always copies the certified
+output to `crates/prometheus-exec/target/release/prometheus-exec`, so doctor reads
+that fixed path whatever the target directory is.
+
+The workspace paths and the `prometheus-exec` path are relative to the working
+directory. Run doctor from the repository root when you want source hashes.
+Anywhere else, the exec source reads `not-built`, and so do the other five unless
+`CARGO_TARGET_DIR` is an absolute path. The installed hashes and the pass or fail
+result do not depend on the working directory.
+
+On a machine that redirects build output only through `build.target-dir` in a
+Cargo config file, doctor looks in the in-repository `target` directory. It then
+reports `not-built`, or worse, the hash of a binary left there by an older build.
+Export the same path as `CARGO_TARGET_DIR` on such a machine. Run doctor from a
+shell that has the variable; a service started by launchd or systemd does not
+inherit a shell profile.
+
 ## Learning checks
 
 `prometheus doctor` reports the learning pipeline as three separate checks so that a slow receipt is never confused with a dead worker.

@@ -42,11 +42,14 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | Script | Purpose |
 |---|---|
 | `install-plugin-generation.js` | Stage, hash, verify, activate, roll back, or uninstall an immutable generation (canonical `~/.agents/skills` copies plus Claude/Qwen shims). `[--verify] [--rollback] [--uninstall]` |
-| `install-prometheus-exec.sh` | Build/select, version-check, stage, sign, atomically install, and hash-readback `prometheus-exec` at its approved artifact-manifest version. Builds from inside the crate dir so `rust-toolchain.toml` is honored. `[--dry-run]` |
+| `install-prometheus-exec.sh` | Build/select, version-check, stage, sign, atomically install, and hash-readback `prometheus-exec` at its approved artifact-manifest version. Requires the hash pinned for this machine's Rust host target in `expectedBuildSha256ByTarget`; `--dry-run` prints the hash and target it would require. `[--dry-run]` |
+| `build-prometheus-exec.sh` | Reproducible release build of `prometheus-exec`: staged workspace, pinned toolchain, remapped checkout, Cargo and `rust-src` paths. Copies the result to `crates/prometheus-exec/target/release/` and prints that path, or its SHA-256 with `--print-hash` (the recertification command). `[--print-hash]` |
+| `prometheus-exec-pin.sh` | Sourced helper. `prometheus_exec_host_target [crate-dir]` prints the Rust host target; `prometheus_exec_pin <manifest> <target>` prints that target's certified hash, falling back to a legacy single `expectedBuildSha256` |
+| `cargo-release-dir.sh` | Sourced helper. `cargo_release_dir <workspace>` prints where cargo writes that workspace's release binaries, asking `cargo metadata` so `build.target-dir` and `CARGO_TARGET_DIR` are honored. Used by both installers below instead of a hardcoded `target/release` |
 | `install-prometheus-exec-service.sh` | Render and optionally load the private macOS execution LaunchAgent (`ai.prometheus.exec`, socket daemon). Called automatically by `install-mcp-services.sh`. `[--dry-run] [--no-load]` |
 | `install-platforms.ts` | Multi-platform symlink installer for Claude Code, OpenCode, Cursor, Codex, etc. `[--platform] [--scope] [--uninstall] [--list]` |
 | `install.js` | Copy skills to user or project scope |
-| `install-binaries.sh` | Build and install all six tool binaries to `~/.local/bin/` |
+| `install-binaries.sh` | Build and install every source-owned binary to `~/.local/bin/`, from cargo's real target directory. A component that fails is reported at the end with a non-zero exit while the rest still install. `--dry-run` builds, downloads, installs and registers nothing. `[--dry-run]` |
 | `install-mcp-services.sh` | Render/reload allowed launchd or systemd user services, including `ai.prometheus.exec` via its delegated installer. Repeatable `--exclude` prevents rendering, restart, or rewrite of a service. `[--unload] [--restart] [--user] [--dry-run] [--exclude]` |
 | `configure-mcp-all-tools.sh` | Merge `mcp-port-table.json` into each tool's native MCP config (idempotent). `[--dry-run] [--tool]` |
 | `prometheus-services.sh` | Manage MCP services as macOS user LaunchAgents (`install`/`load`/`status`/`doctor`/…) |
@@ -64,7 +67,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | `build-marketplace.js` | Build the `.claude-plugin/` symlink distribution |
 | `update-skill-pack.sh` | Git-pull then delta-install changed skills across platforms (tracks last SHA). `[--force]` |
 | `generate-harness-adapters.js` | Generate Claude Code, Codex, OpenCode, and Kimi lifecycle adapters from one capability manifest |
-| `check-harness-adapters.js` | Reject drift between the manifest and generated adapters |
+| `check-harness-adapters.js` | Reject drift between the manifest and generated adapters, and reject any `supported` capability field without its own evidence: a committed file, or a same-harness protocol-eval case with verdict PASS that declares that field. `--capabilities <file>` validates a copy instead of `shared/harnesses/capabilities.json`. `[--capabilities]` |
 | `check-kbd-direct-writers.js` | Reject new direct writers to canonical KBD compatibility projections |
 | `validate-kbd-state.js` | Validate KBD projection schemas and revision relationships |
 | `test-kbd-control-plane.sh` | Run runtime/journal/control-plane fixture tests |
@@ -148,6 +151,18 @@ scripts remain on disk and can still be invoked directly during local work.
 `kbd-phase-status.sh`, `kbd-next-phase.sh`, and
 `lib/runtime-authority.sh`.
 
+**Value-phase boundary (VLBV)** — run by hand at the boundary, not by a hook:
+
+| Script | Purpose |
+|---|---|
+| `kbd-contract-adopt.sh` | Adopt or amend a phase contract; `--lint-only` runs the adoption lint alone |
+| `kbd-phase-readiness-check.sh` | Read-only readiness gate against canonical state. Prints `READY`, or a rejection listing what is missing or failed (contract, identity, adoption digest and the rest). `--phase <id>` |
+| `kbd-boundary-authorize.mjs` | Record the owner's authorization of B4 or B5 before the first attempt, as an append-only event in the phase's `boundary-authorization.json`. `--phase <id> --authorizer <who> [--boundary B4\|B5] [--reason] [--project]`. Exit 2: phase not bound; exit 3: ordering violated |
+| `kbd-phase-close-eval.sh` | Evaluate `boundary-results.json` against the bound contract, record one canonical disposition, and write `closure.json` and `closure-packet.md` |
+| `kbd-closure-packet.mjs` | The derived closure view. Includes the passive scan that lists runner output, under the contract's `boundaryPacket.runnerOutputGlobs`, modified before the B4 authorization |
+
+When to use each is covered in [Boundary authorization and early-execution evidence](/docs/kbd/boundary-authorization).
+
 **Lint / health / verification** — `pk-lint.sh`, `pk-health.sh`, `verify-trace-state.sh`.
 
 **Shared libraries (`lib/`)** — `hook-log.sh`, `path-scope.sh`,
@@ -155,6 +170,19 @@ scripts remain on disk and can still be invoked directly during local work.
 `waypoint-render.sh`.
 
 **Scheduled (`shared/scripts/scheduled/`)** — `ai.prometheus.mem0-compress.plist`, `ai.prometheus.pk-lint.plist`, `mem0-compress.cron`, `pk-lint.cron`. The mem0 compression runs weekly; the `pk lint --fix` sweep runs weekly.
+
+## `evals/vlbv-protocol/` — per-harness method evidence
+
+These scripts measure whether an agent on each harness follows VLBV. Each agent sample is a paid model session, so they run only at a phase boundary. Full procedure: [Protocol evals and capability evidence](/docs/kbd/protocol-evals-and-capability-evidence).
+
+| Script | Purpose |
+|---|---|
+| `machinery.mjs` | The 6 harness-independent cases against the real runtime and close evaluator. `[--negative --at ATnn]` |
+| `run.mjs` | The 17 agent cases per harness, in isolated scratch homes; writes and validates `evals/reports/<harness>.{json,md}`. `--harness <id[,id]\|all> [--samples 3] [--report-dir] [--concurrency] [--timeout-min]` |
+| `validate-report.mjs` | Re-derive every verdict from retained artifacts. `--harness <id> [--negative]` |
+| `apply-capabilities.mjs` | Promote `capabilities.json` fields to `supported` from PASS cases only, then regenerate the harness adapters. `--reports <dir> [--negative]` |
+| `scan-fixture.mjs` | Drive the pre-authorization artifact scan through the production entry points. `--case mixed\|all-after` |
+| `scan-secrets.mjs` | Refuse credential-shaped text in reports and transcripts. `<path>...` |
 
 ### `prometheus-exec`
 

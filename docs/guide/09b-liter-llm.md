@@ -60,6 +60,35 @@ Options:
       --tokio-max-blocking-threads <N>
 ```
 
+### The gateway listens on loopback only
+
+liter-llm's own default bind host is `0.0.0.0`, every interface. Started that way, the gateway is reachable from the whole local network, and the only thing between another machine and every provider key in the config is the master key. The proxy config file has no host setting, so the address can only be chosen on the command line.
+
+The pack's service wrapper, `shared/scripts/liter-llm-api-launch.sh`, therefore passes the host explicitly and defaults it to loopback:
+
+```bash
+exec "$LITER_LLM_BIN" api --host "${LITER_LLM_HOST:-127.0.0.1}" \
+    --config "$HOME/.config/liter-llm/liter-llm-proxy.toml"
+```
+
+Every consumer in the pack (`kbd_complete`, the adversarial-review scripts, the protocol-eval grader) runs on the same machine and reaches the gateway through `localhost`, so loopback is all they need.
+
+**When to change it.** Set `LITER_LLM_HOST=0.0.0.0` in the service's environment only when another machine really has to use this gateway, and only on a network you trust. Prefer an SSH tunnel or a private overlay network to a wide bind. The variable must be in the LaunchAgent's `EnvironmentVariables`: launchd does not read a shell profile.
+
+**When starting it by hand**, pass the host yourself. A bare `liter-llm api --config …` uses the upstream default and binds every interface:
+
+```bash
+liter-llm api --host 127.0.0.1 --config "$HOME/.config/liter-llm/liter-llm-proxy.toml"
+```
+
+**Check what is listening** (macOS and Linux):
+
+```bash
+lsof -nP -iTCP:4000 -sTCP:LISTEN
+```
+
+`127.0.0.1:4000` is loopback. `*:4000` means every interface. Use the port from your proxy config if it is not 4000. A service that was already running keeps its old bind until it is restarted with the new wrapper (`bash scripts/install-mcp-services.sh --restart`).
+
 ### Routes
 
 The recorded proxy contract places `/v1/*` routes behind Bearer authentication.

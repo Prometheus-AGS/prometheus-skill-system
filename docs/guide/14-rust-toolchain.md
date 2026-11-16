@@ -31,9 +31,13 @@ cargo --version
 Go and Node are detected and, where possible, installed by the prerequisite script; the Go toolchain backs the `go/go-base-patterns` skill and the Flint Go SDK, and Node backs the React/TypeScript/HTMX skills and the JS-based installers. The full prerequisite and install flow is on the [Installation](19-installation.md) page. The single command that builds and installs the selected source-owned binaries is:
 
 ```bash
+bash scripts/install-binaries.sh --dry-run   # print every build and copy; change nothing
 bash scripts/install-binaries.sh
-# builds and installs: prometheus, forge, pk, pk-cherry, liter-llm,
-#                      surreal-memory-server, prometheus-rust-auditor → ~/.local/bin/
+# builds and installs to ~/.local/bin/, skipping any whose source is absent:
+#   prometheus-exec, prometheus, forge, pk, pk-cherry, prometheus-learning-worker,
+#   learner-model, surface-bridge, liter-llm, openai-proxy, surreal-memory-server
+#   (plus surreal-memory-mlx-executor on Apple Silicon), sycophancy-correction, template-forge, template-forge-mcp, cowork, co, dsg,
+#   prometheus-research
 
 # or, the higher-level path that also checks prerequisites:
 bash scripts/check-prerequisites.sh --install --build-tools
@@ -54,6 +58,28 @@ One variable then drives everything: cargo builds into that directory, `scripts/
 The `prometheus` CLI does not read cargo config files. A target directory set only as `build.target-dir` in a `.cargo/config.toml` is honored by the shell installers but is invisible to the CLI, which then looks in `<workspace>/target/release` and reports a missing or stale binary. Export the same path as `CARGO_TARGET_DIR` on such a machine.
 
 A shell profile is read only by shells started from it. A launchd or systemd service, or an app not launched from your shell, does not inherit the variable.
+
+**When to set it.** Set `CARGO_TARGET_DIR` only if build output already lives outside the repository on this machine, for example on a larger or faster disk. A machine using cargo's default needs nothing. Setting it makes every workspace build into one directory, so the one-build-at-a-time rule matters more: two builds writing there at once corrupt each other's output.
+
+**Check that it took effect.** Preview the installer, then compare hashes from the repository root:
+
+```bash
+bash scripts/install-binaries.sh --dry-run   # each "would install" line names the source it will read
+prometheus doctor --json --check binaries.manifest
+```
+
+In the doctor details, `source sha256` should equal `installed sha256` for a binary you have just built and installed. `source sha256 not-built`, or a source hash that never changes after a rebuild, means the CLI is looking in the wrong directory. [Doctors and Mac certification](/docs/operations/doctors-and-mac-certification#managed-binary-check) explains the check.
+
+### Reproducible builds and the `prometheus-exec` pin
+
+`prometheus-exec` is the one binary whose exact bytes are certified. Build it only through `scripts/build-prometheus-exec.sh`, which removes the checkout path, out-of-workspace dependency paths and the toolchain's `rust-src` location from the binary, and always copies its output to `crates/prometheus-exec/target/release/`. Its installer then requires the hash pinned for this machine's Rust host target in `config/prometheus-exec-binary.json`.
+
+```bash
+bash scripts/build-prometheus-exec.sh --print-hash   # the hash this machine produces
+bash scripts/install-prometheus-exec.sh --dry-run    # the hash and target the installer requires
+```
+
+The two values should be equal. If they differ and nothing under `crates/prometheus-exec`, `substrate/exec-*`, `wit/` or the pinned toolchain changed, the build is not reproducible on that machine; do not paper over it by updating the pin. [The certified build hash](/docs/execution/installation-doctor-and-recovery#the-certified-build-hash) covers when and how to recertify.
 
 ## Dynamic generation — three layers
 

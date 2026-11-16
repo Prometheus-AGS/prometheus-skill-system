@@ -73,7 +73,7 @@ All labels below have the prefix `ai.prometheus.`.
 | `learning-worker` | Scheduled reconciliation/writeback, no port | Learning queues and delivery index under selected `.prometheus` | macOS, Linux |
 | `hooks-logrotate` | Scheduled log maintenance, no port | Selected `.prometheus/logs` | macOS, Linux |
 | `prometheus-nudge` | Optional periodic memory heartbeat, no port | Configured memory URL and nudge log | macOS, Linux |
-| `codex-skills-sync` | **Retired** legacy Codex skill-copy sync, no port. Installers and updates remove it; Codex copies are refreshed by each pack update ([UPDATE_CONSIDERATIONS](../UPDATE_CONSIDERATIONS.md)) | Not installed | None (template removed) |
+| `codex-skills-sync` | **Retired** legacy Codex skill-copy sync, no port. Installers and updates remove it; Codex copies are refreshed by each pack update ([UPDATE_CONSIDERATIONS](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/UPDATE_CONSIDERATIONS.md)) | Not installed | None (template removed) |
 
 On-demand components are separate. `learner-model` reads JSON-RPC from stdin
 and defaults to `~/.prometheus/learn/learner-model` for state. The harness starts
@@ -135,8 +135,11 @@ Native database templates use loopback development credentials. Their memory
 REST/MCP configuration has no application authentication. Team/project scopes
 partition retrieval; they do not authorize network clients.
 
-The liter-llm wrapper loads the private secrets file and supplies an explicit
-config path. `/v1/*` requires gateway credentials. An unauthenticated `401`
+The liter-llm wrapper loads the private secrets file, supplies an explicit
+config path and binds the gateway to `127.0.0.1`. liter-llm's own default is
+every interface; `LITER_LLM_HOST` in the service environment overrides the
+wrapper's loopback default ([details](09b-liter-llm.md#the-gateway-listens-on-loopback-only)).
+`/v1/*` requires gateway credentials. An unauthenticated `401`
 proves listener reachability, not inference readiness. Align real provider/model
 IDs with team policy; a declared alias is not proof of the model used.
 

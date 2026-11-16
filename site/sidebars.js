@@ -172,7 +172,11 @@ const sidebars = {
     {
       type: 'category',
       label: 'Quality',
-      items: ['kbd/quality-gates'],
+      items: [
+        'kbd/quality-gates',
+        'kbd/boundary-authorization',
+        'kbd/protocol-evals-and-capability-evidence',
+      ],
     },
   ],
 

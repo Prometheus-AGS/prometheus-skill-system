@@ -25,10 +25,22 @@ system. Method background: the independently published VLBV paper cited by
    repository allows it after the complete production implementation) with
    `author-only`. Result: files plus "authored only; NOT_EXERCISED".
 4. **Verify** once the complete value phase is implemented and a separate
-   authorization names the actual boundary, candidate and effects.
+   authorization names the actual boundary, candidate and effects. Record that
+   authorization before the first attempt:
+
+   ```bash
+   node shared/scripts/kbd-boundary-authorize.mjs --phase <phase-id> \
+     --authorizer "<who authorized it, and how>"
+   ```
+
+   Phase closure compares runner output against that instant and lists anything
+   older. See [boundary authorization](/docs/kbd/boundary-authorization).
 
 A task, hour, commit, checkpoint, reviewer request or compiler problem is not
 step 4's boundary.
+
+When the phase's value is that agents on several harnesses follow the method,
+the packet's scenarios are the [protocol evals](/docs/kbd/protocol-evals-and-capability-evidence).
 
 ## Calibration
 

@@ -50,7 +50,12 @@ HOME and harness config home. Only the minimum auth material is copied in
 no MCP servers, hooks or plugins. The scratch root is deleted after each sample.
 Real harness files and the harness-related login-keychain items (attributes only)
 are hashed before and after each harness; any change stops further harnesses.
-Claude Code keeps its login in the keychain, so nothing is copied for it.
+Claude Code keeps its interactive login in the keychain under a name tied to the
+default config directory, so nothing is copied for it and a relocated config
+directory is not logged in. Isolated runs authenticate with
+`CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`), read from the environment
+or `~/.prometheus/kbd/secrets.env` and passed only through the child environment.
+Without it the harness is reported as not run.
 
 Transcripts and effects are kept under `evals/runs/` as local evidence. That
 directory is gitignored; the reports in `evals/reports/` are not.
