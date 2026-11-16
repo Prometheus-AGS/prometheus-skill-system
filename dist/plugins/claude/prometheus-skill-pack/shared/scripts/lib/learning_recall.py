@@ -27,6 +27,14 @@ belongs to the caller's view, and every returned record is checked against
 that allowed set again before it is used. A memory keyed to another role's
 private agent_id is never returned, from any channel.
 
+Scope listings (`GET /api/v1/memory`, used for the team digest and when a
+semantic search finds nothing) are read to the end before they are sorted by
+time. surreal-memory-server pages them since its issue #62 and orders a page by
+random record ID, so one page is an arbitrary sample of a scope; a listing cut
+short by the deadline, the page cap or a failing page is named in the result's
+`partialListings`. An older server answers with one bare array, which is read
+as a complete listing.
+
 Fallbacks for the lesson channel: surreal-memory REST (2 s per request) ->
 `pk context --format json --tag role:<R>` (pk >= 1.10) -> the file tier
 (`~/.prometheus/learning-log/lessons.jsonl`, which learning_write appends).
@@ -88,6 +96,12 @@ HALF_LIFE_DAYS = 30.0
 W_SEMANTIC, W_RECENCY, W_IMPORTANCE = 0.5, 0.3, 0.2
 DEFAULT_BUDGET = 8000
 TEAM_DIGEST_LIMIT = 50
+# Scope listings are paged by surreal-memory-server since its issue #62 (keyset
+# pages of at most 200 memories, ordered by record ID). Record IDs are random, so
+# a single page is an arbitrary sample of a scope, never its newest memories: a
+# listing must be read to the end before it is sorted by time.
+LIST_PAGE_LIMIT = 200
+MAX_LIST_PAGES = 25
 TOP_SHARED = 3
 SCOPE_LIMIT = 20
 LEAD_ROLE_IDS = ("lead", "team-lead", "tech-lead")
@@ -267,44 +281,97 @@ def _records(payload) -> list[dict]:
     return []
 
 
+PARTIAL_LISTING = "partial-listing"
+_LIST_ERRORS = (urllib.error.URLError, OSError, ValueError, TimeoutError)
+
+
+def list_scope(base: str, user_id: str, agent_id: str, deadline: float) -> tuple[list[dict], bool]:
+    """Every memory of one scope, following the server's keyset pages.
+
+    Returns (records, complete). `complete` is False when the listing stopped
+    early: the deadline passed, a later page failed, the page cap was reached or
+    the server returned a cursor it had already returned. A failure on the first
+    page raises, so the caller still sees an unreachable store as unreachable.
+
+    A server older than surreal-memory-server issue #62 ignores `limit` and
+    `cursor` and answers with a bare array of the whole scope; that is complete
+    after one request.
+    """
+    records: list[dict] = []
+    cursor = ""
+    seen_cursors: set[str] = set()
+    for _ in range(MAX_LIST_PAGES):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0.05:
+            return records, False
+        fields = {"user_id": user_id, "agent_id": agent_id, "limit": LIST_PAGE_LIMIT}
+        if cursor:
+            fields["cursor"] = cursor
+        url = f"{base}/api/v1/memory?{urllib.parse.urlencode(fields)}"
+        try:
+            payload = _http_json("GET", url, None, min(REQUEST_TIMEOUT_SECONDS, remaining))
+        except _LIST_ERRORS:
+            if not seen_cursors:
+                raise  # first page: the store did not answer at all
+            return records, False
+        records = records + _records(payload)
+        if not isinstance(payload, dict):
+            return records, True  # bare array: the whole scope in one response
+        next_cursor = payload.get("next_cursor")
+        if not payload.get("has_more") or not isinstance(next_cursor, str) or not next_cursor:
+            return records, True
+        if next_cursor in seen_cursors:
+            return records, False  # a cursor that does not advance would loop forever
+        seen_cursors = seen_cursors | {next_cursor}
+        cursor = next_cursor
+    return records, False
+
+
+def _most_recent(records: list[dict], limit: int) -> list[dict]:
+    return sorted(records, key=lambda r: parse_ts(r.get("created_at")) or 0.0, reverse=True)[:limit]
+
+
 def query_surreal(base: str, query: dict, text: str, deadline: float) -> tuple[list[dict] | None, str]:
-    """Records for one scope, or (None, error) when the store is unreachable."""
+    """Records for one scope: (records, note), or (None, error) when the store is unreachable.
+
+    `note` is PARTIAL_LISTING when the records come from a scope listing that
+    could not be read to the end, and empty otherwise.
+    """
     remaining = deadline - time.monotonic()
     if remaining <= 0.05:
         return None, "deadline"
     timeout = min(REQUEST_TIMEOUT_SECONDS, remaining)
     try:
         if query["mode"] == "recent":
-            params = urllib.parse.urlencode({"user_id": query["user_id"], "agent_id": query["agent_id"]})
-            records = _records(_http_json("GET", f"{base}/api/v1/memory?{params}", None, timeout))
-            records.sort(key=lambda r: parse_ts(r.get("created_at")) or 0.0, reverse=True)
-            return records[: query["limit"]], ""
+            listed, complete = list_scope(base, query["user_id"], query["agent_id"], deadline)
+            return _most_recent(listed, query["limit"]), "" if complete else PARTIAL_LISTING
         body = {"query": text or "lessons", "user_id": query["user_id"], "agent_id": query["agent_id"],
                 "limit": query["limit"], "include_embeddings": False}
         records = _records(_http_json("POST", f"{base}/api/v1/search", body, timeout))
-        if not records:
-            # A semantic miss is not an empty scope: fall back to the scope listing.
-            params = urllib.parse.urlencode({"user_id": query["user_id"], "agent_id": query["agent_id"]})
-            remaining = deadline - time.monotonic()
-            if remaining > 0.05:
-                listed = _records(_http_json("GET", f"{base}/api/v1/memory?{params}", None, min(REQUEST_TIMEOUT_SECONDS, remaining)))
-                listed.sort(key=lambda r: parse_ts(r.get("created_at")) or 0.0, reverse=True)
-                records = listed[: query["limit"]]
-        return records, ""
-    except (urllib.error.URLError, OSError, ValueError, TimeoutError) as error:
+        if records or deadline - time.monotonic() <= 0.05:
+            return records, ""
+        # A semantic miss is not an empty scope: fall back to the scope listing.
+        listed, complete = list_scope(base, query["user_id"], query["agent_id"], deadline)
+        return _most_recent(listed, query["limit"]), "" if complete else PARTIAL_LISTING
+    except _LIST_ERRORS as error:
         return None, type(error).__name__
 
 
-def surreal_candidates(base: str, view: dict, text: str, now: float, deadline: float) -> tuple[list[dict], bool]:
+def surreal_candidates(base: str, view: dict, text: str, now: float,
+                       deadline: float) -> tuple[list[dict], bool, list[str]]:
+    """Candidates from the store: (candidates, reachable, scopes whose listing was partial)."""
     reachable = False
     out: list[dict] = []
+    partial: list[str] = []
     for query in view["queries"]:
         records, error = query_surreal(base, query, text, deadline)
         if records is None:
             if error != "deadline" and not reachable:
-                return [], False  # store down: stop hitting it, fall back
+                return [], False, []  # store down: stop hitting it, fall back
             continue
         reachable = True
+        if error == PARTIAL_LISTING:
+            partial = partial + [query["scope"]]
         count = max(1, len(records))
         for index, record in enumerate(records):
             uid, aid = record.get("user_id"), record.get("agent_id")
@@ -318,7 +385,7 @@ def surreal_candidates(base: str, view: dict, text: str, now: float, deadline: f
             ts = parse_ts(envelope.get("ts")) or parse_ts(record.get("created_at"))
             out.append(_candidate(query["scope"], aid, body, envelope, categories, semantic, ts,
                                   record.get("importance"), now, "surreal-memory"))
-    return out, reachable
+    return out, reachable, partial
 
 
 def _candidate(scope, agent_id, body, envelope, categories, semantic, ts, record_importance, now, channel) -> dict:
@@ -631,6 +698,7 @@ def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | 
     base = (memory_url or os.environ.get("SURREAL_MEMORY_URL") or os.environ.get("PROMETHEUS_MEMORY_URL") or DEFAULT_MEMORY_URL).rstrip("/")
     base = re.sub(r"^(https?://[^/]+).*$", r"\1", base)
     lesson_budget = max(0, budget if digest_only or pk_budget is None else budget - pk_budget)
+    partial_scopes: list[str] = []
     if digest_only:
         candidates = digest_candidates(view, now)
         source, reachable = "digest", None  # store reachability was not queried
@@ -638,7 +706,7 @@ def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | 
         if (memory_url or "").strip().lower() == "none":  # caller already knows the store is down
             candidates, reachable = [], False
         else:
-            candidates, reachable = surreal_candidates(base, view, query, now, deadline)
+            candidates, reachable, partial_scopes = surreal_candidates(base, view, query, now, deadline)
         source = "surreal-memory"
         if not reachable:
             candidates, ran = (pk_candidates(view, query, cwd, now, lesson_budget, True) if use_pk else ([], False))
@@ -664,6 +732,9 @@ def recall(*, cwd: Path | None = None, payload: dict | None = None, role: str | 
     result = {
         "view": {k: v for k, v in view.items() if k not in ("allowed", "queries")} | {"scopes": [q["agent_id"] for q in view["queries"]]},
         "lessonSource": source, "storeReachable": reachable,
+        # Scopes whose listing could not be read to the end; their "most recent"
+        # entries are the newest of what was read, not of the whole scope.
+        "partialListings": partial_scopes,
         "lessons": [{k: v for k, v in e.items() if k != "rendered"} | {"line": e["rendered"]} for e in lessons],
         "knowledge": [{k: v for k, v in e.items() if k != "rendered"} | {"line": e["rendered"]} for e in knowledge],
         "bytesByChannel": bytes_by_channel, "entriesByScope": entries_by_scope,

@@ -16,10 +16,21 @@
 # Missing/old binary or executor calls `blocked` (exit 2). bash 3.2 compatible.
 #
 # Environment: TLI_SM_BIN (binary, default PATH surreal-memory-server >= 1.10.0),
-# TLI_SM_PORT (fixed port), TLI_SM_REUSE (tolerate an answering explicit port).
+# TLI_SM_PORT (fixed port), TLI_SM_REUSE (tolerate an answering explicit port),
+# TLI_SM_EMBEDDING_BACKEND (mlx or candle; default mlx on Apple Silicon, candle
+# on the CPU everywhere else, the same split install-mcp-services.sh makes: MLX
+# does not exist off Apple Silicon, so requiring its executor there blocked every
+# test that uses this library).
 
 _SS_REAL_HOME="${_SS_REAL_HOME:-$HOME}"
 _SS_EXECUTOR="${TLI_SM_EXECUTOR:-/usr/local/bin/surreal-memory-mlx-executor}"
+if [ -n "${TLI_SM_EMBEDDING_BACKEND:-}" ]; then
+  _SS_BACKEND="$TLI_SM_EMBEDDING_BACKEND"
+elif [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
+  _SS_BACKEND=mlx
+else
+  _SS_BACKEND=candle
+fi
 SCRATCH_SURREAL_PID=""
 SCRATCH_SURREAL_DIR=""
 SCRATCH_SURREAL_PORT=""
@@ -49,7 +60,11 @@ scratch_surreal_start() {
   local bin="${TLI_SM_BIN:-$(command -v surreal-memory-server || true)}"
   [ -n "$bin" ] && [ -x "$bin" ] || blocked "surreal-memory-server not found (set TLI_SM_BIN)"
   _ss_version_ok "$bin" || blocked "surreal-memory-server < 1.10.0"
-  [ -x "$_SS_EXECUTOR" ] || blocked "MLX embedding executor missing"
+  case "$_SS_BACKEND" in
+    mlx) [ -x "$_SS_EXECUTOR" ] || blocked "MLX embedding executor missing" ;;
+    candle) ;;
+    *) blocked "unknown embedding backend: $_SS_BACKEND (mlx or candle)" ;;
+  esac
   command -v curl >/dev/null 2>&1 || blocked "curl missing"
   [ -n "$port" ] || port="$(scratch_surreal_pick_port)"
   mkdir -p "$dir" || blocked "cannot create scratch data dir $dir"
@@ -58,11 +73,12 @@ scratch_surreal_start() {
   # argv[0] carries the data dir so a leaked process is findable with pgrep -f.
   ( cd "$SCRATCH_SURREAL_DIR" \
     && export SURREAL_MODE=embedded SURREAL_PATH="$SCRATCH_SURREAL_DIR/db" SURREAL_NAMESPACE="$ns" SURREAL_DATABASE=gate \
-       API_HOST=127.0.0.1 API_PORT="$port" MCP_STDIO=false EMBEDDING_PROVIDER=local LOCAL_EMBEDDING_BACKEND=mlx \
+       API_HOST=127.0.0.1 API_PORT="$port" MCP_STDIO=false EMBEDDING_PROVIDER=local LOCAL_EMBEDDING_BACKEND="$_SS_BACKEND" \
        LOCAL_EMBEDDING_EXECUTOR="$_SS_EXECUTOR" LOCAL_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5 \
        LOCAL_EMBEDDING_MODEL_REVISION=5c38ec7c405ec4b44b94cc5a9bb96e735b38267a LOCAL_EMBEDDING_DIMENSIONS=384 \
        HF_HUB_CACHE="$_SS_REAL_HOME/.cache/huggingface/hub" MODEL_CACHE_DIR="$_SS_REAL_HOME/.cache/huggingface" \
        SURREAL_EXECUTOR_STARTUP_MS=300000 RUST_LOG=warn \
+    && { [ "$_SS_BACKEND" != candle ] || export LOCAL_EMBEDDING_DEVICE=cpu; } \
     && exec -a "surreal-memory-server[$SCRATCH_SURREAL_DIR]" "$bin" > "$SCRATCH_SURREAL_DIR/server.log" 2>&1 ) &
   SCRATCH_SURREAL_PID=$!
   export SURREAL_MEMORY_URL="http://127.0.0.1:$port"
