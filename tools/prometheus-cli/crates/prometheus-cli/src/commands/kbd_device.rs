@@ -66,18 +66,38 @@ pub async fn run(runtime: &Runtime, client: &ControlClient, action: DeviceAction
             let state = state_or_initialize(client, runtime).await?;
             let device = DeviceRecord::enrollable(&device_id, &public_key, state.revision + 1)?;
             let key_id = device.key_id.clone();
-            let state = submit(client, &state, command_id.clone(), CommandKind::DeviceEnroll { device }).await?;
+            let state = submit(
+                client,
+                &state,
+                command_id.clone(),
+                CommandKind::DeviceEnroll { device },
+            )
+            .await?;
             if operator {
-                submit(client, &state, format!("{command_id}:operator"), CommandKind::OperatorGrant { key_id: key_id.clone() }).await?;
+                submit(
+                    client,
+                    &state,
+                    format!("{command_id}:operator"),
+                    CommandKind::OperatorGrant {
+                        key_id: key_id.clone(),
+                    },
+                )
+                .await?;
             }
-            println!(
-                "ENROLLED key={key_id} device={device_id} operator={operator}"
-            );
+            println!("ENROLLED key={key_id} device={device_id} operator={operator}");
             Ok(())
         }
         DeviceAction::GrantOperator { command_id, key_id } => {
             let state = state_or_initialize(client, runtime).await?;
-            submit(client, &state, command_id, CommandKind::OperatorGrant { key_id: key_id.clone() }).await?;
+            submit(
+                client,
+                &state,
+                command_id,
+                CommandKind::OperatorGrant {
+                    key_id: key_id.clone(),
+                },
+            )
+            .await?;
             println!("OPERATOR-GRANTED key={key_id}");
             Ok(())
         }
@@ -87,7 +107,16 @@ pub async fn run(runtime: &Runtime, client: &ControlClient, action: DeviceAction
             reason,
         } => {
             let state = state_or_initialize(client, runtime).await?;
-            submit(client, &state, command_id, CommandKind::DeviceRevoke { key_id: key_id.clone(), reason }).await?;
+            submit(
+                client,
+                &state,
+                command_id,
+                CommandKind::DeviceRevoke {
+                    key_id: key_id.clone(),
+                    reason,
+                },
+            )
+            .await?;
             println!("REVOKED key={key_id}");
             Ok(())
         }
@@ -143,7 +172,11 @@ fn list(state: &RuntimeState, json: bool) -> Result<()> {
             row["keyId"].as_str().unwrap_or_default(),
             row["deviceId"].as_str().unwrap_or_default(),
             row["status"].as_str().unwrap_or_default(),
-            if row["operator"] == true { "  operator" } else { "" }
+            if row["operator"] == true {
+                "  operator"
+            } else {
+                ""
+            }
         );
     }
     Ok(())

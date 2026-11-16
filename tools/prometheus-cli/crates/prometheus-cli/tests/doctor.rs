@@ -910,7 +910,10 @@ fn codex_memories_warns_and_blocks_repair_without_a_verified_installation() {
     // fixture has none, so doctor names the installation remediation instead.
     let action = &item["actions"][0];
     assert_eq!(action["id"], "codex.disable-memories", "{item}");
-    assert!(action["command_hint"].is_null(), "no unverified repair command: {item}");
+    assert!(
+        action["command_hint"].is_null(),
+        "no unverified repair command: {item}"
+    );
     assert!(action["reason_blocked"].is_string(), "{item}");
     assert!(
         joined(item).contains("Installation remediation required"),
@@ -1038,14 +1041,20 @@ fn plugin_source_never_executes_a_checker_found_in_the_working_directory() {
     let marker = project_root.join("cwd-script-ran");
     write_file(
         &project_root.join("scripts/check-plugin-source.js"),
-        &format!("require('fs').writeFileSync({:?}, 'ran');", marker.display().to_string()),
+        &format!(
+            "require('fs').writeFileSync({:?}, 'ran');",
+            marker.display().to_string()
+        ),
     );
     let output = base_command(&project_root, &home_dir)
         .env_remove("PROMETHEUS_SOURCE_ROOT")
         .args(["doctor", "--json", "--check", "plugins"])
         .output()
         .expect("run doctor");
-    assert!(!marker.exists(), "a same-named script in the cwd must never be executed");
+    assert!(
+        !marker.exists(),
+        "a same-named script in the cwd must never be executed"
+    );
     let report: serde_json::Value = serde_json::from_slice(&output.stdout).expect("doctor JSON");
     assert_eq!(check(&report, "plugins.source-topology")["status"], "skip");
 }
@@ -1099,4 +1108,3 @@ fn plugin_source_is_skipped_when_no_source_is_registered() {
     assert_eq!(check(&report, "plugins.source-topology")["status"], "skip");
     assert_eq!(code, 0);
 }
-

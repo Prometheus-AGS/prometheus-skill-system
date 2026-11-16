@@ -1046,7 +1046,9 @@ enum LearningAction {
 }
 
 fn main() -> Result<()> {
-    if let Some(code) = host::launch_if_needed()? { std::process::exit(code); }
+    if let Some(code) = host::launch_if_needed()? {
+        std::process::exit(code);
+    }
     run()
 }
 
@@ -1203,7 +1205,12 @@ async fn run() -> Result<()> {
                     export_git,
                 },
                 KbdAction::Watch => commands::kbd::Action::Watch,
-                KbdAction::Migrate { check, apply, projections, dry_run } => {
+                KbdAction::Migrate {
+                    check,
+                    apply,
+                    projections,
+                    dry_run,
+                } => {
                     if projections {
                         commands::kbd::Action::MigrateProjections { dry_run }
                     } else {
@@ -1418,16 +1425,34 @@ async fn run() -> Result<()> {
                     ),
                 },
                 KbdAction::Change { action } => match action {
-                    KbdChangeAction::InspectIdentity { phase } => commands::kbd::Action::InspectChangeIdentity { phase },
-                    KbdChangeAction::RepairIdentity { mutation, phase, expected_revision, resolution_file, reason } => {
-                        let bytes = std::fs::read(&resolution_file)
-                            .with_context(|| format!("reading identity resolution {}", resolution_file.display()))?;
-                        let resolution: kbd_runtime::change_identity::Resolution = serde_json::from_slice(&bytes)
-                            .with_context(|| format!("invalid identity resolution {}", resolution_file.display()))?;
-                        typed_command(mutation, kbd_runtime::CommandKind::ChangeRepairIdentity {
-                            phase_id: phase,
-                            repair: kbd_runtime::change_identity::RepairInput { expected_revision, reason, resolution },
-                        })
+                    KbdChangeAction::InspectIdentity { phase } => {
+                        commands::kbd::Action::InspectChangeIdentity { phase }
+                    }
+                    KbdChangeAction::RepairIdentity {
+                        mutation,
+                        phase,
+                        expected_revision,
+                        resolution_file,
+                        reason,
+                    } => {
+                        let bytes = std::fs::read(&resolution_file).with_context(|| {
+                            format!("reading identity resolution {}", resolution_file.display())
+                        })?;
+                        let resolution: kbd_runtime::change_identity::Resolution =
+                            serde_json::from_slice(&bytes).with_context(|| {
+                                format!("invalid identity resolution {}", resolution_file.display())
+                            })?;
+                        typed_command(
+                            mutation,
+                            kbd_runtime::CommandKind::ChangeRepairIdentity {
+                                phase_id: phase,
+                                repair: kbd_runtime::change_identity::RepairInput {
+                                    expected_revision,
+                                    reason,
+                                    resolution,
+                                },
+                            },
+                        )
                     }
                     KbdChangeAction::Register {
                         mutation,

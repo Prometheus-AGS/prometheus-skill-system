@@ -428,7 +428,8 @@ fn load_launchd_pk_mcp() -> Result<()> {
 // (not liter-llm).
 
 fn bin_dir() -> PathBuf {
-    std::env::var_os("PROMETHEUS_COMMAND_DIRECTORY").map(PathBuf::from)
+    std::env::var_os("PROMETHEUS_COMMAND_DIRECTORY")
+        .map(PathBuf::from)
         .unwrap_or_else(|| dirs::home_dir().unwrap_or_default().join(".local/bin"))
 }
 
@@ -691,7 +692,9 @@ pub async fn run(
     check: bool,
     rebuild: bool,
 ) -> Result<()> {
-    if crate::host::is_managed() { return crate::host::setup(full, check, dry_run, rebuild); }
+    if crate::host::is_managed() {
+        return crate::host::setup(full, check, dry_run, rebuild);
+    }
     // --rebuild implies --non-interactive (locked decision: rebuild is automation).
     let non_interactive = non_interactive || rebuild;
 

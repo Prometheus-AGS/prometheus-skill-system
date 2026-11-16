@@ -63,14 +63,27 @@ fn journal_len(project: &Path, machine: &Machine) -> usize {
     let manifest: serde_json::Value =
         serde_json::from_slice(&fs::read(project.join(".prometheus/project.json")).unwrap())
             .unwrap();
-    Runtime::open_registered_at(project, &machine.data, manifest["projectId"].as_str().unwrap())
-        .and_then(|runtime| runtime.events())
-        .map(|events| events.len())
-        .unwrap_or(0)
+    Runtime::open_registered_at(
+        project,
+        &machine.data,
+        manifest["projectId"].as_str().unwrap(),
+    )
+    .and_then(|runtime| runtime.events())
+    .map(|events| events.len())
+    .unwrap_or(0)
 }
 
 fn decision(id: &str) -> [&str; 8] {
-    ["decision", "record", "--command-id", id, "--id", id, "--summary", "fork check"]
+    [
+        "decision",
+        "record",
+        "--command-id",
+        id,
+        "--id",
+        id,
+        "--summary",
+        "fork check",
+    ]
 }
 
 fn project(temp: &TempDir) -> PathBuf {
@@ -85,7 +98,21 @@ fn teammate_without_the_journal_is_refused_instead_of_forking() {
     let project = project(&temp);
     let (a, b) = (machine(temp.path(), "a"), machine(temp.path(), "b"));
 
-    succeeded(&run(&project, &a, false, &["phase", "create", "--command-id", "a-phase", "--id", "p1", "--title", "Phase one"]));
+    succeeded(&run(
+        &project,
+        &a,
+        false,
+        &[
+            "phase",
+            "create",
+            "--command-id",
+            "a-phase",
+            "--id",
+            "p1",
+            "--title",
+            "Phase one",
+        ],
+    ));
     let waypoint: serde_json::Value = serde_json::from_slice(
         &fs::read(project.join(".kbd-orchestrator/current-waypoint.json")).unwrap(),
     )

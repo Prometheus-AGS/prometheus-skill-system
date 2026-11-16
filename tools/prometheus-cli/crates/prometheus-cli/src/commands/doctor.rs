@@ -247,7 +247,9 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
     run_check!(
         "plugins.native-cache-skew",
         "plugins",
-        plugin_source::native_cache_skew_check(plugin_source_probe.get_or_init(plugin_source::probe))
+        plugin_source::native_cache_skew_check(
+            plugin_source_probe.get_or_init(plugin_source::probe)
+        )
     );
     run_check!(
         "control.kbd-runtime",
@@ -1245,7 +1247,11 @@ fn codex_memory_setting(config: &toml::Value, section: &str, key: &str) -> &'sta
 
 /// Execute only verifier code compiled into this CLI. Importing a script from
 /// `current` would execute it before its generation had been authenticated.
-fn verified_codex_memory_helper(home: &Path, plugin_root: &Path, codex_home: &Path) -> Result<PathBuf, String> {
+fn verified_codex_memory_helper(
+    home: &Path,
+    plugin_root: &Path,
+    codex_home: &Path,
+) -> Result<PathBuf, String> {
     let sources = serde_json::json!({
         "install-plugin-generation.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/install-plugin-generation.js")),
         "lib/capabilities.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/capabilities.js")),
@@ -1256,9 +1262,15 @@ fn verified_codex_memory_helper(home: &Path, plugin_root: &Path, codex_home: &Pa
         "lib/skill-system.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/skill-system.js")),
         "lib/store-paths.js": include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../../scripts/lib/store-paths.js")),
     });
-    let home = home.to_str().ok_or_else(|| "installation home is not valid UTF-8".to_string())?;
-    let plugin_root = plugin_root.to_str().ok_or_else(|| "plugin root is not valid UTF-8".to_string())?;
-    let codex_home = codex_home.to_str().ok_or_else(|| "Codex home is not valid UTF-8".to_string())?;
+    let home = home
+        .to_str()
+        .ok_or_else(|| "installation home is not valid UTF-8".to_string())?;
+    let plugin_root = plugin_root
+        .to_str()
+        .ok_or_else(|| "plugin root is not valid UTF-8".to_string())?;
+    let codex_home = codex_home
+        .to_str()
+        .ok_or_else(|| "Codex home is not valid UTF-8".to_string())?;
     let input = serde_json::to_vec(&serde_json::json!({
         "home": home,
         "pluginRoot": plugin_root,
@@ -1336,7 +1348,11 @@ catch (error) { process.stderr.write('installed generation/helper verification f
         .stdin
         .take()
         .ok_or_else(|| "verifier input pipe is unavailable".to_string())
-        .and_then(|mut stdin| stdin.write_all(&input).map_err(|_| "could not send verifier input".to_string()));
+        .and_then(|mut stdin| {
+            stdin
+                .write_all(&input)
+                .map_err(|_| "could not send verifier input".to_string())
+        });
     if let Err(error) = written {
         let _ = child.kill();
         let _ = child.wait();
@@ -1374,7 +1390,10 @@ fn quote_doctor_shell_path(path: &Path) -> Result<String, String> {
     let value = path
         .to_str()
         .ok_or_else(|| "repair path is not valid UTF-8".to_string())?;
-    if value.chars().any(|character| matches!(character, '\n' | '\r' | '\0')) {
+    if value
+        .chars()
+        .any(|character| matches!(character, '\n' | '\r' | '\0'))
+    {
         return Err("repair path contains unsupported control characters".into());
     }
     Ok(format!("'{}'", value.replace('\'', "'\\''")))
@@ -1402,7 +1421,9 @@ fn normalize_doctor_path(path: &Path) -> Result<PathBuf, String> {
     for component in absolute.components() {
         match component {
             std::path::Component::CurDir => {}
-            std::path::Component::ParentDir => { normalized.pop(); }
+            std::path::Component::ParentDir => {
+                normalized.pop();
+            }
             _ => normalized.push(component.as_os_str()),
         }
     }
@@ -1427,15 +1448,19 @@ fn check_codex_memories() -> CheckResult {
         .and_then(|home| effective_doctor_codex_home(&home).map(|codex| (home, codex)));
     let (home, codex_dir) = match roots {
         Ok(roots) => roots,
-        Err(error) => return CheckResult {
-            id, group, label,
-            severity: Severity::Yellow,
-            status: CheckStatus::Warn,
-            summary: "Effective Codex home could not be resolved".into(),
-            details: vec![error],
-            optional: true,
-            actions: vec![],
-        },
+        Err(error) => {
+            return CheckResult {
+                id,
+                group,
+                label,
+                severity: Severity::Yellow,
+                status: CheckStatus::Warn,
+                summary: "Effective Codex home could not be resolved".into(),
+                details: vec![error],
+                optional: true,
+                actions: vec![],
+            }
+        }
     };
 
     if !codex_dir.is_dir() {
@@ -1473,15 +1498,19 @@ fn check_codex_memories() -> CheckResult {
     });
     let summary_paths = [
         ("v1", codex_dir.join("memories").join("memory_summary.md")),
-        ("v2", codex_dir.join("memories_v2").join("memory_summary.md")),
+        (
+            "v2",
+            codex_dir.join("memories_v2").join("memory_summary.md"),
+        ),
     ];
-    let summary_states = summary_paths.each_ref().map(|(_, path)| {
-        match fs::symlink_metadata(path) {
-            Ok(_) => "present",
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => "absent",
-            Err(_) => "unreadable",
-        }
-    });
+    let summary_states =
+        summary_paths
+            .each_ref()
+            .map(|(_, path)| match fs::symlink_metadata(path) {
+                Ok(_) => "present",
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => "absent",
+                Err(_) => "unreadable",
+            });
     let healthy = settings.iter().all(|state| *state == "false")
         && summary_states.iter().all(|state| *state == "absent");
     let mut details = Vec::new();
@@ -1489,7 +1518,10 @@ fn check_codex_memories() -> CheckResult {
         details.push(format!("{}: {error}", config_path.display()));
     }
     for ((section, key), state) in keys.iter().zip(settings) {
-        details.push(format!("{}: {section}.{key}={state}", config_path.display()));
+        details.push(format!(
+            "{}: {section}.{key}={state}",
+            config_path.display()
+        ));
     }
     for ((version, path), state) in summary_paths.iter().zip(summary_states) {
         details.push(format!("{version} summary {}: {state}", path.display()));
@@ -1518,21 +1550,28 @@ fn check_codex_memories() -> CheckResult {
         .map(PathBuf::from)
         .unwrap_or_else(|| home.join(".prometheus/plugins/prometheus-skill-pack"));
     let repair = normalize_doctor_path(&plugin_root)
-        .and_then(|root| verified_codex_memory_helper(&home, &root, &codex_dir)).and_then(|helper| {
-        Ok(format!(
-            "env CODEX_HOME={} bash {}",
-            quote_doctor_shell_path(&codex_dir)?,
-            quote_doctor_shell_path(&helper)?,
-        ))
-    });
+        .and_then(|root| verified_codex_memory_helper(&home, &root, &codex_dir))
+        .and_then(|helper| {
+            Ok(format!(
+                "env CODEX_HOME={} bash {}",
+                quote_doctor_shell_path(&codex_dir)?,
+                quote_doctor_shell_path(&helper)?,
+            ))
+        });
     let (command_hint, reason_blocked) = match repair {
         Ok(command) => {
             details.push(format!("Owner-approved apply: {command}"));
-            (Some(command), Some("Applying policy requires owner approval; doctor only diagnoses.".into()))
+            (
+                Some(command),
+                Some("Applying policy requires owner approval; doctor only diagnoses.".into()),
+            )
         }
         Err(reason) => {
             details.push(format!("Installation remediation required: {reason}"));
-            details.push(format!("Restore a verified plugin installation at {} before applying memory policy.", plugin_root.display()));
+            details.push(format!(
+                "Restore a verified plugin installation at {} before applying memory policy.",
+                plugin_root.display()
+            ));
             (None, Some(reason))
         }
     };

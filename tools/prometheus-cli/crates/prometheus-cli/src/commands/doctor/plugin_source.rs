@@ -30,7 +30,10 @@ fn locate_script(home: &Path) -> Option<PathBuf> {
     if let Some(root) = std::env::var_os("PROMETHEUS_SOURCE_ROOT") {
         candidates.push(PathBuf::from(root).join(SCRIPT));
     }
-    candidates.push(home.join(".prometheus/plugins/prometheus-skill-pack/current").join(SCRIPT));
+    candidates.push(
+        home.join(".prometheus/plugins/prometheus-skill-pack/current")
+            .join(SCRIPT),
+    );
     candidates.into_iter().find(|candidate| candidate.is_file())
 }
 
@@ -41,7 +44,12 @@ pub fn probe() -> Probe {
             "{SCRIPT} was not found (set PROMETHEUS_SOURCE_ROOT, or install a generation that ships it)"
         )));
     };
-    let output = Command::new("node").arg(&script).arg("--json").arg("--home").arg(&home).output();
+    let output = Command::new("node")
+        .arg(&script)
+        .arg("--json")
+        .arg("--home")
+        .arg(&home)
+        .output();
     Probe(match output {
         Err(error) => Err(format!("cannot run node: {error}")),
         // Exit 1 means "a registered source is missing" and still carries the JSON report.
@@ -87,7 +95,9 @@ fn review_action(id: &str, description: &str, hint: &str) -> RepairAction {
         reversible: true,
         dry_run_only: false,
         command_hint: Some(hint.into()),
-        reason_blocked: Some("Changing a plugin source needs an operator decision; doctor stays read-only.".into()),
+        reason_blocked: Some(
+            "Changing a plugin source needs an operator decision; doctor stays read-only.".into(),
+        ),
     }
 }
 
@@ -100,8 +110,15 @@ pub fn source_topology_check(probe: &Probe) -> CheckResult {
     };
     let topology = &report["topology"];
     // A report that does not say ok/warn/fail/skip must never read as a pass.
-    if !matches!(topology["status"].as_str(), Some("ok" | "warn" | "fail" | "skip")) {
-        return unavailable(ID, LABEL, "the checker returned a report without a recognised topology status");
+    if !matches!(
+        topology["status"].as_str(),
+        Some("ok" | "warn" | "fail" | "skip")
+    ) {
+        return unavailable(
+            ID,
+            LABEL,
+            "the checker returned a report without a recognised topology status",
+        );
     }
     let details = messages(&topology["findings"]);
     let (status, severity, optional, summary) = match topology["status"].as_str() {
@@ -165,11 +182,17 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
     };
     let skew = &report["skew"];
     let Some(findings) = skew["findings"].as_array().cloned() else {
-        return unavailable(ID, LABEL, "the checker returned a report without native cache findings");
+        return unavailable(
+            ID,
+            LABEL,
+            "the checker returned a report without native cache findings",
+        );
     };
     // An unreadable cache directory makes the inspection incomplete, but it does not erase a
     // version comparison that was made from the registry files.
-    let unreadable = findings.iter().any(|finding| finding["code"] == "SKEW_UNREADABLE");
+    let unreadable = findings
+        .iter()
+        .any(|finding| finding["code"] == "SKEW_UNREADABLE");
     let (Some(installed), Some(active)) = (
         skew["installedVersion"].as_str(),
         skew["activeGeneration"].as_str(),
@@ -186,11 +209,15 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
     };
     // Direction comes from the checker, which orders the versions. A newer installed plugin is
     // not "behind"; versions that differ without any ordering finding are reported, not passed.
-    let ahead = findings.iter().any(|finding| finding["code"] == "CACHE_AHEAD_OF_GENERATION");
-    let behind = findings
+    let ahead = findings
         .iter()
-        .any(|finding| matches!(finding["code"].as_str(), Some("CACHE_BEHIND_GENERATION" | "CACHE_VERSION_MISMATCH")))
-        || (installed != active && !ahead);
+        .any(|finding| finding["code"] == "CACHE_AHEAD_OF_GENERATION");
+    let behind = findings.iter().any(|finding| {
+        matches!(
+            finding["code"].as_str(),
+            Some("CACHE_BEHIND_GENERATION" | "CACHE_VERSION_MISMATCH")
+        )
+    }) || (installed != active && !ahead);
     let attention = behind || unreadable;
     let mut details = vec![format!(
         "installed Claude plugin: {installed}; active generation: {active}"
@@ -200,8 +227,16 @@ pub fn native_cache_skew_check(probe: &Probe) -> CheckResult {
         id: ID.into(),
         group: "plugins".into(),
         label: LABEL.into(),
-        severity: if attention { Severity::Yellow } else { Severity::Green },
-        status: if attention { CheckStatus::Warn } else { CheckStatus::Pass },
+        severity: if attention {
+            Severity::Yellow
+        } else {
+            Severity::Green
+        },
+        status: if attention {
+            CheckStatus::Warn
+        } else {
+            CheckStatus::Pass
+        },
         summary: if behind {
             "the installed native plugin is behind the active generation".into()
         } else if unreadable {
@@ -233,7 +268,9 @@ mod tests {
     use serde_json::json;
 
     fn probe(topology: &str, findings: Value, skew: Value) -> Probe {
-        Probe(Ok(json!({ "topology": { "status": topology, "findings": findings }, "skew": skew })))
+        Probe(Ok(
+            json!({ "topology": { "status": topology, "findings": findings }, "skew": skew }),
+        ))
     }
 
     fn finding(code: &str, severity: &str, message: &str) -> Value {
@@ -248,8 +285,13 @@ mod tests {
             "findings": [finding("SKEW_UNREADABLE", "info", "could not read: /x/.in_use (EACCES)")],
         });
         let result = native_cache_skew_check(&probe("ok", json!([]), skew));
-        assert!(matches!(result.status, CheckStatus::Warn), "an incomplete inspection is not a clean pass");
-        assert!(result.details.iter().any(|line| line.contains("installed Claude plugin: 1.11.1; active generation: 1.11.1")));
+        assert!(
+            matches!(result.status, CheckStatus::Warn),
+            "an incomplete inspection is not a clean pass"
+        );
+        assert!(result.details.iter().any(
+            |line| line.contains("installed Claude plugin: 1.11.1; active generation: 1.11.1")
+        ));
         assert!(result.details.iter().any(|line| line.contains("EACCES")));
         assert!(result.optional, "advisory: it must not fail the run");
     }
@@ -262,21 +304,34 @@ mod tests {
             "findings": [finding("CACHE_AHEAD_OF_GENERATION", "info", "newer")],
         });
         let result = native_cache_skew_check(&probe("ok", json!([]), skew));
-        assert!(matches!(result.status, CheckStatus::Pass), "newer is not a warning");
+        assert!(
+            matches!(result.status, CheckStatus::Pass),
+            "newer is not a warning"
+        );
         assert!(result.summary.contains("newer"), "{}", result.summary);
-        assert!(result.actions.is_empty(), "no refresh is suggested for a newer plugin");
+        assert!(
+            result.actions.is_empty(),
+            "no refresh is suggested for a newer plugin"
+        );
     }
 
     #[test]
     fn a_missing_source_fails_and_names_the_path() {
         let p = probe(
             "fail",
-            json!([finding("SOURCE_MISSING", "fail", "claude marketplace source /gone does not exist")]),
+            json!([finding(
+                "SOURCE_MISSING",
+                "fail",
+                "claude marketplace source /gone does not exist"
+            )]),
             json!({ "findings": [] }),
         );
         let result = source_topology_check(&p);
         assert!(matches!(result.status, CheckStatus::Fail));
-        assert!(!result.optional, "a missing source breaks hooks now, so it is not advisory");
+        assert!(
+            !result.optional,
+            "a missing source breaks hooks now, so it is not advisory"
+        );
         assert!(result.details.iter().any(|line| line.contains("/gone")));
         assert!(!result.actions.is_empty());
     }
@@ -285,24 +340,38 @@ mod tests {
     fn a_topic_branch_source_warns_without_failing_the_run() {
         let p = probe(
             "warn",
-            json!([finding("TOPIC_BRANCH", "warn", "source is on topic branch 'fix/x'")]),
+            json!([finding(
+                "TOPIC_BRANCH",
+                "warn",
+                "source is on topic branch 'fix/x'"
+            )]),
             json!({ "findings": [] }),
         );
         let result = source_topology_check(&p);
         assert!(matches!(result.status, CheckStatus::Warn));
-        assert!(result.optional, "advisory: it must not fail install or doctor");
+        assert!(
+            result.optional,
+            "advisory: it must not fail install or doctor"
+        );
     }
 
     #[test]
     fn a_durable_source_passes_and_a_release_line_worktree_is_only_noted() {
         let p = probe(
             "ok",
-            json!([finding("LINKED_WORKTREE", "info", "source is a linked git worktree")]),
+            json!([finding(
+                "LINKED_WORKTREE",
+                "info",
+                "source is a linked git worktree"
+            )]),
             json!({ "findings": [] }),
         );
         let result = source_topology_check(&p);
         assert!(matches!(result.status, CheckStatus::Pass));
-        assert!(result.details.iter().any(|line| line.contains("linked git worktree")));
+        assert!(result
+            .details
+            .iter()
+            .any(|line| line.contains("linked git worktree")));
         assert!(result.actions.is_empty());
     }
 
@@ -334,7 +403,10 @@ mod tests {
         });
         let result = native_cache_skew_check(&probe("ok", json!([]), skew));
         assert!(matches!(result.status, CheckStatus::Warn));
-        assert!(result.actions.iter().any(|a| a.id == "manual.refresh-native-plugins"));
+        assert!(result
+            .actions
+            .iter()
+            .any(|a| a.id == "manual.refresh-native-plugins"));
     }
 
     #[test]
@@ -354,10 +426,14 @@ mod tests {
             json!({ "installedVersion": null, "activeGeneration": null, "findings": [] }),
         ] {
             let result = native_cache_skew_check(&probe("ok", json!([]), skew));
-            assert!(matches!(result.status, CheckStatus::Skip), "nothing was compared: {result:?}");
+            assert!(
+                matches!(result.status, CheckStatus::Skip),
+                "nothing was compared: {result:?}"
+            );
             assert!(!result.summary.contains("matches"));
         }
-        let equal = json!({ "installedVersion": "1.11.1", "activeGeneration": "1.11.1", "findings": [] });
+        let equal =
+            json!({ "installedVersion": "1.11.1", "activeGeneration": "1.11.1", "findings": [] });
         let result = native_cache_skew_check(&probe("ok", json!([]), equal));
         assert!(matches!(result.status, CheckStatus::Pass));
         assert!(result.summary.contains("matches"));
@@ -371,7 +447,10 @@ mod tests {
             "findings": [finding("LIVE_SESSIONS_ON_SUPERSEDED", "info", "2 live process(es) (1, 2) still use 1.10.0")],
         });
         let result = native_cache_skew_check(&probe("ok", json!([]), skew));
-        assert!(matches!(result.status, CheckStatus::Skip), "no comparison was made");
+        assert!(
+            matches!(result.status, CheckStatus::Skip),
+            "no comparison was made"
+        );
         assert!(
             result.details.iter().any(|line| line.contains("1.10.0")),
             "the independently established live-session finding is kept: {result:?}"
@@ -381,14 +460,21 @@ mod tests {
 
     #[test]
     fn a_malformed_report_is_skipped_never_passed() {
-        for body in [json!({}), json!({ "topology": {} }), json!({ "topology": { "status": "banana" } }), json!([])] {
+        for body in [
+            json!({}),
+            json!({ "topology": {} }),
+            json!({ "topology": { "status": "banana" } }),
+            json!([]),
+        ] {
             let p = Probe(Ok(body));
             assert!(
                 matches!(source_topology_check(&p).status, CheckStatus::Skip),
                 "an unrecognised report must not read as a pass"
             );
         }
-        let p = Probe(Ok(json!({ "topology": { "status": "ok", "findings": [] } })));
+        let p = Probe(Ok(
+            json!({ "topology": { "status": "ok", "findings": [] } }),
+        ));
         assert!(
             matches!(native_cache_skew_check(&p).status, CheckStatus::Skip),
             "a report with no native cache findings array is malformed"
@@ -402,7 +488,13 @@ mod tests {
     #[test]
     fn an_unavailable_checker_is_skipped_not_failed() {
         let p = Probe(Err("scripts/check-plugin-source.js was not found".into()));
-        assert!(matches!(source_topology_check(&p).status, CheckStatus::Skip));
-        assert!(matches!(native_cache_skew_check(&p).status, CheckStatus::Skip));
+        assert!(matches!(
+            source_topology_check(&p).status,
+            CheckStatus::Skip
+        ));
+        assert!(matches!(
+            native_cache_skew_check(&p).status,
+            CheckStatus::Skip
+        ));
     }
 }

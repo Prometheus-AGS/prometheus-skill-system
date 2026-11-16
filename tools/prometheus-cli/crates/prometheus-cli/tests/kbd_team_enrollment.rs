@@ -29,7 +29,11 @@ impl Team {
         let data = temp.path().join("data");
         fs::create_dir_all(project.join(".kbd-orchestrator")).unwrap();
         fs::create_dir_all(temp.path().join("config")).unwrap();
-        Self { temp, project, data }
+        Self {
+            temp,
+            project,
+            data,
+        }
     }
 
     /// A member with a fresh signing key file, created by the runtime's own key writer.
@@ -63,10 +67,14 @@ impl Team {
             &fs::read(self.project.join(".prometheus/project.json")).unwrap(),
         )
         .unwrap();
-        Runtime::open_registered_at(&self.project, &self.data, manifest["projectId"].as_str().unwrap())
-            .unwrap()
-            .events()
-            .unwrap()
+        Runtime::open_registered_at(
+            &self.project,
+            &self.data,
+            manifest["projectId"].as_str().unwrap(),
+        )
+        .unwrap()
+        .events()
+        .unwrap()
     }
 
     fn identity(&self, member: &Member) -> (String, String) {
@@ -84,7 +92,11 @@ impl Team {
         let before = self.events().len();
         let output = self.run(member, args);
         assert!(!output.status.success(), "expected refusal for {args:?}");
-        assert_eq!(self.events().len(), before, "refused {args:?} appended an event");
+        assert_eq!(
+            self.events().len(),
+            before,
+            "refused {args:?} appended an event"
+        );
         String::from_utf8_lossy(&output.stderr).into_owned()
     }
 }
@@ -99,7 +111,16 @@ fn succeeded(output: &Output) {
 }
 
 fn decision(id: &str) -> [&str; 8] {
-    ["decision", "record", "--command-id", id, "--id", id, "--summary", "integration decision"]
+    [
+        "decision",
+        "record",
+        "--command-id",
+        id,
+        "--id",
+        id,
+        "--summary",
+        "integration decision",
+    ]
 }
 
 #[test]
@@ -107,17 +128,42 @@ fn operator_enrolls_teammate_as_co_operator_and_revokes_them() {
     let team = Team::new();
     let (a, b, c) = (team.member("a"), team.member("b"), team.member("c"));
 
-    succeeded(&team.run(&a, &["phase", "create", "--command-id", "a-phase", "--id", "p1", "--title", "Phase one"]));
+    succeeded(&team.run(
+        &a,
+        &[
+            "phase",
+            "create",
+            "--command-id",
+            "a-phase",
+            "--id",
+            "p1",
+            "--title",
+            "Phase one",
+        ],
+    ));
     let (b_public, b_key) = team.identity(&b);
 
     // Before enrollment B is refused, and the refusal names the enrollment path.
     let stderr = team.refused(&b, &["revise", "--reason", "B before enrollment"]);
-    assert!(stderr.contains("prometheus kbd device identity"), "{stderr}");
+    assert!(
+        stderr.contains("prometheus kbd device identity"),
+        "{stderr}"
+    );
 
-    succeeded(&team.run(&a, &[
-        "device", "enroll", "--command-id", "enroll-b", "--device-id", "laptop-b",
-        "--public-key", &b_public, "--operator",
-    ]));
+    succeeded(&team.run(
+        &a,
+        &[
+            "device",
+            "enroll",
+            "--command-id",
+            "enroll-b",
+            "--device-id",
+            "laptop-b",
+            "--public-key",
+            &b_public,
+            "--operator",
+        ],
+    ));
     let listed = team.run(&a, &["device", "list", "--json"]);
     succeeded(&listed);
     let roster: serde_json::Value = serde_json::from_slice(&listed.stdout).unwrap();
@@ -135,21 +181,49 @@ fn operator_enrolls_teammate_as_co_operator_and_revokes_them() {
 
     // B enrolls C as a device only: C writes and revises, but holds no operator authority.
     let (c_public, c_key) = team.identity(&c);
-    succeeded(&team.run(&b, &[
-        "device", "enroll", "--command-id", "enroll-c", "--device-id", "laptop-c",
-        "--public-key", &c_public,
-    ]));
-    team.refused(&c, &["device", "grant-operator", "--command-id", "c-grant", "--key-id", &c_key]);
+    succeeded(&team.run(
+        &b,
+        &[
+            "device",
+            "enroll",
+            "--command-id",
+            "enroll-c",
+            "--device-id",
+            "laptop-c",
+            "--public-key",
+            &c_public,
+        ],
+    ));
+    team.refused(
+        &c,
+        &[
+            "device",
+            "grant-operator",
+            "--command-id",
+            "c-grant",
+            "--key-id",
+            &c_key,
+        ],
+    );
     succeeded(&team.run(&c, &decision("c-decision")));
     succeeded(&team.run(&c, &["revise", "--reason", "C revises the plan"]));
     let stderr = team.refused(&c, &["cancel", "--reason", "C tries to cancel the run"]);
     assert!(stderr.contains("active enrolled operator"), "{stderr}");
 
     // Revoking B refuses B's later writes.
-    succeeded(&team.run(&a, &[
-        "device", "revoke", "--command-id", "revoke-b", "--key-id", &b_key,
-        "--reason", "B left the project",
-    ]));
+    succeeded(&team.run(
+        &a,
+        &[
+            "device",
+            "revoke",
+            "--command-id",
+            "revoke-b",
+            "--key-id",
+            &b_key,
+            "--reason",
+            "B left the project",
+        ],
+    ));
     team.refused(&b, &decision("b-after-revoke"));
 
     let events = team.events();

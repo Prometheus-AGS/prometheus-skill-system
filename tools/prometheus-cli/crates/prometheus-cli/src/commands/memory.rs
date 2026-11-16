@@ -56,7 +56,9 @@ pub async fn search(query: &str, entity_type: Option<&str>) -> Result<()> {
 }
 
 pub async fn install(dry_run: bool) -> Result<()> {
-    if crate::host::is_managed() { return crate::host::setup(true, false, dry_run, false); }
+    if crate::host::is_managed() {
+        return crate::host::setup(true, false, dry_run, false);
+    }
     println!("{}", "🧠 surreal-memory Server Installation".bold());
     println!("{}", "=".repeat(45));
 
@@ -135,7 +137,8 @@ pub async fn install(dry_run: bool) -> Result<()> {
             "  {} Binary found at: {}",
             "✅".green(),
             crate::host::find_executable("surreal-memory-server")
-                .map(|path| path.display().to_string()).unwrap_or_default()
+                .map(|path| path.display().to_string())
+                .unwrap_or_default()
         );
     }
 
