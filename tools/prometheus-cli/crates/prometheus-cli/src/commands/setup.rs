@@ -391,7 +391,7 @@ fn install_template_forge_binaries() -> Result<()> {
     std::fs::create_dir_all(&bin_dir)?;
     for name in &["template-forge", "template-forge-mcp"] {
         std::fs::copy(
-            forge_dir.join("target/release").join(name),
+            super::cargo_paths::release_dir(&forge_dir).join(name),
             bin_dir.join(name),
         )?;
     }
@@ -433,7 +433,8 @@ fn bin_dir() -> PathBuf {
 }
 
 /// Shared helper: build a single cargo package in `crate_dir`, then copy the
-/// produced binary `bin_name` from `crate_dir/target/release/` to ~/.local/bin/.
+/// produced binary `bin_name` from cargo's release directory for that workspace
+/// (`CARGO_TARGET_DIR` when set, else `crate_dir/target`) to ~/.local/bin/.
 fn cargo_build_and_install(crate_dir: &Path, pkg: &str, bin_name: &str) -> Result<()> {
     anyhow::ensure!(
         crate_dir.exists(),
@@ -447,7 +448,7 @@ fn cargo_build_and_install(crate_dir: &Path, pkg: &str, bin_name: &str) -> Resul
     anyhow::ensure!(status.success(), "cargo build failed for {pkg}");
 
     let filename = format!("{bin_name}{}", std::env::consts::EXE_SUFFIX);
-    let src = crate_dir.join("target/release").join(&filename);
+    let src = super::cargo_paths::release_dir(crate_dir).join(&filename);
     let dst_dir = bin_dir();
     std::fs::create_dir_all(&dst_dir)?;
     let dst = dst_dir.join(&filename);

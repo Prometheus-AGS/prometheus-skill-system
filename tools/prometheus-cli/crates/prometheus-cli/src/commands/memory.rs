@@ -219,7 +219,7 @@ pub async fn install(dry_run: bool) -> Result<()> {
             println!("  {} Build complete", "✅".green());
 
             // Install binary
-            let binary = source_path.join("target/release/surreal-memory-server");
+            let binary = super::cargo_paths::release_dir(source_path).join("surreal-memory-server");
             let target = Path::new("/usr/local/bin/surreal-memory-server");
 
             match std::fs::copy(&binary, target) {

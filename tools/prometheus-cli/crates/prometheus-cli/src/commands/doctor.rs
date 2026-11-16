@@ -13,6 +13,7 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use super::cargo_paths;
 use super::control_transport::ControlTransport;
 
 mod learning_queue;
@@ -633,14 +634,12 @@ fn write_refresh_manifest(
         applied_actions: execution.applied_actions.clone(),
         repo_head: command_stdout(&["git", "rev-parse", "HEAD"]),
         submodule_heads: collect_submodule_heads(),
-        build_hashes: collect_hashed_paths(&[
-            "tools/prometheus-cli/target/release/prometheus",
-            "tools/prometheus-knowledge/target/release/pk",
-            "tools/prometheus-knowledge/target/release/pk-cherry",
-            "tools/prometheus-knowledge/target/release/prometheus-learning-worker",
-            "tools/surreal-memory-server/target/release/surreal-memory-server",
-            "crates/prometheus-exec/target/release/prometheus-exec",
-        ]),
+        build_hashes: collect_hashed_paths_from_paths(
+            &managed_binary_sources()
+                .into_iter()
+                .map(|(_, source)| source)
+                .collect::<Vec<_>>(),
+        ),
         installed_hashes: collect_hashed_paths_from_paths(&[
             local_bin.join("prometheus"),
             local_bin.join("pk"),
@@ -2448,37 +2447,47 @@ fn check_trace_store() -> CheckResult {
     }
 }
 
+/// Managed binaries built by a plain `cargo build --release`, with the workspace each
+/// is built from (relative to the repository root).
+const CARGO_BUILT_BINARIES: [(&str, &str); 5] = [
+    ("prometheus", "tools/prometheus-cli"),
+    ("pk", "tools/prometheus-knowledge"),
+    ("pk-cherry", "tools/prometheus-knowledge"),
+    ("prometheus-learning-worker", "tools/prometheus-knowledge"),
+    ("surreal-memory-server", "tools/surreal-memory-server"),
+];
+
+/// `prometheus-exec` is built by `scripts/build-prometheus-exec.sh`, which always
+/// copies its certified output to this fixed in-repository path whatever the cargo
+/// target directory is.
+const PROMETHEUS_EXEC_SOURCE: &str = "crates/prometheus-exec/target/release/prometheus-exec";
+
+/// Every managed binary with the path its freshly built copy is read from.
+fn managed_binary_sources() -> Vec<(&'static str, PathBuf)> {
+    CARGO_BUILT_BINARIES
+        .iter()
+        .map(|(name, workspace)| {
+            let file_name = format!("{name}{}", std::env::consts::EXE_SUFFIX);
+            (
+                *name,
+                cargo_paths::release_dir(Path::new(workspace)).join(file_name),
+            )
+        })
+        .chain(std::iter::once((
+            "prometheus-exec",
+            PathBuf::from(PROMETHEUS_EXEC_SOURCE),
+        )))
+        .collect()
+}
+
 fn check_managed_binaries() -> CheckResult {
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
     let bin_dir = std::env::var_os("PROMETHEUS_COMMAND_DIRECTORY")
         .map(PathBuf::from)
         .unwrap_or_else(|| home.join(".local/bin"));
-    let binaries = [
-        (
-            "prometheus",
-            "tools/prometheus-cli/target/release/prometheus",
-        ),
-        ("pk", "tools/prometheus-knowledge/target/release/pk"),
-        (
-            "pk-cherry",
-            "tools/prometheus-knowledge/target/release/pk-cherry",
-        ),
-        (
-            "prometheus-learning-worker",
-            "tools/prometheus-knowledge/target/release/prometheus-learning-worker",
-        ),
-        (
-            "surreal-memory-server",
-            "tools/surreal-memory-server/target/release/surreal-memory-server",
-        ),
-        (
-            "prometheus-exec",
-            "crates/prometheus-exec/target/release/prometheus-exec",
-        ),
-    ];
     let mut failures = Vec::new();
     let mut details = Vec::new();
-    for (name, source) in binaries {
+    for (name, source) in managed_binary_sources() {
         let installed = bin_dir.join(format!("{name}{}", std::env::consts::EXE_SUFFIX));
         let executable = is_executable(&installed);
         let Some(installed_hash) = hash_path(&installed) else {
@@ -2500,7 +2509,7 @@ fn check_managed_binaries() -> CheckResult {
         if !signed {
             failures.push(format!("{name} does not have a valid macOS code signature"));
         }
-        let source_hash = hash_file(source).unwrap_or_else(|| "not-built".into());
+        let source_hash = hash_path(&source).unwrap_or_else(|| "not-built".into());
         details.push(format!(
             "{name}: installed sha256 {installed_hash}; source sha256 {source_hash}; signature {}",
             if signed { "valid" } else { "invalid" }

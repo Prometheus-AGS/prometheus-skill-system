@@ -40,6 +40,21 @@ bash scripts/check-prerequisites.sh --install --build-tools
 # doctor is a separate read-only diagnostic path
 ```
 
+### Machines that keep build output outside the repository
+
+Cargo writes release binaries to `<workspace>/target/release` unless the machine redirects its target directory. If yours does, state the location in the environment, using the variable cargo itself reads:
+
+```bash
+# in ~/.bash_profile (or the profile of whichever shell you use)
+export CARGO_TARGET_DIR="/path/to/your/cargo-target"
+```
+
+One variable then drives everything: cargo builds into that directory, `scripts/install-binaries.sh` and `scripts/install-skills-flat.sh` install from it (they ask cargo, which reports it), and `prometheus doctor`, `prometheus setup` and `prometheus memory` read it directly.
+
+The `prometheus` CLI does not read cargo config files. A target directory set only as `build.target-dir` in a `.cargo/config.toml` is honored by the shell installers but is invisible to the CLI, which then looks in `<workspace>/target/release` and reports a missing or stale binary. Export the same path as `CARGO_TARGET_DIR` on such a machine.
+
+A shell profile is read only by shells started from it. A launchd or systemd service, or an app not launched from your shell, does not inherit the variable.
+
 ## Dynamic generation — three layers
 
 The pack generates new capability at three levels, each building on the one below.
