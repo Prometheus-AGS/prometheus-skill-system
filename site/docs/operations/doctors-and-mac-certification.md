@@ -44,18 +44,29 @@ prometheus: installed sha256 2552d31c…; source sha256 2552d31c…; signature v
 ```
 
 `installed` is the file in the command directory. `source` is the freshly built
-file in the repository's build output. The pair answers one question: **is what is
-installed the thing that was last built?**
+file in the repository's build output. Doctor prints both and compares neither.
+
+**On macOS the two hashes are never equal, even right after an install.** The
+installers re-sign each binary ad hoc after copying it (`codesign --force --sign -`),
+because copying breaks a binary's signature and Apple Silicon kills a binary whose
+signature is invalid. Re-signing rewrites the file, so the installed copy hashes differently from
+the build output it came from. On Linux nothing is re-signed and the hashes of a
+freshly installed binary are equal.
+
+What each hash is good for:
 
 | Details show | Meaning | Action |
 |---|---|---|
-| Both hashes equal | The installed binary is the current build | None |
-| Hashes differ | A newer or older build exists than the one installed | Preview with `bash scripts/install-binaries.sh --dry-run`, then install |
+| `source sha256` equals `shasum -a 256` of the file you just built | Doctor is reading the build you think it is | None |
+| `source sha256` does not change after a rebuild | Doctor is reading a different directory, or an older build | Correct where doctor looks (below) |
 | `source sha256 not-built` | No built file at the expected path | Build it, or correct where doctor looks (below) |
+| `installed sha256` changes after an install | The install replaced the binary | None |
+| Hashes equal (Linux only) | The installed binary is the current build | None |
 
-A difference does not fail the check. Doctor reports the hashes and leaves the
-judgement to the reader, because building without installing is a normal state
-during development.
+To confirm on macOS that an install took, compare the installed hash before and
+after it, or check the binary's own `--version` and the running service's
+`/health` version. To see what a reinstall would do, preview it with
+`bash scripts/install-binaries.sh --dry-run`.
 
 ### Where doctor looks for the source
 

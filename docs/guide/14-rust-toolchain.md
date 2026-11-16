@@ -68,7 +68,7 @@ bash scripts/install-binaries.sh --dry-run   # each "would install" line names t
 prometheus doctor --json --check binaries.manifest
 ```
 
-In the doctor details, `source sha256` should equal `installed sha256` for a binary you have just built and installed. `source sha256 not-built`, or a source hash that never changes after a rebuild, means the CLI is looking in the wrong directory. [Doctors and Mac certification](/docs/operations/doctors-and-mac-certification#managed-binary-check) explains the check.
+In the doctor details, `source sha256` should equal `shasum -a 256` of the file you just built. `source sha256 not-built`, or a source hash that never changes after a rebuild, means the CLI is looking in the wrong directory. Do not expect `source` and `installed` to be equal on macOS: the installers re-sign each binary after copying it, which rewrites the file. [Doctors and Mac certification](/docs/operations/doctors-and-mac-certification#managed-binary-check) explains the check.
 
 ### Reproducible builds and the `prometheus-exec` pin
 
