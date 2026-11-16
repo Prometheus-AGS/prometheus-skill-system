@@ -195,7 +195,7 @@ fi
 # --------------------------------------------------------------- revisit ----
 [ -n "$TOPIC" ] || { echo "[decision-log] ERROR: --topic is required" >&2; exit 1; }
 
-WIKI="$WIKI" TOPIC="$TOPIC" python3 <<'PY'
+WIKI="$WIKI" TOPIC="$TOPIC" python3 - <<'PY'
 import glob, os, re
 
 wiki, topic = os.environ["WIKI"], os.environ["TOPIC"].lower()

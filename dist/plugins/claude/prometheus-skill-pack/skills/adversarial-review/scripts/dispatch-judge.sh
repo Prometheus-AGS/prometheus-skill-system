@@ -190,7 +190,7 @@ fi
 # Assemble the request from file paths, not shell interpolation or environment
 # variables. The packet may contain arbitrary source text and can be megabytes.
 python3 - "$JUDGE_MODEL" "$SYSTEM_PROMPT_FILE" "$PACKET" "$REQ_BODY_FILE" <<'PY'
-import json, sys
+import json, os, sys
 
 model, system_path, packet_path, output_path = sys.argv[1:]
 body = {
@@ -215,6 +215,33 @@ FIXED_TEMPERATURE_MODELS = ("k3", "kimi-for-coding", "o1", "o3", "gpt-5")
 if not any(model.startswith(p) for p in FIXED_TEMPERATURE_MODELS):
     body["temperature"] = 0
 
+# STREAM BY DEFAULT. Reasoning judges think for minutes on a large packet before
+# emitting any content. A non-streaming request holds one silent connection open
+# for that whole time, and vendor front ends cut those off (liter-llm logged a
+# run of HTTP 500s at ~310 s and 504s at its own 600 s cap, Nov 2026). Streamed,
+# the connection carries reasoning tokens continuously and liter-llm applies its
+# timeout per chunk instead of to the whole response.
+if os.environ.get("ADV_JUDGE_STREAM", "1") != "0":
+    body["stream"] = True
+    body["stream_options"] = {"include_usage": True}
+
+# Reasoning tokens count against max_tokens. A vendor default that is too small
+# lets the model exhaust its budget mid-thought and return empty content, which
+# previously surfaced only as "no usable completion".
+# Measured 2026-11-16 on a 65 KB artifact packet: MiniMax-M3 used 34-41k
+# completion tokens, GLM-5.3 20-25k, so 32k is too small.
+max_tokens = os.environ.get("ADV_JUDGE_MAX_TOKENS", "65536")
+if max_tokens and max_tokens != "0":
+    body["max_tokens"] = int(max_tokens)
+
+# MiniMax M-series inlines its chain of thought as <think>...</think> inside
+# `content`. reasoning_split moves it to a separate field (liter-llm surfaces it
+# as reasoning_content). liter-llm's request schema rejects unknown top-level
+# fields, so vendor parameters must travel in extra_body. Verified live
+# 2026-11-16 against MiniMax-M3.
+if model.lower().startswith("minimax"):
+    body["extra_body"] = {"reasoning_split": True}
+
 with open(output_path, "w", encoding="utf-8") as handle:
     json.dump(body, handle)
 PY
@@ -230,63 +257,154 @@ else
   AUTH_HEADER="Authorization: Bearer ${LITER_LLM_MASTER_KEY:-${OPENAI_API_KEY:-sk-local}}"
 fi
 
-# Capture the HTTP status separately. `curl -s` without `-f` exits 0 on 4xx/5xx,
-# so the old `|| exit 3` branch was near-dead and a non-JSON 502 from a reverse
-# proxy degraded to the generic "unavailable" message this script exists to avoid.
-#
-# TIMEOUT ESCALATION WITH RETRY
-#
-# A reasoning judge emits a long reasoning preamble before any content. On a
-# large review packet that regularly exceeds a fixed client timeout, and an
-# upstream that gives up first surfaces as HTTP 502 with a Network body — NOT as
-# a clean curl timeout. Both symptoms mean the same thing: not enough time.
-#
-# A single fixed timeout therefore either fails on big packets or wastes wall
-# clock on small ones. Instead: start at ADV_JUDGE_TIMEOUT and, on a
-# timeout-shaped failure only, double it and retry up to ADV_JUDGE_RETRIES
-# times, reporting each escalation so the wait is never silent.
-#
-# Only timeout-shaped failures escalate. A 401 is not slow, it is wrong, and
-# retrying it just delays an actionable error.
-_timeout="${ADV_JUDGE_TIMEOUT:-300}"
-_max_attempts="${ADV_JUDGE_RETRIES:-3}"
+# --- transport: one streamed request per attempt ------------------------------
+# ADV_JUDGE_TIMEOUT caps one attempt end to end (default 60 min: Kimi k3.1-pro
+# streams ~24 tok/s and spent 32k tokens / 22.5 min on a 65 KB packet, measured
+# 2026-11-16). It doubles on retry only when
+# this cap itself fired; gateway and vendor failures retry at the same cap.
+# ADV_JUDGE_RETRIES is the total number of attempts for transient failures
+# (curl transport errors, gateway 5xx, mid-stream network/timeout errors).
+# A 4xx is not transient — it is wrong — and is reported immediately.
+_timeout="${ADV_JUDGE_TIMEOUT:-3600}"
+_max_attempts="${ADV_JUDGE_RETRIES:-2}"
 _attempt=1
+STATUS_FILE="$_judge_tmp/completion-status.json"
 
 while : ; do
-  _resp_file="$_judge_tmp/response.${_attempt}.json"
-  HTTP_CODE="$(curl -s --max-time "$_timeout" \
+  _resp_file="$_judge_tmp/response.${_attempt}.txt"
+  _t0=$(date +%s)
+  HTTP_CODE="$(curl -sN --max-time "$_timeout" \
     -o "$_resp_file" -w '%{http_code}' \
     --noproxy '*' \
     "$JUDGE_BASE_URL/chat/completions" \
     -H 'content-type: application/json' -H "$AUTH_HEADER" \
     --data-binary "@$REQ_BODY_FILE" 2>/dev/null)" || HTTP_CODE="000"
+  _elapsed=$(( $(date +%s) - _t0 ))
 
-  # 000 = curl gave up locally. 502/503/504 with a Network/timeout body = the
-  # gateway gave up on the upstream. Treat both as "needs more time".
+  # Assemble the completion from either an SSE stream or a single JSON body.
+  # Writes the answer text to RAW_FILE and a status record to STATUS_FILE.
+  python3 - "$_resp_file" "$RAW_FILE" "$STATUS_FILE" <<'PY'
+import json, re, sys
+
+resp_path, raw_path, status_path = sys.argv[1:]
+try:
+    text = open(resp_path, encoding="utf-8", errors="replace").read()
+except OSError:
+    text = ""
+
+content, reasoning, finish, usage, error = [], [], None, None, None
+streamed = any(line.startswith("data:") for line in text.splitlines()[:50])
+
+def error_message(err):
+    if isinstance(err, dict):
+        return str(err.get("message") or err)
+    return str(err)
+
+if streamed:
+    for line in text.splitlines():
+        if not line.startswith("data:"):
+            continue
+        payload = line[5:].strip()
+        if not payload or payload == "[DONE]":
+            continue
+        try:
+            chunk = json.loads(payload)
+        except Exception:
+            continue
+        if isinstance(chunk, dict) and chunk.get("error"):
+            error = error_message(chunk["error"])
+            continue
+        usage = chunk.get("usage") or usage
+        for choice in chunk.get("choices") or []:
+            delta = choice.get("delta") or {}
+            content.append(delta.get("content") or "")
+            reasoning.append(delta.get("reasoning_content") or "")
+            finish = choice.get("finish_reason") or finish
+else:
+    try:
+        data = json.loads(text)
+    except Exception:
+        data = None
+    if isinstance(data, dict) and data.get("error"):
+        error = error_message(data["error"])
+    elif isinstance(data, dict):
+        try:
+            choice = data["choices"][0]
+            message = choice.get("message") or {}
+            content.append(message.get("content") or "")
+            reasoning.append(message.get("reasoning_content") or "")
+            finish = choice.get("finish_reason")
+            usage = data.get("usage")
+        except Exception:
+            pass
+
+answer = "".join(content)
+reasoning_text = "".join(reasoning)
+# Backstop for models that still inline their chain of thought: drop closed
+# <think> blocks, and treat an unclosed one as "no answer yet".
+answer = re.sub(r"<think>.*?</think>", "", answer, flags=re.S)
+if "<think>" in answer:
+    reasoning_text += answer[answer.index("<think>"):]
+    answer = answer[:answer.index("<think>")]
+answer = answer.strip()
+
+with open(raw_path, "w", encoding="utf-8") as handle:
+    handle.write(answer)
+json.dump({
+    "streamed": streamed,
+    "finish_reason": finish,
+    "content_chars": len(answer),
+    "reasoning_chars": len(reasoning_text),
+    "completion_tokens": (usage or {}).get("completion_tokens"),
+    "error": error,
+    "body_head": "" if (streamed or answer) else text[:200],
+}, open(status_path, "w", encoding="utf-8"))
+PY
+
+  _status_field() {
+    python3 - "$STATUS_FILE" "$1" <<'PY'
+import json, sys
+value = json.load(open(sys.argv[1])).get(sys.argv[2])
+print("" if value is None else value)
+PY
+  }
+  _err="$(_status_field error)"
+
   _retryable=0
-  if [ "$HTTP_CODE" = "000" ]; then
-    _retryable=1
-  elif [ "$HTTP_CODE" = "502" ] || [ "$HTTP_CODE" = "503" ] || [ "$HTTP_CODE" = "504" ]; then
-    if grep -Eiq 'Network|timeout|timed out' "$_resp_file" 2>/dev/null; then _retryable=1; fi
-  fi
+  case "$HTTP_CODE" in
+    000|500|502|503|504) _retryable=1 ;;
+    2*)
+      # A 200 stream can still carry an upstream failure as an SSE error event.
+      if [ -n "$_err" ] && printf '%s' "$_err" | grep -Eiq 'network|timeout|timed out|connection|reset|unavailable|overload'; then
+        _retryable=1
+      fi
+      ;;
+  esac
 
   if [ "$_retryable" -eq 0 ]; then
     break
   fi
 
   if [ "$_attempt" -ge "$_max_attempts" ]; then
-    echo "[judge] WARN: judge request to $JUDGE_BASE_URL did not complete after" >&2
-    echo "[judge]       ${_attempt} attempt(s), final timeout ${_timeout}s (HTTP ${HTTP_CODE})." >&2
-    echo "[judge]       Raise ADV_JUDGE_TIMEOUT or ADV_JUDGE_RETRIES, or reduce the" >&2
-    echo "[judge]       packet size — unavailable (exit 3)" >&2
+    echo "[judge] WARN: judge request to $JUDGE_BASE_URL ($JUDGE_MODEL) failed after" >&2
+    echo "[judge]       ${_attempt} attempt(s); last: HTTP ${HTTP_CODE} after ${_elapsed}s" >&2
+    [ -n "$_err" ] && echo "[judge]       upstream error: $_err" >&2
+    [ "$HTTP_CODE" = "000" ] || echo "[judge]       body: $(_status_field body_head)" >&2
+    echo "[judge]       See the gateway log for the model-tagged upstream failure. — unavailable (exit 3)" >&2
     exit 3
   fi
 
-  _prev="$_timeout"
-  _timeout=$(( _timeout * 2 ))
   _attempt=$(( _attempt + 1 ))
-  echo "[judge] retry ${_attempt}/${_max_attempts}: HTTP ${HTTP_CODE} looks like a timeout" >&2
-  echo "[judge]        at ${_prev}s; escalating timeout to ${_timeout}s and retrying." >&2
+  # Only OUR OWN cap firing (curl 000 at ~the limit) means "not enough time":
+  # double it once per retry. Gateway/vendor errors retry at the same cap.
+  # This keeps a legacy ADV_JUDGE_TIMEOUT=900 from the doubling era working for
+  # slow judges such as Kimi k3.1-pro (~22 min on a 65 KB packet).
+  if [ "$HTTP_CODE" = "000" ] && [ "$_elapsed" -ge $(( _timeout - 5 )) ]; then
+    _timeout=$(( _timeout * 2 ))
+    echo "[judge] retry ${_attempt}/${_max_attempts}: hit the ${_elapsed}s cap; retrying with ${_timeout}s" >&2
+  else
+    echo "[judge] retry ${_attempt}/${_max_attempts}: HTTP ${HTTP_CODE} after ${_elapsed}s${_err:+ ($_err)}" >&2
+  fi
 done
 
 case "$HTTP_CODE" in
@@ -295,41 +413,46 @@ case "$HTTP_CODE" in
     echo "[judge] ERROR: gateway rejected the credential (HTTP $HTTP_CODE) at $JUDGE_BASE_URL." >&2
     echo "[judge]        liter-llm requires [general] master_key (or [[keys]]) and a matching" >&2
     echo "[judge]        Bearer token. Repair with: /liter-llm-bridge configure" >&2
-    echo "[judge]        body: $(head -c 200 "$_resp_file" 2>/dev/null)" >&2
+    echo "[judge]        body: $(_status_field body_head)" >&2
     exit 3
     ;;
   *)
-    echo "[judge] ERROR: gateway returned HTTP $HTTP_CODE at $JUDGE_BASE_URL" >&2
-    echo "[judge]        body: $(head -c 200 "$_resp_file" 2>/dev/null)" >&2
+    echo "[judge] ERROR: gateway returned HTTP $HTTP_CODE for $JUDGE_MODEL at $JUDGE_BASE_URL" >&2
+    echo "[judge]        ${_err:-$(_status_field body_head)}" >&2
     exit 3
     ;;
 esac
 
-# Surface the endpoint's own error text. A silent empty completion here reads as
-# "the judge found nothing", which is the most dangerous possible failure mode
-# for a review gate — it turns an outage into a false all-clear.
-python3 - "$_resp_file" "$RAW_FILE" <<'PY'
-import json, sys
-try:
-    data = json.load(open(sys.argv[1], encoding="utf-8"))
-except Exception:
-    sys.exit(1)
-if isinstance(data, dict) and data.get("error"):
-    err = data["error"]
-    msg = err.get("message") if isinstance(err, dict) else str(err)
-    print(f"[judge-endpoint-error] {msg}", file=sys.stderr)
-    sys.exit(1)
-try:
-    content = data["choices"][0]["message"]["content"]
-except Exception:
-    sys.exit(1)
-with open(sys.argv[2], "w", encoding="utf-8") as handle:
-    handle.write(content)
-PY
-if [ $? -ne 0 ] || [ ! -s "$RAW_FILE" ]; then
-  echo "[judge] WARN: judge returned no usable completion — unavailable (exit 3)" >&2
+# Surface WHY a completion is unusable. A silent empty completion reads as "the
+# judge found nothing", which is the most dangerous possible failure mode for a
+# review gate — it turns an outage into a false all-clear.
+if [ -n "$_err" ]; then
+  echo "[judge-endpoint-error] $_err" >&2
+  echo "[judge] WARN: judge stream ended with an upstream error — unavailable (exit 3)" >&2
   exit 3
 fi
+_finish="$(_status_field finish_reason)"
+# A truncated answer is not a judgment. Kimi k3.1-pro hit its default 32k output
+# cap mid-JSON on a real packet; the old path reported that as a shape failure
+# (exit 2), which callers treat as "the judge misbehaved" and re-ask identically.
+if [ "$_finish" = "length" ] && [ -s "$RAW_FILE" ]; then
+  echo "[judge] WARN: $JUDGE_MODEL hit max_tokens after ${_elapsed}s — its answer is truncated" >&2
+  echo "[judge]       (completion_tokens=$(_status_field completion_tokens), reasoning_chars=$(_status_field reasoning_chars))." >&2
+  echo "[judge]       Raise ADV_JUDGE_MAX_TOKENS (now ${ADV_JUDGE_MAX_TOKENS:-65536}) or shrink the packet." >&2
+  echo "[judge]       — unavailable (exit 3)" >&2
+  exit 3
+fi
+if [ ! -s "$RAW_FILE" ]; then
+  echo "[judge] WARN: $JUDGE_MODEL returned no usable answer after ${_elapsed}s" >&2
+  echo "[judge]       finish_reason=${_finish:-none} reasoning_chars=$(_status_field reasoning_chars) completion_tokens=$(_status_field completion_tokens)" >&2
+  if [ "$_finish" = "length" ]; then
+    echo "[judge]       The model spent its whole token budget reasoning. Raise" >&2
+    echo "[judge]       ADV_JUDGE_MAX_TOKENS (now ${ADV_JUDGE_MAX_TOKENS:-65536}) or shrink the packet." >&2
+  fi
+  echo "[judge]       — unavailable (exit 3)" >&2
+  exit 3
+fi
+echo "[judge] $JUDGE_MODEL answered in ${_elapsed}s (attempt ${_attempt}, finish_reason=$(_status_field finish_reason), reasoning_chars=$(_status_field reasoning_chars))" >&2
 
 # --- normalize + shape-check the findings -------------------------------------
 FINDINGS="$(JUDGE_MODEL="$JUDGE_MODEL" JUDGE_IDENTITY="$JUDGE_IDENTITY" MODE="$MODE" \
@@ -361,16 +484,43 @@ if not isinstance(data, dict) or "findings" not in data:
     sys.stderr.write("[judge] ERROR: judge output is not shape-valid findings JSON\n")
     raise SystemExit(1)
 
-sev_ok = {"CRITICAL", "WARNING", "SUGGESTION"}
-findings = []
+# Severity normalization. Judges from other vendors drift from the mandate's
+# exact vocabulary ("critical", "high", "major"). Silently dropping those findings
+# turned real defects into a PASS, so synonyms are mapped — always toward the
+# MORE severe bucket when ambiguous, because a gate must fail closed — and the
+# judge's original word is kept on the finding for audit.
+SEVERITY_SYNONYMS = {
+    "CRITICAL": "CRITICAL", "BLOCKER": "CRITICAL", "BLOCKING": "CRITICAL",
+    "HIGH": "CRITICAL", "SEVERE": "CRITICAL", "ERROR": "CRITICAL",
+    "WARNING": "WARNING", "WARN": "WARNING", "MAJOR": "WARNING",
+    "MEDIUM": "WARNING", "MODERATE": "WARNING",
+    "SUGGESTION": "SUGGESTION", "MINOR": "SUGGESTION", "LOW": "SUGGESTION",
+    "INFO": "SUGGESTION", "NIT": "SUGGESTION", "NITPICK": "SUGGESTION",
+}
+findings, rejected = [], []
 for f in data.get("findings") or []:
     if not isinstance(f, dict):
+        rejected.append("non-object finding")
         continue
-    if f.get("severity") not in sev_ok:
+    raw_sev = str(f.get("severity") or "").strip()
+    sev = SEVERITY_SYNONYMS.get(raw_sev.upper())
+    if sev is None:
+        rejected.append("unrecognized severity %r" % raw_sev)
         continue
     if not f.get("claim") or not f.get("evidence"):
+        rejected.append("%s finding without claim/evidence" % sev)
         continue
+    if raw_sev != sev:
+        f = dict(f, severity=sev, judge_severity=raw_sev)
     findings.append(f)
+
+# A finding the judge raised but we cannot use must not vanish. Fail closed
+# (exit 2: schema-shape failure) so the caller re-asks rather than recording a
+# cleaner verdict than the judge actually gave.
+if rejected:
+    sys.stderr.write("[judge] ERROR: %d judge finding(s) not usable: %s\n"
+                     % (len(rejected), "; ".join(rejected[:5])))
+    raise SystemExit(1)
 
 # isolation_mode must describe what ACTUALLY answered, not what we hoped would.
 # It was previously the hardcoded literal "liter-llm" regardless of endpoint, so a

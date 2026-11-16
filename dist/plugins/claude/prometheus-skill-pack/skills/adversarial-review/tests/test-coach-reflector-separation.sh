@@ -36,7 +36,7 @@ ok()  { echo "  ✅ $1"; PASS=$((PASS + 1)); }
 bad() { echo "  ❌ $1"; FAIL=$((FAIL + 1)); }
 
 echo "── The coach holds no tool capable of writing an evaluation"
-RES="$(COACH="$COACH" python3 <<'PY'
+RES="$(COACH="$COACH" python3 - <<'PY'
 import os, re
 s = open(os.environ["COACH"], encoding="utf-8").read()
 parts = s.split("---")
@@ -69,7 +69,7 @@ else
 fi
 
 echo "── An external reflector actually does the grading"
-RES="$(HOOKS="$HOOKS" python3 <<'PY'
+RES="$(HOOKS="$HOOKS" python3 - <<'PY'
 import json, os
 h = json.load(open(os.environ["HOOKS"], encoding="utf-8"))
 ss = h.get("hooks", h).get("SubagentStop", [])
@@ -87,7 +87,7 @@ case "$RES" in
 esac
 
 echo "── The coach is not registered as its own evaluator"
-RES="$(HOOKS="$HOOKS" python3 <<'PY'
+RES="$(HOOKS="$HOOKS" python3 - <<'PY'
 import json, os
 h = json.load(open(os.environ["HOOKS"], encoding="utf-8"))
 ss = h.get("hooks", h).get("SubagentStop", [])
@@ -108,7 +108,7 @@ PY
 echo "── The reflector hook was reused, not modified"
 # Task 2 requires reuse. The reflector's first hook must still be the
 # pre-existing sycophancy-check-reflection.sh at its original timeout.
-RES="$(HOOKS="$HOOKS" python3 <<'PY'
+RES="$(HOOKS="$HOOKS" python3 - <<'PY'
 import json, os
 h = json.load(open(os.environ["HOOKS"], encoding="utf-8"))
 ss = h.get("hooks", h).get("SubagentStop", [])

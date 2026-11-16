@@ -223,7 +223,7 @@ kbd_resolve_role_identity() {
         _model="$(kbd_toml_get "$_KBD_MODELS_TOML" role_identities "${_role}_model_id" 2>/dev/null)"
     fi
     [ -n "$_provider" ] && [ -n "$_connection" ] && [ -n "$_model" ] || return 1
-    PROVIDER_ID="$_provider" CONNECTION_ID="$_connection" MODEL_ID="$_model" python3 <<'PY'
+    PROVIDER_ID="$_provider" CONNECTION_ID="$_connection" MODEL_ID="$_model" python3 - <<'PY'
 import json, os
 print(json.dumps([os.environ["CONNECTION_ID"], os.environ["PROVIDER_ID"], os.environ["MODEL_ID"]], separators=(",", ":")))
 PY
@@ -304,19 +304,30 @@ kbd_complete() {
     }
     _tok="$(kbd_gateway_auth)"
 
-    # Body built by python3, never by shell interpolation: prompts contain
-    # arbitrary text and string-built JSON corrupts on the first quote.
-    _body="$(MODEL="$_model" SYS="$_sys" USR="$_usr" MAXT="$_max" python3 <<'PY' 2>/dev/null
-import json, os
+    _kc_dir="$(mktemp -d)" || { echo "kbd_complete: cannot create temp dir" >&2; return 4; }
+    # Body built by python3 into a FILE, never by shell interpolation or argv:
+    # prompts contain arbitrary text, and large ones exceed macOS ARG_MAX.
+    MODEL="$_model" SYS="$_sys" USR="$_usr" MAXT="$_max" python3 - "$_kc_dir/body.json" <<'PY' 2>/dev/null
+import json, os, sys
 
 model = os.environ["MODEL"]
+# The caller's max_tokens is the size of the ANSWER it expects. Reasoning models
+# (Kimi k3.x, MiniMax-M3, GLM-5.x) spend their thinking from the same budget, so a
+# small cap — some callers pass 8 or 300 — is consumed by reasoning and the
+# answer comes back empty. Floor it; a model that does not reason simply stops
+# early, so a larger ceiling costs nothing.
+floor = int(os.environ.get("KBD_COMPLETE_MIN_TOKENS") or 16384)
 body = {
     "model": model,
     "messages": [
         {"role": "system", "content": os.environ.get("SYS", "")},
         {"role": "user", "content": os.environ.get("USR", "")},
     ],
-    "max_tokens": int(os.environ.get("MAXT") or 2048),
+    "max_tokens": max(int(os.environ.get("MAXT") or 2048), floor),
+    # Streamed so slow reasoning keeps the connection busy: Kimi's Cloudflare
+    # front end ends a silent request at ~300 s with error 524.
+    "stream": True,
+    "stream_options": {"include_usage": True},
 }
 
 # Some reasoning models reject any temperature other than their own required
@@ -328,48 +339,99 @@ FIXED_TEMPERATURE_MODELS = ("k3", "kimi-for-coding", "o1", "o3", "gpt-5")
 if not any(model.startswith(p) for p in FIXED_TEMPERATURE_MODELS):
     body["temperature"] = 0
 
-print(json.dumps(body))
-PY
-)" || { echo "kbd_complete: failed to build request body" >&2; return 4; }
+# MiniMax inlines <think>...</think> in content unless reasoning_split is set;
+# liter-llm only accepts vendor parameters inside extra_body.
+if model.lower().startswith("minimax"):
+    body["extra_body"] = {"reasoning_split": True}
 
-    _tmp="$(mktemp)"
+json.dump(body, open(sys.argv[1], "w", encoding="utf-8"))
+PY
+    [ -s "$_kc_dir/body.json" ] || { rm -rf "$_kc_dir"; echo "kbd_complete: failed to build request body" >&2; return 4; }
+
     # -w '%{http_code}': curl -s without -f exits 0 on 4xx/5xx, so the status must
     # be captured explicitly or every HTTP error looks like a successful empty reply.
-    _code="$(curl -s --max-time "${KBD_COMPLETE_TIMEOUT:-120}" \
-        -o "$_tmp" -w '%{http_code}' --noproxy '*' \
+    _code="$(curl -sN --max-time "${KBD_COMPLETE_TIMEOUT:-900}" \
+        -o "$_kc_dir/resp.txt" -w '%{http_code}' --noproxy '*' \
         "$_gw/chat/completions" \
         -H 'content-type: application/json' \
         -H "Authorization: Bearer $_tok" \
-        --data-binary "$_body" 2>/dev/null)" || _code="000"
-    _out="$(cat "$_tmp" 2>/dev/null)"; rm -f "$_tmp"
+        --data-binary "@$_kc_dir/body.json" 2>/dev/null)" || _code="000"
+    _resp="$_kc_dir/resp.txt"
 
     case "$_code" in
         2*) ;;
-        000) echo "kbd_complete: request to $_gw did not complete (timeout/connection)" >&2; return 3 ;;
+        000) rm -rf "$_kc_dir"
+             echo "kbd_complete: request to $_gw ($_model) did not complete within ${KBD_COMPLETE_TIMEOUT:-900}s (timeout/connection)" >&2; return 3 ;;
         401|403)
+            rm -rf "$_kc_dir"
             echo "kbd_complete: gateway rejected the credential (HTTP $_code)." >&2
             echo "  liter-llm needs [general] master_key and a matching Bearer token —" >&2
             echo "  repair with /liter-llm-bridge configure" >&2
             return 3 ;;
-        *)  echo "kbd_complete: gateway returned HTTP $_code: $(printf '%s' "$_out" | head -c 200)" >&2
+        *)  echo "kbd_complete: gateway returned HTTP $_code for $_model: $(head -c 200 "$_resp" 2>/dev/null)" >&2
+            rm -rf "$_kc_dir"
             return 3 ;;
     esac
 
-    printf '%s' "$_out" | python3 -c '
-import json, sys
-try:
-    d = json.load(sys.stdin)
-except Exception:
-    sys.stderr.write("kbd_complete: response was not JSON\n"); raise SystemExit(1)
-if isinstance(d.get("error"), dict):
-    sys.stderr.write("kbd_complete: %s\n" % d["error"].get("message", "endpoint error"))
+    python3 - "$_resp" <<'PY'
+import json, re, sys
+
+text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+content, reasoning, finish, error = [], 0, None, None
+
+def emsg(e):
+    return str(e.get("message") or e) if isinstance(e, dict) else str(e)
+
+if any(l.startswith("data:") for l in text.splitlines()[:50]):
+    for line in text.splitlines():
+        if not line.startswith("data:"):
+            continue
+        payload = line[5:].strip()
+        if not payload or payload == "[DONE]":
+            continue
+        try:
+            chunk = json.loads(payload)
+        except Exception:
+            continue
+        if isinstance(chunk, dict) and chunk.get("error"):
+            error = emsg(chunk["error"]); continue
+        for ch in chunk.get("choices") or []:
+            delta = ch.get("delta") or {}
+            content.append(delta.get("content") or "")
+            reasoning += len(delta.get("reasoning_content") or "")
+            finish = ch.get("finish_reason") or finish
+else:
+    try:
+        d = json.loads(text)
+    except Exception:
+        sys.stderr.write("kbd_complete: response was not JSON\n"); raise SystemExit(1)
+    if isinstance(d, dict) and d.get("error"):
+        error = emsg(d["error"])
+    else:
+        try:
+            ch = d["choices"][0]; m = ch.get("message") or {}
+            content.append(m.get("content") or "")
+            reasoning += len(m.get("reasoning_content") or "")
+            finish = ch.get("finish_reason")
+        except Exception:
+            sys.stderr.write("kbd_complete: response had no message content\n"); raise SystemExit(1)
+
+if error:
+    sys.stderr.write("kbd_complete: %s\n" % error); raise SystemExit(1)
+c = re.sub(r"<think>.*?</think>", "", "".join(content), flags=re.S)
+if "<think>" in c:
+    c = c[:c.index("<think>")]
+if finish == "length":
+    sys.stderr.write("kbd_complete: model hit max_tokens (reasoning_chars=%d); answer truncated — "
+                     "raise KBD_COMPLETE_MIN_TOKENS\n" % reasoning)
     raise SystemExit(1)
-try:
-    c = d["choices"][0]["message"]["content"]
-except Exception:
-    sys.stderr.write("kbd_complete: response had no message content\n"); raise SystemExit(1)
-if not (c or "").strip():
-    sys.stderr.write("kbd_complete: model returned an empty message\n"); raise SystemExit(1)
-sys.stdout.write(c)
-'
+if not c.strip():
+    sys.stderr.write("kbd_complete: model returned an empty message (finish_reason=%s, reasoning_chars=%d)\n"
+                     % (finish, reasoning))
+    raise SystemExit(1)
+sys.stdout.write(c.strip())
+PY
+    _rc=$?
+    rm -rf "$_kc_dir"
+    return $_rc
 }

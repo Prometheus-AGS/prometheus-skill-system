@@ -159,7 +159,7 @@ done
 if [ -n "$DETECT" ]; then
   ADV_PROVIDERS_JSON="$(bash "$DETECT" 2>/dev/null || echo '{}')"
 else
-  ADV_PROVIDERS_JSON="$(python3 <<'PY' 2>/dev/null || echo '{}'
+  ADV_PROVIDERS_JSON="$(python3 - <<'PY' 2>/dev/null || echo '{}'
 import json, os
 TABLE = [
     ("anthropic", "ANTHROPIC_API_KEY", ["frontier", "medium"]),
