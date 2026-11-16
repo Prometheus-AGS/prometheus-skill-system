@@ -156,22 +156,41 @@ done
 # Upstream renamed the CLI package to `liter-llm-cli` (still produces the `liter-llm` binary).
 if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
     info "Building liter-llm..."
+    # A failed build must not abort the installer. This is the block that did
+    # exactly that on 2026-07-30: the submodule's Cargo.toml disagreed with its
+    # workspace version, cargo exited 101, and under `set -e` every binary after
+    # this one was left stale. The failure is recorded and reported at the end.
+    _llm_built=1
     if ! $DRY_RUN; then
-        (cd "${REPO_ROOT}/tools/liter-llm" && cargo build --release -p liter-llm-cli 2>&1 | tail -3)
+        # `|| _llm_built=0` keeps a non-zero cargo exit from tripping `set -e`
+        # (`pipefail` carries cargo's status through `tail`).
+        (cd "${REPO_ROOT}/tools/liter-llm" && cargo build --release -p liter-llm-cli 2>&1 | tail -3) \
+            || _llm_built=0
     else
         info "[dry-run] would run cargo build --release -p liter-llm-cli"
     fi
-    # liter-llm binary may be in workspace root target or crate target
-    # `|| true`: under `set -e` an assignment from a failing command
-    # substitution is fatal, and `find` on a release dir that was never built
-    # exits non-zero.
-    LLM_BIN=$(find "$(cargo_release_dir "${REPO_ROOT}/tools/liter-llm")" -maxdepth 1 -name "liter-llm" -type f 2>/dev/null | head -1) || true
-    if [ -n "${LLM_BIN}" ]; then
-        install_bin "${LLM_BIN}" "${BIN_DIR}/liter-llm"
-        ok "liter-llm → ${BIN_DIR}/liter-llm"
+    if [ "${_llm_built}" -eq 1 ]; then
+        # liter-llm binary may be in workspace root target or crate target
+        # `|| true`: under `set -e` an assignment from a failing command
+        # substitution is fatal, and `find` on a release dir that was never built
+        # exits non-zero.
+        LLM_BIN=$(find "$(cargo_release_dir "${REPO_ROOT}/tools/liter-llm")" -maxdepth 1 -name "liter-llm" -type f 2>/dev/null | head -1) || true
+        if [ -n "${LLM_BIN}" ]; then
+            install_bin "${LLM_BIN}" "${BIN_DIR}/liter-llm"
+            ok "liter-llm → ${BIN_DIR}/liter-llm"
+        else
+            fail "liter-llm binary not found after build"
+            $DRY_RUN || FAILED_COMPONENTS="${FAILED_COMPONENTS} liter-llm"
+        fi
     else
-        fail "liter-llm binary not found after build"
+        # Do not fall through to the lookup: after a failed build the release
+        # directory can still hold a binary from an OLDER build, and installing
+        # that would report a stale gateway as freshly built. The copy already
+        # in ${BIN_DIR}, if any, is left as it is.
+        fail "liter-llm build failed — continuing with the remaining binaries"
+        FAILED_COMPONENTS="${FAILED_COMPONENTS} liter-llm"
     fi
+    unset _llm_built
     # `liter-llm mcp` REQUIRES a config file — without it the stdio server exits
     # and Claude Code fails to load it. Install the default proxy/MCP config
     # (routes via the local :8181 openai-proxy) unless the user already has one.

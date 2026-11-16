@@ -398,9 +398,16 @@ fi
 Ask which failure the user should suffer. For a tool only some users need, the
 answer is a warning and a completed install — never a dead installer. See
 [`docs/decisions/openai-proxy-vendoring.md`](docs/decisions/openai-proxy-vendoring.md)
-for the worked example. The `liter-llm` block in `install-binaries.sh` has the
-`|| true` on its lookup since 2026-11-16, but its `cargo build` is still
-unguarded: a liter-llm build failure still aborts the installer.
+for the worked example. The `liter-llm` block in `install-binaries.sh` is guarded
+the same way since 2026-11-16: a failed build is recorded in `FAILED_COMPONENTS`,
+reported at the end with a non-zero exit, and the rest of the install completes.
+
+On a failed build, **skip the lookup as well as the install**. After a failure the
+release directory can still hold a binary from an older build, and installing it
+would report a stale tool as freshly built. The sections for `prometheus`, `forge`,
+`pk`, the substrate binaries, `surreal-memory-server`, `sycophancy-correction` and
+`template-forge` still run an unguarded `cargo build`; a failure in one of those
+aborts the installer.
 
 #### Never read a built binary from a hardcoded `target/release`
 
