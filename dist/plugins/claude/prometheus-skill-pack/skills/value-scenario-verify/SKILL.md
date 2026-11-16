@@ -1,6 +1,6 @@
 ---
 name: value-scenario-verify
-version: '1.1.0'
+version: '1.2.0'
 license: MIT
 description: >
   Verify an adopted finite scenario set at the authorized complete value-phase
@@ -42,7 +42,9 @@ be resolved before dependent execution; never silently modify operator rules.
 
 For KBD use its package-owned phase-readiness checker and current contract
 adoption/readiness machinery. Readiness for implementation is not permission to
-test. Require separate current authority for this actual boundary and its
+test. Record the owner's boundary authorization before the first attempt with
+`shared/scripts/kbd-boundary-authorize.mjs` (B4, or B5 for an authorized repair);
+closure lists runner output older than that event. Require separate current authority for this actual boundary and its
 effects. If the frozen contract needs material amendment (including its
 implementationComplete field), use the existing signed amendment path; never
 edit a bound snapshot or forge approval. Reuse approval already granted in scope.

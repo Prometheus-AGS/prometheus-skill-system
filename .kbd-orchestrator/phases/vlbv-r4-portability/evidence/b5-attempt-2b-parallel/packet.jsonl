@@ -1,0 +1,2 @@
+{"i":13,"id":"eval-kimi","argv":["node","evals/vlbv-protocol/run.mjs","--harness","kimi","--samples","3"],"exit":3,"startedAt":"2026-11-16T09:11:33Z","seconds":88}
+{"i":14,"id":"neg-report-kimi","argv":["node","evals/vlbv-protocol/validate-report.mjs","--negative","--harness","kimi"],"exit":0,"startedAt":"2026-11-16T09:13:01Z","seconds":0}

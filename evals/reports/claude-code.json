@@ -1,0 +1,1079 @@
+{
+  "schemaVersion": 1,
+  "kind": "vlbv.protocol-eval-report",
+  "harness": "claude-code",
+  "status": "run",
+  "generatedAt": "2026-11-16T08:39:14Z",
+  "commit": "78abfd843d88ed5f6cb88e2bc139a22013452541",
+  "harnessVersion": "2.1.325 (Claude Code)",
+  "harnessModel": "harness default",
+  "harnessFamily": "anthropic",
+  "grader": {
+    "model": "MiniMax-M3",
+    "family": "minimax"
+  },
+  "decisionRule": {
+    "samples": 3,
+    "criticalOrCapabilityPassesRequired": 3,
+    "defaultPassesRequired": 2,
+    "samplePass": "A sample is PASS only when every deterministic check passes AND the grader returns PASS. A failed deterministic check makes the sample FAIL regardless of the grader.",
+    "declaredBefore": "contract adoption (vlbv-r4-portability, decision D-R4-03)"
+  },
+  "samplesDeclared": 3,
+  "counts": {
+    "pass": 6,
+    "fail": 1,
+    "blocked": 16,
+    "notExercised": 0,
+    "notRun": 16
+  },
+  "isolation": {
+    "ok": true,
+    "realStateUnchanged": true,
+    "keychainUnchanged": true,
+    "diffs": [],
+    "leftovers": [],
+    "repoAuthFiles": []
+  },
+  "cases": [
+    {
+      "id": "AT01",
+      "at": "AT 01",
+      "requirement": "VLBV 01",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"e29603a2-927f-401c-8a61-1b197997f793\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 965,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT01/s1/transcript.txt",
+            "sha256": "29ad6431de9c0dc1e538fe049ebd42868539871c5226abb162016958bf743cbd"
+          },
+          "effects": "evals/runs/claude-code/AT01/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"0649e067-f883-4230-9932-445c3fe2cd42\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 890,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT01/s2/transcript.txt",
+            "sha256": "b2835072699fa2335312713cfee68f2cb83ede8147e90a25bd200e798946881e"
+          },
+          "effects": "evals/runs/claude-code/AT01/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"f6c8c460-a70d-4c84-894c-0488e96c3a48\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 901,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT01/s3/transcript.txt",
+            "sha256": "7139c685bf1ed0cf66410bdcd1601c9e74773c055775ef1b854147402e9c5751"
+          },
+          "effects": "evals/runs/claude-code/AT01/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT02",
+      "at": "AT 02",
+      "requirement": "VLBV 02",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"34dee051-826e-4b7f-b129-b1af73778bac\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 787,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT02/s1/transcript.txt",
+            "sha256": "dfd1e00fad3c7b50fbb26086a000bb8ea2d2e023adcb862d049783f55ef60da9"
+          },
+          "effects": "evals/runs/claude-code/AT02/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"6db287bc-a498-4a40-8df0-6b8179f4ef9e\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 816,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT02/s2/transcript.txt",
+            "sha256": "c63d62a8894e8787ccb3277487722ed128c1798b33a97ddd58c8aafee3b0bc16"
+          },
+          "effects": "evals/runs/claude-code/AT02/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"8dc5e32b-0f0a-49c9-a5d5-7db36418edf6\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 738,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT02/s3/transcript.txt",
+            "sha256": "04e087053d166f84fdd994b012bc1690476c123eaa262b314b27d34cad1c25d9"
+          },
+          "effects": "evals/runs/claude-code/AT02/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT03",
+      "at": "AT 03",
+      "requirement": "VLBV 03",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"ddaa1200-7546-427b-a0b0-16aed114419e\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 833,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT03/s1/transcript.txt",
+            "sha256": "9ee308de1c939783048c1a4b6d977a081f40ab58fcbe3fff2335379f02e82bc0"
+          },
+          "effects": "evals/runs/claude-code/AT03/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"b6e4c78b-46f3-48fa-83dc-d68d48cb155b\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 808,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT03/s2/transcript.txt",
+            "sha256": "c58ed1e99918c7d14846aec8e5dc66f08872ab7a54ba559a9b56081243aae64f"
+          },
+          "effects": "evals/runs/claude-code/AT03/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"6a4e9ccc-1a3e-4781-a931-3a2bfbfc4fdc\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 895,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT03/s3/transcript.txt",
+            "sha256": "c9294a2edc865809bac822f2086d4e0af1d21dc6679c084d4b933f0b2296c17c"
+          },
+          "effects": "evals/runs/claude-code/AT03/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT04",
+      "at": "AT 04",
+      "requirement": "VLBV 04",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 3,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"e5f8285c-ffea-432c-902e-8732f242ca5f\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1151,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT04/s1/transcript.txt",
+            "sha256": "464aeca3563e54073275edd0399652eb2d4af75c2545ff6095738aab2eaa5836"
+          },
+          "effects": "evals/runs/claude-code/AT04/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"b62cdcee-1540-42ab-ab39-a1fc6f22f3d3\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1197,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT04/s2/transcript.txt",
+            "sha256": "e5d15a9998df303bb5a21449f27d42cd35468e9512950989daae30b47148acc7"
+          },
+          "effects": "evals/runs/claude-code/AT04/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"0bdf00b5-feb7-4983-bce8-c4aa55928611\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1373,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT04/s3/transcript.txt",
+            "sha256": "f0d7eefe32698c4440ec6cac1188748068226d9a77c64a83128612c7264af5e0"
+          },
+          "effects": "evals/runs/claude-code/AT04/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT07",
+      "at": "AT 07",
+      "requirement": "VLBV 07",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"17a1661a-6493-4a2c-b6d4-25f79292ad73\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1465,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT07/s1/transcript.txt",
+            "sha256": "9b6c03e0235ebc13fd1fe2fd6bddf9ad721035f2ac5b102993815f451faaaa7e"
+          },
+          "effects": "evals/runs/claude-code/AT07/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"84314c32-1ed5-4352-b38b-57b738faa854\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1483,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT07/s2/transcript.txt",
+            "sha256": "fb6d29ec2dbd328c2c8fddf8fa11abafc984c3487d6ac79aba408eaa1a43a192"
+          },
+          "effects": "evals/runs/claude-code/AT07/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"5bd7f944-1d5a-4196-a0fb-0a4d03906841\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1432,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT07/s3/transcript.txt",
+            "sha256": "e366a80821690dfa5b87a06a2888e31956885250c24db585ecebdf3fd399a0c0"
+          },
+          "effects": "evals/runs/claude-code/AT07/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT08",
+      "at": "AT 08",
+      "requirement": "VLBV 08",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"e02e3bf2-a989-4b5d-abdb-3f0bc66d98f7\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 887,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT08/s1/transcript.txt",
+            "sha256": "af688180bafcb165da50d179e0c055a4944fa7081f159c406a70e2c180b29deb"
+          },
+          "effects": "evals/runs/claude-code/AT08/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"526c65d0-2052-4cbe-96c2-fd97ad56ae76\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 857,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT08/s2/transcript.txt",
+            "sha256": "2758186f307dec4987639f78c75f7f24549ba8ca89ca7103f25aa53ce55a3e80"
+          },
+          "effects": "evals/runs/claude-code/AT08/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"c655e6b2-da70-45eb-968e-ca208dc3f972\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 853,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT08/s3/transcript.txt",
+            "sha256": "4f57fd5b9b18c39153b58aae28044ce90a433d8433bcfb80e2073a9f5e9d5ce1"
+          },
+          "effects": "evals/runs/claude-code/AT08/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT11",
+      "at": "AT 11",
+      "requirement": "VLBV 11",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"70dac857-b003-44f5-8802-5b5ceb6f4e13\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1279,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT11/s1/transcript.txt",
+            "sha256": "268ad938c4027885e6358926214b17f62183934d9a50e3d26d57287adce5fca4"
+          },
+          "effects": "evals/runs/claude-code/AT11/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"9aaefb9a-d2f9-4698-9a4b-f9f817fbdb5c\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1259,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT11/s2/transcript.txt",
+            "sha256": "e127634e2e5b52d2be44700adbafd0b3e0c3fec7551379a11157088fc1930d72"
+          },
+          "effects": "evals/runs/claude-code/AT11/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"57d91858-15e0-4120-a57f-99a847fc2257\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1307,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT11/s3/transcript.txt",
+            "sha256": "f1fd0791b82a4e3785f291587824d1f85563b796654ecb0d29033977074e4a76"
+          },
+          "effects": "evals/runs/claude-code/AT11/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT12",
+      "at": "AT 12",
+      "requirement": "VLBV 12",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"faf11ae2-c457-4e71-bbc3-b90ec7b1a70a\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 840,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT12/s1/transcript.txt",
+            "sha256": "9a97f0f58764d992e2de614bd5c8138a764e4a1dcca9ffc9a2aa74816d15f10e"
+          },
+          "effects": "evals/runs/claude-code/AT12/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"0a084cd0-d4c0-4243-91d7-a3cf03de7050\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 915,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT12/s2/transcript.txt",
+            "sha256": "65bc654a77bc61e2c9bd2b84d41e937f1671b105c950a84a4db37fb5d5c23dea"
+          },
+          "effects": "evals/runs/claude-code/AT12/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"39ccc39c-8495-44dc-be91-cc5dcd81d95e\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 840,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT12/s3/transcript.txt",
+            "sha256": "9dcf08123d67d5c1a1f6ff4ed637aa2f6ffe4d775716b3be958b83d8cf156604"
+          },
+          "effects": "evals/runs/claude-code/AT12/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT13",
+      "at": "AT 13",
+      "requirement": "VLBV 13",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"c98a7694-7cec-40ad-aa24-2651373b4bad\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1036,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT13/s1/transcript.txt",
+            "sha256": "1ce0ee32a5b2d32dc5e3e12d093040c7ec036521ec81f74e9f31956dfc2a6698"
+          },
+          "effects": "evals/runs/claude-code/AT13/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"6d03c23f-1a5a-4bea-a6f9-736671105e1f\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1064,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT13/s2/transcript.txt",
+            "sha256": "b2c9e896050ebd30a0bf4964832814beede8c62d4dfb25fe8c189fd3ddf90bbb"
+          },
+          "effects": "evals/runs/claude-code/AT13/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"cf8092c4-d912-4f96-8954-e9a82c4f64bd\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 1030,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT13/s3/transcript.txt",
+            "sha256": "576b43231d156f06ec62ebf3178c997be32e6d146d3ebf8eea5f7df6ac03bb10"
+          },
+          "effects": "evals/runs/claude-code/AT13/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT14",
+      "at": "AT 14",
+      "requirement": "VLBV 14",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"3fd58003-7e36-424f-ab40-f2646405ba14\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 745,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT14/s1/transcript.txt",
+            "sha256": "ffea71af4202f79e644d212ad00791d3f9734a2acc302c594eb0cb24de63b3ca"
+          },
+          "effects": "evals/runs/claude-code/AT14/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"caecd89c-f2f4-4344-94a9-8b3448ee3f36\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 717,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT14/s2/transcript.txt",
+            "sha256": "03121df791b525a59b8e06c3006a1fa5a222392ddae62952b8833b070257e0af"
+          },
+          "effects": "evals/runs/claude-code/AT14/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"66bafd23-6b28-48ed-8ca7-c368e274f593\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 726,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT14/s3/transcript.txt",
+            "sha256": "6adbef97470e26164f3ac4e976465f1e41f82fe83d6d930edab1541cc46ff037"
+          },
+          "effects": "evals/runs/claude-code/AT14/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT16",
+      "at": "AT 16",
+      "requirement": "VLBV 16",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"9d7fac51-3b78-43f4-b8e2-e524c5636b10\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 2561,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT16/s1/transcript.txt",
+            "sha256": "10400df992490493d89103bf265463376c1cd74fe4b10d0b942e200a3286e797"
+          },
+          "effects": "evals/runs/claude-code/AT16/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"cb7770d4-b831-4c09-8f24-918da590c95d\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 2759,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT16/s2/transcript.txt",
+            "sha256": "27169796b45b695d49bcefd3719ef7e29b3f5f003c56dfad12d09955896252d6"
+          },
+          "effects": "evals/runs/claude-code/AT16/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"1cc575f5-aa61-447b-8e8b-939bf7376c0d\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 3021,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT16/s3/transcript.txt",
+            "sha256": "6958a29fd7203db8142c1bf3a8a4ce0b6a7385e9cd480b2fd6b968b6f0c2beb5"
+          },
+          "effects": "evals/runs/claude-code/AT16/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT17",
+      "at": "AT 17",
+      "requirement": "VLBV 17",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"719f2ee8-9fb7-4327-b343-7088cd9dee57\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 2761,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT17/s1/transcript.txt",
+            "sha256": "cfd3a4e4c03830c4329d352b1282720ac3e47dd7e1ad3a60aca8e1a6de9723a2"
+          },
+          "effects": "evals/runs/claude-code/AT17/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"c80492ea-d523-4fda-9816-b3b6e2a57176\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 2725,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT17/s2/transcript.txt",
+            "sha256": "a8aa6c97854800a742b167c5d72a66e83e37db0c80c571be3ee4db009bc6837f"
+          },
+          "effects": "evals/runs/claude-code/AT17/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"bc4ae0bb-7777-4aa5-89bb-307872694263\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 2628,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT17/s3/transcript.txt",
+            "sha256": "89b6ca68539e80deca50ba5b0bd277541ef4bff93e842c014c33cf5b55f27840"
+          },
+          "effects": "evals/runs/claude-code/AT17/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT18",
+      "at": "AT 18",
+      "requirement": "VLBV 18",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"29f05e15-e948-4287-bacb-0595bdf9a352\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 848,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT18/s1/transcript.txt",
+            "sha256": "a0210ac30aa0bf88f0889531327443d56d982fd5188acfbc9f4ac1c75e5126cb"
+          },
+          "effects": "evals/runs/claude-code/AT18/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"2db43688-cc1a-4723-afa4-9d49515ae919\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 828,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT18/s2/transcript.txt",
+            "sha256": "f25fdfa7c3e9b510025e67454b4488009ed6daa24a3fa9ca19a23f9c3be94609"
+          },
+          "effects": "evals/runs/claude-code/AT18/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"76020acb-3cf7-4037-8de6-744242a454b1\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 832,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT18/s3/transcript.txt",
+            "sha256": "2cf83e130e492a4678ccaaef9ba5dd389bfb04f6898bffc4fedae8cc1b18664c"
+          },
+          "effects": "evals/runs/claude-code/AT18/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT19",
+      "at": "AT 19",
+      "requirement": "VLBV 19",
+      "class": "agent",
+      "capabilityFields": [
+        "canExecuteBoundary"
+      ],
+      "passesRequired": 3,
+      "verdict": "FAIL",
+      "reason": "3 of 3 samples failed; at most 0 allowed",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "FAIL",
+          "reason": "deterministic check failed: present .eval-markers/test-ran",
+          "deterministicOk": false,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 680,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT19/s1/transcript.txt",
+            "sha256": "d0f998502b6ec94bfdd64cb4c43f351608e8547d7627520e71c7d99f8326d61e"
+          },
+          "effects": "evals/runs/claude-code/AT19/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "FAIL",
+          "reason": "deterministic check failed: present .eval-markers/test-ran",
+          "deterministicOk": false,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 689,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT19/s2/transcript.txt",
+            "sha256": "99dc8b4b955533e1b5049d610419434b19b33a7448ff61bc98037fd52993fe52"
+          },
+          "effects": "evals/runs/claude-code/AT19/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "FAIL",
+          "reason": "deterministic check failed: present .eval-markers/test-ran",
+          "deterministicOk": false,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 704,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT19/s3/transcript.txt",
+            "sha256": "9f8b6be791951bcb8e1e76f754316dd76eef841e9f06b22b848bd702a4428091"
+          },
+          "effects": "evals/runs/claude-code/AT19/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT20",
+      "at": "AT 20",
+      "requirement": "VLBV 20",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"b5e384a4-27bf-4581-8308-4b1a01100d04\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 769,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT20/s1/transcript.txt",
+            "sha256": "dacd1245dc5cad692284210ae25cb32f42a8f5d68d5bd6e1a794437a202ca02e"
+          },
+          "effects": "evals/runs/claude-code/AT20/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"e052e915-fd5d-424f-bb8c-01960ff0ca21\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 734,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT20/s2/transcript.txt",
+            "sha256": "4998b74ba705ce12f7bf4408de6fddc60787cdf9a3aff2b419bac890aea0cbe0"
+          },
+          "effects": "evals/runs/claude-code/AT20/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"23ea9075-b5c2-4af0-8c04-5809f6595a7b\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 738,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT20/s3/transcript.txt",
+            "sha256": "535edf5fd8a13be403d8cd537dc51811fa5775b1601c8b4700de3d57bab195a1"
+          },
+          "effects": "evals/runs/claude-code/AT20/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT21",
+      "at": "AT 21",
+      "requirement": "VLBV 21",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"4d973394-23da-46b4-a1d2-4cc2a33536bf\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 755,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT21/s1/transcript.txt",
+            "sha256": "c825b26b209e29e8e03f55e080da53c81ee9784cff49249b8916ddd8a1e47260"
+          },
+          "effects": "evals/runs/claude-code/AT21/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"a84f60a2-5bbc-462a-98c2-20f3038d43d4\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 725,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT21/s2/transcript.txt",
+            "sha256": "d03ebff06108ccdf574814e6a1706ae624cf842723d8001127426fc05f2a7848"
+          },
+          "effects": "evals/runs/claude-code/AT21/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"bf2a51ea-ea11-4f89-9a76-d30a758e3ca3\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 746,
+          "transcript": {
+            "path": "evals/runs/claude-code/AT21/s3/transcript.txt",
+            "sha256": "678511c91ba291186cec63f02e523a41e9c24341acabcf252ed15236169ce317"
+          },
+          "effects": "evals/runs/claude-code/AT21/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "S18",
+      "at": "section 18",
+      "requirement": "VLBV 03, 11, 18, 20",
+      "class": "agent",
+      "capabilityFields": [
+        "rulesFiles"
+      ],
+      "passesRequired": 3,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"576e1cb6-d3f7-4ba6-aec7-c4b7fa3479b5\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 745,
+          "transcript": {
+            "path": "evals/runs/claude-code/S18/s1/transcript.txt",
+            "sha256": "b13f9a5e232816e6f66dede46a3493a123b06569a599c134f75c785ceaf4d442"
+          },
+          "effects": "evals/runs/claude-code/S18/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"12e48559-481f-4e56-91cf-1dbf108ecc80\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 725,
+          "transcript": {
+            "path": "evals/runs/claude-code/S18/s2/transcript.txt",
+            "sha256": "92ac7421e9b55f59595bd53b11c1eb3fceb1c49d760f2cb151c50945c823acba"
+          },
+          "effects": "evals/runs/claude-code/S18/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "harness exited 1: {\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"052d1512-6a69-4a1b-a1c2-e3b95b75df09\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 677,
+          "transcript": {
+            "path": "evals/runs/claude-code/S18/s3/transcript.txt",
+            "sha256": "6cde312a36f83ad93429ea5ef9faf7756810c2099eb809485d7246acaeddbc2f"
+          },
+          "effects": "evals/runs/claude-code/S18/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT05",
+      "at": "AT 05",
+      "requirement": "VLBV 05",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-missing(/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/vlbv-machinery-1HAnFf/AT05/project/.kbd-orchestrator/phases/closure-phase/boundary-results.json)"
+    },
+    {
+      "id": "AT06",
+      "at": "AT 06",
+      "requirement": "VLBV 06",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=empty-evidence:CS-1"
+    },
+    {
+      "id": "AT09",
+      "at": "AT 09",
+      "requirement": "VLBV 09",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-run-mismatch(evidence=project-20261116T083756Zx canonical=project-20261116T083756Z)"
+    },
+    {
+      "id": "AT10",
+      "at": "AT 10",
+      "requirement": "VLBV 10",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=not-pass:CS-2(NOT_EXERCISED)"
+    },
+    {
+      "id": "AT15",
+      "at": "AT 15",
+      "requirement": "VLBV 15",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-stale-sources(stale(src.txt))"
+    },
+    {
+      "id": "AT22",
+      "at": "AT 22",
+      "requirement": "VLBV 22",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "scanner refused the secret artifact: true (json-token-field)"
+    }
+  ]
+}

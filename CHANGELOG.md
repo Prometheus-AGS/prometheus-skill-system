@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **VLBV protocol evals** (`evals/vlbv-protocol/`, CR-31): the 22 VLBV acceptance tests and the §18 fresh-session check as eval cases. Each installed harness (Claude Code, Codex, OpenCode, Kimi, Qwen Code) gets one report with pass, fail and not-run counts. Agent cases run 3 samples each in isolated scratch homes and are graded cross-family; machinery cases run once against the real KBD scripts. Uninstalled harnesses are reported as not run.
+- **Boundary authorization event** (`shared/scripts/kbd-boundary-authorize.mjs`): records when the owner authorized B4 or B5, before the first attempt.
+- **Pre-authorization artifact scan** (CR-33): the closure packet lists runner output under the contract's new `boundaryPacket.runnerOutputGlobs` that is older than the B4 authorization. Report only; it never blocks.
+
+### Changed
+
+- `scripts/check-harness-adapters.js`: every `supported` capability field must carry its own evidence, either a committed file or a protocol-eval case of the same harness whose verdict is PASS and which declares that field. A new `--capabilities <file>` option validates a copy.
+
 ## [1.15.0] - 2026-11-15
 
 ### Changed

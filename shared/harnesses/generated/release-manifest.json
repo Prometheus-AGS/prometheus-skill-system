@@ -197,8 +197,13 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/kbd-boundary-authorize.mjs",
+      "sha256": "a1efba84198f7c9419d849de8893135f5d784d290b8837f6c3a895438fe4c4da",
+      "executable": false
+    },
+    {
       "path": "shared/scripts/kbd-closure-packet.mjs",
-      "sha256": "eb7f353a5875250846a65ddfdbbf73842d419d415df16b2dc9935320d68d5d32",
+      "sha256": "eca555fd84de9d2486f1c64249e6b3e8a003c3a18e332c8fb4f6103590e72a1a",
       "executable": false
     },
     {
@@ -228,7 +233,7 @@
     },
     {
       "path": "shared/scripts/kbd-phase-close-eval.sh",
-      "sha256": "e6565b628fd54431d4bfbca8e4551e92745cd2cc0ecd44cac10c89684fbb939a",
+      "sha256": "e5b7d9e2f20a5b2352b877271b576b9cd5b9ef45de7481e17068a02320f7f403",
       "executable": true
     },
     {
@@ -557,5 +562,5 @@
       "executable": true
     }
   ],
-  "bundleId": "121d388041bc4007d712127a3be3d1ba9ace1b008637ea9ec99ac81ecd00a6b9"
+  "bundleId": "1f7e1d0381bc1a0f91736eced81f5d7699f5a01db978277d5eae3076022bf599"
 }

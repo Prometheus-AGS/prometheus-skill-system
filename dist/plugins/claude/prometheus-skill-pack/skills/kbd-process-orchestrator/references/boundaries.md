@@ -27,7 +27,12 @@ One normative sequence. `kbd-execute`, `value-scenario-verify`, `delivery-cadenc
 
 1. **Admit.** `kbd-phase-readiness-check.sh` confirms the latest non-superseded
    contract digest, complete production, method resolution and current boundary
-   authority.
+   authority. The owner's authorization is recorded once, before any attempt, with
+   `node shared/scripts/kbd-boundary-authorize.mjs --phase <id> --authorizer <who>`
+   (an append-only event in `boundary-authorization.json`; `--boundary B5` for an
+   authorized repair). Closure compares runner output under the contract's
+   `boundaryPacket.runnerOutputGlobs` against this instant and lists anything older
+   in the closure packet (passive evidence of early execution; it never blocks).
 2. **Freeze the candidate.** Record source, build, configuration, fixture and
    reference identities. Delivery-cadence `candidate freeze` *is* this step.
 3. **Run the boundary packet once, in order.** Commands are typed `build`, `run`,

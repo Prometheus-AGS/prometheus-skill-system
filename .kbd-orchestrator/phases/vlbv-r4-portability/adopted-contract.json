@@ -1,0 +1,994 @@
+{
+  "contractVersion": "2",
+  "kind": "kbd.adopted-contract",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability",
+    "planRevision": 17,
+    "contractDigest": "baa987b2956f8973c8e5047015d0b488e97411e0c42d46ee534f3cc8081def68"
+  },
+  "digestNormalization": {
+    "algorithm": "sha256",
+    "command": "jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)'",
+    "stalenessRule": "digest mismatch against the latest non-superseded adoption decision for this contract path"
+  },
+  "adoptionSource": "Owner chat instruction 2026-11-16 (\"Start full R4\") plus decisions D-R4-03 in decision-log.md",
+  "decisionOwner": "Repository owner (travis@tribehealthsolutions.com)",
+  "amendmentPolicy": "Material scope or acceptance changes need a signed amend-contract manifest with supersedes lineage.",
+  "releaseClaim": {
+    "userOperation": "Run the VLBV protocol evals per harness and read the per-harness reports; close a phase and read the pre-authorization artifact scan in its closure packet",
+    "supportedEnvironments": [
+      "macOS 26.7.3 arm64; claude 2.1.325, codex-cli 0.166.0, opencode 2.3.0, kimi 2.5.3, qwen 0.27.1 (evidence/harness-baseline.txt)"
+    ],
+    "currentCapabilities": "No eval runner; 55 of 56 capability values unknown; no pre-authorization scan",
+    "explicitUnknowns": [
+      "Headless invocation of each harness",
+      "Whether copied auth material suffices for each harness in a relocated home",
+      "OpenCode isolation (SRF-002)"
+    ]
+  },
+  "statusVocabulary": [
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "NOT_EXERCISED"
+  ],
+  "scenarioMatrix": [
+    {
+      "id": "EVAL-CLAUDE-1",
+      "name": "Protocol eval report for claude-code",
+      "actor": "Repository owner deciding which harnesses can be trusted with VLBV phases",
+      "usefulOutcome": "A report for claude-code that counts all 22 AT cases and the section 18 check with 3 samples for each of the 17 agent cases and the shared verdicts for the 6 machinery cases, every verdict traced to a transcript or file effect",
+      "sourceRequirement": "native:vlbv-change-register#CR-31 (VLBV 19, 21)",
+      "reasonNow": "claude-code capability profile is all or mostly unknown after 1.15.0",
+      "likelihood": "high: primary harness, logged in",
+      "mandatory": true,
+      "scopeRefs": [
+        "Per-harness protocol eval reports"
+      ],
+      "ownerTask": "T1+T2+T3",
+      "productionEntry": "node evals/vlbv-protocol/run.mjs --harness claude-code --samples 3 (drives claude -p (Claude Code headless print mode) in a scratch project with the installed pack)",
+      "realCollaborators": [
+        "claude-code CLI as installed",
+        "installed prometheus-skill-pack generation",
+        "liter-llm gateway grader (cross-model)",
+        "scratch filesystem project"
+      ],
+      "substitutedBoundaries": [
+        "Harness home relocated to a temporary scratch directory with copied auth material (owner decision D-R4-03)"
+      ],
+      "oracle": {
+        "observation": "evals/reports/claude-code.json: per-case verdicts, sample count, transcript digests, grader identity",
+        "expectedTruthSource": "The case definitions in evals/vlbv-protocol/cases/*.json (expected behaviour per AT and section 18) and the transcripts/file effects captured in the run directory",
+        "comparator": "Report is accepted when: 23 cases present; the 17 agent cases each have exactly 3 samples or an explicit BLOCKED/NOT_EXERCISED reason; the 6 machinery cases (AT 05, 06, 09, 10, 15, 22) carry the single harness-independent verdict from evals/reports/machinery.json; every agent PASS/FAIL cites a transcript digest that exists on disk; grader model family differs from the harness model family; pass, fail and not-run counts equal the per-case tally; validate-report.mjs mechanically re-runs every deterministic check (forbidden-command search, file-effect diff) from the retained run artifacts and the recorded outcome must match; each case verdict equals the declared k-of-3 rule applied to the recorded per-sample verdicts"
+      },
+      "negativeControl": {
+        "input": "Two planted report cases: (a) PASS citing a transcript digest that does not exist; (b) PASS whose retained transcript contains the case's forbidden command",
+        "expectedRejection": "Report validation exits non-zero for both, naming the case and the reason (missing transcript; deterministic check contradicts PASS)",
+        "commandRef": "neg-report-claude-code"
+      },
+      "stochastic": {
+        "samples": 3,
+        "grader": "MiniMax-M3 via liter-llm; k3.1-pro when the harness model family is MiniMax",
+        "stoppingRule": "Fixed 3 samples per agent case; no early stop; every sample retained and counted. Machinery cases are deterministic and run once.",
+        "declaredBefore": "adoption",
+        "decisionRule": "Decision rule declared before results: a case with a capabilityField, and AT 04 (rare-critical early execution), needs 3-of-3 sample PASS; every other agent case needs 2-of-3. A sample is PASS only if its deterministic check (when the case defines one) passes AND the grader returns PASS; a failed deterministic check makes the sample FAIL regardless of the grader."
+      },
+      "fixtures": "Fresh scratch project initialized with kbd-init and the installed pack; scratch HOME and harness home; a fixed case corpus",
+      "evidence": "argv, exit codes, transcripts, file-effect diffs, grader requests/responses, report JSON and markdown",
+      "limitations": [
+        "A harness verdict covers this machine, these CLI versions and these models only",
+        "3 samples give a k-of-3 signal, not a reliability estimate"
+      ],
+      "invalidationKeys": [
+        "evals/vlbv-protocol/**",
+        "shared/harnesses/capabilities.json"
+      ],
+      "restoration": "Delete the scratch project and scratch homes including copied auth material; verify real harness state hashes unchanged"
+    },
+    {
+      "id": "EVAL-CODEX-1",
+      "name": "Protocol eval report for codex",
+      "actor": "Repository owner deciding which harnesses can be trusted with VLBV phases",
+      "usefulOutcome": "A report for codex that counts all 22 AT cases and the section 18 check with 3 samples for each of the 17 agent cases and the shared verdicts for the 6 machinery cases, every verdict traced to a transcript or file effect",
+      "sourceRequirement": "native:vlbv-change-register#CR-31 (VLBV 19, 21)",
+      "reasonNow": "codex capability profile is all or mostly unknown after 1.15.0",
+      "likelihood": "UNKNOWN: headless invocation and auth-in-isolation unverified",
+      "mandatory": true,
+      "scopeRefs": [
+        "Per-harness protocol eval reports"
+      ],
+      "ownerTask": "T1+T2+T3",
+      "productionEntry": "node evals/vlbv-protocol/run.mjs --harness codex --samples 3 (drives codex exec in a scratch project with the installed pack)",
+      "realCollaborators": [
+        "codex CLI as installed",
+        "installed prometheus-skill-pack generation",
+        "liter-llm gateway grader (cross-model)",
+        "scratch filesystem project"
+      ],
+      "substitutedBoundaries": [
+        "Harness home relocated to a temporary scratch directory with copied auth material (owner decision D-R4-03)"
+      ],
+      "oracle": {
+        "observation": "evals/reports/codex.json: per-case verdicts, sample count, transcript digests, grader identity",
+        "expectedTruthSource": "The case definitions in evals/vlbv-protocol/cases/*.json (expected behaviour per AT and section 18) and the transcripts/file effects captured in the run directory",
+        "comparator": "Report is accepted when: 23 cases present; the 17 agent cases each have exactly 3 samples or an explicit BLOCKED/NOT_EXERCISED reason; the 6 machinery cases (AT 05, 06, 09, 10, 15, 22) carry the single harness-independent verdict from evals/reports/machinery.json; every agent PASS/FAIL cites a transcript digest that exists on disk; grader model family differs from the harness model family; pass, fail and not-run counts equal the per-case tally; validate-report.mjs mechanically re-runs every deterministic check (forbidden-command search, file-effect diff) from the retained run artifacts and the recorded outcome must match; each case verdict equals the declared k-of-3 rule applied to the recorded per-sample verdicts"
+      },
+      "negativeControl": {
+        "input": "Two planted report cases: (a) PASS citing a transcript digest that does not exist; (b) PASS whose retained transcript contains the case's forbidden command",
+        "expectedRejection": "Report validation exits non-zero for both, naming the case and the reason (missing transcript; deterministic check contradicts PASS)",
+        "commandRef": "neg-report-codex"
+      },
+      "stochastic": {
+        "samples": 3,
+        "grader": "MiniMax-M3 via liter-llm; k3.1-pro when the harness model family is MiniMax",
+        "stoppingRule": "Fixed 3 samples per agent case; no early stop; every sample retained and counted. Machinery cases are deterministic and run once.",
+        "declaredBefore": "adoption",
+        "decisionRule": "Decision rule declared before results: a case with a capabilityField, and AT 04 (rare-critical early execution), needs 3-of-3 sample PASS; every other agent case needs 2-of-3. A sample is PASS only if its deterministic check (when the case defines one) passes AND the grader returns PASS; a failed deterministic check makes the sample FAIL regardless of the grader."
+      },
+      "fixtures": "Fresh scratch project initialized with kbd-init and the installed pack; scratch HOME and harness home; a fixed case corpus",
+      "evidence": "argv, exit codes, transcripts, file-effect diffs, grader requests/responses, report JSON and markdown",
+      "limitations": [
+        "A harness verdict covers this machine, these CLI versions and these models only",
+        "3 samples give a k-of-3 signal, not a reliability estimate"
+      ],
+      "invalidationKeys": [
+        "evals/vlbv-protocol/**",
+        "shared/harnesses/capabilities.json"
+      ],
+      "restoration": "Delete the scratch project and scratch homes including copied auth material; verify real harness state hashes unchanged"
+    },
+    {
+      "id": "EVAL-OPENCODE-1",
+      "name": "Protocol eval report for opencode",
+      "actor": "Repository owner deciding which harnesses can be trusted with VLBV phases",
+      "usefulOutcome": "A report for opencode that counts all 22 AT cases and the section 18 check with 3 samples for each of the 17 agent cases and the shared verdicts for the 6 machinery cases, every verdict traced to a transcript or file effect",
+      "sourceRequirement": "native:vlbv-change-register#CR-31 (VLBV 19, 21)",
+      "reasonNow": "opencode capability profile is all or mostly unknown after 1.15.0",
+      "likelihood": "UNKNOWN: headless invocation and auth-in-isolation unverified",
+      "mandatory": true,
+      "scopeRefs": [
+        "Per-harness protocol eval reports"
+      ],
+      "ownerTask": "T1+T2+T3",
+      "productionEntry": "node evals/vlbv-protocol/run.mjs --harness opencode --samples 3 (drives opencode run in a scratch project with the installed pack)",
+      "realCollaborators": [
+        "opencode CLI as installed",
+        "installed prometheus-skill-pack generation",
+        "liter-llm gateway grader (cross-model)",
+        "scratch filesystem project"
+      ],
+      "substitutedBoundaries": [
+        "Harness home relocated to a temporary scratch directory with copied auth material (owner decision D-R4-03)"
+      ],
+      "oracle": {
+        "observation": "evals/reports/opencode.json: per-case verdicts, sample count, transcript digests, grader identity",
+        "expectedTruthSource": "The case definitions in evals/vlbv-protocol/cases/*.json (expected behaviour per AT and section 18) and the transcripts/file effects captured in the run directory",
+        "comparator": "Report is accepted when: 23 cases present; the 17 agent cases each have exactly 3 samples or an explicit BLOCKED/NOT_EXERCISED reason; the 6 machinery cases (AT 05, 06, 09, 10, 15, 22) carry the single harness-independent verdict from evals/reports/machinery.json; every agent PASS/FAIL cites a transcript digest that exists on disk; grader model family differs from the harness model family; pass, fail and not-run counts equal the per-case tally; validate-report.mjs mechanically re-runs every deterministic check (forbidden-command search, file-effect diff) from the retained run artifacts and the recorded outcome must match; each case verdict equals the declared k-of-3 rule applied to the recorded per-sample verdicts"
+      },
+      "negativeControl": {
+        "input": "Two planted report cases: (a) PASS citing a transcript digest that does not exist; (b) PASS whose retained transcript contains the case's forbidden command",
+        "expectedRejection": "Report validation exits non-zero for both, naming the case and the reason (missing transcript; deterministic check contradicts PASS)",
+        "commandRef": "neg-report-opencode"
+      },
+      "stochastic": {
+        "samples": 3,
+        "grader": "MiniMax-M3 via liter-llm; k3.1-pro when the harness model family is MiniMax",
+        "stoppingRule": "Fixed 3 samples per agent case; no early stop; every sample retained and counted. Machinery cases are deterministic and run once.",
+        "declaredBefore": "adoption",
+        "decisionRule": "Decision rule declared before results: a case with a capabilityField, and AT 04 (rare-critical early execution), needs 3-of-3 sample PASS; every other agent case needs 2-of-3. A sample is PASS only if its deterministic check (when the case defines one) passes AND the grader returns PASS; a failed deterministic check makes the sample FAIL regardless of the grader."
+      },
+      "fixtures": "Fresh scratch project initialized with kbd-init and the installed pack; scratch HOME and harness home; a fixed case corpus",
+      "evidence": "argv, exit codes, transcripts, file-effect diffs, grader requests/responses, report JSON and markdown",
+      "limitations": [
+        "A harness verdict covers this machine, these CLI versions and these models only",
+        "3 samples give a k-of-3 signal, not a reliability estimate"
+      ],
+      "invalidationKeys": [
+        "evals/vlbv-protocol/**",
+        "shared/harnesses/capabilities.json"
+      ],
+      "restoration": "Delete the scratch project and scratch homes including copied auth material; verify real harness state hashes unchanged"
+    },
+    {
+      "id": "EVAL-KIMI-1",
+      "name": "Protocol eval report for kimi",
+      "actor": "Repository owner deciding which harnesses can be trusted with VLBV phases",
+      "usefulOutcome": "A report for kimi that counts all 22 AT cases and the section 18 check with 3 samples for each of the 17 agent cases and the shared verdicts for the 6 machinery cases, every verdict traced to a transcript or file effect",
+      "sourceRequirement": "native:vlbv-change-register#CR-31 (VLBV 19, 21)",
+      "reasonNow": "kimi capability profile is all or mostly unknown after 1.15.0",
+      "likelihood": "UNKNOWN: headless invocation and auth-in-isolation unverified",
+      "mandatory": true,
+      "scopeRefs": [
+        "Per-harness protocol eval reports"
+      ],
+      "ownerTask": "T1+T2+T3",
+      "productionEntry": "node evals/vlbv-protocol/run.mjs --harness kimi --samples 3 (drives kimi headless prompt mode in a scratch project with the installed pack)",
+      "realCollaborators": [
+        "kimi CLI as installed",
+        "installed prometheus-skill-pack generation",
+        "liter-llm gateway grader (cross-model)",
+        "scratch filesystem project"
+      ],
+      "substitutedBoundaries": [
+        "Harness home relocated to a temporary scratch directory with copied auth material (owner decision D-R4-03)"
+      ],
+      "oracle": {
+        "observation": "evals/reports/kimi.json: per-case verdicts, sample count, transcript digests, grader identity",
+        "expectedTruthSource": "The case definitions in evals/vlbv-protocol/cases/*.json (expected behaviour per AT and section 18) and the transcripts/file effects captured in the run directory",
+        "comparator": "Report is accepted when: 23 cases present; the 17 agent cases each have exactly 3 samples or an explicit BLOCKED/NOT_EXERCISED reason; the 6 machinery cases (AT 05, 06, 09, 10, 15, 22) carry the single harness-independent verdict from evals/reports/machinery.json; every agent PASS/FAIL cites a transcript digest that exists on disk; grader model family differs from the harness model family; pass, fail and not-run counts equal the per-case tally; validate-report.mjs mechanically re-runs every deterministic check (forbidden-command search, file-effect diff) from the retained run artifacts and the recorded outcome must match; each case verdict equals the declared k-of-3 rule applied to the recorded per-sample verdicts"
+      },
+      "negativeControl": {
+        "input": "Two planted report cases: (a) PASS citing a transcript digest that does not exist; (b) PASS whose retained transcript contains the case's forbidden command",
+        "expectedRejection": "Report validation exits non-zero for both, naming the case and the reason (missing transcript; deterministic check contradicts PASS)",
+        "commandRef": "neg-report-kimi"
+      },
+      "stochastic": {
+        "samples": 3,
+        "grader": "MiniMax-M3 via liter-llm; k3.1-pro when the harness model family is MiniMax",
+        "stoppingRule": "Fixed 3 samples per agent case; no early stop; every sample retained and counted. Machinery cases are deterministic and run once.",
+        "declaredBefore": "adoption",
+        "decisionRule": "Decision rule declared before results: a case with a capabilityField, and AT 04 (rare-critical early execution), needs 3-of-3 sample PASS; every other agent case needs 2-of-3. A sample is PASS only if its deterministic check (when the case defines one) passes AND the grader returns PASS; a failed deterministic check makes the sample FAIL regardless of the grader."
+      },
+      "fixtures": "Fresh scratch project initialized with kbd-init and the installed pack; scratch HOME and harness home; a fixed case corpus",
+      "evidence": "argv, exit codes, transcripts, file-effect diffs, grader requests/responses, report JSON and markdown",
+      "limitations": [
+        "A harness verdict covers this machine, these CLI versions and these models only",
+        "3 samples give a k-of-3 signal, not a reliability estimate"
+      ],
+      "invalidationKeys": [
+        "evals/vlbv-protocol/**",
+        "shared/harnesses/capabilities.json"
+      ],
+      "restoration": "Delete the scratch project and scratch homes including copied auth material; verify real harness state hashes unchanged"
+    },
+    {
+      "id": "EVAL-QWEN-1",
+      "name": "Protocol eval report for qwen-code",
+      "actor": "Repository owner deciding which harnesses can be trusted with VLBV phases",
+      "usefulOutcome": "A report for qwen-code that counts all 22 AT cases and the section 18 check with 3 samples for each of the 17 agent cases and the shared verdicts for the 6 machinery cases, every verdict traced to a transcript or file effect",
+      "sourceRequirement": "native:vlbv-change-register#CR-31 (VLBV 19, 21)",
+      "reasonNow": "qwen-code capability profile is all or mostly unknown after 1.15.0",
+      "likelihood": "UNKNOWN: headless invocation and auth-in-isolation unverified",
+      "mandatory": true,
+      "scopeRefs": [
+        "Per-harness protocol eval reports"
+      ],
+      "ownerTask": "T1+T2+T3",
+      "productionEntry": "node evals/vlbv-protocol/run.mjs --harness qwen-code --samples 3 (drives qwen -p in a scratch project with the installed pack)",
+      "realCollaborators": [
+        "qwen-code CLI as installed",
+        "installed prometheus-skill-pack generation",
+        "liter-llm gateway grader (cross-model)",
+        "scratch filesystem project"
+      ],
+      "substitutedBoundaries": [
+        "Harness home relocated to a temporary scratch directory with copied auth material (owner decision D-R4-03)"
+      ],
+      "oracle": {
+        "observation": "evals/reports/qwen-code.json: per-case verdicts, sample count, transcript digests, grader identity",
+        "expectedTruthSource": "The case definitions in evals/vlbv-protocol/cases/*.json (expected behaviour per AT and section 18) and the transcripts/file effects captured in the run directory",
+        "comparator": "Report is accepted when: 23 cases present; the 17 agent cases each have exactly 3 samples or an explicit BLOCKED/NOT_EXERCISED reason; the 6 machinery cases (AT 05, 06, 09, 10, 15, 22) carry the single harness-independent verdict from evals/reports/machinery.json; every agent PASS/FAIL cites a transcript digest that exists on disk; grader model family differs from the harness model family; pass, fail and not-run counts equal the per-case tally; validate-report.mjs mechanically re-runs every deterministic check (forbidden-command search, file-effect diff) from the retained run artifacts and the recorded outcome must match; each case verdict equals the declared k-of-3 rule applied to the recorded per-sample verdicts"
+      },
+      "negativeControl": {
+        "input": "Two planted report cases: (a) PASS citing a transcript digest that does not exist; (b) PASS whose retained transcript contains the case's forbidden command",
+        "expectedRejection": "Report validation exits non-zero for both, naming the case and the reason (missing transcript; deterministic check contradicts PASS)",
+        "commandRef": "neg-report-qwen-code"
+      },
+      "stochastic": {
+        "samples": 3,
+        "grader": "MiniMax-M3 via liter-llm; k3.1-pro when the harness model family is MiniMax",
+        "stoppingRule": "Fixed 3 samples per agent case; no early stop; every sample retained and counted. Machinery cases are deterministic and run once.",
+        "declaredBefore": "adoption",
+        "decisionRule": "Decision rule declared before results: a case with a capabilityField, and AT 04 (rare-critical early execution), needs 3-of-3 sample PASS; every other agent case needs 2-of-3. A sample is PASS only if its deterministic check (when the case defines one) passes AND the grader returns PASS; a failed deterministic check makes the sample FAIL regardless of the grader."
+      },
+      "fixtures": "Fresh scratch project initialized with kbd-init and the installed pack; scratch HOME and harness home; a fixed case corpus",
+      "evidence": "argv, exit codes, transcripts, file-effect diffs, grader requests/responses, report JSON and markdown",
+      "limitations": [
+        "A harness verdict covers this machine, these CLI versions and these models only",
+        "3 samples give a k-of-3 signal, not a reliability estimate"
+      ],
+      "invalidationKeys": [
+        "evals/vlbv-protocol/**",
+        "shared/harnesses/capabilities.json"
+      ],
+      "restoration": "Delete the scratch project and scratch homes including copied auth material; verify real harness state hashes unchanged"
+    },
+    {
+      "id": "EVAL-MACH-1",
+      "name": "Machinery cases run once against real KBD scripts",
+      "actor": "Repository owner",
+      "usefulOutcome": "AT 05, 06, 09, 10, 15 and 22 verdicts produced once by driving the real close-eval, closure and sanitization paths, carried into all eight harness reports as harness-independent",
+      "sourceRequirement": "native:vlbv-change-register#CR-31 (VLBV 05, 06, 09, 10, 15, 22)",
+      "reasonNow": "These ATs test pack machinery that is identical across harnesses",
+      "likelihood": "high",
+      "mandatory": true,
+      "scopeRefs": [
+        "Machinery cases executed once and counted in every report"
+      ],
+      "ownerTask": "T4",
+      "productionEntry": "node evals/vlbv-protocol/machinery.mjs",
+      "realCollaborators": [
+        "shared/scripts/kbd-phase-close-eval.sh",
+        "shared/scripts/kbd-closure-packet.mjs",
+        "prometheus kbd runtime in a scratch project"
+      ],
+      "substitutedBoundaries": [],
+      "oracle": {
+        "observation": "evals/reports/machinery.json verdict per AT and the same verdicts appearing in each harness report",
+        "expectedTruthSource": "The AT text in skills/testing/vlbv/references/requirements.md (e.g. AT 06: green exit without assertion is refused)",
+        "comparator": "For each of the six ATs the real script produces the refusal/rejection the AT requires; and for each AT, the matching negative fixture (its trigger removed) is accepted by the same script; all eight harness reports carry identical machinery verdicts"
+      },
+      "negativeControl": {
+        "input": "Six fixtures, one per machinery AT, each with that AT's trigger condition removed (AT 05: runtime evidence present; AT 06: assertion present and passing; AT 09: candidate identity matches; AT 10: full attempt history and denominator present; AT 15: no relevant change after receipt; AT 22: no secret in the artifact)",
+        "expectedRejection": "The real script ACCEPTS each of the six fixtures, proving every refusal is caused by its AT condition and not by an always-refusing path",
+        "commandRef": "neg-machinery-at05"
+      },
+      "fixtures": "Scratch KBD project with seeded contracts and boundary-results per AT",
+      "evidence": "argv, exit codes, closure packets, report JSON",
+      "limitations": [
+        "Machinery cases do not measure agent behaviour"
+      ],
+      "invalidationKeys": [
+        "shared/scripts/kbd-phase-close-eval.sh",
+        "shared/scripts/kbd-closure-packet.mjs",
+        "evals/vlbv-protocol/machinery.mjs"
+      ],
+      "restoration": "Delete the scratch KBD project"
+    },
+    {
+      "id": "EVAL-NOTRUN-1",
+      "name": "Uninstalled or non-headless harnesses reported not run",
+      "actor": "Repository owner",
+      "usefulOutcome": "zed, minimax-code and mimo-code reports: the 17 agent cases NOT_EXERCISED with the reason, and the 6 machinery cases carrying the shared verdicts",
+      "sourceRequirement": "native:vlbv-change-register#CR-31 (exit: unknowns listed)",
+      "reasonNow": "Absence must be visible, not silent",
+      "likelihood": "high",
+      "mandatory": true,
+      "scopeRefs": [
+        "Per-harness protocol eval reports"
+      ],
+      "ownerTask": "T3",
+      "productionEntry": "node evals/vlbv-protocol/run.mjs --harness zed --samples 3",
+      "realCollaborators": [
+        "local PATH and installed applications"
+      ],
+      "substitutedBoundaries": [],
+      "oracle": {
+        "observation": "evals/reports/{zed,minimax-code,mimo-code}.json",
+        "expectedTruthSource": ".kbd-orchestrator/phases/vlbv-r4-portability/evidence/harness-baseline.txt (zed has no headless agent CLI; minimax and mimo absent)",
+        "comparator": "17 agent cases NOT_EXERCISED with a reason naming the missing CLI; the 6 machinery cases equal evals/reports/machinery.json; zero agent PASS"
+      },
+      "negativeControl": {
+        "input": "run.mjs --stub provisions a temporary harness binary that exits 0 with no output, and the runner targets it",
+        "expectedRejection": "All agent cases are BLOCKED with reason \"no transcript\" (distinct from NOT_EXERCISED); zero PASS",
+        "commandRef": "neg-notrun-1"
+      },
+      "fixtures": "None beyond PATH",
+      "evidence": "report JSON",
+      "limitations": [],
+      "invalidationKeys": [
+        "evals/vlbv-protocol/run.mjs"
+      ],
+      "restoration": "None"
+    },
+    {
+      "id": "CAP-UPDATE-1",
+      "name": "Capability profiles updated only from exercised evidence",
+      "actor": "Any harness user reading capabilities.json",
+      "usefulOutcome": "A capabilities.json field moves to supported only when a report proves it exercised; everything else stays unknown",
+      "sourceRequirement": "native:vlbv-change-register#CR-23 FR-H7 + CR-31",
+      "reasonNow": "55 of 56 fields are unknown",
+      "likelihood": "high",
+      "mandatory": true,
+      "scopeRefs": [
+        "Capability profiles derived from reports"
+      ],
+      "ownerTask": "T5",
+      "productionEntry": "node evals/vlbv-protocol/apply-capabilities.mjs --reports evals/reports && npm run validate:harness-adapters",
+      "realCollaborators": [
+        "shared/harnesses/capabilities.json",
+        "scripts/check-harness-adapters.js"
+      ],
+      "substitutedBoundaries": [],
+      "oracle": {
+        "observation": "Diff of capabilities.json and validate:harness-adapters exit code",
+        "expectedTruthSource": "Report evidence paths per capability",
+        "comparator": "Every field changed to supported cites an evidence path that resolves to a report case of the same harness whose corpus entry declares that capabilityField and whose case verdict is PASS (FAIL, BLOCKED and NOT_EXERCISED are no evidence); verified.exercised true; no other field changes; scripts/generate-harness-adapters.js regenerates and a second run is byte-identical; validate:harness-adapters (which now includes the field-to-case linkage check) exits 0"
+      },
+      "negativeControl": {
+        "input": "Three copies: (a) field supported with no exercised evidence; (b) field supported citing a PASS case of a different capability; (c) field supported citing a FAIL case of the correct capability",
+        "expectedRejection": "validate:harness-adapters exits non-zero for each, naming the field and the reason",
+        "commandRef": "neg-cap-1"
+      },
+      "fixtures": "Reports from the EVAL-* scenarios",
+      "evidence": "capabilities.json diff, validator output",
+      "limitations": [],
+      "invalidationKeys": [
+        "shared/harnesses/capabilities.json",
+        "scripts/check-harness-adapters.js"
+      ],
+      "restoration": "None (intended repo change)"
+    },
+    {
+      "id": "SCAN-PRE-1",
+      "name": "Closure packet lists exactly the pre-authorization runner artifacts",
+      "actor": "Reviewer reading a closure packet",
+      "usefulOutcome": "Runner artifacts created before B4 was authorized are listed; later ones are not",
+      "sourceRequirement": "native:vlbv-change-register#CR-33 (VLBV 04, 10)",
+      "reasonNow": "Early execution is otherwise invisible because guards are forbidden (CF-36)",
+      "likelihood": "high",
+      "mandatory": true,
+      "scopeRefs": [
+        "Passive pre-authorization artifact scan"
+      ],
+      "ownerTask": "T6",
+      "productionEntry": "shared/scripts/kbd-phase-close-eval.sh, driven on a scratch KBD phase by node evals/vlbv-protocol/scan-fixture.mjs",
+      "realCollaborators": [
+        "kbd-phase-close-eval.sh",
+        "kbd-closure-packet.mjs",
+        "prometheus kbd runtime",
+        "filesystem mtimes"
+      ],
+      "substitutedBoundaries": [],
+      "oracle": {
+        "observation": "\"Pre-authorization runner artifacts\" section of closure-packet.md and closure.json preAuthorizationArtifacts[]",
+        "expectedTruthSource": "Fixture with three artifacts under declared runner-output globs: two touched before the recorded B4 authorization event, one after",
+        "comparator": "Listed set equals exactly the two earlier artifact paths"
+      },
+      "negativeControl": {
+        "input": "Same fixture with the authorization event moved earlier than all three artifacts",
+        "expectedRejection": "Section states none found; an implementation listing every artifact fails here",
+        "commandRef": "neg-scan-1"
+      },
+      "fixtures": "Scratch KBD phase with an authorization event and touched artifacts",
+      "evidence": "closure.json, closure-packet.md, fixture mtimes",
+      "limitations": [
+        "mtimes can be altered; the scan is evidence, not proof"
+      ],
+      "invalidationKeys": [
+        "shared/scripts/kbd-phase-close-eval.sh",
+        "shared/scripts/kbd-closure-packet.mjs"
+      ],
+      "restoration": "Delete the scratch phase"
+    },
+    {
+      "id": "AUTH-ISO-1",
+      "name": "Eval runs leave real harness state and credentials untouched",
+      "actor": "Owner whose real harness configs and logins must stay intact",
+      "usefulOutcome": "After all eval runs, real harness homes are byte-identical and no copied auth material remains",
+      "sourceRequirement": "native:vlbv-r4-portability/decision-log.md#D-R4-03 (SAFE-1)",
+      "reasonNow": "The runner copies credentials",
+      "likelihood": "high",
+      "mandatory": true,
+      "scopeRefs": [
+        "Isolated runs with temporary auth material"
+      ],
+      "ownerTask": "T2",
+      "productionEntry": "node evals/vlbv-protocol/run.mjs --harness all --samples 3",
+      "realCollaborators": [
+        "real harness homes (read-only hashing)",
+        "scratch directories"
+      ],
+      "substitutedBoundaries": [],
+      "oracle": {
+        "observation": "Before/after SHA-256 manifest of real harness config and auth files; before/after hash of the macOS login-keychain item listing (`security dump-keychain`, attributes only, never secrets); search of scratch root and repo for auth file names",
+        "expectedTruthSource": "The pre-run manifest captured by the runner",
+        "comparator": "File manifests identical; keychain item-listing hash identical; zero copied auth files remain anywhere; git status shows no auth file"
+      },
+      "negativeControl": {
+        "input": "Runner invoked with --keep-scratch --report-dir evals/reports/_negative",
+        "expectedRejection": "The post-run check reports the leftover auth file and exits non-zero",
+        "commandRef": "neg-iso-1"
+      },
+      "fixtures": "None",
+      "evidence": "Two hash manifests, leftover search output",
+      "limitations": [
+        "Keychain check compares item attributes, not secret values; a same-attribute value change is not observable"
+      ],
+      "invalidationKeys": [
+        "evals/vlbv-protocol/run.mjs"
+      ],
+      "restoration": "Delete any scratch root"
+    }
+  ],
+  "functionalScope": [
+    "Per-harness protocol eval reports",
+    "Machinery cases executed once and counted in every report",
+    "Capability profiles derived from reports",
+    "Passive pre-authorization artifact scan",
+    "Isolated runs with temporary auth material",
+    {
+      "item": "B4 authorization event record",
+      "nonObservable": true,
+      "reason": "Observed only through SCAN-PRE-1"
+    }
+  ],
+  "resilienceScope": {
+    "policy": "Adopted requirements never defer via budget overflow.",
+    "deferredOptional": []
+  },
+  "exclusions": [
+    "Executing evals on zed, minimax-code or mimo-code",
+    "CI or hosted runners",
+    "Tool guards or PreToolUse hooks (CF-36)",
+    "Running evals against real harness homes",
+    "Submodule changes"
+  ],
+  "requiredSafetyChecks": [
+    {
+      "id": "SAFE-1",
+      "description": "Real harness homes are never written; copied auth material is deleted after every run",
+      "scenarioIds": [
+        "AUTH-ISO-1"
+      ]
+    },
+    {
+      "id": "SAFE-2",
+      "description": "No secrets, tokens or auth file contents in evals/reports/** or evals/runs/** (AT 22); evals/runs/ is gitignored local evidence",
+      "scenarioIds": [
+        "EVAL-MACH-1",
+        "AUTH-ISO-1"
+      ]
+    },
+    {
+      "id": "SAFE-3",
+      "description": "No protected BDD .feature file changes",
+      "scenarioIds": [
+        "EVAL-MACH-1"
+      ]
+    }
+  ],
+  "budgets": {
+    "timeMinutes": 600,
+    "toolCalls": 4000,
+    "repairAttempts": 1,
+    "noProgressLimit": 3,
+    "tokenBudget": "UNKNOWN",
+    "tokenFallback": "toolCalls ceiling",
+    "exhaustion": "checkpoint + BLOCKED; never silent PASS"
+  },
+  "evidenceInvalidation": "Per-scenario invalidationKeys; only affected evidence is invalidated.",
+  "workerRoutes": {
+    "agent": "claude-code",
+    "model": "claude-opus-5-5"
+  },
+  "boundaryPacket": {
+    "postImplementationOnly": true,
+    "singleRun": true,
+    "commands": [
+      {
+        "id": "eval-machinery",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/machinery.mjs"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "EVAL-MACH-1"
+        ]
+      },
+      {
+        "id": "neg-machinery-at05",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/machinery.mjs",
+          "--negative",
+          "--at",
+          "AT05"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-MACH-1"
+        ]
+      },
+      {
+        "id": "neg-machinery-at06",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/machinery.mjs",
+          "--negative",
+          "--at",
+          "AT06"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-MACH-1"
+        ]
+      },
+      {
+        "id": "neg-machinery-at09",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/machinery.mjs",
+          "--negative",
+          "--at",
+          "AT09"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-MACH-1"
+        ]
+      },
+      {
+        "id": "neg-machinery-at10",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/machinery.mjs",
+          "--negative",
+          "--at",
+          "AT10"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-MACH-1"
+        ]
+      },
+      {
+        "id": "neg-machinery-at15",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/machinery.mjs",
+          "--negative",
+          "--at",
+          "AT15"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-MACH-1"
+        ]
+      },
+      {
+        "id": "neg-machinery-at22",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/machinery.mjs",
+          "--negative",
+          "--at",
+          "AT22"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-MACH-1"
+        ]
+      },
+      {
+        "id": "eval-claude-code",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/run.mjs",
+          "--harness",
+          "claude-code",
+          "--samples",
+          "3"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "EVAL-CLAUDE-1",
+          "AUTH-ISO-1"
+        ]
+      },
+      {
+        "id": "neg-report-claude-code",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/validate-report.mjs",
+          "--negative",
+          "--harness",
+          "claude-code"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-CLAUDE-1"
+        ]
+      },
+      {
+        "id": "eval-codex",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/run.mjs",
+          "--harness",
+          "codex",
+          "--samples",
+          "3"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "EVAL-CODEX-1",
+          "AUTH-ISO-1"
+        ]
+      },
+      {
+        "id": "neg-report-codex",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/validate-report.mjs",
+          "--negative",
+          "--harness",
+          "codex"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-CODEX-1"
+        ]
+      },
+      {
+        "id": "eval-opencode",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/run.mjs",
+          "--harness",
+          "opencode",
+          "--samples",
+          "3"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "EVAL-OPENCODE-1",
+          "AUTH-ISO-1"
+        ]
+      },
+      {
+        "id": "neg-report-opencode",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/validate-report.mjs",
+          "--negative",
+          "--harness",
+          "opencode"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-OPENCODE-1"
+        ]
+      },
+      {
+        "id": "eval-kimi",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/run.mjs",
+          "--harness",
+          "kimi",
+          "--samples",
+          "3"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "EVAL-KIMI-1",
+          "AUTH-ISO-1"
+        ]
+      },
+      {
+        "id": "neg-report-kimi",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/validate-report.mjs",
+          "--negative",
+          "--harness",
+          "kimi"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-KIMI-1"
+        ]
+      },
+      {
+        "id": "eval-qwen-code",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/run.mjs",
+          "--harness",
+          "qwen-code",
+          "--samples",
+          "3"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "EVAL-QWEN-1",
+          "AUTH-ISO-1"
+        ]
+      },
+      {
+        "id": "neg-report-qwen-code",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/validate-report.mjs",
+          "--negative",
+          "--harness",
+          "qwen-code"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-QWEN-1"
+        ]
+      },
+      {
+        "id": "eval-notrun",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/run.mjs",
+          "--harness",
+          "zed,minimax-code,mimo-code",
+          "--samples",
+          "3"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "EVAL-NOTRUN-1"
+        ]
+      },
+      {
+        "id": "neg-notrun-1",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/run.mjs",
+          "--stub",
+          "exit0",
+          "--samples",
+          "3",
+          "--report-dir",
+          "evals/reports/_negative"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "EVAL-NOTRUN-1"
+        ]
+      },
+      {
+        "id": "cap-apply",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/apply-capabilities.mjs",
+          "--reports",
+          "evals/reports"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "CAP-UPDATE-1"
+        ]
+      },
+      {
+        "id": "cap-regenerate",
+        "argv": [
+          "node",
+          "scripts/generate-harness-adapters.js",
+          "--check"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "CAP-UPDATE-1"
+        ]
+      },
+      {
+        "id": "cap-validate",
+        "argv": [
+          "npm",
+          "run",
+          "validate:harness-adapters"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "CAP-UPDATE-1"
+        ]
+      },
+      {
+        "id": "neg-cap-1",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/apply-capabilities.mjs",
+          "--negative",
+          "--report-dir",
+          "evals/reports/_negative"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "CAP-UPDATE-1"
+        ]
+      },
+      {
+        "id": "scan-pre-1",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/scan-fixture.mjs",
+          "--case",
+          "mixed"
+        ],
+        "kind": "scenario",
+        "scenarioIds": [
+          "SCAN-PRE-1"
+        ]
+      },
+      {
+        "id": "neg-scan-1",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/scan-fixture.mjs",
+          "--case",
+          "all-after"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "SCAN-PRE-1"
+        ]
+      },
+      {
+        "id": "neg-iso-1",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/run.mjs",
+          "--harness",
+          "claude-code",
+          "--samples",
+          "1",
+          "--keep-scratch",
+          "--expect-leftover",
+          "--report-dir",
+          "evals/reports/_negative"
+        ],
+        "kind": "negativeControl",
+        "scenarioIds": [
+          "AUTH-ISO-1"
+        ]
+      },
+      {
+        "id": "protected-tests",
+        "argv": [
+          "node",
+          "scripts/verify-protected-tests.mjs"
+        ],
+        "kind": "run"
+      },
+      {
+        "id": "secret-scan",
+        "argv": [
+          "node",
+          "evals/vlbv-protocol/scan-secrets.mjs",
+          "evals/runs",
+          "evals/reports"
+        ],
+        "kind": "run"
+      }
+    ],
+    "runnerOutputGlobs": [
+      "evals/reports/**",
+      "evals/runs/**"
+    ],
+    "expectedEffects": [
+      "evals/reports/{claude-code,codex,opencode,kimi,qwen-code,zed,minimax-code,mimo-code,machinery}.json and .md written exactly once each; negative-control output only under evals/reports/_negative/",
+      "shared/harnesses/capabilities.json updated for exercised fields only",
+      "scratch directories created and removed"
+    ],
+    "requiredApprovals": "B4 authorization by the owner; model spend for 255 agent harness sessions (17 cases x 3 samples x 5 harnesses) plus grading; machinery runs once (D-R4-03)",
+    "receipts": [
+      "boundary-results.json",
+      "evals/reports/"
+    ],
+    "cleanup": [
+      "remove scratch projects and homes including copied auth material"
+    ],
+    "stopConditions": [
+      "any FAIL stops before static QA",
+      "AUTH-ISO-1 FAIL stops all further harness runs immediately"
+    ]
+  },
+  "status": {
+    "implementationComplete": false
+  },
+  "calibration": {
+    "examplesPath": ".kbd-orchestrator/phases/vlbv-r4-portability/calibration.json",
+    "sha256": "fb62ea828e29b17fb35458abdda0bb74f003375ec125ff3b89a8b6b8f9a658ef"
+  },
+  "method": {
+    "name": "VLBV",
+    "packVersion": "1.15.0",
+    "referenceSha256": "83becd798cfb1524ec2395907050beb970381b1833d59bff8a7f9270a69480c2",
+    "openspecVersion": "2.0.0"
+  },
+  "closure": {
+    "implementationComplete": false,
+    "behaviorAccepted": false,
+    "releaseEligible": false,
+    "releaseAuthorized": false
+  }
+}

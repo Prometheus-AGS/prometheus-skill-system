@@ -124,7 +124,8 @@
         "project": [".agents/skills"],
         "user": ["~/.agents/skills"],
         "status": "supported",
-        "source": "https://developers.openai.com/codex/skills"
+        "source": "https://developers.openai.com/codex/skills",
+        "evidence": { "file": "docs/decisions/harness-evidence/codex-skill-roots-2026-11-15.txt" }
       },
       "invocation": {
         "explicit": "$name",

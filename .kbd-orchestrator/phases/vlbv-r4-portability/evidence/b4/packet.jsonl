@@ -1,0 +1,9 @@
+{"i":0,"id":"eval-machinery","argv":["node","evals/vlbv-protocol/machinery.mjs"],"exit":0,"startedAt":"2026-11-16T08:37:43Z","seconds":33}
+{"i":1,"id":"neg-machinery-at05","argv":["node","evals/vlbv-protocol/machinery.mjs","--negative","--at","AT05"],"exit":0,"startedAt":"2026-11-16T08:38:16Z","seconds":7}
+{"i":2,"id":"neg-machinery-at06","argv":["node","evals/vlbv-protocol/machinery.mjs","--negative","--at","AT06"],"exit":0,"startedAt":"2026-11-16T08:38:23Z","seconds":6}
+{"i":3,"id":"neg-machinery-at09","argv":["node","evals/vlbv-protocol/machinery.mjs","--negative","--at","AT09"],"exit":0,"startedAt":"2026-11-16T08:38:29Z","seconds":11}
+{"i":4,"id":"neg-machinery-at10","argv":["node","evals/vlbv-protocol/machinery.mjs","--negative","--at","AT10"],"exit":0,"startedAt":"2026-11-16T08:38:40Z","seconds":6}
+{"i":5,"id":"neg-machinery-at15","argv":["node","evals/vlbv-protocol/machinery.mjs","--negative","--at","AT15"],"exit":0,"startedAt":"2026-11-16T08:38:46Z","seconds":7}
+{"i":6,"id":"neg-machinery-at22","argv":["node","evals/vlbv-protocol/machinery.mjs","--negative","--at","AT22"],"exit":0,"startedAt":"2026-11-16T08:38:53Z","seconds":0}
+{"i":7,"id":"eval-claude-code","argv":["node","evals/vlbv-protocol/run.mjs","--harness","claude-code","--samples","3"],"exit":0,"startedAt":"2026-11-16T08:38:53Z","seconds":21}
+{"i":8,"id":"neg-report-claude-code","argv":["node","evals/vlbv-protocol/validate-report.mjs","--negative","--harness","claude-code"],"exit":0,"startedAt":"2026-11-16T08:39:14Z","seconds":0}

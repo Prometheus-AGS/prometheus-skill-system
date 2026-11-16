@@ -1,0 +1,63 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "claude-opus-5-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 59,
+      "claim": "The assessment removes six required acceptance tests from per-harness execution, allowing downstream reports to omit AT cases that the owner goal requires against every harness profile.",
+      "evidence": "The goal requires \"AT 01-22 ... as cases against each harness capability profile,\" but G5 says \"Those are harness-independent and run once, not per harness,\" and EVAL-4 limits AT 05/06/09/10/15/22 to one run against the close-eval/closure scripts. No mapping from those common results into every harness report is specified.",
+      "suggested_fix": "Keep all AT 01-22 in every harness case matrix. If the six machinery cases are physically executed once, inject their immutable results into every applicable harness report and count them there, or obtain an explicit owner-goal amendment."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 78,
+      "claim": "The CR-33 scenario frontier has no date-discrimination oracle, so an implementation that lists every runner artifact would satisfy all proposed scanner scenarios.",
+      "evidence": "SCAN-1 only requires that pre-authorization artifacts be listed, while SCAN-2 only requires that a clean tree produce \"none found.\" No scenario places both pre- and post-authorization artifacts in the same tree. An unconditional lister passes SCAN-1 and still produces \"none found\" for SCAN-2.",
+      "suggested_fix": "Add a mixed boundary fixture containing both older and newer runner artifacts, with an exact oracle requiring only the older artifacts to be listed, plus a post-boundary-only fixture that must produce \"none found.\""
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 127,
+      "claim": "The proposed first-B4-attempt timestamp is not a boundary-authorization instant and would make the CR-33 date comparison semantically incorrect.",
+      "evidence": "G6 correctly states that \"No canonical 'boundary authorized at' instant is recorded today,\" but open decision 4 offers \"the first B4 attempt timestamp (`attemptId`/`priorAttempts`)\" as that instant. Attempt execution and authorization are distinct events; for example, an artifact created after authorization but before the recorded attempt would be falsely reported as pre-authorization.",
+      "suggested_fix": "Record a separate immutable authorization-event timestamp before B4 and use attempt timestamps only for execution metadata. Define the exact ordering between authorization, generation, and attempt, and test it with the mixed-date fixture."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 64,
+      "claim": "Goal 4 is reduced to a vague lack-of-exercise gap and omits the testable adoption, completeness, ordering, and single-run gates needed to plan it safely.",
+      "evidence": "The goal requires adoption before any generation, complete implementation before the single B4 run, and states that unit tests are not evidence. The only goal-4 row is G8: \"The v2 contract is unexercised in a real adoption.\" The artifact identifies no contract location or version, no completeness checklist, no prohibition on generation before adoption, no exactly-one-B4 gate, and no live-evidence requirement.",
+      "suggested_fix": "Add separate goal-4 gaps and acceptance criteria for locating and adopting the v2 contract, passing the applicable contract validation, mapping every contract requirement to implementation and live evidence, prohibiting generation before adoption, and permitting exactly one B4 run only after all checks pass."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 120,
+      "claim": "The offered real-home execution path conflicts with the contract's explicit prohibition on writes to real harness state.",
+      "evidence": "Required safety checks say \"no writes to real harness state,\" while R1 and open decision 1 offer \"run against the real home with a scratch project\" without requiring read-only state, redirected session storage, or proof that the harness will not mutate real configuration or history.",
+      "suggested_fix": "Remove the real-home alternative unless the owner explicitly revises the safety contract. Prefer relocated harness state with only the minimum authentication material copied outside the tracked tree, and require a test that proves no real harness state is modified."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 43,
+      "claim": "The exact CLI version and headless-capability baseline is unsupported by the packet even though it is adopted as the portability environment.",
+      "evidence": "The current-state table asserts \"claude 2.1.325, codex-cli 0.166.0, opencode 2.3.0, kimi 2.5.3, qwen 0.27.1\" and specific availability for zed, minimax-code, and mimo-code. The file tree and cited_paths contain only repository paths; they provide no command output, version capture, or dated environment probe supporting these claims.",
+      "suggested_fix": "Attach dated `--version` and headless-invocation probe results for every named harness, or mark the version and availability baseline as unverified and require revalidation before contract adoption and B4."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "minimax-direct",
+    "providerId": "minimax",
+    "modelId": "MiniMax-M3"
+  }
+}

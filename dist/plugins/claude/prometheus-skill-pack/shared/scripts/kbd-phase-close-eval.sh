@@ -96,8 +96,10 @@ record() { # <pass|fail|blocked> <reason-code|"">
 closure_packet() { # <disposition> <reason>
   [ -n "${SNAPSHOT:-}" ] && [ -f "${SNAPSHOT:-}" ] || return 0
   command -v node >/dev/null 2>&1 || { printf 'WARN closure-packet not generated for phase=%s (node unavailable)\n' "$PHASE"; return 0; }
+  # --project-root lets the packet run the passive pre-authorization artifact
+  # scan (VLBV CR-33) over the contract's runnerOutputGlobs; report only.
   if ! node "$(dirname "${BASH_SOURCE[0]}")/kbd-closure-packet.mjs" --snapshot "$SNAPSHOT" --evidence "$EVIDENCE" \
-    --out-dir "$PHASE_DIR" --disposition "$1" --reason "$2" >/dev/null 2>"$ERRF.packet" \
+    --out-dir "$PHASE_DIR" --project-root "$ROOT" --disposition "$1" --reason "$2" >/dev/null 2>"$ERRF.packet" \
     || [ ! -f "$PHASE_DIR/closure-packet.md" ]; then
     # Visible, never verdict-changing: the canonical disposition is the authority.
     printf 'WARN closure-packet not generated for phase=%s (%s); rerun: node %s --snapshot %s --evidence %s --out-dir %s --disposition %s\n' \

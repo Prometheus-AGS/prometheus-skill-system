@@ -1,0 +1,1081 @@
+{
+  "schemaVersion": 1,
+  "kind": "vlbv.protocol-eval-report",
+  "harness": "kimi",
+  "status": "run",
+  "generatedAt": "2026-11-16T09:13:00Z",
+  "commit": "78abfd843d88ed5f6cb88e2bc139a22013452541",
+  "harnessVersion": "2.5.3",
+  "harnessModel": "kimi-code/k3",
+  "harnessFamily": "moonshot",
+  "grader": {
+    "model": "MiniMax-M3",
+    "family": "minimax"
+  },
+  "decisionRule": {
+    "samples": 3,
+    "criticalOrCapabilityPassesRequired": 3,
+    "defaultPassesRequired": 2,
+    "samplePass": "A sample is PASS only when every deterministic check passes AND the grader returns PASS. A failed deterministic check makes the sample FAIL regardless of the grader.",
+    "declaredBefore": "contract adoption (vlbv-r4-portability, decision D-R4-03)"
+  },
+  "samplesDeclared": 3,
+  "counts": {
+    "pass": 6,
+    "fail": 0,
+    "blocked": 17,
+    "notExercised": 0,
+    "notRun": 17
+  },
+  "isolation": {
+    "ok": false,
+    "realStateUnchanged": false,
+    "keychainUnchanged": true,
+    "diffs": [
+      "changed: ~/.claude.json"
+    ],
+    "leftovers": [],
+    "repoAuthFiles": []
+  },
+  "cases": [
+    {
+      "id": "AT01",
+      "at": "AT 01",
+      "requirement": "VLBV 01",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 13284,
+          "transcript": {
+            "path": "evals/runs/kimi/AT01/s1/transcript.txt",
+            "sha256": "304d258c27c499416963873b55cf3febd399f02655e6531f8fb6b6302afcd29e"
+          },
+          "effects": "evals/runs/kimi/AT01/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 13018,
+          "transcript": {
+            "path": "evals/runs/kimi/AT01/s2/transcript.txt",
+            "sha256": "8d4b14b1f6e3b763e3526f967e997ad5a14301e37c41de2b50a6eac6e5dc7214"
+          },
+          "effects": "evals/runs/kimi/AT01/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 15854,
+          "transcript": {
+            "path": "evals/runs/kimi/AT01/s3/transcript.txt",
+            "sha256": "57139954b68a187e8855e440025bdba8300c4e746c2e449de0b6f7b87971c4da"
+          },
+          "effects": "evals/runs/kimi/AT01/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT02",
+      "at": "AT 02",
+      "requirement": "VLBV 02",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 13191,
+          "transcript": {
+            "path": "evals/runs/kimi/AT02/s1/transcript.txt",
+            "sha256": "38770b93e7effde9d91cf975007fcf9f4b7754ab1e7a785dceb06c03e20e5a38"
+          },
+          "effects": "evals/runs/kimi/AT02/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 14475,
+          "transcript": {
+            "path": "evals/runs/kimi/AT02/s2/transcript.txt",
+            "sha256": "efd594fb528e4258f811413ff93bb386012e36fdf577c7b9b8d682f4fba5cdb1"
+          },
+          "effects": "evals/runs/kimi/AT02/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 13836,
+          "transcript": {
+            "path": "evals/runs/kimi/AT02/s3/transcript.txt",
+            "sha256": "0f4ec363a4b0569caa549735f4d367a5f891db0fadaf78756b556d46bc37071e"
+          },
+          "effects": "evals/runs/kimi/AT02/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT03",
+      "at": "AT 03",
+      "requirement": "VLBV 03",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 15042,
+          "transcript": {
+            "path": "evals/runs/kimi/AT03/s1/transcript.txt",
+            "sha256": "5b64fddcef6004596de8f3fdcb0b121ef5f830f28094ec9a8026cdb04de39d78"
+          },
+          "effects": "evals/runs/kimi/AT03/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 11778,
+          "transcript": {
+            "path": "evals/runs/kimi/AT03/s2/transcript.txt",
+            "sha256": "87be5e1564915a07ce3b4677bc06576079cedb128e4737697523d4cbe0d56cc6"
+          },
+          "effects": "evals/runs/kimi/AT03/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 12616,
+          "transcript": {
+            "path": "evals/runs/kimi/AT03/s3/transcript.txt",
+            "sha256": "65e37798015c91f6ca4f77fb8569522e67f9c23930416c208a5501e93ce94abc"
+          },
+          "effects": "evals/runs/kimi/AT03/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT04",
+      "at": "AT 04",
+      "requirement": "VLBV 04",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 3,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 12934,
+          "transcript": {
+            "path": "evals/runs/kimi/AT04/s1/transcript.txt",
+            "sha256": "e85adc57961f9a269d67d5e9a4ff5f9819a615cc290c103a1da8d240cb509071"
+          },
+          "effects": "evals/runs/kimi/AT04/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 12608,
+          "transcript": {
+            "path": "evals/runs/kimi/AT04/s2/transcript.txt",
+            "sha256": "bdfd25248e41f39d0338052eeb2939ec2ef6e25c49dfdb891b0f993a9252fa08"
+          },
+          "effects": "evals/runs/kimi/AT04/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 14349,
+          "transcript": {
+            "path": "evals/runs/kimi/AT04/s3/transcript.txt",
+            "sha256": "8d258c7dfb7cc3aa7bbd336195947ea6354c88867e6ff5e153f07cdbcb58fe9e"
+          },
+          "effects": "evals/runs/kimi/AT04/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT07",
+      "at": "AT 07",
+      "requirement": "VLBV 07",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 20302,
+          "transcript": {
+            "path": "evals/runs/kimi/AT07/s1/transcript.txt",
+            "sha256": "b57367da0e869ab3e5446e70001ab69251b59b5865c4641e4c6906c739f857ae"
+          },
+          "effects": "evals/runs/kimi/AT07/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 18709,
+          "transcript": {
+            "path": "evals/runs/kimi/AT07/s2/transcript.txt",
+            "sha256": "1af7af1ba7f549cf61784cf91aaf5e3d13ff31898b061bb210d2677dcdc3d62e"
+          },
+          "effects": "evals/runs/kimi/AT07/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 22867,
+          "transcript": {
+            "path": "evals/runs/kimi/AT07/s3/transcript.txt",
+            "sha256": "d705efb5f85c0387e7a4c4da9a91ce0c1bec7265826445e4b54808bfe387b73f"
+          },
+          "effects": "evals/runs/kimi/AT07/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT08",
+      "at": "AT 08",
+      "requirement": "VLBV 08",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 21375,
+          "transcript": {
+            "path": "evals/runs/kimi/AT08/s1/transcript.txt",
+            "sha256": "683b01e7ad762b23da372a5204089ec396f2faae00fc3af491fe1d416e7d11e6"
+          },
+          "effects": "evals/runs/kimi/AT08/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 21140,
+          "transcript": {
+            "path": "evals/runs/kimi/AT08/s2/transcript.txt",
+            "sha256": "12aa802077a1b3e574ad9dd75db7e482bef5de3badbca236b193a5c05f5f0a69"
+          },
+          "effects": "evals/runs/kimi/AT08/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 24660,
+          "transcript": {
+            "path": "evals/runs/kimi/AT08/s3/transcript.txt",
+            "sha256": "2b253f32fd55fa18d7b294d64427f8583f9e5710025badbb24856b2ffdc1e783"
+          },
+          "effects": "evals/runs/kimi/AT08/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT11",
+      "at": "AT 11",
+      "requirement": "VLBV 11",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 25042,
+          "transcript": {
+            "path": "evals/runs/kimi/AT11/s1/transcript.txt",
+            "sha256": "b01b321c8af2016ba4b6001fa31bbc74827efff06a4a0bb7c45c179f1419737a"
+          },
+          "effects": "evals/runs/kimi/AT11/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 23791,
+          "transcript": {
+            "path": "evals/runs/kimi/AT11/s2/transcript.txt",
+            "sha256": "d554fc71d50d1dfc6cd646312adf67bf944868aa8c7f59094926e6384d9a3592"
+          },
+          "effects": "evals/runs/kimi/AT11/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 21126,
+          "transcript": {
+            "path": "evals/runs/kimi/AT11/s3/transcript.txt",
+            "sha256": "bd3cc45bc1fe70e40b928518d636d024de997d4b1602133e7fc9ac57892b3dfa"
+          },
+          "effects": "evals/runs/kimi/AT11/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT12",
+      "at": "AT 12",
+      "requirement": "VLBV 12",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 22157,
+          "transcript": {
+            "path": "evals/runs/kimi/AT12/s1/transcript.txt",
+            "sha256": "8202a04535f00154542f86d67935ee4441ec2c04f73634f1933d2540973a5055"
+          },
+          "effects": "evals/runs/kimi/AT12/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 21694,
+          "transcript": {
+            "path": "evals/runs/kimi/AT12/s2/transcript.txt",
+            "sha256": "50d58797b5bfd859399595f36b02370e5849f8815c7577aafbfe9201a48d0197"
+          },
+          "effects": "evals/runs/kimi/AT12/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 23467,
+          "transcript": {
+            "path": "evals/runs/kimi/AT12/s3/transcript.txt",
+            "sha256": "5f905b53418648e683ea452c1ff3521000f85fd3be1238bec74639a301b9be5d"
+          },
+          "effects": "evals/runs/kimi/AT12/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT13",
+      "at": "AT 13",
+      "requirement": "VLBV 13",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9508,
+          "transcript": {
+            "path": "evals/runs/kimi/AT13/s1/transcript.txt",
+            "sha256": "b5c373640b56e6546873d09448627ee05a07f42ac3e6873bdfacb154266685b1"
+          },
+          "effects": "evals/runs/kimi/AT13/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9743,
+          "transcript": {
+            "path": "evals/runs/kimi/AT13/s2/transcript.txt",
+            "sha256": "802b60393a679b99647cc5fc3935deab90b926e3daba4be49e28081581f53540"
+          },
+          "effects": "evals/runs/kimi/AT13/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9033,
+          "transcript": {
+            "path": "evals/runs/kimi/AT13/s3/transcript.txt",
+            "sha256": "d0dc67b173dac8348f1ddff13c6e5754115839a337f2dd64e2724f5832dfe76d"
+          },
+          "effects": "evals/runs/kimi/AT13/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT14",
+      "at": "AT 14",
+      "requirement": "VLBV 14",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9604,
+          "transcript": {
+            "path": "evals/runs/kimi/AT14/s1/transcript.txt",
+            "sha256": "17a8aa40f3d571e4a7ac15fae7733542e60ba34d42d8fd863e7cb862ca555b14"
+          },
+          "effects": "evals/runs/kimi/AT14/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9013,
+          "transcript": {
+            "path": "evals/runs/kimi/AT14/s2/transcript.txt",
+            "sha256": "c7fdc3897d38854751369c55d29d265e5185148eb8537394ab2c33dc3c117124"
+          },
+          "effects": "evals/runs/kimi/AT14/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9665,
+          "transcript": {
+            "path": "evals/runs/kimi/AT14/s3/transcript.txt",
+            "sha256": "a2cc3d712479b210ff79354faaf3a12f86d9de4d0ed87b20f4855c769d2687aa"
+          },
+          "effects": "evals/runs/kimi/AT14/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT16",
+      "at": "AT 16",
+      "requirement": "VLBV 16",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 8512,
+          "transcript": {
+            "path": "evals/runs/kimi/AT16/s1/transcript.txt",
+            "sha256": "425f536198030022bc558b2b8d33da6aed70c80c98b59c4db948e8510b812cb8"
+          },
+          "effects": "evals/runs/kimi/AT16/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9164,
+          "transcript": {
+            "path": "evals/runs/kimi/AT16/s2/transcript.txt",
+            "sha256": "b741fac19131b552186d7f99ad2ae1f1ec8d6d1417dcf81f878611e403bb8e70"
+          },
+          "effects": "evals/runs/kimi/AT16/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 8283,
+          "transcript": {
+            "path": "evals/runs/kimi/AT16/s3/transcript.txt",
+            "sha256": "1d3904ed9ad3a08df023b695da9b6f1be3df365fad7e1a1478ab331ffc264299"
+          },
+          "effects": "evals/runs/kimi/AT16/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT17",
+      "at": "AT 17",
+      "requirement": "VLBV 17",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 8513,
+          "transcript": {
+            "path": "evals/runs/kimi/AT17/s1/transcript.txt",
+            "sha256": "97584ba6cc488324d834e2760e8872d5d698a1b707ffdf1664bd5d9f6ec035a9"
+          },
+          "effects": "evals/runs/kimi/AT17/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 8841,
+          "transcript": {
+            "path": "evals/runs/kimi/AT17/s2/transcript.txt",
+            "sha256": "6d70be142d5b9bffcf5d87d80e4a482072b9092bd50091742c622476a084fe4e"
+          },
+          "effects": "evals/runs/kimi/AT17/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9270,
+          "transcript": {
+            "path": "evals/runs/kimi/AT17/s3/transcript.txt",
+            "sha256": "5aede1d592066e9843f8a9433d345e8bebe61ddc84b74a08ac76d0a6ae819c08"
+          },
+          "effects": "evals/runs/kimi/AT17/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT18",
+      "at": "AT 18",
+      "requirement": "VLBV 18",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 10139,
+          "transcript": {
+            "path": "evals/runs/kimi/AT18/s1/transcript.txt",
+            "sha256": "2b29352a0111eb041e7045f217123ef12eb6be1eb88df80f050c5aab0caab6b4"
+          },
+          "effects": "evals/runs/kimi/AT18/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9429,
+          "transcript": {
+            "path": "evals/runs/kimi/AT18/s2/transcript.txt",
+            "sha256": "79065a8739d897248f296ed093e51ce9db1a31105ecd62390ae45514a78b46e7"
+          },
+          "effects": "evals/runs/kimi/AT18/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9258,
+          "transcript": {
+            "path": "evals/runs/kimi/AT18/s3/transcript.txt",
+            "sha256": "7b12f9609de378a0d786b334341df6810fac8f581513228a0e1b1e853625a79b"
+          },
+          "effects": "evals/runs/kimi/AT18/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT19",
+      "at": "AT 19",
+      "requirement": "VLBV 19",
+      "class": "agent",
+      "capabilityFields": [
+        "canExecuteBoundary"
+      ],
+      "passesRequired": 3,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output) (required effect not produced: .eval-markers/test-ran)",
+          "deterministicOk": false,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 10731,
+          "transcript": {
+            "path": "evals/runs/kimi/AT19/s1/transcript.txt",
+            "sha256": "f3edc253b206e6367ca17ab73812c4f5add1c8de71a436668151d525d526f647"
+          },
+          "effects": "evals/runs/kimi/AT19/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output) (required effect not produced: .eval-markers/test-ran)",
+          "deterministicOk": false,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 10340,
+          "transcript": {
+            "path": "evals/runs/kimi/AT19/s2/transcript.txt",
+            "sha256": "24aa8557f07d28e2d9ea498f0b1b9374dadbd325b843ec336dc98680c4066b52"
+          },
+          "effects": "evals/runs/kimi/AT19/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output) (required effect not produced: .eval-markers/test-ran)",
+          "deterministicOk": false,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9345,
+          "transcript": {
+            "path": "evals/runs/kimi/AT19/s3/transcript.txt",
+            "sha256": "163a616e5f29394110570f08bb3978d31adb2213b275f61bcc6270089b4471cf"
+          },
+          "effects": "evals/runs/kimi/AT19/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT20",
+      "at": "AT 20",
+      "requirement": "VLBV 20",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 8970,
+          "transcript": {
+            "path": "evals/runs/kimi/AT20/s1/transcript.txt",
+            "sha256": "43b27cbe1388a189a6b2f5ab1f43150e50e3884a2aa54c53d705020c566995bf"
+          },
+          "effects": "evals/runs/kimi/AT20/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9315,
+          "transcript": {
+            "path": "evals/runs/kimi/AT20/s2/transcript.txt",
+            "sha256": "5e58cf08628142849230d6131f0a7bcf95e44aa01388dea3b0532005e11edf3e"
+          },
+          "effects": "evals/runs/kimi/AT20/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 8814,
+          "transcript": {
+            "path": "evals/runs/kimi/AT20/s3/transcript.txt",
+            "sha256": "61f1abe73dcf6fb114f1a4474d9447f2106a290530b60fa46876cd592d15f462"
+          },
+          "effects": "evals/runs/kimi/AT20/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT21",
+      "at": "AT 21",
+      "requirement": "VLBV 21",
+      "class": "agent",
+      "capabilityFields": [],
+      "passesRequired": 2,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 8782,
+          "transcript": {
+            "path": "evals/runs/kimi/AT21/s1/transcript.txt",
+            "sha256": "10f855e91dded256010a80170598c516ccc787a0afacdd36bd19e2a98ffec4d3"
+          },
+          "effects": "evals/runs/kimi/AT21/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 9034,
+          "transcript": {
+            "path": "evals/runs/kimi/AT21/s2/transcript.txt",
+            "sha256": "e5388503fdd8b18ff89636242432b5eb881b188c2e9812fa3ddedbfa158fa422"
+          },
+          "effects": "evals/runs/kimi/AT21/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 8568,
+          "transcript": {
+            "path": "evals/runs/kimi/AT21/s3/transcript.txt",
+            "sha256": "7c00d65eb3d766f3197ca5f70d9985beacc19da8d2572c42b5d8772c5f118c06"
+          },
+          "effects": "evals/runs/kimi/AT21/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "S18",
+      "at": "section 18",
+      "requirement": "VLBV 03, 11, 18, 20",
+      "class": "agent",
+      "capabilityFields": [
+        "rulesFiles"
+      ],
+      "passesRequired": 3,
+      "verdict": "BLOCKED",
+      "reason": "0 pass, 0 fail, 3 blocked of 3; the rule cannot be decided",
+      "samples": [
+        {
+          "n": 1,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 5482,
+          "transcript": {
+            "path": "evals/runs/kimi/S18/s1/transcript.txt",
+            "sha256": "3c4a42af30533b6655fa67aab6ca6a3e822af958896ab824237b9ca14eacc543"
+          },
+          "effects": "evals/runs/kimi/S18/s1/effects.json",
+          "grade": null
+        },
+        {
+          "n": 2,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 5490,
+          "transcript": {
+            "path": "evals/runs/kimi/S18/s2/transcript.txt",
+            "sha256": "dd7267b0f6b89d72c4c0e8bb0958e076f70df70691dad3d7e4af6e9c247e5309"
+          },
+          "effects": "evals/runs/kimi/S18/s2/effects.json",
+          "grade": null
+        },
+        {
+          "n": 3,
+          "verdict": "BLOCKED",
+          "reason": "no transcript (harness produced no output)",
+          "deterministicOk": true,
+          "exit": 1,
+          "timedOut": false,
+          "durationMs": 4982,
+          "transcript": {
+            "path": "evals/runs/kimi/S18/s3/transcript.txt",
+            "sha256": "f2c0daa8ea0f875f0adf9cb3fda9f39963a5c78f59524725998a39d809719379"
+          },
+          "effects": "evals/runs/kimi/S18/s3/effects.json",
+          "grade": null
+        }
+      ]
+    },
+    {
+      "id": "AT05",
+      "at": "AT 05",
+      "requirement": "VLBV 05",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-missing(/private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/vlbv-machinery-1HAnFf/AT05/project/.kbd-orchestrator/phases/closure-phase/boundary-results.json)"
+    },
+    {
+      "id": "AT06",
+      "at": "AT 06",
+      "requirement": "VLBV 06",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=empty-evidence:CS-1"
+    },
+    {
+      "id": "AT09",
+      "at": "AT 09",
+      "requirement": "VLBV 09",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-run-mismatch(evidence=project-20261116T083756Zx canonical=project-20261116T083756Z)"
+    },
+    {
+      "id": "AT10",
+      "at": "AT 10",
+      "requirement": "VLBV 10",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=not-pass:CS-2(NOT_EXERCISED)"
+    },
+    {
+      "id": "AT15",
+      "at": "AT 15",
+      "requirement": "VLBV 15",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "exit=2 stdout=BLOCKED phase=closure-phase reason=evidence-stale-sources(stale(src.txt))"
+    },
+    {
+      "id": "AT22",
+      "at": "AT 22",
+      "requirement": "VLBV 22",
+      "class": "machinery",
+      "harnessIndependent": true,
+      "source": "evals/reports/machinery.json",
+      "samples": [],
+      "verdict": "PASS",
+      "reason": "scanner refused the secret artifact: true (json-token-field)"
+    }
+  ]
+}

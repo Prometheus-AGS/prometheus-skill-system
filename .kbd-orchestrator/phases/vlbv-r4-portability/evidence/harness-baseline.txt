@@ -1,0 +1,12 @@
+# Harness CLI baseline — 2026-11-16T07:16:08Z, 26.7.3 arm64
+claude	/Users/gqadonis/.local/bin/claude	2.1.325 (Claude Code)
+codex	/opt/homebrew/bin/codex	codex-cli 0.166.0
+opencode	/Users/gqadonis/.opencode/bin/opencode	opencode v2.3.0
+kimi	/Users/gqadonis/.kimi-code/bin/kimi	2.5.3
+qwen	/Users/gqadonis/.local/bin/qwen	0.27.1
+zed	alias zed='/Applications/Zed.app/Contents/MacOS/cli'	n/a
+minimax	absent
+mimo	absent
+mimo-code	absent
+
+Headless invocation: NOT probed (a probe is a model session). Status: unverified until B4.

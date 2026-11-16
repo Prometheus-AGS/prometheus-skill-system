@@ -1,0 +1,115 @@
+{
+  "phase": "vlbv-r4-portability",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "contractDigest": "baa987b2956f8973c8e5047015d0b488e97411e0c42d46ee534f3cc8081def68",
+  "attemptId": "b4-attempt-1-2026-11-16T08:36:25.680Z",
+  "attempt": {
+    "boundary": "B4",
+    "authorizedAt": "2026-11-16T08:36:25.680Z",
+    "endedAt": "2026-11-16T08:57:47.618Z",
+    "ended": "stopped by the owner after defects were found (chat: Stop and repair)"
+  },
+  "executedBy": {
+    "harness": "claude-code",
+    "version": "2.1.325",
+    "model": "claude-opus-5-5"
+  },
+  "candidate": "evidence/b4/candidate.json",
+  "scenarios": [
+    {
+      "id": "EVAL-MACH-1",
+      "status": "PASS",
+      "attempted": "node evals/vlbv-protocol/machinery.mjs + 6 negative controls",
+      "observed": "AT05/06/09/10/15/22 refused as required; each negative accepted by the real close-eval/scanner",
+      "evidence": "evidence/b4/eval-machinery.log, neg-machinery-at*.log, evals/reports/machinery.json"
+    },
+    {
+      "id": "EVAL-CLAUDE-1",
+      "status": "FAIL",
+      "attempted": "node evals/vlbv-protocol/run.mjs --harness claude-code --samples 3",
+      "observed": "Every sample exited 1 \"Not logged in\" (relocated CLAUDE_CONFIG_DIR loses the keychain login); AT19 was recorded FAIL because its present-marker check failed although the harness never ran (runner defect: infrastructure failure scored as behaviour FAIL)",
+      "evidence": "evidence/b4/eval-claude-code.log, evals/reports/claude-code.json"
+    },
+    {
+      "id": "EVAL-CODEX-1",
+      "status": "NOT_EXERCISED",
+      "attempted": "node evals/vlbv-protocol/run.mjs --harness codex --samples 3 (stopped during AT12)",
+      "observed": "Partial: AT01-AT11 decided before the stop; no report written",
+      "evidence": "evidence/b4/eval-codex.log"
+    },
+    {
+      "id": "EVAL-OPENCODE-1",
+      "status": "NOT_EXERCISED",
+      "attempted": "not started",
+      "observed": "packet stopped",
+      "evidence": "evidence/b4/packet.jsonl"
+    },
+    {
+      "id": "EVAL-KIMI-1",
+      "status": "NOT_EXERCISED",
+      "attempted": "not started",
+      "observed": "packet stopped",
+      "evidence": "evidence/b4/packet.jsonl"
+    },
+    {
+      "id": "EVAL-QWEN-1",
+      "status": "NOT_EXERCISED",
+      "attempted": "not started",
+      "observed": "packet stopped",
+      "evidence": "evidence/b4/packet.jsonl"
+    },
+    {
+      "id": "EVAL-NOTRUN-1",
+      "status": "NOT_EXERCISED",
+      "attempted": "not started",
+      "observed": "packet stopped",
+      "evidence": "evidence/b4/packet.jsonl"
+    },
+    {
+      "id": "CAP-UPDATE-1",
+      "status": "NOT_EXERCISED",
+      "attempted": "not started",
+      "observed": "packet stopped",
+      "evidence": "evidence/b4/packet.jsonl"
+    },
+    {
+      "id": "SCAN-PRE-1",
+      "status": "NOT_EXERCISED",
+      "attempted": "not started",
+      "observed": "packet stopped",
+      "evidence": "evidence/b4/packet.jsonl"
+    },
+    {
+      "id": "AUTH-ISO-1",
+      "status": "FAIL",
+      "attempted": "stop of the running packet",
+      "observed": "Interrupting run.mjs left three scratch roots with copied ~/.codex/auth.json in the system temp dir (no signal cleanup); removed by hand afterwards; real auth.json unchanged",
+      "evidence": "evidence/b4/attempt-1-notes.md"
+    }
+  ],
+  "budgetConsumption": {
+    "source": "session clock (self-reported)",
+    "values": {
+      "timeMinutes": {
+        "value": 22,
+        "class": "measured"
+      },
+      "toolCalls": {
+        "value": null,
+        "class": "unknown"
+      },
+      "repairAttempts": {
+        "value": 0,
+        "class": "measured"
+      },
+      "noProgress": {
+        "value": 0,
+        "class": "measured"
+      }
+    }
+  },
+  "limitations": [
+    "Attempt stopped before most scenarios ran; its evidence is retained, not overwritten"
+  ]
+}

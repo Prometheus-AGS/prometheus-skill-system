@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-11-16T07:25:40Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Gaps: no AT/§18 eval corpus, runner, grader or per-harness report; no canonical B4-authorization instant or declared runner-output globs for CR-33. Six machinery ATs execute once but count in every harness report; CR-33 needs a mixed-date oracle (SCAN-3). Open owner decisions: auth copy into scratch homes, samples per case, grader model. Round-2 review unusable; plan review must re-check G5, G6/SCAN-3, G8.",
+  "skipped": false,
+  "skipReason": null
+}

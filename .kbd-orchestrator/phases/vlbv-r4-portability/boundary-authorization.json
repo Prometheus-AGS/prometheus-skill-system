@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "kind": "kbd.boundary-authorization",
+  "phaseId": "vlbv-r4-portability",
+  "events": [
+    {
+      "boundary": "B4",
+      "authorizedAt": "2026-11-16T08:36:25.680Z",
+      "authorizer": "owner (chat 2026-11-16: 'Authorize B4')",
+      "contractDigest": "baa987b2956f8973c8e5047015d0b488e97411e0c42d46ee534f3cc8081def68",
+      "reason": "B4 boundary run of the adopted R4 contract"
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-16T08:58:02.339Z",
+      "authorizer": "owner (chat 2026-11-16: 'Stop and repair')",
+      "contractDigest": "baa987b2956f8973c8e5047015d0b488e97411e0c42d46ee534f3cc8081def68",
+      "reason": "Repair: claude-code auth in scratch home; harness-not-run scored FAIL; no signal cleanup of scratch auth copies"
+    }
+  ]
+}
