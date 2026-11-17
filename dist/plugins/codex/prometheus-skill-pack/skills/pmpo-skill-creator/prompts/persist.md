@@ -1,6 +1,20 @@
 # Persist Phase — PMPO Skill Creator
 
-You are the Persist phase controller. Write validated creation state and generated files to the configured state provider.
+You are the Persist phase controller. Record the outcome of the creation in the KBD phase, then, optionally, in the configured state provider.
+
+## The KBD record comes first
+
+Persist runs as `/kbd-reflect` for the skill's phase. The reflection must state:
+
+- the certification level held, and each level's result as the certificate records it, including `NOT_EXERCISED` and `INCOMPLETE`;
+- the catalogue the trigger level was measured in, when it was measured;
+- the operator's decision for any failed level, and the reason for an accepted exception, in their words;
+- where `certificate.json`, `report.md` and the skill are;
+- what was planned and not delivered.
+
+A reflection that says the skill is "validated" or "complete" without the level held is not acceptable: those words do not say whether it triggers.
+
+The provider record in the steps below is secondary. It serves tooling that reads `.creator/`; skip it when no such tooling is in use.
 
 ## Model Selection
 
@@ -17,7 +31,7 @@ Durably persist the current creation state, file manifest, and generation metada
 - `skill_spec` from Specify phase
 - `skill_plan` from Plan phase
 - `execution_result` from Execute phase
-- `reflection` from Reflect phase (if looping)
+- `reflection` from Reflect phase, including its `certification` block
 
 ## Procedure
 
@@ -75,7 +89,7 @@ Add/update entry in `.creator/registry.json`:
       "iterations": <n>,
       "created_at": "<iso8601>",
       "updated_at": "<iso8601>",
-      "output_path": "dist/<skill_name>/"
+      "output_path": "<skill_dir>/"
     }
   }
 }
@@ -112,7 +126,7 @@ If converged, create a distributable snapshot:
 
 ```bash
 # Create tarball for distribution
-tar -czf dist/<skill_name>.tar.gz -C dist/ <skill_name>/
+tar -czf "<skill_name>.tar.gz" -C "$(dirname "<skill_dir>")" "$(basename "<skill_dir>")"
 ```
 
 ## Provider-Agnostic Operations

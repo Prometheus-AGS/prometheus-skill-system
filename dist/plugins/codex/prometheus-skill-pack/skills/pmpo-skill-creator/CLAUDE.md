@@ -2,6 +2,16 @@
 
 This file provides guidance for AI assistants working **on** this repository (developing, modifying, debugging). For the skill's functionality, see `SKILL.md`.
 
+## How a creation runs
+
+A skill is created inside a KBD phase and ends in a certificate.
+
+- KBD owns position and progress: `references/kbd-integration.md`.
+- Anthropic's `skill-creator` drafts the description, body and eval cases when it is installed; `skill-certification` gates the result: `references/certification-gate.md`.
+- Verification happens once, at the phase boundary. A failed certification level is the operator's decision.
+- `scripts/validate-skill.sh` is a static pre-check, not certification.
+- This skill has no `hooks/hooks.json` of its own. The template in `assets/templates/` writes the harness's hook format for generated skills.
+
 ## Architecture
 
 The skill follows PMPO (Prometheus Meta-Prompting Orchestration):

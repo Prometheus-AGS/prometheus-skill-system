@@ -2,7 +2,7 @@
 name: prometheus-skill-pack
 version: 1.15.0
 skill_count: 218
-commit: 32094a349d3a9cbdea00edf03cd3d943dd2d1e5c
+commit: 67fbc1f4a2c6f9af45e5f92e047ee73104c64e46
 type: collection
 license: MIT
 description: >
@@ -228,7 +228,7 @@ Detection is a diagnostic, not permission to install or start everything it find
 | `start-business-build` | Top-level orchestrator that takes a one-line business concept ("track competitor pricing", "summarize support tickets nightly") and chains every Prometheus pipeline stage end-to-end — ideation expansion, iterative-evolver assess+plan, OpenSpec change generation, forge enrich, AI implementation dispatch, forge reflect, pk ingest — and optionally finishes by packaging the result as a LibreFang WASM skill and offering /upload-to-bossfang. Single command from concept to deployable skill. |
 | `upload-to-bossfang` | Upload a packaged .lf-skill.zip to a running LibreFang/bossfang instance via its /skills/install REST endpoint. Validates the URL with a deny-by-default SSRF guard (rejects private IPs, non-http schemes, and unallowlisted hosts unless --insecure is passed for explicit local-dev use). Auto-discovers the zip in cwd, redacts the BOSSFANG_TOKEN bearer auth from all logs, and verifies the install by GETting the skill manifest after upload. Use after `forge package-librefang` produces a zip and you want to deploy it to a remote bossfang. |
 | `validate-idea` | Staged idea validation for product evolution — three gates from plausibility to specification using the Darwin Gödel Machine pattern, with Archive of Stepping Stones persistence |
-| `validate-skill` | Validate any Agent Skill against the agentskills.io specification and quality standards. Reports compliance issues and suggestions. |
+| `validate-skill` | Static pre-check of an Agent Skill, covering structure, schemas, cross-references, scripts and hooks. Use for a quick structural check while building a skill. It is not certification and says nothing about whether the skill triggers or improves results; use skill-certification for that. |
 
 ### Python (1 skill)
 

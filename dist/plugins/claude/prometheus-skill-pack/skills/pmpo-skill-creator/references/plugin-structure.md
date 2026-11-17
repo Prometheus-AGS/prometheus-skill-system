@@ -63,29 +63,23 @@ Skills are automatically discovered when the plugin is installed.
 
 ```json
 {
-  "hooks": [
-    {
-      "event": "SubagentStop",
-      "match_agent": "agent_name",
-      "steps": [
-        {
-          "type": "command",
-          "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/hook-script.sh"
-        }
-      ]
-    },
-    {
-      "event": "Stop",
-      "steps": [
-        {
-          "type": "command",
-          "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/finalize.sh"
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "SubagentStop": [
+      {
+        "matcher": "agent_name",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/hook-script.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
+
+A `Stop` entry has the same shape without a `matcher`.
 
 ### `${CLAUDE_PLUGIN_ROOT}` Variable
 

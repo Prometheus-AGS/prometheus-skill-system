@@ -24,17 +24,17 @@ Produce every file in the `file_map` from the Plan phase, using templates where 
 Create the skill directory structure:
 
 ```bash
-mkdir -p dist/<skill_name>/{prompts,agents,references/schemas,scripts,hooks,skills,assets/templates}
+mkdir -p <skill_dir>/{prompts,agents,references/schemas,scripts,hooks,skills,assets/templates}
 ```
 
 Add platform directories as needed:
 
 ```bash
 # Claude Code plugin
-mkdir -p dist/<skill_name>/.claude-plugin
+mkdir -p <skill_dir>/.claude-plugin
 
 # OpenCode tools
-mkdir -p dist/<skill_name>/<tools_directory>
+mkdir -p <skill_dir>/<tools_directory>
 ```
 
 ### Step 2: Generate Core Files
@@ -128,24 +128,39 @@ Generate per-phase hooks:
 
 ```json
 {
-  "hooks": [
-    {
-      "event": "SubagentStop",
-      "match_agent": "<phase>_agent",
-      "steps": [
-        {
-          "type": "command",
-          "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/state-checkpoint.sh ..."
-        },
-        {
-          "type": "command",
-          "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/workflow-dispatch.sh ..."
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "SubagentStop": [
+      {
+        "matcher": "<phase>_agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/state-checkpoint.sh ..."
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/workflow-dispatch.sh ..."
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
+
+This is the harness's hook format: a `hooks` object keyed by event name. The
+older array form (`event`, `match_agent`, `steps`) is not loaded by any harness.
+
+### Step 8b: Generate Eval Cases
+
+Write the cases certification will run, under `<skill_dir>/evals/`: at least two
+outcome cases and one near-miss case. When Anthropic's `skill-creator` is
+available, have it draft them along with the description and body, and take the
+drafts without running them. Otherwise follow the `skill-certification` skill's
+`references/writing-cases.md`. Details: `../references/certification-gate.md`.
+
+Author only. No case, validator or review runs in this phase; verification
+happens once, at the boundary, in Reflect.
 
 ### Step 9: Generate Sub-Skills
 
@@ -202,7 +217,7 @@ If the artifact-refiner skill is available AND the user wants refined prompt con
 
 For `clone` mode, the procedure differs:
 
-1. Copy all source files to `dist/<skill_name>/`
+1. Copy all source files to `<skill_dir>/`
 2. For each file marked in the plan:
    - Replace domain-specific terms (e.g., "evolve" → "analyze")
    - Update names, descriptions, and references
@@ -213,7 +228,7 @@ For `clone` mode, the procedure differs:
 
 For `extend` mode:
 
-1. Copy existing skill to `dist/<skill_name>/` (or edit in-place)
+1. Copy existing skill to `<skill_dir>/` (or edit in-place)
 2. Add new files (domains, schemas, sub-skills) without modifying existing
 3. Update SKILL.md to reference new components
 4. Update hooks.json to include new phase hooks

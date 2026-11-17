@@ -2,12 +2,14 @@
 license: MIT
 name: pmpo-skill-creator
 description: >
-  Use this skill to create, clone, or extend Agent Skills using PMPO orchestration.
-  Generates complete, production-ready skills with agentskills.io spec compliance,
-  Claude Code plugin/marketplace support, OpenCode tools compatibility, state management,
-  lifecycle hooks, and workflow triggers. Supports three modes: create (from scratch),
-  clone (adapt existing skill to new domain), and extend (add capabilities to existing skill).
-allowed-tools: code_interpreter file_system
+  Use this skill to create, clone, or extend Agent Skills. Runs the work as a KBD phase,
+  drafts with Anthropic's skill-creator when it is installed, and certifies the result
+  with skill-certification at the phase boundary, putting any failed level to the operator.
+  Generates agentskills.io-conformant skills with Claude Code plugin support, phase
+  controllers, hooks and eval cases. Three modes: create (from scratch), clone (adapt an
+  existing skill to a new domain), and extend (add capabilities to an existing skill).
+  Do not use to certify an existing skill without changing it; use skill-certification.
+allowed-tools: Read Write Edit Bash Glob Grep
 model_routing:
   policy_source: ".kbd-orchestrator/project.json → model_policy"
   phases:
@@ -18,13 +20,19 @@ model_routing:
     creator-persist: small
   routing_reference: "references/model-routing.md"
 metadata:
-  version: '1.0.1'
+  version: '1.1.0'
   tags: "process, orchestration, automation"
 ---
 
 # PMPO Skill Creator
 
-A PMPO-driven generator for production-ready Agent Skills. Creates complete skill packages with full lifecycle support — state management, domain adapters, phase controllers, hooks, schemas, sub-skills, and multi-platform distribution.
+A generator for Agent Skills that runs as a KBD phase and ends in a certificate. It creates complete skill packages — phase controllers, domain adapters, hooks, schemas, sub-skills, eval cases and multi-platform output — and does not call a skill finished until it has been certified or the operator has decided otherwise.
+
+Three things frame every run:
+
+- **KBD owns the process.** The five creator phases map onto KBD stages, and KBD's state is the record. See [references/kbd-integration.md](references/kbd-integration.md).
+- **Anthropic's `skill-creator` drafts, when it is installed.** It writes the description, the body and the eval cases. Without it, this skill drafts them itself.
+- **`skill-certification` is the gate.** It runs once at the phase boundary. A failed level is the operator's decision: fix, accept with a recorded exception, or abandon. See [references/certification-gate.md](references/certification-gate.md).
 
 Model selection follows `references/model-routing.md`. When a project has no
 model policy, use the documented frontier fallback rather than inventing a
@@ -84,6 +92,7 @@ Every generated skill includes:
 | Schemas    | `references/schemas/*.json`          | JSON schema contracts for state and output                        |
 | Scripts    | `scripts/*.sh`                       | State lifecycle management (init, checkpoint, finalize, dispatch) |
 | Sub-skills | `skills/*/SKILL.md`                  | Slash command entry points                                        |
+| Cases      | `evals/*/`                           | Eval cases for certification: two outcome, one near-miss at least |
 | Hooks      | `hooks/hooks.json`                   | Lifecycle hooks with checkpoint + dispatch                        |
 | Plugin     | `.claude-plugin/plugin.json`         | Claude Code marketplace manifest                                  |
 | Templates  | `assets/templates/*`                 | Output scaffolding for generated artifacts                        |
@@ -109,46 +118,68 @@ generated_skill:
   path: string # Directory containing the complete skill
   file_count: integer # Total files generated
   platforms: array # Platforms supported
-  validation: object # Spec compliance results
+  validation: object # Static validation results
+certification:
+  level: string # none | C0 | C1 | C2 | C3 — the highest level with evidence
+  certificate: string # Path to certificate.json
+  exceptions: array # Levels the operator accepted, with their reasons
 ```
 
 ## Artifact-Refiner Integration (Optional)
 
 When the artifact-refiner skill is available, the creator can delegate markdown and prompt content generation to it using `content_type: meta:agent-prompt`. This produces iteratively refined prompt text. If artifact-refiner is not available, the creator generates content directly.
 
-## Execution Model (PMPO Loop)
+## Execution Model
 
 ### Startup Protocol
 
-1. **Resolve Provider**: `scripts/state-resolve-provider.sh`
-2. **Init/Resume State**: `scripts/state-init.sh <skill_name> [mode]`
-3. **Mode Routing**: Route to create, clone, or extend workflow
+1. **Find or start KBD**: look for `.kbd-orchestrator/`; run `/kbd-init` if it is absent
+2. **Open a phase**: `/kbd-new-phase skill-<name>`, or `/kbd-new-child` inside an active phase
+3. **Resolve `<skill_dir>`**, and say which helper skills are available
+4. **Mode Routing**: route to the create, clone or extend workflow
 
-### Phase Loop
+### Phases
 
-1. **Specify** (`prompts/specify.md`) — Clarify intent, classify mode, analyze source skill
-2. **Plan** (`prompts/plan.md`) — Design architecture, map files, plan domain adapters
-3. **Execute** (`prompts/execute.md`) — Generate all files using templates + AI
-4. **Reflect** (`prompts/reflect.md`) — Validate against agentskills.io spec, check completeness
-5. **Persist** (`prompts/persist.md`) — Write validated state and generated files
-6. **Loop or Terminate** — Continue if validation fails, stop if spec-compliant
+| Creator phase | KBD stage | Controller | What happens |
+|---|---|---|---|
+| Specify | `/kbd-assess`, `/kbd-analyze` | `prompts/specify.md` | Clarify intent, classify mode, check for an existing skill |
+| Plan | `/kbd-spec`, `/kbd-plan` | `prompts/plan.md` | Design the architecture as one change with tasks |
+| Execute | `/kbd-execute` | `prompts/execute.md` | Author every file and the eval cases. Nothing is run |
+| Reflect | the phase boundary | `prompts/reflect.md` | Static validator, adversarial review, then certification, once |
+| Persist | `/kbd-reflect` | `prompts/persist.md` | Record the level held and the operator's decision |
 
-### Phase Hooks
+### The boundary
 
-After each phase: checkpoint (`state-checkpoint.sh`) + dispatch (`workflow-dispatch.sh`)
+Verification happens once, after authoring is complete, cheapest check first.
+The static levels of certification are free. The trigger and outcome levels make
+billed model runs, so tell the operator the mode, the run count and the cost cap
+and wait for a yes.
+
+### When a level fails
+
+Do not loop on your own and do not ship quietly at a lower level. Show the
+operator what failed, the proposed fix, and the impact of each choice:
+
+1. **Fix**: apply it and re-run only the affected level.
+2. **Accept**: record the exception in the certificate; the level is not raised.
+3. **Abandon**: stop and say where the files are.
 
 ## Required Tools
 
-- `code_interpreter` or e2b MCP sandbox — JSON schema validation, YAML parsing
-- `file_system` — Read source skills, write generated files
+- File read, write and edit — read source skills, write generated files
+- A shell — run the validator, the adversarial review and the certifier
+- KBD (`.kbd-orchestrator/`); started with `/kbd-init` when absent
+- Optional: Anthropic's `skill-creator`, `skill-certification`, artifact-refiner
 
 ## Persistent State Files
 
-- `.creator/skills/<name>/state.json` — Named creation state
-- `.creator/registry.json` — Skill creation registry
-- `dist/<skill-name>/` — Generated skill output directory
+- `.kbd-orchestrator/phases/skill-<name>/` — the phase that created the skill: assessment, plan, progress, reflection
+- `<phase_dir>/certification/certificate.json` and `report.md` — the certificate
+- `<skill_dir>/` — the skill itself, at its real destination (in the skill pack, `skills/<domain>/<name>/`; elsewhere `dist/<name>/` unless the operator names a directory)
 
 ## Quality Standards
+
+A generated skill is finished when it holds a certificate, or the operator has accepted a recorded exception. Passing the static validator is not enough: in the pack's pilot, skills that validated cleanly never triggered.
 
 Generated skills MUST:
 
@@ -158,7 +189,9 @@ Generated skills MUST:
 4. Include cross-reference integrity (no dangling file references)
 5. Support at least agentskills.io + Claude Code plugin format
 6. Include state management lifecycle (init, checkpoint, finalize)
-7. Include hooks with per-phase checkpoint + dispatch
+7. Include hooks with per-phase checkpoint + dispatch, in the harness's hook format
+8. Include eval cases, so the trigger and outcome levels can be measured
+9. Have a description that says when to use the skill and when not to
 
 ## Exemplar Skills
 
@@ -177,4 +210,5 @@ Both demonstrate the complete feature set: PMPO loop, named state, providers, ho
 - `/clone-skill` — Clone an existing skill for a new domain
 - `/extend-skill` — Add capabilities to an existing skill
 - `/pmpo-skill-creator --update <skill-name>` — Refine an installed skill from learning patterns (human-gated)
-- `/validate-skill` — Validate a skill against the agentskills.io spec
+- `/validate-skill` — Static pre-check of a skill (not certification)
+- `/skill-certification` — Certify a skill: specification, static, trigger and outcome levels
