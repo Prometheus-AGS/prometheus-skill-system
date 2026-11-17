@@ -1,0 +1,22 @@
+{
+  "name": "prometheus-flint-skills",
+  "description": "Flint SDK guidance for C#, Dart, Go, Kotlin, Swift and TypeScript",
+  "version": "1.0.0",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "skills": [
+    "./flint-sdk-csharp",
+    "./flint-sdk-dart",
+    "./flint-sdk-go",
+    "./flint-sdk-kotlin",
+    "./flint-sdk-swift",
+    "./flint-sdk-ts"
+  ],
+  "keywords": [
+    "flint",
+    "sdk"
+  ]
+}

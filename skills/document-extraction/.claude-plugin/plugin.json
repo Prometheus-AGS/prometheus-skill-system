@@ -1,0 +1,17 @@
+{
+  "name": "prometheus-document-extraction-skills",
+  "description": "Document extraction with Kreuzberg",
+  "version": "1.0.0",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "skills": [
+    "./kreuzberg"
+  ],
+  "keywords": [
+    "documents",
+    "extraction"
+  ]
+}

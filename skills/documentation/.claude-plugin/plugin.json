@@ -1,0 +1,17 @@
+{
+  "name": "prometheus-documentation-skills",
+  "description": "The LLM-maintained knowledge wiki (pk)",
+  "version": "1.0.0",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "skills": [
+    "./llm-wiki"
+  ],
+  "keywords": [
+    "documentation",
+    "wiki"
+  ]
+}

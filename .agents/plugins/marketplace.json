@@ -47,7 +47,7 @@
         "path": "./skills/react/prometheus-entity-skills",
         "source": "local"
       },
-      "version": "1.5.2"
+      "version": "1.6.0"
     },
     {
       "category": "productivity",
@@ -60,7 +60,7 @@
         "path": "./skills/process",
         "source": "local"
       },
-      "version": "1.8.0"
+      "version": "1.9.0"
     },
     {
       "category": "devops",
@@ -73,7 +73,7 @@
         "path": "./skills/devops",
         "source": "local"
       },
-      "version": "1.5.2"
+      "version": "1.6.0"
     },
     {
       "category": "testing",
@@ -151,7 +151,7 @@
         "path": "./skills/research",
         "source": "local"
       },
-      "version": "1.1.2"
+      "version": "1.2.0"
     },
     {
       "category": "productivity",
@@ -165,6 +165,175 @@
         "source": "local"
       },
       "version": "1.7.2"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-rust-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/rust",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-flint-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/flint",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-architecture-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/architecture",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "productivity",
+      "name": "prometheus-document-extraction-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/document-extraction",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "productivity",
+      "name": "prometheus-documentation-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/documentation",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
+      "name": "prometheus-flutter-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/flutter",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-go-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/go",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
+      "name": "prometheus-htmx-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/htmx",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-python-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/python",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
+      "name": "prometheus-tauri-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/tauri",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-typescript-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/typescript",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
+      "name": "prometheus-react-vite-stack",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/react/react-vite-stack",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "productivity",
+      "name": "iterative-evolver",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/process/iterative-evolver",
+        "source": "local"
+      },
+      "version": "1.1.0"
     },
     {
       "category": "productivity",

@@ -1,7 +1,7 @@
 {
   "name": "prometheus-devops-skills",
   "description": "Multi-cloud GitOps CI/CD: bootstrap, transform, ArgoCD, Kustomize overlays following TJ-CICD-001",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "author": {
     "name": "Travis James",
     "url": "https://travisjames.ai"
@@ -11,7 +11,8 @@
     "./argocd-multicloud",
     "./gitops-bootstrap",
     "./gitops-transform",
-    "./kustomize-overlay"
+    "./kustomize-overlay",
+    "./fabric-integration"
   ],
   "keywords": [
     "gitops",

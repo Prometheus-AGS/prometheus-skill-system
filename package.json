@@ -93,6 +93,7 @@
     "check:release-version": "node scripts/check-release-version-matrix.mjs",
     "generate:skills-index": "node scripts/generate-skills-index.js",
     "check:skills-index": "node scripts/generate-skills-index.js --check",
+    "check:domain-plugins": "node scripts/check-domain-plugin-coverage.mjs",
     "sync:entity-skills": "node scripts/sync-entity-skills.mjs",
     "check:entity-skills": "node scripts/sync-entity-skills.mjs --check",
     "verify:skills": "node scripts/verify-skill-install.js",

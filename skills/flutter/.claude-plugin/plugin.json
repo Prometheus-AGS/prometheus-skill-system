@@ -1,0 +1,17 @@
+{
+  "name": "prometheus-flutter-skills",
+  "description": "Flutter and Rust FFI integration",
+  "version": "1.0.0",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "skills": [
+    "./flutter-rust-ffi"
+  ],
+  "keywords": [
+    "flutter",
+    "ffi"
+  ]
+}

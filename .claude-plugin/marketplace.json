@@ -23,19 +23,19 @@
       "category": "frontend",
       "name": "prometheus-react-skills",
       "source": "./skills/react/prometheus-entity-skills",
-      "version": "1.5.2"
+      "version": "1.6.0"
     },
     {
       "category": "productivity",
       "name": "prometheus-process-skills",
       "source": "./skills/process",
-      "version": "1.8.0"
+      "version": "1.9.0"
     },
     {
       "category": "devops",
       "name": "prometheus-devops-skills",
       "source": "./skills/devops",
-      "version": "1.5.2"
+      "version": "1.6.0"
     },
     {
       "category": "testing",
@@ -71,13 +71,91 @@
       "category": "productivity",
       "name": "prometheus-research-skills",
       "source": "./skills/research",
-      "version": "1.1.2"
+      "version": "1.2.0"
     },
     {
       "category": "productivity",
       "name": "prometheus-research-server",
       "source": "./substrate/prometheus-research",
       "version": "1.7.2"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-rust-skills",
+      "source": "./skills/rust",
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-flint-skills",
+      "source": "./skills/flint",
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-architecture-skills",
+      "source": "./skills/architecture",
+      "version": "1.0.0"
+    },
+    {
+      "category": "productivity",
+      "name": "prometheus-document-extraction-skills",
+      "source": "./skills/document-extraction",
+      "version": "1.0.0"
+    },
+    {
+      "category": "productivity",
+      "name": "prometheus-documentation-skills",
+      "source": "./skills/documentation",
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
+      "name": "prometheus-flutter-skills",
+      "source": "./skills/flutter",
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-go-skills",
+      "source": "./skills/go",
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
+      "name": "prometheus-htmx-skills",
+      "source": "./skills/htmx",
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-python-skills",
+      "source": "./skills/python",
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
+      "name": "prometheus-tauri-skills",
+      "source": "./skills/tauri",
+      "version": "1.0.0"
+    },
+    {
+      "category": "development",
+      "name": "prometheus-typescript-skills",
+      "source": "./skills/typescript",
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
+      "name": "prometheus-react-vite-stack",
+      "source": "./skills/react/react-vite-stack",
+      "version": "1.0.0"
+    },
+    {
+      "category": "productivity",
+      "name": "iterative-evolver",
+      "source": "./skills/process/iterative-evolver",
+      "version": "1.1.0"
     },
     {
       "category": "productivity",
