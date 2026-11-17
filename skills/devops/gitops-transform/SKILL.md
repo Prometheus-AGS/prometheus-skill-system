@@ -1,6 +1,5 @@
 ---
 name: gitops-transform
-version: '1.0.0'
 description: >
   Detects and transforms existing GitHub Actions workflows and Kubernetes deployment
   configurations to the TJ-CICD-001 multi-cloud GitOps standard. Analyzes the current
@@ -17,7 +16,7 @@ compatibility: >
   Supported agents: Claude Code, Antigravity, Codex, OpenCode, Gemini CLI, Roo Code,
   Windsurf, Cursor, Amp, Cline.
 metadata:
-  tags: [devops, gitops, kubernetes]
+  tags: "devops, gitops, kubernetes"
   standard: TJ-CICD-001 v1.1
   owner: Prometheus AGS
   contact: tjames@prometheusags.ai

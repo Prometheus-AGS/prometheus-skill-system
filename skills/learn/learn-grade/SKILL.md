@@ -1,12 +1,12 @@
 ---
 name: learn-grade
 description: External, source-grounded, anti-sycophantic grader for the Feynman learning loop. Checks explanations against the teaching corpus, identifies gaps, generates novel transfer problems, and updates the learner model. Routes through sycophancy-correction to prevent pedagogical flattery.
-version: '1.1.0'
 license: MIT
 metadata:
+  version: '1.1.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, grade, assessment, feynman, sycophancy, corpus-grounded, transfer]
+  tags: "learn, grade, assessment, feynman, sycophancy, corpus-grounded, transfer"
 ---
 
 # learn-grade

@@ -1,12 +1,12 @@
 ---
 name: kbd-doctor
 description: Diagnose Prometheus substrate health and orchestrate safe doctor runs through the compiled `prometheus doctor` CLI. Use when the user asks for doctor, health checks, repair planning, refresh planning, or recovery of KBD learning-loop infrastructure.
-version: '1.0.0'
 license: MIT
 argument-hint: "[--json] [--check <id-or-group>] [--fix|--refresh] [--dry-run] [--yes]"
 metadata:
+  version: '1.0.0'
   category: process
-  tags: [kbd, doctor, repair, refresh, health, recovery, cli]
+  tags: "kbd, doctor, repair, refresh, health, recovery, cli"
 ---
 
 # /kbd-doctor

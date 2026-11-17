@@ -1,12 +1,12 @@
 ---
 name: validate-idea
 description: Staged idea validation for product evolution — three gates from plausibility to specification using the Darwin Gödel Machine pattern, with Archive of Stepping Stones persistence
-version: '1.0.0'
 license: MIT
 metadata:
+  version: '1.0.0'
   author: prometheus-ags
   category: process
-  tags: [idea-validation, evolution, darwin, staged-gating, liter-llm, pmpo-evolver]
+  tags: "idea-validation, evolution, darwin, staged-gating, liter-llm, pmpo-evolver"
 ---
 
 # validate-idea

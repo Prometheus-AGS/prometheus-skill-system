@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: error-handling
-version: '1.0.0'
 description: >
   Canonical Rust error handling for Prometheus AGS projects. Enforces the thiserror/anyhow
   boundary: thiserror for library crate errors (typed, composable), anyhow for application
@@ -9,7 +8,8 @@ description: >
   in non-test code, and structured error propagation via the ? operator.
 language: rust
 metadata:
-  tags: [rust, patterns]
+  version: '1.0.0'
+  tags: "rust, patterns"
 ---
 
 # Error Handling — Rust

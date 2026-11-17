@@ -407,7 +407,7 @@ for the worked example, and note that the `liter-llm` block at
 # Validate all native skills (excludes imported/ submodules)
 npm run validate
 
-# Strict validation — required for new skills (enforces version, license, metadata.tags)
+# Strict validation — required for new skills (enforces license, metadata.version, metadata.tags)
 npm run validate:strict
 
 # Validate a specific skill (strict mode)
@@ -602,7 +602,7 @@ Available variables:
      author: your-name
      version: '1.0.0'
      category: react
-     tags: [react, crud, entity, typescript]
+     tags: "react, crud, entity, typescript"
    ---
    ```
 
@@ -656,9 +656,9 @@ This repository strictly adheres to the [agentskills.io specification](https://a
 - ✅ `SKILL.md` with YAML frontmatter
 - ✅ `name` field: lowercase, hyphens, max 64 chars, pattern `^[a-z0-9]+(-[a-z0-9]+)*$`
 - ✅ `description` field: 1-1024 characters, searchable
-- ✅ `version` field: semver string, e.g., `'1.0.0'`
+- ✅ `metadata.version` field: quoted semver string, e.g., `'1.0.0'` (never a top-level `version`; the spec does not allow one)
 - ✅ `license` field: SPDX identifier, e.g., `MIT`
-- ✅ `metadata.tags` field: non-empty array of searchable keywords
+- ✅ `metadata.tags` field: non-empty comma-separated string of searchable keywords (the spec requires metadata values to be strings, so never a YAML list)
 
 ### Standard Directories
 
@@ -751,7 +751,7 @@ Before releasing:
 # Standard validation (native skills only, 0 errors required)
 npm run validate
 
-# Strict validation — gate for new skills (enforces version, license, metadata.tags)
+# Strict validation — gate for new skills (enforces license, metadata.version, metadata.tags)
 npm run validate:strict
 
 # Specific skill — strict mode (required before submitting a new skill)

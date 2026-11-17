@@ -1,6 +1,5 @@
 ---
 name: bdd-cucumber-rs
-version: '1.0.0'
 license: MIT
 description: >
   Author, run, and maintain BDD integration tests in Rust using the
@@ -9,9 +8,10 @@ description: >
   tests, integration tests, feature files, or step definitions for any
   Rust crate or workspace.
 metadata:
+  version: '1.0.0'
   author: prometheus-skill-pack
   category: testing
-  tags: [testing, bdd, cucumber, cucumber-rs, rust, gherkin, e2e, thirtyfour]
+  tags: "testing, bdd, cucumber, cucumber-rs, rust, gherkin, e2e, thirtyfour"
 ---
 
 # BDD Cucumber-rs Skill

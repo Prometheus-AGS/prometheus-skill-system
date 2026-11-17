@@ -1,13 +1,13 @@
 ---
 license: MIT
 name: kbd-pause
-version: '1.0.0'
 argument-hint: '<reason>'
 description: >
   Gracefully pause the active KBD run, checkpoint its exact position, and
   prevent every harness from steering execution until an operator resumes it.
 metadata:
-  tags: [process, orchestration, control, pause]
+  version: '1.0.0'
+  tags: "process, orchestration, control, pause"
 ---
 
 # /kbd-pause

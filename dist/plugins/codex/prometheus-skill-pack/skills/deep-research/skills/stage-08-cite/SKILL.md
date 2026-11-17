@@ -5,11 +5,11 @@ description: >
   sources used in resolved claims. Assigns per-citation confidence scores.
   Supports APA 7, MLA 9, Chicago 17, IEEE, and Vancouver styles.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-08, citations, bibliography, confidence-scores]
+  tags: "deep-research, stage-08, citations, bibliography, confidence-scores"
 ---
 
 # Stage 08 — Cite

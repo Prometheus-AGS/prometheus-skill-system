@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: pyo3-bridge
-version: '1.0.0'
 description: >
   PyO3 0.22 Rust-to-Python bridging patterns for Prometheus AGS. Covers exposing Rust
   functions and types to Python via #[pyfunction] and #[pyclass], the maturin build
@@ -10,7 +9,8 @@ description: >
   (forge-rs, pk-librarian, surreal-memory) for use in Dify and custom skill servers.
 language: python
 metadata:
-  tags: [python, bridge]
+  version: '1.0.0'
+  tags: "python, bridge"
 ---
 
 # PyO3 Rust-Python Bridge

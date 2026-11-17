@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: llm-wiki
-version: '1.0.0'
 description: >
   Operate a persistent, LLM-maintained knowledge wiki through pk: ingest sources
   into OKF-formatted wiki pages (with index/log maintenance), query the wiki and
@@ -10,7 +9,8 @@ description: >
   wiki, ingest a document or conversation, answer from the knowledge base with
   citations, or health-check the wiki.
 metadata:
-  tags: [documentation, knowledge, wiki, okf, pk]
+  version: '1.0.0'
+  tags: "documentation, knowledge, wiki, okf, pk"
 ---
 
 # LLM Wiki Skill

@@ -1,12 +1,12 @@
 ---
 name: learn-harness
 description: Per-harness capability orientation for the Prometheus Skill Pack. Auto-detects the running AI harness via detect-surface-tier.sh, emits a capability map, and optionally routes into the Feynman loop for deeper harness understanding. Covers Claude Code, OpenCode, Codex, Kimi Code, and Zed.
-version: '1.0.0'
 license: MIT
 metadata:
+  version: '1.0.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, harness, claude-code, opencode, codex, kimi, zed, capability-map, orientation]
+  tags: "learn, harness, claude-code, opencode, codex, kimi, zed, capability-map, orientation"
 ---
 
 # learn-harness

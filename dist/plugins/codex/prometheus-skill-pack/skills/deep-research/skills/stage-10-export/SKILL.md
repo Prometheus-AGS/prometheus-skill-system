@@ -5,11 +5,11 @@ description: >
   all stage outputs. Writes manifest.json (OKF + Prometheus extensions), index.md,
   and all data files. Optionally ingests the package into surreal-memory palace.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-10, export, research-package, okf, manifest]
+  tags: "deep-research, stage-10, export, research-package, okf, manifest"
 ---
 
 # Stage 10 — Export

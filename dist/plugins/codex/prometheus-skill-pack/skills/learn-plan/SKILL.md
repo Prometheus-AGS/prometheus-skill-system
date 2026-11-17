@@ -1,12 +1,12 @@
 ---
 name: learn-plan
 description: Adaptive curriculum planner for the Feynman learning loop. Reads the survey result and learner model to build a concept DAG in surreal-memory, sequences prerequisites, estimates time per concept, and produces a curriculum.json that feynman-loop and learn-practice consume. Supports --replan when mastery diverges.
-version: '1.0.0'
 license: MIT
 metadata:
+  version: '1.0.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, plan, curriculum, dag, prerequisites, adaptive, surreal-memory]
+  tags: "learn, plan, curriculum, dag, prerequisites, adaptive, surreal-memory"
 ---
 
 # learn-plan

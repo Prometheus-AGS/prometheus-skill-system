@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: axum-patterns
-version: '1.0.0'
 description: >
   Axum 0.8 router, middleware, extractor, and state injection patterns for Prometheus AGS
   projects. Enforces the canonical Axum structure: typed state via Extension/State extractors,
@@ -9,7 +8,8 @@ description: >
   Use when building any Axum HTTP service, MCP server, or API gateway in the Prometheus stack.
 language: rust
 metadata:
-  tags: [rust, patterns]
+  version: '1.0.0'
+  tags: "rust, patterns"
 ---
 
 # Axum Patterns — Rust

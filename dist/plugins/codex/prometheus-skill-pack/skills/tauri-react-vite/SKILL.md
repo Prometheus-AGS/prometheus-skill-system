@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: tauri-react-vite
-version: '1.0.0'
 description: >
   Tauri 2 + React 19 + Vite 8 desktop application pattern for Prometheus AGS. Covers
   the Tauri command API, IPC invoke() pattern, Rust sidecar or plugin integration,
@@ -10,7 +9,8 @@ description: >
   Use when building any Prometheus desktop application.
 language: tauri
 metadata:
-  tags: [tauri, desktop, rust]
+  version: '1.0.0'
+  tags: "tauri, desktop, rust"
 ---
 
 # Tauri 2 + React 19 + Vite 8

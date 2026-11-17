@@ -5,11 +5,11 @@ description: >
   and resolves them using structured strategies (authority, recency, consensus).
   Escalates to pmpo-elicit when contradictions cannot be resolved autonomously.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-06, resolve, contradiction-detection, pmpo-elicit]
+  tags: "deep-research, stage-06, resolve, contradiction-detection, pmpo-elicit"
 ---
 
 # Stage 06 — Resolve

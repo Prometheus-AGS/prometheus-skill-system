@@ -2,12 +2,12 @@
 name: upload-to-bossfang
 description: Upload a packaged .lf-skill.zip to a running LibreFang/bossfang instance via its /skills/install REST endpoint. Validates the URL with a deny-by-default SSRF guard (rejects private IPs, non-http schemes, and unallowlisted hosts unless --insecure is passed for explicit local-dev use). Auto-discovers the zip in cwd, redacts the BOSSFANG_TOKEN bearer auth from all logs, and verifies the install by GETting the skill manifest after upload. Use after `forge package-librefang` produces a zip and you want to deploy it to a remote bossfang.
 license: MIT
-version: '1.0.0'
 authors:
   - Prometheus AGS
 metadata:
+  version: '1.0.0'
   category: process
-  tags: [librefang, bossfang, deploy, upload, ssrf-guard, security-reviewed]
+  tags: "librefang, bossfang, deploy, upload, ssrf-guard, security-reviewed"
   slash_command: '/upload-to-bossfang'
   requires_security_review: true
   parent_skill: native-agent

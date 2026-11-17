@@ -4,13 +4,12 @@ description: >
   Install and use the Flint Realtime Fabric Go SDK (github.com/prometheusags/frf/sdks/go).
   Covers SpineClient setup, channel subscriptions, event publishing, ack handling, and
   Connect-RPC transport configuration for Go services.
-version: '1.0.0'
 license: MIT
 metadata:
   author: Prometheus AGS
   version: '1.0.0'
   category: flint
-  tags: [flint, realtime, go, golang, sdk, grpc, connect-rpc]
+  tags: "flint, realtime, go, golang, sdk, grpc, connect-rpc"
 ---
 
 # flint-sdk-go

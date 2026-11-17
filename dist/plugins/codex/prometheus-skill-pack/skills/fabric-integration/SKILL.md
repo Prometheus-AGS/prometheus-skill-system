@@ -2,12 +2,11 @@
 name: fabric-integration
 description: Enforce the cross-repository fabric version invariants (Loro minor, wasmtime major, iroh floor, WIT world pinning) so a drift that would surface as a merge error, a cache miss, or a component that will not instantiate fails at check time instead.
 license: MIT
-version: '1.0.0'
 metadata:
   author: prometheus
   version: '1.0.0'
   category: devops
-  tags: [fabric, invariants, versions, loro, wasmtime, iroh, wit, ci]
+  tags: "fabric, invariants, versions, loro, wasmtime, iroh, wit, ci"
 ---
 
 # Fabric Integration

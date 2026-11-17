@@ -1,12 +1,12 @@
 ---
 license: MIT
 name: kbd-resume
-version: '1.0.0'
 argument-hint: '[--plan-revision <n>] [--reason <text> --exact-next-work <text>]'
 description: >
   Resume a paused KBD run after validating its checkpoint and plan revision.
 metadata:
-  tags: [process, orchestration, control, resume]
+  version: '1.0.0'
+  tags: "process, orchestration, control, resume"
 ---
 
 # /kbd-resume

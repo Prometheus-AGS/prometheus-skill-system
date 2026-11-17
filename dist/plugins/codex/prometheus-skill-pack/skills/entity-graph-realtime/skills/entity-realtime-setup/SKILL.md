@@ -1,13 +1,13 @@
 ---
 license: MIT
 name: entity-realtime-setup
-version: '1.0.0'
 description: >
   Greenfield RealtimeManager wiring: getRealtimeManager options (flushInterval, onStatusChange, onChangeReceived),
   instantiate the chosen adapter factory, register ChannelConfig entries, store UnsubscribeFn for cleanup,
   and document SSR/client-only boundaries.
 metadata:
-  tags: [react, typescript, entity-management]
+  version: '1.0.0'
+  tags: "react, typescript, entity-management"
 ---
 
 # `/entity-realtime-setup` — Manager and first adapter

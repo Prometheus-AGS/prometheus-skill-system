@@ -1,6 +1,5 @@
 ---
 name: bdd-video-proof
-version: '2.0.0'
 description: >
   Assemble a signed certification bundle from a cucumber test run — cucumber
   JSON report, MP4 videos (ffmpeg-remuxed from Playwright WebM), screenshot
@@ -10,9 +9,10 @@ description: >
   audit trails.
 license: MIT
 metadata:
+  version: '2.0.0'
   author: prometheus-skill-pack
   category: testing
-  tags: [bdd, cucumber, video, proof, certification, audit, evidence, ipfs]
+  tags: "bdd, cucumber, video, proof, certification, audit, evidence, ipfs"
 ---
 
 # BDD Video Proof

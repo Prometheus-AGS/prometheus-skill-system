@@ -1,6 +1,5 @@
 ---
 name: value-scenario-verify
-version: '1.2.0'
 license: MIT
 description: >
   Verify an adopted finite scenario set at the authorized complete value-phase
@@ -8,9 +7,10 @@ description: >
   Preserves oracle sensitivity, attempts, identity, budgets and cleanup; does
   not replace a runner or authorize early checks, repair loops or publication.
 metadata:
+  version: '1.2.0'
   author: prometheus-skill-pack
   category: testing
-  tags: [testing, verification, vlbv, evidence, kbd]
+  tags: "testing, verification, vlbv, evidence, kbd"
 ---
 
 # Value scenario verification

@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: pmpo-skill-creator
-version: '1.0.1'
 description: >
   Use this skill to create, clone, or extend Agent Skills using PMPO orchestration.
   Generates complete, production-ready skills with agentskills.io spec compliance,
@@ -19,7 +18,8 @@ model_routing:
     creator-persist: small
   routing_reference: "references/model-routing.md"
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.0.1'
+  tags: "process, orchestration, automation"
 ---
 
 # PMPO Skill Creator

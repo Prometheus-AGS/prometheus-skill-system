@@ -6,11 +6,11 @@ description: >
   the Feynman quality gate (learn-grade) before delivery. Confidence score is
   computed from source credibility and claim resolution confidence.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-09, report, synthesis, feynman-gate, learn-grade, okf]
+  tags: "deep-research, stage-09, report, synthesis, feynman-gate, learn-grade, okf"
 ---
 
 # Stage 09 — Report

@@ -7,7 +7,7 @@ metadata:
   author: your-name
   version: '1.0.0'
   category: react|rust|ui-ux|devops|testing|documentation
-  tags: [tag1, tag2, tag3]
+  tags: "tag1, tag2, tag3"
 ---
 
 # Skill Name

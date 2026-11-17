@@ -1,12 +1,12 @@
 ---
 name: ui-surface
 description: Cross-harness UI surface resolver for learn-* skills. Detects the active surface tier via detect-surface-tier.sh and renders UI intent (prompts, questions, feedback) at the best available tier. Degrades gracefully to Tier 0 text when richer surfaces are unavailable.
-version: '1.0.0'
 license: MIT
 metadata:
+  version: '1.0.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [ui, surface, cross-harness, learn, tier-detection]
+  tags: "ui, surface, cross-harness, learn, tier-detection"
 ---
 
 # ui-surface

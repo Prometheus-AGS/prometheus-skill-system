@@ -6,13 +6,12 @@ description: >
   domain, identifies the highest-impact improvement opportunities against configurable criteria,
   and produces a ranked evolution brief that /kbd-new-phase or /kbd-process-orchestrator can
   consume as the seed for the next phase.
-version: '1.0.0'
 license: MIT
 metadata:
   author: Prometheus AGS
   version: '1.0.0'
   category: process
-  tags: [process, orchestration, evolution, research, landscape, kbd, pmpo]
+  tags: "process, orchestration, evolution, research, landscape, kbd, pmpo"
 ---
 
 # kbd-evolve

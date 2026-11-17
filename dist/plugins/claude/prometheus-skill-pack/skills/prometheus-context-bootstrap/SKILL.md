@@ -10,13 +10,12 @@ description: >
   only when measured. Creates what is absent, splices a marked region into what
   exists, and never overwrites operator prose.
 license: MIT
-version: '1.1.0'
 compatibility: bash >=4, git; jq optional
 metadata:
   author: prometheus
   version: '1.1.0'
   category: process
-  tags: [bootstrap, context-engineering, agents-md, claude-md, hooks, scaffold]
+  tags: "bootstrap, context-engineering, agents-md, claude-md, hooks, scaffold"
 ---
 
 # Prometheus Context Bootstrap

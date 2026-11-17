@@ -1,6 +1,5 @@
 ---
 name: value-scenario-discovery
-version: '1.1.0'
 license: MIT
 description: >
   Propose a finite, owner-calibrated set of useful behavioral scenarios before
@@ -8,9 +7,10 @@ description: >
   mandatory constraints, rejected alternatives and adoption authority. Does not
   author executable tests or run generated-code checks.
 metadata:
+  version: '1.1.0'
   author: prometheus-skill-pack
   category: testing
-  tags: [testing, scenarios, discovery, vlbv, kbd]
+  tags: "testing, scenarios, discovery, vlbv, kbd"
 ---
 
 # Value scenario discovery

@@ -1,6 +1,5 @@
 ---
 name: bdd-lifecycle-loop
-version: '2.0.0'
 license: MIT
 description: >
   Codifies the VLBV define → author → execute (once, at the value-phase
@@ -10,9 +9,10 @@ description: >
   workflow with paper trail. Use when standing up a BDD suite, growing one past
   100 scenarios, or when nondeterminism starts eroding trust in results.
 metadata:
+  version: '2.0.0'
   author: prometheus-skill-pack
   category: testing
-  tags: [testing, bdd, cucumber, lifecycle, vlbv, stochastic, immutable-tests]
+  tags: "testing, bdd, cucumber, lifecycle, vlbv, stochastic, immutable-tests"
 ---
 
 # BDD Lifecycle Loop

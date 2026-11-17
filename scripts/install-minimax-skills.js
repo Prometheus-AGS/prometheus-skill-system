@@ -28,7 +28,9 @@ function parseFrontmatter(skillMd) {
   const frontmatter = source.match(/^---\n([\s\S]*?)\n---/);
   const body = frontmatter?.[1] ?? '';
   const name = body.match(/^name:\s*['"]?([^'"\n]+)['"]?/m)?.[1]?.trim();
-  const version = body.match(/^version:\s*['"]?([^'"\n]+)['"]?/m)?.[1]?.trim();
+  // metadata.version is the pack convention; a top-level version is still
+  // read so imported skills that predate it keep their value.
+  const version = body.match(/^(?: {2})?version:\s*['"]?([^'"\n]+)['"]?/m)?.[1]?.trim();
   return {
     name: name || skillMd.split('/').at(-2),
     version: version || '1.0.0',

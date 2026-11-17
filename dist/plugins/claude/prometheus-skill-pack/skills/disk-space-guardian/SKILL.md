@@ -1,6 +1,5 @@
 ---
 name: disk-space-guardian
-version: '1.0.0'
 license: MIT
 description: >
   Intelligent, safety-first disk space management for developer workstations.
@@ -9,9 +8,10 @@ description: >
   caches using the dsg CLI. Defaults to dry-run; moves artifacts to system
   Trash, never rm.
 metadata:
+  version: '1.0.0'
   author: Travis James
   category: devops
-  tags: [disk, cache, cleanup, rust, devtools, devops, dsg, build-cache]
+  tags: "disk, cache, cleanup, rust, devtools, devops, dsg, build-cache"
 ---
 
 # disk-space-guardian

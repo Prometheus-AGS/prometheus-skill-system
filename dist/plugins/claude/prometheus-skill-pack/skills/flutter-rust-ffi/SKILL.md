@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: flutter-rust-ffi
-version: '1.0.0'
 description: >
   Flutter + Rust FFI architecture for Prometheus AGS mobile and desktop apps using
   flutter_rust_bridge v2 and Riverpod 2.6. Covers the gen_ui_core shared Rust crate,
@@ -10,7 +9,8 @@ description: >
   embedding React via WebView). Use when building any Prometheus hybrid mobile app.
 language: flutter
 metadata:
-  tags: [flutter, dart, ffi]
+  version: '1.0.0'
+  tags: "flutter, dart, ffi"
 ---
 
 # Flutter + Rust FFI

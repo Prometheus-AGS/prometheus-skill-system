@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: native-agent
-version: '1.0.0'
 description: >
   Scaffolds a native Rust agent workspace with a
   Supabase-style management CLI. The generated agent binary embeds an Axum HTTP
@@ -41,7 +40,8 @@ triggers:
     Scaffold a new native Rust agent application with protocol support, a chat
     frontend, MCP client tools, Docker support, and a management CLI.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.0.0'
+  tags: "process, orchestration, automation"
 ---
 
 # Native Agent Generator

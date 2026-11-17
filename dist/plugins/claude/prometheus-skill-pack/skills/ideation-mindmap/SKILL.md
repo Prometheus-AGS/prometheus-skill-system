@@ -2,12 +2,12 @@
 name: ideation-mindmap
 description: Stage-zero onramp for /start-business-build. Takes a one-line business concept and generates a 6-branch concept mindmap via surreal-memory, structuring raw ideas into actionable branches ready for the spec engine.
 license: MIT
-version: '1.0.0'
 authors:
   - Prometheus AGS
 metadata:
+  version: '1.0.0'
   category: process
-  tags: [ideation, mindmap, surreal-memory, business-build, stage-zero]
+  tags: "ideation, mindmap, surreal-memory, business-build, stage-zero"
 triggers:
   keywords:
     - ideation mindmap

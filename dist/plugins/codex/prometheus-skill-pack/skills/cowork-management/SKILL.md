@@ -1,6 +1,5 @@
 ---
 name: cowork-management
-version: '1.0.0'
 license: MIT
 description: >
   Install, update, and manage AI coding agent skills across 20+ platforms using
@@ -8,9 +7,10 @@ description: >
   Windsurf, GitHub Copilot, and more. Also manages prometheus-skill-pack updates,
   toolchain health checks, and disk-space reclamation via dsg delegation.
 metadata:
+  version: '1.0.0'
   author: Travis James
   category: process
-  tags: [cli, skill-management, cowork, install, platform, toolchain, prometheus]
+  tags: "cli, skill-management, cowork, install, platform, toolchain, prometheus"
 ---
 
 # cowork-management

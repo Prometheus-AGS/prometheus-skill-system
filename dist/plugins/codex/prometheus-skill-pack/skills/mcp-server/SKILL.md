@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: mcp-server
-version: '1.0.0'
 description: >
   Canonical Axum MCP server pattern for Prometheus AGS projects. Implements the
   MCP protocol as JSON-RPC 2.0 over HTTP POST /mcp with optional SSE event stream
@@ -10,7 +9,8 @@ description: >
   any new MCP-enabled service in the Prometheus stack.
 language: rust
 metadata:
-  tags: [rust, patterns]
+  version: '1.0.0'
+  tags: "rust, patterns"
 ---
 
 # MCP Server — Rust

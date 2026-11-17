@@ -5,11 +5,11 @@ description: >
   URL from Stage 02 and chunks it into retrievable segments. Handles PDF, HTML,
   and structured data formats. Outputs content chunks for Stage 04 indexing.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-03, retrieve, content-extraction, chunking]
+  tags: "deep-research, stage-03, retrieve, content-extraction, chunking"
 ---
 
 # Stage 03 — Retrieve

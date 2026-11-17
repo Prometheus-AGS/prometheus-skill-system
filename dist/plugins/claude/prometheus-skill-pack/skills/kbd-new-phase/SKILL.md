@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: kbd-new-phase
-version: '1.0.0'
 description: >
   Manually create a new top-level KBD phase. Accepts <name> [goals…] and
   initialises the phase directory, waypoint, project.json activePhase, and
@@ -9,7 +8,8 @@ description: >
   first phase of a new project), when pivoting away from /kbd-next-phase's
   suggestion, or when initialising state by hand.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.0.0'
+  tags: "process, orchestration, automation"
 ---
 
 # /kbd-new-phase

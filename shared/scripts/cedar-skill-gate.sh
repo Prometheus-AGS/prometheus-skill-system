@@ -106,7 +106,7 @@ Required frontmatter:
   metadata:
     author: your-name
     version: '1.0.0'
-    tags: [tag1, tag2]
+    tags: "tag1, tag2"
   ---
 
 EOF

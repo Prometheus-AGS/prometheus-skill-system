@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: actor-model
-version: '1.0.0'
 description: >
   Tokio-native actor model pattern for Prometheus AGS projects. Implements actors
   as tokio tasks communicating via mpsc channels with a typed message enum, enabling
@@ -10,7 +9,8 @@ description: >
   component needs to own state exclusively while serving concurrent callers.
 language: rust
 metadata:
-  tags: [rust, patterns]
+  version: '1.0.0'
+  tags: "rust, patterns"
 ---
 
 # Actor Model — Rust

@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: htmx-alpine-lit
-version: '1.0.0'
 description: >
   HTMX 2.0.8 + Alpine.js + Lit component system for Prometheus AGS server-driven UI.
   Covers HTMX request/response patterns, Alpine.js x-data controllers, Lit web
@@ -11,7 +10,8 @@ description: >
   HTMX islands embedded in React applications.
 language: typescript
 metadata:
-  tags: [htmx, alpine, frontend]
+  version: '1.0.0'
+  tags: "htmx, alpine, frontend"
 ---
 
 # HTMX 2.0.8 + Alpine.js + Lit

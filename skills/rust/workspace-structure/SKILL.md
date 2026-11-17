@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: workspace-structure
-version: '1.0.0'
 description: >
   Canonical Rust workspace layout for Prometheus AGS multi-crate projects. Enforces
   resolver=2, workspace-level dependency versions, domain-driven crate separation
@@ -9,7 +8,8 @@ description: >
   release profile settings. Use when scaffolding any new Prometheus Rust workspace.
 language: rust
 metadata:
-  tags: [rust, patterns]
+  version: '1.0.0'
+  tags: "rust, patterns"
 ---
 
 # Workspace Structure — Rust

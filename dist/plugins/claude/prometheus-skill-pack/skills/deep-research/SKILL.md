@@ -10,7 +10,6 @@ description: >
   surreal-memory, liter-llm, sycophancy-correction, and Feynman learning skills.
   Supersedes disposable report generation with structured knowledge infrastructure.
 license: MIT
-version: '1.1.0'
 allowed-tools: file_system web_search code_interpreter sequential_thinking memory browser tavily firecrawl
 model_routing:
   policy_source: liter-llm-bridge
@@ -49,9 +48,9 @@ triggers:
     evidence-backed findings across multiple sources.
 metadata:
   author: Prometheus AGS
-  version: '1.0.0'
+  version: '1.1.0'
   category: research
-  tags: [research, deep-research, knowledge-graph, okf, pipeline, citations, verification]
+  tags: "research, deep-research, knowledge-graph, okf, pipeline, citations, verification"
 ---
 
 # deep-research

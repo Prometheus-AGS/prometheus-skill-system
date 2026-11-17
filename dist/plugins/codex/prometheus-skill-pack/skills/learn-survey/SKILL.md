@@ -1,12 +1,12 @@
 ---
 name: learn-survey
 description: Diagnostic placement skill for the Feynman learning loop. Generates dynamic survey items from the teaching corpus, probes current knowledge state and misconceptions, sets the recursion floor, and seeds the learner model via the learner-model crate.
-version: '1.0.0'
 license: MIT
 metadata:
+  version: '1.0.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, survey, diagnostic, placement, learner-model, misconceptions]
+  tags: "learn, survey, diagnostic, placement, learner-model, misconceptions"
 ---
 
 # learn-survey

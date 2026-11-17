@@ -1,10 +1,10 @@
 ---
 license: MIT
 name: extend-skill
-version: '1.0.0'
 description: Add new capabilities to an existing Agent Skill without breaking current functionality. Non-destructive additions only.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.0.0'
+  tags: "process, orchestration, automation"
 ---
 
 # Extend Skill
