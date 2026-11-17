@@ -82,7 +82,11 @@ export function parseFrontmatter(text) {
     const { collected, next } = blockAt(index, 0);
     const body = collected.filter(entry => entry.trim() !== '');
     index = next;
+    // A key with nothing after the colon and indented text below it is a plain
+    // scalar continued over several lines, unless that text is a mapping or a list.
+    const looksStructured = body.some(entry => /^\s*(- |[A-Za-z0-9_.-]+:(\s|$))/.test(entry));
     if (body.length === 0) result[key] = null;
+    else if (!looksStructured) result[key] = unquote(body.map(entry => entry.trim()).join(' '));
     else if (body.every(entry => /^\s*- /.test(entry))) {
       result[key] = body.map(entry => unquote(entry.replace(/^\s*- /, '')));
     } else {

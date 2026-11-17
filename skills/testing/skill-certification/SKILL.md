@@ -4,7 +4,7 @@ description: Certifies an Agent Skill against five evidence levels (specificatio
 license: MIT
 metadata:
   author: Travis James
-  version: '1.0.0'
+  version: '1.0.1'
   category: testing
   tags: 'certification, skills, evaluation, agentskills, trigger, validation'
 ---
