@@ -826,8 +826,16 @@ bash scripts/update-skill-pack.sh --domains=all                   # everything a
   deselected skill, or one a later generation dropped) and records them in
   `<pluginRoot>/receipts/unselected-cleanup.json`. Ownership is proven per entry;
   nothing else is touched.
-- Do not enable a pack plugin in Claude Code on top of an installer install: the
-  same skill is then listed more than once. The installer warns when it sees both.
+- **In Claude Code, pair an installer install with the `prometheus-runtime`
+  plugin, not `prometheus-skill-pack`.** The pack's hooks reach Claude Code only
+  through a plugin, and the full plugin also lists every skill, so with it
+  enabled a domain selection cannot shrink the listing. `prometheus-runtime`
+  (`dist/plugins/claude/prometheus-runtime`, generated) carries the hooks and
+  MCP servers and no skills. Enable exactly one of the two: both carry the same
+  hook file, so enabling both runs every hook twice, and enabling neither runs
+  none. Domain plugins such as `prometheus-process-skills` only repeat what the
+  installer already provides. The installer and the update script report each of
+  these cases.
 
 ### Publishing Checklist
 

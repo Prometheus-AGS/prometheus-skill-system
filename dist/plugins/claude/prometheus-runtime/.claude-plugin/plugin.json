@@ -1,0 +1,19 @@
+{
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "description": "Hooks and MCP servers of the Prometheus skill system, without the skills. For installs whose skills come from the pack installer. Use instead of prometheus-skill-pack, never with it.",
+  "homepage": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+  "keywords": [
+    "agent-skills",
+    "hooks",
+    "mcp",
+    "runtime"
+  ],
+  "license": "MIT",
+  "mcpServers": "./.mcp.json",
+  "name": "prometheus-runtime",
+  "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+  "version": "1.15.0"
+}

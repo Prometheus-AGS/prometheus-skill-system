@@ -344,6 +344,7 @@
   "outputs": {
     "claudeMarketplace": ".claude-plugin/marketplace.json",
     "claudePackage": "dist/plugins/claude/prometheus-skill-pack",
+    "claudeRuntimePackage": "dist/plugins/claude/prometheus-runtime",
     "codexMarketplace": ".agents/plugins/marketplace.json",
     "codexPackage": "dist/plugins/codex/prometheus-skill-pack",
     "skillCatalog": "SKILLS.md"

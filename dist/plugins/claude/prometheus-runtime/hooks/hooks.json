@@ -1,0 +1,591 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "sessionstart-kbd-control",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          }
+        ],
+        "matcher": "*",
+        "description": "Bounded canonical KBD session adapter",
+        "id": "sessionstart:kbd-control"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "sessionstart-kbd-open",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          }
+        ],
+        "matcher": "*",
+        "description": "kbd-open — prime session with KBD phase context + focused wiki + pending skill-updates",
+        "id": "sessionstart:kbd-open"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "sessionstart-vlbv",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 5
+          }
+        ],
+        "matcher": "*",
+        "description": "State VLBV as the verification method in KBD-managed projects; opt-in elsewhere via PROMETHEUS_VLBV_DEFAULT or a vlbv-default settings file (instruction only)",
+        "id": "sessionstart:vlbv-default"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "sessionstart-learning",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 5
+          }
+        ],
+        "matcher": "*",
+        "description": "Deliver the main thread's team view (lead scope + team digest) as untrusted context (silent when no team or store)",
+        "id": "sessionstart:learning"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "sessionstart-detect-project-context",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "sessionstart-memory-outbox-flush",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "sessionstart-pk-health",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "prompt-karpathy-learning",
+              "--harness",
+              "claude-code"
+            ]
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "posttool-validate-evolution-state",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "posttool-validate-gitops-write",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "posttool-scope-record",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "posttool-write-position-reminder",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "posttool-sycophancy-artifact",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 35
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "posttool-memory-writeback",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          }
+        ],
+        "matcher": "Write|Edit|MultiEdit"
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagentstart-learning",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 5
+          }
+        ],
+        "matcher": "*",
+        "description": "Deliver the subagent's own role-scoped lessons as untrusted additionalContext (silent when no team or store)",
+        "id": "subagentstart-learning"
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-assessor-checkpoint",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-assessor-dispatch",
+              "--harness",
+              "claude-code"
+            ]
+          }
+        ],
+        "matcher": "^iterative-evolver:assessor$"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-analyst-checkpoint",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-analyst-dispatch",
+              "--harness",
+              "claude-code"
+            ]
+          }
+        ],
+        "matcher": "^iterative-evolver:analyst$"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-planner-checkpoint",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-planner-dispatch",
+              "--harness",
+              "claude-code"
+            ]
+          }
+        ],
+        "matcher": "^iterative-evolver:planner$"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-executor-karpathy-learning",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-executor-validate-state",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-executor-checkpoint",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-executor-evaluate-session",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-executor-dispatch",
+              "--harness",
+              "claude-code"
+            ]
+          }
+        ],
+        "matcher": "^iterative-evolver:executor$"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-reflector-sycophancy",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 35
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-reflector-log",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-reflector-checkpoint",
+              "--harness",
+              "claude-code"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-reflector-dispatch",
+              "--harness",
+              "claude-code"
+            ]
+          }
+        ],
+        "matcher": "^iterative-evolver:reflector$"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagentstop-learning",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "subagent-fallback-checkpoint",
+              "--harness",
+              "claude-code"
+            ]
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "stop-karpathy-learning",
+              "--harness",
+              "claude-code"
+            ]
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "taskcompleted-kbd-receipt",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          }
+        ],
+        "description": "Block only inconsistent completion of canonical KBD tasks",
+        "id": "taskcompleted:kbd-receipt"
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506",
+              "--hook",
+              "precompact-kbd-control",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 10
+          }
+        ],
+        "matcher": "*",
+        "description": "Bounded canonical KBD pre-compaction checkpoint",
+        "id": "precompact:kbd-control"
+      }
+    ]
+  }
+}
