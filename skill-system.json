@@ -527,6 +527,7 @@
     "claudeMarketplace": ".claude-plugin/marketplace.json",
     "codexMarketplace": ".agents/plugins/marketplace.json",
     "claudePackage": "dist/plugins/claude/prometheus-skill-pack",
+    "claudeRuntimePackage": "dist/plugins/claude/prometheus-runtime",
     "codexPackage": "dist/plugins/codex/prometheus-skill-pack"
   }
 }

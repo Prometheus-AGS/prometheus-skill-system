@@ -27,6 +27,7 @@ const contract = readSkillSystem(sourceRoot);
 const outputPaths = normalizeGeneratedPaths(
   [
     [contract.outputs.claudePackage, true],
+    [contract.outputs.claudeRuntimePackage, true],
     [contract.outputs.codexPackage, true],
     [contract.outputs.claudeMarketplace, false],
     [contract.outputs.codexMarketplace, false],
@@ -69,7 +70,11 @@ function copy(source, destination, skillTree = false) {
     fs.mkdirSync(destination, { recursive: true, mode: stat.mode & 0o7777 });
     for (const name of fs.readdirSync(source).sort()) {
       if (skillTree && isSkillEvalsDir(source, name)) continue;
-      if (['.git', 'node_modules', 'target', '.kbd-orchestrator', '__pycache__'].includes(name) || /\.py[co]$/.test(name)) continue;
+      if (
+        ['.git', 'node_modules', 'target', '.kbd-orchestrator', '__pycache__'].includes(name) ||
+        /\.py[co]$/.test(name)
+      )
+        continue;
       copy(path.join(source, name), path.join(destination, name), skillTree);
     }
     fs.chmodSync(destination, stat.mode & 0o7777);
@@ -243,6 +248,44 @@ function copyHookRuntime(root, hooksSource) {
   write(root, 'config/prometheus-exec-component.json', packagedExecutionDescriptor());
 }
 
+// The runtime-only Claude plugin: the pack's hooks and MCP servers, no skills.
+//
+// Claude Code gets the pack's hooks only from a plugin, and the full plugin
+// also lists every skill. Someone who installs skills through the generation
+// installer (optionally narrowed by domain) therefore needs a plugin that
+// carries the hooks without the catalogue. Enable this one OR the full plugin,
+// never both: the hook file is the same, so both would run every hook twice.
+const RUNTIME_PLUGIN = 'prometheus-runtime';
+const RUNTIME_DESCRIPTION =
+  'Hooks and MCP servers of the Prometheus skill system, without the skills. For installs whose skills come from the pack installer. Use instead of prometheus-skill-pack, never with it.';
+
+function materializeRuntimePackage(root) {
+  const hooksSource = 'hooks/hooks.json';
+  copy(path.join(sourceRoot, hooksSource), path.join(root, 'hooks/hooks.json'));
+  copyHookTargets(root, hooksSource);
+  // hook-entry.mjs reads the release manifest from the plugin root to explain a
+  // bundle mismatch, and imports from scripts/lib.
+  copy(
+    path.join(sourceRoot, 'shared/harnesses/generated/release-manifest.json'),
+    path.join(root, 'shared/harnesses/generated/release-manifest.json')
+  );
+  copy(path.join(sourceRoot, 'scripts/lib'), path.join(root, 'scripts/lib'));
+  write(root, '.mcp.json', sanitizedMcp());
+  write(root, 'package.json', {
+    name: '@prometheus-ags/prometheus-runtime-payload',
+    version: contract.releaseVersion,
+    private: true,
+    type: 'module',
+  });
+  const { skills: _skills, ...manifest } = baseManifest();
+  write(root, '.claude-plugin/plugin.json', {
+    ...manifest,
+    name: RUNTIME_PLUGIN,
+    description: RUNTIME_DESCRIPTION,
+    keywords: ['agent-skills', 'hooks', 'mcp', 'runtime'],
+  });
+}
+
 function materializePackage(root, platform) {
   for (const skill of skills) copy(skill.source, path.join(root, 'skills', skill.name), true);
   copyCadenceRuntimeFiles(root);
@@ -298,6 +341,18 @@ function marketplaceEntries(platform) {
       ? { policy: { installation: 'INSTALLED_BY_DEFAULT', authentication: 'ON_INSTALL' } }
       : {}),
   };
+  const runtime =
+    platform === 'claude'
+      ? [
+          {
+            name: RUNTIME_PLUGIN,
+            source: `./${contract.outputs.claudeRuntimePackage}`,
+            version: contract.releaseVersion,
+            description: RUNTIME_DESCRIPTION,
+            category: 'productivity',
+          },
+        ]
+      : [];
   const adjacent = contract.marketplace.plugins.map(entry => ({
     name: entry.name,
     source: localSource(entry),
@@ -329,11 +384,12 @@ function marketplaceEntries(platform) {
         metadata: { repository: entry.repository, sha: entry.commit },
       };
     });
-  return [umbrella, ...adjacent, ...imports];
+  return [umbrella, ...runtime, ...adjacent, ...imports];
 }
 
 function materialize(root) {
   materializePackage(path.join(root, contract.outputs.claudePackage), 'claude');
+  materializeRuntimePackage(path.join(root, contract.outputs.claudeRuntimePackage));
   materializePackage(path.join(root, contract.outputs.codexPackage), 'codex');
   write(root, contract.outputs.claudeMarketplace, {
     name: contract.name,

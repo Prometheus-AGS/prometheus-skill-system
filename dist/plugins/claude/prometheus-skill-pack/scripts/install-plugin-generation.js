@@ -2256,23 +2256,48 @@ function recordUnselectedCleanup(pluginRoot, home, generation, removed) {
   );
 }
 
-/** Claude Code lists a skill once per route, so a plugin plus user-level skills doubles it. */
+/**
+ * Claude Code lists a skill once per route, so a plugin that carries skills plus
+ * user-level skills doubles them. The pack's hooks reach Claude Code ONLY through
+ * a plugin, so the advice is never simply "disable it": the full plugin is
+ * replaced by prometheus-runtime, which has the hooks and no skills.
+ */
 function claudeDoubleListing(home, targets) {
-  if (!targets.includes('.claude/skills')) return null;
+  let enabled;
   try {
     const settings = JSON.parse(fs.readFileSync(path.join(home, '.claude/settings.json'), 'utf8'));
-    const enabled = Object.entries(settings.enabledPlugins ?? {})
+    enabled = Object.entries(settings.enabledPlugins ?? {})
       .filter(([name, on]) => on === true && name.endsWith('@prometheus-skill-pack'))
-      .map(([name]) => name);
-    if (enabled.length === 0) return null;
-    return (
-      `Claude Code has pack plugin(s) enabled (${enabled.join(', ')}) and also receives pack skills ` +
-      'in ~/.claude/skills, so those skills are listed more than once. Disable the plugin(s), or ' +
-      'install without the claude target (--targets agents,qwen).'
-    );
+      .map(([name]) => name.slice(0, -'@prometheus-skill-pack'.length));
   } catch {
     return null;
   }
+  const full = enabled.includes('prometheus-skill-pack');
+  const runtime = enabled.includes('prometheus-runtime');
+  const notes = [];
+  if (full && runtime) {
+    notes.push(
+      'prometheus-skill-pack and prometheus-runtime are both enabled in Claude Code, so every pack hook runs twice. Disable one of them.'
+    );
+  }
+  if (targets.includes('.claude/skills')) {
+    if (full) {
+      notes.push(
+        'Claude Code lists every pack skill twice: once from the prometheus-skill-pack plugin and once from ~/.claude/skills. ' +
+          'A domain selection cannot shrink the listing while that plugin is enabled. To keep the hooks and drop the duplicate, ' +
+          'enable prometheus-runtime and disable prometheus-skill-pack (do not simply disable it: the hooks come from the plugin).'
+      );
+    }
+    const domainPlugins = enabled.filter(
+      name => !['prometheus-skill-pack', 'prometheus-runtime'].includes(name)
+    );
+    if (domainPlugins.length) {
+      notes.push(
+        `These pack plugins repeat skills that ~/.claude/skills already provides and can be disabled: ${domainPlugins.join(', ')}.`
+      );
+    }
+  }
+  return notes.length ? notes.join(' ') : null;
 }
 
 function installTargets(

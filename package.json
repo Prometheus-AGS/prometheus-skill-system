@@ -97,6 +97,7 @@
     "generate:skill-domains": "node scripts/generate-skill-domains.mjs",
     "check:skill-domains": "node scripts/generate-skill-domains.mjs --check",
     "test:domain-selection": "node scripts/tests/domain-selection.integration.test.mjs",
+    "test:runtime-plugin": "node scripts/tests/runtime-plugin.test.mjs",
     "sync:entity-skills": "node scripts/sync-entity-skills.mjs",
     "check:entity-skills": "node scripts/sync-entity-skills.mjs --check",
     "verify:skills": "node scripts/verify-skill-install.js",

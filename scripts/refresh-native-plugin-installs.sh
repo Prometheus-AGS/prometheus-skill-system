@@ -132,8 +132,10 @@ if command_available "$CLAUDE_BIN"; then
     claude_before="$($CLAUDE_BIN plugin list --json)"
     installed_affected="$(node -e '
 const rows=JSON.parse(process.argv[1]);
-const wanted=new Set(["prometheus-skill-pack@prometheus-skill-pack","prometheus-process-skills@prometheus-skill-pack"]);
-for (const row of rows) if (wanted.has(row.id) && row.scope === "user") console.log(row.id);
+const wanted=new Set(["prometheus-skill-pack@prometheus-skill-pack","prometheus-runtime@prometheus-skill-pack","prometheus-process-skills@prometheus-skill-pack"]);
+// A disabled plugin is left alone: reinstalling it would switch it back on, and
+// the full and runtime plugins carry the same hooks.
+for (const row of rows) if (wanted.has(row.id) && row.scope === "user" && row.enabled !== false) console.log(row.id);
 ' "$claude_before")"
     if [[ -n "$installed_affected" ]]; then
         "$CLAUDE_BIN" plugin marketplace update prometheus-skill-pack
@@ -163,10 +165,11 @@ const [payload, root] = process.argv.slice(2);
 const rows = JSON.parse(payload);
 const expected = new Map([
   ['prometheus-skill-pack@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'))).releaseVersion],
+  ['prometheus-runtime@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'))).releaseVersion],
   ['prometheus-process-skills@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skills/process/.claude-plugin/plugin.json'))).version],
 ]);
 for (const [id, version] of expected) {
-  const row = rows.find(candidate => candidate.id === id && candidate.scope === 'user');
+  const row = rows.find(candidate => candidate.id === id && candidate.scope === 'user' && candidate.enabled !== false);
   if (row && row.version !== version) process.exit(1);
 }
 NODE
@@ -189,15 +192,21 @@ const [payload, root] = process.argv.slice(2);
 const rows = JSON.parse(payload);
 const expected = new Map([
   ['prometheus-skill-pack@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'))).releaseVersion],
+  ['prometheus-runtime@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'))).releaseVersion],
   ['prometheus-process-skills@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skills/process/.claude-plugin/plugin.json'))).version],
 ]);
 for (const [id, version] of expected) {
-  const row = rows.find(candidate => candidate.id === id && candidate.scope === 'user');
+  const row = rows.find(candidate => candidate.id === id && candidate.scope === 'user' && candidate.enabled !== false);
   if (!row) continue;
-  if (id.startsWith('prometheus-skill-pack@') && row.enabled === false) throw new Error(`${id}: Claude plugin is disabled`);
   if (row.version !== version) throw new Error(`${id}: expected ${version}, found ${row.version}`);
   console.log(`${id}\t${row.installPath}`);
 }
+// The hooks reach Claude Code through exactly one of two plugins.
+const carriers = ['prometheus-skill-pack@prometheus-skill-pack', 'prometheus-runtime@prometheus-skill-pack']
+  .filter(id => rows.some(row => row.id === id && row.scope === 'user' && row.enabled !== false));
+// Reported, not fatal: which plugins are enabled is the operator's setting.
+if (carriers.length === 0) console.error('  ⚠️  neither prometheus-skill-pack nor prometheus-runtime is enabled in Claude Code, so no pack hook will run there');
+if (carriers.length === 2) console.error('  ⚠️  prometheus-skill-pack and prometheus-runtime are both enabled in Claude Code; every hook runs twice. Disable one');
 NODE
         while IFS=$'\t' read -r plugin_id install_path; do
             case "$plugin_id" in

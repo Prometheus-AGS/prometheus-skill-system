@@ -11,10 +11,15 @@ LOG="$TMP_ROOT/commands.log"
 GENERATION="fixture-generation"
 SOURCE_KBD="$REPO_ROOT/skills/process/kbd-process-orchestrator/skills/kbd-init"
 PLUGIN_ROOT="$TEST_HOME/.prometheus/plugins/prometheus-skill-pack"
+# Read from the repository, never pinned here: a pinned version goes stale the
+# next time the release or a plugin is bumped, and then this test stops at the
+# minimum-version check before it reaches anything it is meant to cover.
+PACK_VERSION="$(node -p 'require(process.argv[1]).releaseVersion' "$REPO_ROOT/skill-system.json")"
+PROCESS_VERSION="$(node -p 'require(process.argv[1]).version' "$REPO_ROOT/skills/process/.claude-plugin/plugin.json")"
 mkdir -p "$FAKE_BIN" "$PLUGIN_ROOT/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills"
 cp -R "$SOURCE_KBD" "$PLUGIN_ROOT/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills/kbd-init"
 cp -R "$SOURCE_KBD" "$PLUGIN_ROOT/generations/$GENERATION/skills/kbd-init"
-printf '{"sourceVersion":"1.10.0"}\n' > "$PLUGIN_ROOT/generations/$GENERATION/manifest.json"
+printf '{"sourceVersion":"%s"}\n' "$PACK_VERSION" > "$PLUGIN_ROOT/generations/$GENERATION/manifest.json"
 ln -s "generations/$GENERATION" "$PLUGIN_ROOT/current"
 
 UMBRELLA_INSTALL="$TEST_HOME/native/umbrella"
@@ -31,8 +36,8 @@ cat > "$TMP_ROOT/claude-before.json" <<JSON
 JSON
 cat > "$TMP_ROOT/claude-after.json" <<JSON
 [
-  {"id":"prometheus-skill-pack@prometheus-skill-pack","scope":"user","version":"1.10.0","installPath":"$UMBRELLA_INSTALL"},
-  {"id":"prometheus-process-skills@prometheus-skill-pack","scope":"user","version":"1.6.0","installPath":"$PROCESS_INSTALL"}
+  {"id":"prometheus-skill-pack@prometheus-skill-pack","scope":"user","version":"$PACK_VERSION","installPath":"$UMBRELLA_INSTALL"},
+  {"id":"prometheus-process-skills@prometheus-skill-pack","scope":"user","version":"$PROCESS_VERSION","installPath":"$PROCESS_INSTALL"}
 ]
 JSON
 
@@ -84,9 +89,9 @@ if [[ "$*" == plugin\ add\ *\ --json ]]; then
 fi
 if [[ "$*" == "plugin list --json" ]]; then
   printf '{"installed":[
-    {"pluginId":"prometheus-skill-pack@prometheus-skill-pack","version":"1.10.0","installed":true,"enabled":true,"source":{"path":"%s/dist/plugins/codex/prometheus-skill-pack"}},
-    {"pluginId":"prometheus-process-skills@prometheus-skill-pack","version":"1.6.0","installed":true,"enabled":true,"source":{"path":"%s/skills/process"}}
-  ]}\n' "${PROMETHEUS_NATIVE_TEST_REPO:?}" "${PROMETHEUS_NATIVE_TEST_REPO:?}"
+    {"pluginId":"prometheus-skill-pack@prometheus-skill-pack","version":"%s","installed":true,"enabled":true,"source":{"path":"%s/dist/plugins/codex/prometheus-skill-pack"}},
+    {"pluginId":"prometheus-process-skills@prometheus-skill-pack","version":"%s","installed":true,"enabled":true,"source":{"path":"%s/skills/process"}}
+  ]}\n' "${PROMETHEUS_NATIVE_TEST_PACK_VERSION:?}" "${PROMETHEUS_NATIVE_TEST_REPO:?}" "${PROMETHEUS_NATIVE_TEST_PROCESS_VERSION:?}" "${PROMETHEUS_NATIVE_TEST_REPO:?}"
   exit 0
 fi
 exit 2
@@ -119,6 +124,8 @@ export PROMETHEUS_NATIVE_TEST_STALE_SEEN="$TMP_ROOT/stale-seen"
 export PROMETHEUS_NATIVE_TEST_BEFORE="$TMP_ROOT/claude-before.json"
 export PROMETHEUS_NATIVE_TEST_AFTER="$TMP_ROOT/claude-after.json"
 export PROMETHEUS_NATIVE_TEST_REPO="$REPO_ROOT"
+export PROMETHEUS_NATIVE_TEST_PACK_VERSION="$PACK_VERSION"
+export PROMETHEUS_NATIVE_TEST_PROCESS_VERSION="$PROCESS_VERSION"
 
 if ! HOME="$TEST_HOME" \
   PROMETHEUS_CLAUDE_BIN="$FAKE_BIN/claude" \
@@ -158,7 +165,7 @@ MISSING_PLUGIN="$MISSING_HOME/.prometheus/plugins/prometheus-skill-pack"
 mkdir -p "$MISSING_PLUGIN/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills"
 cp -R "$SOURCE_KBD" "$MISSING_PLUGIN/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills/kbd-init"
 cp -R "$SOURCE_KBD" "$MISSING_PLUGIN/generations/$GENERATION/skills/kbd-init"
-printf '{"sourceVersion":"1.10.0"}\n' > "$MISSING_PLUGIN/generations/$GENERATION/manifest.json"
+printf '{"sourceVersion":"%s"}\n' "$PACK_VERSION" > "$MISSING_PLUGIN/generations/$GENERATION/manifest.json"
 ln -s "generations/$GENERATION" "$MISSING_PLUGIN/current"
 HOME="$MISSING_HOME" \
 PROMETHEUS_CLAUDE_BIN="$TMP_ROOT/missing-claude" \

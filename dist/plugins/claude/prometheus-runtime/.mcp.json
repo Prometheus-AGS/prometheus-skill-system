@@ -1,0 +1,51 @@
+{
+  "mcpServers": {
+    "forge-rs": {
+      "description": "Layer 4 code-enrichment engine — forge_enrich, forge_reflect, forge_drift, forge_validate. Served without auth on loopback (forge mcp --no-auth); the server refuses --no-auth on a non-loopback bind.",
+      "type": "http",
+      "url": "http://localhost:8943/mcp"
+    },
+    "liter-llm": {
+      "args": [
+        "mcp",
+        "--transport",
+        "stdio",
+        "--config",
+        "${HOME}/.config/liter-llm/liter-llm-proxy.toml"
+      ],
+      "command": "liter-llm",
+      "description": "Multi-model routing proxy — 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181)"
+    },
+    "prometheus-knowledge": {
+      "description": "Karpathy LLM Knowledge Base — knowledge_ingest, knowledge_focus, knowledge_search, knowledge_lint, knowledge_get",
+      "type": "http",
+      "url": "http://localhost:8942/mcp"
+    },
+    "sequential-thinking": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "command": "npx"
+    },
+    "surreal-memory": {
+      "description": "Global distributed memory state server — knowledge graph, scoped memory, TaskStreams, mindmaps, Graph-RAG traversal, hybrid search",
+      "type": "sse",
+      "url": "http://localhost:23001/mcp/sse"
+    },
+    "sycophancy-correction": {
+      "command": "sycophancy-correction",
+      "description": "Detect and correct sycophantic patterns (S-01 through S-08) in prompts, completions, agent descriptors, and PMPO reflect outputs"
+    },
+    "tavily": {
+      "args": [
+        "-y",
+        "tavily-mcp"
+      ],
+      "command": "npx",
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+      }
+    }
+  }
+}

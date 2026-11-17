@@ -1,0 +1,576 @@
+{
+  "schemaVersion": 2,
+  "sourceVersion": "1.15.0",
+  "contractSchemaVersion": "hook-contract-v1",
+  "dispatcherAbi": "hook-runtime-v1",
+  "dispatcherInterpreter": "bash",
+  "contractSha256": "f33c08604dbdd18b29d3a3b567c7e3c50177b7ac9ad604b9fe0c51072e487956",
+  "runtimeFiles": [
+    {
+      "path": "scripts/check-plugin-source.js",
+      "sha256": "d461d9f2312213f8fd8f03de5d345971e78d0bd838f348a46465d6019ba93325",
+      "executable": false
+    },
+    {
+      "path": "scripts/hook-entry.mjs",
+      "sha256": "c6f4bf62652a30f624e38d9427da10a0ca694aefaf3caf98a128fd6eeff6b4f4",
+      "executable": false
+    },
+    {
+      "path": "scripts/install-plugin-generation.js",
+      "sha256": "f7d6e90b253871e058cff8641b05dff68ef7c0204f614033e48d42901772c270",
+      "executable": true
+    },
+    {
+      "path": "scripts/lib/canonical-bytes.js",
+      "sha256": "ebdc759bb45f1af6c2c0726ffe8a2281a0a64062ce9d1dc7d861fc37493aafe1",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/capabilities.js",
+      "sha256": "916cb31bd532fa749291820b8c4f107a9eb4bea57a2443209c235f45541fe453",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/checkout-bytes.js",
+      "sha256": "534e6bdbed10a1fca71905f8959114e78848030d4ba6625a4275fff46e7e9d03",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/golden-payload.js",
+      "sha256": "98d8d29532f6f8e63295414bca1dd74912428126002248074dd7d8e2fa1a61ed",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/hook-config.js",
+      "sha256": "d86958c18cf370d37e1792e490f0d0040ddaa86155c83a03f698ca8d05f79c3c",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/install-codex-catalog.sh",
+      "sha256": "209aed7692610fe52caf365fdc18278c5752e48f009152ed4f97572aaf78a512",
+      "executable": true
+    },
+    {
+      "path": "scripts/lib/install-codex-memories.sh",
+      "sha256": "ac20196757d90a8cadf85b1322c867f1d2ca3d00353e2c59411323ebcd3a3952",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/jcs.js",
+      "sha256": "1301e9419bed7296f709a2291d1b12ee106bc5c50f33765d8af6e8a947d51197",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/key-protection.js",
+      "sha256": "7cb00e1ce8f1f053393715014f497e40de0ce67ee5b362bf16f8e231e24ed1c2",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/payload-manifest.js",
+      "sha256": "90f55b438777148452a199e7222dd53767938927ee04ef200c28728ad3088421",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/plugin-source-topology.js",
+      "sha256": "90c55fffb17fc6e10965882ec48f993a28ba6f5353dd9509bbd15f080d154b2f",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/reviewed-skill-closures.js",
+      "sha256": "a5a1a5e934fe1dc8b9e69eaa02a0d34a4a7e5b90df94933fa7e9b6087080567b",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/skill-domains.js",
+      "sha256": "59494383661e03011174d742da821223ceee8a7cd885adeea381eb64918d2d79",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/skill-system.js",
+      "sha256": "bec12ed2944286a854517ab7c83a7690555112018ba277910ec326e442964762",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/store-paths.js",
+      "sha256": "8b18df106eb5f18110a2a9092f2f39ed5d149cdcc85132126d6b83646add3271",
+      "executable": false
+    },
+    {
+      "path": "shared/harnesses/hook-contract.json",
+      "sha256": "06c2bec50e6f1e6ce649f69d34f218429f9a0089e766eadb6848db8882662a64",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/apple-fm-launch.sh",
+      "sha256": "a4952814ab899e236d95553e07ec1782db1cb55b5fadc57f8f208aab65aff7a0",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/apple-foundation-models.sh",
+      "sha256": "2342f499f23fd658f605b92b426a362c1218613c04a3cc71acaf18b180c00917",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/bootstrap-hook-runtime.sh",
+      "sha256": "cac448fc81f298fbd03b64924398f259db4723a923b30f09a762de9c0660b01f",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/cadence-karpathy-adapter.mjs",
+      "sha256": "7470cdda1cfae5a1109238a7289b4dffa6ab63b91335dbfe6ad7f2951e5f002c",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/cadence-kbd-adapter.mjs",
+      "sha256": "e4aaa71f36d17969a1e30c0f8753e925738d5da81a25a2058093f8e4f922a681",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/cedar-skill-gate.sh",
+      "sha256": "38fbe61129264084835ac44d46b604a6976cf94ff49ae7f0c979e86f13ed86c4",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/codex-catalog-config.sh",
+      "sha256": "6b3c6ff2587be90d9dd485151fddd20a2e446c49b5b7e9ace59b237aaa83cbf9",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/codex-memories-config.sh",
+      "sha256": "c7e0dae9ec8dffef024824ef0fdef9600414319b4e07ab49abca66637d739eeb",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/content-grounding-kb.sh",
+      "sha256": "f799db2914aa255a601cc4f7c3753d67e8bfc171e37734ca4219b63b0e6f04b9",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/content-grounding.sh",
+      "sha256": "ea77a4bccdd49d5f2d47a75a4a4a0bc36ecee1b427607aaf4a927f3e31dba905",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/detect-project-context.sh",
+      "sha256": "a77851ca5fcb8f7984c922ad494d0bc87cab2f534f1c1724ca026badc6cf74d3",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/detect-surface-tier.sh",
+      "sha256": "ca0af9f593d6387ef84b81dc6edd5785451f4965773edc67a6974f6ebc73d50c",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/detect-toolchain.sh",
+      "sha256": "8f96838e46649aefa7a0fe5f7c0bbf9c664a6f51c775e7bdba6135c4a36c17d3",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/enqueue-learning-job.py",
+      "sha256": "adcf7f7a857d1b0a6dfe9c02f8559ce7dcd8398e4da3e32c6b4e88e73746bfce",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/enqueue-memory-operation.py",
+      "sha256": "21b6ed992528e1a5a002e2d5dffe670a022f311b4017726323f77af2b2b1759c",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/evaluate-session.sh",
+      "sha256": "6f80d1aab018b1cc30f35e8f6aad08d4a612b7093429278156e61a1c867b6310",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/generated/hook-dispatch-v1.sh",
+      "sha256": "e7697ec8808a865c9a50658241c3a99162cc956001495f8b841ca6db46953a31",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/guard-direct-deploy.sh",
+      "sha256": "50aa406b4538bc146c746f4062c00ea19ca4fa900d0ada24c1461b4c0e868e87",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/hook-runtime-v1.sh",
+      "sha256": "326359f6a6b4fb9aa0f72fb9604ba66ccbc1fed979122dede2d5b031cabeba75",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/karpathy-hook-dispatch.sh",
+      "sha256": "a5cb56917b242922e76a012cd55a0fc0f5f3b661c28e444de1f56f43949a266f",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-boundary-authorize.mjs",
+      "sha256": "a1efba84198f7c9419d849de8893135f5d784d290b8837f6c3a895438fe4c4da",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/kbd-closure-packet.mjs",
+      "sha256": "eca555fd84de9d2486f1c64249e6b3e8a003c3a18e332c8fb4f6103590e72a1a",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/kbd-contract-adopt.sh",
+      "sha256": "6af92e33d2e98dee6b770effce5b887106ccd13ed6ddc1ca5b977db916b3b413",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-contract-lint.mjs",
+      "sha256": "404ae389478d2c45c147d8f8044c5299e067b4dd17ff6f40f5b5636ae134ce74",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/kbd-harness-adapter.sh",
+      "sha256": "8425ccc397e794449694bc04ce1ab9de4c6212e706b71bd5dd01553b08988c5d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-next-phase.sh",
+      "sha256": "87cc872705480154c0e97313a801cc9eba053145264cf74d82e636d1bc773c24",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-open.sh",
+      "sha256": "5d73a38e6cece55a1eb3a6c7ebcae83f79b5784ec1985c7e52defd9f8782f54c",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-phase-close-eval.sh",
+      "sha256": "e5b7d9e2f20a5b2352b877271b576b9cd5b9ef45de7481e17068a02320f7f403",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-phase-readiness-check.sh",
+      "sha256": "03e8592dc0c585bd59237035c7eb2bade7353ebf84b8e155da2751865dbc52ed",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-phase-status.sh",
+      "sha256": "7b254f9ed990c5dd0d51ba80e64517646bfd0b2133a07e85c645366e2e69491e",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-scope-authority-template.sh",
+      "sha256": "4b340a829615e8e013112b8c5db4d46aa66718acd31061f84542210e8495fd01",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-spec-delta-digest.sh",
+      "sha256": "dea5042d7bf43f6c533711c6e5e6301d03c196070a7217c7363a9c2b7a529ffb",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-stage-writeback.sh",
+      "sha256": "f750c17ade9e9ddd980608a9e57f0b049b48af2fe061f45305a9ee2e6d17bf5e",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/kbd-task-completed-gate.sh",
+      "sha256": "443df66de08affe7fa37ff6cc984627fe74f481de46d4ff78dca1ee2d7016c1d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/agent_identity.py",
+      "sha256": "d04d3bae329aa4a73162b71989894de148a8d2e525bca358dda782094ed8219b",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/canonical-url.sh",
+      "sha256": "98d56ea600c6df1a4a86ece4a8bad04625e0ae13e7f8d708a6946c97bd87b32f",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/cortex_feed_slots.py",
+      "sha256": "51aa48f53f677267c45fb39a89843784273c07b593b16e7ae63808647d67248b",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/hook-log.sh",
+      "sha256": "9dfb7f87f0d3334bc44b57461a9e622144c7338522f22a9c6e48cf35f3796e0c",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/kbd-model-resolve.sh",
+      "sha256": "af72638a54322829227cc7dd0c29387e2d55cad73e520cb96917e279b5963348",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/learning_recall.py",
+      "sha256": "e832aca9d4cea7287e86a509bb91b2f4e079f8259790a3fdbe13213cc9df9f9d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/learning_route.py",
+      "sha256": "1200eafc6bc26b83a201679c5b3860ce546b1a1894ddd2971bb986d4e3aa4dbc",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/learning_write.py",
+      "sha256": "ae5a17c64f955d0d290ba185acbbe0941e3b4840ddf5061fa650ff7541c9cec9",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/memory-bridge.sh",
+      "sha256": "21759c715f2574420a41e1a5cdede064e12a0c4ee0702876a44e4d245503a7f5",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/path-scope.sh",
+      "sha256": "4357046605111484bfca36c82c32b07386c35cff7c28b80038b2444c6ec0470d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/project_id.py",
+      "sha256": "96ea798c240447301f8b9d9a463f9df9028f7a2b7ed79df7cbfa2ed8c78c3581",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/project-id.sh",
+      "sha256": "dcbef3ff4ed8b797183ab90e87175eb77160f97bcba408608f6bc3d9b59a2b63",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/prompt_gap.py",
+      "sha256": "745a4dac534feb4784c6711205b62701a92ed2cd1c78cd68de657d8cb0bb5b31",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/runtime-authority.sh",
+      "sha256": "97104c8d3a99143c1640244ac3c99e1528e89addd2c522c7d59af173143a6a98",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/slug.sh",
+      "sha256": "f01fe9bfa2ff1c22542d1da4d6369c4ef142690da741897ac302224c63f4047b",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/sycophancy.sh",
+      "sha256": "f274b3238fa913960001bb84c719bc749355f273d924eea391235b7694fb9cc4",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/lib/waypoint-render.sh",
+      "sha256": "b7e2d25db6ad9632280c4b2f82a09ccb8bdad79f2089f79f397beffde91f5b52",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/liter-llm-api-launch.sh",
+      "sha256": "7b0c31ff813b861774d02ccd81f27e02c1c1ea8ce78f2fc9ed545439eb8a6818",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/mem0-compress.sh",
+      "sha256": "7c6668fe551c6be179f368e9450edd8ce6decc48d30118439f1ce574f4601fd3",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/memory-outbox-flush.sh",
+      "sha256": "19d7f10f3d7df682c2df59f1656028819ae8c42a1f835eab46b6a849f71ac5ed",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/memory-writeback.sh",
+      "sha256": "3b5e7455ff4e26efbdf09dc71e1491faba27017255e2c7e797a745bf58d127e0",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/pipeline-enforce.sh",
+      "sha256": "a391d8187a9e848afe5f94bd31cf1da2b6ca5d5d866de21d597c4159939ffbf4",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/pk-health.sh",
+      "sha256": "00c4bb7ed726360fb473a929d68f427e15f3606bcbd18e9c010305376baaaf6a",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/pk-lint.sh",
+      "sha256": "e504b86fa804c2a3799f3728b9f3714290c4879cf7a2118026d2164a521fb2ef",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/position-on-prompt.sh",
+      "sha256": "7cfdba5029df973bb3f3925314fa76cf4cf899d3d17f1e82cc146d0b50674003",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/position-stop-gate.sh",
+      "sha256": "574595878fac0a94d8041b94366ee595faf5a0ce7913121670520711a4a68108",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/propose-skill-update.sh",
+      "sha256": "5e0c3e03ef34baeca4cc4448e6ac32beb24629e271687440ec8ccaf76512829a",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/README.md",
+      "sha256": "60b6b4b86c8c65e5e1205b9c6203d078e032d682ebba330387e38a948e86ebaf",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/rotate-hooks-log.sh",
+      "sha256": "345636b156c905ae92333fe30331a3ab0003d978f334aa5cc384504c062aefb4",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/scheduled/ai.prometheus.mem0-compress.plist",
+      "sha256": "d0ea556ca06ed754483999b5c421f18a00c17d2b5d03b1f5f666793f264efd75",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/scheduled/ai.prometheus.pk-lint.plist",
+      "sha256": "c7bc528da9f0d59f334a9096d2e7099cd8132d0d5768fb5ba90f6eae8e0e748d",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/scheduled/mem0-compress.cron",
+      "sha256": "1e12fd61bf48fa24f1a40b3880fd23f8a8d2f3967ec3c426a5429bd0a18635b0",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/scheduled/pk-lint.cron",
+      "sha256": "bf73b49aefe085594f939d93467b36e017ae4d4dab3e0f72639665275c28a7d5",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/scheduled/README.md",
+      "sha256": "098a3118d2faf898b2a02158848d4306f82b11c7630e5553062d06acc361a8d5",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/scope-guard.sh",
+      "sha256": "8d01b0b7e4fd505228d34f8526e6a3bcc33c216d8f5f5015a73e3a2f7bd74f32",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/scope-record.sh",
+      "sha256": "d1a8485902ea15256dfeea9c125e5164091fc9c04c91a5d3f2a2e533fb94093d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/service-probe.sh",
+      "sha256": "8bca923ac53affd576388683f50caae5422caf0194ac8f1132b2e0de85b3f68b",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/sessionstart-learning.sh",
+      "sha256": "5523ec5d9d238a2b2af04df5a3d7f93060716ae39e2fe64c1a34952a25e5ddd5",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/sessionstart-vlbv.sh",
+      "sha256": "6c87529dbb036f9ef99baf1898ffdbdd5de717d93f724c90377817883bb76758",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/skills-freshness.sh",
+      "sha256": "9978307deb1699892083603506b0c49aeacaab95939842f20f1eb080a5fb82db",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/spec-engine-info.mjs",
+      "sha256": "8b32628b8f05827637f07a830ece5ab8bf4c486d51dac6f3eea772d24a831e5b",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/subagent-checkpoint-fallback.sh",
+      "sha256": "0fa72bd9815677a3a071c3ba1d6da8e054cc779e3b4b6d61e5f99dc484f6abfa",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/subagentstart-learning.sh",
+      "sha256": "0067d91c517db0c9a17d1789a0bf1132ba3f784554b78011dba0de1c4c45fa29",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/subagentstop-learning.sh",
+      "sha256": "23a4b18e8dbca5ac034cee500a9c86d3b4156f25240efa67ff67e9386b67d831",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/surreal-bin.sh",
+      "sha256": "03f0d0c9a16e08b504b475083db1e700b095ea5041ab61a8fd6f01c764c12511",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/sycophancy-check-artifact.sh",
+      "sha256": "40735952f80fbf085e53f111299e400d0f02fb53f56956e1f7cbd76f1a593c28",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/sycophancy-check-reflection.sh",
+      "sha256": "de2c407fe8a45d9263933de67e67b1bf6703f8bd46442209de362860491a499f",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/team-role-guard.sh",
+      "sha256": "65e26ba18952cc5cb4cd215517444e30c08b261895636e7540f42ee948d8304d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/validate-gitops-write.sh",
+      "sha256": "b5dfe39a50753851e76dc427cabfea4071d418385fd6c887c8b04f90790d4257",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/verify-trace-state.sh",
+      "sha256": "b1afb9af5a3d3c94e6122088b41c7e55653cb5ec9631b11e2c51ca7112dd443e",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/write-position-reminder.sh",
+      "sha256": "f8a3fc8cce61c84f88f441857363b54410b38188f43396a8c488270796bc4424",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/write-session-summary.sh",
+      "sha256": "f668031f7a529b0d4bbfab729c284be01113c204dfd62dae582f761042d07997",
+      "executable": true
+    },
+    {
+      "path": "skills/process/iterative-evolver/scripts/finalize-session.sh",
+      "sha256": "b11cb82d5b9a9c4be2d3c66a0b43ea9dfaeaeefed052df74f10d8efe1da6f29d",
+      "executable": true
+    },
+    {
+      "path": "skills/process/iterative-evolver/scripts/log-reflection.sh",
+      "sha256": "23e143b8c27681601054d9b77d4e99d8412d1a68878c0777244061ad043c3ed0",
+      "executable": true
+    },
+    {
+      "path": "skills/process/iterative-evolver/scripts/state-checkpoint.sh",
+      "sha256": "a0385c0c6a3fc2e6a4873f0a50f8c1308b5284fe1de93bab1508786e42bd4526",
+      "executable": true
+    },
+    {
+      "path": "skills/process/iterative-evolver/scripts/state-finalize.sh",
+      "sha256": "3d060329580b477adff817ff903ae64db9558df247cf3cb9e134b30bfbc4be2c",
+      "executable": true
+    },
+    {
+      "path": "skills/process/iterative-evolver/scripts/state-init.sh",
+      "sha256": "c33f446e3809853c946963f8f6aa5dce42000880a9bfaf09aea062ec35bf53ff",
+      "executable": true
+    },
+    {
+      "path": "skills/process/iterative-evolver/scripts/state-resolve-provider.sh",
+      "sha256": "7d0cd0b57e0c9889dde1a864df14c48c0d2ec0ffe3e01dd1e549426df7771ed8",
+      "executable": true
+    },
+    {
+      "path": "skills/process/iterative-evolver/scripts/validate-state.sh",
+      "sha256": "18020a792a7420ce8244ecf085c50b4e0ae2a280eba25651a8342bd975c13936",
+      "executable": true
+    },
+    {
+      "path": "skills/process/iterative-evolver/scripts/workflow-dispatch.sh",
+      "sha256": "82b2c12cf924043b79a41b522507b59677c6fec01437f3aecd1f1960edf21837",
+      "executable": true
+    }
+  ],
+  "bundleId": "a91bb907638ffb36c650c86a60633962db57900bcb3b875b59eb21fe7fafa506"
+}
