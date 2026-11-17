@@ -1,0 +1,31 @@
+{
+  "name": "prometheus-rust-skills",
+  "description": "Rust workspace routing, async, Axum, error handling, performance, MCP servers and Rust best practices",
+  "version": "1.0.0",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "skills": [
+    "./actor-model",
+    "./async-patterns",
+    "./axum-patterns",
+    "./error-handling",
+    "./karpathy-tokenizer",
+    "./mcp-server",
+    "./performance",
+    "./prometheus-rust-auditor",
+    "./prometheus-rust-workspace",
+    "./rust-async-patterns",
+    "./rust-best-practices",
+    "./rust-mcp-server-generator",
+    "./workspace-structure"
+  ],
+  "keywords": [
+    "rust",
+    "cargo",
+    "tokio",
+    "axum"
+  ]
+}

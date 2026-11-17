@@ -35,6 +35,8 @@ function digestTree(directory, relative = '') {
   const result = [];
   for (const name of fs.readdirSync(path.join(directory, relative)).sort()) {
     if (['.git', 'node_modules', 'target', '.kbd-orchestrator'].includes(name)) continue;
+    // A skill's own evals/ (beside its SKILL.md, at any depth) is never packaged.
+    if (name === 'evals' && fs.existsSync(path.join(directory, relative, 'SKILL.md'))) continue;
     const child = path.join(relative, name);
     const absolute = path.join(directory, child);
     const stat = fs.lstatSync(absolute);

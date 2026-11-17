@@ -15,6 +15,7 @@ const allTests = [
   ['progress-signal validation', 'node', ['scripts/validate-progress-signals.js']],
   ['Codex artifact consistency', 'node', ['scripts/build-codex-plugin.js', '--check']],
   ['skill collision matrix', 'node', ['scripts/skill-matrix.js', '--ci']],
+  ['every skill is in a domain plugin that fits', 'node', ['scripts/check-domain-plugin-coverage.mjs']],
   ['entity skills match the pinned submodule', 'node', ['scripts/sync-entity-skills.mjs', '--check']],
   ['KBD control-plane fixtures', 'bash', ['scripts/test-kbd-control-plane.sh']],
   ['kbd-init packaging', 'bash', ['shared/scripts/tests/test-kbd-init-packaging.sh']],

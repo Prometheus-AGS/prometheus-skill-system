@@ -1,6 +1,6 @@
 {
   "name": "prometheus-react-skills",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "Full-stack entity management skill suite for React applications using @prometheus-ags/prometheus-entity-management",
   "author": {
     "name": "Prometheus AGS"
@@ -12,7 +12,29 @@
     "./entity-graph-graphql",
     "./entity-graph-prisma",
     "./entity-graph-realtime",
-    "./entity-graph-optimize"
+    "./entity-graph-optimize",
+    "./",
+    "./entity-graph-crud/skills/entity-crud-form",
+    "./entity-graph-crud/skills/entity-crud-page",
+    "./entity-graph-crud/skills/entity-crud-relations",
+    "./entity-graph-crud/skills/entity-crud-table",
+    "./entity-graph-graphql/skills/entity-gql-hooks",
+    "./entity-graph-graphql/skills/entity-gql-setup",
+    "./entity-graph-graphql/skills/entity-gql-subscription",
+    "./entity-graph-optimize/skills/entity-audit",
+    "./entity-graph-optimize/skills/entity-gc",
+    "./entity-graph-optimize/skills/entity-perf",
+    "./entity-graph-prisma/skills/entity-prisma-api",
+    "./entity-graph-prisma/skills/entity-prisma-generator",
+    "./entity-graph-prisma/skills/entity-prisma-migrate",
+    "./entity-graph-prisma/skills/entity-prisma-setup",
+    "./entity-graph-realtime/skills/entity-realtime-channel",
+    "./entity-graph-realtime/skills/entity-realtime-local-first",
+    "./entity-graph-realtime/skills/entity-realtime-setup",
+    "./entity-graph-setup/skills/entity-graph-detect",
+    "./entity-graph-setup/skills/entity-graph-init",
+    "./entity-graph-setup/skills/entity-graph-migrate",
+    "./entity-realtime-surreal-live"
   ],
   "keywords": [
     "@prometheus-ags/prometheus-entity-management",

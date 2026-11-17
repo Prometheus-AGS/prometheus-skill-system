@@ -1,0 +1,17 @@
+{
+  "name": "prometheus-python-skills",
+  "description": "Python and Rust bridging with PyO3",
+  "version": "1.0.0",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "skills": [
+    "./pyo3-bridge"
+  ],
+  "keywords": [
+    "python",
+    "pyo3"
+  ]
+}
