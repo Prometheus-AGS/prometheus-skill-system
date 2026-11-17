@@ -794,6 +794,15 @@ function isExcludedPayloadEntry(name, sourcePath, repoRoot) {
   // extra files created inside an installed immutable generation.
   if (name === '__pycache__' || /\.py[co]$/.test(name)) return true;
   if (name === 'node_modules' || name === 'target' || name === '.git') return true;
+  // A plugin manifest beside a SKILL.md publishes that skill directory as a
+  // plugin in the repository. Projected into `~/.claude/skills` it would make
+  // Claude Code register the folder as a second plugin and list its skills
+  // twice, so it never enters a generation.
+  if (
+    name === '.claude-plugin' &&
+    fs.lstatSync(path.join(path.dirname(sourcePath), 'SKILL.md'), { throwIfNoEntry: false })
+  )
+    return true;
   const relative = path.relative(repoRoot, sourcePath).split(path.sep).join('/');
   // `.claude-plugin/{agents,hooks,skills}` are layout mirrors of the real
   // directories, which are staged on their own. The reviewed-closure inventory

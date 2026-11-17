@@ -820,6 +820,10 @@ bash scripts/update-skill-pack.sh --domains=all                   # everything a
   `npm run generate:skill-domains` whenever a skill is added, moved or renamed;
   `npm run check:skill-domains` is the drift gate, and an install fails on a skill
   with no domain.
+- **A plugin manifest beside a `SKILL.md` never enters a package or a
+  generation.** In the repository it publishes that skill directory as a
+  one-skill domain plugin. Projected into `~/.claude/skills`, Claude Code would
+  register the folder as a plugin of its own and list its skills twice.
 - **`requires` is a short declared list, not the call graph.** Following every
   cross-domain reference would pull nearly everything back in.
 - **Install removes pack-owned entries the target should no longer hold** (a
