@@ -39,6 +39,9 @@ case "$HOOK_ID" in
   'sessionstart-kbd-open')
     run_bundle_script 'shared/scripts/kbd-open.sh' 2>&1 || true
     ;;
+  'sessionstart-vlbv')
+    run_bundle_script 'shared/scripts/sessionstart-vlbv.sh' || true
+    ;;
   'sessionstart-learning')
     run_bundle_script 'shared/scripts/sessionstart-learning.sh' "$HARNESS" || true
     ;;

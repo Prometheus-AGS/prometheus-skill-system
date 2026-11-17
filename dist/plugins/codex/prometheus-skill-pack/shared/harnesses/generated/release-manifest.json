@@ -4,7 +4,7 @@
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
-  "contractSha256": "30cec478532dad9c67c201bd65f86eb2d1ea318fd295ac1ff8e9372c23a1065c",
+  "contractSha256": "f33c08604dbdd18b29d3a3b567c7e3c50177b7ac9ad604b9fe0c51072e487956",
   "runtimeFiles": [
     {
       "path": "scripts/check-plugin-source.js",
@@ -93,7 +93,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "386a726a64840c63897699cb08dfc9f8096eb1fb4445d35d4193b57a771993d2",
+      "sha256": "06c2bec50e6f1e6ce649f69d34f218429f9a0089e766eadb6848db8882662a64",
       "executable": false
     },
     {
@@ -123,7 +123,7 @@
     },
     {
       "path": "shared/scripts/cedar-skill-gate.sh",
-      "sha256": "9f48546001c6236ceff704a3375fdd44e3708d256de113c6530e5a8cdd307eb5",
+      "sha256": "38fbe61129264084835ac44d46b604a6976cf94ff49ae7f0c979e86f13ed86c4",
       "executable": true
     },
     {
@@ -178,7 +178,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "54a0c2568c2b75cd41411ef75243a9bdd3c05bd7463fcf087193cef82dbedf5c",
+      "sha256": "e7697ec8808a865c9a50658241c3a99162cc956001495f8b841ca6db46953a31",
       "executable": true
     },
     {
@@ -457,6 +457,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/sessionstart-vlbv.sh",
+      "sha256": "6c87529dbb036f9ef99baf1898ffdbdd5de717d93f724c90377817883bb76758",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/skills-freshness.sh",
       "sha256": "9978307deb1699892083603506b0c49aeacaab95939842f20f1eb080a5fb82db",
       "executable": true
@@ -562,5 +567,5 @@
       "executable": true
     }
   ],
-  "bundleId": "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990"
+  "bundleId": "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32"
 }

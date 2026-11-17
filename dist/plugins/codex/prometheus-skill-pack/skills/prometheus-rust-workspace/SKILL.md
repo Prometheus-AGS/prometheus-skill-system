@@ -36,7 +36,9 @@ Do not run unit tests or filtered function tests as completion evidence. Do not 
 background Cargo commands, watchers, repeated check loops, or concurrent commands
 against the same workspace or target directory.
 
-Before the first Cargo command, read
+In a KBD-managed project, or wherever VLBV is enabled, load the `vlbv` skill
+before any verification step unless the operator names another method. Before
+the first Cargo command, read
 [phase-gated verification](references/phase-gated-verification.md). Choose the
 smallest set of boundary-packet entries that exercises the completed production
 path. Under VLBV, Cargo build/check/lint/test commands run only as packet entries at

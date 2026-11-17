@@ -35,6 +35,20 @@
     {
       "event": "SessionStart",
       "matcher": "*",
+      "description": "State VLBV as the verification method in KBD-managed projects; opt-in elsewhere via PROMETHEUS_VLBV_DEFAULT or a vlbv-default settings file (instruction only)",
+      "groupId": "sessionstart:vlbv-default",
+      "hooks": [
+        {
+          "id": "sessionstart-vlbv",
+          "target": "shared/scripts/sessionstart-vlbv.sh",
+          "ignoreFailure": true,
+          "timeout": 5
+        }
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "*",
       "harnesses": ["claude-code", "codex"],
       "description": "Deliver the main thread's team view (lead scope + team digest) as untrusted context (silent when no team or store)",
       "groupId": "sessionstart:learning",

@@ -9,7 +9,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "sessionstart-kbd-control",
               "--harness",
@@ -30,7 +30,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "sessionstart-kbd-open",
               "--harness",
@@ -51,7 +51,28 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
+              "--hook",
+              "sessionstart-vlbv",
+              "--harness",
+              "claude-code"
+            ],
+            "timeout": 5
+          }
+        ],
+        "matcher": "*",
+        "description": "State VLBV as the verification method in KBD-managed projects; opt-in elsewhere via PROMETHEUS_VLBV_DEFAULT or a vlbv-default settings file (instruction only)",
+        "id": "sessionstart:vlbv-default"
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "sessionstart-learning",
               "--harness",
@@ -72,7 +93,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "sessionstart-detect-project-context",
               "--harness",
@@ -86,7 +107,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "sessionstart-memory-outbox-flush",
               "--harness",
@@ -100,7 +121,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "sessionstart-pk-health",
               "--harness",
@@ -120,7 +141,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "prompt-karpathy-learning",
               "--harness",
@@ -139,7 +160,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "posttool-validate-evolution-state",
               "--harness",
@@ -152,7 +173,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "posttool-validate-gitops-write",
               "--harness",
@@ -166,7 +187,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "posttool-scope-record",
               "--harness",
@@ -180,7 +201,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "posttool-write-position-reminder",
               "--harness",
@@ -194,7 +215,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "posttool-sycophancy-artifact",
               "--harness",
@@ -208,7 +229,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "posttool-memory-writeback",
               "--harness",
@@ -229,7 +250,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagentstart-learning",
               "--harness",
@@ -252,7 +273,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-assessor-checkpoint",
               "--harness",
@@ -265,7 +286,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-assessor-dispatch",
               "--harness",
@@ -283,7 +304,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-analyst-checkpoint",
               "--harness",
@@ -296,7 +317,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-analyst-dispatch",
               "--harness",
@@ -314,7 +335,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-planner-checkpoint",
               "--harness",
@@ -327,7 +348,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-planner-dispatch",
               "--harness",
@@ -345,7 +366,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-executor-karpathy-learning",
               "--harness",
@@ -358,7 +379,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-executor-validate-state",
               "--harness",
@@ -371,7 +392,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-executor-checkpoint",
               "--harness",
@@ -384,7 +405,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-executor-evaluate-session",
               "--harness",
@@ -398,7 +419,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-executor-dispatch",
               "--harness",
@@ -416,7 +437,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-reflector-sycophancy",
               "--harness",
@@ -430,7 +451,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-reflector-log",
               "--harness",
@@ -443,7 +464,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-reflector-checkpoint",
               "--harness",
@@ -456,7 +477,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-reflector-dispatch",
               "--harness",
@@ -474,7 +495,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagentstop-learning",
               "--harness",
@@ -492,7 +513,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "subagent-fallback-checkpoint",
               "--harness",
@@ -511,7 +532,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "stop-karpathy-learning",
               "--harness",
@@ -530,7 +551,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "taskcompleted-kbd-receipt",
               "--harness",
@@ -552,7 +573,7 @@
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
               "--bundle",
-              "3b11e84bdb9a44fb22106759187ba6892e3f0e352d8ea4f81a5b2b5815792990",
+              "c555bf350b39af7d50581e27948e441e784c21ef73a5f3ba992ec33c22181f32",
               "--hook",
               "precompact-kbd-control",
               "--harness",
