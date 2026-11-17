@@ -75,24 +75,109 @@ Established:
 Not established:
 
 - **Whether the 22k to 42k change is the documented budget or gradual dilution.** The direct test is to raise the budget and re-run the full pack. `claude plugin eval` passes only an allowlist of environment variables to the session and loads no user settings, so neither control could be set there.
-- **Which measure the harness uses.** Whether nested skills count towards the listing was not verified.
 - **Behaviour on a real machine.** The eval runs in a fresh home where no skill has ever been invoked. Claude Code keeps the descriptions of the skills used most, so an established user may see better triggering for their frequent skills and worse for the rest.
 - **Other models and harnesses.**
 
 One of my own runs was invalid and is excluded: the first trimmed copies deleted the top-level `kbd-status` skill, so its 0 of 3 results there measured nothing. The table above uses the corrected copies.
 
+## Call graph and options
+
+Added after the first version of this report, which recommended marking the
+command-style `kbd-*` skills user-invoked only. That recommendation was wrong and
+is withdrawn: `disable-model-invocation` stops Claude from loading a skill at
+all, so no other skill could call it.
+
+### Skills call each other
+
+`scripts/certification/skill-call-graph.mjs` reads every skill's text and records
+which other skills it names (as `name`, `/name` or "name skill"). It is static:
+naming a skill is not proof of a hand-off, and bare-word mentions are not counted.
+
+| Measure | Count |
+|---|---|
+| Skills, by name | 217 |
+| References between skills | 445 |
+| Named by at least one other skill | 139 |
+| Named by no other skill | 78 |
+| `kbd-*` skills named by another skill | 25 of 28 |
+
+The most-called are `kbd-reflect` (15 callers), `kbd-assess`,
+`sycophancy-correction`, `adversarial-review`, `kbd-new-phase`, `learn-goal` and
+`learn-grade`. Only `kbd-doctor`, `kbd-loop` and `kbd-bottleneck-detector` are
+named by no other skill. The existing activation corpus
+(`evals/skill-activation/critical-30.json`) also expects `kbd-pause`,
+`kbd-resume`, `kbd-cancel` and `kbd-audit` to start from a plain request.
+
+### Nested skills are not listed
+
+A trimmed pack that kept `kbd-status` only as a nested skill inside
+`kbd-process-orchestrator` could not invoke it when asked by name (0 of 3). The
+same request with a top-level copy present fired 3 of 3. So Claude Code registers
+only the top-level skills of a plugin. The 97 nested copies cost nothing in the
+listing, and the listing figure to use is the top-level one, about 72,700
+characters. Removing the duplicates would not help on Claude Code. It may still
+matter on Codex, which the repository documents as recursing into skill
+directories.
+
+### What each option saves
+
+Against the top-level listing of 72,736 characters and an assumed 40,000-character
+budget:
+
+| Option | Listing after | Share of budget | Keeps every skill callable |
+|---|---|---|---|
+| Today | 72,736 | 1.82x | yes |
+| Shorten to 120 chars the descriptions of skills named by 2 or more others (99 skills) | 56,333 | 1.41x | yes |
+| Shorten to 120 chars the descriptions of skills named by any other skill (135) | 50,023 | 1.25x | yes |
+| Cap every description at 200 chars | 49,643 | 1.24x | yes |
+| Cap every description at 120 chars | 34,746 | 0.87x | yes, but no room for trigger and exclusion clauses |
+| Names only | 9,386 | 0.23x | yes, by name only |
+
+No description-only option gets the full pack under the budget while leaving
+room for the "use when" and "do not use" clauses that the pilot showed matter.
+
+### Domain plugins fit; the full pack does not
+
+Listing size of each plugin the marketplace already defines:
+
+| Plugin | Skills | Listing chars | Share of a 40k budget |
+|---|---|---|---|
+| `prometheus-skill-pack` (everything) | 213 | 72,736 | 1.82x |
+| `prometheus-ui-ux-skills` | 37 | 12,172 | 0.30x |
+| `prometheus-process-skills` | 19 | 7,742 | 0.19x |
+| `learn` | 12 | 3,710 | 0.09x |
+| `prometheus-testing-skills` | 8 | 3,436 | 0.09x |
+| `prometheus-react-skills` | 6 | 2,606 | 0.07x |
+| `prometheus-devops-skills` | 4 | 2,501 | 0.06x |
+| Three single-skill plugins | 3 | 1,354 | 0.03x |
+
+All of the domain plugins together come to about 33,500 characters for 89
+skills, which fits. But they cover only 89 of the 213 skills. The Rust, Flutter,
+research-stage and most process skills (including `kbd-status`) are in no domain
+plugin, so today the only way to get them is the full pack.
+
 ## Recommendations
 
-In order of leverage:
+Every skill stays callable under all of these.
 
-1. **Make command-style skills user-invoked only.** The 28 `kbd-*` lifecycle skills are slash commands that operators call by name. Setting `disable-model-invocation: true` on those that should never auto-trigger removes them from the listing. This needs an owner decision per skill, since it also stops them preloading into subagents.
-2. **Ship the domain plugins as the normal install, and the monolith as the exception.** The marketplace already defines them. A user who needs the learn domain gets a dozen skills, not 217.
-3. **Remove the nested duplicates from the listing.** 97 skills exist both nested in a bundle and at the top level.
-4. **Carry must-have defaults in hooks, not skills.** The VLBV session rule is the model for this: it does not depend on selection.
-5. **Add a listing-size check to the release gate**, with a ceiling the owner chooses, so the catalogue cannot grow past it unnoticed. `skill-listing-size.mjs --json` provides the numbers.
-6. **Document the user-side controls** (`skillListingBudgetFraction`, `skillOverrides`) in the install guide for people who want the full pack.
+1. **Complete the domain plugins and make them the normal install.** This is the
+   only measured option that fits the budget with full descriptions. It needs the
+   124 skills that are in no domain plugin to be assigned to one, and the KBD
+   lifecycle skills added to the process plugin.
+2. **Shorten the descriptions of skills that are mainly called by other skills.**
+   A caller names the skill, so those need one line. On its own this takes the
+   full pack from 1.82x to about 1.25x: useful, not sufficient.
+3. **Carry must-have defaults in hooks, not skills.** The VLBV session rule is the
+   model: it does not depend on selection.
+4. **Add a listing-size check to the release gate**, with a ceiling the owner
+   chooses. `skill-listing-size.mjs --json` provides the numbers.
+5. **Document the user-side controls** (`skillListingBudgetFraction`,
+   `skillOverrides`) for people who install the full pack.
+6. **Use `disable-model-invocation` only for a skill that nothing calls and that
+   should never start on its own**, decided one skill at a time.
 
-Rewriting descriptions helps loosely matched skills such as `kbd-status` and is worth doing, but it cannot fix a catalogue that is twice the budget.
+Rewriting descriptions helps loosely matched skills such as `kbd-status` and is
+worth doing, but it cannot fix a catalogue that is nearly twice the budget.
 
 ## Consequences for certification
 
@@ -102,4 +187,4 @@ Rewriting descriptions helps loosely matched skills such as `kbd-status` and is 
 
 ## Cost
 
-$3.92 for the catalogue-size runs. One further single-run attempt to read a listing warning from the debug log produced nothing useful: the parent process's debug log does not include the session's.
+$3.92 for the catalogue-size runs and about $0.40 for the nested-skill test. One further single-run attempt to read a listing warning from the debug log produced nothing useful: the parent process's debug log does not include the session's.

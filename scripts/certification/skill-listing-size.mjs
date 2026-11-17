@@ -9,7 +9,10 @@
 // Usage: node skill-listing-size.mjs <plugin-dir> [--prefix <plugin-name>:] [--json]
 //
 // Counts are estimates: the per-entry overhead and the characters-per-token
-// ratio are assumptions, and whether nested skills are listed is not verified.
+// ratio are assumptions. Claude Code 2.1.326 registers only a plugin's
+// top-level skills; a skill nested inside another skill's directory is not
+// listed and cannot be invoked by name. Nested counts are reported because
+// other harnesses (Codex) recurse.
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -88,7 +91,7 @@ if (asJson) {
 } else {
   console.log(`plugin: ${result.plugin}`);
   console.log(`top-level skills: ${result.topLevel.skills} (${result.topLevel.modelInvocable} model-invocable), listing about ${result.topLevel.chars} chars`);
-  console.log(`nested skills:    ${result.nested.skills} (${result.nested.modelInvocable} model-invocable), a further ${result.nested.chars} chars if they are listed`);
+  console.log(`nested skills:    ${result.nested.skills} (${result.nested.modelInvocable} model-invocable), ${result.nested.chars} chars (not listed by Claude Code; counted by harnesses that recurse)`);
   for (const [label, budget] of Object.entries(result.budgets)) {
     const ratio = (result.topLevel.chars / budget).toFixed(1);
     console.log(`budget on a ${label}: about ${budget} chars; top-level listing is ${ratio}x that`);
