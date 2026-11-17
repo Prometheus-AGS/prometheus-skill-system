@@ -1,5 +1,185 @@
 {
   "$schema": "./schemas/skill-system.schema.json",
+  "domains": [
+    {
+      "id": "process",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-process-skills",
+        "cowork-management"
+      ],
+      "requires": [
+        "iterative-evolver",
+        "testing",
+        "sycophancy-correction"
+      ]
+    },
+    {
+      "id": "iterative-evolver",
+      "inventoryRoots": [],
+      "plugins": [
+        "iterative-evolver"
+      ],
+      "requires": []
+    },
+    {
+      "id": "testing",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-testing-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "sycophancy-correction",
+      "inventoryRoots": [
+        "sycophancy-correction"
+      ],
+      "plugins": [],
+      "requires": []
+    },
+    {
+      "id": "artifact-refiner",
+      "inventoryRoots": [
+        "artifact-refiner"
+      ],
+      "plugins": [],
+      "requires": []
+    },
+    {
+      "id": "learn",
+      "inventoryRoots": [],
+      "plugins": [
+        "learn"
+      ],
+      "requires": [
+        "sycophancy-correction"
+      ]
+    },
+    {
+      "id": "ui-ux",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-ui-ux-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "react",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-react-skills",
+        "prometheus-react-vite-stack"
+      ],
+      "requires": []
+    },
+    {
+      "id": "rust",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-rust-skills",
+        "prometheus-librefang-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "devops",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-devops-skills",
+        "disk-space-guardian"
+      ],
+      "requires": []
+    },
+    {
+      "id": "research",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-research-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "flint",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-flint-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "architecture",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-architecture-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "document-extraction",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-document-extraction-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "documentation",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-documentation-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "flutter",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-flutter-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "go",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-go-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "htmx",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-htmx-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "python",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-python-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "tauri",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-tauri-skills"
+      ],
+      "requires": []
+    },
+    {
+      "id": "typescript",
+      "inventoryRoots": [],
+      "plugins": [
+        "prometheus-typescript-skills"
+      ],
+      "requires": []
+    }
+  ],
   "imports": [],
   "inventory": {
     "excludedImports": [],

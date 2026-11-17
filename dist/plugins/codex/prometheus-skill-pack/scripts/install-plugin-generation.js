@@ -35,6 +35,14 @@ import {
   targetsById,
 } from './lib/skill-system.js';
 import { POINTER_PATTERN, isWithin, resolveCodexHome } from './lib/store-paths.js';
+import {
+  DOMAIN_ID_PATTERN,
+  DOMAIN_INDEX_FILE,
+  indexedSkills,
+  parseDomainList,
+  readDomainIndex,
+  resolveDomains,
+} from './lib/skill-domains.js';
 
 /**
  * Probed filesystem capabilities for this run.
@@ -180,6 +188,8 @@ function parseArgs(argv) {
     uninstall: false,
     pruneObsolete: false,
     dryRun: false,
+    listDomains: false,
+    domainOp: null,
     targets: 'all',
     expectedBundle: null,
     expectedSourceCommit: null,
@@ -198,7 +208,11 @@ function parseArgs(argv) {
     else if (value === '--prune-obsolete') args.pruneObsolete = true;
     else if (value === '--dry-run') args.dryRun = true;
     else if (value === '--targets') args.targets = argv[++index];
-    else if (value === '--require-clean-source') args.requireCleanSource = true;
+    else if (value === '--list-domains') args.listDomains = true;
+    else if (['--domains', '--add-domains', '--remove-domains'].includes(value)) {
+      if (args.domainOp) fail('use only one of --domains, --add-domains and --remove-domains');
+      args.domainOp = domainOperation(value, argv[++index]);
+    } else if (value === '--require-clean-source') args.requireCleanSource = true;
     else if (value === '--expected-bundle') args.expectedBundle = argv[++index];
     else if (value === '--expected-source-commit') args.expectedSourceCommit = argv[++index];
     else if (value === '--source-root') args.sourceRoot = argv[++index];
@@ -231,13 +245,55 @@ function parseArgs(argv) {
   if (args.expectedSourceCommit && !/^[a-f0-9]{40,64}$/.test(args.expectedSourceCommit)) {
     fail('invalid value for --expected-source-commit');
   }
-  if (args.bootstrap && (args.verify || args.reviewedCoverage || args.rollback || args.cancelPending || args.uninstall || args.pruneObsolete)) {
+  if (
+    args.bootstrap &&
+    (args.verify ||
+      args.reviewedCoverage ||
+      args.rollback ||
+      args.cancelPending ||
+      args.uninstall ||
+      args.pruneObsolete)
+  ) {
     fail('--bootstrap cannot be combined with maintenance operations');
   }
-  if (args.cancelPending && (args.verify || args.reviewedCoverage || args.rollback || args.uninstall || args.pruneObsolete || args.dryRun)) {
+  if (
+    args.cancelPending &&
+    (args.verify ||
+      args.reviewedCoverage ||
+      args.rollback ||
+      args.uninstall ||
+      args.pruneObsolete ||
+      args.dryRun)
+  ) {
     fail('--cancel-pending cannot be combined with other maintenance operations');
   }
+  const maintenance =
+    args.verify ||
+    args.reviewedCoverage ||
+    args.rollback ||
+    args.cancelPending ||
+    args.uninstall ||
+    args.pruneObsolete ||
+    args.bootstrap;
+  if (args.listDomains && (maintenance || args.domainOp)) {
+    fail('--list-domains cannot be combined with another operation');
+  }
+  if (args.domainOp && maintenance) {
+    fail('a domain selection can only be changed by an install');
+  }
+  // The environment fallback lets a wrapper that does not know the flag (the
+  // cowork CLI, an older script) still carry a selection to an install.
+  const fromEnvironment = process.env.PROMETHEUS_SKILL_DOMAINS?.trim();
+  if (!args.domainOp && fromEnvironment && !maintenance && !args.listDomains) {
+    args.domainOp = domainOperation('--domains', fromEnvironment);
+  }
   return args;
+}
+
+function domainOperation(flag, value) {
+  const kind = { '--domains': 'set', '--add-domains': 'add', '--remove-domains': 'remove' }[flag];
+  if (kind === 'set' && String(value ?? '').trim() === 'all') return { kind, ids: 'all' };
+  return { kind, ids: parseDomainList(value, flag) };
 }
 
 function assertSafeRoot(root, home) {
@@ -742,7 +798,8 @@ function isExcludedPayloadEntry(name, sourcePath, repoRoot) {
   // `.claude-plugin/{agents,hooks,skills}` are layout mirrors of the real
   // directories, which are staged on their own. The reviewed-closure inventory
   // refuses symlinks, so shipping them would abort every generation build.
-  if (relative.startsWith('.claude-plugin/') && fs.lstatSync(sourcePath).isSymbolicLink()) return true;
+  if (relative.startsWith('.claude-plugin/') && fs.lstatSync(sourcePath).isSymbolicLink())
+    return true;
   return IMPORTED_EVIDENCE_RE.test(relative);
 }
 
@@ -989,10 +1046,16 @@ function sourceProvenance(sourceRoot) {
   const sourceCommit = git('rev-parse', 'HEAD');
   // Same rule as CLEAN_STATUS_ARGS in scripts/lib/plugin-source-topology.js. It is repeated here
   // rather than imported because the Rust doctor embeds this file and rejects unknown imports.
-  const sourceTreeState =
-    git('status', '--porcelain', '--ignore-submodules=dirty', '--', '.', ':(exclude).prometheus/knowledge')
-      ? 'modified'
-      : 'clean';
+  const sourceTreeState = git(
+    'status',
+    '--porcelain',
+    '--ignore-submodules=dirty',
+    '--',
+    '.',
+    ':(exclude).prometheus/knowledge'
+  )
+    ? 'modified'
+    : 'clean';
   const configuredPaths = git('config', '-f', '.gitmodules', '--get-regexp', 'path');
   const externalSources = [];
   if (configuredPaths) {
@@ -1936,12 +1999,20 @@ function cleanupRetiredTargets(home, pluginRoot, trustStorePath) {
       // ~/.agents/skills) holds the CURRENT projection: never clean it.
       if (liveRoots.has(fs.realpathSync(targetRoot))) continue;
       for (const name of fs.readdirSync(targetRoot).sort()) {
-        const kind = removeRetiredEntry(path.join(targetRoot, name), target, targetRoot, pluginRoot, trustStorePath);
+        const kind = removeRetiredEntry(
+          path.join(targetRoot, name),
+          target,
+          targetRoot,
+          pluginRoot,
+          trustStorePath
+        );
         if (kind) removed.push({ target, path: path.join(targetRoot, name), kind });
       }
       syncDirectory(targetRoot);
     } catch (error) {
-      process.stderr.write(`Retired target cleanup skipped ${targetRoot ?? target}: ${error.message}\n`);
+      process.stderr.write(
+        `Retired target cleanup skipped ${targetRoot ?? target}: ${error.message}\n`
+      );
     }
   }
   return removed;
@@ -1983,6 +2054,227 @@ function recordRetiredCleanup(pluginRoot, home, generation, removed) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Domain selection
+//
+// A generation always holds every skill. A selection only decides which of them
+// are PROJECTED into a target's skill root, so hooks, the shared runtime and
+// rollback are untouched, and one signed generation serves any selection.
+//
+// The selection is a map from target path to requested domain ids. A target
+// that is absent from the map receives every skill, which is the behaviour of
+// every install before selection existed. It is stored signed, and travels in
+// the signed activation journal so an interrupted install recovers to the same
+// set of skills.
+// ---------------------------------------------------------------------------
+const SELECTION_FILE = 'selection.json';
+const SELECTION_SCHEMA = 1;
+
+function validateSelectionTargets(targets) {
+  if (!targets || typeof targets !== 'object' || Array.isArray(targets)) {
+    fail('domain selection is malformed');
+  }
+  for (const [target, domains] of Object.entries(targets)) {
+    if (
+      !TARGETS.includes(target) ||
+      !Array.isArray(domains) ||
+      domains.length === 0 ||
+      new Set(domains).size !== domains.length ||
+      domains.some(id => typeof id !== 'string' || !DOMAIN_ID_PATTERN.test(id))
+    ) {
+      fail(`domain selection is malformed for ${target}`);
+    }
+  }
+  return targets;
+}
+
+/** A signed selection document, or null when every target takes every skill. */
+function signedSelection(targets, identity) {
+  if (Object.keys(targets).length === 0) return null;
+  const body = { schemaVersion: SELECTION_SCHEMA, targets: canonical(targets) };
+  return { body, signature: signValue(body, identity) };
+}
+
+function verifySelectionDocument(document, trustStorePath) {
+  verifySignedValue(document?.body, document?.signature, trustStorePath);
+  if (document.body.schemaVersion !== SELECTION_SCHEMA)
+    fail('domain selection schema is unsupported');
+  return validateSelectionTargets(document.body.targets);
+}
+
+/** The stored selection map; empty when none was ever chosen. */
+function readSelection(pluginRoot, trustStorePath) {
+  const file = path.join(pluginRoot, SELECTION_FILE);
+  if (!fs.lstatSync(file, { throwIfNoEntry: false })) return {};
+  return verifySelectionDocument(JSON.parse(fs.readFileSync(file, 'utf8')), trustStorePath);
+}
+
+function storeSelection(pluginRoot, document) {
+  const file = path.join(pluginRoot, SELECTION_FILE);
+  if (document) atomicWrite(file, canonicalJson(document), 0o600);
+  else if (fs.lstatSync(file, { throwIfNoEntry: false })) {
+    fs.unlinkSync(file);
+    syncDirectory(pluginRoot);
+  }
+}
+
+/** Apply a `--domains` style operation to the stored selection for `targets`. */
+function nextSelection(stored, operation, targets, index) {
+  if (!operation) return stored;
+  if (!index) {
+    fail(`this payload has no ${DOMAIN_INDEX_FILE}; domains cannot be selected from it`);
+  }
+  const known = new Set(index.domains.map(domain => domain.id));
+  if (operation.ids !== 'all') {
+    const unknown = operation.ids.filter(id => !known.has(id));
+    if (unknown.length) {
+      fail(`unknown domain(s): ${unknown.join(', ')}; known: ${[...known].sort().join(', ')}`);
+    }
+  }
+  const next = { ...stored };
+  for (const target of targets) {
+    if (operation.kind === 'set') {
+      if (operation.ids === 'all') delete next[target];
+      else next[target] = operation.ids;
+    } else if (operation.kind === 'add') {
+      // Adding to a target that already takes everything changes nothing.
+      if (next[target]) next[target] = [...new Set([...next[target], ...operation.ids])].sort();
+    } else {
+      const base = next[target] ?? [...known].sort();
+      const remaining = base.filter(id => !operation.ids.includes(id));
+      if (remaining.length === 0) fail(`removing those domains would leave ${target} with none`);
+      const kept = resolveDomains(index, remaining).domains.filter(id =>
+        operation.ids.includes(id)
+      );
+      if (kept.length) {
+        process.stderr.write(
+          `Domain(s) ${kept.join(', ')} stay installed in ${target}: a remaining domain requires them\n`
+        );
+      }
+      next[target] = remaining;
+    }
+  }
+  return validateSelectionTargets(next);
+}
+
+/**
+ * What one target receives from one generation: null for every skill, or the
+ * resolved domains and skill names. A generation that predates the domain index
+ * cannot be filtered, so it projects everything -- that is what its receipts say.
+ */
+function projectionFor(generationPath, skills, selection, target) {
+  const requested = selection[target];
+  if (!requested) return null;
+  const index = readDomainIndex(generationPath);
+  if (!index) return null;
+  const { domains, skills: names, unknown } = resolveDomains(index, requested);
+  if (unknown.length) {
+    process.stderr.write(
+      `Domain(s) ${unknown.join(', ')} are not in generation ${path.basename(generationPath).slice(0, 12)}; ignored for ${target}\n`
+    );
+  }
+  const selected = skills.filter(skill => names.has(skill.name)).map(skill => skill.name);
+  if (selected.length === 0)
+    fail(`domain selection for ${target} matches no skill in this generation`);
+  return { domains, names: new Set(selected), skillsSha256: sha256(canonicalJson(selected)) };
+}
+
+function projectionsFor(generationPath, skills, selection, targets) {
+  return new Map(
+    targets.map(target => [target, projectionFor(generationPath, skills, selection, target)])
+  );
+}
+
+function projectedSkills(skills, projection) {
+  return projection ? skills.filter(skill => projection.names.has(skill.name)) : skills;
+}
+
+/**
+ * Two targets whose roots are the same directory would undo each other's
+ * selection: the removal for one deletes what the other just placed.
+ */
+function assertAliasedRootsAgree(home, targets, projections) {
+  const seen = new Map();
+  for (const target of targets) {
+    const real = realRootOrNull(home, target);
+    if (!real) continue;
+    const digest = projections.get(target)?.skillsSha256 ?? 'all';
+    if (seen.has(real) && seen.get(real).digest !== digest) {
+      fail(
+        `${seen.get(real).target} and ${target} share one directory (${real}) but have different domain selections`
+      );
+    }
+    seen.set(real, { target, digest });
+  }
+}
+
+/**
+ * Remove the pack's own entries that this target should no longer hold: a
+ * deselected skill, or one a later generation dropped. Ownership is proven per
+ * entry exactly as uninstall proves it; anything else is left in place.
+ */
+function removeUnselected(home, pluginRoot, target, skills, trustStorePath) {
+  const removed = [];
+  const targetRoot = targetRootFor(home, target);
+  if (!fs.lstatSync(targetRoot, { throwIfNoEntry: false })?.isDirectory()) return removed;
+  const wanted = new Set(skills.flatMap(skill => [skill.name, `prometheus-${skill.name}`]));
+  for (const name of fs.readdirSync(targetRoot).sort()) {
+    if (name.startsWith('.') || wanted.has(name)) continue;
+    const destination = path.join(targetRoot, name);
+    const kind = removeRetiredEntry(destination, target, targetRoot, pluginRoot, trustStorePath);
+    if (kind) removed.push({ target, path: destination, kind });
+  }
+  if (removed.length) syncDirectory(targetRoot);
+  return removed;
+}
+
+/** Pack-owned entries a target holds beyond the skills it should. */
+function unselectedEntries(home, pluginRoot, target, skills, trustStorePath) {
+  const targetRoot = targetRootFor(home, target);
+  if (!fs.lstatSync(targetRoot, { throwIfNoEntry: false })?.isDirectory()) return [];
+  const wanted = new Set(skills.flatMap(skill => [skill.name, `prometheus-${skill.name}`]));
+  return fs.readdirSync(targetRoot).filter(name => {
+    if (name.startsWith('.') || wanted.has(name)) return false;
+    const destination = path.join(targetRoot, name);
+    const stat = fs.lstatSync(destination, { throwIfNoEntry: false });
+    if (stat?.isSymbolicLink()) {
+      return isWithin(pluginRoot, path.resolve(targetRoot, fs.readlinkSync(destination)));
+    }
+    return (
+      Boolean(stat?.isDirectory()) && isManagedCopy(destination, target, pluginRoot, trustStorePath)
+    );
+  });
+}
+
+function recordUnselectedCleanup(pluginRoot, home, generation, removed) {
+  if (removed.length === 0) return;
+  const file = path.join(pluginRoot, 'receipts', 'unselected-cleanup.json');
+  atomicWrite(file, canonicalJson({ schemaVersion: 1, generation, home, removed }), 0o600);
+  process.stderr.write(
+    `Removed ${removed.length} pack-owned skill entr${removed.length === 1 ? 'y' : 'ies'} ` +
+      `that the selection or this generation no longer includes; see ${file}\n`
+  );
+}
+
+/** Claude Code lists a skill once per route, so a plugin plus user-level skills doubles it. */
+function claudeDoubleListing(home, targets) {
+  if (!targets.includes('.claude/skills')) return null;
+  try {
+    const settings = JSON.parse(fs.readFileSync(path.join(home, '.claude/settings.json'), 'utf8'));
+    const enabled = Object.entries(settings.enabledPlugins ?? {})
+      .filter(([name, on]) => on === true && name.endsWith('@prometheus-skill-pack'))
+      .map(([name]) => name);
+    if (enabled.length === 0) return null;
+    return (
+      `Claude Code has pack plugin(s) enabled (${enabled.join(', ')}) and also receives pack skills ` +
+      'in ~/.claude/skills, so those skills are listed more than once. Disable the plugin(s), or ' +
+      'install without the claude target (--targets agents,qwen).'
+    );
+  } catch {
+    return null;
+  }
+}
+
 function installTargets(
   home,
   pluginRoot,
@@ -1991,7 +2283,8 @@ function installTargets(
   skills,
   targets = TARGETS,
   manifest = null,
-  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json'),
+  skillsFor = () => skills
 ) {
   // Copy-mode projections carry executable intent from the signed manifest, so
   // a projection onto a volume without an executable bit records the same
@@ -2000,7 +2293,7 @@ function installTargets(
     projectionContext({ generationPath, destinationRoot, manifest });
   for (const target of targets) {
     const targetRoot = targetRootFor(home, target);
-    for (const skill of skills) {
+    for (const skill of skillsFor(target)) {
       if (targetIsCopy(target))
         copySkill(
           path.join(generationPath, 'skills', skill.relative),
@@ -2036,11 +2329,25 @@ function verifyTargets(
   generation,
   skills,
   targets = TARGETS,
-  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json'),
+  projections = new Map()
 ) {
   for (const target of targets) {
     const targetRoot = targetRootFor(home, target);
-    for (const skill of skills) {
+    const projection = projections.get(target) ?? null;
+    const expected = projectedSkills(skills, projection);
+    // Only a target with a selection asserts that nothing else of the pack's is
+    // there: an unfiltered root may still hold leftovers from before removal
+    // existed, and those must not fail verification of an untouched install.
+    if (projection) {
+      const extra = unselectedEntries(home, pluginRoot, target, expected, trustStorePath);
+      if (extra.length) {
+        fail(
+          `${target} holds pack skills outside its domain selection: ${extra.slice(0, 5).join(', ')}`
+        );
+      }
+    }
+    for (const skill of expected) {
       const destination = targetDestination(targetRoot, target, skill, pluginRoot, trustStorePath);
       if (targetIsCopy(target)) {
         const receipt = path.join(destination, '.prometheus-generation');
@@ -2088,7 +2395,20 @@ function receiptFile(pluginRoot, generation, target) {
   );
 }
 
-function targetReceipt(manifest, targetPayload) {
+function targetReceipt(manifest, targetPayload, projection = null) {
+  // A target that takes every skill keeps the schema 1 receipt it always had, so
+  // generations and journals written before selection existed still verify.
+  if (projection) {
+    return {
+      ...targetReceipt(manifest, targetPayload),
+      schemaVersion: 2,
+      selection: {
+        domains: projection.domains,
+        skillCount: projection.names.size,
+        skillsSha256: projection.skillsSha256,
+      },
+    };
+  }
   return {
     schemaVersion: 1,
     generation: manifest.generation,
@@ -2117,7 +2437,13 @@ function writeTargetReceipts(pluginRoot, manifest, identity, targets = TARGETS) 
   }
 }
 
-function verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets = TARGETS) {
+function verifyTargetReceipts(
+  pluginRoot,
+  manifest,
+  trustStorePath,
+  targets = TARGETS,
+  projections = new Map()
+) {
   recordedTargetMatrix(manifest);
   const selected = new Set(targets);
   const verified = [];
@@ -2126,7 +2452,11 @@ function verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets = TA
     if (!fs.existsSync(file)) fail(`target receipt is missing: ${targetPayload.target}`);
     const bytes = fs.readFileSync(file);
     const receipt = JSON.parse(bytes);
-    const expected = targetReceipt(manifest, targetPayload);
+    const expected = targetReceipt(
+      manifest,
+      targetPayload,
+      projections.get(targetPayload.target) ?? null
+    );
     if (canonicalJson(receipt.body) !== canonicalJson(expected)) {
       fail(`target receipt body mismatch: ${targetPayload.target}`);
     }
@@ -2138,6 +2468,7 @@ function verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets = TA
       target: targetPayload.target,
       receiptDigest: `sha256:${sha256(bytes)}`,
       skillsSha256: targetPayload.skillsSha256,
+      ...(expected.selection ? { selection: expected.selection } : {}),
     });
   }
   return verified;
@@ -2145,9 +2476,16 @@ function verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets = TA
 
 function reviewedCoverageRecord(pluginRoot, manifest, trustStorePath, targets) {
   const generationRoot = path.join(pluginRoot, 'generations', manifest.generation);
+  const projections = projectionsFor(
+    generationRoot,
+    collectSkills(path.join(generationRoot, 'skills')),
+    readSelection(pluginRoot, trustStorePath),
+    targets
+  );
   const inventoryPath = path.join(generationRoot, REVIEWED_SKILL_CLOSURES_FILE);
   const manifestEntry = manifest.files.find(entry => entry.path === REVIEWED_SKILL_CLOSURES_FILE);
-  if (!manifestEntry || manifestEntry.type !== 'file') fail('generation has no reviewed closure inventory');
+  if (!manifestEntry || manifestEntry.type !== 'file')
+    fail('generation has no reviewed closure inventory');
   const inventoryBytes = fs.readFileSync(inventoryPath);
   if (sha256(inventoryBytes) !== manifestEntry.sha256) {
     fail('reviewed closure inventory differs from signed generation manifest');
@@ -2168,7 +2506,13 @@ function reviewedCoverageRecord(pluginRoot, manifest, trustStorePath, targets) {
     manifestDigest: `sha256:${sha256(fs.readFileSync(path.join(generationRoot, 'manifest.json')))}`,
     signerKeyId: manifest.signerKeyId,
     trustRootDigest: `sha256:${VERIFIED_TRUST_STORE_DIGEST ?? sha256(fs.readFileSync(trustStorePath))}`,
-    targetReceipts: verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets),
+    targetReceipts: verifyTargetReceipts(
+      pluginRoot,
+      manifest,
+      trustStorePath,
+      targets,
+      projections
+    ),
     inventory,
   };
 }
@@ -2329,10 +2673,16 @@ function verifyHookRuntime(
     const installed = path.join(pluginRoot, 'runtime/v1', name);
     const stat = fs.lstatSync(installed, { throwIfNoEntry: false });
     if (!stat) continue; // The verified shell runner is a supported fallback.
-    const candidates = manifest.files.filter(entry =>
-      entry.path.startsWith('bin/') && path.posix.basename(entry.path) === name &&
-      executable(entry.path) === true);
-    if (!stat.isFile() || !candidates.some(entry => entry.sha256 === sha256(fs.readFileSync(installed)))) {
+    const candidates = manifest.files.filter(
+      entry =>
+        entry.path.startsWith('bin/') &&
+        path.posix.basename(entry.path) === name &&
+        executable(entry.path) === true
+    );
+    if (
+      !stat.isFile() ||
+      !candidates.some(entry => entry.sha256 === sha256(fs.readFileSync(installed)))
+    ) {
       fail(`compiled hook runtime is not a signed payload executable: ${name}`);
     }
   }
@@ -2519,17 +2869,39 @@ function verifyPointerLink(pluginRoot, name, target) {
 
 // All receipts are signed before publishing the journal. Recovery can finish
 // without a private key, and cannot turn edited journal paths into authority.
-function activationRecord(args, manifest, identity, targets, previous, rollback = false) {
+function activationRecord(
+  args,
+  manifest,
+  identity,
+  targets,
+  previous,
+  rollback = false,
+  selection = {}
+) {
+  const generationPath = path.join(args.pluginRoot, 'generations', manifest.generation);
+  const projections = projectionsFor(
+    generationPath,
+    collectSkills(path.join(generationPath, 'skills')),
+    selection,
+    targets
+  );
   const receipts = manifest.targetPayloads
     .filter(entry => targets.includes(entry.target))
     .map(entry => {
-      const body = targetReceipt(manifest, entry);
-      if (rollback)
-        return JSON.parse(
-          fs.readFileSync(receiptFile(args.pluginRoot, manifest.generation, entry.target), 'utf8')
-        );
+      const body = targetReceipt(manifest, entry, projections.get(entry.target) ?? null);
+      if (rollback) {
+        // Reuse the receipt this generation was activated with when it still
+        // describes what will be projected. The selection may have changed
+        // since, and then the receipt has to be issued again.
+        const file = receiptFile(args.pluginRoot, manifest.generation, entry.target);
+        if (fs.existsSync(file)) {
+          const stored = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (canonicalJson(stored.body) === canonicalJson(body)) return stored;
+        }
+      }
       return { body, signature: signValue(body, identity) };
     });
+  const selectionDocument = signedSelection(selection, identity);
   const body = {
     schemaVersion: 1,
     operation: rollback ? 'rollback' : 'install',
@@ -2539,6 +2911,7 @@ function activationRecord(args, manifest, identity, targets, previous, rollback 
     codexHome: args.codexHome,
     targets,
     receipts,
+    ...(selectionDocument ? { selection: selectionDocument } : {}),
   };
   return { body, signature: signValue(body, identity) };
 }
@@ -2560,6 +2933,7 @@ function validateActivationRecord(args, record) {
   ) {
     fail('activation journal context is invalid; use the original home and CODEX_HOME to recover');
   }
+  if (body.selection !== undefined) verifySelectionDocument(body.selection, args.trustStore);
   return body;
 }
 
@@ -2572,11 +2946,15 @@ function completeActivation(args, record, contract) {
   if (!Array.isArray(body.receipts) || body.receipts.length !== body.targets.length) {
     fail('activation journal receipts are incomplete');
   }
+  const skills = collectSkills(path.join(generationPath, 'skills'));
+  const selection = body.selection ? body.selection.body.targets : {};
+  const projections = projectionsFor(generationPath, skills, selection, body.targets);
   for (const target of body.targets) {
     const receipt = body.receipts.find(entry => entry.body?.target === target);
     const expected = targetReceipt(
       manifest,
-      manifest.targetPayloads.find(entry => entry.target === target)
+      manifest.targetPayloads.find(entry => entry.target === target),
+      projections.get(target) ?? null
     );
     if (
       !receipt ||
@@ -2587,10 +2965,11 @@ function completeActivation(args, record, contract) {
     }
   }
   validateBundleIndex(args.pluginRoot, generationPath, manifest, args.trustStore);
-  const skills = collectSkills(path.join(generationPath, 'skills'));
   // A journal written before the canonical-root change can name retired
   // targets. Their receipts stay valid, but only current targets are projected.
   const materialized = body.targets.filter(target => TARGETS.includes(target));
+  const skillsFor = target => projectedSkills(skills, projections.get(target) ?? null);
+  assertAliasedRootsAgree(args.home, materialized, projections);
   installTargets(
     args.home,
     args.pluginRoot,
@@ -2599,7 +2978,11 @@ function completeActivation(args, record, contract) {
     skills,
     materialized,
     manifest,
-    args.trustStore
+    args.trustStore,
+    skillsFor
+  );
+  const unselected = materialized.flatMap(target =>
+    removeUnselected(args.home, args.pluginRoot, target, skillsFor(target), args.trustStore)
   );
   verifyTargets(
     args.home,
@@ -2608,7 +2991,8 @@ function completeActivation(args, record, contract) {
     body.generation,
     skills,
     materialized,
-    args.trustStore
+    args.trustStore,
+    projections
   );
   assertNoCollisions(false);
   for (const receipt of body.receipts) {
@@ -2628,11 +3012,25 @@ function completeActivation(args, record, contract) {
     `generations/${body.generation}`
   );
   createStableDispatchers(args.pluginRoot);
-  verifyActive(args.pluginRoot, args.trustStore, contract, materialized, args.home, true);
+  verifyActive(
+    args.pluginRoot,
+    args.trustStore,
+    contract,
+    materialized,
+    args.home,
+    true,
+    selection
+  );
+  // Stored last: until here the journal is the only authority for the
+  // selection, so cancelling an interrupted install still reads the previous one.
+  storeSelection(args.pluginRoot, body.selection ?? null);
   fs.unlinkSync(path.join(args.pluginRoot, ACTIVATION_JOURNAL));
   syncDirectory(path.join(args.pluginRoot, 'pointers'));
   const removed = cleanupRetiredTargets(args.home, args.pluginRoot, args.trustStore);
   recordRetiredCleanup(args.pluginRoot, args.home, body.generation, removed);
+  recordUnselectedCleanup(args.pluginRoot, args.home, body.generation, unselected);
+  const doubled = claudeDoubleListing(args.home, materialized);
+  if (doubled) process.stderr.write(`Warning: ${doubled}\n`);
   return body.generation;
 }
 
@@ -2659,24 +3057,47 @@ function cancelPendingActivation(args, contract) {
     }
     const generationPath = path.join(args.pluginRoot, body.previous);
     assertGenerationContained(args.pluginRoot, generationPath);
-    const manifest = verifyGeneration(generationPath, path.basename(body.previous), args.trustStore);
+    const manifest = verifyGeneration(
+      generationPath,
+      path.basename(body.previous),
+      args.trustStore
+    );
     assertMinimumActiveVersion(manifest.sourceVersion, contract, 'pre-install generation');
     const identity = ensureSigningIdentity(args.signingKey, args.trustStore);
-    const cancellation = activationRecord(args, manifest, identity,
-      certifiedTargets(manifest, body.targets), currentTarget(args.pluginRoot, 'previous'), true);
-    atomicWrite(path.join(args.pluginRoot, 'pointers/cancelled-activations', `${body.generation}.json`), canonicalJson(record), 0o600);
+    const cancellation = activationRecord(
+      args,
+      manifest,
+      identity,
+      certifiedTargets(manifest, body.targets),
+      currentTarget(args.pluginRoot, 'previous'),
+      true,
+      readSelection(args.pluginRoot, args.trustStore)
+    );
+    atomicWrite(
+      path.join(args.pluginRoot, 'pointers/cancelled-activations', `${body.generation}.json`),
+      canonicalJson(record),
+      0o600
+    );
     atomicWrite(journal, canonicalJson(cancellation), 0o600);
     return completeActivation(args, cancellation, contract);
   });
 }
 
-function activate(args, manifest, identity, targets, contract, rollback = false) {
+function activate(args, manifest, identity, targets, contract, rollback = false, selection = null) {
   const active = currentTarget(args.pluginRoot, 'current');
   const target = `generations/${manifest.generation}`;
   const previous = active !== target ? active : currentTarget(args.pluginRoot, 'previous');
   const certified = certifiedTargets(manifest, targets);
   if (certified.length === 0) fail('generation certifies none of the selected targets');
-  const record = activationRecord(args, manifest, identity, certified, previous, rollback);
+  const record = activationRecord(
+    args,
+    manifest,
+    identity,
+    certified,
+    previous,
+    rollback,
+    selection ?? readSelection(args.pluginRoot, args.trustStore)
+  );
   atomicWrite(path.join(args.pluginRoot, ACTIVATION_JOURNAL), canonicalJson(record), 0o600);
   return completeActivation(args, record, contract);
 }
@@ -2687,7 +3108,8 @@ function verifyActive(
   contract = null,
   targets = TARGETS,
   home = null,
-  completingActivation = false
+  completingActivation = false,
+  pendingSelection = null
 ) {
   if (!completingActivation && fs.existsSync(path.join(pluginRoot, ACTIVATION_JOURNAL))) {
     fail('activation is pending; reinstall with the original home and CODEX_HOME to recover');
@@ -2705,7 +3127,16 @@ function verifyActive(
   verifyPointerLink(pluginRoot, 'previous', currentTarget(pluginRoot, 'previous'));
   verifyStableDispatchers(pluginRoot, manifest);
   verifyHookRuntime(pluginRoot, manifest, trustStorePath);
-  verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets);
+  const skills = collectSkills(path.join(resolved, 'skills'));
+  // An activation being completed has not stored its selection yet; the journal
+  // that drives it supplies it instead.
+  const projections = projectionsFor(
+    resolved,
+    skills,
+    pendingSelection ?? readSelection(pluginRoot, trustStorePath),
+    targets
+  );
+  verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets, projections);
   // Receipts certify portable payload identity. The selected root's actual
   // projection and per-copy ownership marker must agree as well.
   if (home !== null) {
@@ -2714,9 +3145,10 @@ function verifyActive(
       pluginRoot,
       resolved,
       manifest.generation,
-      collectSkills(path.join(resolved, 'skills')),
+      skills,
       targets,
-      trustStorePath
+      trustStorePath,
+      projections
     );
   }
   return manifest;
@@ -2879,6 +3311,16 @@ function install(args) {
     );
     const skills = collectSkills(path.join(staging, 'skills'));
     if (skills.length === 0) fail('generation contains no installable skills');
+    const domainIndex = readDomainIndex(staging);
+    if (domainIndex) {
+      const indexed = indexedSkills(domainIndex);
+      const unassigned = skills.filter(skill => !indexed.has(skill.name)).map(skill => skill.name);
+      if (unassigned.length) {
+        fail(
+          `${DOMAIN_INDEX_FILE} assigns no domain to: ${unassigned.join(', ')}; run npm run generate:skill-domains`
+        );
+      }
+    }
     const skillIndex = buildSkillIndex(skills);
     atomicWrite(path.join(staging, 'indexes/skills.json'), canonicalJson(skillIndex));
     atomicWrite(path.join(staging, 'mobile/skill-index.json'), canonicalJson(skillIndex));
@@ -2896,7 +3338,9 @@ function install(args) {
     // Generate it only after every staged runtime and index writer has finished,
     // so its digests become part of the generation's final signed file set.
     writeReviewedSkillClosures(staging, {
-      sharedRoots: REVIEWED_CLOSURE_SHARED_ROOTS.filter(root => fs.existsSync(path.join(staging, root))),
+      sharedRoots: REVIEWED_CLOSURE_SHARED_ROOTS.filter(root =>
+        fs.existsSync(path.join(staging, root))
+      ),
     });
     const release = verifyReleaseManifest(staging, args.expectedBundle, relative => {
       const intent = ingest.intents.get(relative);
@@ -3019,7 +3463,13 @@ function install(args) {
     return withStoreLock(args.pluginRoot, () => {
       recoverActivation(args, contract);
       assertNoDowngrade(args, manifest.sourceVersion);
-      return activate(args, manifest, signingIdentity, selectedTargets, contract);
+      const selection = nextSelection(
+        readSelection(args.pluginRoot, args.trustStore),
+        args.domainOp,
+        selectedTargets,
+        domainIndex
+      );
+      return activate(args, manifest, signingIdentity, selectedTargets, contract, false, selection);
     });
   } catch (error) {
     fs.rmSync(staging, { recursive: true, force: true });
@@ -3219,10 +3669,53 @@ export const __testing = {
 // far worse than an import with side effects.
 if (import.meta.main !== false) main();
 
+/** The domains on offer and what each selected target currently receives. Read-only. */
+function listDomains(args, targets) {
+  const active = currentTarget(args.pluginRoot, 'current');
+  const root = active ? path.resolve(args.pluginRoot, active) : args.sourceRoot;
+  const index = readDomainIndex(root);
+  if (!index)
+    fail(`no ${DOMAIN_INDEX_FILE} in ${active ? 'the active generation' : 'the source payload'}`);
+  const selection = active ? readSelection(args.pluginRoot, args.trustStore) : {};
+  const skills = active
+    ? collectSkills(path.join(root, 'skills'))
+    : [...indexedSkills(index)].map(name => ({ name }));
+  const chars = new Map(index.domains.map(domain => [domain.id, domain.listingChars ?? 0]));
+  const everything = index.domains.map(domain => domain.id).sort();
+  const perTarget = {};
+  for (const target of targets) {
+    const projection = projectionFor(root, skills, selection, target);
+    const domains = projection?.domains ?? everything;
+    perTarget[target] = {
+      requested: selection[target] ?? 'all',
+      domains,
+      skills: projection ? projection.names.size : skills.length,
+      listingChars: domains.reduce((total, id) => total + chars.get(id), 0),
+    };
+  }
+  const doubled = claudeDoubleListing(args.home, targets);
+  return {
+    generation: active ? path.basename(root) : null,
+    domains: index.domains.map(domain => ({
+      id: domain.id,
+      requires: domain.requires,
+      skills: domain.skills.length,
+      listingChars: domain.listingChars ?? 0,
+    })),
+    targets: perTarget,
+    // Estimated Claude Code listing budgets: 1% of the context window at about
+    // four characters per token. Reported for orientation, never enforced here.
+    listingBudgetEstimates: { '200k-token model': 8_000, '1M-token model': 40_000 },
+    warnings: doubled ? [doubled] : [],
+  };
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.bootstrap) {
-    process.stderr.write('install-plugin-generation: automatic activation disabled; run an explicit install without --bootstrap\n');
+    process.stderr.write(
+      'install-plugin-generation: automatic activation disabled; run an explicit install without --bootstrap\n'
+    );
     process.exitCode = 1;
     return;
   }
@@ -3231,7 +3724,8 @@ function main() {
   assertSafeRoot(args.pluginRoot, args.home);
   try {
     if (args.verify || args.reviewedCoverage) {
-      if (!fs.existsSync(args.trustStore)) fail(`plugin trust store is missing: ${args.trustStore}`);
+      if (!fs.existsSync(args.trustStore))
+        fail(`plugin trust store is missing: ${args.trustStore}`);
       VERIFIED_TRUST_STORE_DIGEST = sha256(fs.readFileSync(args.trustStore));
     }
     // Probe before anything else touches the store. The probe runs in the
@@ -3252,11 +3746,17 @@ function main() {
     // verification attests the active signed generation and its projections,
     // not a separately materialized source checkout.
     const contract = readSkillSystem(args.sourceRoot, {
-      requireTargetSourceTrees: !(args.verify || args.reviewedCoverage || args.cancelPending),
+      requireTargetSourceTrees: !(
+        args.verify ||
+        args.reviewedCoverage ||
+        args.cancelPending ||
+        args.listDomains
+      ),
     });
     const selectedTargets = targetsById(contract, args.targets).map(target => target.path);
     let generation;
-    if (args.reviewedCoverage) {
+    if (args.listDomains) generation = JSON.stringify(listDomains(args, selectedTargets), null, 2);
+    else if (args.reviewedCoverage) {
       const manifest = verifyActive(
         args.pluginRoot,
         args.trustStore,
@@ -3264,12 +3764,9 @@ function main() {
         selectedTargets,
         args.home
       );
-      generation = JSON.stringify(reviewedCoverageRecord(
-        args.pluginRoot,
-        manifest,
-        args.trustStore,
-        selectedTargets
-      ));
+      generation = JSON.stringify(
+        reviewedCoverageRecord(args.pluginRoot, manifest, args.trustStore, selectedTargets)
+      );
     } else if (args.verify)
       generation = verifyActive(
         args.pluginRoot,

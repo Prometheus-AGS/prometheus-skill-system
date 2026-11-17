@@ -10,12 +10,18 @@ PLUGIN_ROOT="${HOME}/.prometheus/plugins/prometheus-skill-pack"
 RUN_DOCTOR_REFRESH=false
 FORCE_REFRESH=false
 ALLOW_TOPIC_BRANCH=false
+DOMAIN_ARGS=()
 
 for arg in "$@"; do
     case "$arg" in
         --force) FORCE_REFRESH=true ;;
         --doctor-refresh) RUN_DOCTOR_REFRESH=true ;;
         --allow-topic-branch) ALLOW_TOPIC_BRANCH=true ;;
+        --domains=*|--add-domains=*|--remove-domains=*)
+            # Forwarded to the generation installer: which skill domains are
+            # projected into the harness skill roots. Omitted, the stored
+            # selection is kept.
+            DOMAIN_ARGS=("${arg%%=*}" "${arg#*=}") ;;
         *) echo "Unknown argument: $arg" >&2; exit 2 ;;
     esac
 done
@@ -72,7 +78,8 @@ GENERATION="$(node "$REPO_ROOT/scripts/install-plugin-generation.js" \
     --home "$HOME" \
     --plugin-root "$PLUGIN_ROOT" \
     --require-clean-source \
-    --expected-source-commit "$CURRENT_SHA")"
+    --expected-source-commit "$CURRENT_SHA" \
+    ${DOMAIN_ARGS[@]+"${DOMAIN_ARGS[@]}"})"
 VERIFIED_GENERATION="$(node "$REPO_ROOT/scripts/install-plugin-generation.js" \
     --home "$HOME" --plugin-root "$PLUGIN_ROOT" --verify)"
 if [[ "$VERIFIED_GENERATION" != "$GENERATION" ]]; then
