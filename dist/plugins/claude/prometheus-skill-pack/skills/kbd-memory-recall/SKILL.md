@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: kbd-memory-recall
-version: '2.0.0'
 description: >
   Recall the lessons recorded for a KBD stage's executing role (the lead
   view for main-thread stages) from surreal-memory, pk and the learning log,
@@ -10,7 +9,8 @@ description: >
   budget. Auto-invoked by the assess/analyze/plan/execute/reflect :before
   hooks; degrades to whatever channel is available and always exits 0.
 metadata:
-  tags: [process, orchestration, memory, learning]
+  version: '2.0.0'
+  tags: "process, orchestration, memory, learning"
 ---
 
 # /kbd-memory-recall

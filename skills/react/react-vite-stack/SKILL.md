@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: react-vite-stack
-version: '1.0.0'
 description: >
   Canonical React 19 + Vite 8 stack for Prometheus AGS frontend projects. Covers
   TanStack Router (file-based routing), TanStack Query (server state), TanStack
@@ -11,7 +10,8 @@ description: >
   extending any Prometheus AGS frontend application.
 language: react
 metadata:
-  tags: [react, typescript, entity-management]
+  version: '1.0.0'
+  tags: "react, typescript, entity-management"
 ---
 
 # React 19 + Vite 8 Stack

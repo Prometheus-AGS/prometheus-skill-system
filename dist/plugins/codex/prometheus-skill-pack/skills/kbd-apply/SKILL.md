@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: kbd-apply
-version: '1.0.0'
 description: >
   KBD-owned spec-apply driver. Wraps a spec backend (OpenSpec; Spec Kit via the
   speckit adapter) and drives it ONE task at a time, so KBD stays the source of
@@ -9,7 +8,8 @@ description: >
   signal, and syncs progress.json and the waypoint. Replaces the broken pattern
   of handing the turn to the bare openspec-apply-change skill (formerly /opsx:apply) that runs outside KBD.
 metadata:
-  tags: [process, orchestration, automation, openspec, spec-kit]
+  version: '1.0.0'
+  tags: "process, orchestration, automation, openspec, spec-kit"
 ---
 
 # /kbd-apply

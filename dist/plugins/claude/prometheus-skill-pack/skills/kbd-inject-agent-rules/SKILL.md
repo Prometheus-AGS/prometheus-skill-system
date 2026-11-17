@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: kbd-inject-agent-rules
-version: '1.0.0'
 description: >
   Idempotently inject the agent-rules or UI/UX-routing managed pack into a
   target project's CLAUDE.md and/or AGENTS.md. Re-runnable — overwrites only
@@ -9,7 +8,8 @@ description: >
   --refresh to re-validate cached source URLs, and --dry-run for a target-file
   diff preview.
 metadata:
-  tags: [process, orchestration, docs, agent-rules]
+  version: '1.0.0'
+  tags: "process, orchestration, docs, agent-rules"
 ---
 
 # /kbd-inject-agent-rules

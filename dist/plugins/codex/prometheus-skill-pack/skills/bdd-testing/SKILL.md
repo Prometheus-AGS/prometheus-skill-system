@@ -1,15 +1,15 @@
 ---
 license: MIT
 name: bdd-testing
-version: '2.0.0'
 description: >
   DEPRECATED alias — use bdd-cucumber-js instead. This skill is retained
   as a redirect so downstream projects that reference "bdd-testing" by
   name continue to work.
 metadata:
+  version: '2.0.0'
   author: prometheus-skill-pack
   category: testing
-  tags: [testing, bdd, deprecated, redirect]
+  tags: "testing, bdd, deprecated, redirect"
   supersededBy: bdd-cucumber-js
   removalPlanned: '3.0.0'
 ---

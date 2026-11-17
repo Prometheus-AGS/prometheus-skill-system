@@ -1,12 +1,12 @@
 ---
 name: pmpo-evolver
 description: Strategy router for evolving released products — routes to one of five evolution perspectives (competitive, trend, unique-product, idea-validation, self-learning) and orchestrates the full PMPO loop per perspective
-version: '1.0.0'
 license: MIT
 metadata:
+  version: '1.0.0'
   author: prometheus-ags
   category: process
-  tags: [pmpo, evolution, strategy, competitive-analysis, self-learning, liter-llm, iterative-evolver]
+  tags: "pmpo, evolution, strategy, competitive-analysis, self-learning, liter-llm, iterative-evolver"
 ---
 
 # pmpo-evolver

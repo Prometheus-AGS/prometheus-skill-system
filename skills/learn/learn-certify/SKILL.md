@@ -1,12 +1,12 @@
 ---
 name: learn-certify
 description: Certification endpoint for the Feynman learning loop. Runs prerequisite gates (feynman-artifacts, practice results, capstone), emits an Open Badges 3.0 / W3C Verifiable Credential self-issued JSON-LD signed with did-plc, and detects anomalous mastery trajectories via an integrity guardrail.
-version: '1.1.0'
 license: MIT
 metadata:
+  version: '1.1.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, certify, credential, badge, ob3, w3c-vc, mastery, did-plc]
+  tags: "learn, certify, credential, badge, ob3, w3c-vc, mastery, did-plc"
 ---
 
 # learn-certify

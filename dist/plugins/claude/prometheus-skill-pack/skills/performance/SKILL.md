@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: performance
-version: '1.0.0'
 description: >
   Production-grade Rust performance primitives for Prometheus AGS projects. Covers
   jemalloc global allocator, #[cold]/#[inline(never)] for error paths, MaybeUninit
@@ -10,7 +9,8 @@ description: >
   patterns. Apply when writing hot paths, server binaries, or inference-adjacent code.
 language: rust
 metadata:
-  tags: [rust, patterns]
+  version: '1.0.0'
+  tags: "rust, patterns"
 ---
 
 # Performance Primitives — Rust

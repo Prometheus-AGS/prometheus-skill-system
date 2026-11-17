@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: go-base-patterns
-version: '1.0.0'
 description: >
   Canonical Go 1.22 patterns for Prometheus AGS projects. Covers error handling with
   %w wrapping, context propagation, interface-based dependency injection, structured
@@ -9,7 +8,8 @@ description: >
   idiomatic Go patterns used across Prometheus infrastructure tooling and MCP servers.
 language: go
 metadata:
-  tags: [go, patterns]
+  version: '1.0.0'
+  tags: "go, patterns"
 ---
 
 # Go Base Patterns

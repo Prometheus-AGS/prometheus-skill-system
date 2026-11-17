@@ -2,12 +2,12 @@
 name: start-business-build
 description: Top-level orchestrator that takes a one-line business concept ("track competitor pricing", "summarize support tickets nightly") and chains every Prometheus pipeline stage end-to-end — ideation expansion, iterative-evolver assess+plan, OpenSpec change generation, forge enrich, AI implementation dispatch, forge reflect, pk ingest — and optionally finishes by packaging the result as a LibreFang WASM skill and offering /upload-to-bossfang. Single command from concept to deployable skill.
 license: MIT
-version: '1.0.0'
 authors:
   - Prometheus AGS
 metadata:
+  version: '1.0.0'
   category: process
-  tags: [orchestrator, pipeline, ideation, headline, end-to-end]
+  tags: "orchestrator, pipeline, ideation, headline, end-to-end"
   slash_command: '/start-business-build'
   parent_skill: native-agent
   pipeline_layers: [1, 2, 3, 4]

@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: async-patterns
-version: '1.0.0'
 description: >
   Canonical async Rust patterns for Prometheus AGS projects. Covers tokio task
   spawning, Arc<RwLock<T>> vs parking_lot::Mutex selection, blocking guard prevention,
@@ -9,7 +8,8 @@ description: >
   writing async code in any Prometheus Fabric crate.
 language: rust
 metadata:
-  tags: [rust, patterns]
+  version: '1.0.0'
+  tags: "rust, patterns"
 ---
 
 # Async Patterns — Rust

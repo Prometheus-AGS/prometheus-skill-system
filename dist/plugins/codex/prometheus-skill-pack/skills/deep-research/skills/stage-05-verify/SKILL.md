@@ -5,11 +5,11 @@ description: >
   5-dimension rubric. Applies sycophancy-correction bias detection to source
   framing. Filters low-credibility sources before graph building.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-05, verify, credibility, sycophancy-correction, source-evaluation]
+  tags: "deep-research, stage-05, verify, credibility, sycophancy-correction, source-evaluation"
 ---
 
 # Stage 05 — Verify

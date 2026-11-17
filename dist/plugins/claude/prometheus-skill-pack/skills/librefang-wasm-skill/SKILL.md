@@ -2,13 +2,13 @@
 name: librefang-wasm-skill
 description: Generate a LibreFang WASM-ABI-compliant skill in Rust. Produces a cdylib crate that exports the required Guest ABI (alloc, execute, memory) and a host_call bridge wrapping LibreFang's capability-checked host functions (fs_*, net_fetch, kv_*, agent_*, time_now, env_read, shell_exec). Includes a skill.toml manifest matching librefang-skills' SkillManifest schema. Use when building a portable, sandboxed skill that runs inside a librefang/bossfang Agent OS instance via WasmSkillSandbox, or when packaging a Prometheus native-agent for upload to a bossfang URL.
 license: MIT
-version: '1.0.0'
 authors:
   - Prometheus AGS
 language: rust
 metadata:
+  version: '1.0.0'
   category: rust
-  tags: [librefang, bossfang, wasm, wasmtime, wasi, agent-os, skill, packaging]
+  tags: "librefang, bossfang, wasm, wasmtime, wasi, agent-os, skill, packaging"
   guest_abi_version: '1.0'
   librefang_runtime_wasm_version: '>=0.1'
 triggers:

@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: pmpo-elicit
-version: '1.0.0'
 description: >
   Ask-or-research primitive that resolves a missing fact mid-lifecycle and
   records it with provenance instead of guessing. Use when a stage is blocked on
@@ -10,7 +9,8 @@ description: >
   loop (see iterative-evolver) or to define standing automation (see
   pmpo-outer-loop).
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.0.0'
+  tags: "process, orchestration, automation"
 ---
 
 # /pmpo-elicit

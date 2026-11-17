@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Backfills missing version, license, and metadata.tags into SKILL.md files.
+// Backfills missing license, metadata.version and metadata.tags into SKILL.md files.
 // Skips skills/imported/. Derives tags from category path when not present.
 // Usage: node scripts/backfill-strict-fields.js [--dry-run]
 
@@ -71,9 +71,9 @@ function backfill(skillPath) {
   let changed = false;
 
   const hasLicense = /^license:/m.test(fmText);
-  const hasVersion = /^version:/m.test(fmText);
+  const hasVersion = /^ {2}version:/m.test(fmText);
   const hasTags = /^\s*tags:/m.test(fmText);
-  const hasMetadata = /^metadata:/m.test(fmText);
+  let hasMetadata = /^metadata:/m.test(fmText);
 
   if (hasLicense && hasVersion && hasTags) {
     skipped++;
@@ -86,22 +86,24 @@ function backfill(skillPath) {
     changed = true;
   }
 
-  // Add version after name: line if missing
-  if (!hasVersion) {
-    fmText = fmText.replace(/^(name: .+)$/m, `$1\nversion: '1.0.0'`);
-    changed = true;
-  }
-
   // Add metadata.tags if missing
   if (!hasTags) {
     const tags = CATEGORY_TAGS[category] || [category];
-    const tagsYaml = `  tags: [${tags.join(', ')}]`;
+    // The Agent Skills specification requires metadata values to be strings.
+    const tagsYaml = `  tags: "${tags.join(', ')}"`;
     if (hasMetadata) {
       // Insert tags as first item under existing metadata: block
       fmText = fmText.replace(/^(metadata:\s*)$/m, `$1\n${tagsYaml}`);
     } else {
       fmText = `${fmText}\nmetadata:\n${tagsYaml}`;
     }
+    hasMetadata = true;
+    changed = true;
+  }
+
+  // Add metadata.version if missing (never a top-level version)
+  if (!hasVersion) {
+    fmText = fmText.replace(/^(metadata:\s*)$/m, `$1\n  version: '1.0.0'`);
     changed = true;
   }
 

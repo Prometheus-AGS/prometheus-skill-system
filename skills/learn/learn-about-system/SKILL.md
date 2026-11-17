@@ -1,12 +1,12 @@
 ---
 name: learn-about-system
 description: Zero-friction adoption entry point for the Prometheus Skill Pack. Routes operators into the Feynman learning loop for the KBD lifecycle, skill pack capabilities, or AI harness orientation. The skill pack teaches itself using its own learning infrastructure.
-version: '1.0.0'
 license: MIT
 metadata:
+  version: '1.0.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, adoption, meta-learning, kbd, skill-pack, harness, onboarding]
+  tags: "learn, adoption, meta-learning, kbd, skill-pack, harness, onboarding"
 ---
 
 # learn-about-system

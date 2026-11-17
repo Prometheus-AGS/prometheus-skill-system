@@ -1,12 +1,12 @@
 ---
 name: learn-kb
 description: Operator knowledge base management for the Feynman learning loop. Lets operators add, list, query, update, and remove custom knowledge bases (Dify, surreal-memory palace, local files, Firecrawl URLs) that ground the learning loop in domain-specific material. KB content never leaves the local environment.
-version: '1.1.0'
 license: MIT
 metadata:
+  version: '1.1.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, kb, knowledge-base, dify, palace, grounding, operator, custom-knowledge]
+  tags: "learn, kb, knowledge-base, dify, palace, grounding, operator, custom-knowledge"
 ---
 
 # learn-kb

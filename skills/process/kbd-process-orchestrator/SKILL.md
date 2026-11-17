@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: kbd-process-orchestrator
-version: '2.0.0'
 description: >
   The Universal Knowledge-Based Development (KBD) process orchestrator. Drives
   the full iterative PMPO lifecycle for ANY project — Assess → Analyze → Plan →
@@ -49,7 +48,8 @@ triggers:
     OpenSpec changes, invoke artifact-refiner QA, or generate a phase
     reflection report.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '2.0.0'
+  tags: "process, orchestration, automation"
 ---
 
 # KBD Process Orchestrator

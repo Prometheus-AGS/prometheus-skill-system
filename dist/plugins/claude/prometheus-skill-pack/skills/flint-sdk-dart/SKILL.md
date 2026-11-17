@@ -4,13 +4,12 @@ description: >
   Install and use the Flint Realtime Fabric Dart/Flutter SDK (frf_dart). Generated from Rust FFI
   via flutter_rust_bridge 2.11.1. Covers pub.dev installation, SpineClient setup, channel
   subscriptions, and event publishing for Flutter and Dart applications.
-version: '1.0.0'
 license: MIT
 metadata:
   author: Prometheus AGS
   version: '1.0.0'
   category: flint
-  tags: [flint, realtime, dart, flutter, sdk, ffi, rust-bridge]
+  tags: "flint, realtime, dart, flutter, sdk, ffi, rust-bridge"
 ---
 
 # flint-sdk-dart

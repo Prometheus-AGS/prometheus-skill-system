@@ -135,21 +135,30 @@ class SkillValidator {
       // the whole corpus at once rather than letting it be paid down.
       this.checkDescriptionQuality(skillName, frontmatter.description);
 
-      // In strict mode: license, version, metadata.tags are required (errors).
+      // In strict mode: license, metadata.version and metadata.tags are required
+      // (errors). The Agent Skills specification allows no top-level `version`
+      // and requires metadata values to be strings, so strict mode rejects a
+      // top-level version and a list-valued tags field.
       // In standard mode: warn on missing license only (forward-compat).
       if (this.strict) {
         if (!frontmatter.license) {
           this.addError(skillName, 'Strict: missing required field: license');
         }
-        if (!frontmatter.version && !frontmatter.metadata?.version) {
-          this.addError(skillName, 'Strict: missing required field: version');
-        }
-        const rawTags = frontmatter.metadata?.tags;
-        const tags = typeof rawTags === 'string' ? rawTags.split(',').map(tag => tag.trim()).filter(Boolean) : rawTags;
-        if (!tags || !Array.isArray(tags) || tags.length === 0) {
+        if (frontmatter.version !== undefined) {
           this.addError(
             skillName,
-            'Strict: missing required field: metadata.tags (must be a non-empty string or legacy array)'
+            'Strict: top-level version is not part of the Agent Skills specification; move it to metadata.version'
+          );
+        }
+        if (typeof frontmatter.metadata?.version !== 'string' || !frontmatter.metadata.version.trim()) {
+          this.addError(skillName, "Strict: missing required field: metadata.version (a quoted string, e.g. '1.0.0')");
+        }
+        const rawTags = frontmatter.metadata?.tags;
+        const tags = typeof rawTags === 'string' ? rawTags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+        if (tags.length === 0) {
+          this.addError(
+            skillName,
+            'Strict: missing required field: metadata.tags (a non-empty comma-separated string, e.g. "react, crud"; lists are not allowed by the specification)'
           );
         }
       } else {

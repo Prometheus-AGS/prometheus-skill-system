@@ -1,14 +1,14 @@
 ---
 license: MIT
 name: kbd-new-child
-version: '1.0.0'
 description: >
   Create a child phase inside the currently-active top-level phase. Mirrors
   /kbd-new-phase but writes into phases/<parent>/children/<child>/, appends
   the new child to childPhases[], moves childPointer to it, and fires
   child:before. Use to split a parent phase into scoped sub-processes.
 metadata:
-  tags: [process, orchestration, automation, nested-phases]
+  version: '1.0.0'
+  tags: "process, orchestration, automation, nested-phases"
 ---
 
 # /kbd-new-child

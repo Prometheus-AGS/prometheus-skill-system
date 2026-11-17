@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: kbd-next-phase
-version: '1.1.1'
 description: >
   Continue to the next KBD phase after Reflect has completed and the
   operator has authorized the next scope; seeds proposals (never adopted
@@ -10,7 +9,8 @@ description: >
   skeleton progress.json, updates current-waypoint.json to point to
   /kbd-assess, and updates project.json activePhase.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.1.1'
+  tags: "process, orchestration, automation"
 ---
 
 # /kbd-next-phase

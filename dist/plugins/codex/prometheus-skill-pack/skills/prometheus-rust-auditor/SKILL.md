@@ -1,12 +1,12 @@
 ---
 name: prometheus-rust-auditor
 description: Staged autonomous Rust code quality remediation pipeline for Prometheus AGS projects. Runs Clippy enforcement, formatting checks, dependency policy, workspace inventory, partition-based architectural invariant audits, and CI generation. Use when auditing a Rust workspace, remediating code quality issues, or generating CI workflows.
-version: '1.0.0'
 license: MIT
 metadata:
+  version: '1.0.0'
   author: travis-james
   category: rust
-  tags: [rust, auditor, clippy, quality, invariants, ci, workspace, cargo]
+  tags: "rust, auditor, clippy, quality, invariants, ci, workspace, cargo"
 argument-hint: "[phase] [--config path] [--format text|json|sarif] [--verbose]"
 ---
 

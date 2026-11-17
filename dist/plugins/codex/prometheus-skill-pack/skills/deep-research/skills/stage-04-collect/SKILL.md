@@ -5,11 +5,11 @@ description: >
   surreal-memory as ResearchSource entities. Extracts key claims per chunk for
   downstream verification and graph building.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-04, collect, indexing, surreal-memory, entity-extraction]
+  tags: "deep-research, stage-04, collect, indexing, surreal-memory, entity-extraction"
 ---
 
 # Stage 04 — Collect

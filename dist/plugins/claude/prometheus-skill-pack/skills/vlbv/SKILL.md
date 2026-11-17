@@ -1,6 +1,5 @@
 ---
 name: vlbv
-version: '1.0.0'
 license: MIT
 description: >
   Value-Led Behavioral Verification — the pack's single verification method and
@@ -10,9 +9,10 @@ description: >
   hash-pinned method text (VLBV 01–22, AT 01–22, operating checklist,
   supersession record) so it works offline on any harness.
 metadata:
+  version: '1.0.0'
   author: prometheus-skill-pack
   category: testing
-  tags: [testing, verification, vlbv, method, kbd, bdd, boundary]
+  tags: "testing, verification, vlbv, method, kbd, bdd, boundary"
 ---
 
 # VLBV — Value-Led Behavioral Verification

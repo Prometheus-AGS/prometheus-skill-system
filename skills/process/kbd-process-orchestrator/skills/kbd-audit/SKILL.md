@@ -1,13 +1,13 @@
 ---
 license: MIT
 name: kbd-audit
-version: '1.0.0'
 argument-hint: '[--since <revision-or-event>]'
 description: >
   Audit the exact KBD position, lifecycle history, plan revision, ownership,
   blockers, and uncommitted work without mutating the run.
 metadata:
-  tags: [process, orchestration, control, audit]
+  version: '1.0.0'
+  tags: "process, orchestration, control, audit"
 ---
 
 # /kbd-audit

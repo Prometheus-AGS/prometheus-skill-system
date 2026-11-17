@@ -4,13 +4,12 @@ description: >
   Install and use the Flint Realtime Fabric Swift SDK (FrfClient). Covers Swift Package Manager
   integration, SpineClient setup, channel subscriptions, and event publishing for iOS (16+)
   and macOS (13+) applications.
-version: '1.0.0'
 license: MIT
 metadata:
   author: Prometheus AGS
   version: '1.0.0'
   category: flint
-  tags: [flint, realtime, swift, ios, macos, sdk, grpc, connect-rpc]
+  tags: "flint, realtime, swift, ios, macos, sdk, grpc, connect-rpc"
 ---
 
 # flint-sdk-swift

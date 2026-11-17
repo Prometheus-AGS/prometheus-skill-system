@@ -4,13 +4,12 @@ description: >
   Install and use the Flint Realtime Fabric C#/.NET SDK (FlintSdk). Covers NuGet / project
   reference setup, SpineClient configuration, channel subscriptions, and event publishing
   for .NET 8+ applications.
-version: '1.0.0'
 license: MIT
 metadata:
   author: Prometheus AGS
   version: '1.0.0'
   category: flint
-  tags: [flint, realtime, csharp, dotnet, sdk, grpc, connect-rpc]
+  tags: "flint, realtime, csharp, dotnet, sdk, grpc, connect-rpc"
 ---
 
 # flint-sdk-csharp

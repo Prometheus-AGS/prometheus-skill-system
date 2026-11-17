@@ -1,14 +1,14 @@
 ---
 license: MIT
 name: kbd-analyze
-version: '1.1.0'
 description: >
   Run the Analyze stage of the KBD lifecycle: research the engineering
   landscape — existing open-source libraries, frameworks, and skeletons that
   fit the assessed gaps, plus stack discovery when none is specified — and write
   the candidate set that the Spec and Plan stages consume.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.1.0'
+  tags: "process, orchestration, automation"
 ---
 
 # /kbd-analyze

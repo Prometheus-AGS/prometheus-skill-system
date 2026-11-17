@@ -1,14 +1,14 @@
 ---
 license: MIT
 name: entity-realtime-surreal-live
-version: '1.0.0'
 description: >
   Wire SurrealDB LIVE SELECT subscriptions into a Prometheus entity graph
   via createSurrealLiveAdapter. Covers select-then-live seeding,
   CREATE/UPDATE/DELETE action mapping, reconnect with exponential backoff,
   and optional checkpoint-based replay on reconnect.
 metadata:
-  tags: [entity, realtime, surrealdb, adapter, prometheus]
+  version: '1.0.0'
+  tags: "entity, realtime, surrealdb, adapter, prometheus"
 ---
 
 # entity-realtime-surreal-live

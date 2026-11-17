@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: iterative-evolver
-version: '1.0.0'
 description: >
   Domain-agnostic PMPO improvement loop: Assess -> Analyze -> Plan -> Execute ->
   Reflect over any subject (software, product, business, research, operations).
@@ -23,7 +22,8 @@ model_routing:
     evolver-status: small
   routing_reference: "references/model-routing.md"
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.0.0'
+  tags: "process, orchestration, automation"
 ---
 
 # Iterative Evolver

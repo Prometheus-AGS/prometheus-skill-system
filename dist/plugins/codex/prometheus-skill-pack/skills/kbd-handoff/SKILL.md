@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: kbd-handoff
-version: '2.0.0'
 argument-hint: '--to <harness> [--phase <name>] [--dry-run]'
 description: >
   Hand the active KBD phase to another harness (Claude Code, Codex, Kimi Code
@@ -12,7 +11,8 @@ description: >
   between assess, plan and execute (see kbd-process-orchestrator) or to pause
   a run (see kbd-pause).
 metadata:
-  tags: [process, orchestration, handoff, cross-harness]
+  version: '2.0.0'
+  tags: "process, orchestration, handoff, cross-harness"
 ---
 
 # /kbd-handoff

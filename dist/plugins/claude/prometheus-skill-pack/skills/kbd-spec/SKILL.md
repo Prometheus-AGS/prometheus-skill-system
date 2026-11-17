@@ -1,14 +1,14 @@
 ---
 license: MIT
 name: kbd-spec
-version: '1.1.0'
 description: >
   Run the Spec stage of the KBD lifecycle: turn an assessment and analysis into
   concrete, ordered changes — OpenSpec proposals (the primary engine), Spec
   Kit feature specs (the backup), or native-kbd specs for existing native
   projects.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.1.0'
+  tags: "process, orchestration, automation"
 ---
 
 # /kbd-spec

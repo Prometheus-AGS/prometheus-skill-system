@@ -1,6 +1,5 @@
 ---
 name: bdd-cucumber-js
-version: '1.0.0'
 license: MIT
 description: >
   Author, run, and maintain BDD integration tests using cucumber-js 13 with
@@ -8,9 +7,10 @@ description: >
   TypeScript. Use when writing behavior tests, E2E tests, integration
   tests, feature files, or step definitions in any Node/TypeScript project.
 metadata:
+  version: '1.0.0'
   author: prometheus-skill-pack
   category: testing
-  tags: [testing, bdd, cucumber, cucumber-js, playwright, gherkin, e2e]
+  tags: "testing, bdd, cucumber, cucumber-js, playwright, gherkin, e2e"
 ---
 
 # BDD Cucumber-js Skill

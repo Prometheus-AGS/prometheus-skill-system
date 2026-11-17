@@ -1,12 +1,12 @@
 ---
 name: learn-practice
 description: Deliberate practice skill for the Feynman learning loop. Generates difficulty-gated, interleaved problem sets across derivation, implementation, and transfer modes. Grades via learn-grade, updates the learner model, and prevents illusion-of-knowing by requiring demonstrated performance rather than felt fluency.
-version: '1.1.0'
 license: MIT
 metadata:
+  version: '1.1.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, practice, deliberate-practice, interleaving, transfer, mastery]
+  tags: "learn, practice, deliberate-practice, interleaving, transfer, mastery"
 ---
 
 # learn-practice

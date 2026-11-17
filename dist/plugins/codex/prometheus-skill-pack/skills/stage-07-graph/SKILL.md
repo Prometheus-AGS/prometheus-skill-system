@@ -6,11 +6,11 @@ description: >
   and sources, with typed relations between them. Exports graph.json for the
   .research package.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-07, knowledge-graph, surreal-memory, entity-relations]
+  tags: "deep-research, stage-07, knowledge-graph, surreal-memory, entity-relations"
 ---
 
 # Stage 07 — Graph

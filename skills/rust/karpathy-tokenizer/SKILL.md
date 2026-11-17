@@ -2,11 +2,11 @@
 name: karpathy-tokenizer
 description: Train GPT-style BPE tokenizers with rustbpe (Karpathy), export to tiktoken for fast Rust inference, and integrate with agent-tokenizer for prompt-budget enforcement.
 license: MIT
-version: "1.0.0"
 authors: ["prometheus-skill-pack"]
 compatibility: "rustbpe==0.1.0, tiktoken>=0.7, Python>=3.10"
 metadata:
-  tags: [rust, patterns]
+  version: '1.0.0'
+  tags: "rust, patterns"
 ---
 
 # Karpathy Tokenizer

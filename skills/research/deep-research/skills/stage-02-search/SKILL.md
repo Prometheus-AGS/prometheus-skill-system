@@ -5,11 +5,11 @@ description: >
   from the research plan. Deduplicates URLs, filters low-quality domains, and
   produces a ranked source list for Stage 03 retrieval.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-02, search, web-search, source-discovery]
+  tags: "deep-research, stage-02, search, web-search, source-discovery"
 ---
 
 # Stage 02 — Search

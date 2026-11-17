@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: liter-llm-bridge
-version: '0.1.0'
 description: >
   Harness-agnostic multi-model routing fallback. Builds and configures
   liter-llm (a Rust LLM proxy with a built-in MCP server) so any harness
@@ -33,7 +32,8 @@ triggers:
     MCP server with the active harness, or document how skills should
     invoke its tools to route per-phase model classes.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '0.1.0'
+  tags: "process, orchestration, automation"
 ---
 
 # liter-llm-bridge

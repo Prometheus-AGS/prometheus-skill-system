@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: clean-architecture
-version: '1.0.0'
 description: >
   CLEAN architecture patterns common to all languages in the Prometheus AGS stack.
   Defines the four-layer model (Domain → Application → Infrastructure → Interface),
@@ -10,7 +9,8 @@ description: >
   across all languages to ensure consistent layering and testability.
 language: rust
 metadata:
-  tags: [architecture, clean-architecture, patterns]
+  version: '1.0.0'
+  tags: "architecture, clean-architecture, patterns"
 ---
 
 # CLEAN Architecture — Cross-Language Patterns

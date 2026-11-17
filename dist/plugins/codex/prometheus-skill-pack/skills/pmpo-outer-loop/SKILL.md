@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: pmpo-outer-loop
-version: '1.0.0'
 description: >
   Defines a standing outer loop — goal, feedback sources, termination criteria —
   that repeatedly drives PMPO/KBD cycles and only escalates at declared decision
@@ -11,7 +10,8 @@ description: >
   improvement pass (see iterative-evolver) or for the tactical per-change KBD
   cycle (see kbd-process-orchestrator).
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.0.0'
+  tags: "process, orchestration, automation"
 ---
 
 # /pmpo-outer-loop

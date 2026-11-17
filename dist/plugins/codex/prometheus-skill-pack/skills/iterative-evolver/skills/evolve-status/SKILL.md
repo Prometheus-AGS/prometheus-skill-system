@@ -1,12 +1,12 @@
 ---
 license: MIT
 name: evolve-status
-version: '1.0.0'
 description: >
   Check the current status of an evolution cycle. Shows iteration count,
   goal alignment, phase completion, and convergence status.
 metadata:
-  tags: [process, orchestration, automation]
+  version: '1.0.0'
+  tags: "process, orchestration, automation"
 ---
 
 # Evolve Status

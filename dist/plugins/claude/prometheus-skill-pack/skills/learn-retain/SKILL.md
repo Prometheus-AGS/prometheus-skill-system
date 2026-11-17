@@ -1,12 +1,12 @@
 ---
 name: learn-retain
 description: Spaced repetition review skill for the Feynman learning loop. Reads the FSRS due queue from the learner-model crate, surfaces review prompts via ui-surface, grades retention via learn-grade at a 0.6 threshold, and updates FSRSCard state. Prevents knowledge decay after feynman-loop and learn-practice.
-version: '1.1.0'
 license: MIT
 metadata:
+  version: '1.1.0'
   author: prometheus-skill-pack
   category: learn
-  tags: [learn, retain, spaced-repetition, fsrs, review, memory]
+  tags: "learn, retain, spaced-repetition, fsrs, review, memory"
 ---
 
 # learn-retain

@@ -1,7 +1,6 @@
 ---
 license: MIT
 name: typescript-base-patterns
-version: '1.0.0'
 description: >
   Canonical TypeScript 6 patterns for Prometheus AGS projects. Covers strict type
   discipline (no any, no @ts-ignore), discriminated unions for domain modeling,
@@ -10,7 +9,8 @@ description: >
   Mastra agents, and Node.js scripts.
 language: typescript
 metadata:
-  tags: [typescript, patterns]
+  version: '1.0.0'
+  tags: "typescript, patterns"
 ---
 
 # TypeScript Base Patterns

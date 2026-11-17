@@ -1,6 +1,5 @@
 ---
 name: kbd-goal
-version: '1.0.0'
 license: MIT
 description: >
   Platform-agnostic goal-driven iterative loop. State a goal; KBD orchestrates
@@ -10,9 +9,10 @@ description: >
   native /goal primitive where available, implementing the evaluator pattern
   where not.
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: process
-  tags: [process, orchestration, goal, autonomous, loop, multi-platform]
+  tags: "process, orchestration, goal, autonomous, loop, multi-platform"
 triggers:
   keywords:
     - /kbd-goal

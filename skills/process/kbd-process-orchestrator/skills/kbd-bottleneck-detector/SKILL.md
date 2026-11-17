@@ -1,14 +1,14 @@
 ---
 license: MIT
 name: kbd-bottleneck-detector
-version: '1.0.0'
 description: >
   Evaluate or repair canonical KBD task and phase boundaries. Use
   when progress receipts, projections, or build gates may be stale, or when
   the user mentions "bottleneck detector". Do NOT use for creating or
   advancing phases (see kbd-new-child and kbd-next-phase).
 metadata:
-  tags: [process, orchestration, recovery]
+  version: '1.0.0'
+  tags: "process, orchestration, recovery"
 ---
 
 # /kbd-bottleneck-detector

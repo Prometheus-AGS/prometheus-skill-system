@@ -1,13 +1,13 @@
 ---
 license: MIT
 name: kbd-cancel
-version: '1.0.0'
 argument-hint: '<reason>'
 description: >
   Gracefully cancel the active KBD run while preserving its checkpoint and
   immutable audit history.
 metadata:
-  tags: [process, orchestration, control, cancel]
+  version: '1.0.0'
+  tags: "process, orchestration, control, cancel"
 ---
 
 # /kbd-cancel

@@ -1,6 +1,5 @@
 ---
 name: kbd-goal-check
-version: '1.0.0'
 license: MIT
 description: >
   Kimi Code goal-condition evaluator skill. After each Kimi turn, checks
@@ -9,9 +8,10 @@ description: >
   the maker≠evaluator pattern on Kimi Code, where /goal next is a queue
   (not a condition-based loop) and requires an external evaluator.
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: process
-  tags: [process, goal, evaluator, kimi, loop, condition-check]
+  tags: "process, goal, evaluator, kimi, loop, condition-check"
 triggers:
   keywords:
     - /kbd-goal-check

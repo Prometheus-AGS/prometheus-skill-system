@@ -5,11 +5,11 @@ description: >
   sub-questions, a search strategy, and a token budget. Produces the research
   plan that drives all subsequent stages.
 license: MIT
-version: '1.0.0'
 metadata:
+  version: '1.0.0'
   author: Prometheus AGS
   category: research
-  tags: [deep-research, stage-01, planner, query-decomposition, research-plan]
+  tags: "deep-research, stage-01, planner, query-decomposition, research-plan"
 ---
 
 # Stage 01 — Planner
