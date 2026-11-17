@@ -1,9 +1,9 @@
 ---
-license: MIT
 name: entity-crud-table
 description: >
   Build EntityTable views with column helpers (textColumn, numberColumn, enumColumn, etc.), SortHeader,
   selectionColumn, and meta.entityMeta for filters; sync sorting and search with useEntityView via UseEntityViewResult.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"
@@ -21,18 +21,18 @@ metadata:
 
 Key **`EntityTableProps`** fields:
 
-| Prop                                | Role                                                                            |
-| ----------------------------------- | ------------------------------------------------------------------------------- |
-| **`viewResult`**                    | **`UseEntityViewResult<T>`** from `crud.list` or standalone `useEntityView`     |
-| **`columns`**                       | `ColumnDef<T>[]` with optional **`meta.entityMeta`**                            |
-| **`getRowId`**                      | Default `r => String(r.id)`                                                     |
-| **`selectedId`** / **`onRowClick`** | Highlight + selection integration with CRUD                                     |
-| **`onCellEdit`**                    | When using editable columns—must delegate to hook-layer `onUpdate`, not raw API |
-| **`paginationMode`**                | `"none"` / `"loadMore"` / `"pages"`                                             |
-| **`pageSize`**                      | Default 50                                                                      |
-| **`searchFields`**                  | Fields used for client/search wiring with `viewResult.setSearch`                |
-| **`toolbarChildren`**               | Extra toolbar controls (create button, density)                                 |
-| **`showToolbar`**                   | Default true                                                                    |
+| Prop | Role |
+|------|------|
+| **`viewResult`** | **`UseEntityViewResult<T>`** from `crud.list` or standalone `useEntityView` |
+| **`columns`** | `ColumnDef<T>[]` with optional **`meta.entityMeta`** |
+| **`getRowId`** | Default `r => String(r.id)` |
+| **`selectedId`** / **`onRowClick`** | Highlight + selection integration with CRUD |
+| **`onCellEdit`** | When using editable columns—must delegate to hook-layer `onUpdate`, not raw API |
+| **`paginationMode`** | `"none"` \| `"loadMore"` \| `"pages"` |
+| **`pageSize`** | Default 50 |
+| **`searchFields`** | Fields used for client/search wiring with `viewResult.setSearch` |
+| **`toolbarChildren`** | Extra toolbar controls (create button, density) |
+| **`showToolbar`** | Default true |
 
 ## Column helpers (`src/ui/columns.tsx`)
 
@@ -43,13 +43,37 @@ Key **`EntityTableProps`** fields:
 ## Wiring
 
 ```tsx
-<EntityTable<Task>
-  viewResult={crud.list}
-  columns={taskColumns}
-  selectedId={crud.selectedId}
-  onRowClick={row => crud.openDetail(String(row.id))}
-  paginationMode="loadMore"
-/>
+import {
+  EntityTable,
+  textColumn,
+  useEntityCRUD,
+} from "@prometheus-ags/prometheus-entity-management";
+import type { ColumnDef } from "@tanstack/react-table";
+
+interface Task extends Record<string, unknown> {
+  id: string;
+  title: string;
+  status: string;
+}
+
+declare const crud: ReturnType<typeof useEntityCRUD<Task>>;
+
+const taskColumns: ColumnDef<Task>[] = [
+  textColumn<Task>({ field: "title", header: "Title" }),
+  textColumn<Task>({ field: "status", header: "Status" }),
+];
+
+export function TaskTable() {
+  return (
+    <EntityTable<Task>
+      viewResult={crud.list}
+      columns={taskColumns}
+      selectedId={crud.selectedId}
+      onRowClick={(row) => crud.openDetail(String(row.id))}
+      paginationMode="loadMore"
+    />
+  );
+}
 ```
 
 ## Playbook

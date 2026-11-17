@@ -12,11 +12,11 @@ Inputs: `setup_spec` from **specify**, optional `entity_manifest` from **entity-
 
 Pick one primary pattern (document why):
 
-| Pattern            | When                                                                                   |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| **Parallel**       | Keep old hooks live; new routes use graph hooks behind `NEXT_PUBLIC_*` / runtime flag. |
-| **Vertical slice** | One entity (e.g. `Project`) fully migrated end-to-end first.                           |
-| **Read-first**     | Migrate reads to graph; writes stay on old layer until fetchers stable.                |
+| Pattern | When |
+|---------|------|
+| **Parallel** | Keep old hooks live; new routes use graph hooks behind `NEXT_PUBLIC_*` / runtime flag. |
+| **Vertical slice** | One entity (e.g. `Project`) fully migrated end-to-end first. |
+| **Read-first** | Migrate reads to graph; writes stay on old layer until fetchers stable. |
 
 ## 3. File layout (proposal)
 
@@ -40,8 +40,9 @@ Produce **numbered** tasks with **acceptance criteria**:
 
 ## 5. SSR / Next.js specifics
 
-- If RSC fetches data: plan **hydration** (`upsertEntity` / batch upsert on client from server props) — reference `examples/nextjs-app` patterns.
-- Avoid importing graph store in **Server Components**; pass serializable props across the boundary.
+- If RSC fetches data, plan a request-owned `createGraphStore()`, serializable snapshot, one client graph, and `GraphStoreProvider` before descendant hooks.
+- Avoid React graph hooks and the process-wide singleton in **Server Components**; pass serializable props across the boundary.
+- Plan concurrent request, duplicate-fetch, hydration-mismatch, route-persistence, and scoped mutation/realtime checks from `_shared/references/nextjs-app-router.md`.
 
 ## 6. Open questions
 

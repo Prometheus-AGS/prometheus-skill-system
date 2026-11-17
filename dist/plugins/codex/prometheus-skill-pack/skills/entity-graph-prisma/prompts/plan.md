@@ -15,17 +15,20 @@ For each `createPrismaEntityConfig`:
 
 ## Endpoints per model
 
-| Model | List URL       | Detail URL         | Notes |
-| ----- | -------------- | ------------------ | ----- |
-| Task  | GET /api/tasks | GET /api/tasks/:id |       |
+| Model | List URL | Detail URL | Notes |
+|-------|----------|------------|-------|
+| Task | GET /api/tasks | GET /api/tasks/:id | |
 
 ## API decoding
 
 Plan how server parses:
 
 ```ts
-const where = req.nextUrl.searchParams.get('where');
-const parsedWhere = where ? JSON.parse(where) : {};
+// Next.js route handler — decode filter params defensively before Prisma sees them
+function parseWhereParam(req: { nextUrl: URL }): Record<string, unknown> {
+  const where = req.nextUrl.searchParams.get("where");
+  return where ? (JSON.parse(where) as Record<string, unknown>) : {};
+}
 ```
 
 Add **zod** / **superstruct** validation before Prisma.

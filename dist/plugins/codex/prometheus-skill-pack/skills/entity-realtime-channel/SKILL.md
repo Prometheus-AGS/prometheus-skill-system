@@ -1,9 +1,9 @@
 ---
-license: MIT
 name: entity-realtime-channel
 description: >
   Add or adjust RealtimeManager channel subscriptions: ChannelConfig per EntityType, optional normalize on
   register(), SubscriptionConfig label and replayOnConnect, and affectedListKeys in ChangeSet for list refresh.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"
@@ -19,21 +19,34 @@ metadata:
 
 ## `ChannelConfig`
 
-| Field            | Role                                                         |
-| ---------------- | ------------------------------------------------------------ |
-| **`type`**       | `EntityType` string for graph writes                         |
-| **`filter`**     | Opaque record for adapter-specific subscription narrowing    |
-| **`id`**         | Optional entity scope                                        |
-| **`operations`** | Optional subset of `insert` / `update` / `delete` / `upsert` |
+| Field | Role |
+|-------|------|
+| **`type`** | `EntityType` string for graph writes |
+| **`filter`** | Opaque record for adapter-specific subscription narrowing |
+| **`id`** | Optional entity scope |
+| **`operations`** | Optional subset of `insert` \| `update` \| `delete` \| `upsert` |
 
 ## Registration
 
 ```ts
-manager.register(
-  adapter,
-  [{ type: 'Task', filter: { status: 'open' } }, { type: 'Comment' }],
-  normalizeRawEvent
-);
+import type {
+  ChannelConfig,
+  EntityChange,
+  RealtimeAdapter,
+  RealtimeManager,
+} from "@prometheus-ags/prometheus-entity-management";
+
+declare const manager: RealtimeManager;
+declare const adapter: RealtimeAdapter;
+
+const normalizeRawEvent = (raw: unknown): EntityChange | null =>
+  raw && typeof raw === "object" ? (raw as EntityChange) : null;
+
+const channels: ChannelConfig[] = [
+  { type: "Task", filter: { status: "open" } },
+  { type: "Comment" },
+];
+manager.register(adapter, channels, normalizeRawEvent);
 ```
 
 - **`normalize`**: `(raw: unknown) => EntityChange | null` — drop heartbeats, unknown tables

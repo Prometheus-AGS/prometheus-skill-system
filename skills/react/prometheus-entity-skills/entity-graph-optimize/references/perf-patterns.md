@@ -29,7 +29,7 @@ Keep `flushInterval: 16` unless you measure a correctness need for immediate flu
 
 ```typescript
 // Bad: new function identity each render if not useCallback-wrapped inside custom hook
-useStore(store, s => compute(s, props.id));
+useStore(store, (s) => compute(s, props.id));
 ```
 
 Wrap in `useCallback` with deps or use library hooks.
@@ -51,12 +51,12 @@ Request only fields rendered; large nested trees increase normalize time and mem
 When you must select multiple fields as an object, use `useShallow` from `zustand/react/shallow` (or equivalent) so referential equality matches when values are unchanged:
 
 ```typescript
-import { useShallow } from 'zustand/react/shallow';
-import { useGraphStore } from '@prometheus-ags/prometheus-entity-management';
+import { useShallow } from "zustand/react/shallow";
+import { useGraphStore } from "@prometheus-ags/prometheus-entity-management";
 
 // Advanced / non-hook access — prefer library hooks first
 const { ids, isFetching } = useGraphStore(
-  useShallow(s => ({
+  useShallow((s) => ({
     ids: s.lists[key]?.ids ?? [],
     isFetching: s.lists[key]?.isFetching ?? false,
   }))
@@ -67,5 +67,7 @@ const { ids, isFetching } = useGraphStore(
 
 ## Next.js
 
-- Server Components should not import client graph store.
-- Hydration: follow `GraphHydrationProvider` pattern for seeding graph from SSR props.
+- Server Components do not import React graph hooks or write request data to the process-wide singleton.
+- Create one vanilla graph per document request, serialize it, and create one browser graph inside `GraphHydrationProvider`.
+- Wrap descendants in `GraphStoreProvider`; use `useGraphStoreApi()` inside hooks and infrastructure so fetch dedupe, mutations, and realtime target that graph.
+- Verify concurrent request IDs, zero duplicate client fetches, no hydration mismatch, and route persistence. See `_shared/references/nextjs-app-router.md`.

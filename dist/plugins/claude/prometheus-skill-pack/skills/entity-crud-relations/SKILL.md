@@ -1,9 +1,9 @@
 ---
-license: MIT
 name: entity-crud-relations
 description: >
   Register EntitySchema graphs with registerSchema: belongsTo, hasMany, manyToMany, listKeyPrefix alignment,
   invalidateTargetLists, globalListKeys, and verification that cascadeInvalidation matches list query keys.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"

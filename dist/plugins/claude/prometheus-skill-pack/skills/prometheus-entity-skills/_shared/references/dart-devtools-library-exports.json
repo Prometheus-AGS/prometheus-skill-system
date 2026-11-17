@@ -1,0 +1,534 @@
+{
+  "schemaVersion": "1",
+  "package": "entity_graph_flutter",
+  "version": "5.0.0",
+  "library": "package:entity_graph_flutter/devtools.dart",
+  "generatedPartsIncluded": false,
+  "publication": {
+    "status": "published",
+    "publishedArchiveVersion": "4.0.0",
+    "publishedArchiveIncludesLibrary": true
+  },
+  "exports": [
+    {
+      "name": "EntityGraphDevtoolsActivePreview",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsBinding",
+      "kind": "class",
+      "source": "lib/src/devtools/controller.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsCapabilities",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsChange",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsChangeAction",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsChangeCategory",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsCommand",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsCommandName",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsConfirmHistoryImport",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsController",
+      "kind": "class",
+      "source": "lib/src/devtools/controller.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsCounts",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsDiagnosticEvent",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsDirtyChange",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsDirtyReasonKind",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEntityDirtyReason",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEntityError",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEntityPresence",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEntityRecord",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEntityRecordsSnapshot",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEntityState",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEntityViewMembership",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEnvelope",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsErrorResult",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEvent",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsEventListener",
+      "kind": "typedef",
+      "source": "lib/src/devtools/controller.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsExpiredHistoryReason",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsExpiredHistoryReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsFeature",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsGraphData",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportCancellationReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportCancellationRejectedReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportCancellationRejectionReason",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportCancellationResult",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportEnvelope",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportInspectionReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportInspectionRejectionReason",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportInspectionResult",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportRejectedReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportRestoreReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportRestoreRejectedReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportRestoreRejectionReason",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportRestoreResult",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportSnapshot",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryImportSnapshotInspection",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryMode",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsHistoryStatus",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsImportCandidateStatus",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsInspectHistoryImport",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsLifecycleEvent",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsLifecycleListener",
+      "kind": "typedef",
+      "source": "lib/src/devtools/controller.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsLifecycleState",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsLimits",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsMutationEvent",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsPreviewAppliedReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsPreviewConflictReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsPreviewEntityPatch",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsPreviewRestoredReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsPreviewRestoreReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "entityGraphDevtoolsProtocol",
+      "kind": "variable",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsProtocolError",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsProtocolErrorCode",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "entityGraphDevtoolsProtocolVersion",
+      "kind": "variable",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRelationship",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRelationshipCardinality",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRelationshipDirection",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRelationshipEndpoint",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRelationshipsSnapshot",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRelationshipStatus",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRestoreEntityPreview",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsResult",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRetainedSnapshotReference",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsReturnToLiveReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRewind",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRewindReceipt",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsRewindResult",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsSnapshot",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsSnapshotHistoryStatus",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsSnapshotReference",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsSnapshotSource",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsSnapshotUnavailableReason",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsStoreDescriptor",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsStoreRegistry",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsSuccessResult",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsSyncOrigin",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsSyncState",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsTimeTravelEvent",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsTimeTravelReason",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsUnavailableSnapshotReference",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsValueContext",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsValueDestination",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsValuePolicy",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsValuePolicyMode",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsValueRedactor",
+      "kind": "typedef",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsValueSide",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsValueState",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsViewDefinition",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsViewEvent",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsViewEventState",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsViewKind",
+      "kind": "enum",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsViewListStats",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsViewMembership",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsViewRecord",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsViewsSnapshot",
+      "kind": "class",
+      "source": "lib/src/devtools/protocol.dart"
+    },
+    {
+      "name": "EntityGraphDevtoolsVmService",
+      "kind": "class",
+      "source": "lib/src/devtools/vm_service.dart"
+    }
+  ]
+}

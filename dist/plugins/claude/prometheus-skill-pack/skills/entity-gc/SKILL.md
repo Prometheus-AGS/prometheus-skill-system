@@ -1,10 +1,10 @@
 ---
-license: MIT
 name: entity-gc
 description: >
   Slash command /entity-gc — design application-level eviction for @prometheus-ags/prometheus-entity-management:
   removeEntity for stale entities, clearPatch for UI overlays, list refresh after bulk delete,
   route-based cleanup, and policies for long-lived sessions. Notes library has no automatic GC yet.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"
@@ -18,10 +18,10 @@ metadata:
 
 ## APIs to use
 
-| API                                           | Effect                                             |
-| --------------------------------------------- | -------------------------------------------------- |
-| `removeEntity(type, id)`                      | Removes canonical entity from `entities`           |
-| `clearPatch(type, id)`                        | Removes local patch overlay                        |
+| API | Effect |
+|-----|--------|
+| `removeEntity(type, id)` | Removes canonical entity from `entities` |
+| `clearPatch(type, id)` | Removes local patch overlay |
 | `invalidateLists(key)` / store list mutations | Forces refetch; does not delete entities by itself |
 
 ## Strategies

@@ -38,6 +38,16 @@ Rules for adding realtime to `@prometheus-ags/prometheus-entity-management`.
 - **`SyncAdapter`** extends realtime with `query` / `execute` / `isSynced` / `onSyncComplete`.
 - Hooks like **`useLocalFirst`** may use `useGraphStore` internally—acceptable **inside library hooks**, not in app components.
 
+## Flint boundary
+
+- Load **`../_shared/references/flint-portable-contracts.md`** before generating
+  Flint code or making compatibility/security claims.
+- `createFlintAdapter` consumes the caller-owned structural client; it does not
+  bundle or configure the Flint SDK.
+- Keep service-role keys and Forge provisioning out of components, browser
+  bundles, Flutter assets, and Tauri webviews.
+- Do not claim strict EC JWK compatibility or a Prometheus Forge adapter.
+
 ## App integration pattern
 
 1. Create adapter instance(s) with vendor credentials / endpoints in a **`realtime/`** or **`sync/`** module (not in React components).
@@ -46,12 +56,12 @@ Rules for adding realtime to `@prometheus-ags/prometheus-entity-management`.
 
 ## Pitfalls
 
-| Pitfall                              | Outcome                         |
-| ------------------------------------ | ------------------------------- |
+| Pitfall | Outcome |
+|---------|---------|
 | Double `register` without unregister | Duplicate writes / memory leaks |
-| Normalizing to wrong `EntityType`    | Cross-table corruption in graph |
-| Ignoring `delete` ops                | Stale rows remain in lists      |
-| `flushInterval: 0` with noisy source | Main-thread churn               |
+| Normalizing to wrong `EntityType` | Cross-table corruption in graph |
+| Ignoring `delete` ops | Stale rows remain in lists |
+| `flushInterval: 0` with noisy source | Main-thread churn |
 
 ## Verification
 

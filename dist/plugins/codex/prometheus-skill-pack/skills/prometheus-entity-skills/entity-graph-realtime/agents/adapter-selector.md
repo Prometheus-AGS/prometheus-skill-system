@@ -4,13 +4,14 @@ Choose the correct realtime integration path.
 
 ## Decision matrix
 
-| Backend                     | Adapter factory                    | Notes                                              |
-| --------------------------- | ---------------------------------- | -------------------------------------------------- |
-| Custom WS JSON              | `createWebSocketAdapter`           | Provide `parseMessage` mapping to `EntityChange[]` |
-| Supabase Postgres changes   | `createSupabaseRealtimeAdapter`    | Row-level filters, channel per table               |
-| Convex reactive backend     | `createConvexAdapter`              | Map Convex subscription results                    |
-| GraphQL live queries / subs | `createGraphQLSubscriptionAdapter` | Bridge subscription payloads                       |
-| Electric + PGlite           | `createElectricAdapter`            | Local-first; implements `SyncAdapter`              |
+| Backend | Adapter factory | Notes |
+|---------|-----------------|-------|
+| Custom WS JSON | `createWebSocketAdapter` | Provide `parseMessage` mapping to `EntityChange[]` |
+| Supabase Postgres changes | `createSupabaseRealtimeAdapter` | Row-level filters, channel per table |
+| Convex reactive backend | `createConvexAdapter` | Map Convex subscription results |
+| GraphQL live queries / subs | `createGraphQLSubscriptionAdapter` | Bridge subscription payloads |
+| Flint Realtime Fabric | `createFlintAdapter` | Caller owns authenticated client; load the portable auth/JWKS/Forge contract |
+| Electric + PGlite | `createElectricAdapter` | Local-first; implements `SyncAdapter` |
 
 ## Questions
 
@@ -18,6 +19,8 @@ Choose the correct realtime integration path.
 2. **Payload fidelity:** Full row vs patch → determines `op: "update"` with `data` vs `patch`.
 3. **Multi-tenant:** Need channel per tenant? If yes, encode tenant in `ChannelConfig.filter` + server-side ACLs.
 4. **SSR:** WebSocket/subscriptions usually **client-only**—guard with `typeof window` or dynamic import.
+5. **Flint authority:** Is the client using only a publishable key, with issuer,
+   tenant, and role enforced by Gate? Provisioning remains server/operator-only.
 
 ## Outputs
 

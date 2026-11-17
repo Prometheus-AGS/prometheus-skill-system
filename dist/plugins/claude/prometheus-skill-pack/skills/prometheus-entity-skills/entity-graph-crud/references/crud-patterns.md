@@ -9,11 +9,37 @@ Use **`useEntityCRUD`** when one screen coordinates list + detail + forms.
 **Sketch:**
 
 ```ts
+import { useEntityCRUD } from "@prometheus-ags/prometheus-entity-management";
+import type {
+  EntityId,
+  FilterSpec,
+  ListResponse,
+  SortSpec,
+  ViewFetchParams,
+} from "@prometheus-ags/prometheus-entity-management";
+
+interface Task extends Record<string, unknown> {
+  id: string;
+  title: string;
+  status: string;
+  projectId: string;
+}
+
+// your API module (stores/services layer owns this I/O)
+declare function listFetch(params: ViewFetchParams): Promise<ListResponse<Task>>;
+declare function fetchTaskById(id: EntityId): Promise<Task>;
+declare function createTaskApi(data: Partial<Task>): Promise<Task>;
+declare function updateTaskApi(id: EntityId, patch: Partial<Task>): Promise<Task>;
+declare function deleteTaskApi(id: EntityId): Promise<void>;
+declare const viewSignature: string;
+declare const initialFilter: FilterSpec;
+declare const initialSort: SortSpec;
+
 const crud = useEntityCRUD<Task>({
-  type: 'Task',
-  listQueryKey: ['tasks', 'list', viewSignature],
+  type: "Task",
+  listQueryKey: ["tasks", "list", viewSignature],
   listFetch,
-  normalize: raw => ({ id: String(raw.id), data: raw }),
+  normalize: (raw) => ({ id: String(raw.id), data: raw }),
   detailFetch: fetchTaskById,
   onCreate: createTaskApi,
   onUpdate: updateTaskApi,
@@ -53,12 +79,12 @@ Ensure child lists are populated by their own hooks elsewhere so `readRelations`
 
 ## Anti-patterns
 
-| Anti-pattern                            | Why it hurts                                                 |
-| --------------------------------------- | ------------------------------------------------------------ |
-| `useGraphStore` in page component       | Breaks layering; hard to test; duplicates subscription logic |
-| Duplicate `useState` entity rows        | Breaks global reactivity; stale cells                        |
-| Manual `invalidateLists` everywhere     | Drifts from schema-driven cascade rules                      |
-| Different `normalize` in list vs detail | Split-brain IDs; graph overwrites                            |
+| Anti-pattern | Why it hurts |
+|--------------|--------------|
+| `useGraphStore` in page component | Breaks layering; hard to test; duplicates subscription logic |
+| Duplicate `useState` entity rows | Breaks global reactivity; stale cells |
+| Manual `invalidateLists` everywhere | Drifts from schema-driven cascade rules |
+| Different `normalize` in list vs detail | Split-brain IDs; graph overwrites |
 
 ## Testing mindset
 

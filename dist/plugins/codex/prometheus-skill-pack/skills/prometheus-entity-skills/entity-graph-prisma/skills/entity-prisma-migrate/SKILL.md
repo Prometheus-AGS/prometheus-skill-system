@@ -1,10 +1,10 @@
 ---
-license: MIT
 name: entity-prisma-migrate
 description: >
   Slash command /entity-prisma-migrate — refactor existing manual Prisma + fetch + useState patterns
   to @prometheus-ags/prometheus-entity-management hooks driven by createPrismaEntityConfig, registerSchema, and
   useEntityView/useEntityCRUD while preserving API routes and auth.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"

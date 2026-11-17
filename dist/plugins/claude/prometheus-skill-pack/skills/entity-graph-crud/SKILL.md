@@ -1,11 +1,11 @@
 ---
-license: MIT
 name: entity-graph-crud
 description: >
   Generate complete CRUD screens for any entity type using @prometheus-ags/prometheus-entity-management hooks and UI components.
   Analyzes entity shape, produces column definitions (TanStack Table + entityMeta), FieldDescriptor-based forms,
   EntityDetailSheet / EntityFormSheet wiring, and registerSchema + cascade invalidation—all strictly following
   Components → Hooks → Stores → APIs data flow.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"
@@ -28,11 +28,11 @@ Deliver production-ready CRUD surfaces (list, create, edit, detail, delete) for 
 
 Invoke the focused playbook when scope is narrow:
 
-| Route                        | Focus                                                                                        |
-| ---------------------------- | -------------------------------------------------------------------------------------------- |
-| **`/entity-crud-page`**      | Full page: list + selection + detail + create/edit + delete                                  |
-| **`/entity-crud-form`**      | `EntityFormSheet` / `EntityDetailSheet` + `FieldDescriptor[]` + buffer wiring                |
-| **`/entity-crud-table`**     | `EntityTable` + `columns.tsx` helpers + filters/sort metadata aligned with `useEntityView`   |
+| Route | Focus |
+|-------|--------|
+| **`/entity-crud-page`** | Full page: list + selection + detail + create/edit + delete |
+| **`/entity-crud-form`** | `EntityFormSheet` / `EntityDetailSheet` + `FieldDescriptor[]` + buffer wiring |
+| **`/entity-crud-table`** | `EntityTable` + `columns.tsx` helpers + filters/sort metadata aligned with `useEntityView` |
 | **`/entity-crud-relations`** | `registerSchema`, `belongsTo` / `hasMany` / `manyToMany`, `listKeyPrefix`, invalidation keys |
 
 Each route maps to `prometheus-entity-skills/entity-graph-crud/skills/<name>/SKILL.md`.
@@ -57,13 +57,13 @@ Emits JSON: `kbd`, `evolver`, `refiner`, `openspec` availability flags for follo
 
 ## Key library APIs
 
-| Area               | Exports                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------- |
-| CRUD orchestration | `useEntityCRUD`, `CRUDOptions`, `CRUDState`, `CRUDMode`, `DirtyFields`                        |
-| List + view        | `useEntityView`, `ViewDescriptor`, `FilterSpec`, `SortSpec`, `toRestParams`                   |
-| Relations          | `registerSchema`, `getSchema`, `cascadeInvalidation`, `readRelations`, `EntitySchema`         |
-| UI                 | `EntityTable`, `EntityDetailSheet`, `EntityFormSheet`, `Sheet`, column builders, `SortHeader` |
-| Single entity      | `useEntity` (detail subscription inside `useEntityCRUD` when `detailFetch` provided)          |
+| Area | Exports |
+|------|---------|
+| CRUD orchestration | `useEntityCRUD`, `CRUDOptions`, `CRUDState`, `CRUDMode`, `DirtyFields` |
+| List + view | `useEntityView`, `ViewDescriptor`, `FilterSpec`, `SortSpec`, `toRestParams` |
+| Relations | `registerSchema`, `getSchema`, `cascadeInvalidation`, `readRelations`, `EntitySchema` |
+| UI | `EntityTable`, `EntityDetailSheet`, `EntityFormSheet`, `Sheet`, column builders, `SortHeader` |
+| Single entity | `useEntity` (detail subscription inside `useEntityCRUD` when `detailFetch` provided) |
 
 ## References
 

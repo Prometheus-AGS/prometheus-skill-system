@@ -1,0 +1,494 @@
+{
+  "schemaVersion": "1",
+  "package": "entity_graph_flutter",
+  "version": "5.0.0",
+  "library": "package:entity_graph_flutter/entity_graph_flutter.dart",
+  "generatedPartsIncluded": true,
+  "exports": [
+    {
+      "name": "ChangeEvent",
+      "kind": "class",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "ChangeOp",
+      "kind": "enum",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "EditBuffer",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "Entity",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityChangeBinding",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityChangeBridge",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityChangeBridgeFamily",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "entityChangeBridgeProvider",
+      "kind": "variable",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityChangeBridgeProvider",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityChanged",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "EntityConfig",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityCrud",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityCrudFamily",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "entityCrudProvider",
+      "kind": "variable",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityCrudProvider",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityDecoder",
+      "kind": "typedef",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityEncoder",
+      "kind": "typedef",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityFamily",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "entityGraph",
+      "kind": "function",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityGraph",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "EntityGraphError",
+      "kind": "class",
+      "source": "lib/src/errors.dart"
+    },
+    {
+      "name": "EntityGraphIR",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "entityGraphProvider",
+      "kind": "variable",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityGraphProvider",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityGraphSnapshot",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "EntityList",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityListConfig",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityListFamily",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityListNotifier",
+      "kind": "typedef",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "entityListProvider",
+      "kind": "variable",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityListProvider",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityListSnapshot",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityMutations",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityMutationsFamily",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "entityMutationsProvider",
+      "kind": "variable",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityMutationsProvider",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityMutationState",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityNotifier",
+      "kind": "typedef",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "entityProvider",
+      "kind": "variable",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityProvider",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "entityProviderRetry",
+      "kind": "function",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityQueryResult",
+      "kind": "class",
+      "source": "lib/src/hooks/use_entity_query.dart"
+    },
+    {
+      "name": "EntityRemovalSnapshot",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "EntityRemoved",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "EntitySnapshot",
+      "kind": "class",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityState",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "EntitySyncMetadata",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "entityToGraphRow",
+      "kind": "function",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityTransport",
+      "kind": "class",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "entityTransportRegistry",
+      "kind": "function",
+      "source": "lib/src/providers.dart"
+    },
+    {
+      "name": "EntityTransportRegistry",
+      "kind": "class",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "entityTransportRegistryProvider",
+      "kind": "variable",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "EntityTransportRegistryProvider",
+      "kind": "class",
+      "source": "lib/src/providers.g.dart"
+    },
+    {
+      "name": "evaluateLocalEntityIds",
+      "kind": "function",
+      "source": "lib/src/view.dart"
+    },
+    {
+      "name": "FfiEntityBridge",
+      "kind": "class",
+      "source": "lib/src/ffi-transport.dart"
+    },
+    {
+      "name": "FfiEntityTransportAdapter",
+      "kind": "class",
+      "source": "lib/src/ffi-transport.dart"
+    },
+    {
+      "name": "FilterClause",
+      "kind": "class",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "FilterOperator",
+      "kind": "enum",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "GraphChange",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphEntityIdentity",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphPublication",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphPublicationListener",
+      "kind": "typedef",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphReset",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphViewDefinition",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphViewKind",
+      "kind": "enum",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphViewLifecycleEvent",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphViewLifecycleListener",
+      "kind": "typedef",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphViewLifecycleState",
+      "kind": "enum",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphViewRecord",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "GraphViewRegistration",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "IrEntity",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "IrField",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "IrRelation",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "ListChanged",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "ListQuery",
+      "kind": "class",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "ListResult",
+      "kind": "class",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "ListState",
+      "kind": "class",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "parseSdl",
+      "kind": "function",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "parseSdlJson",
+      "kind": "function",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SdlAiConfig",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SdlConfig",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SdlFieldDef",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SdlLocalFirstConfig",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SdlRelationDef",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SdlRelationKind",
+      "kind": "enum",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SdlScalarType",
+      "kind": "enum",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SdlValidationError",
+      "kind": "class",
+      "source": "lib/src/sdl.dart"
+    },
+    {
+      "name": "SortClause",
+      "kind": "class",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "SortDirection",
+      "kind": "enum",
+      "source": "lib/src/transport.dart"
+    },
+    {
+      "name": "SyncOrigin",
+      "kind": "enum",
+      "source": "lib/src/graph.dart"
+    },
+    {
+      "name": "TerminalError",
+      "kind": "class",
+      "source": "lib/src/errors.dart"
+    },
+    {
+      "name": "toEntityGraphError",
+      "kind": "function",
+      "source": "lib/src/errors.dart"
+    },
+    {
+      "name": "TransientError",
+      "kind": "class",
+      "source": "lib/src/errors.dart"
+    },
+    {
+      "name": "useEntity",
+      "kind": "function",
+      "source": "lib/src/hooks/use_entity.dart"
+    },
+    {
+      "name": "useEntityList",
+      "kind": "function",
+      "source": "lib/src/hooks/use_entity_list.dart"
+    },
+    {
+      "name": "useEntityQuery",
+      "kind": "function",
+      "source": "lib/src/hooks/use_entity_query.dart"
+    },
+    {
+      "name": "ViewCompleteness",
+      "kind": "enum",
+      "source": "lib/src/view.dart"
+    }
+  ]
+}

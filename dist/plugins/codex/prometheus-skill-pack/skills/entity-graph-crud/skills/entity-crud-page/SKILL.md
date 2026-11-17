@@ -1,10 +1,10 @@
 ---
-license: MIT
 name: entity-crud-page
 description: >
   Scaffold a full CRUD page (list, create, edit, detail, delete) using useEntityCRUD with EntityTable,
   EntityDetailSheet, and EntityFormSheet. Enforces Components → Hooks → Stores: page composes only;
   useXxxCRUD hook wraps library CRUD; API module holds fetch/mutations.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"
@@ -43,12 +43,12 @@ metadata:
 
 ## Deliverables
 
-| Artifact                           | Role                                                         |
-| ---------------------------------- | ------------------------------------------------------------ |
-| `XxxPage.tsx` (or route file)      | Composition only; no store, no fetch                         |
-| `useXxxCRUD.ts`                    | `useEntityCRUD` wiring + stable `useRef` callbacks if needed |
-| `xxxApi.ts` (or shared client)     | Network + serialization                                      |
-| `xxxColumns.tsx` / `xxxFields.tsx` | Reusable builders                                            |
+| Artifact | Role |
+|----------|------|
+| `XxxPage.tsx` (or route file) | Composition only; no store, no fetch |
+| `useXxxCRUD.ts` | `useEntityCRUD` wiring + stable `useRef` callbacks if needed |
+| `xxxApi.ts` (or shared client) | Network + serialization |
+| `xxxColumns.tsx` / `xxxFields.tsx` | Reusable builders |
 
 ## Parent skill
 

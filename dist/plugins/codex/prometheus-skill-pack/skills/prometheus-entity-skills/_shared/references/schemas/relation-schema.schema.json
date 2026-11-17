@@ -79,12 +79,7 @@
     },
     "hasMany": {
       "type": "object",
-      "required": [
-        "cardinality",
-        "targetType",
-        "foreignKey",
-        "listKeyPrefixPattern"
-      ],
+      "required": ["cardinality", "targetType", "foreignKey", "listKeyPrefixPattern"],
       "properties": {
         "cardinality": { "const": "hasMany" },
         "targetType": {
