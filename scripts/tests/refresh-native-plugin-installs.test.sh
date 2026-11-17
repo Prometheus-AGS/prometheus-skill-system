@@ -26,6 +26,9 @@ UMBRELLA_INSTALL="$TEST_HOME/native/umbrella"
 PROCESS_INSTALL="$TEST_HOME/native/process"
 mkdir -p "$UMBRELLA_INSTALL/skills" "$PROCESS_INSTALL/kbd-process-orchestrator/skills"
 cp -R "$SOURCE_KBD" "$UMBRELLA_INSTALL/skills/kbd-init"
+# A hook carrier is verified against the hook file this checkout would install.
+mkdir -p "$UMBRELLA_INSTALL/hooks"
+cp "$REPO_ROOT/dist/plugins/claude/prometheus-skill-pack/hooks/hooks.json" "$UMBRELLA_INSTALL/hooks/hooks.json"
 cp -R "$SOURCE_KBD" "$PROCESS_INSTALL/kbd-process-orchestrator/skills/kbd-init"
 
 cat > "$TMP_ROOT/claude-before.json" <<JSON
@@ -159,6 +162,77 @@ if rg -n '\.claude/plugins/cache/' "$REPO_ROOT/scripts/refresh-native-plugin-ins
   echo "FAIL: native refresher contains a direct Claude cache path" >&2
   exit 1
 fi
+
+# A hook carrier whose cached hook file is stale is reinstalled WITHOUT --force,
+# because `plugin update` does nothing for an unchanged version. A disabled
+# plugin is left alone: reinstalling it would switch it back on.
+STALE_RUNTIME="$TEST_HOME/native/runtime-stale"
+FRESH_RUNTIME="$TEST_HOME/native/runtime-fresh"
+mkdir -p "$STALE_RUNTIME/hooks" "$FRESH_RUNTIME/hooks"
+printf '{"hooks":{}}\n' > "$STALE_RUNTIME/hooks/hooks.json"
+cp "$REPO_ROOT/dist/plugins/claude/prometheus-runtime/hooks/hooks.json" "$FRESH_RUNTIME/hooks/hooks.json"
+cat > "$TMP_ROOT/claude-before-runtime.json" <<JSON
+[
+  {"id":"prometheus-skill-pack@prometheus-skill-pack","scope":"user","enabled":false,"version":"$PACK_VERSION","installPath":"$UMBRELLA_INSTALL"},
+  {"id":"prometheus-runtime@prometheus-skill-pack","scope":"user","enabled":true,"version":"$PACK_VERSION","installPath":"$STALE_RUNTIME"}
+]
+JSON
+cat > "$TMP_ROOT/claude-after-runtime.json" <<JSON
+[
+  {"id":"prometheus-skill-pack@prometheus-skill-pack","scope":"user","enabled":false,"version":"$PACK_VERSION","installPath":"$UMBRELLA_INSTALL"},
+  {"id":"prometheus-runtime@prometheus-skill-pack","scope":"user","enabled":true,"version":"$PACK_VERSION","installPath":"$FRESH_RUNTIME"}
+]
+JSON
+: > "$LOG"
+# The registry-lag simulation belongs to the first run; here the listing is current.
+rm -f "$TMP_ROOT/updated"
+touch "$TMP_ROOT/stale-seen"
+# The fake Kimi installer copies into a fixed place; start each run from none.
+rm -rf "$TEST_HOME/Library/Application Support/kimi-desktop/daimon-share/daimon/plugin-packages/prometheus-skill-pack"
+if ! HOME="$TEST_HOME" \
+  PROMETHEUS_NATIVE_TEST_BEFORE="$TMP_ROOT/claude-before-runtime.json" \
+  PROMETHEUS_NATIVE_TEST_AFTER="$TMP_ROOT/claude-after-runtime.json" \
+  PROMETHEUS_CLAUDE_BIN="$FAKE_BIN/claude" \
+  PROMETHEUS_CODEX_BIN="$FAKE_BIN/codex" \
+  PROMETHEUS_KIMI_INSTALLER="$FAKE_BIN/kimi-installer" \
+  PROMETHEUS_CLAUDE_LIST_DELAY_SECONDS=0 \
+  bash "$REPO_ROOT/scripts/refresh-native-plugin-installs.sh" \
+    --source-root "$REPO_ROOT" --generation "$GENERATION" \
+    >"$TMP_ROOT/runtime.out" 2>"$TMP_ROOT/runtime.err"; then
+  cat "$TMP_ROOT/runtime.out"
+  cat "$TMP_ROOT/runtime.err" >&2
+  exit 1
+fi
+grep -Fq 'prometheus-runtime@prometheus-skill-pack holds a stale hook file' "$TMP_ROOT/runtime.out"
+grep -Fq 'claude plugin uninstall --scope user prometheus-runtime@prometheus-skill-pack' "$LOG"
+grep -Fq 'claude plugin install --scope user prometheus-runtime@prometheus-skill-pack' "$LOG"
+if grep -Fq 'prometheus-skill-pack@prometheus-skill-pack' <(grep -F 'claude plugin ' "$LOG" | grep -v 'marketplace'); then
+  echo "FAIL: a disabled plugin was refreshed" >&2
+  exit 1
+fi
+
+# A carrier that still differs after the refresh fails the run instead of
+# leaving hooks that will stop at the next prune.
+: > "$LOG"
+# The registry-lag simulation belongs to the first run; here the listing is current.
+rm -f "$TMP_ROOT/updated"
+touch "$TMP_ROOT/stale-seen"
+# The fake Kimi installer copies into a fixed place; start each run from none.
+rm -rf "$TEST_HOME/Library/Application Support/kimi-desktop/daimon-share/daimon/plugin-packages/prometheus-skill-pack"
+if HOME="$TEST_HOME" \
+  PROMETHEUS_NATIVE_TEST_BEFORE="$TMP_ROOT/claude-before-runtime.json" \
+  PROMETHEUS_NATIVE_TEST_AFTER="$TMP_ROOT/claude-before-runtime.json" \
+  PROMETHEUS_CLAUDE_BIN="$FAKE_BIN/claude" \
+  PROMETHEUS_CODEX_BIN="$FAKE_BIN/codex" \
+  PROMETHEUS_KIMI_INSTALLER="$FAKE_BIN/kimi-installer" \
+  PROMETHEUS_CLAUDE_LIST_DELAY_SECONDS=0 \
+  bash "$REPO_ROOT/scripts/refresh-native-plugin-installs.sh" \
+    --source-root "$REPO_ROOT" --generation "$GENERATION" \
+    >"$TMP_ROOT/still-stale.out" 2>"$TMP_ROOT/still-stale.err"; then
+  echo "FAIL: a carrier that is still stale after the refresh must fail the run" >&2
+  exit 1
+fi
+grep -Fq 'still holds a hook file that differs from this checkout' "$TMP_ROOT/still-stale.err"
 
 MISSING_HOME="$TMP_ROOT/missing-home"
 MISSING_PLUGIN="$MISSING_HOME/.prometheus/plugins/prometheus-skill-pack"

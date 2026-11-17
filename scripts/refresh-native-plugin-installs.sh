@@ -49,6 +49,27 @@ command_available() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# The plugin that carries the pack's hooks into Claude Code, as a source
+# directory in this checkout. Empty for a plugin that carries none.
+hook_carrier_source() {
+    case "$1" in
+        prometheus-skill-pack@*) printf '%s\n' "$REPO_ROOT/dist/plugins/claude/prometheus-skill-pack" ;;
+        prometheus-runtime@*) printf '%s\n' "$REPO_ROOT/dist/plugins/claude/prometheus-runtime" ;;
+    esac
+}
+
+# True when an installed hook carrier holds a different hook file from the one
+# this checkout would install. The hook file names the bundle every hook asks
+# the store for, so a stale copy keeps asking for a bundle that a later prune
+# removes -- and then every pack hook in Claude Code stops, silently.
+hook_carrier_is_stale() {
+    local source
+    source="$(hook_carrier_source "$1")"
+    [[ -n "$source" && -n "$2" ]] || return 1
+    [[ -f "$source/hooks/hooks.json" && -f "$2/hooks/hooks.json" ]] || return 1
+    ! cmp -s "$source/hooks/hooks.json" "$2/hooks/hooks.json"
+}
+
 compare_kbd_payload() {
     local installed="$1"
     node - "$REPO_ROOT/skills/process/kbd-process-orchestrator/skills/kbd-init" "$installed" <<'NODE'
@@ -135,13 +156,23 @@ const rows=JSON.parse(process.argv[1]);
 const wanted=new Set(["prometheus-skill-pack@prometheus-skill-pack","prometheus-runtime@prometheus-skill-pack","prometheus-process-skills@prometheus-skill-pack"]);
 // A disabled plugin is left alone: reinstalling it would switch it back on, and
 // the full and runtime plugins carry the same hooks.
-for (const row of rows) if (wanted.has(row.id) && row.scope === "user" && row.enabled !== false) console.log(row.id);
+for (const row of rows) if (wanted.has(row.id) && row.scope === "user" && row.enabled !== false) console.log(row.id + "\t" + (row.installPath || ""));
 ' "$claude_before")"
     if [[ -n "$installed_affected" ]]; then
         "$CLAUDE_BIN" plugin marketplace update prometheus-skill-pack
-        while IFS= read -r plugin_id; do
+        while IFS=$'\t' read -r plugin_id installed_path; do
             [[ -n "$plugin_id" ]] || continue
-            if $FORCE; then
+            reinstall=$FORCE
+            # Claude copies a marketplace plugin into a cache keyed by its
+            # version, and `plugin update` does nothing when the version is
+            # unchanged. The hook file changes with every generation, so a
+            # carrier whose copy differs is reinstalled without waiting for
+            # --force.
+            if ! $reinstall && hook_carrier_is_stale "$plugin_id" "$installed_path"; then
+                echo "  — $plugin_id holds a stale hook file; reinstalling it"
+                reinstall=true
+            fi
+            if $reinstall; then
                 # Same-version package contents are immutable in Claude's cache.
                 # A supported uninstall/install cycle is required for every
                 # affected plugin whose source bytes may have changed.
@@ -209,6 +240,13 @@ if (carriers.length === 0) console.error('  ⚠️  neither prometheus-skill-pac
 if (carriers.length === 2) console.error('  ⚠️  prometheus-skill-pack and prometheus-runtime are both enabled in Claude Code; every hook runs twice. Disable one');
 NODE
         while IFS=$'\t' read -r plugin_id install_path; do
+            carrier_source="$(hook_carrier_source "$plugin_id")"
+            if [[ -n "$carrier_source" ]] &&
+                ! cmp -s "$carrier_source/hooks/hooks.json" "$install_path/hooks/hooks.json"; then
+                echo "refresh-native-plugin-installs: $plugin_id still holds a hook file that differs from this checkout: $install_path/hooks/hooks.json" >&2
+                echo "  rerun with --force, or reinstall the plugin through the Claude plugin CLI" >&2
+                exit 1
+            fi
             case "$plugin_id" in
                 prometheus-skill-pack@*)
                     compare_kbd_payload "$install_path/skills/kbd-init"
