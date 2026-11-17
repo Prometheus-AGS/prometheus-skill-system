@@ -794,6 +794,41 @@ A directory with its own `hooks/hooks.json` that is not a harness hook file cann
 be a plugin root: the harness would try to load it. This is why the KBD lifecycle
 skills ship in `prometheus-process-skills` and not in a plugin of their own.
 
+### Installer domain selection
+
+Plugins are not the route for anyone who runs the pack installer: it projects
+skills into `~/.agents/skills` and links them into `~/.claude/skills` whatever
+plugins are enabled, and hooks only run from the generation it activates. So the
+installer selects by domain too.
+
+```bash
+node scripts/install-plugin-generation.js --list-domains          # domains, sizes, current selection
+bash scripts/update-skill-pack.sh --domains=process,rust          # replace the selection
+bash scripts/update-skill-pack.sh --add-domains=learn
+bash scripts/update-skill-pack.sh --remove-domains=flutter
+bash scripts/update-skill-pack.sh --domains=all                   # everything again
+```
+
+- **The generation always holds every skill.** A selection only filters what is
+  projected into the skill roots, so hooks, the shared runtime and rollback are
+  unaffected, and `/skill-name` still reaches an unselected skill.
+- **No stored selection means everything**, as before. An install with no domain
+  flag keeps the stored selection (`<pluginRoot>/selection.json`, signed).
+  `PROMETHEUS_SKILL_DOMAINS` sets it for wrappers that do not pass flags.
+- **Domains are declared in `skill-system.json` `domains`** and resolved into the
+  generated `shared/skill-domains.json`. Regenerate it with
+  `npm run generate:skill-domains` whenever a skill is added, moved or renamed;
+  `npm run check:skill-domains` is the drift gate, and an install fails on a skill
+  with no domain.
+- **`requires` is a short declared list, not the call graph.** Following every
+  cross-domain reference would pull nearly everything back in.
+- **Install removes pack-owned entries the target should no longer hold** (a
+  deselected skill, or one a later generation dropped) and records them in
+  `<pluginRoot>/receipts/unselected-cleanup.json`. Ownership is proven per entry;
+  nothing else is touched.
+- Do not enable a pack plugin in Claude Code on top of an installer install: the
+  same skill is then listed more than once. The installer warns when it sees both.
+
 ### Publishing Checklist
 
 Before releasing:

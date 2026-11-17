@@ -1,0 +1,375 @@
+{
+  "schemaVersion": "prometheus-skill-domains-v1",
+  "domains": [
+    {
+      "id": "architecture",
+      "requires": [],
+      "skills": [
+        "clean-architecture"
+      ],
+      "listingChars": 414
+    },
+    {
+      "id": "artifact-refiner",
+      "requires": [],
+      "skills": [
+        "artifact-refiner",
+        "convert-htmx-pdf",
+        "convert-htmx-react",
+        "convert-md-to-htmx",
+        "design-svg-logo",
+        "rebrand-artifact",
+        "refine-a2ui",
+        "refine-content",
+        "refine-image",
+        "refine-logo",
+        "refine-mcp-ui",
+        "refine-moodboard",
+        "refine-status",
+        "refine-ui",
+        "refine-validate",
+        "scaffold-flutter-a2ui",
+        "scaffold-react-vite",
+        "scaffold-react-vite-a2ui",
+        "scaffold-react-vite-agui",
+        "scaffold-react-vite-tauri"
+      ],
+      "listingChars": 4977
+    },
+    {
+      "id": "devops",
+      "requires": [],
+      "skills": [
+        "argocd-multicloud",
+        "disk-space-guardian",
+        "fabric-integration",
+        "gitops-bootstrap",
+        "gitops-transform",
+        "kustomize-overlay"
+      ],
+      "listingChars": 3009
+    },
+    {
+      "id": "document-extraction",
+      "requires": [],
+      "skills": [
+        "kreuzberg"
+      ],
+      "listingChars": 387
+    },
+    {
+      "id": "documentation",
+      "requires": [],
+      "skills": [
+        "llm-wiki"
+      ],
+      "listingChars": 439
+    },
+    {
+      "id": "flint",
+      "requires": [],
+      "skills": [
+        "flint-sdk-csharp",
+        "flint-sdk-dart",
+        "flint-sdk-go",
+        "flint-sdk-kotlin",
+        "flint-sdk-swift",
+        "flint-sdk-ts"
+      ],
+      "listingChars": 1480
+    },
+    {
+      "id": "flutter",
+      "requires": [],
+      "skills": [
+        "flutter-rust-ffi"
+      ],
+      "listingChars": 434
+    },
+    {
+      "id": "go",
+      "requires": [],
+      "skills": [
+        "go-base-patterns"
+      ],
+      "listingChars": 349
+    },
+    {
+      "id": "htmx",
+      "requires": [],
+      "skills": [
+        "htmx-alpine-lit"
+      ],
+      "listingChars": 464
+    },
+    {
+      "id": "iterative-evolver",
+      "requires": [],
+      "skills": [
+        "evolve",
+        "evolve-analyze",
+        "evolve-assess",
+        "evolve-execute",
+        "evolve-plan",
+        "evolve-report",
+        "evolve-status",
+        "iterative-evolver"
+      ],
+      "listingChars": 2005
+    },
+    {
+      "id": "learn",
+      "requires": [
+        "sycophancy-correction"
+      ],
+      "skills": [
+        "feynman-loop",
+        "learn-about-system",
+        "learn-certify",
+        "learn-goal",
+        "learn-grade",
+        "learn-harness",
+        "learn-kb",
+        "learn-plan",
+        "learn-practice",
+        "learn-retain",
+        "learn-survey",
+        "ui-surface"
+      ],
+      "listingChars": 3638
+    },
+    {
+      "id": "process",
+      "requires": [
+        "iterative-evolver",
+        "sycophancy-correction",
+        "testing"
+      ],
+      "skills": [
+        "adversarial-review",
+        "agent-team-creator",
+        "agent-team-handoff",
+        "agent-team-manage",
+        "agent-team-models",
+        "clone-skill",
+        "cowork-management",
+        "create-native-agent",
+        "create-skill",
+        "delivery-cadence",
+        "extend-skill",
+        "ideation-mindmap",
+        "karpathy-progress-memory",
+        "kbd-analyze",
+        "kbd-apply",
+        "kbd-assess",
+        "kbd-audit",
+        "kbd-bottleneck-detector",
+        "kbd-cancel",
+        "kbd-child-exit",
+        "kbd-doctor",
+        "kbd-evolve",
+        "kbd-execute",
+        "kbd-goal",
+        "kbd-goal-check",
+        "kbd-handoff",
+        "kbd-init",
+        "kbd-inject-agent-rules",
+        "kbd-loop",
+        "kbd-memory-recall",
+        "kbd-new-child",
+        "kbd-new-phase",
+        "kbd-next-child",
+        "kbd-next-phase",
+        "kbd-pause",
+        "kbd-plan",
+        "kbd-process-orchestrator",
+        "kbd-reflect",
+        "kbd-resume",
+        "kbd-spec",
+        "kbd-status",
+        "liter-llm-bridge",
+        "native-agent",
+        "pmpo-elicit",
+        "pmpo-evolver",
+        "pmpo-outer-loop",
+        "pmpo-skill-creator",
+        "prometheus-context-bootstrap",
+        "start-business-build",
+        "upload-to-bossfang",
+        "validate-idea",
+        "validate-skill"
+      ],
+      "listingChars": 17077
+    },
+    {
+      "id": "python",
+      "requires": [],
+      "skills": [
+        "pyo3-bridge"
+      ],
+      "listingChars": 426
+    },
+    {
+      "id": "react",
+      "requires": [],
+      "skills": [
+        "entity-audit",
+        "entity-crud-form",
+        "entity-crud-page",
+        "entity-crud-relations",
+        "entity-crud-table",
+        "entity-gc",
+        "entity-gql-hooks",
+        "entity-gql-setup",
+        "entity-gql-subscription",
+        "entity-graph-crud",
+        "entity-graph-detect",
+        "entity-graph-graphql",
+        "entity-graph-init",
+        "entity-graph-migrate",
+        "entity-graph-optimize",
+        "entity-graph-prisma",
+        "entity-graph-realtime",
+        "entity-graph-setup",
+        "entity-perf",
+        "entity-prisma-api",
+        "entity-prisma-generator",
+        "entity-prisma-migrate",
+        "entity-prisma-setup",
+        "entity-realtime-channel",
+        "entity-realtime-local-first",
+        "entity-realtime-setup",
+        "entity-realtime-surreal-live",
+        "prometheus-entity-skills",
+        "react-vite-stack"
+      ],
+      "listingChars": 9329
+    },
+    {
+      "id": "research",
+      "requires": [],
+      "skills": [
+        "deep-research",
+        "stage-01-planner",
+        "stage-02-search",
+        "stage-03-retrieve",
+        "stage-04-collect",
+        "stage-05-verify",
+        "stage-06-resolve",
+        "stage-07-graph",
+        "stage-08-cite",
+        "stage-09-report",
+        "stage-10-export"
+      ],
+      "listingChars": 3103
+    },
+    {
+      "id": "rust",
+      "requires": [],
+      "skills": [
+        "actor-model",
+        "async-patterns",
+        "axum-patterns",
+        "error-handling",
+        "karpathy-tokenizer",
+        "librefang-wasm-skill",
+        "mcp-server",
+        "performance",
+        "prometheus-rust-auditor",
+        "prometheus-rust-workspace",
+        "rust-async-patterns",
+        "rust-best-practices",
+        "rust-mcp-server-generator",
+        "workspace-structure"
+      ],
+      "listingChars": 4968
+    },
+    {
+      "id": "sycophancy-correction",
+      "requires": [],
+      "skills": [
+        "sycophancy-correction"
+      ],
+      "listingChars": 261
+    },
+    {
+      "id": "tauri",
+      "requires": [],
+      "skills": [
+        "tauri-react-vite"
+      ],
+      "listingChars": 394
+    },
+    {
+      "id": "testing",
+      "requires": [],
+      "skills": [
+        "bdd-cucumber-js",
+        "bdd-cucumber-rs",
+        "bdd-lifecycle-loop",
+        "bdd-testing",
+        "bdd-video-proof",
+        "value-scenario-discovery",
+        "value-scenario-verify",
+        "vlbv"
+      ],
+      "listingChars": 3228
+    },
+    {
+      "id": "typescript",
+      "requires": [],
+      "skills": [
+        "typescript-base-patterns"
+      ],
+      "listingChars": 384
+    },
+    {
+      "id": "ui-ux",
+      "requires": [],
+      "skills": [
+        "android-compose-adaptive",
+        "android-edge-to-edge",
+        "better-accessibility",
+        "better-colors",
+        "better-interface",
+        "better-layout",
+        "better-typography",
+        "better-ui",
+        "better-writing",
+        "break",
+        "design-taste-frontend",
+        "design-taste-frontend-v1",
+        "explain-interface",
+        "expo-animation",
+        "expo-design-system",
+        "expo-native-ui",
+        "expo-router",
+        "expo-ui",
+        "flutter-build-responsive-layout",
+        "flutter-fix-layout-issues",
+        "flutter-setup-declarative-routing",
+        "flutter-setup-localization",
+        "full-output-enforcement",
+        "gpt-taste",
+        "high-end-visual-design",
+        "impeccable",
+        "industrial-brutalist-ui",
+        "interface-review",
+        "minimalist-ui",
+        "prometheus-impeccable-core",
+        "prometheus-ui-review",
+        "prometheus-ui-ux",
+        "redesign-existing-projects",
+        "stitch-design-taste",
+        "swiftui-pro",
+        "ui-ux-pro-max",
+        "variant",
+        "vercel-composition-patterns",
+        "vercel-react-best-practices",
+        "vercel-react-native-skills",
+        "web-design-guidelines"
+      ],
+      "listingChars": 11284
+    }
+  ]
+}

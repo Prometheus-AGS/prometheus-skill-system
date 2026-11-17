@@ -28,6 +28,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CODEX_HOME="$(node -e 'const path = require("node:path"); process.stdout.write(path.resolve(process.env.CODEX_HOME || path.join(process.env.HOME, ".codex")));')"
 export CODEX_HOME
 UNINSTALL=false
+DOMAIN_ARGS=()
 SKILLS_ONLY=false
 BEST_EFFORT=false
 FAILED_COMPONENTS=0
@@ -46,6 +47,11 @@ install_codex_catalog() {
 for arg in "$@"; do
     case "$arg" in
         --uninstall) UNINSTALL=true ;;
+        --domains=*|--add-domains=*|--remove-domains=*)
+            # Forwarded to the generation installer: which skill domains are
+            # projected into the harness skill roots. Omitted, the stored
+            # selection is kept.
+            DOMAIN_ARGS=("${arg%%=*}" "${arg#*=}") ;;
         --skills-only) SKILLS_ONLY=true ;;
         --best-effort) BEST_EFFORT=true ;;
         *) echo "Unknown argument: $arg" >&2; exit 2 ;;
@@ -309,7 +315,8 @@ if $UNINSTALL; then
     node "$REPO_ROOT/scripts/install-plugin-generation.js" --home "$HOME" --uninstall >/dev/null
 else
     if generation="$(node "$REPO_ROOT/scripts/install-plugin-generation.js" \
-        --source-root "$REPO_ROOT" --home "$HOME")"; then
+        --source-root "$REPO_ROOT" --home "$HOME" \
+        ${DOMAIN_ARGS[@]+"${DOMAIN_ARGS[@]}"})"; then
         [[ -n "$generation" ]] || install_failure "empty plugin generation result"
         [[ -z "$generation" ]] || echo "  ✅ activated verified plugin generation: $generation"
     else
