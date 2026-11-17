@@ -127,6 +127,73 @@ Options:
       --port <PORT>       Port for HTTP transport [default: 3001]
 ```
 
+### Harness entries start it through a launcher
+
+No harness config the pack writes runs `liter-llm mcp` directly. Each one runs the
+launcher, with no arguments:
+
+```json
+{ "mcpServers": { "liter-llm": { "command": "/Users/you/.local/bin/liter-llm-mcp" } } }
+```
+
+The launcher (`shared/scripts/liter-llm-mcp-launch.sh`, installed as
+`~/.local/bin/liter-llm-mcp`) sources `~/.prometheus/kbd/secrets.env` and then
+execs `liter-llm mcp --transport stdio --config ~/.config/liter-llm/liter-llm-proxy.toml`.
+
+The reason is the environment. The config reads its keys as `${VAR}` references
+and the values live only in the secrets file. A harness started from a login shell
+that sources that file has them. One started from the Dock or Finder (a desktop
+app, Zed, MiniMax Code) or from a stale shell does not, and the server then exits
+immediately:
+
+```console
+$ env -u LITER_LLM_MASTER_KEY liter-llm mcp --transport stdio --config ~/.config/liter-llm/liter-llm-proxy.toml
+Error: [general] master_key is set but empty — an unset ${VAR} interpolates to "", and an
+empty master key authenticates every request. Set the variable or remove the key.
+```
+
+The MCP client shows only "Connection closed". The gateway service never had this
+problem, because its LaunchAgent already runs a wrapper (`liter-llm-api-launch.sh`)
+that sources the same file.
+
+What the launcher does when it cannot start the server:
+
+| Situation | Exit | Message names |
+|---|---|---|
+| The master key variable is empty | 78 | the variable and the secrets file, and whether the file is absent, unreadable or lacks the variable |
+| No `liter-llm` binary | 127 | the places it looked |
+| No config file | 66 | the config path |
+
+It never waits on input and never prints to stdout before the server starts.
+`liter-llm-mcp --check` runs the same checks and exits.
+
+**Where it is installed, and why.** In `~/.local/bin`, beside the binary. A path
+into the repository checkout breaks when the checkout moves or a worktree is
+deleted. A path into a plugin generation breaks when `current` is rolled back to a
+generation older than the launcher. `~/.local/bin` changes with neither, so an
+entry written once stays valid.
+
+**Existing installs.** `scripts/install-liter-llm-mcp-launcher.mjs` installs the
+launcher and rewrites entries that are still exactly what the pack used to write.
+`install-binaries.sh`, `install-skills-flat.sh` and `configure-mcp-all-tools.sh`
+run it. An entry with a different binary path, a different config path, extra
+arguments or an `env` block is treated as yours: it is reported and left alone.
+Each rewritten file gets a `.bak.<timestamp>` copy first.
+
+```bash
+node scripts/install-liter-llm-mcp-launcher.mjs --check    # read-only report
+node scripts/install-liter-llm-mcp-launcher.mjs --dry-run  # the same, always exit 0
+node scripts/install-liter-llm-mcp-launcher.mjs            # apply
+```
+
+The plugin's `.mcp.json` cannot hold a machine path, so it runs
+`/bin/sh -c` with a one-line script: use `~/.local/bin/liter-llm-mcp` if present,
+otherwise the copy shipped inside the plugin.
+
+A harness the pack does not configure (Zed's `context_servers`, for example) needs
+the same change by hand: point the command at `liter-llm-mcp` and drop the
+arguments. Do not copy a key into the harness config.
+
 ### The 22 tools
 
 Enumerated live from `tools/list` on 2026-07-30:
@@ -223,6 +290,9 @@ base_url = "http://localhost:8181/v1"
 liter-llm api --config ~/.config/liter-llm/liter-llm-proxy.toml
 liter-llm mcp --transport stdio --config ~/.config/liter-llm/liter-llm-proxy.toml
 ```
+
+Both pack launchers (`liter-llm-api-launch.sh` for the gateway, `liter-llm-mcp` for
+harness MCP entries) pass it for you.
 
 Without it, `liter-llm mcp` does not load zero models — it **fails to start**, because
 `[mcp] stdio_trust_local` lives in the config it was never given:

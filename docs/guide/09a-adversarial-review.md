@@ -163,6 +163,12 @@ liter-llm mcp --transport stdio --config ~/.config/liter-llm/liter-llm-proxy.tom
 Without it, `liter-llm mcp` does not merely load zero models — it **fails to start**,
 because `[mcp] stdio_trust_local` lives in the config it was never given.
 
+Harness MCP entries do not run that command themselves. They run the launcher
+`~/.local/bin/liter-llm-mcp`, which passes `--config` and first sources
+`~/.prometheus/kbd/secrets.env`, so the server also starts in a harness that was
+launched without the keys in its environment. See
+[liter-llm](09b-liter-llm.md#harness-entries-start-it-through-a-launcher).
+
 ## Configuring providers
 
 ```bash

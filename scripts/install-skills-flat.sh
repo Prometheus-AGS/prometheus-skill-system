@@ -346,6 +346,21 @@ if [[ "${PROMETHEUS_INSTALL_TEST_MODE:-0}" == "1" && \
     install_failure "fixture:${PROMETHEUS_INSTALL_TEST_FAIL_COMPONENT}"
 fi
 
+# Post-install: install the liter-llm MCP launcher and move harness entries that
+# still use the old pack-written `liter-llm mcp ...` form onto it. It is its own
+# step because the MCP mergers never rewrite an existing entry, and the
+# cross-tool merger does not run at all without TAVILY_API_KEY. It runs before
+# the Kimi writer below, --skills-only included: that writer runs there too, and
+# no entry may name a launcher that is not installed.
+install_liter_llm_mcp_launcher() {
+    $UNINSTALL && return 0
+    node "$REPO_ROOT/scripts/install-liter-llm-mcp-launcher.mjs"
+}
+
+if ! install_liter_llm_mcp_launcher; then
+    install_failure "liter-llm MCP launcher"
+fi
+
 # Post-install: configure Kimi Code MCP servers if config.toml is absent
 configure_kimi_mcp() {
     local kimi_dir="$HOME/.kimi-code"
@@ -370,10 +385,12 @@ configure_kimi_mcp() {
         needs_write=true
     fi
     if ! grep -q "\[mcp_servers.liter-llm\]" "$config_file" 2>/dev/null; then
-        # --config is REQUIRED: liter-llm's discover() walks the CWD upward and never
-        # searches $HOME, so without it the MCP server starts with ZERO models.
-        # Literal path — TOML does no shell expansion and Kimi rejects ${VAR} forms.
-        new_entries+=$'\n\n'"[mcp_servers.liter-llm]"$'\n'"command = \"liter-llm\""$'\n'"args = [\"mcp\", \"--transport\", \"stdio\", \"--config\", \"${HOME}/.config/liter-llm/liter-llm-proxy.toml\"]"
+        # The pack's MCP launcher (installed by install_liter_llm_mcp_launcher
+        # above): it sources ~/.prometheus/kbd/secrets.env before starting
+        # `liter-llm mcp`, so the server starts without the keys in Kimi's
+        # environment. Literal path — TOML does no shell expansion and Kimi
+        # rejects ${VAR} forms.
+        new_entries+=$'\n\n'"[mcp_servers.liter-llm]"$'\n'"command = \"${HOME}/.local/bin/liter-llm-mcp\""
         needs_write=true
     fi
 

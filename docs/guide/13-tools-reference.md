@@ -152,7 +152,7 @@ liter-llm api  [--config --host 0.0.0.0 -p 4000 --master-key --debug]   # OpenAI
 liter-llm mcp  [--config --transport stdio|http --host 127.0.0.1 --port 3001]   # MCP tool server
 ```
 
-The proxy defaults to port **4000** with a 600-second request timeout and a 10 MiB body limit. In the skill pack, liter-llm is registered as a stdio MCP server (`liter-llm mcp --transport stdio`) and described as exposing **22 MCP tools** for routing, virtual keys, rate limits, cost tracking, and caching. (Its `Cargo.toml` cites "142+ providers"; the skill-pack configs say "140+." Both numbers appear in the repository — the discrepancy is noted rather than resolved.)
+The proxy defaults to port **4000** with a 600-second request timeout and a 10 MiB body limit. In the skill pack, liter-llm is registered as a stdio MCP server (through the launcher `~/.local/bin/liter-llm-mcp`, which loads the keys from `~/.prometheus/kbd/secrets.env` and runs `liter-llm mcp --transport stdio --config ...`) and described as exposing **22 MCP tools** for routing, virtual keys, rate limits, cost tracking, and caching. (Its `Cargo.toml` cites "142+ providers"; the skill-pack configs say "140+." Both numbers appear in the repository — the discrepancy is noted rather than resolved.)
 
 ---
 

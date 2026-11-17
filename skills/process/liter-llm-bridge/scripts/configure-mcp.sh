@@ -8,6 +8,10 @@
 #       Auto-detect the active harness (or use --harness override) and add a
 #       liter-llm MCP server entry to its config. Prints the path written.
 #       Supported: claude-code, opencode, cursor, codex.
+#       The entry runs the pack's launcher, ~/.local/bin/liter-llm-mcp, never
+#       the binary directly: the launcher sources ~/.prometheus/kbd/secrets.env
+#       first, so the server starts in a harness launched without the keys in
+#       its environment. No secret is written to any harness config.
 #
 #   status
 #       Report current liter-llm config + which harnesses have it registered.
@@ -22,6 +26,44 @@ CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/liter-llm"
 # schema liter-llm can load.
 CONFIG_FILE="${LITER_LLM_CONFIG:-$CONFIG_DIR/liter-llm-proxy.toml}"
 LEGACY_CONFIG="$CONFIG_DIR/config.toml"
+DEFAULT_CONFIG_FILE="$HOME/.config/liter-llm/liter-llm-proxy.toml"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LAUNCHER="$HOME/.local/bin/liter-llm-mcp"
+LAUNCHER_NAME="shared/scripts/liter-llm-mcp-launch.sh"
+
+# ensure_launcher — make sure the MCP launcher is installed, copying it from the
+# first place this skill can find it: the loading plugin, the active pack
+# generation, or the checkout this script runs from.
+ensure_launcher() {
+  [[ -x "$LAUNCHER" ]] && return 0
+  local source=""
+  local candidate
+  for candidate in \
+      "${CLAUDE_PLUGIN_ROOT:+$CLAUDE_PLUGIN_ROOT/$LAUNCHER_NAME}" \
+      "${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}/current/$LAUNCHER_NAME" \
+      "$SCRIPT_DIR/../../../../$LAUNCHER_NAME"; do
+    if [[ -n "$candidate" && -f "$candidate" ]]; then
+      source="$candidate"
+      break
+    fi
+  done
+  if [[ -z "$source" ]]; then
+    echo "ERROR: the liter-llm MCP launcher is not installed at $LAUNCHER and no copy" >&2
+    echo "       of $LAUNCHER_NAME was found to install it from." >&2
+    echo "       Run scripts/install-binaries.sh from the Prometheus skill pack checkout." >&2
+    return 5
+  fi
+  mkdir -p "$(dirname "$LAUNCHER")"
+  cp "$source" "$LAUNCHER.tmp.$$" && chmod 755 "$LAUNCHER.tmp.$$" && mv "$LAUNCHER.tmp.$$" "$LAUNCHER"
+}
+
+# A non-default config path cannot be an argument any more (the launcher takes
+# none), so it travels as LITER_LLM_CONFIG in the entry's env. A path is not a
+# secret. Empty when the default config is in use.
+custom_config() {
+  [[ "$CONFIG_FILE" == "$DEFAULT_CONFIG_FILE" ]] || printf '%s' "$CONFIG_FILE"
+}
 
 cmd_write_toml() {
   # REMOVED. This used to write ~/.config/liter-llm/config.toml with a flat
@@ -65,88 +107,53 @@ register_claude_code() {
   local mcp_file="$HOME/.claude/mcp_servers.json"
   mkdir -p "$(dirname "$mcp_file")"
   if [[ ! -f "$mcp_file" ]]; then
-    cat > "$mcp_file" <<EOF
-{
-  "mcpServers": {
-    "liter-llm": {
-      "command": "liter-llm",
-      "args": ["mcp", "--transport", "stdio", "--config", "${CONFIG_FILE}"]
-    }
-  }
+    echo '{"mcpServers":{}}' > "$mcp_file"
+  fi
+  write_json_entry "$mcp_file" mcpServers
 }
-EOF
-    echo "$mcp_file"
-  else
-    # Use python for safe JSON merge
-    LITER_CFG="$CONFIG_FILE" python3 - "$mcp_file" <<'PYEOF'
+
+# write_json_entry <file> <key> — set <key>."liter-llm" to the launcher entry.
+write_json_entry() {
+  LITER_LAUNCHER="$LAUNCHER" LITER_CUSTOM_CFG="$(custom_config)" python3 - "$1" "$2" <<'PYEOF'
 import json, os, sys
-path = sys.argv[1]
+path, key = sys.argv[1], sys.argv[2]
 with open(path) as f:
     cfg = json.load(f)
-cfg.setdefault("mcpServers", {})
-cfg["mcpServers"]["liter-llm"] = {
-    "command": "liter-llm",
-    # --config is mandatory: discover() walks the CWD upward, never $HOME.
-    "args": ["mcp", "--transport", "stdio", "--config", os.environ["LITER_CFG"]],
-}
+entry = {"command": os.environ["LITER_LAUNCHER"]}
+if os.environ.get("LITER_CUSTOM_CFG"):
+    entry["env"] = {"LITER_LLM_CONFIG": os.environ["LITER_CUSTOM_CFG"]}
+cfg.setdefault(key, {})
+cfg[key]["liter-llm"] = entry
 with open(path, "w") as f:
     json.dump(cfg, f, indent=2)
 PYEOF
-    echo "$mcp_file"
-  fi
+  echo "$1"
 }
 
 register_opencode() {
   local f="$HOME/.config/opencode/config.json"
   mkdir -p "$(dirname "$f")"
   [[ -f "$f" ]] || echo '{}' > "$f"
-  LITER_CFG="$CONFIG_FILE" python3 - "$f" <<'PYEOF'
-import json, os, sys
-path = sys.argv[1]
-with open(path) as f:
-    cfg = json.load(f)
-cfg.setdefault("mcp_servers", {})
-cfg["mcp_servers"]["liter-llm"] = {
-    "command": "liter-llm",
-    "args": ["mcp", "--transport", "stdio", "--config", os.environ["LITER_CFG"]],
-}
-with open(path, "w") as f:
-    json.dump(cfg, f, indent=2)
-PYEOF
-  echo "$f"
+  write_json_entry "$f" mcp_servers
 }
 
 register_cursor() {
   local f="$HOME/.cursor/mcp.json"
   mkdir -p "$(dirname "$f")"
   [[ -f "$f" ]] || echo '{"mcpServers":{}}' > "$f"
-  LITER_CFG="$CONFIG_FILE" python3 - "$f" <<'PYEOF'
-import json, os, sys
-path = sys.argv[1]
-with open(path) as f:
-    cfg = json.load(f)
-cfg.setdefault("mcpServers", {})
-cfg["mcpServers"]["liter-llm"] = {
-    "command": "liter-llm",
-    # --config is mandatory: discover() walks the CWD upward, never $HOME.
-    "args": ["mcp", "--transport", "stdio", "--config", os.environ["LITER_CFG"]],
-}
-with open(path, "w") as f:
-    json.dump(cfg, f, indent=2)
-PYEOF
-  echo "$f"
+  write_json_entry "$f" mcpServers
 }
 
 register_codex() {
   local f="$HOME/.config/codex/config.toml"
   mkdir -p "$(dirname "$f")"
   if ! grep -q "^\[mcp.servers.liter-llm\]" "$f" 2>/dev/null; then
-    cat >> "$f" <<EOF
-
-[mcp.servers.liter-llm]
-command = "liter-llm"
-args = ["mcp", "--transport", "stdio", "--config", "${CONFIG_FILE}"]
-EOF
+    local custom
+    custom="$(custom_config)"
+    {
+      printf '\n[mcp.servers.liter-llm]\ncommand = "%s"\n' "$LAUNCHER"
+      [[ -z "$custom" ]] || printf 'env = { LITER_LLM_CONFIG = "%s" }\n' "$custom"
+    } >> "$f"
   fi
   echo "$f"
 }
@@ -161,6 +168,10 @@ cmd_register() {
   done
 
   [[ -z "$harness" ]] && harness="$(detect_harness)"
+
+  case "$harness" in
+    claude-code|opencode|cursor|codex) ensure_launcher || exit $? ;;
+  esac
 
   case "$harness" in
     claude-code) register_claude_code ;;
@@ -193,6 +204,13 @@ cmd_status() {
     echo
     echo "NOTE: retired $LEGACY_CONFIG still present."
     echo "      Retire it with: bash scripts/configure-models.sh migrate"
+  fi
+  echo
+  if [[ -x "$LAUNCHER" ]]; then
+    # --check runs the launcher's own start-up checks without starting the server.
+    if "$LAUNCHER" --check 2>&1 | sed 's/^/  /'; then :; fi
+  else
+    echo "  WARNING: MCP launcher not installed at $LAUNCHER — run 'register' or scripts/install-binaries.sh"
   fi
   echo
   echo "Roles: ${PROMETHEUS_KBD_MODELS_CONFIG:-$HOME/.prometheus/kbd/models.toml}"

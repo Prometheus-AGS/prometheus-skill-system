@@ -362,6 +362,11 @@
       "executable": true
     },
     {
+      "path": "shared/scripts/liter-llm-mcp-launch.sh",
+      "sha256": "2e0fce3020d874b1bca0a4b04eeaa6c61ebcd8c770523b7be057ad386adc51c6",
+      "executable": true
+    },
+    {
       "path": "shared/scripts/mem0-compress.sh",
       "sha256": "7c6668fe551c6be179f368e9450edd8ce6decc48d30118439f1ce574f4601fd3",
       "executable": true
@@ -572,5 +577,5 @@
       "executable": true
     }
   ],
-  "bundleId": "ad9268cb6b7c2a51a9105322de56c8bbedd803e7e538d6ae8a67a454f5692a53"
+  "bundleId": "87993f6a3f73cf8f361d01f02430eb5f684e4a8c761d2a8f5f1374a10c7b1670"
 }

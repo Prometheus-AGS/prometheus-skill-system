@@ -62,7 +62,7 @@ For the bridge's purpose (per-phase routing), `chat` is sufficient — or, from 
 
 ## Transport
 
-`liter-llm mcp` supports `stdio` (default for Claude Code, opencode, codex) and `http`. Registration MUST pass `--config <abs path>`: `ProxyConfig::discover()` walks the CWD upward and never searches `$HOME`, and without it the stdio server does not merely load zero models — it **fails to start**, because `[mcp] stdio_trust_local` lives in the config it was never given. The bridge always registers stdio — http requires a long-running server which adds operational complexity that defeats the "one binary on PATH" model.
+`liter-llm mcp` supports `stdio` (default for Claude Code, opencode, codex) and `http`. Registration points the harness at the pack's launcher, `~/.local/bin/liter-llm-mcp`, which supplies the two things the stdio server cannot start without. First, `--config <abs path>`: `ProxyConfig::discover()` walks the CWD upward and never searches `$HOME`, and `[mcp] stdio_trust_local` lives in that config. Second, the keys the config reads as `${VAR}`: the launcher sources `~/.prometheus/kbd/secrets.env`, because a harness started from the Dock or Finder does not have them and an empty master key makes liter-llm exit at once. The bridge always registers stdio — http requires a long-running server which adds operational complexity that defeats the "one binary on PATH" model.
 
 ## Versioning
 

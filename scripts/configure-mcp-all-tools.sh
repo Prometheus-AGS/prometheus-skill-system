@@ -48,6 +48,17 @@ export CODEX_HOME
 RESULTS=()
 SKIPPED=()
 
+# The liter-llm entries written below name the pack's MCP launcher by absolute
+# path, so it must exist first. The same step moves entries that still use the
+# old pack-written `liter-llm mcp ...` form onto it; the mergers below never
+# rewrite an existing entry. A failure here is reported and does not stop the
+# rest of the configuration.
+LITER_LLM_MCP_LAUNCHER="$HOME/.local/bin/liter-llm-mcp"
+launcher_args=()
+$DRY_RUN && launcher_args=(--dry-run)
+node "$REPO_ROOT/scripts/install-liter-llm-mcp-launcher.mjs" ${launcher_args[@]+"${launcher_args[@]}"} \
+    || echo "  ⚠️  liter-llm MCP launcher step failed; liter-llm entries may not start" >&2
+
 # ---------------------------------------------------------------------------
 # JSON tools (claude-code, opencode, minimax, cursor, windsurf)
 # ---------------------------------------------------------------------------
@@ -89,10 +100,9 @@ const table = JSON.parse(fs.readFileSync(tablePath, 'utf8')).services;
 const isOpencode = mcpKey === 'mcp';
 // Expand ${HOME} in argument vectors. JSON configs perform no shell expansion, so a
 // literal "${HOME}/..." path would simply not resolve at spawn time.
-const resolveArgs = (args) =>
-    (args || []).map((a) =>
-        typeof a === 'string' ? a.replace(/\$\{HOME\}/g, process.env.HOME || '') : a
-    );
+const resolveHome = (a) =>
+    typeof a === 'string' ? a.replace(/\$\{HOME\}/g, process.env.HOME || '') : a;
+const resolveArgs = (args) => (args || []).map(resolveHome);
 const resolveEnv = (env) => {
     const out = {};
     for (const [k, v] of Object.entries(env)) {
@@ -144,11 +154,11 @@ for (const [name, svc] of Object.entries(table)) {
             ? { type: 'remote', url: svc.url, enabled: true }
             : { type: svc.type, url: svc.url }; // sse = SSE, http = Streamable HTTP
     } else if (isOpencode) {
-        const entry = { type: 'local', command: [svc.command, ...resolveArgs(svc.args)], enabled: true };
+        const entry = { type: 'local', command: [resolveHome(svc.command), ...resolveArgs(svc.args)], enabled: true };
         if (svc.env) entry.environment = resolveEnv(svc.env);
         config[mcpKey][name] = entry;
     } else {
-        const entry = { type: 'stdio', command: svc.command };
+        const entry = { type: 'stdio', command: resolveHome(svc.command) };
         if (svc.args && svc.args.length > 0) entry.args = resolveArgs(svc.args);
         if (svc.env) entry.env = resolveEnv(svc.env);
         config[mcpKey][name] = entry;
@@ -241,12 +251,10 @@ TOML
         cat >> "$config_file" <<TOML
 
 [mcp_servers.liter-llm]
-command = "liter-llm"
-# --config is REQUIRED. liter-llm's ProxyConfig::discover() walks the CWD upward
-# and never searches \$HOME, so without it the server starts with ZERO models.
-# Written as a literal path: TOML performs no shell expansion, and Kimi Code
-# rejects \${VAR} forms in these fields outright.
-args = ["mcp", "--transport", "stdio", "--config", "${HOME}/.config/liter-llm/liter-llm-proxy.toml"]
+# The pack's launcher: it sources ~/.prometheus/kbd/secrets.env, then runs
+# `liter-llm mcp --transport stdio --config <abs path>`. Written as a literal
+# path: TOML performs no shell expansion, and Kimi Code rejects \${VAR} forms.
+command = "${LITER_LLM_MCP_LAUNCHER}"
 TOML
         added+=("liter-llm")
     fi

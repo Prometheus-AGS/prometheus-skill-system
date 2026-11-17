@@ -16,6 +16,20 @@ JSON=false
 
 LITER_CFG="${LITER_LLM_CONFIG:-$HOME/.config/liter-llm/liter-llm-proxy.toml}"
 KBD_MODELS="${PROMETHEUS_KBD_MODELS_CONFIG:-$HOME/.prometheus/kbd/models.toml}"
+KBD_SECRETS="${PROMETHEUS_KBD_SECRETS:-$HOME/.prometheus/kbd/secrets.env}"
+MCP_LAUNCHER="$HOME/.local/bin/liter-llm-mcp"
+
+# secrets_define <VAR> — true when the secrets file gives VAR a non-empty value.
+# Runs in a subshell and prints nothing: only the variable NAME is ever handled.
+secrets_define() {
+    [ -r "$KBD_SECRETS" ] || return 1
+    (
+        set -a
+        # shellcheck disable=SC1090
+        . "$KBD_SECRETS" >/dev/null 2>&1 </dev/null || exit 1
+        eval "[ -n \"\${$1:-}\" ]"
+    )
+}
 
 FAIL=0
 DRIFT=0
@@ -58,9 +72,38 @@ else
         eval "val=\${$v:-}"
         if [ -z "$val" ]; then
             CFG_OK=false; FAIL=1
-            note "UNSET: \${$v} referenced by the config but not exported (expands to \"\")"
+            if secrets_define "$v"; then
+                # The launchers source the secrets file, so the MCP server and the
+                # gateway service still get it. Shell callers (kbd_complete,
+                # dispatch-judge) read this shell's environment and do not.
+                note "UNSET IN THIS SHELL: \${$v} is defined in $KBD_SECRETS but not exported here — the liter-llm launchers load it, shell callers do not (set -a; . $KBD_SECRETS; set +a)"
+            else
+                note "UNSET: \${$v} referenced by the config but not exported and not defined in $KBD_SECRETS (expands to \"\")"
+            fi
         fi
     done
+fi
+
+# --- 2b. liter-llm MCP launcher ---------------------------------------------
+# Harness MCP entries run the launcher, not the binary. Its --check performs the
+# start-up checks of a real launch. It runs here in an EMPTY environment, which
+# is how a harness started from the Dock or Finder sees it: the keys must come
+# from the secrets file, not from this shell.
+LAUNCHER_OK=true
+if [ ! -x "$MCP_LAUNCHER" ]; then
+    LAUNCHER_OK=false; FAIL=1
+    note "MISSING: MCP launcher $MCP_LAUNCHER — run node scripts/install-liter-llm-mcp-launcher.mjs"
+else
+    _launch_msg="$(env -i HOME="$HOME" PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+        LITER_LLM_CONFIG="$LITER_CFG" PROMETHEUS_KBD_SECRETS="$KBD_SECRETS" \
+        "$MCP_LAUNCHER" --check 2>&1)" || {
+        LAUNCHER_OK=false; FAIL=1
+        note "MCP SERVER WOULD NOT START: $_launch_msg"
+    }
+fi
+if command -v node >/dev/null 2>&1 \
+   && ! node "$REPO_ROOT/scripts/install-liter-llm-mcp-launcher.mjs" --check >/dev/null 2>&1; then
+    note "WARN: the installed MCP launcher differs from this checkout, or a harness config still starts liter-llm directly — run node scripts/install-liter-llm-mcp-launcher.mjs"
 fi
 
 # --- 3. role resolution -----------------------------------------------------
@@ -106,6 +149,7 @@ print(json.dumps([l for l in sys.stdin.read().split("\n") if l.strip()]))' 2>/de
     printf '  "roles": {"judge": "%s", "critic": "%s", "generator": "%s"},\n' "$R_JUDGE" "$R_CRITIC" "$R_GEN"
     printf '  "isolation_mode_would_be": "%s",\n' "$ISO"
     printf '  "config_ok": %s,\n' "$($CFG_OK && echo true || echo false)"
+    printf '  "mcp_launcher_ok": %s,\n' "$($LAUNCHER_OK && echo true || echo false)"
     printf '  "active_generation_invalid": %s,\n' "$([ "$DRIFT" -eq 1 ] && echo true || echo false)"
     printf '  "findings": %s\n' "$NOTES_J"
     printf '}\n'
@@ -117,6 +161,7 @@ else
     echo "  generator (producer) : ${R_GEN:-<unresolved>}"
     echo "  isolation_mode would be: $ISO"
     echo "  liter-llm config     : $LITER_CFG"
+    echo "  MCP launcher         : $MCP_LAUNCHER ($($LAUNCHER_OK && echo ok || echo 'NOT OK'))"
     echo "  role map             : $KBD_MODELS"
     if [ -n "$NOTES" ]; then
         echo ""

@@ -34,16 +34,10 @@
     },
     "liter-llm": {
       "type": "stdio",
-      "command": "liter-llm",
-      "args": [
-        "mcp",
-        "--transport",
-        "stdio",
-        "--config",
-        "${HOME}/.config/liter-llm/liter-llm-proxy.toml"
-      ],
+      "command": "${HOME}/.local/bin/liter-llm-mcp",
+      "args": [],
       "transport": "stdio",
-      "description": "Multi-model routing proxy \u2014 MCP tools across 140+ providers. --config is REQUIRED: liter-llm's ProxyConfig::discover() walks the CWD upward and never searches $HOME, so without it the server starts with ZERO models."
+      "description": "Multi-model routing proxy \u2014 MCP tools across 140+ providers. The command is the pack's launcher (shared/scripts/liter-llm-mcp-launch.sh, installed by scripts/install-liter-llm-mcp-launcher.mjs): it sources ~/.prometheus/kbd/secrets.env and then runs `liter-llm mcp --transport stdio --config <abs path>`, so the server starts even when the harness was launched without the keys in its environment."
     },
     "sequential-thinking": {
       "type": "stdio",

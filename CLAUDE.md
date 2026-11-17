@@ -1532,6 +1532,31 @@ Full reference: [`skills/process/adversarial-review/references/model-configurati
    for the full incident (a MiniMax entry silently answered as ChatGPT via
    `openai-proxy` before the gateway-candidate order was fixed).
 
+### Harness MCP entries run the launcher, never the binary
+
+`liter-llm mcp` exits at once when `${LITER_LLM_MASTER_KEY}` is empty, and the
+value lives only in `~/.prometheus/kbd/secrets.env`. A harness started from the
+Dock, Finder or a stale shell does not have it, and the MCP client shows only
+"Connection closed". Every MCP entry the pack writes therefore runs
+`~/.local/bin/liter-llm-mcp` (source: `shared/scripts/liter-llm-mcp-launch.sh`),
+which sources the secrets file and then execs
+`liter-llm mcp --transport stdio --config <abs path>`.
+
+- **Never write an entry that starts `liter-llm mcp` directly,** and never put a
+  key into a harness config to make one work. New writers take the command from
+  `scripts/mcp-port-table.json`.
+- **The launcher lives in `~/.local/bin`,** not in the checkout or a plugin
+  generation: harness configs outlive both. `.mcp.json` cannot hold a machine
+  path, so it runs `/bin/sh -c` and falls back to the copy inside the plugin.
+- **stdout is the MCP channel.** The launcher prints nothing to it before the
+  exec. Failures go to stderr with a non-zero exit (78 names the secrets file,
+  127 the missing binary, 66 the missing config). It never hangs.
+- **Existing installs are moved by `scripts/install-liter-llm-mcp-launcher.mjs`**
+  (run by `install-binaries.sh`, `install-skills-flat.sh` and
+  `configure-mcp-all-tools.sh`). It rewrites only an entry that is exactly what
+  the pack used to write and reports any other as left alone. `--check` is
+  read-only.
+
 **There is no `liter-llm complete`.** The binary ships only `api` and `mcp` — it is a
 proxy *server*. Shell callers use `kbd_complete` from the resolver library, which
 speaks OpenAI REST and reports failures instead of swallowing them.

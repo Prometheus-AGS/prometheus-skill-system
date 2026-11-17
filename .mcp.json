@@ -20,15 +20,12 @@
       "description": "Karpathy LLM Knowledge Base \u2014 knowledge_ingest, knowledge_focus, knowledge_search, knowledge_lint, knowledge_get"
     },
     "liter-llm": {
-      "command": "liter-llm",
+      "command": "/bin/sh",
       "args": [
-        "mcp",
-        "--transport",
-        "stdio",
-        "--config",
-        "${HOME}/.config/liter-llm/liter-llm-proxy.toml"
+        "-c",
+        "for w in \"$HOME/.local/bin/liter-llm-mcp\" \"${CLAUDE_PLUGIN_ROOT}/shared/scripts/liter-llm-mcp-launch.sh\"; do [ -f \"$w\" ] && exec bash \"$w\"; done; echo \"liter-llm MCP launcher not found: run scripts/install-binaries.sh from the Prometheus skill pack\" >&2; exit 127"
       ],
-      "description": "Multi-model routing proxy \u2014 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181)"
+      "description": "Multi-model routing proxy \u2014 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181). Started through the liter-llm-mcp launcher, which loads ~/.prometheus/kbd/secrets.env first."
     },
     "tavily": {
       "command": "npx",

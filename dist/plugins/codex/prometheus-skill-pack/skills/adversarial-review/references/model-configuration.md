@@ -113,6 +113,53 @@ liter-llm mcp --transport stdio --config ~/.config/liter-llm/liter-llm-proxy.tom
 Without it the MCP server does not merely load zero models — it **fails to start**,
 because `[mcp] stdio_trust_local` lives in the config it was never given.
 
+#### Harness MCP entries run the launcher, not the binary
+
+`--config` is one of two things the stdio server cannot start without. The other
+is the environment: the config reads `master_key = "${LITER_LLM_MASTER_KEY}"`, an
+unset `${VAR}` interpolates to `""`, and liter-llm refuses to start with an empty
+master key. The value lives only in `~/.prometheus/kbd/secrets.env`, so a harness
+started from the Dock, Finder or a stale shell does not have it, and the MCP
+client reports nothing more than "Connection closed".
+
+Every MCP entry the pack writes therefore runs the launcher:
+
+```
+~/.local/bin/liter-llm-mcp        # no arguments
+```
+
+It sources `~/.prometheus/kbd/secrets.env`, then execs
+`liter-llm mcp --transport stdio --config <abs path>`. It writes nothing to
+stdout before the exec, because stdout is the MCP channel. Its source is
+`shared/scripts/liter-llm-mcp-launch.sh`, the sibling of the gateway's
+`liter-llm-api-launch.sh`.
+
+| Situation | Result |
+|---|---|
+| Master key variable empty | exit 78; the message names the secrets file and says whether it is absent, unreadable or lacks the variable |
+| `liter-llm` binary missing | exit 127 |
+| Config file missing | exit 66 |
+| `liter-llm-mcp --check` | runs the same checks without starting the server |
+
+Overrides: `LITER_LLM_BIN`, `LITER_LLM_CONFIG`, `PROMETHEUS_KBD_SECRETS`.
+
+`scripts/install-liter-llm-mcp-launcher.mjs` installs the launcher and moves
+existing entries onto it. `install-binaries.sh`, `install-skills-flat.sh` and
+`configure-mcp-all-tools.sh` all run it. The launcher lives in `~/.local/bin`,
+beside the binary, and not in the checkout or a plugin generation: harness
+configs outlive both. An entry is moved only when it is exactly what the pack
+used to write (`liter-llm mcp --transport stdio`, with or without `--config` and
+the default config path, no `env`). Any other entry is reported and left alone.
+
+```bash
+node scripts/install-liter-llm-mcp-launcher.mjs --check   # read-only; exit 1 if work is pending
+node scripts/install-liter-llm-mcp-launcher.mjs           # install + move old entries (backups kept)
+```
+
+A harness the pack does not configure (Zed, for example) needs the same change
+by hand: set the server's command to the absolute path of `liter-llm-mcp` and
+remove its arguments. Never copy a key into a harness config instead.
+
 ### 4. A `base_url` override never speaks a non-OpenAI wire protocol, and never substitutes `provider_model` into the request
 
 Two separate behaviors compound into one trap:

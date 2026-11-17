@@ -32,7 +32,7 @@ triggers:
     MCP server with the active harness, or document how skills should
     invoke its tools to route per-phase model classes.
 metadata:
-  version: '0.1.0'
+  version: '0.1.1'
   tags: "process, orchestration, automation"
 ---
 
@@ -95,7 +95,9 @@ are referenced as `${VAR}`.
 
 1. **liter-llm never searches `$HOME`.** `ProxyConfig::discover()` walks the CWD
    upward for `liter-llm-proxy.toml`. Always pass `--config <abs path>`, or the
-   server starts with **zero models**.
+   server starts with **zero models**. Harness MCP entries get this, and the keys
+   from `secrets.env`, by running the launcher `~/.local/bin/liter-llm-mcp`
+   instead of the binary.
 2. **`/v1/*` requires a Bearer token unconditionally.** A config with no
    `[general] master_key` and no `[[keys]]` answers **401 to everything**,
    `/v1/models` included.

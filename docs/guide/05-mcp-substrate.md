@@ -7,7 +7,7 @@ MCP configuration tells a harness how to contact a tool. It does not install a s
 | surreal-memory | SSE/HTTP MCP | `http://localhost:23001/mcp/sse` |
 | prometheus-knowledge | HTTP MCP | `http://localhost:8942/mcp` |
 | Forge | HTTP JSON-RPC | `http://localhost:8943/mcp` |
-| liter-llm | stdio MCP | `liter-llm mcp --transport stdio --config <explicit-config>` |
+| liter-llm | stdio MCP | `~/.local/bin/liter-llm-mcp` (launcher: sources `~/.prometheus/kbd/secrets.env`, then runs `liter-llm mcp --transport stdio --config <explicit-config>`) |
 | sycophancy-correction | On-demand stdio | Installed binary from the pinned skill package |
 | sequential-thinking | On-demand stdio | Configured npm MCP package |
 | Tavily / Firecrawl | On-demand stdio adapters | Configured package and environment credentials |

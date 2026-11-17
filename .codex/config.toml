@@ -3,12 +3,11 @@ type = "sse"
 url = "http://localhost:23001/mcp/sse"
 
 [mcp_servers.liter-llm]
-args = [
-    "mcp",
-    "--transport",
-    "stdio",
-]
-command = "liter-llm"
+# The pack's MCP launcher (scripts/install-liter-llm-mcp-launcher.mjs installs
+# it). It sources ~/.prometheus/kbd/secrets.env and passes --config, both of
+# which `liter-llm mcp` needs to start. /bin/sh expands $HOME: TOML does not.
+command = "/bin/sh"
+args = ["-c", "exec bash \"$HOME/.local/bin/liter-llm-mcp\""]
 
 [mcp_servers.sequential-thinking]
 args = [

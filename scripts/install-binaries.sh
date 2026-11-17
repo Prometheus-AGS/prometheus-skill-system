@@ -230,6 +230,28 @@ else
     info "skip liter-llm (submodule not initialized)"
 fi
 
+# ── 5a. liter-llm MCP launcher ───────────────────────────────────────────────
+# Harness MCP entries run ${BIN_DIR}/liter-llm-mcp, not the binary: the launcher
+# sources ~/.prometheus/kbd/secrets.env first, so the server starts in a harness
+# launched without the keys in its environment (Dock, Finder, a stale shell).
+# The same step moves entries still in the old pack-written form onto it. It is
+# independent of the build above (an older installed binary works with it too)
+# and a failure is recorded, never fatal.
+if command -v node >/dev/null 2>&1; then
+    _launcher_args=""
+    $DRY_RUN && _launcher_args="--dry-run"
+    # shellcheck disable=SC2086
+    if node "${REPO_ROOT}/scripts/install-liter-llm-mcp-launcher.mjs" ${_launcher_args}; then
+        ok "liter-llm MCP launcher → ${BIN_DIR}/liter-llm-mcp"
+    else
+        fail "liter-llm MCP launcher install failed — continuing with the remaining binaries"
+        FAILED_COMPONENTS="${FAILED_COMPONENTS} liter-llm-mcp-launcher"
+    fi
+    unset _launcher_args
+else
+    info "skip liter-llm MCP launcher (node unavailable)"
+fi
+
 # ── 5b. openai-proxy (judge gateway on :8181 — OPTIONAL) ─────────────────────
 # This is what the `kbd-judge` role resolves to, and its absence silently
 # degrades every adversarial review to a same-model self-grade. It is therefore

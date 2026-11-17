@@ -92,8 +92,7 @@ This is mechanical config work. Read `project.json → model_policy.phases.liter
      {
        "mcpServers": {
          "liter-llm": {
-           "command": "liter-llm",
-           "args": ["mcp", "--transport", "stdio"]
+           "command": "/Users/you/.local/bin/liter-llm-mcp"
          }
        }
      }
@@ -101,6 +100,15 @@ This is mechanical config work. Read `project.json → model_policy.phases.liter
    - **opencode** → `~/.config/opencode/config.json` `mcp_servers`
    - **cursor** → `~/.cursor/mcp.json`
    - **codex** → `~/.config/codex/config.toml` `[mcp.servers.liter-llm]`
+
+   The command is the pack's **MCP launcher**, never the `liter-llm` binary. The
+   launcher sources `~/.prometheus/kbd/secrets.env` and then runs
+   `liter-llm mcp --transport stdio --config <abs path>`. An entry that starts the
+   binary directly works only in a harness whose own environment already holds
+   `LITER_LLM_MASTER_KEY`; started from the Dock, Finder or a stale shell, the
+   server exits at once and the harness reports "Connection closed". `register`
+   installs the launcher if it is missing. Never put a key into a harness config
+   to work around this.
 
    If the harness can't be detected, prompt the user to choose. Never modify a harness config without confirming.
 

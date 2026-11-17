@@ -121,9 +121,15 @@ function baseManifest() {
   };
 }
 
+const MCP_LAUNCHER = 'shared/scripts/liter-llm-mcp-launch.sh';
+
 function sanitizedMcp() {
   const mcp = JSON.parse(fs.readFileSync(path.join(sourceRoot, '.mcp.json'), 'utf8'));
   const serialized = JSON.stringify(mcp);
+  // The liter-llm entry must go through the launcher: started directly, the
+  // server exits whenever the harness lacks the keys in its environment.
+  if (!JSON.stringify(mcp.mcpServers?.['liter-llm'] ?? {}).includes(MCP_LAUNCHER))
+    throw new Error(`MCP template must start liter-llm through ${MCP_LAUNCHER}`);
   if (serialized.includes(sourceRoot) || serialized.includes(os.homedir()))
     throw new Error('MCP template contains a machine-specific path');
   if (/tvly-[A-Za-z0-9_-]{12,}/.test(serialized))
@@ -280,6 +286,10 @@ function materializeRuntimePackage(root) {
     path.join(root, 'shared/harnesses/generated/release-manifest.json')
   );
   copy(path.join(sourceRoot, 'scripts/lib'), path.join(root, 'scripts/lib'));
+  // .mcp.json starts liter-llm through the MCP launcher and falls back to the
+  // copy inside the plugin when ~/.local/bin has none, so the launcher ships
+  // here too (the full plugin already carries all of shared/).
+  copy(path.join(sourceRoot, MCP_LAUNCHER), path.join(root, MCP_LAUNCHER));
   write(root, '.mcp.json', sanitizedMcp());
   write(root, 'package.json', {
     name: '@prometheus-ags/prometheus-runtime-payload',
