@@ -1,6 +1,6 @@
 // Summarise `claude plugin eval` result.json files: per case, per arm mean score
 // and spread, the skill-fired rate, per-grader pass counts, cost and time.
-// Usage: node analyze.mjs label=path/result.json [...] [-v] [--json]
+// Usage: node summarize-evals.mjs label=path/result.json [...] [-v] [--json]
 import { readFileSync } from 'node:fs';
 
 const mean = a => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN);

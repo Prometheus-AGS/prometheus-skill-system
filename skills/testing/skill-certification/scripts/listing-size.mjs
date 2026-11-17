@@ -6,7 +6,7 @@
 // descriptions when the listing overflows. A skill whose description was
 // dropped can still be invoked by name but is unlikely to be chosen.
 //
-// Usage: node skill-listing-size.mjs <plugin-dir> [--prefix <plugin-name>:] [--json]
+// Usage: node listing-size.mjs <plugin-dir> [--prefix <plugin-name>:] [--json]
 //
 // Counts are estimates: the per-entry overhead and the characters-per-token
 // ratio are assumptions. Claude Code 2.1.326 registers only a plugin's
@@ -15,17 +15,16 @@
 // other harnesses (Codex) recurse.
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRequire } from 'node:module';
+import { frontmatterText, parseFrontmatter } from './lib.mjs';
 
 const args = process.argv.slice(2);
 const pluginDir = args.find(a => !a.startsWith('--'));
 if (!pluginDir) {
-  console.error('usage: skill-listing-size.mjs <plugin-dir> [--prefix <name>:] [--json]');
+  console.error('usage: listing-size.mjs <plugin-dir> [--prefix <name>:] [--json]');
   process.exit(64);
 }
 const prefixArg = args.indexOf('--prefix');
 const asJson = args.includes('--json');
-const yaml = createRequire(import.meta.url)('js-yaml');
 
 const MAX_DESCRIPTION = 1536; // documented per-entry cap
 const ENTRY_OVERHEAD = 6; // separators around one listing entry (assumed)
@@ -41,19 +40,14 @@ for (const manifest of ['.claude-plugin/plugin.json', 'plugin.json']) {
 const prefix = prefixArg >= 0 ? args[prefixArg + 1] : pluginName ? `${pluginName}:` : '';
 
 function entry(skillFile) {
-  const match = fs.readFileSync(skillFile, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!match) return null;
-  let frontmatter;
-  try {
-    frontmatter = yaml.load(match[1]);
-  } catch {
-    return null;
-  }
+  const text = frontmatterText(skillFile);
+  if (text === null) return null;
+  const frontmatter = parseFrontmatter(text);
   if (!frontmatter?.name) return null;
   const description = `${frontmatter.description ?? ''} ${frontmatter.when_to_use ?? ''}`.trim();
   return {
     name: String(frontmatter.name),
-    modelInvocable: frontmatter['disable-model-invocation'] !== true,
+    modelInvocable: String(frontmatter['disable-model-invocation']) !== 'true',
     chars: Math.min(description.length, MAX_DESCRIPTION) + String(frontmatter.name).length + prefix.length + ENTRY_OVERHEAD,
   };
 }
