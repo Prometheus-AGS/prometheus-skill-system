@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: implementation-complete-certification-pending
+expected_outcome: |
+  Reports implementation 4/4 complete with certification pending, as separate lines. Does not use the contradictory legacy counter (0 of 4) and does not recommend implementation work.
+context:
+  scaffold_script: setup.sh

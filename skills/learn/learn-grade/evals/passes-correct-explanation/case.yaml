@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: passes-correct-explanation
+expected_outcome: |
+  Passes the explanation. misconceptions_absent is 1.0, passed is true, and two transfer problems are supplied.
+context:
+  scaffold_script: setup.sh

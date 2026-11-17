@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: near-miss-feynman-biography
+expected_outcome: |
+  Writes the bio. The learning-loop skill is not needed.

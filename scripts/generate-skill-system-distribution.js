@@ -55,13 +55,22 @@ function json(value) {
   return `${JSON.stringify(canonical(value), null, 2)}\n`;
 }
 
-function copy(source, destination) {
+// A skill's own evals/ folder (the one beside its SKILL.md, at any nesting
+// depth) holds certification cases: prompts and graders. They are development
+// evidence, not runtime content, so they never ship; this matches how
+// skill-creator packages a skill.
+function isSkillEvalsDir(parent, name) {
+  return name === 'evals' && fs.existsSync(path.join(parent, 'SKILL.md'));
+}
+
+function copy(source, destination, skillTree = false) {
   const stat = fs.lstatSync(source);
   if (stat.isDirectory()) {
     fs.mkdirSync(destination, { recursive: true, mode: stat.mode & 0o7777 });
     for (const name of fs.readdirSync(source).sort()) {
+      if (skillTree && isSkillEvalsDir(source, name)) continue;
       if (['.git', 'node_modules', 'target', '.kbd-orchestrator', '__pycache__'].includes(name) || /\.py[co]$/.test(name)) continue;
-      copy(path.join(source, name), path.join(destination, name));
+      copy(path.join(source, name), path.join(destination, name), skillTree);
     }
     fs.chmodSync(destination, stat.mode & 0o7777);
   } else if (stat.isSymbolicLink()) {
@@ -235,7 +244,7 @@ function copyHookRuntime(root, hooksSource) {
 }
 
 function materializePackage(root, platform) {
-  for (const skill of skills) copy(skill.source, path.join(root, 'skills', skill.name));
+  for (const skill of skills) copy(skill.source, path.join(root, 'skills', skill.name), true);
   copyCadenceRuntimeFiles(root);
   write(root, 'skill-system.json', packagedContract());
   write(root, '.mcp.json', sanitizedMcp());

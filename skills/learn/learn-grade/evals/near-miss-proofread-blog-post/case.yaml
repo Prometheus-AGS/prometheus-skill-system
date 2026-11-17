@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: near-miss-proofread-blog-post
+expected_outcome: |
+  Returns a corrected paragraph. The learning grader is not needed.
