@@ -1,15 +1,17 @@
 ---
 license: MIT
 name: validate-skill
-description: Validate any Agent Skill against the agentskills.io specification and quality standards. Reports compliance issues and suggestions.
+description: Static pre-check of an Agent Skill, covering structure, schemas, cross-references, scripts and hooks. Use for a quick structural check while building a skill. It is not certification and says nothing about whether the skill triggers or improves results; use skill-certification for that.
 metadata:
-  version: '1.0.0'
+  version: '1.1.0'
   tags: "process, orchestration, automation"
 ---
 
 # Validate Skill
 
-Run the full validation suite against any skill directory. Checks agentskills.io spec compliance, JSON schema validity, cross-reference integrity, script quality, and completeness.
+Run the static pre-check against any skill directory: frontmatter, JSON schema validity, cross-reference integrity, script quality and completeness.
+
+**This is not certification.** A skill can pass every check here and never start on a real request. The pre-check overlaps the static levels of `skill-certification` and adds structural checks specific to skills this creator generates. For evidence about conformance to the reference validator, triggering and outcome, run `/skill-certification`.
 
 ## Usage
 
@@ -29,7 +31,7 @@ Run the full validation suite against any skill directory. Checks agentskills.io
 | **JSON schemas**     | Parse validity, required fields, types                |
 | **Cross-references** | All referenced files exist                            |
 | **Scripts**          | Executable, shebang, strict mode, syntax              |
-| **Hooks**            | Valid JSON, correct event types, script paths resolve |
+| **Hooks**            | Valid JSON in the harness format, script paths resolve |
 | **Plugin**           | Valid manifest with required fields                   |
 | **Sub-skills**       | Each has valid SKILL.md with frontmatter              |
 
@@ -41,6 +43,8 @@ A validation report with:
 - Overall quality score (0.0 - 1.0)
 - Specific fix instructions for any failures
 - Recommendation: valid, needs fixes, or needs restructuring
+
+A passing report means the skill is ready to be certified, not that it is certified.
 
 ## Example
 

@@ -187,6 +187,37 @@ fi
 
 echo ""
 
+# 6b. Hooks (if present)
+#
+# A harness loads hooks/hooks.json only in its own format: a `hooks` OBJECT keyed
+# by event name, each entry holding a `hooks` array of commands. The older array
+# form ({"hooks": [{"event": ..., "match_agent": ..., "steps": [...]}]}) parses
+# as JSON, so the schema check above passes it, and no harness ever runs it.
+echo "--- Hooks ---"
+HOOKS_JSON="$SKILL_DIR/hooks/hooks.json"
+if [[ -f "$HOOKS_JSON" ]]; then
+  if python3 -c "
+import json, sys
+d = json.load(open('$HOOKS_JSON'))
+h = d.get('hooks')
+assert isinstance(h, dict) and h, 'hooks must be an object keyed by event name'
+for event, entries in h.items():
+    assert isinstance(entries, list), event
+    for entry in entries:
+        assert isinstance(entry.get('hooks'), list) and entry['hooks'], event
+        for step in entry['hooks']:
+            assert step.get('type') == 'command' and step.get('command'), event
+" 2>/dev/null; then
+    check_pass "hooks.json is in the harness format"
+  else
+    check_fail "hooks.json is not in the harness format (a 'hooks' object keyed by event name)"
+  fi
+else
+  echo "  (no hooks file)"
+fi
+
+echo ""
+
 # 7. Sub-skills
 echo "--- Sub-Skills ---"
 for skill_dir in $(find "$SKILL_DIR/skills" -name "SKILL.md" 2>/dev/null); do

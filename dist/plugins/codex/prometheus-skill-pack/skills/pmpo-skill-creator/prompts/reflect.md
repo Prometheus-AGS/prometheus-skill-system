@@ -10,7 +10,9 @@ Resolve `creator-reflect` through the project model policy. This phase requires
 
 ## Objective
 
-Evaluate the generated skill for completeness, correctness, and spec compliance. Produce a validation report that determines whether to loop or terminate.
+Verify the finished skill once, at the KBD phase boundary, cheapest check first: the static validator, the adversarial review, then certification. Produce the certificate, and put any failed level to the operator.
+
+Nothing in this phase runs before authoring is complete. If files or eval cases from the plan are missing, return to Execute; do not start verifying a partial skill.
 
 ## Inputs
 
@@ -75,7 +77,7 @@ For every script in `scripts/`:
 Validate `hooks/hooks.json`:
 
 - Valid JSON
-- Each hook has `event` field
+- The harness format: a `hooks` object keyed by event name, each entry holding an optional `matcher` and a `hooks` array of commands
 - Script paths use `${CLAUDE_PLUGIN_ROOT}` or relative
 - No references to nonexistent scripts
 
@@ -149,14 +151,14 @@ Aggregate checks into a quality score:
 | Script quality   | 15%    | pass/fail       |
 | Completeness     | 20%    | coverage %      |
 
-**Pass threshold**: ≥95% weighted score with zero FAILs.
+**Pass threshold**: ≥95% weighted score with zero FAILs. This score gates the static pre-check only. It is not a certificate and does not make the skill finished; Step 14 does.
 
 ## Validation Script
 
 Run the automated validation suite:
 
 ```bash
-bash scripts/validate-skill.sh dist/<skill_name>/
+bash scripts/validate-skill.sh <skill_dir>/
 ```
 
 This script performs Steps 1–9 automatically and outputs a JSON report.
@@ -197,7 +199,7 @@ it, which is exactly the gap this step closes.
 
 ```bash
 ADV="${CLAUDE_PLUGIN_ROOT}/skills/process/adversarial-review"
-REVIEW_DIR="dist/<skill_name>/.review"
+REVIEW_DIR="<skill_dir>/.review"
 mkdir -p "$REVIEW_DIR"
 
 # The guard above must already have passed. Build the manifest-level packet:
@@ -207,7 +209,7 @@ mkdir -p "$REVIEW_DIR"
 # artifact answers the request.
 bash "$ADV/scripts/build-review-packet.sh" \
   --mode skill \
-  --target "dist/<skill_name>" \
+  --target "<skill_dir>" \
   --intent "<path to the Specify-phase spec>" \
   --out "$REVIEW_DIR/packet.json" || exit 2
 
@@ -283,22 +285,51 @@ reflection:
   missing_files: string[]
   failing_checks: integer
   warning_checks: integer
-  recommendation: terminate | loop_execute | loop_plan
-  fix_instructions: string[] # What to fix if looping
+  recommendation: proceed_to_persist | operator_decision | return_to_plan
+  fix_instructions: string[] # The proposed fix for each failing check
+  certification:
+    level: none | C0 | C1 | C2 | C3
+    certificate: string # Path to certificate.json
+    not_exercised: string[] # Levels with no evidence, and why
+    decisions: object[] # One per failed or incomplete level, copied from the certificate
+    exceptions: object[] # Levels the operator accepted, with their reasons
 ```
 
-## Loop Decision
+## Step 14: Certification
 
-| Condition                       | Recommendation | Return To               |
-| ------------------------------- | -------------- | ----------------------- |
-| Zero FAILs, score ≥ 0.95        | `terminate`    | Finalize                |
-| FAILs in generated files only   | `loop_execute` | Execute (with fix list) |
-| FAILs in architecture/structure | `loop_plan`    | Plan (with constraints) |
-| 3+ iterations with no progress  | `terminate`    | Output with warnings    |
+Runs **after** the adversarial review has no unresolved CRITICAL finding. Follow
+[`../references/certification-gate.md`](../references/certification-gate.md),
+which has the commands.
+
+1. Locate the certifier. If `skill-certification` is not installed, report the
+   skill as **uncertified** and stop here; do not present the validator's score
+   as a certificate.
+2. Run the static levels. They are free.
+3. If the skill has eval cases, ask the operator before the billed runs: the
+   mode, the run count and the cost cap. Run them only on a yes.
+4. Read `certificate.json`.
+
+## Step 15: Operator Decision
+
+| Certificate | Recommendation | Next |
+| --- | --- | --- |
+| Every level that ran passed | `proceed_to_persist` | Persist, reporting the level held and what was not exercised |
+| A level failed or is incomplete | `operator_decision` | Show what failed, the proposed fix, and the impact of fixing, accepting or abandoning. Wait |
+| Structural problem (the design cannot meet the level) | `return_to_plan` | A new KBD change, with the constraint |
+
+On the operator's choice:
+
+- **Fix**: apply the proposed fix and re-run only the affected level. After two
+  fix rounds on one level, ask again instead of trying a third time.
+- **Accept**: re-run the certifier with `--accept <level>=<reason>` so the
+  exception is recorded. The level is not raised.
+- **Abandon**: stop, and say where the files are.
 
 ## Rules
 
-1. NEVER mark a skill as passing if any check is FAIL
+1. NEVER mark a skill as passing if any check is FAIL, and never report a certification level the certificate does not record
+5. NEVER choose fix, accept or abandon for the operator, and never loop on a failed level without asking
+6. Report `NOT_EXERCISED` and `INCOMPLETE` as they are; a declined model run leaves the skill at the static level
 2. Include fix_instructions for EVERY failing check
 3. Distinguish between fixable (execute-loop) and structural (plan-loop) issues
 4. Run `validate-skill.sh` before reporting — manual checks supplement, not replace

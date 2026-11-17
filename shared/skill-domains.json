@@ -199,7 +199,7 @@
         "validate-idea",
         "validate-skill"
       ],
-      "listingChars": 17077
+      "listingChars": 17406
     },
     {
       "id": "python",
@@ -309,11 +309,12 @@
         "bdd-lifecycle-loop",
         "bdd-testing",
         "bdd-video-proof",
+        "skill-certification",
         "value-scenario-discovery",
         "value-scenario-verify",
         "vlbv"
       ],
-      "listingChars": 3228
+      "listingChars": 3711
     },
     {
       "id": "typescript",
