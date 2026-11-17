@@ -2,7 +2,7 @@
 name: prometheus-skill-pack
 version: 1.15.0
 skill_count: 218
-commit: 67fbc1f4a2c6f9af45e5f92e047ee73104c64e46
+commit: 4e681a9d1ab3052a8fc5bd0c2219943cef1e1dbe
 type: collection
 license: MIT
 description: >
@@ -43,7 +43,7 @@ Select the target you actually use. Codex uses a nonempty inherited `CODEX_HOME`
 
 ## Prerequisites
 
-The root package requires Node.js 22.12.0 or later; use Node 22 or later for team helpers. Git and the selected harness are required for source-based installation. Rust-dependent skills additionally need their declared Rust toolchain and targets. The full native-service profile needs Bash 4 or later and component-specific macOS/Linux support.
+The root package requires Node.js 22.20.0 or later; use Node 22 or later for team helpers. Git and the selected harness are required for source-based installation. Rust-dependent skills additionally need their declared Rust toolchain and targets. The full native-service profile needs Bash 4 or later and component-specific macOS/Linux support.
 
 Use [service operations](docs/guide/26-service-operations.md) for independently configured optional services. Native surreal-memory uses the `memory/mcp` namespace/database. A successful health response proves reachability only; it does not certify scoped publication or retrieval. When the learning store is absent, the full learning writer retains its durable queue and learning log.
 

@@ -2,7 +2,7 @@
 
 This directory is self-contained and uses Node builtins. Copy the whole directory
 when packaging it for another harness. Node must meet OpenSpec's requirement
-(22.12.0 or newer, unchanged in OpenSpec 2.0; the runner refuses an older Node with a
+(22.20.0 or newer from OpenSpec 2.1.0; the runner refuses an older Node with a
 receipt naming the standalone binary); invoke JavaScript with `node`, without executable bits or
 shell shims.
 
@@ -17,9 +17,26 @@ node cli.mjs init --project /path/to/project --tools claude,codex
 that code to `process.exitCode`. Receipts are JSON on stderr. `run` preserves the
 OpenSpec command's stdout, including JSON output.
 
+## What 2.1.0 changed for the runner
+
+- **`init` passes `--scope project`.** From 2.1.0, `openspec init --tools` in a new
+  repository installs skills globally by default. KBD keeps a project's OpenSpec skills
+  in the project, committed and bound to the phase contract.
+- **`verify` reads a dry run.** 2.1.0 no longer stamps `generatedBy` into its skills, so
+  the check runs `openspec update <project> --dry-run --json` with the cached CLI. It
+  writes nothing to the project and works offline. With no cached CLI the answer is
+  `refresh-needed`, as before. The OpenSpec CLI records the project path in its own
+  per-user registry when it runs.
+- **`refresh` asks before it fetches.** It runs the same dry run first and skips
+  `update` when nothing would change, so a phase can start with no network.
+- **`refresh-unavailable` (exit 0).** 2.1.0 installs skills by cloning the OpenSpec
+  repository from GitHub, even for project-scoped skills. Without Git or GitHub the
+  CLI fails and leaves the skills as they were; the runner reports that and lets the
+  phase start. Run the refresh again when GitHub is reachable.
+
 ## Selection and installation
 
-The pack is certified against **exactly OpenSpec 2.0.0** (`PINNED_VERSION` in
+The pack is certified against **exactly OpenSpec 2.1.0** (`PINNED_VERSION` in
 `state.mjs`; also `package.json` and `config/spec-engines.json`). `refresh`,
 `run` and `init` always use that version unless an operator pins another. The
 npm registry is consulted only to *report*: a newer release is recorded as
@@ -27,7 +44,7 @@ npm registry is consulted only to *report*: a newer release is recorded as
 the selection — adopting a new OpenSpec release is a pack release, never an
 unattended side effect (VLBV FR-O2: procedure text must not change under a bound
 phase contract). A registry failure is recorded as `registryError` and changes
-nothing. A cached selection below the minimum (**2.0.0**) is stale and is
+nothing. A cached selection below the minimum (**2.1.0**) is stale and is
 replaced by the pin.
 
 The default managed home is `~/.prometheus/openspec`. Exact versions live beneath
@@ -44,7 +61,7 @@ Human overrides are explicit environment variables:
 | Variable | Behavior |
 | --- | --- |
 | `PROMETHEUS_OPENSPEC_HOME` | Override the managed home, including for isolated integration runs. |
-| `PROMETHEUS_OPENSPEC_VERSION` | Pin an exact stable version at or above 2.0.0 instead of the pack pin; receipts say `operator-pin`. |
+| `PROMETHEUS_OPENSPEC_VERSION` | Pin an exact stable version at or above 2.1.0 instead of the pack pin; receipts say `operator-pin`. |
 | `PROMETHEUS_OPENSPEC_LATEST_URL` | Replace the registry `latest` endpoint (isolated runs and fixtures). It only affects `newerAvailable` reporting. |
 | `PROMETHEUS_OPENSPEC_DISABLE=1` | Disable managed activity; refresh records disabled and exits 0, run exits 2 without executing a CLI. |
 
@@ -87,7 +104,7 @@ project's primary spec engine.
 Refresh runs `openspec update <project> --force` with stdin closed,
 `OPEN_SPEC_INTERACTIVE=0`, and `OPENSPEC_NO_UPDATE_CHECK=1`. Force permits the
 official generated-integration cleanup after backups. The audited implementation
-is [OpenSpec v2.0.0](https://github.com/Fission-AI/OpenSpec/tree/v2.0.0/src/core).
+is [OpenSpec v2.1.0](https://github.com/Fission-AI/OpenSpec/tree/v2.1.0/src/core).
 The selected package's own tool, skill, workflow, command, and legacy-migration
 declarations determine backup paths. An incompatible internal API fails before
 update instead of guessing paths.

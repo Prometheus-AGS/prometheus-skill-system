@@ -14,6 +14,7 @@ Source proposal: *Prometheus Skill Pack: making VLBV the single verification met
 | D6 | Optional stochastic profile (samples, grader, stopping rule declared before results). |
 | D7 | Scenario ID pattern widened to `^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*-[0-9]+$`. |
 | CR-01 | Pin exactly OpenSpec 2.0.0 and land the 2.0 port in this release; never cross a major unpinned (`migrationRequired`). |
+| CR-01a (2026-11-17) | Move the exact pin to OpenSpec 2.1.0 (same major). Keep project scope: the runner passes `--scope project` on `init`, because 2.1.0 defaults new repositories to a global install. Node floor rises to 22.20.0. `verify` reads the CLI's dry run, since 2.1.0 dropped the `generatedBy` stamp; a refresh that cannot reach GitHub is reported and does not stop phase entry. |
 | Delivery | R0–R3 in 1.15.0; R4 (CR-31 protocol evals, CR-33 passive scan) is a follow-up. |
 | CR-22 scope | Implement the canonical-root installer change in 1.15.0 (owner chose "do it now, carefully"). |
 | Additions | Apple on-device Foundation Models auto-initialized at install; prometheus-context-bootstrap aligned with VLBV. |
