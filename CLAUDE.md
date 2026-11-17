@@ -946,6 +946,33 @@ description: Skill with validation
    \`\`\`
 ```
 
+## Skill Certification
+
+`skills/testing/skill-certification` certifies one skill against five evidence
+levels (C0 spec, C1 static, C2 trigger, C3 outcome, C4 portability) and writes a
+certificate bound to the skill's content hash. Levels and pass rules:
+[`references/levels.md`](skills/testing/skill-certification/references/levels.md).
+
+```bash
+# Static levels: free, deterministic
+node skills/testing/skill-certification/scripts/certify.mjs skills/<domain>/<skill> --out <dir>
+
+# Trigger and outcome: billed model runs, bounded by the cost cap. Ask first.
+node skills/testing/skill-certification/scripts/certify.mjs skills/<domain>/<skill> --out <dir> \
+  --run both --plugin dist/plugins/claude/prometheus-skill-pack --runs 5 --max-cost-usd 8
+```
+
+- **C2 is measured with the plugin users install loaded, never the skill alone.**
+  Skills that fire alone can fail to fire in a large catalogue, so the
+  certificate records the catalogue and its listing size.
+- **`NOT_EXERCISED` and `INCOMPLETE` are results, never rounded up.** Security
+  scanning, third-party linters and other harnesses are not run by the skill.
+- **A failed level is the operator's decision.** The report gives what failed, a
+  proposed fix, and the impact of fixing, accepting with a recorded exception
+  (`--accept <level>=<reason>`), or abandoning.
+- Model runs are a boundary activity, not a development loop, and a skill's own
+  `evals/` directory is never packaged.
+
 ## BDD Immutable-Tests Rule
 
 BDD tests remain independent specifications, but agent tools are unrestricted.

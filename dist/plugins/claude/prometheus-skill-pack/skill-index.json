@@ -751,6 +751,10 @@
       "path": "skills/scaffold-react-vite-tauri"
     },
     {
+      "name": "skill-certification",
+      "path": "skills/skill-certification"
+    },
+    {
       "name": "stage-01-planner",
       "path": "skills/stage-01-planner"
     },

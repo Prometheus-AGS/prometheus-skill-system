@@ -1,7 +1,7 @@
 {
   "name": "prometheus-testing-skills",
-  "description": "VLBV \u2014 Value-Led Behavioral Verification: scenario discovery, author-only BDD (Cucumber.js / cucumber-rs), boundary verification and certification bundles",
-  "version": "1.6.0",
+  "description": "VLBV — Value-Led Behavioral Verification: scenario discovery, author-only BDD (Cucumber.js / cucumber-rs), boundary verification and certification bundles",
+  "version": "1.7.0",
   "author": {
     "name": "Travis James",
     "url": "https://travisjames.ai"
@@ -15,7 +15,8 @@
     "./bdd-cucumber-js",
     "./bdd-cucumber-rs",
     "./bdd-video-proof",
-    "./bdd-testing"
+    "./bdd-testing",
+    "./skill-certification"
   ],
   "keywords": [
     "vlbv",
@@ -24,6 +25,7 @@
     "testing",
     "cucumber",
     "playwright",
-    "scenarios"
+    "scenarios",
+    "certification"
   ]
 }
