@@ -51,11 +51,23 @@ Patterns for moving from TanStack Query, Apollo, Redux, or SWR to **@prometheus-
 
 ## 7. SSR hydration (Next.js)
 
-- Server fetches **JSON**; client receives props.
-- On client mount, call **`upsertEntities`** for the payload batch before or alongside first `useEntityList` fetch to avoid flash.
-- Prefer a small dedicated **`GraphHydrationProvider`** pattern (see library Next.js example).
+- Create one isolated `createGraphStore()` instance per server request; never reuse the process-wide `graphStore` across requests.
+- Populate and dehydrate that request graph on the server; pass only a serializable snapshot across the RSC boundary.
+- In a client provider, create the hydrated graph exactly once and pass it to `GraphStoreProvider` before descendant hooks render.
+- Hooks and infrastructure use `useGraphStoreApi()` when they must pass the selected graph to fetch, mutation, or realtime machinery.
+- Follow `_shared/references/nextjs-app-router.md` and the library Next.js example; a one-time batch upsert into the global singleton is not request-isolation evidence.
 
-## 8. Rollback
+## 8. Core/React store imports for 3.0
+
+- Non-React modules import `graphStore` or `createGraphStore` from `@prometheus-ags/entity-graph-core`.
+- React hooks import callable `useGraphStore` from `@prometheus-ags/prometheus-entity-management` only when no domain hook covers the use case.
+- Replace early-alpha core imports of `useGraphSyncStatus` with `getGraphSyncStatus()` for imperative code or the React-package hook for components/custom hooks.
+- Import React table/view presentation types from the React package, not core.
+- Core's deprecated `useGraphStore` alias may ease an imperative migration, but new code must not treat it as callable.
+- Install `@prometheus-ags/entity-graph-core` explicitly with every framework binding. It is the application's required compatible peer; do not add a second core version under a binding or suppress peer-resolution failures.
+- When multiple JavaScript bindings coexist, run `pnpm run verify:binding-singletons` in the library workspace before claiming one physical packed core. Matching source aliases or version strings are not singleton evidence.
+
+## 9. Rollback
 
 Each plan should name:
 

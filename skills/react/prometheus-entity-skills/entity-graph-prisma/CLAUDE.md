@@ -3,7 +3,7 @@
 ## Architectural boundary
 
 ```
-Browser: Components → Hooks → (fetch) → REST JSON
+Browser: Components → Hooks → Stores/engine fetchers → (fetch) → REST JSON
 Server:  Route Handler → PrismaClient → database
 ```
 

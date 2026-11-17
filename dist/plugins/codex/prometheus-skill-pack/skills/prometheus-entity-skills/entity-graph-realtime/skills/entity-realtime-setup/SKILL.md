@@ -1,10 +1,10 @@
 ---
-license: MIT
 name: entity-realtime-setup
 description: >
   Greenfield RealtimeManager wiring: getRealtimeManager options (flushInterval, onStatusChange, onChangeReceived),
   instantiate the chosen adapter factory, register ChannelConfig entries, store UnsubscribeFn for cleanup,
   and document SSR/client-only boundaries.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"
@@ -35,6 +35,8 @@ metadata:
 
 - WebSocket and most subscriptions are **client-only**: dynamic import or `useEffect` guard with `typeof window !== "undefined"`.
 - Do not instantiate adapters in Server Components.
+- Resolve the provider-owned graph with `useGraphStoreApi()` and pass it as `new RealtimeManager({ store, ... })`; otherwise request-isolated hydration can silently hand realtime writes to the default singleton.
+- Follow `_shared/references/nextjs-app-router.md` for the full request/hydration boundary.
 
 ## Verification
 

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "id": "ecosystem-claims",
+  "description": "Every supported binding/integration claim made by the skills pack, backed by at least one consumer fixture or example plus its evidence gate. Enforced by tests/release/v3-skills-ecosystem.test.mjs.",
+  "claims": [
+    {
+      "id": "binding.react",
+      "claim": "React 19 bindings: hooks, CRUD, UI components, GraphQL, Prisma helpers",
+      "package": "@prometheus-ags/prometheus-entity-management",
+      "gate": "verify:vite-react19",
+      "evidence": ["examples/vite-app", "packages/entity-graph-react"]
+    },
+    {
+      "id": "binding.core",
+      "claim": "Framework-neutral core graph, engine, view layer, realtime manager, adapters",
+      "package": "@prometheus-ags/entity-graph-core",
+      "gate": "verify:framework-neutral-core",
+      "evidence": ["packages/entity-graph-core", "release/framework-neutral-core.md"]
+    },
+    {
+      "id": "binding.svelte",
+      "claim": "Svelte store binding over the core graph",
+      "package": "@prometheus-ags/entity-graph-svelte",
+      "gate": "verify:binding-singletons",
+      "evidence": ["packages/entity-graph-svelte", "scripts/verify-binding-singletons.mjs"]
+    },
+    {
+      "id": "binding.solid",
+      "claim": "Solid signal binding over the core graph",
+      "package": "@prometheus-ags/entity-graph-solid",
+      "gate": "verify:binding-singletons",
+      "evidence": ["packages/entity-graph-solid", "scripts/verify-binding-singletons.mjs"]
+    },
+    {
+      "id": "binding.alpine",
+      "claim": "Alpine.js plugin binding over the core graph",
+      "package": "@prometheus-ags/entity-graph-alpine",
+      "gate": "verify:binding-singletons",
+      "evidence": ["packages/entity-graph-alpine", "scripts/verify-binding-singletons.mjs"]
+    },
+    {
+      "id": "binding.htmx",
+      "claim": "HTMX + SSE server-rendering binding over the core graph",
+      "package": "@prometheus-ags/entity-graph-htmx",
+      "gate": "verify:binding-singletons",
+      "evidence": ["packages/entity-graph-htmx", "scripts/verify-binding-singletons.mjs"]
+    },
+    {
+      "id": "binding.web-components",
+      "claim": "Framework-agnostic custom elements over the core graph",
+      "package": "@prometheus-ags/entity-graph-web-components",
+      "gate": "verify:binding-singletons",
+      "evidence": ["packages/entity-graph-web-components", "scripts/verify-binding-singletons.mjs"]
+    },
+    {
+      "id": "integration.sync",
+      "claim": "Local-first sync: Loro CRDT, PGlite persistence, convergence, reconnect",
+      "package": "@prometheus-ags/entity-graph-sync",
+      "gate": "verify:sync-persistence",
+      "evidence": ["packages/entity-graph-sync", "prometheus-entity-skills/_shared/references/sync-persistence-path.md"]
+    },
+    {
+      "id": "integration.a2ui",
+      "claim": "Official A2UI v0.9.1 surfaces and AG-UI chat entry points with graph action policy",
+      "package": "@prometheus-ags/a2ui-react",
+      "gate": "verify:a2ui-bridge",
+      "evidence": ["packages/a2ui-react", "examples/agentic-a2ui"]
+    },
+    {
+      "id": "integration.a2a",
+      "claim": "A2A v1 JSON-RPC agent server with application authority over the graph",
+      "package": "@prometheus-ags/entity-graph-a2a",
+      "gate": "verify:a2a-conformance",
+      "evidence": ["packages/entity-graph-a2a", "release/a2a-conformance-agent.md"]
+    },
+    {
+      "id": "integration.tauri",
+      "claim": "Tauri 2 plugin bindings with capability-gated commands and snapshot lifecycle",
+      "package": "@prometheus-ags/entity-graph-tauri",
+      "gate": "verify:tauri-plugin",
+      "evidence": ["packages/entity-graph-tauri", "examples/tauri-app"]
+    },
+    {
+      "id": "integration.flutter",
+      "claim": "Canonical Dart graph with Riverpod providers and A2UI mobile showcase",
+      "package": "entity_graph_flutter",
+      "gate": "verify:dart-graph-riverpod",
+      "evidence": ["packages/entity_graph_flutter", "examples/flutter-riverpod"]
+    },
+    {
+      "id": "tooling.flutter-devtools-controller",
+      "claim": "Repository-source Flutter entity-graph controller with bounded, store-isolated VM-service inspection",
+      "package": "entity_graph_flutter",
+      "gate": "verify:devtools-flutter-controller",
+      "evidence": [
+        "packages/entity_graph_flutter/lib/devtools.dart",
+        ".kbd-orchestrator/phases/v3-devtools-parity/evidence/v3-devtools-flutter-controller/task-8-assembled-acceptance.json"
+      ],
+      "publicationLimit": "Not present in the published pub.dev 3.0.1 archive; the Flutter DevTools extension UI is not yet certified"
+    },
+    {
+      "id": "integration.sdl",
+      "claim": "SDL JSON schema parsing and validation",
+      "package": "@prometheus-ags/entity-graph-sdl",
+      "gate": null,
+      "gateCommand": "pnpm --filter @prometheus-ags/entity-graph-sdl test",
+      "evidence": ["packages/entity-graph-sdl/src/sdl.test.ts"]
+    },
+    {
+      "id": "tooling.rust-cli",
+      "claim": "Rust CLI scaffolds SDL schemas and generates TypeScript types and transport stubs",
+      "package": "entity-graph-cli",
+      "gate": null,
+      "gateCommand": "cargo test --manifest-path packages/entity-graph-cli/Cargo.toml",
+      "evidence": ["packages/entity-graph-cli/src", "packages/entity-graph-cli/README.md"]
+    },
+    {
+      "id": "tooling.rust-mcp",
+      "claim": "Rust MCP server exposes the graph as resources and tools over stdio and Streamable HTTP",
+      "package": "entity-graph-mcp",
+      "gate": null,
+      "gateCommand": "cargo test --manifest-path packages/entity-graph-mcp/Cargo.toml",
+      "evidence": ["packages/entity-graph-mcp/src", "packages/entity-graph-mcp/README.md"]
+    },
+    {
+      "id": "integration.flint",
+      "claim": "Flint fabric security, realtime, and provisioning contracts",
+      "package": "@prometheus-ags/entity-graph-core",
+      "gate": "verify:flint-contracts",
+      "evidence": ["docs/flint-integration.md", "packages/entity-graph-core/src/adapters/flint.ts"]
+    },
+    {
+      "id": "integration.surreal-live",
+      "claim": "SurrealDB live-query adapter with checkpoint resume",
+      "package": "@prometheus-ags/prometheus-entity-management",
+      "gate": null,
+      "gateCommand": "pnpm --filter @prometheus-ags/entity-graph-core exec vitest run src/adapters/surreal-live.test.ts",
+      "evidence": ["packages/entity-graph-core/src/adapters/surreal-live.ts", "packages/entity-graph-core/src/adapters/surreal-live.test.ts"]
+    },
+    {
+      "id": "integration.prisma",
+      "claim": "Prisma mapping helpers (where/orderBy/include, relation schema derivation)",
+      "package": "@prometheus-ags/prometheus-entity-management",
+      "gate": null,
+      "gateCommand": "pnpm --filter @prometheus-ags/prometheus-entity-management test",
+      "evidence": ["packages/entity-graph-react/src"]
+    }
+  ]
+}

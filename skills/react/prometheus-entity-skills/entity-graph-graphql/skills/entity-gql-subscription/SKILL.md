@@ -1,10 +1,10 @@
 ---
-license: MIT
 name: entity-gql-subscription
 description: >
   Slash command /entity-gql-subscription — connect GraphQL subscriptions via graphql-ws (or compatible)
   to either GQLClient.subscribe/useGQLSubscription with EntityDescriptors, or createGraphQLSubscriptionAdapter
   + RealtimeManager for coalesced ChangeSet delivery.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"
@@ -24,11 +24,7 @@ User needs **live** GraphQL updates integrated with the entity graph.
 type WsClient = {
   subscribe: (
     payload: { query: string; variables?: Record<string, unknown> },
-    sink: {
-      next: (v: { data: T }) => void;
-      error: (e: unknown) => void;
-      complete: () => void;
-    }
+    sink: { next: (v: { data: T }) => void; error: (e: unknown) => void; complete: () => void }
   ) => () => void;
 };
 ```

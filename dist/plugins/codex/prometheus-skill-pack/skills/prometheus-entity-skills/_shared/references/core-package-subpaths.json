@@ -1,0 +1,6 @@
+{
+  "json": {
+    "./devtools/fixtures/entity-inspection-v1.json": "./fixtures/devtools/entity-inspection-v1.json",
+    "./devtools/fixtures/time-travel-v1.json": "./fixtures/devtools/time-travel-v1.json"
+  }
+}

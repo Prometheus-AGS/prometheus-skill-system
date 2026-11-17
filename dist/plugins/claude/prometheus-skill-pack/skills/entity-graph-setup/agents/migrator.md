@@ -14,7 +14,7 @@ Turn an approved **`migration_plan.md`** into concrete, low-risk code changes th
 1. **Strangler execution** — Implement the chosen pattern (parallel flag, vertical slice, read-first).
 2. **Engine wiring** — `configureEngine` with correct error propagation and normalization to graph shape.
 3. **Query key unification** — Align `useEntityList` keys with future `registerSchema` `listKeyPrefix` callbacks.
-4. **SSR bridges** — When needed, generate small server→client hydration helpers that call `upsertEntity` / `upsertEntities` once on mount (client only).
+4. **SSR bridges** — When needed, create one server graph per request, serialize it, construct one client graph, and install it with `GraphStoreProvider`; do not hydrate request data into the global singleton.
 5. **Rollback notes** — Inline comments or doc pointers for reverting the slice.
 
 ## Outputs

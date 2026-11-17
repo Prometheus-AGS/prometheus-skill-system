@@ -5,6 +5,14 @@ This document describes runtime behavior of `normalizeGQLResponse` in **@prometh
 ## Entry
 
 ```ts
+import {
+  normalizeGQLResponse,
+  type EntityDescriptor,
+} from "@prometheus-ags/prometheus-entity-management";
+
+declare const data: unknown; // typically response.data from a GraphQL execution result
+declare const descriptors: EntityDescriptor<unknown, Record<string, unknown>>[];
+
 normalizeGQLResponse(data, descriptors);
 ```
 

@@ -8,6 +8,7 @@
       "**/realtime*.ts",
       "**/realtime-manager.ts",
       "**/realtime-adapters.ts",
+      "**/flint.ts",
       "**/electricsql.ts"
     ],
     "keywords": [
@@ -16,12 +17,15 @@
       "createSupabaseRealtimeAdapter",
       "createConvexAdapter",
       "createGraphQLSubscriptionAdapter",
+      "createFlintAdapter",
+      "publishFlintMutation",
       "createElectricAdapter",
       "ChangeSet",
       "EntityChange",
       "@prometheus-ags/prometheus-entity-management",
       "PGlite",
-      "ElectricSQL"
+      "ElectricSQL",
+      "Flint Realtime Fabric"
     ]
   }
 }

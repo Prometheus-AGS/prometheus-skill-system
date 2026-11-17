@@ -17,13 +17,13 @@ You are integrating **@prometheus-ags/prometheus-entity-management** into an exi
 
 Use the prompt templates under `prompts/` in order unless the user already completed an earlier phase:
 
-| Phase   | Artifact                                            |
-| ------- | --------------------------------------------------- |
-| Specify | `entity_spec` + `stack_report` (markdown or JSON)   |
-| Plan    | `migration_plan.md` with ordered tasks and rollback |
-| Execute | Patches / new files listing                         |
-| Reflect | Commands run + results summary                      |
-| Persist | State update + optional orchestrator JSON           |
+| Phase | Artifact |
+|-------|----------|
+| Specify | `entity_spec` + `stack_report` (markdown or JSON) |
+| Plan | `migration_plan.md` with ordered tasks and rollback |
+| Execute | Patches / new files listing |
+| Reflect | Commands run + results summary |
+| Persist | State update + optional orchestrator JSON |
 
 ## Commands
 
@@ -33,7 +33,7 @@ Use the prompt templates under `prompts/` in order unless the user already compl
 ## Quality bar
 
 - TypeScript **strict**-friendly generated code; no `any` unless at a third-party boundary with a comment.
-- Mention **SSR hydration** (e.g. Next.js server payload → `upsertEntity`) when the app uses RSC + client graph.
+- For SSR hydration, require a request-owned server graph, serializable snapshot, one client graph, and `GraphStoreProvider`; never teach a Next.js app to place request data in the process singleton.
 - Link to sibling skills for deep work: **entity-graph-crud**, **entity-graph-graphql**, **entity-graph-prisma**, **entity-graph-realtime**.
 
 ## Failure modes to avoid

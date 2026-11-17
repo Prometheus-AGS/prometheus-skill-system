@@ -1,9 +1,9 @@
 ---
-license: MIT
 name: entity-crud-form
 description: >
   Build EntityFormSheet and EntityDetailSheet configurations from FieldDescriptor arrays: field types,
   enum options, readonly/create/edit flags, custom editControl/render, and wiring to useEntityCRUD buffers and actions.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"

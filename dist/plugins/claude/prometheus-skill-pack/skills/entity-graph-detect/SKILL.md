@@ -1,7 +1,7 @@
 ---
-license: MIT
 name: entity-graph-detect
 description: Static analysis pass to infer EntityType definitions, id fields, and relation hints from TypeScript, Prisma, GraphQL SDL, OpenAPI, and API routes—outputs entity_manifest JSON aligned with shared schemas.
+license: MIT
 metadata:
   version: '1.0.0'
   tags: "react, typescript, entity-management"

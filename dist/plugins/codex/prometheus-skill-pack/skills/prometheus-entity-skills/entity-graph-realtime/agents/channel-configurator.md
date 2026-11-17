@@ -25,9 +25,13 @@ Design `ChannelConfig[]` passed to `RealtimeManager.register`.
 ## Example skeleton
 
 ```ts
+import type { ChannelConfig } from "@prometheus-ags/prometheus-entity-management";
+
+declare const workspaceId: string;
+
 const channels: ChannelConfig[] = [
-  { type: 'Task' },
-  { type: 'Project', id: workspaceId },
+  { type: "Task" },
+  { type: "Project", id: workspaceId },
 ];
 ```
 

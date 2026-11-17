@@ -42,7 +42,7 @@ Emit TypeScript that **typechecks** against exported `EntitySchema` types.
 ## Step E — Developer ergonomics
 
 - Optional: `useGraphDevTools` gated behind `import.meta.env.DEV` or `process.env.NODE_ENV === "development"`.
-- Short **README snippet** in the PR body or `docs/entity-graph.md` (only if the repo already uses such docs).
+- Short **README snippet** in the PR body or a docs/entity-graph.md page (only if the repo already uses such docs).
 
 ## Output
 
