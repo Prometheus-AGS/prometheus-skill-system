@@ -64,12 +64,22 @@ function isSkillEvalsDir(parent, name) {
   return name === 'evals' && fs.existsSync(path.join(parent, 'SKILL.md'));
 }
 
+// A `.claude-plugin/` directory beside a SKILL.md makes that skill directory a
+// plugin root in the repository, which is how a one-skill domain plugin is
+// published. It must not travel with the skill: Claude Code registers any folder
+// in `~/.claude/skills` that holds a plugin manifest as a plugin of its own, and
+// then lists that folder's skills a second time under the plugin's name.
+function isSkillPluginManifestDir(parent, name) {
+  return name === '.claude-plugin' && fs.existsSync(path.join(parent, 'SKILL.md'));
+}
+
 function copy(source, destination, skillTree = false) {
   const stat = fs.lstatSync(source);
   if (stat.isDirectory()) {
     fs.mkdirSync(destination, { recursive: true, mode: stat.mode & 0o7777 });
     for (const name of fs.readdirSync(source).sort()) {
       if (skillTree && isSkillEvalsDir(source, name)) continue;
+      if (skillTree && isSkillPluginManifestDir(source, name)) continue;
       if (
         ['.git', 'node_modules', 'target', '.kbd-orchestrator', '__pycache__'].includes(name) ||
         /\.py[co]$/.test(name)

@@ -81,6 +81,20 @@ try {
   run('install all');
   assertProjection('all', everything);
   assert(!fs.existsSync(path.join(store, 'selection.json')), 'no selection is stored for an unfiltered install');
+  // A plugin manifest inside a projected skill would make Claude Code register
+  // that folder as a plugin and list its skills a second time.
+  const manifests = [];
+  const findManifests = directory => {
+    for (const name of fs.readdirSync(directory)) {
+      const entry = path.join(directory, name);
+      if (name === '.claude-plugin') manifests.push(entry);
+      else if (fs.statSync(entry).isDirectory()) findManifests(entry);
+    }
+  };
+  for (const which of Object.keys(ROOTS)) {
+    for (const name of projected(which)) findManifests(path.join(ROOTS[which], name));
+  }
+  assert.deepEqual(manifests, [], 'no projected skill carries a plugin manifest');
   const receiptAll = JSON.parse(fs.readFileSync(
     path.join(store, 'receipts', fs.readFileSync(path.join(store, 'pointers/current'), 'utf8').trim().split('/').pop(), 'claude__skills.json'), 'utf8'));
   assert.equal(receiptAll.body.schemaVersion, 1, 'an unfiltered target keeps the schema 1 receipt');
