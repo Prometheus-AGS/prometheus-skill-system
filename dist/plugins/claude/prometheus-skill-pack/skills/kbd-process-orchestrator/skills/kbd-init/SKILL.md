@@ -153,7 +153,7 @@ and record the choice as `"specBackend"` in `project.json`.
   ```
 
   The receipt reports `already-initialized` when `openspec/` exists. A failed
-  receipt (for example Node.js below 22.12.0) leaves the project unpinned;
+  receipt (for example Node.js below 22.20.0) leaves the project unpinned;
   report it instead of falling back to native files.
 - **`speckit`** — run `specify init --here --force --non-interactive --integration <harness>`
   (Spec Kit CLI pinned in `config/spec-engines.json`, installed with
