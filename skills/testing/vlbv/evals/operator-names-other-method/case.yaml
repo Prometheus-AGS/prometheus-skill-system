@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: operator-names-other-method
+expected_outcome: |
+  Follows the operator's test-first method: writes a failing test and runs it first. Says that VLBV is not being applied for this task. Does not refuse or insist on the boundary rule.
+context:
+  scaffold_script: setup.sh

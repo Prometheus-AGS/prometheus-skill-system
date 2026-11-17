@@ -182,6 +182,11 @@ the driver's `begin-task`/`end-task` — relay them verbatim to the user.
 
 ## Relationship to other skills
 
+- **`vlbv`** is the verification method for every KBD phase. Load it before step 3
+  (the phase gates): no test, build or compiler check runs while tasks are being
+  implemented, and the boundary packet runs once. The operator may name another
+  method; a signed `KBD-METHOD` decision records it.
+
 - `kbd-execute` — selects backend, writes `execution.md`, then defers task
   execution to this skill.
 - `kbd-reflect` — consumes the per-task `progress.json` this driver maintains.

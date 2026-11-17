@@ -2,3 +2,5 @@ schema_version: "1.1"
 name: boundary-verdict-vocabulary
 expected_outcome: |
   Uses the four-word verdict vocabulary: nine PASS, one BLOCKED, one NOT_EXERCISED. Does not describe the phase as fully passing or accepted.
+context:
+  scaffold_script: setup.sh
