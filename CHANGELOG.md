@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **OpenSpec 2.1.0** is the new exact pin (was 2.0.0), in `package.json`, `config/spec-engines.json` and the managed runner. Node.js 22.20.0 or newer is now required. The runner passes `--scope project` on `init`, because 2.1.0 installs skills globally by default in a new repository. Its session-start check reads `openspec update --dry-run --json`, since 2.1.0 no longer stamps `generatedBy` into its skills. A refresh skips the network when nothing would change, and one that cannot reach GitHub reports `refresh-unavailable` without stopping phase entry. The repository's own `openspec-*` skills are regenerated; `.devin/skills` is new because 2.1.0 writes Devin (formerly Windsurf) its own copies.
+
 ### Added
 
 - **VLBV protocol evals** (`evals/vlbv-protocol/`, CR-31): the 22 VLBV acceptance tests and the §18 fresh-session check as eval cases. Each installed harness (Claude Code, Codex, OpenCode, Kimi, Qwen Code) gets one report with pass, fail and not-run counts. Agent cases run 3 samples each in isolated scratch homes and are graded cross-family; machinery cases run once against the real KBD scripts. Uninstalled harnesses are reported as not run.

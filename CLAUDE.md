@@ -1081,15 +1081,22 @@ round trip. `substrate/skill-ffi` has 7 tests asserting on **returned values**.
 
 Full documentation: [`site/docs/mobile/`](site/docs/mobile/overview.md).
 
-## OpenSpec 2.0 layout and VLBV (1.15.0)
+## OpenSpec 2.x layout and VLBV (1.15.0)
 
-- **OpenSpec is pinned exactly at 2.0.0** (`package.json`, `config/spec-engines.json`,
+- **OpenSpec is pinned exactly at 2.1.0** (`package.json`, `config/spec-engines.json`,
   `PINNED_VERSION` in `skills/process/kbd-process-orchestrator/shared/openspec/state.mjs`).
   Skills live once in `.agents/skills/openspec-*` with per-skill links in
   `.claude/skills`; the `/opsx:*` commands no longer exist. Never edit an
   `openspec-*` skill — `openspec update` overwrites it; put project instructions in
   `openspec/config.yaml` (`context`, `rules`). Session start runs the runner's
   `verify` (never writes); the mutating `refresh` runs at phase entry.
+- **2.1.0 specifics.** Node.js 22.20.0 or newer. `openspec init --tools` in a new
+  repository now installs skills **globally** unless given `--scope project`; the runner
+  always passes it, and any script that calls `openspec init` directly must too.
+  Installing or refreshing skills clones the OpenSpec repository, so it needs Git and
+  GitHub. The skills carry no version stamp any more: `verify` reads
+  `openspec update --dry-run --json`. A refresh that cannot reach GitHub returns
+  `refresh-unavailable` and does not stop phase entry.
 - **Windows:** the `.claude/skills` entries are committed symlinks. Use
   `git config --global core.symlinks true` and Developer Mode, or `openspec update`
   replaces each link with a plain copy.
