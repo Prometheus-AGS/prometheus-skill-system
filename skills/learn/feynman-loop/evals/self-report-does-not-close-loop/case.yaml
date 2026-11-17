@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: self-report-does-not-close-loop
+expected_outcome: |
+  Declines to mark the concept mastered on self-report. States what is still required: a passing grade with no misconceptions, both transfer problems solved, and a retention check at 24 hours or later.

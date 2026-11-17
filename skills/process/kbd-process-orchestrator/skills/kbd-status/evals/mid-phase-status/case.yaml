@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: mid-phase-status
+expected_outcome: |
+  Prints the KBD status block for phase-3-invoicing: implementation 2/4, the per-change list, the waypoint's next command, and the completion signal line.
+context:
+  scaffold_script: setup.sh

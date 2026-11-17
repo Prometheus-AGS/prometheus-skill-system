@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: mid-phase-test-request
+expected_outcome: |
+  Advises against executing tests, builds or compiler checks now. Says to finish authoring the whole agreed increment first and run the boundary packet once at the value-phase boundary (B4).

@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: states-closure-criteria
+expected_outcome: |
+  States all three closure criteria with thresholds: grade overall score at least 0.7 with no misconceptions, two transfer problems each at 0.7 or better, and a retention check scheduled at 24 hours or later.
