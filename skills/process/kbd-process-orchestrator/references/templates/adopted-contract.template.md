@@ -1,5 +1,9 @@
 # Adopted completion contract — authoring template
 
+## Outcome-based exit contract
+
+Done requires the actual agreed user goal and value to be achieved, supported by relevant end-of-phase VLBV evidence against accepted business rules and all existing mandatory exit criteria. Deliver the necessary user guidance and access, verify the observable outcome, disclose limits and remaining risks, and record reflection. Review-ready means a coherent change is ready for maintainer assessment, not that the user outcome is already delivered. Preserve existing approval, release and verification boundaries; tests alone are not completion.
+
 ## Mandatory value and business-rule trace
 
 Always think in terms of user goals and value—not in tests or assumptions.

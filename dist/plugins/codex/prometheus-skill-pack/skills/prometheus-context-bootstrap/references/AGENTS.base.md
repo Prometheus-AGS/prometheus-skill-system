@@ -123,8 +123,5 @@ hurts the author's own position.
 
 ## Done
 
-Done means the stated integration exit criteria pass at the applicable
-boundary. Before declaring it: remove anything unrequested, confirm each guard
-traces to an observed problem or real boundary, and summarize what changed, how
-it was verified, and what remains at risk.
+Done requires the actual agreed user goal and value to be achieved, supported by relevant end-of-phase VLBV evidence against accepted business rules and all existing mandatory exit criteria. Deliver the necessary user guidance and access, verify the observable outcome, disclose limits and remaining risks, and record reflection. Review-ready means a coherent change is ready for maintainer assessment, not that the user outcome is already delivered. Preserve existing approval, release and verification boundaries; tests alone are not completion.
 <!-- prometheus-base:end -->

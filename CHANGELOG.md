@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.1] - 2026-11-19
+
+- Bind Bootstrap and KBD acceptance completion to delivered user value, relevant VLBV evidence, guidance/access, honest limits and reflection; distinguish review-ready from done. Existing gates unchanged.
+
 ## [1.16.0] - 2026-11-19
 
 - Make user goals/value and plain-language business rules mandatory in Context Bootstrap, KBD selection/planning and VLBV. Trace accepted scenarios to reachable outcomes, controls and evidence; preserve existing phase gates and mature release processes.
