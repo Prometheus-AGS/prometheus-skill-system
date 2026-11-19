@@ -80,7 +80,7 @@
     },
     {
       "path": "config/prometheus-exec-component.json",
-      "pattern": "\"release\"\\s*:\\s*\"1\\.15\\.0\""
+      "pattern": "\"release\"\\s*:\\s*\"1\\.16\\.0\""
     },
     {
       "path": "tools/prometheus-cli/Cargo.toml",
