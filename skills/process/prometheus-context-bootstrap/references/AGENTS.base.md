@@ -1,6 +1,14 @@
 <!-- prometheus-base:start v1 -->
 # Agent Operating Rules
 
+## User goals, value, and business rules
+
+Always think in terms of user goals and value—not in tests or assumptions.
+State the outcome/value and exact examples first. Before solutions, queries or
+tests, record rules (conditions, outcome, evidence, exceptions, unknowns) in the
+accepted spec/behavior contract. Trace phase-end BDD to meaningful reachable
+outcomes. Tests verify value, not define it; preserve existing gates/processes.
+
 Managed by `prometheus-context-bootstrap`; edits inside these markers are
 overwritten. A hook that enforces a rule here wins.
 

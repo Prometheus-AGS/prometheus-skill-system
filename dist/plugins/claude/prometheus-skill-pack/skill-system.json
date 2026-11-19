@@ -209,7 +209,7 @@
         "category": "productivity",
         "name": "prometheus-process-skills",
         "path": "skills/process",
-        "version": "1.10.0"
+        "version": "1.11.0"
       },
       {
         "category": "devops",
@@ -221,7 +221,7 @@
         "category": "testing",
         "name": "prometheus-testing-skills",
         "path": "skills/testing",
-        "version": "1.7.0"
+        "version": "1.8.0"
       },
       {
         "category": "productivity",
@@ -371,7 +371,7 @@
       "description": "Install signed skills only; do not build binaries, configure MCP, or install services."
     }
   },
-  "releaseVersion": "1.15.0",
+  "releaseVersion": "1.16.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "schemaVersion": "prometheus-skill-system-v1",
   "targets": [

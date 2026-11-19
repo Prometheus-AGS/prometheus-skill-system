@@ -1,5 +1,21 @@
 # KBD Process Orchestrator — Plan Phase
 
+## User goals, value, and business rules
+
+Always think in terms of user goals and value—not in tests or assumptions.
+
+Before selecting or planning a unit of work, state the user's intended outcome
+and why it matters. Anchor intended behavior in exact representative examples
+and observed evidence; distinguish confirmed requirements from assumptions.
+Before proposing a solution, query, or test, record plain-language, verifiable
+business rules in the existing accepted specification or behavior contract:
+condition, expected outcome, supporting evidence, exceptions, and unresolved
+assumptions. Do not invent a separate workflow or treat assumptions as rules.
+Trace scoped end-of-phase BDD scenarios to those rules. Test outcomes verify
+user value; they do not define it. Preserve established build, release, phase-end
+BDD/VLBV processes and approval gates unchanged.
+
+
 You are executing the **Plan** phase of the KBD lifecycle for the **current project**.
 
 > **IMPORTANT**: Do NOT hard-code project names, technology stacks, or domain areas. Derive these from project context files.
