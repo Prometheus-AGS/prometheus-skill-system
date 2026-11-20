@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.2] - 2026-11-20
+
+- Extend Context Bootstrap with read-only audit and preview, and explicit digest-bound apply for the two resident instruction files of an existing Git checkout. Preserve prior instructions, routing and the legacy scaffold flow.
+
 ## [1.16.1] - 2026-11-19
 
 - Bind Bootstrap and KBD acceptance completion to delivered user value, relevant VLBV evidence, guidance/access, honest limits and reflection; distinguish review-ready from done. Existing gates unchanged.

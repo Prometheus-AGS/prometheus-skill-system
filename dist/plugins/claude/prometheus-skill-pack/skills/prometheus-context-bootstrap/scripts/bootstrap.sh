@@ -10,6 +10,13 @@ set -euo pipefail
 
 SKILL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Policy-only modes are independent of scaffold/UI/runtime preflight.
+for _arg in "$@"; do
+  case "$_arg" in
+    --audit|--preview|--apply|--apply=*) exec node "$SKILL_ROOT/scripts/existing-policy.mjs" "$@" ;;
+  esac
+done
+
 # Layout v4 (Prometheus Rules Architecture v4) is opt-in and lives in its own script. Without the flag
 # nothing below changes.
 _args=("$@")
@@ -66,6 +73,9 @@ Usage: bootstrap.sh [--path <root>] [--stacks rust,typescript,...]
   --no-hooks  skip .claude/hooks and the settings hook block
   --layout    legacy (default) or v4 — v4 renders CLAUDE.md, path rules and nested
               AGENTS.md from rules/src/ via rules/build.sh; see SKILL.md "Layout v4"
+
+Existing-project instruction-only maintenance:
+  bootstrap.sh --path <exact Git root> --audit | --preview | --apply <sha256>
 
 Exit: 0 applied or previewed, 1 usage error, 2 refused (corrupt markers)
 USAGE

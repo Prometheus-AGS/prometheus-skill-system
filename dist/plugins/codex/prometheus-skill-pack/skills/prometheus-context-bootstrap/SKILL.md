@@ -8,12 +8,13 @@ description: >
   and a skill-budget-safe settings.json. Profile-aware for mixed model fleets:
   includes an execution scaffold by default for non-frontier models, omits it
   only when measured. Creates what is absent, splices a marked region into what
-  exists, and never overwrites operator prose.
+  exists, and never overwrites operator prose. Audit, preview or explicitly apply
+  an instruction-only policy update in a working Git checkout without scaffolding.
 license: MIT
 compatibility: bash >=4, git; jq optional
 metadata:
   author: prometheus
-  version: '1.1.0'
+  version: '1.1.1'
   category: process
   tags: "bootstrap, context-engineering, agents-md, claude-md, hooks, scaffold"
 ---
@@ -127,6 +128,46 @@ If the project already carries a Prometheus Base Rules v3 file, start with
 | 0 | Plan applied, or dry run completed |
 | 1 | Usage error, or path is not a directory |
 | 2 | Refused: corrupt marker pair in an agent file |
+
+### Existing projects: audit, then preview, then explicitly apply
+
+This workflow updates only root instruction documents. It does not run the
+scaffolder, hooks, a UI installer, a rules generator, tests, or any Git mutation.
+It is the safe path for a working repository whose resident context needs the
+current goals-first policy.
+
+```bash
+bash scripts/bootstrap.sh --path /absolute/path/to/repo --audit
+bash scripts/bootstrap.sh --path /absolute/path/to/repo --preview
+# Review the local diff and get approval for the exact scope and content.
+bash scripts/bootstrap.sh --path /absolute/path/to/repo --apply SHA256_FROM_PREVIEW
+```
+
+Supply exactly one mode and one existing Git top-level. Do not combine with
+legacy scaffold flags. Audit prints the routing and disposition without exposing
+the file bodies. Preview prints the surgical diff and `PLAN_SHA256`; this is
+local private output that may contain neighboring project text. Apply recomputes
+the preview from the same worktree, Git HEAD and index entries, named instruction
+topology, file modes and bytes, and exact proposed edits. A changed checkout,
+named entry, or policy breaks the digest; review a fresh preview. A fresh preview
+and apply of compliant documents succeeds with zero writes.
+
+A recognized relative symlink, Markdown import, or explicit documented canonical
+route is preserved. Only the regular file it points to can gain the policy. If
+the docs are independent, each gets the same small additive section; one missing
+entry can be created if nothing points to it and Git does not ignore it. Do not
+use this mode to initialize a repository, overwrite handled managed regions,
+rewrite project prose, or edit generated v4 constitution sources. Broken or
+external paths, ignored entries, ambiguous or duplicate policy authority,
+unsupported file types, malformed known markers, and detected conflicts block
+the whole preview or apply. Read and resolve other possible semantic conflicts
+yourself: the classifier is not a general rule interpreter.
+
+Keep other writers out of the two files during apply. It rechecks both entries
+before each atomic change and reads back the change. If an external writer
+intervenes or a platform error interrupts a multi-file apply, reconcile the
+reported partial result with a new audit instead of blind retry or rollback.
+Exit 0 means the named operation completed, 1 means usage, and 2 means blocked.
 
 ## Layout v4 — Prometheus Rules Architecture v4 (opt-in)
 
