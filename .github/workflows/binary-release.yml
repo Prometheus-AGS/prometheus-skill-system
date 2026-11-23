@@ -81,30 +81,8 @@ jobs:
           if [[ "$PLATFORM" == darwin-arm64 && ( "$COMPONENT" == mlx || "$COMPONENT" == memory ) ]]; then
             xcrun -f metal >/dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
           fi
-      - if: runner.os == 'Windows'
-        name: Prepare native MSVC dependencies
-        shell: pwsh
-        run: |
-          $arch = if ($env:PLATFORM -eq "windows-arm64") { "arm64" } else { "x64" }
-          $triplet = "$arch-windows-static-md"
-          $vcpkg = if ($env:VCPKG_INSTALLATION_ROOT) { $env:VCPKG_INSTALLATION_ROOT } else { $env:VCPKG_ROOT }
-          if (-not $vcpkg) { throw "The native MSVC runner requires vcpkg" }
-          & "$vcpkg/vcpkg.exe" install "openssl:$triplet"
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          "VCPKG_ROOT=$vcpkg" >> $env:GITHUB_ENV
-          "VCPKGRS_TRIPLET=$triplet" >> $env:GITHUB_ENV
-          "OPENSSL_DIR=$vcpkg/installed/$triplet" >> $env:GITHUB_ENV
-          "OPENSSL_STATIC=1" >> $env:GITHUB_ENV
-          if (-not (Get-Command protoc -ErrorAction SilentlyContinue)) {
-            & "$vcpkg/vcpkg.exe" install "protobuf:$triplet"
-            if ($LASTEXITCODE) { exit $LASTEXITCODE }
-            "$vcpkg/installed/$triplet/tools/protobuf" >> $env:GITHUB_PATH
-          }
       - name: Build native payload
         shell: bash
-        env:
-          GH_TOKEN: ${{ matrix.group == 'exec' && github.token || '' }}
-          PROMETHEUS_EXEC_DARWIN_ARM64_URL: ${{ vars.PROMETHEUS_EXEC_DARWIN_ARM64_URL }}
         run: |
           if [[ "$RUNNER_OS" == Windows ]]; then python=python; else python=python3; fi
           "$python" scripts/release/binaries.py build "$PLATFORM" "$COMPONENT" parts
@@ -136,7 +114,7 @@ jobs:
       - name: Assemble platform archive and checksum manifest
         env:
           PLATFORM: ${{ matrix.platform }}
-        run: python3 scripts/release/binaries.py assemble "$PLATFORM" parts dist
+        run: python3 scripts/release/binaries.py assemble --hosted "$PLATFORM" parts dist
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: release-${{ matrix.platform }}

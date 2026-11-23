@@ -3,10 +3,13 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { createReadStream, createWriteStream, promises as fs } from 'node:fs';
+import http from 'node:http';
+import https from 'node:https';
 import { tmpdir, homedir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pipeline } from 'node:stream/promises';
+import { text as readText } from 'node:stream/consumers';
 import { spawnSync } from 'node:child_process';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -26,12 +29,34 @@ function untar(args) {
   if (result.status !== 0) throw new Error(result.stderr || 'Could not read release archive');
   return result.stdout.trimEnd();
 }
+function checkReleaseUrl(url) {
+  if (url.username || url.password) throw new Error('Release URLs cannot include credentials');
+  if (url.protocol === 'https:') return;
+  if (url.protocol === 'http:' && ['127.0.0.1', '[::1]', 'localhost'].includes(url.hostname)) return;
+  throw new Error('Binary releases require HTTPS or a loopback test server');
+}
 async function get(base, name) {
-  const url = new URL(name, base);
-  const response = await fetch(url, { signal: AbortSignal.timeout(900_000) });
-  if (!response.ok && response.status !== 404) throw new Error(`${url}: HTTP ${response.status}`);
-  if (new URL(response.url).protocol !== url.protocol) throw new Error('Unexpected change of release URL protocol');
-  return response;
+  let url = new URL(name, base);
+  const signal = AbortSignal.timeout(900_000);
+  for (let redirects = 0; redirects <= 20; redirects++) {
+    checkReleaseUrl(url);
+    if (url.protocol !== base.protocol) throw new Error('Unexpected change of release URL protocol');
+    // Keep IncomingMessage as a Node stream through the disk write. The default
+    // HTTP(S) agent also retains Node's configured proxy and TLS behavior.
+    const client = url.protocol === 'https:' ? https : http;
+    const response = await new Promise((resolve, reject) => {
+      client.get(url, { signal }, resolve).once('error', reject);
+    });
+    const status = response.statusCode;
+    if (status >= 200 && status < 300) return response;
+    response.destroy();
+    if (status === 404) return null;
+    if (![301, 302, 303, 307, 308].includes(status) || !response.headers.location) {
+      throw new Error(`Could not download ${name}: HTTP ${status}`);
+    }
+    url = new URL(response.headers.location, url);
+  }
+  throw new Error(`Too many release redirects for ${name}`);
 }
 async function identity() {
   const { releaseVersion: version } = JSON.parse(await fs.readFile(path.join(root, 'skill-system.json'), 'utf8'));
@@ -42,9 +67,7 @@ async function identity() {
   const name = `prometheus-binaries-${tag}-${platform}.tar.gz`;
   const releases = process.env.PROMETHEUS_BINARY_RELEASE_BASE_URL || 'https://github.com/Prometheus-AGS/prometheus-skill-system/releases/download';
   const base = new URL(`${releases.replace(/\/$/, '')}/${tag}/`);
-  if (!(base.protocol === 'https:' || (base.protocol === 'http:' && ['127.0.0.1', '[::1]', 'localhost'].includes(base.hostname)))) {
-    throw new Error('Binary releases require HTTPS or a loopback test server');
-  }
+  checkReleaseUrl(base);
   return { version, tag, platform, name, base };
 }
 function checksum(sums, name) {
@@ -55,30 +78,35 @@ function checksum(sums, name) {
   assert.equal(rows.length, 1, `Expected one SHA256SUMS entry for ${name}`);
   return rows[0];
 }
-async function readSums(base) {
+async function readSums(base, required = true) {
   const response = await get(base, 'SHA256SUMS');
-  if (!response.ok) throw new Error('Published release lacks SHA256SUMS');
-  return response.text();
+  if (response) return readText(response);
+  if (required) throw new Error('Published release lacks SHA256SUMS');
+  return null;
 }
 function sidecar(name) { return name.replace(/\.tar\.gz$/, '.manifest.json'); }
 async function prepare(directory) {
   const release = await identity();
   if (!release) return false;
   const { name, base } = release;
+  const sums = await readSums(base, false);
   const response = await get(base, name);
-  if (response.status === 404) {
-    const listing = await get(base, 'SHA256SUMS');
-    if (listing.ok && (await listing.text()).split(/\r?\n/).some(line => line.endsWith(' ' + name) || line.endsWith('*' + name))) {
+  if (!response) {
+    if (sums?.split(/\r?\n/).some(line => line.endsWith(' ' + name) || line.endsWith('*' + name))) {
       throw new Error(`Published checksum lists missing archive ${name}`);
     }
     console.error(`No published ${name}; using source when available`);
     return false;
   }
-  const sums = await readSums(base);
-  const archiveSha256 = checksum(sums, name);
   const archive = path.join(directory, 'download.tar.gz');
-  await pipeline(response.body, createWriteStream(archive, { flags: 'wx', mode: 0o600 }));
-  assert.equal(await sha256(archive), archiveSha256, 'Release archive SHA-256 mismatch');
+  try {
+    if (sums === null) throw new Error('Published release lacks SHA256SUMS');
+    const archiveSha256 = checksum(sums, name);
+    await pipeline(response, createWriteStream(archive, { flags: 'wx', mode: 0o600 }));
+    assert.equal(await sha256(archive), archiveSha256, 'Release archive SHA-256 mismatch');
+  } finally {
+    response.destroy();
+  }
 
   // Check all names and types before tar can write a path. Never extract links,
   // devices, case aliases, absolute paths or parent traversal into the stage.
@@ -182,17 +210,63 @@ async function markInstalled(destination, stage, buildHash) {
     await fs.rename(path.join(scratch, 'entry'), receipt);
   } finally { await fs.rm(scratch, {recursive: true, force: true}); }
 }
-async function copyVerified(source, destination, expectedHash) {
+async function copyVerified(source, destination, expectedHash, mode = 0o755) {
   const parent = path.dirname(destination);
   await fs.mkdir(parent, {recursive: true});
   const tmp = await fs.mkdtemp(path.join(parent, '.prometheus-'));
   try {
     const staged = path.join(tmp, path.basename(source));
     await fs.copyFile(source, staged);
-    await fs.chmod(staged, 0o755);
+    await fs.chmod(staged, mode);
     assert.equal(await sha256(staged), expectedHash, `Release binary changed before installation: ${source}`);
     await fs.rename(staged, destination);
   } finally { await fs.rm(tmp, {recursive: true, force: true}); }
+}
+async function installReleaseProduct(stage, destination, record, manifest) {
+  const source = path.join(stage, record.path);
+  const catalog = JSON.parse(await fs.readFile(path.join(root, 'config/release-binaries.json'), 'utf8'));
+  const component = catalog.components.find(entry => entry.binaries.includes(record.name)
+    && (!entry.platforms || entry.platforms.includes(manifest.platform)));
+  assert(component, `Unrecognized release product ${record.name}`);
+  if (!component.resourceTree) return copyVerified(source, destination, record.sha256);
+
+  const tree = component.resourceTree;
+  const prefix = `bin/${tree}/`;
+  const resources = manifest.files.filter(file => file.path.startsWith(prefix));
+  assert(resources.some(file => file.path === prefix + 'Contents/Resources/default.metallib'), 'Missing MLX Metal resource');
+  const parent = path.dirname(destination);
+  await fs.mkdir(parent, { recursive: true });
+  const scratch = await fs.mkdtemp(path.join(parent, '.prometheus-resources-'));
+  const bundle = path.join(parent, tree);
+  const previous = path.join(scratch, 'previous');
+  let backedUp = false;
+  let replaced = false;
+  let complete = false;
+  try {
+    for (const resource of resources) {
+      const relative = resource.path.slice(prefix.length);
+      assert(relative.split('/').every(part => /^[A-Za-z0-9_+-][A-Za-z0-9._+-]*$/.test(part)), 'Invalid resource path');
+      await copyVerified(path.join(stage, resource.path), path.join(scratch, tree, relative), resource.sha256, 0o644);
+    }
+    try {
+      await fs.rename(bundle, previous);
+      backedUp = true;
+    } catch (error) { if (error.code !== 'ENOENT') throw error; }
+    await fs.rename(path.join(scratch, tree), bundle);
+    replaced = true;
+    await copyVerified(source, destination, record.sha256);
+    complete = true;
+  } catch (error) {
+    if (replaced) await fs.rm(bundle, { recursive: true });
+    if (backedUp) {
+      await fs.rename(previous, bundle);
+      backedUp = false;
+    }
+    throw error;
+  } finally {
+    // Keep the original bundle available if filesystem recovery itself fails.
+    if (complete || !backedUp) await fs.rm(scratch, { recursive: true, force: true });
+  }
 }
 async function readAuthenticatedManifest(stage) {
   const release = await identity();
@@ -258,7 +332,7 @@ async function main() {
     assert.notEqual(name, 'prometheus-exec', 'Use the dedicated exec installer');
     const record = manifest.files.find(file => file.name === name);
     assert(record && path.resolve(stage, record.path) === source, 'Invalid release source');
-    await copyVerified(source, destination, record.sha256);
+    await installReleaseProduct(stage, destination, record, manifest);
     await markInstalled(destination, stage);
     return 0;
   }
@@ -289,7 +363,7 @@ async function main() {
       const source = path.join(stage, record.path);
       const installed = path.join(destination, name + suffix);
       if (name === 'prometheus-exec') await windowsExec(stage, installed, source, record, manifest);
-      else await copyVerified(source, installed, record.sha256);
+      else await installReleaseProduct(stage, installed, record, manifest);
       await markInstalled(installed, stage);
     }
     return 0;

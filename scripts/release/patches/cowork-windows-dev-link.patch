@@ -1,0 +1,14 @@
+diff --git a/cli/src/commands/config.rs b/cli/src/commands/config.rs
+--- a/cli/src/commands/config.rs
++++ b/cli/src/commands/config.rs
+@@ -969,7 +969,10 @@ fn install_from_dependency(name: &str, dep: &SkillDependency, project_root: &Path
+
+ /// Create a development symlink and return lock info
+ fn create_dev_link(name: &str, link: &DevLink, _project_root: &Path) -> Result<LockedPackage> {
++    #[cfg(unix)]
+     use std::os::unix::fs::symlink;
++    #[cfg(windows)]
++    use std::os::windows::fs::symlink_dir as symlink;
+
+     let source_path = std::path::Path::new(link.path());
+     if !source_path.exists() {

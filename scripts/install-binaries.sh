@@ -104,7 +104,7 @@ install_bin() {
 
 # Install a workspace's release products as one group. Cargo is needed only if
 # this host/version lacks the requested product in the published bundle.
-install_products() {
+install_products() (
     local workspace="$1" products="$2" release_dir name
     shift 2
     if release_has $products; then
@@ -112,10 +112,22 @@ install_products() {
     elif [ ! -f "$workspace/Cargo.toml" ]; then
         fail "No published binary or initialized source for $products ($workspace)"
         return 1
-    elif $DRY_RUN; then
-        info "[dry-run] source fallback: cargo build --release $* in $workspace"
-        return 0
     else
+        if [ "$release_suffix" = ".exe" ] && [ "$products" = "cowork co" ]; then
+            if $DRY_RUN; then
+                info "[dry-run] would stage the Windows cowork source and run cargo build --release --locked in its cli directory"
+                return 0
+            fi
+            local build_stage
+            build_stage="$(mktemp -d)" || return 1
+            trap 'rm -rf "$build_stage"' EXIT
+            node "$REPO_ROOT/scripts/release/stage-windows-cowork.mjs" "$build_stage/cowork" || return 1
+            workspace="$build_stage/cowork/cli"
+            set -- --locked "$@"
+        elif $DRY_RUN; then
+            info "[dry-run] source fallback: cargo build --release $* in $workspace"
+            return 0
+        fi
         (cd "$workspace" && cargo build --release "$@") || return 1
         release_dir="$(cargo_release_dir "$workspace")"
     fi
@@ -123,7 +135,7 @@ install_products() {
         install_bin "$release_dir/$name$release_suffix" "$BIN_DIR/$name$release_suffix" || return 1
         ok "$name → $BIN_DIR/$name$release_suffix"
     done
-}
+)
 required_products() {
     install_products "$@" || FAILED_COMPONENTS="${FAILED_COMPONENTS} $2"
 }
@@ -214,79 +226,83 @@ fi
 # GPU feature is platform-dependent: `metal` is Apple-only (pulls in objc2,
 # which hard-fails compile_error! on any non-Apple target); `cuda` requires an
 # NVIDIA GPU. Select the right accelerator instead of hardcoding `metal`.
+install_mlx_executor() (
+    if release_has surreal-memory-mlx-executor; then
+        SM_MLX_BIN="$release_stage/bin/surreal-memory-mlx-executor"
+        SM_MLX_BUNDLE="$release_stage/bin/mlx-swift_Cmlx.bundle"
+    else
+        if $DRY_RUN; then
+            mlx_build="<temporary MLX build directory>"
+            info "[dry-run] would run python3 scripts/release/binaries.py mlx-build in an empty stage"
+        else
+            mlx_build="$(mktemp -d)"
+            trap 'rm -rf "$mlx_build"' EXIT
+            python3 "$REPO_ROOT/scripts/release/binaries.py" mlx-build "$mlx_build"
+        fi
+        SM_MLX_BIN="$mlx_build/surreal-memory-mlx-executor"
+        SM_MLX_BUNDLE="$mlx_build/mlx-swift_Cmlx.bundle"
+    fi
+    if ! $DRY_RUN && [ ! -x "${SM_MLX_BIN}" ]; then
+        fail "surreal-memory-mlx-executor binary not found after build"
+        exit 1
+    fi
+    if ! $DRY_RUN && [ ! -f "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" ]; then
+        fail "MLX default.metallib resource bundle not found after build"
+        exit 1
+    fi
+    if ! $DRY_RUN; then
+        MODEL_CACHE_DIR="${MODEL_CACHE_DIR:-${HOME}/.cache/huggingface}" \
+        LOCAL_EMBEDDING_MODEL="BAAI/bge-small-en-v1.5" \
+        LOCAL_EMBEDDING_MODEL_REVISION="5c38ec7c405ec4b44b94cc5a9bb96e735b38267a" \
+            "${SM_MLX_BIN}" --prefetch
+    else
+        info "[dry-run] would prefetch and warm the pinned BGE snapshot"
+    fi
+    install_bin "${SM_MLX_BIN}" "${BIN_DIR}/surreal-memory-mlx-executor"
+    if ! $DRY_RUN && ! release_has surreal-memory-mlx-executor; then
+        ditto "${SM_MLX_BUNDLE}" "${BIN_DIR}/mlx-swift_Cmlx.bundle"
+    fi
+    ok "surreal-memory-mlx-executor → ${BIN_DIR}/surreal-memory-mlx-executor"
+    if [ -w /usr/local/bin ] || [ "$(id -u)" = "0" ]; then
+        install_bin "${SM_MLX_BIN}" "/usr/local/bin/surreal-memory-mlx-executor"
+        if ! $DRY_RUN && ! release_has surreal-memory-mlx-executor; then
+            ditto "${SM_MLX_BUNDLE}" "/usr/local/bin/mlx-swift_Cmlx.bundle"
+        fi
+        ok "surreal-memory-mlx-executor → /usr/local/bin/surreal-memory-mlx-executor"
+    else
+        fail "/usr/local/bin is not writable; MLX deployment requires both installed copies"
+        exit 1
+    fi
+    if ! $DRY_RUN; then
+        cmp -s "${BIN_DIR}/surreal-memory-mlx-executor" \
+            "/usr/local/bin/surreal-memory-mlx-executor" || {
+            fail "installed MLX executor copies differ"
+            exit 1
+        }
+        codesign --verify "${BIN_DIR}/surreal-memory-mlx-executor"
+        codesign --verify "/usr/local/bin/surreal-memory-mlx-executor"
+        cmp -s "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" \
+            "${BIN_DIR}/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" || {
+            fail "user-local MLX default.metallib differs from the staged resource"
+            exit 1
+        }
+        cmp -s "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" \
+            "/usr/local/bin/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" || {
+            fail "system MLX default.metallib differs from the staged resource"
+            exit 1
+        }
+        MODEL_CACHE_DIR="${MODEL_CACHE_DIR:-${HOME}/.cache/huggingface}" \
+        LOCAL_EMBEDDING_MODEL="BAAI/bge-small-en-v1.5" \
+        LOCAL_EMBEDDING_MODEL_REVISION="5c38ec7c405ec4b44b94cc5a9bb96e735b38267a" \
+            "/usr/local/bin/surreal-memory-mlx-executor" --smoke
+    fi
+)
+
 if release_has surreal-memory-server || [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
     SM_MLX_DIR="${REPO_ROOT}/tools/surreal-memory-server/executors/mlx"
     if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ] && \
        { release_has surreal-memory-mlx-executor || [ -f "${SM_MLX_DIR}/Package.swift" ]; }; then
-        if release_has surreal-memory-mlx-executor; then
-            SM_MLX_BIN="$release_stage/bin/surreal-memory-mlx-executor"
-            SM_MLX_BUNDLE="$release_stage/bin/mlx-swift_Cmlx.bundle"
-        else
-            mlx_build="${SM_MLX_DIR}/.build/xcode"
-            SM_MLX_BIN="${mlx_build}/Build/Products/Release/surreal-memory-mlx-executor"
-            SM_MLX_BUNDLE="${mlx_build}/Build/Products/Release/mlx-swift_Cmlx.bundle"
-            if $DRY_RUN; then
-                info "[dry-run] would build surreal-memory-mlx-executor and Metal resources with Xcode"
-            else
-                (cd "$SM_MLX_DIR" && xcodebuild build -scheme surreal-memory-mlx-executor -configuration Release \
-                    -destination platform=macOS,arch=arm64 -derivedDataPath "$mlx_build" \
-                    -onlyUsePackageVersionsFromResolvedFile CODE_SIGN_IDENTITY=-)
-            fi
-        fi
-        if ! $DRY_RUN && [ ! -x "${SM_MLX_BIN}" ]; then
-            fail "surreal-memory-mlx-executor binary not found after build"
-            exit 1
-        fi
-        if ! $DRY_RUN && [ ! -f "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" ]; then
-            fail "MLX default.metallib resource bundle not found after build"
-            exit 1
-        fi
-        if ! $DRY_RUN; then
-            MODEL_CACHE_DIR="${MODEL_CACHE_DIR:-${HOME}/.cache/huggingface}" \
-            LOCAL_EMBEDDING_MODEL="BAAI/bge-small-en-v1.5" \
-            LOCAL_EMBEDDING_MODEL_REVISION="5c38ec7c405ec4b44b94cc5a9bb96e735b38267a" \
-                "${SM_MLX_BIN}" --prefetch
-        else
-            info "[dry-run] would prefetch and warm the pinned BGE snapshot"
-        fi
-        install_bin "${SM_MLX_BIN}" "${BIN_DIR}/surreal-memory-mlx-executor"
-        if ! $DRY_RUN; then
-            ditto "${SM_MLX_BUNDLE}" "${BIN_DIR}/mlx-swift_Cmlx.bundle"
-        fi
-        ok "surreal-memory-mlx-executor → ${BIN_DIR}/surreal-memory-mlx-executor"
-        if [ -w /usr/local/bin ] || [ "$(id -u)" = "0" ]; then
-            install_bin "${SM_MLX_BIN}" "/usr/local/bin/surreal-memory-mlx-executor"
-            if ! $DRY_RUN; then
-                ditto "${SM_MLX_BUNDLE}" "/usr/local/bin/mlx-swift_Cmlx.bundle"
-            fi
-            ok "surreal-memory-mlx-executor → /usr/local/bin/surreal-memory-mlx-executor"
-        else
-            fail "/usr/local/bin is not writable; MLX deployment requires both installed copies"
-            exit 1
-        fi
-        if ! $DRY_RUN; then
-            cmp -s "${BIN_DIR}/surreal-memory-mlx-executor" \
-                "/usr/local/bin/surreal-memory-mlx-executor" || {
-                fail "installed MLX executor copies differ"
-                exit 1
-            }
-            codesign --verify "${BIN_DIR}/surreal-memory-mlx-executor"
-            codesign --verify "/usr/local/bin/surreal-memory-mlx-executor"
-            cmp -s "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" \
-                "${BIN_DIR}/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" || {
-                fail "user-local MLX default.metallib differs from the staged resource"
-                exit 1
-            }
-            cmp -s "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" \
-                "/usr/local/bin/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" || {
-                fail "system MLX default.metallib differs from the staged resource"
-                exit 1
-            }
-            MODEL_CACHE_DIR="${MODEL_CACHE_DIR:-${HOME}/.cache/huggingface}" \
-            LOCAL_EMBEDDING_MODEL="BAAI/bge-small-en-v1.5" \
-            LOCAL_EMBEDDING_MODEL_REVISION="5c38ec7c405ec4b44b94cc5a9bb96e735b38267a" \
-                "/usr/local/bin/surreal-memory-mlx-executor" --smoke
-        fi
+        install_mlx_executor
     fi
 
     info "Building surreal-memory-server..."

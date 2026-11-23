@@ -13,7 +13,6 @@ import struct
 import subprocess
 import tarfile
 import tempfile
-import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -71,10 +70,17 @@ def exec_release_record(platform):
     return record
 
 
-def pin(platform):
-    if record := exec_release_record(platform):
-        return record["sha256"]
-    return config("config/prometheus-exec-binary.json")["expectedBuildSha256ByTarget"].get(PLATFORMS[platform]["target"])
+def source_exec_pin(platform):
+    target = PLATFORMS[platform]["target"]
+    return config("config/prometheus-exec-binary.json")["expectedBuildSha256ByTarget"].get(target)
+
+
+def exec_pins(platform, hosted):
+    source = source_exec_pin(platform)
+    record = exec_release_record(platform)
+    if record:
+        return {record["sha256"]} if hosted else {record["sha256"], source}
+    return {source} if source else set()
 
 
 def cpu_check(path, platform):
@@ -102,11 +108,17 @@ def build_pinned_xcode_exec(record, platform, output):
     rust = subprocess.check_output(["rustc", "-vV"], cwd=cwd, text=True).splitlines()
     for field, value in (("release", record["rustc"]), ("commit-hash", record["rustcCommit"]), ("host", target)):
         require(f"{field}: {value}" in rust, f"Expected native {field}: {value}")
-    dev = Path("/Applications") / f"Xcode_{record['xcode']}.app/Contents/Developer"
-    env = {**os.environ, "DEVELOPER_DIR": str(dev)}
-    version = subprocess.check_output(["xcodebuild", "-version"], env=env, text=True).splitlines()
-    require(version == ["Xcode " + record["xcode"], "Build version " + record["xcodeBuild"]],
-            f"Expected Xcode {record['xcode']} build {record['xcodeBuild']}, got {version}")
+    expected_xcode = ["Xcode " + record["xcode"], "Build version " + record["xcodeBuild"]]
+    for app_name in (f"Xcode_{record['xcode']}.app", "Xcode.app"):
+        dev = Path("/Applications") / app_name / "Contents/Developer"
+        if not dev.is_dir():
+            continue
+        env = {**os.environ, "DEVELOPER_DIR": str(dev)}
+        version = subprocess.check_output(["xcodebuild", "-version"], env=env, text=True).splitlines()
+        if version == expected_xcode:
+            break
+    else:
+        raise SystemExit(f"Required native release toolchain unavailable: {', '.join(expected_xcode)}")
     xcrun = ["xcrun", "--sdk", "macosx" + record["sdk"]]
     sdk = subprocess.check_output([*xcrun, "--show-sdk-version"], env=env, text=True).strip()
     require(sdk == record["sdk"], f"Unexpected release SDK {sdk}")
@@ -114,6 +126,7 @@ def build_pinned_xcode_exec(record, platform, output):
     ld = subprocess.run([*xcrun, "ld", "-v"], env=env, text=True, capture_output=True)
     identity = re.search(r"PROJECT:ld-([^\s]+)", ld.stdout + ld.stderr)
     require(identity, "Could not identify the Apple linker")
+    require(not record.get("ld") or identity[1] == record["ld"], f"Unexpected Apple linker {identity[1]}")
     print(f"Building {target} with rustc {record['rustc']} ({record['rustcCommit']}), "
           f"{' / '.join(version)}, SDK {sdk}, ld {identity[1]}", flush=True)
     subprocess.run(["bash", str(ROOT / "scripts/build-prometheus-exec.sh")], cwd=ROOT, env=env, check=True)
@@ -130,68 +143,20 @@ def darwin_exec(stage, platform):
     if record := exec_release_record(platform):
         build_pinned_xcode_exec(record, platform, output)
         return
-    expected = pin(platform)
+    expected = source_exec_pin(platform)
     require(expected, f"Missing independent {platform} exec pin")
-    # gh can access drafts. Never pass release credentials to a configurable URL.
-    url = os.environ.get(f"PROMETHEUS_EXEC_{platform.upper().replace('-', '_')}_URL")
-    if url and platform == "darwin-arm64":
-        require(url.startswith("https://"), "Certified exec URL requires HTTPS")
-        with urllib.request.urlopen(url, timeout=180) as body, output.open("xb") as dest:
-            require(body.geturl().startswith("https://"), "Insecure certified exec redirect")
-            shutil.copyfileobj(body, dest)
-    elif platform == "darwin-arm64" and os.environ.get("GITHUB_ACTIONS"):
-        asset = "prometheus-exec-" + expected
-        result = subprocess.run(["gh", "release", "download", TAG, "--repo", os.environ["GITHUB_REPOSITORY"],
-                                 "--pattern", asset, "--dir", str(stage)])
-        if result.returncode == 0:
-            (stage / asset).rename(output)
-    if not output.exists():
-        target = PLATFORMS[platform]["target"]
-        apple = config("config/prometheus-exec-binary.json").get("appleBuildToolsByTarget", {}).get(target)
-        envs = [os.environ.copy()]
-        seen = set()
-        developers = [Path("/Library/Developer/CommandLineTools"), *sorted(Path("/Applications").glob("Xcode*.app/Contents/Developer"))]
-        for dev in developers:
-            if not dev.is_dir():
-                continue
-            probe = {**os.environ, "DEVELOPER_DIR": str(dev)}
-            for sdk in sorted([*dev.glob("SDKs/MacOSX*.sdk"), *dev.glob("Platforms/MacOSX.platform/Developer/SDKs/MacOSX*.sdk")], reverse=True):
-                if sdk.is_symlink() or not sdk.is_dir():
-                    continue
-                native = ["xcrun", "--sdk", str(sdk)]
-                version = subprocess.run([*native, "--show-sdk-version"], env=probe, text=True, capture_output=True)
-                ld = subprocess.run([*native, "ld", "-v"], env=probe, text=True, capture_output=True)
-                identity = re.search(r"PROJECT:ld-([^\s]+)", ld.stderr + ld.stdout)
-                if not identity or version.returncode:
-                    continue
-                key = (version.stdout.strip(), identity[1])
-                if key in seen or (apple and key != (apple["sdk"], apple["ld"])):
-                    continue
-                seen.add(key)
-                envs.append({**probe, "SDKROOT": str(sdk)})
-        unsigned = ROOT / config("config/prometheus-exec-binary.json")["sourcePath"]
-        mirrored_main = ROOT / "crates/prometheus-exec/target/reproducible-build/crates/prometheus-exec/src/main.rs"
-        for env in envs:
-            # Cargo does not include the selected Apple linker/SDK in its input fingerprint.
-            # The canonical builder mirrors source mtimes. Touch the input to force
-            # one fresh final link on this disposable runner.
-            if mirrored_main.exists():
-                (ROOT / "crates/prometheus-exec/src/main.rs").touch()
-            result = subprocess.run(["bash", str(ROOT / "scripts/build-prometheus-exec.sh")], cwd=ROOT, env=env)
-            if result.returncode:
-                if apple and "SDKROOT" not in env:
-                    continue
-                raise SystemExit("Native prometheus-exec build failed")
-            if digest(unsigned) == expected:
-                shutil.copyfile(unsigned, output)
-                break
-            print(f"Native linker produced {digest(unsigned)} with {env.get('SDKROOT', 'default SDK')}", flush=True)
-        require(output.exists(), f"No installed native Apple SDK/linker reproduced {target} pin {expected}")
-    require(digest(output) == expected, f"Independent {platform} prometheus-exec pin mismatch")
+    subprocess.run(["bash", str(ROOT / "scripts/build-prometheus-exec.sh")], cwd=ROOT, check=True)
+    unsigned = ROOT / config("config/prometheus-exec-binary.json")["sourcePath"]
+    require(digest(unsigned) == expected, f"Native {TAG} {platform} exec source pin mismatch")
+    shutil.copyfile(unsigned, output)
 
 
 def build_rust(c, platform, stage, scratch):
     cwd = ROOT / c["directory"]
+    if platform.startswith("windows") and c["directory"] == "tools/cowork-skills/cli":
+        staged = scratch / "cowork"
+        subprocess.run(["node", str(ROOT / "scripts/release/stage-windows-cowork.mjs"), str(staged)], check=True)
+        cwd = staged / "cli"
     target = PLATFORMS[platform]["target"]
     suffix = ".exe" if platform.startswith("windows") else ""
     obj = scratch / "cargo"
@@ -216,16 +181,50 @@ def build_rust(c, platform, stage, scratch):
         shutil.copyfile(obj / target / "release" / (name + suffix), stage / (name + suffix))
 
 
+def sign_native_apple(binary):
+    if subprocess.run(["codesign", "--verify", "--strict", binary], capture_output=True).returncode:
+        subprocess.run(["codesign", "--force", "--sign", "-", "--timestamp=none", binary], check=True)
+    subprocess.run(["codesign", "--verify", "--strict", binary], check=True)
+
+
 def build_mlx(c, stage, scratch):
     cwd = ROOT / c["directory"]
     product, = c["binaries"]
+    macro = c["trustedMacro"]
+    resolved = json.loads((cwd / "Package.resolved").read_bytes())["pins"]
+    require(any(p["identity"] == macro["packageIdentity"] and p["state"]["revision"] == macro["fingerprint"]
+                for p in resolved), "Swift macro trust no longer matches the locked package revision")
+    # Xcode consumes SwiftPM's revision-scoped macro fingerprint store. Isolate it
+    # from the user's preferences and retain normal checks for all other macros.
+    home = scratch / "home"
+    security = home / "Library/org.swift.swiftpm/security"
+    security.mkdir(parents=True)
+    (home / ".swiftpm").mkdir()
+    (home / ".swiftpm/security").symlink_to(security, target_is_directory=True)
+    (security / "macros.json").write_text(json.dumps([macro]))
+    env = {**os.environ, "HOME": str(home), "CFFIXED_USER_HOME": str(home)}
+    derived = scratch / "derived"
+    # Only the executable requires a signature. Ad-hoc signing a resource-only
+    # bundle creates a zero-byte CodeSignature placeholder in the payload.
     # Xcode compiles the Metal shaders; swift build alone cannot produce default.metallib.
     subprocess.run(["xcodebuild", "build", "-scheme", product, "-configuration", "Release",
-                    "-destination", "platform=macOS,arch=arm64", "-derivedDataPath", str(scratch),
-                    "-onlyUsePackageVersionsFromResolvedFile", "ARCHS=arm64", "ONLY_ACTIVE_ARCH=YES", "CODE_SIGN_IDENTITY=-"], cwd=cwd, check=True)
-    products = scratch / "Build/Products/Release"
+                    "-destination", "platform=macOS,arch=arm64", "-derivedDataPath", str(derived),
+                    "-onlyUsePackageVersionsFromResolvedFile", "ENABLE_CODE_COVERAGE=NO",
+                    "CLANG_COVERAGE_MAPPING=NO", "ARCHS=arm64", "ONLY_ACTIVE_ARCH=YES", "CODE_SIGNING_ALLOWED=NO"],
+                   cwd=cwd, env=env, check=True)
+    products = derived / "Build/Products/Release"
     shutil.copyfile(products / product, stage / product)
+    (stage / product).chmod(0o755)
+    sign_native_apple(stage / product)
     shutil.copytree(products / c["resourceTree"], stage / c["resourceTree"])
+
+
+def source_mlx(output):
+    output.mkdir(parents=True, exist_ok=True)
+    require(not any(output.iterdir()), "MLX build destination must be empty")
+    component, = [c for c in components("darwin-arm64") if c["group"] == "mlx"]
+    with tempfile.TemporaryDirectory() as work:
+        build_mlx(component, output.resolve(), Path(work).resolve())
 
 
 def regular_files(directory):
@@ -270,16 +269,13 @@ def build(platform, group, out):
                     darwin_exec(stage, platform)
                 else:
                     build_rust(c, platform, stage, Path(work).resolve())
-        if platform.startswith("darwin"):
+        if platform.startswith("darwin") and group != "mlx":
             for c in targets:
                 for name in c["binaries"]:
                     # Keep the independent build pin intact. Its installer signs a verified copy.
                     if name == "prometheus-exec":
                         continue
-                    binary = str(stage / name)
-                    if subprocess.run(["codesign", "--verify", "--strict", binary], capture_output=True).returncode:
-                        subprocess.run(["codesign", "--force", "--sign", "-", "--timestamp=none", binary], check=True)
-                    subprocess.run(["codesign", "--verify", "--strict", binary], check=True)
+                    sign_native_apple(stage / name)
         with tarfile.open(out / f"{platform}-{group}.tar", "w") as archive:
             for path in regular_files(stage):
                 name = path.relative_to(stage).as_posix()
@@ -287,7 +283,7 @@ def build(platform, group, out):
                     add_file(archive, name, source, path.stat().st_size, 0o755 if "/" not in name else 0o644)
 
 
-def pack(platform, stage, out):
+def pack(platform, stage, out, hosted=False):
     suffix = ".exe" if platform.startswith("windows") else ""
     entries = {}
     for c in components(platform):
@@ -295,8 +291,9 @@ def pack(platform, stage, out):
             path = stage / (name + suffix)
             require(path.is_file() and not path.is_symlink(), f"Missing native {path}")
             cpu_check(path, platform)
-            if name == "prometheus-exec" and pin(platform):
-                require(digest(path) == pin(platform), f"Independent {platform} prometheus-exec pin mismatch")
+            if name == "prometheus-exec":
+                allowed = exec_pins(platform, hosted)
+                require(not allowed or digest(path) in allowed, f"Independent {platform} prometheus-exec pin mismatch")
             entries[name] = path
         if resource := c.get("resourceTree"):
             tree = stage / resource
@@ -325,7 +322,7 @@ def pack(platform, stage, out):
     (out / (base + ".manifest.json")).write_bytes(payload)
 
 
-def assemble(platform, inputs, out):
+def assemble(platform, inputs, out, hosted=False):
     with tempfile.TemporaryDirectory() as tmp:
         stage = Path(tmp)
         for group in groups(platform):
@@ -339,7 +336,7 @@ def assemble(platform, inputs, out):
                     target.parent.mkdir(parents=True, exist_ok=True)
                     with target.open("xb") as dest, archive.extractfile(member) as src:
                         shutil.copyfileobj(src, dest)
-        pack(platform, stage, out)
+        pack(platform, stage, out, hosted)
 
 
 if __name__ == "__main__":
@@ -350,5 +347,13 @@ if __name__ == "__main__":
         cmd.add_argument("platform", choices=PLATFORMS)
         cmd.add_argument("source", type=str if name == "build" else Path)
         cmd.add_argument("output", type=Path)
+        if name in ("pack", "assemble"):
+            cmd.add_argument("--hosted", action="store_true", help="Require the exact hosted digest for this pack version")
+    sub.add_parser("mlx-build").add_argument("output", type=Path)
     args = parser.parse_args()
-    {"build": build, "assemble": assemble, "pack": pack}[args.command](args.platform, args.source, args.output)
+    if args.command == "mlx-build":
+        source_mlx(args.output)
+    elif args.command == "build":
+        build(args.platform, args.source, args.output)
+    else:
+        {"assemble": assemble, "pack": pack}[args.command](args.platform, args.source, args.output, args.hosted)

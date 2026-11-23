@@ -20,7 +20,7 @@
     {"group": "liter", "directory": "tools/liter-llm", "packages": ["liter-llm-cli"], "binaries": ["liter-llm"]},
     {"group": "proxy", "directory": "tools/openai-proxy", "binaries": ["openai-proxy"]},
     {"group": "memory", "directory": "tools/surreal-memory-server", "noDefaultFeatures": true, "features": ["embedded","local-embeddings"], "featuresByPlatform": {"darwin-arm64": ["metal"]}, "binaries": ["surreal-memory-server"]},
-    {"group": "mlx", "directory": "tools/surreal-memory-server/executors/mlx", "platforms": ["darwin-arm64"], "binaries": ["surreal-memory-mlx-executor"], "resourceTree": "mlx-swift_Cmlx.bundle"},
+    {"group": "mlx", "directory": "tools/surreal-memory-server/executors/mlx", "platforms": ["darwin-arm64"], "binaries": ["surreal-memory-mlx-executor"], "resourceTree": "mlx-swift_Cmlx.bundle", "trustedMacro": {"packageIdentity": "mlx-swift-lm", "targetName": "MLXHuggingFaceMacros", "fingerprint": "bd4b7434e6bdb588c7ef55706ff8904cb7fd4c57"}},
     {"group": "tools", "directory": "skills/imported/sycophancy-correction", "packages": ["sycophancy-mcp"], "binaries": ["sycophancy-correction"]},
     {"group": "tools", "directory": "skills/imported/artifact-refiner/tools/template-forge-rs", "packages": ["template-cli","template-mcp"], "binaries": ["template-forge","template-forge-mcp"]},
     {"group": "tools", "directory": "tools/cowork-skills/cli", "binaries": ["cowork","co"]},

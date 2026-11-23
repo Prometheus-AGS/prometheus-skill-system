@@ -25,6 +25,7 @@ ARM = "aarch64-apple-darwin"
 INTEL_SOURCE = "fe2f2c5e66d68f5179609afded64650f5e7cd038787648b617991a324a84c95e"
 INTEL_RELEASE = "00718e7e89f17909d6b47d1d3f5cf61aa68cc0e8a3a1219bdc9f73ee6bb12354"
 ARM_SOURCE = "ca7ea8dec23cf21efffcbd5d86d4df1087714feb0ccd1700f2dfd7d2165aa065"
+ARM_RELEASE = "cd8cb3d7bb806d6eff314f974fff0aec0c002ddca4d32e0b87275e29bec0c6f9"
 
 
 def main(stage, release_dir, work):
@@ -33,7 +34,6 @@ def main(stage, release_dir, work):
     target = {"darwin-arm64": ARM, "darwin-amd64": INTEL}[manifest["platform"]]
     exe = stage / "bin/prometheus-exec"
     build_hash = sha256(exe.read_bytes()).hexdigest()
-    assert build_hash == (ARM_SOURCE if target == ARM else INTEL_RELEASE)
     fixture = work / "checkout"
     for name in ["skill-system.json", "config/release-binaries.json", "config/prometheus-exec-binary.json",
                  "scripts/prometheus-exec-pin.sh", "scripts/binary-release.mjs", "scripts/install-prometheus-exec.sh"]:
@@ -44,6 +44,10 @@ def main(stage, release_dir, work):
     assert policy["expectedBuildSha256ByTarget"][INTEL] == INTEL_SOURCE
     assert policy["expectedBuildSha256ByTarget"][ARM] == ARM_SOURCE
     assert policy["releaseBuildsByPackVersion"][VERSION][INTEL]["sha256"] == INTEL_RELEASE
+    assert policy["releaseBuildsByPackVersion"][VERSION][ARM]["sha256"] == ARM_RELEASE
+    source_pin = policy["expectedBuildSha256ByTarget"][target]
+    hosted_pin = policy["releaseBuildsByPackVersion"][VERSION].get(target, {}).get("sha256")
+    assert build_hash in (source_pin, hosted_pin)
 
     tag = manifest["tag"]
     mirror = work / "mirror"
@@ -68,24 +72,33 @@ def main(stage, release_dir, work):
 
         released = {"PROMETHEUS_EXEC_RELEASE_MANIFEST": str(stage / "manifest.json")}
         run(installer, released)  # As-shipped host policy.
-        if target == ARM:
+        for name in ["prometheus", "pk", "pk-cherry", "prometheus-learning-worker", "surreal-memory-server"]:
+            run([*resolver, "copy", bindir / name, stage / "bin" / name])
+        doctor = [bindir / "prometheus", "doctor", "--check", "binaries.manifest", "--json"]
+        receipt_path = home / ".prometheus/install/manifests/prometheus-exec.json"
+        if build_hash == source_pin:
+            run(installer, {"PROMETHEUS_EXEC_SOURCE_BIN": str(exe)})
+            source_receipt = json.loads(receipt_path.read_bytes())
+            assert source_receipt["buildSha256"] == source_pin and "releaseTag" not in source_receipt
+            source_check, = json.loads(run(doctor))["checks"]
+            assert source_check["status"] == "pass" and any(
+                row.startswith("prometheus-exec: ") and "source sha256" in row for row in source_check["details"]
+            ), source_check
             # Keep the delivered config intact. In an isolated checkout exercise
-            # the same two-pin decision with the ARM image and observed digests.
-            policy["expectedBuildSha256ByTarget"][ARM] = INTEL_SOURCE
-            policy["releaseBuildsByPackVersion"][VERSION][ARM] = {"sha256": build_hash}
+            # the same two-pin decision with the native image and observed digests.
+            policy["expectedBuildSha256ByTarget"][target] = INTEL_SOURCE if target == ARM else ARM_SOURCE
+            policy["releaseBuildsByPackVersion"][VERSION][target] = {"sha256": build_hash}
             policy_file.write_text(json.dumps(policy, indent=2))
             run(installer, released)
 
         installed = bindir / "prometheus-exec"
         digest = sha256(installed.read_bytes()).hexdigest()
-        receipt = json.loads((home / ".prometheus/install/manifests/prometheus-exec.json").read_bytes())
+        receipt = json.loads(receipt_path.read_bytes())
         assert receipt["expectedBuildSha256"] == receipt["buildSha256"] == build_hash
         assert receipt["installedSha256"] == digest and receipt["releaseTag"] == tag
         assert receipt["releaseManifestSha256"] == sha256((stage / "manifest.json").read_bytes()).hexdigest()
 
-        for name in ["prometheus", "pk", "pk-cherry", "prometheus-learning-worker", "surreal-memory-server"]:
-            run([*resolver, "copy", bindir / name, stage / "bin" / name])
-        check = json.loads(run([bindir / "prometheus", "doctor", "--check", "binaries.manifest", "--json"]))
+        check = json.loads(run(doctor))
         result, = check["checks"]
         assert result["status"] == "pass" and any(
             f"prometheus-exec: installed sha256 {digest}; GitHub release {tag}" in row for row in result["details"]
