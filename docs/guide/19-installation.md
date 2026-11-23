@@ -23,7 +23,46 @@ Release and minimum-active versions come from `skill-system.json`. `--best-effor
 ./install.sh --profile full
 ```
 
-Native service installation requires Bash 4 or newer. macOS `/bin/bash` 3.2 is insufficient. Service availability follows actual templates: execution and liter-llm API have macOS templates; other operating systems need their own supported setup. A binary's platform support does not guarantee a service template.
+Full installs offer a provider for each service. The native supervisor is launchd on macOS and user systemd on Linux. Full's scheduled maintenance scripts require Bash 4+. Windows users can manage Docker services with Node from PowerShell and install the skills profile from Git Bash or WSL.
+
+### Choose service providers
+
+Use the interactive Full installer, or supply one choice per service. A skills-profile install also accepts explicitly requested services. The standalone service command works independently of skill distribution.
+
+```bash
+./install.sh --profile full --service surrealdb=reuse --endpoint surrealdb=http://127.0.0.1:28000 \
+  --service surreal-memory=native --service prometheus-research=off --dry-run
+
+# Start from an empty service selection on a fresh home.
+node scripts/service-providers/cli.mjs plan --enabled surface-bridge --service surface-bridge=docker --port surface-bridge=17892
+node scripts/service-providers/cli.mjs apply --enabled surface-bridge --service surface-bridge=docker --port surface-bridge=17892
+node scripts/service-providers/cli.mjs status --json
+node scripts/service-providers/cli.mjs stop --only surface-bridge
+node scripts/service-providers/cli.mjs uninstall --only surface-bridge
+```
+
+In PowerShell use, for example, `./scripts/services.ps1 plan --enabled surface-bridge --service surface-bridge=docker`. Use `--non-interactive` for automation. Set `PROMETHEUS_SERVICE_MODE` for the default, or set `PROMETHEUS_SERVICE_PK_CHERRY_MODE=docker` and `PROMETHEUS_SERVICE_PK_CHERRY_PORT=18942` for one service. The corresponding `_ENDPOINT` variable accepts an explicit URL. Command-line choices take precedence over service environment variables and saved choices. A global default applies to enabled services that have no saved choice.
+
+| Mode | Installer behavior |
+| --- | --- |
+| `auto` | Probe configured and known endpoints, reuse one compatible service, otherwise choose native where supported. |
+| `reuse` | Require a running compatible instance. The Boss, another pack, and manually installed services can supply it. |
+| `native` | Install the selected native binary and register the user job. |
+| `docker` | Pull the image digest published for this checkout and the local Linux container architecture. Run Compose with a loopback host binding. |
+| `off` | Disable this service for this pack. User-owned processes and data stay with their owner. |
+
+The Full service IDs are `surrealdb`, `surreal-memory`, `liter-llm`, `openai-proxy`, `pk-cherry`, `forge-mcp`, `surface-bridge`, `prometheus-research`, `prometheus-exec`, and `learning-worker`. Native surface-bridge binds port 7890. A Docker mapping can publish another port. The released exec daemon requires macOS Seatbelt for Tier P readiness. Its Linux images can start the process, but its Unix socket reports an unavailable Tier P backend. The installer rejects the Docker selection during planning. Select native on macOS, reuse a local exec socket that passes readiness, or choose off. The learning worker uses a scheduled queue and exec uses a Unix socket. Neither has an HTTP port to publish.
+
+Docker Desktop on macOS or Windows must use Linux containers. Docker Engine needs Compose v2. The images for linux/amd64 and linux/arm64 package the checked Linux release artifacts. The `service-images.json` asset on the versioned GitHub release identifies each image and its source. SurrealDB uses a separately pinned upstream image. An absent or incompatible service image is reported by the plan. You can explicitly select another provider. For Docker configuration:
+
+- Supply `SURREAL_ROOT_USERNAME` and `SURREAL_ROOT_PASSWORD` for a new database, and `MEMORY_USERNAME` and `MEMORY_PASSWORD` for the memory server's database account. Full's Gate-enabled memory image also requires `AUTH_JWT_ISSUER`, `AUTH_JWT_AUDIENCE`, `AUTH_JWT_ALGORITHM`, and `AUTH_JWT_KEY` or `AUTH_JWT_KEY_FILE`.
+- Set `LITER_LLM_CONFIG` to an existing gateway configuration. Set `OPENAI_PROXY_AUTH_PATH` to a Codex authentication file or provide `OPENAI_API_KEY` for openai-proxy. Configure gateway model routes for the chosen backend.
+- Set `FORGE_MCP_TOKEN` for authenticated Forge access and supply that bearer token to clients. Research needs `PROMETHEUS_RESEARCH_HARNESS_DIR` with the Linux harness executable and its runtime dependencies. The learning worker needs `PROMETHEUS_LEARNING_PROJECT_ROOT` for paths referenced by its queued jobs.
+
+Full's Docker memory API requires a Gate-issued bearer token for MCP clients. Export `PROMETHEUS_MEMORY_BEARER_TOKEN`. For a native or container learning worker consuming this API, set `PROMETHEUS_WORKER_MEMORY_GATEWAY` to the address of a gateway that authenticates its requests. Supply `FORGE_MCP_TOKEN` in the client environment for protected Forge. The installer writes environment references for Claude, OpenCode and Codex. Configure the authorization header directly in clients that use a different credential mechanism.
+
+Auto and reuse can inspect local Docker labels to identify an existing sidecar. Set `PROMETHEUS_DISCOVER_DOCKER=0` to skip that optional inspection, or set it to `1` to enable it during a native-only plan. A busy port with an unknown service, multiple matching instances, or an incompatible memory namespace, database or embedding profile requires an explicit decision. Pass `--endpoint` for an existing compatible instance, select a different port for an owned service, or select `off`. The provider receipt at `~/.prometheus/service-providers/full.json` records the mode, endpoint and ownership for status, stop and removal. Stop and uninstall operate on recorded pack-owned services. Provider operations preserve service data.
+
 
 ## Selected home and immutable payload
 

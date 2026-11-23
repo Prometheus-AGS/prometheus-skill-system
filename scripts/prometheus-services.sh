@@ -7,6 +7,17 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ACTION="${1:-}"
 shift || true
 
+# Provider-aware operations also work on Linux and Windows Docker Desktop.
+# Keep the legacy diagnostic view for installations created before receipts.
+case "$ACTION" in
+    install|load) exec bash "$REPO_ROOT/scripts/install-mcp-services.sh" "$@" ;;
+    unload) exec bash "$REPO_ROOT/scripts/install-mcp-services.sh" --unload "$@" ;;
+    status|doctor)
+        if [ -f "$HOME/.prometheus/service-providers/full.json" ]; then
+            exec bash "$REPO_ROOT/scripts/check-mcp-health.sh" "$@"
+        fi ;;
+esac
+
 # Identity defaults come from config/defaults.env so the three installer scripts
 # cannot drift apart again. This previously hard-coded a personal username as the
 # default and then enforced the match below, which meant the script refused to

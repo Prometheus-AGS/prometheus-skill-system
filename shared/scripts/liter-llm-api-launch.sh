@@ -30,4 +30,4 @@ fi
 # file has no host setting, so it must be passed here. Set LITER_LLM_HOST=0.0.0.0 in
 # the LaunchAgent only if another machine really needs to reach this gateway.
 exec "$LITER_LLM_BIN" api --host "${LITER_LLM_HOST:-127.0.0.1}" \
-    --config "$HOME/.config/liter-llm/liter-llm-proxy.toml"
+    --port "${LITER_LLM_PORT:-4000}" --config "${LITER_LLM_CONFIG:-$HOME/.config/liter-llm/liter-llm-proxy.toml}"

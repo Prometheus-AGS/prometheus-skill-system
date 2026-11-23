@@ -25,6 +25,10 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
+if [ -f "$HOME/.prometheus/service-providers/full.json" ]; then
+    exec node "$(dirname "$0")/service-providers/health.mjs" "$JSON_MODE" "$EXCLUDED_SERVICES"
+fi
+
 service_is_excluded() {
     printf '%s' "$EXCLUDED_SERVICES" | grep -qx "$1"
 }

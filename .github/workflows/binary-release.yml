@@ -11,12 +11,17 @@ on:
         description: Exact pack tag (defaults to the version on the selected ref)
         required: false
         type: string
+      images_only:
+        description: Package an existing version's published Linux binaries without rebuilding native artifacts
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   source:
+    if: inputs.images_only != true
     runs-on: ubuntu-24.04
     outputs:
       active: ${{ steps.select.outputs.active }}
@@ -142,3 +147,78 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 scripts/release/publish_binaries.py publish dist
+
+  service-images:
+    needs: [source, publish]
+    if: >-
+      always() && !cancelled() &&
+      (needs.publish.result == 'success' ||
+      (github.event_name == 'workflow_dispatch' && inputs.images_only && github.ref == 'refs/heads/main' && needs.publish.result == 'skipped'))
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {arch: amd64, target: x86_64-unknown-linux-gnu, runner: ubuntu-24.04}
+          - {arch: arm64, target: aarch64-unknown-linux-gnu, runner: ubuntu-24.04-arm}
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+    concurrency:
+      group: image-platform-${{ needs.source.outputs.tag || inputs.tag }}-${{ matrix.arch }}
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.source.outputs.tag || inputs.tag }}
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Retrieve Linux payloads from the native build
+        if: needs.publish.result == 'success'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-linux-${{ matrix.arch }}
+          path: ${{ runner.temp }}/native
+      - name: Package the released Linux payloads for GHCR
+        run: |
+          python3 docker/service-images/package.py prepare --tag "$TAG" --arch "$ARCH" --assets "$RUNNER_TEMP/native" --out "$RUNNER_TEMP/contexts"
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          python3 docker/service-images/package.py build --out "$RUNNER_TEMP/contexts" --push
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: image-manifests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/contexts/platform-${{ matrix.arch }}.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7
+
+  publish-service-images:
+    needs: [source, service-images]
+    if: always() && !cancelled() && needs.service-images.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      packages: write
+    concurrency:
+      group: image-index-${{ needs.source.outputs.tag || inputs.tag }}
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.source.outputs.tag || inputs.tag }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: image-manifests-*
+          path: ${{ runner.temp }}/image-manifests
+          merge-multiple: true
+      - name: Publish the versioned image indexes and release inventory
+        run: |
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          python3 docker/service-images/package.py publish --tag "$TAG" --records "$RUNNER_TEMP/image-manifests"

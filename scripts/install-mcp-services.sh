@@ -47,11 +47,16 @@ ACTION="install"
 DRY_RUN=false
 FORCE_RESTART=false
 RENDER_ONLY_DIR=""
+PROVIDER_ARGS=()
 LEARNING_RECOVERY=false
+MAINTENANCE_ONLY=false
 EXCLUDED_SERVICES=""
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
+        --service|--port|--endpoint|--enabled|--home) PROVIDER_ARGS+=("$1" "${2:?missing value}"); shift 2 ;;
+        --non-interactive|--json) PROVIDER_ARGS+=("$1"); shift ;;
+        --maintenance-only) MAINTENANCE_ONLY=true; shift ;;
         --unload)   ACTION="unload"; shift ;;
         --restart)  FORCE_RESTART=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
@@ -72,8 +77,43 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
+# The historical render/recovery helpers remain available. User-facing install
+# and unload always consult the ownership-aware planner before touching a job.
+if ! $MAINTENANCE_ONLY && ! $LEARNING_RECOVERY && [ -z "$RENDER_ONLY_DIR" ]; then
+    [ "$PROMETHEUS_USER" = "$(id -un)" ] || { echo "Run the service command as $PROMETHEUS_USER" >&2; exit 2; }
+    selected_ids="surrealdb,surreal-memory,liter-llm,openai-proxy,pk-cherry,forge-mcp,surface-bridge,prometheus-research,prometheus-exec,learning-worker"
+    while IFS= read -r excluded; do
+        case "$excluded" in
+            surrealdb-native) id=surrealdb ;; surreal-memory-native) id=surreal-memory ;;
+            exec) id=prometheus-exec ;; liter-llm-api) id=liter-llm ;;
+            pk-cherry|forge-mcp|surface-bridge|learning-worker) id="$excluded" ;;
+            *) continue ;;
+        esac
+        selected_ids=",$selected_ids,"
+        selected_ids="${selected_ids/,$id,/,}"
+        selected_ids="${selected_ids#,}"
+        selected_ids="${selected_ids%,}"
+    done <<<"$EXCLUDED_SERVICES"
+    [ -z "$EXCLUDED_SERVICES" ] || PROVIDER_ARGS+=(--only "$selected_ids")
+    command=apply
+    if [ "$ACTION" = unload ]; then command=stop; fi
+    if $DRY_RUN; then command=plan; elif $FORCE_RESTART; then node "$REPO_ROOT/scripts/service-providers/cli.mjs" stop ${PROVIDER_ARGS[@]+"${PROVIDER_ARGS[@]}"}; fi
+    exec node "$REPO_ROOT/scripts/service-providers/cli.mjs" "$command" ${PROVIDER_ARGS[@]+"${PROVIDER_ARGS[@]}"}
+fi
+
+if $LEARNING_RECOVERY && [ -f "$HOME/.prometheus/service-providers/full.json" ] && [ -z "$RENDER_ONLY_DIR" ]; then
+    command=apply
+    if $DRY_RUN; then command=plan; fi
+    node "$REPO_ROOT/scripts/service-providers/cli.mjs" "$command" --only pk-cherry,learning-worker
+    LEARNING_RECOVERY=false
+    MAINTENANCE_ONLY=true
+fi
+
 service_is_excluded() {
     local name="${1#ai.prometheus.}"
+    if $MAINTENANCE_ONLY; then
+        case "$name" in prometheus-nudge|prometheus-nudge.timer|hooks-logrotate|hooks-logrotate.timer) return 1 ;; *) return 0 ;; esac
+    fi
     printf '%s' "$EXCLUDED_SERVICES" | grep -qx "$name"
 }
 
@@ -108,6 +148,10 @@ else
     export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u "$PROMETHEUS_USER" 2>/dev/null || id -u)}"
 fi
 
+if $MAINTENANCE_ONLY; then
+    PROMETHEUS_HOME="$HOME"
+    SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
+fi
 LOG_DIR="$PROMETHEUS_HOME/.prometheus/logs"
 KNOWLEDGE_DIR="$PROMETHEUS_HOME/.prometheus/knowledge"
 LAUNCH_AGENTS_DIR="$PROMETHEUS_HOME/Library/LaunchAgents"
@@ -195,7 +239,7 @@ render_template() {
     pk_cherry_bin="$(resolve_bin pk-cherry)";  [ -n "$pk_cherry_bin" ] || pk_cherry_bin="$BIN_FALLBACK_DIR/pk-cherry"
     forge_bin="$(resolve_bin forge)";          [ -n "$forge_bin" ]     || forge_bin="$BIN_FALLBACK_DIR/forge"
     docker_bin="$(resolve_bin docker)";        [ -n "$docker_bin" ]    || docker_bin="/usr/local/bin/docker"
-    surreal_bin="$(resolve_surreal_bin "$PROMETHEUS_HOME" "$PROMETHEUS_PATH")" || return 1
+    if $MAINTENANCE_ONLY; then surreal_bin="$PROMETHEUS_HOME/.prometheus/bin/surreal"; else surreal_bin="$(resolve_surreal_bin "$PROMETHEUS_HOME" "$PROMETHEUS_PATH")"; fi || return 1
     surreal_memory_bin="$(resolve_bin surreal-memory-server)"
     [ -n "$surreal_memory_bin" ] || surreal_memory_bin="$REPO_ROOT/tools/surreal-memory-server/target/release/surreal-memory-server"
     [ -f "$surreal_memory_bin" ] || surreal_memory_bin="$BIN_FALLBACK_DIR/surreal-memory-server"
@@ -509,6 +553,7 @@ linux_install() {
         $DRY_RUN || render_template "$src" "$out"
     done
     for f in "$LEARNING_LABEL.service" "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.service" "$ROTATION_LABEL.timer"; do
+        service_is_excluded "${f%.service}" && continue
         local src="$REPO_ROOT/shared/systemd/$f"
         local out="$SYSTEMD_USER_DIR/$f"
         echo "→ rendering $f"
@@ -538,7 +583,8 @@ linux_install() {
     # Nudge: enable the timer (drives the oneshot every 4h), not the service.
     echo "  ↳ enabling nudge timer (fires every 4h)"
     run systemctl --user enable --now "$NUDGE_LABEL.timer"
-    run systemctl --user enable --now "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.timer"
+    if ! $MAINTENANCE_ONLY; then run systemctl --user enable --now "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer"; fi
+    run systemctl --user enable --now "$ROTATION_LABEL.timer"
 
     echo ""
     echo "All daemons installed. Verify with: bash scripts/check-mcp-health.sh"

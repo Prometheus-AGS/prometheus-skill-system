@@ -29,12 +29,14 @@ set -euo pipefail
 INSTALL=false
 BUILD_TOOLS=false
 CORE_ONLY=false
+SKIP_DOCKER=false
 PREBUILT=false
 RUNTIME="auto"   # auto | docker | native — how to run daemon services
 for arg in "$@"; do
     case "$arg" in
         --install) INSTALL=true ;;
         --build-tools) BUILD_TOOLS=true ;;
+        --skip-docker) SKIP_DOCKER=true ;;
         --core-only) CORE_ONLY=true ;;
         --prebuilt) PREBUILT=true ;;
         --runtime=*) RUNTIME="${arg#*=}" ;;
@@ -601,71 +603,32 @@ resolve_runtime() {
 }
 
 # ── Submodule tool builds (--build-tools) ────────────────────────────────────
-build_submodule_tools() {
-    echo ""
-    echo "  Submodule Tool Builds:"
-
-    # Make sure submodules are checked out before any cargo build.
-    if ! release_has prometheus && [ -f "$REPO_ROOT/.gitmodules" ]; then
-        if (cd "$REPO_ROOT" && git submodule update --init --recursive >/dev/null 2>&1); then
-            echo "    ✅ Submodules initialized"
-        else
-            echo "    ⚠️  git submodule update reported issues (continuing anyway)"
-        fi
-    fi
-
-    # Order matters only insofar as long-running builds (surreal-memory) come last
-    # so users see the quick wins first.
-    build_and_install "forge"                 "tools/forge-rs"               "forge-cli"             || true
-    build_and_install "pk"                    "tools/prometheus-knowledge"   "pk-cli"                || true
-    build_and_install "pk-cherry"             "tools/prometheus-knowledge"   "pk-cherry"             || true
-    build_and_install "liter-llm"             "tools/liter-llm"              "liter-llm-cli"         || true
-    build_and_install "prometheus"            "tools/prometheus-cli"         ""                      || true
-    build_and_install "prometheus-rust-auditor" "tools/prometheus-rust-auditor" ""                    || true
-
-    # SurrealDB backend: reuse an existing install/instance if present rather than
-    # installing or starting a new one.
-    echo "    Datastore (SurrealDB):"
-    check_surrealdb
-
-    # surreal-memory-server: honor the user's runtime choice (docker vs native).
-    # An already-running instance (any provenance, detected via HTTP/port probe)
-    # always wins so we never stomp on a service started elsewhere.
-    if check_running_service "surreal-memory-server" 23001 "/mcp/sse"; then
-        :  # already up — leave it alone
-    elif [ "$RUNTIME" = "docker" ]; then
-        if docker_available; then
-            echo "    ℹ️  Runtime=docker — surreal-memory-server runs via docker compose:"
-            echo "       (cd $REPO_ROOT/tools/surreal-memory-server && docker compose up -d)"
-            echo "       (requires .env with OPENAI_API_KEY for embeddings)"
-            if $SURREALDB_PRESENT && [ -n "$SURREALDB_ENDPOINT" ]; then
-                echo "    ℹ️  An external SurrealDB is already running ($SURREALDB_ENDPOINT)."
-                echo "       To reuse it instead of the bundled DB: set SURREAL_ENDPOINT and start"
-                echo "       only the server — docker compose up -d surreal-memory-server"
-            fi
-            if $INSTALL; then
-                if (cd "$REPO_ROOT/tools/surreal-memory-server" && docker compose up -d); then
-                    echo "    ✅ surreal-memory-server started via Docker"
-                else
-                    echo "    ❌ docker compose up failed for surreal-memory-server"
-                    TOOL_FAILURES+=("surreal-memory-server: docker compose failed")
-                fi
-            fi
-        else
-            echo "    ⚠️  Runtime=docker requested but Docker/Compose unavailable — falling back to native build."
-            build_and_install "surreal-memory-server" "tools/surreal-memory-server" "" || true
-        fi
+build_submodule_tools() (
+    # Build the host CLI tools and only the daemons selected for native execution.
+    # The provider installer consumes GHCR images for Docker selections.
+    local runtime="$RUNTIME" result
+    if [ "$runtime" != auto ]; then export PROMETHEUS_SERVICE_MODE="$runtime"; fi
+    result="$(mktemp)"
+    trap 'rm -f "$result"' EXIT
+    node "$REPO_ROOT/scripts/service-providers/cli.mjs" plan --non-interactive --json >"$result" || {
+        node -e 'const p=JSON.parse(require("fs").readFileSync(process.argv[1]));console.error(p.conflicts.join("\n"))' "$result"
+        exit 1
+    }
+    PROMETHEUS_NATIVE_SERVICES="$(node -e 'const p=JSON.parse(require("fs").readFileSync(process.argv[1]));console.log(p.services.filter(x=>x.provider==="native").map(x=>x.id).join(","))' "$result")"
+    export PROMETHEUS_NATIVE_SERVICES
+    if release_has prometheus; then
+        export PROMETHEUS_BINARY_RELEASE_STAGE="$release_stage"
     else
-        # Native runtime: build the binary directly.
-        if $SURREALDB_PRESENT && [ -n "$SURREALDB_ENDPOINT" ]; then
-            echo "    ℹ️  Point the server at the existing DB: export SURREAL_ENDPOINT=$SURREALDB_ENDPOINT"
-        fi
-        build_and_install "surreal-memory-server" "tools/surreal-memory-server" "" || true
+        export PROMETHEUS_BINARY_RELEASE_PROBED=1
+        if $INSTALL; then git -C "$REPO_ROOT" submodule update --init --recursive; fi
     fi
-
-    # sycophancy-correction lives under skills/imported/ rather than tools/.
-    build_and_install "sycophancy-correction" "skills/imported/sycophancy-correction" "" || true
-}
+    if $INSTALL; then
+        PROMETHEUS_NATIVE_SERVICES="" bash "$REPO_ROOT/scripts/install-binaries.sh"
+        node "$REPO_ROOT/scripts/service-providers/cli.mjs" apply --non-interactive
+    else
+        bash "$REPO_ROOT/scripts/install-binaries.sh"
+    fi
+)
 
 # ── Legacy global binaries (--install only) ──────────────────────────────────
 # Kept for backwards compatibility — superseded by --build-tools, but harmless
@@ -742,7 +705,7 @@ fi
 check_git
 echo ""
 echo "  Optional:"
-check_docker
+if ! $SKIP_DOCKER; then check_docker; fi
 check_npm
 if $CORE_ONLY; then [ "$MISSING" -eq 0 ]; exit; fi
 
@@ -761,15 +724,17 @@ if $CORE_ONLY; then [ "$MISSING" -eq 0 ]; exit; fi
   fi
 
 # Decide how daemon services should run before we attempt to build/start them.
-resolve_runtime
+if ! $BUILD_TOOLS && [ ! -f "$HOME/.prometheus/service-providers/full.json" ]; then resolve_runtime; fi
 
 if $BUILD_TOOLS; then
     build_submodule_tools
+elif [ -f "$HOME/.prometheus/service-providers/full.json" ]; then
+    bash "$REPO_ROOT/scripts/check-mcp-health.sh"
 else
     check_binaries
 fi
 
-check_mcp_services
+if ! $BUILD_TOOLS && [ ! -f "$HOME/.prometheus/service-providers/full.json" ]; then check_mcp_services; fi
 
 echo ""
 echo "================================================"

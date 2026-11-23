@@ -7,6 +7,9 @@ import path from 'node:path';
 import readline from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 
+import { planServices, applyServices } from './service-providers/index.mjs';
+import {syncInstalledMcp} from './service-providers/mcp-config.mjs';
+import native from './service-providers/native.mjs';
 import { compareVersions, readSkillSystem, targetsById } from './lib/skill-system.js';
 import { resolveCodexHome } from './lib/store-paths.js';
 
@@ -18,6 +21,7 @@ function parseArgs(argv) {
   const args = {
     sourceRoot: process.cwd(),
     profile: null,
+    selections: {}, endpoints: {}, ports: {},
     targets: 'detected',
     nonInteractive: false,
     yes: false,
@@ -29,7 +33,13 @@ function parseArgs(argv) {
   };
   for (let index = 0; index < argv.length; index += 1) {
     const value = argv[index];
-    if (value === '--profile') args.profile = argv[++index];
+    if (['--service','--endpoint','--port'].includes(value)) {
+      const match = /^([a-z0-9-]+)=(.+)$/.exec(argv[++index] || '');
+      if (!match) fail(value + ' requires id=value');
+      const field = {'--service':'selections','--endpoint':'endpoints','--port':'ports'}[value];
+      args[field][match[1]] = match[2];
+    }
+    else if (value === '--profile') args.profile = argv[++index];
     else if (value === '--targets') args.targets = argv[++index];
     else if (value === '--source-root') args.sourceRoot = argv[++index];
     else if (value === '--home') args.home = argv[++index];
@@ -55,6 +65,9 @@ function help() {
   process.stdout.write(`Usage: ./install.sh [options]\n\n` +
     `  --profile skills|full       Installation profile (default: skills)\n` +
     `  --targets detected|all|IDs  Detected clients, all (agents,claude,qwen), or IDs\n` +
+    `  --service ID=MODE           Repeat for auto, native, docker, reuse, or off\n` +
+    `  --endpoint ID=URL           Use an existing service endpoint\n` +
+    `  --port ID=PORT              Use an alternate local port\n` +
     `  --home PATH                 Fallback home; explicit CODEX_HOME takes precedence\n` +
     `  --non-interactive           Disable prompts\n` +
     `  --yes                       Approve the displayed mutation summary\n` +
@@ -214,10 +227,13 @@ function verifyImportCommit(sourceRoot, entry) {
   if (actual !== entry.commit) fail(`import ${entry.path} is ${actual}; expected ${entry.commit}`);
 }
 
-function initializeImports(sourceRoot, contract, profile, hasBinaries, sourceImports) {
+const serviceImports = {'tools/liter-llm':'liter-llm','tools/openai-proxy':'openai-proxy','tools/surreal-memory-server':'surreal-memory'};
+function initializeImports(sourceRoot, contract, profile, hasBinaries, sourceImports, plan) {
   const required = contract.imports.filter(entry => entry.requiredFor?.includes(profile)
+    && (!plan || !serviceImports[entry.path] || plan.services.some(s => s.provider === 'native' && s.id === serviceImports[entry.path]))
     && (!hasBinaries || !entry.path.startsWith('tools/') || sourceImports.includes(entry.path)));
   const paths = required.map(entry => entry.path);
+  if (!paths.length) return;
   run('git', ['-C', sourceRoot, 'submodule', 'update', '--init', '--recursive', '--', ...paths]);
   for (const entry of required) verifyImportCommit(sourceRoot, entry);
 }
@@ -248,24 +264,27 @@ function mcpTools(targets, home) {
   return tools;
 }
 
-function configureFull(args, targets, contract, sourceImports) {
+async function configureFull(args, targets, contract, sourceImports, options, plan) {
   const supported = contract.platforms.full.includes(platformKind());
   if (!supported) fail('full installation is supported on macOS and Linux only. On Windows, use --profile skills from Git Bash or WSL.');
+  const env = {...process.env,...plan.env, PROMETHEUS_NATIVE_SERVICES: plan.services.filter(s => s.provider === 'native').map(s => s.id).join(',')};
   const prereqArgs = [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh'), '--core-only'];
+  if (!plan.services.some(s => s.provider === 'docker')) prereqArgs.push('--skip-docker');
   if (process.env.PROMETHEUS_BINARY_RELEASE_STAGE && !sourceImports.length) prereqArgs.push('--prebuilt');
   const prereq = spawnSync('bash', prereqArgs, { cwd: args.sourceRoot, stdio: 'inherit' });
   if (prereq.status !== 0) {
     if (!args.yes) fail('missing prerequisites; rerun with --yes to approve local prerequisite installation');
     run('bash', [...prereqArgs, '--install'], { cwd: args.sourceRoot });
   }
-  run('bash', [path.join(args.sourceRoot, 'scripts/install-binaries.sh')], { cwd: args.sourceRoot });
-  run('bash', [path.join(args.sourceRoot, 'scripts/install-mcp-services.sh')], { cwd: args.sourceRoot });
+  run('bash', [path.join(args.sourceRoot, 'scripts/install-binaries.sh')], {cwd:args.sourceRoot,env});
+  const applied = await applyServices({...options,nativeBinariesReady:true,env},{native});
+  if (applied.applicable === false) fail('Service installation blocked: ' + JSON.stringify(applied.conflicts));
+  run('bash', [path.join(args.sourceRoot, 'scripts/install-mcp-services.sh'), '--maintenance-only'], {cwd:args.sourceRoot,env});
   for (const tool of mcpTools(targets, args.home)) {
-    run('bash', [path.join(args.sourceRoot, 'scripts/configure-mcp-all-tools.sh'), '--tool', tool], { cwd: args.sourceRoot });
+    run('bash', [path.join(args.sourceRoot, 'scripts/configure-mcp-all-tools.sh'), '--tool', tool], {cwd:args.sourceRoot,env});
   }
-  run('bash', [path.join(args.sourceRoot, 'scripts/check-mcp-health.sh')], { cwd: args.sourceRoot });
-  const prometheus = path.join(process.env.PROMETHEUS_COMMAND_DIRECTORY || path.join(args.home, '.local/bin'), 'prometheus');
-  run(prometheus, ['doctor', '--exclude', 'control.kbd-runtime', '--exclude', 'state.kbd-orchestrator', '--exclude', 'control.kbd-rollout', '--exclude', 'remote-queue'], { cwd: args.sourceRoot });
+  syncInstalledMcp({home:args.home,env});
+  run(process.execPath,[path.join(args.sourceRoot,'scripts/service-providers/doctor.mjs')],{cwd:args.sourceRoot,env});
 }
 
 async function main() {
@@ -288,11 +307,25 @@ async function main() {
   if (!targets.length) fail('no target clients selected or detected; pass --targets all or a comma-separated target list');
   if (!args.uninstall) rejectObsoleteNativeUmbrella(contract, targets, args.home);
   const operation = args.verify ? 'verify' : args.uninstall ? 'uninstall' : 'install';
+  const explicitServices = [args.selections,args.endpoints,args.ports].some(x => Object.keys(x).length) ||
+    Object.keys(process.env).some(k => /^PROMETHEUS_SERVICE_/.test(k));
+  const useServices = profile === 'full' || explicitServices;
+  const serviceOptions = {root:args.sourceRoot,home:args.home,selections:args.selections,endpoints:args.endpoints,
+    ports:args.ports,interactive:!args.nonInteractive && !args.yes && process.stdin.isTTY,
+    ...(profile === 'skills' ? {enabled:[]} : {})};
+  let servicePlan;
+  if (useServices && operation === 'install') {
+    servicePlan = await planServices(serviceOptions,{native});
+    if (!servicePlan.applicable) fail('Service conflicts: ' + JSON.stringify(servicePlan.conflicts));
+    serviceOptions.interactive = false;
+    serviceOptions.selections = Object.fromEntries(servicePlan.services.map(s => [s.id,s.requested]));
+  }
   const imports = contract.imports.filter(entry => entry.requiredFor?.includes(profile)).map(entry => `${entry.path}@${entry.commit}`);
   const summary = [
     `Prometheus skill system ${operation} plan`,
     `  release: ${contract.releaseVersion} (minimum active ${contract.minimumActiveVersion})`,
     `  profile: ${profile}`,
+    ...(servicePlan ? servicePlan.services.map(s => `  service ${s.id}: ${s.provider}${s.endpoint ? ' ' + s.endpoint : ''}`) : []),
     `  targets: ${targets.map(target => `${target.id}:${target.mode}`).join(', ')}`,
     `  imports${profile === 'full' ? ' (tool sources only on fallback)' : ''}: ${args.verify || args.uninstall ? 'none' : imports.join(', ')}`,
     `  plugin root: ${path.join(args.home, '.prometheus/plugins/prometheus-skill-pack')}`,
@@ -310,8 +343,8 @@ async function main() {
   }
 
   const failures = [];
-  const attempt = (label, action) => {
-    try { return action(); }
+  const attempt = async (label, action) => {
+    try { return await action(); }
     catch (error) {
       if (!args.bestEffort) throw error;
       failures.push(`${label}: ${error.message}`);
@@ -329,7 +362,8 @@ async function main() {
       const resolve = spawnSync(process.execPath, [fetcher, 'prepare', stage], { stdio: 'inherit' });
       if (resolve.error) throw resolve.error;
       if (resolve.status === 0) {
-        sourceImports = run(process.execPath, [fetcher, 'source-imports', stage], {capture: true}).split(/\r?\n/).filter(Boolean);
+        sourceImports = run(process.execPath, [fetcher, 'source-imports', stage], {capture: true}).split(/\r?\n/).filter(Boolean)
+          .filter(dir => !serviceImports[dir] || servicePlan.services.some(s => s.provider === 'native' && s.id === serviceImports[dir]));
         process.env.PROMETHEUS_BINARY_RELEASE_STAGE = stage;
         process.env.PROMETHEUS_RELEASE_HOOK_BIN = path.join(stage, 'bin/prometheus-hook');
       } else if (resolve.status === 3) {
@@ -341,17 +375,29 @@ async function main() {
     const installerArgs = generationArgs(args, targets);
     if (args.verify) installerArgs.push('--verify');
     else if (args.uninstall) installerArgs.push('--uninstall');
-    else attempt('submodule initialization', () => initializeImports(args.sourceRoot, contract, profile, useBinaries && Boolean(process.env.PROMETHEUS_BINARY_RELEASE_STAGE), sourceImports));
-    const generation = attempt(operation, () => run(process.execPath, installerArgs, { capture: true }));
+    else await attempt('submodule initialization', () => initializeImports(args.sourceRoot, contract, profile, useBinaries && Boolean(process.env.PROMETHEUS_BINARY_RELEASE_STAGE), sourceImports, servicePlan));
+    const generation = await attempt(operation, () => run(process.execPath, installerArgs, { capture: true }));
     if (!args.verify && !args.uninstall && servesCodex(targets, args.home)) {
-      attempt('Codex memory policy', () => {
+      await attempt('Codex memory policy', () => {
         if (!applyCodexMemories({ home: args.home })) fail('could not apply Codex memory policy');
       });
-      attempt('Codex catalog policy', () => {
+      await attempt('Codex catalog policy', () => {
         if (!applyCodexCatalog({ home: args.home, sourceRoot: args.sourceRoot })) fail('could not apply Codex catalog policy');
       });
     }
-    if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract, sourceImports));
+    if (!args.verify && !args.uninstall && profile === 'full') {
+      await attempt('full profile', () => configureFull(args,targets,contract,sourceImports,serviceOptions,servicePlan));
+    } else if (useServices && operation === 'install') {
+      await attempt('services', async () => {
+        const applied = await applyServices(serviceOptions,{native});
+        if (!applied.applicable) fail('Service conflicts: ' + JSON.stringify(applied.conflicts));
+      });
+    } else if (useServices && !args.dryRun) {
+      const action = args.verify ? 'status' : 'uninstall';
+      const selectedIds = [...new Set([...Object.keys(args.selections),...Object.keys(args.ports),...Object.keys(args.endpoints)])];
+      await attempt('services', () => run(process.execPath,[path.join(args.sourceRoot,'scripts/service-providers/cli.mjs'),action,'--home',args.home,
+        ...(selectedIds.length ? ['--enabled',selectedIds.join(',')] : [])],{cwd:args.sourceRoot}));
+    }
 
     if (failures.length) {
       process.stdout.write(`Best-effort run completed without certification (${failures.length} failure(s)).\n`);

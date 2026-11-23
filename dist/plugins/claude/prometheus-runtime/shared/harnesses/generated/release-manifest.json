@@ -358,7 +358,7 @@
     },
     {
       "path": "shared/scripts/liter-llm-api-launch.sh",
-      "sha256": "7b0c31ff813b861774d02ccd81f27e02c1c1ea8ce78f2fc9ed545439eb8a6818",
+      "sha256": "8e78bcdf6a38286dd76c05e08ec1cda2378d944867fc166549367439346d8b86",
       "executable": true
     },
     {
@@ -577,5 +577,5 @@
       "executable": true
     }
   ],
-  "bundleId": "f72587b0e8bc156e1e0fa0e68371a1a9970d8a2dfd883a16bfc10fb79f5a8c42"
+  "bundleId": "decad18e67ddca5aef47f7fa76ba4b610a472fdc2b73f49131d183f5df9bd0a8"
 }

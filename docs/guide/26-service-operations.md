@@ -6,6 +6,9 @@ sidebar_position: 26
 
 # Services, ownership and recovery
 
+Use the [per-service installation guide](19-installation.md#choose-service-providers) to choose native supervision, local Docker, or an existing instance. From the checkout, run `npm run services -- status` to see the endpoint, provider and readiness for the saved configuration. Use `--only <id>` on stop and uninstall to address one owned service.
+
+
 Start with skills and the signed local KBD runtime. Add services for searchable
 memory, a knowledge library, provider routing, execution or learning interfaces.
 Installing a skill or registering MCP does not prove a service is running.

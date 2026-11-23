@@ -413,7 +413,8 @@ async function main() {
   try {
     if (!await prepare(stage)) return missing;
     const manifest = JSON.parse(await fs.readFile(path.join(stage, 'manifest.json'), 'utf8'));
-    if (action === 'windows') names.push(...manifest.files.map(file => file.name));
+    if (action === 'windows' && !names.length) names.push(...manifest.files.map(file => file.name));
+    if (action === 'windows') assert(names.every(name => manifest.files.some(file => file.name === name)), 'Unknown Windows release product');
     await installProducts(stage, new Map(names.map(name => [name, path.join(destination, name + suffix)])), manifest);
     return 0;
   } finally { await fs.rm(stage, { recursive: true, force: true }); }

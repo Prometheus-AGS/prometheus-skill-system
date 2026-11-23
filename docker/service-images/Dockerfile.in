@@ -1,0 +1,13 @@
+# Generated for one service and one Linux architecture by package.py prepare.
+# native binaries come exclusively from the GitHub release.
+FROM ubuntu:24.04@sha256:9c7f200c07e3d4a03e7249d2c16bf66a51120fb876aa2242cf31451412543289
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl git libssl3t64 libstdc++6 socat tini@RUNTIME_PACKAGES@ \
+ && rm -rf /var/lib/apt/lists/* \
+ && mkdir -p /home/prometheus /work /run/prometheus \
+ && chown 1000:1000 /home/prometheus /work /run/prometheus
+ENV HOME=/home/prometheus
+WORKDIR /work
+COPY --chmod=0755 payload /usr/local/bin/@BINARY@
+@SERVICE@
+USER 1000:1000

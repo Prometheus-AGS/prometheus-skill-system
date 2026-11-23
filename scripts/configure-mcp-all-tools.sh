@@ -45,6 +45,15 @@ command -v node >/dev/null 2>&1 || { echo "node is required for JSON manipulatio
 CODEX_HOME="$(node -e 'const path = require("node:path"); process.stdout.write(path.resolve(process.env.CODEX_HOME || path.join(process.env.HOME, ".codex")));')"
 export CODEX_HOME
 
+if [ -f "$HOME/.prometheus/service-providers/full.json" ]; then
+    resolved_table="$(mktemp)"
+    trap 'rm -f "$resolved_table"' EXIT
+    node "$REPO_ROOT/scripts/service-providers/mcp-config.mjs" table > "$resolved_table"
+    PORT_TABLE="$resolved_table"
+fi
+has_liter=true
+if ! node "$REPO_ROOT/scripts/service-providers/mcp-config.mjs" liter; then has_liter=false; fi
+
 RESULTS=()
 SKIPPED=()
 
@@ -56,8 +65,8 @@ SKIPPED=()
 LITER_LLM_MCP_LAUNCHER="$HOME/.local/bin/liter-llm-mcp"
 launcher_args=()
 $DRY_RUN && launcher_args=(--dry-run)
-node "$REPO_ROOT/scripts/install-liter-llm-mcp-launcher.mjs" ${launcher_args[@]+"${launcher_args[@]}"} \
-    || echo "  ⚠️  liter-llm MCP launcher step failed; liter-llm entries may not start" >&2
+$has_liter && node "$REPO_ROOT/scripts/install-liter-llm-mcp-launcher.mjs" ${launcher_args[@]+"${launcher_args[@]}"} \
+    || { ! $has_liter || echo "  ⚠️  liter-llm MCP launcher step failed; liter-llm entries may not start" >&2; }
 
 # ---------------------------------------------------------------------------
 # JSON tools (claude-code, opencode, minimax, cursor, windsurf)
@@ -204,34 +213,40 @@ merge_toml_mcp() {
     local added=()
 
     # surreal-memory (SSE)
-    if ! grep -q "\[mcp_servers.surreal-memory\]" "$config_file" 2>/dev/null; then
-        cat >> "$config_file" <<'TOML'
+    local service_url
+    service_url="$(node "$REPO_ROOT/scripts/service-providers/mcp-config.mjs" url surreal-memory)"
+    if [ -n "$service_url" ] && ! grep -q "\[mcp_servers.surreal-memory\]" "$config_file" 2>/dev/null; then
+        cat >> "$config_file" <<TOML
 
 [mcp_servers.surreal-memory]
 type = "sse"
-url = "http://localhost:23001/mcp/sse"
+url = "$service_url"
 TOML
         added+=("surreal-memory")
     fi
 
     # prometheus-knowledge (Streamable HTTP)
-    if ! grep -q "\[mcp_servers.prometheus-knowledge\]" "$config_file" 2>/dev/null; then
-        cat >> "$config_file" <<'TOML'
+    local service_url
+    service_url="$(node "$REPO_ROOT/scripts/service-providers/mcp-config.mjs" url prometheus-knowledge)"
+    if [ -n "$service_url" ] && ! grep -q "\[mcp_servers.prometheus-knowledge\]" "$config_file" 2>/dev/null; then
+        cat >> "$config_file" <<TOML
 
 [mcp_servers.prometheus-knowledge]
 type = "http"
-url = "http://localhost:8942/mcp"
+url = "$service_url"
 TOML
         added+=("prometheus-knowledge")
     fi
 
     # forge-rs (Streamable HTTP)
-    if ! grep -q "\[mcp_servers.forge-rs\]" "$config_file" 2>/dev/null; then
-        cat >> "$config_file" <<'TOML'
+    local service_url
+    service_url="$(node "$REPO_ROOT/scripts/service-providers/mcp-config.mjs" url forge-rs)"
+    if [ -n "$service_url" ] && ! grep -q "\[mcp_servers.forge-rs\]" "$config_file" 2>/dev/null; then
+        cat >> "$config_file" <<TOML
 
 [mcp_servers.forge-rs]
 type = "http"
-url = "http://localhost:8943/mcp"
+url = "$service_url"
 TOML
         added+=("forge-rs")
     fi
@@ -247,7 +262,7 @@ TOML
     fi
 
     # liter-llm (stdio)
-    if ! grep -q "\[mcp_servers.liter-llm\]" "$config_file" 2>/dev/null; then
+    if $has_liter && ! grep -q "\[mcp_servers.liter-llm\]" "$config_file" 2>/dev/null; then
         cat >> "$config_file" <<TOML
 
 [mcp_servers.liter-llm]

@@ -37,6 +37,18 @@ fail()  { echo "  ❌ $*" >&2; }
 # unbound-variable error under `set -u` in macOS's bash 3.2.
 FAILED_COMPONENTS=""
 
+# Undefined preserves the standalone binary installer. A provider plan supplies
+# an explicit (possibly empty) allowlist. Single-service installs skip host CLIs.
+if [ -z "${PROMETHEUS_NATIVE_SERVICES+x}" ] && [ -f "$HOME/.prometheus/service-providers/full.json" ]; then
+    PROMETHEUS_NATIVE_SERVICES="$(node "$REPO_ROOT/scripts/service-providers/binaries.mjs" services)"
+fi
+native_service() {
+    [ -z "${PROMETHEUS_NATIVE_SERVICES+x}" ] || case ",${PROMETHEUS_NATIVE_SERVICES}," in
+        *",$1,"*) return 0 ;; *) return 1 ;;
+    esac
+}
+core_products() { [ "${PROMETHEUS_SERVICE_BINARIES_ONLY:-0}" != 1 ]; }
+
 # Prefer the exact package release; source builds cover unpublished targets.
 . "$REPO_ROOT/scripts/binary-release.sh"
 if $DRY_RUN; then
@@ -60,7 +72,7 @@ PROMETHEUS_EXEC_ARGS=()
 if $DRY_RUN; then
     PROMETHEUS_EXEC_ARGS=(--dry-run)
 fi
-if ! (
+if native_service prometheus-exec && ! (
     if release_has prometheus-exec && [ -z "${PROMETHEUS_EXEC_SOURCE_BIN:-}" ]; then
         export PROMETHEUS_EXEC_RELEASE_MANIFEST="$release_stage/manifest.json"
         export PROMETHEUS_EXEC_SOURCE_BIN="$release_stage/bin/prometheus-exec$release_suffix"
@@ -142,15 +154,28 @@ required_products() {
     install_products "$@" || FAILED_COMPONENTS="${FAILED_COMPONENTS} $2"
 }
 
-required_products "$REPO_ROOT/tools/prometheus-cli" prometheus -p prometheus-cli
-required_products "$REPO_ROOT/crates/prometheus-hook" prometheus-hook
-required_products "$REPO_ROOT/tools/prometheus-rust-auditor" prometheus-rust-auditor
-required_products "$REPO_ROOT/tools/forge-rs" forge -p forge-cli
-required_products "$REPO_ROOT/tools/prometheus-knowledge" 'pk pk-cherry prometheus-learning-worker' -p pk-cli -p pk-cherry -p pk-learning-worker
-for substrate_bin in learner-model surface-bridge; do
-    required_products "$REPO_ROOT/substrate/$substrate_bin" "$substrate_bin"
-done
+if core_products; then
+    required_products "$REPO_ROOT/tools/prometheus-cli" prometheus -p prometheus-cli
+    required_products "$REPO_ROOT/crates/prometheus-hook" prometheus-hook
+    required_products "$REPO_ROOT/tools/prometheus-rust-auditor" prometheus-rust-auditor
+    required_products "$REPO_ROOT/substrate/learner-model" learner-model
+fi
+if native_service forge-mcp; then
+    required_products "$REPO_ROOT/tools/forge-rs" forge -p forge-cli
+fi
+pk_products=()
+pk_packages=()
+if core_products; then pk_products+=(pk); pk_packages+=(-p pk-cli); fi
+if native_service pk-cherry; then pk_products+=(pk-cherry); pk_packages+=(-p pk-cherry); fi
+if native_service learning-worker; then pk_products+=(prometheus-learning-worker); pk_packages+=(-p pk-learning-worker); fi
+if [ -n "${pk_products[*]:-}" ]; then
+    required_products "$REPO_ROOT/tools/prometheus-knowledge" "${pk_products[*]}" "${pk_packages[@]}"
+fi
+if native_service surface-bridge; then
+    required_products "$REPO_ROOT/substrate/surface-bridge" surface-bridge
+fi
 
+if native_service liter-llm; then
 if install_products "$REPO_ROOT/tools/liter-llm" liter-llm -p liter-llm-cli; then
     # `liter-llm mcp` REQUIRES a config file — without it the stdio server exits
     # and Claude Code fails to load it. Install the default proxy/MCP config
@@ -213,9 +238,11 @@ else
     info "skip liter-llm MCP launcher (node unavailable)"
 fi
 
+fi # native liter-llm
+
 # The judge gateway is optional. Its own source build failure never obstructs
 # the remaining installation; corrupt release archives are rejected above.
-if ! install_products "$REPO_ROOT/tools/openai-proxy" openai-proxy; then
+if native_service openai-proxy && ! install_products "$REPO_ROOT/tools/openai-proxy" openai-proxy; then
     info "Optional openai-proxy unavailable; see docs/decisions/openai-proxy-vendoring.md"
 fi
 
@@ -300,7 +327,7 @@ install_mlx_executor() (
     fi
 )
 
-if release_has surreal-memory-server || [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
+if native_service surreal-memory && { release_has surreal-memory-server || [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; }; then
     SM_MLX_DIR="${REPO_ROOT}/tools/surreal-memory-server/executors/mlx"
     if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ] && \
        { release_has surreal-memory-mlx-executor || [ -f "${SM_MLX_DIR}/Package.swift" ]; }; then
@@ -347,6 +374,7 @@ fi
 # Must land on PATH — MCP configs invoke the bare `sycophancy-correction`
 # command; /usr/local/bin is the canonical location the reflector gate and
 # every tool's MCP config resolve.
+if core_products; then
 SYCO_DIR="${REPO_ROOT}/skills/imported/sycophancy-correction"
 if release_has sycophancy-correction || [ -f "${SYCO_DIR}/Cargo.toml" ]; then
     info "Building sycophancy-correction..."
@@ -381,8 +409,10 @@ RUSTUP_TOOLCHAIN=stable required_products "$TEMPLATE_FORGE_DIR" 'template-forge 
 required_products "$REPO_ROOT/tools/cowork-skills/cli" 'cowork co'
 required_products "$REPO_ROOT/tools/disk-space-guardian" dsg
 
+fi # core products
+
 # ── 10. prometheus-research (HTTP + MCP research server on :7891) ────────────
-if release_has prometheus-research || [ -f "${REPO_ROOT}/substrate/prometheus-research/Cargo.toml" ]; then
+if native_service prometheus-research && { release_has prometheus-research || [ -f "${REPO_ROOT}/substrate/prometheus-research/Cargo.toml" ]; }; then
     info "Building prometheus-research..."
     if release_has prometheus-research; then
         PR_BIN="$release_stage/bin/prometheus-research$release_suffix"
@@ -396,7 +426,7 @@ if release_has prometheus-research || [ -f "${REPO_ROOT}/substrate/prometheus-re
         info "[dry-run] would run cargo build --release for prometheus-research"
         install_bin "${PR_BIN}" "${BIN_DIR}/prometheus-research$release_suffix"
         info "[dry-run] would copy static assets to docs/deep-research/static/"
-        if [ "$(uname -s)" = "Darwin" ]; then
+        if [ -z "${PROMETHEUS_NATIVE_SERVICES+x}" ] && [ "$(uname -s)" = "Darwin" ]; then
             info "[dry-run] would render and re-register the com.prometheus.research launchd service"
         fi
     elif ! release_has prometheus-research && ! (cd "${REPO_ROOT}/substrate/prometheus-research" && cargo build --release 2>&1 | tail -3); then
@@ -416,7 +446,7 @@ if release_has prometheus-research || [ -f "${REPO_ROOT}/substrate/prometheus-re
             ok "prometheus-research static assets → docs/deep-research/static/"
         fi
 
-        if [ "$(uname -s)" = "Darwin" ]; then
+        if [ -z "${PROMETHEUS_NATIVE_SERVICES+x}" ] && [ "$(uname -s)" = "Darwin" ]; then
             PLIST_SRC="${REPO_ROOT}/substrate/prometheus-research/com.prometheus.research.plist"
             PLIST_DST="${HOME}/Library/LaunchAgents/com.prometheus.research.plist"
             mkdir -p "${HOME}/Library/LaunchAgents"

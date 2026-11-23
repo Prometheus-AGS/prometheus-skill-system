@@ -152,6 +152,14 @@ system Bash 3.2:
 ./install.sh --profile full --targets detected
 ```
 
+Full's interactive installer lets you choose native, Docker, reuse, or off for each service. To preview one selection on a fresh installation:
+
+```bash
+node scripts/service-providers/cli.mjs plan --enabled surface-bridge --service surface-bridge=docker
+```
+
+The same command works in PowerShell. A local Docker Engine or Docker Desktop uses the Linux release image for its architecture. See the [service provider installation guide](docs/guide/19-installation.md#choose-service-providers).
+
 The native installer first requests the GitHub release for the pack version in
 this checkout and the host CPU. On Windows, install the native tools from
 PowerShell with `.\scripts\install-binaries.ps1`. The installer checks the
