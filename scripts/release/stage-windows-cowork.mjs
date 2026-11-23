@@ -9,11 +9,12 @@ const root = fileURLToPath(new URL('../../', import.meta.url));
 const source = 'tools/cowork-skills';
 const file = 'cli/src/commands/config.rs';
 const preimage = '7017cad1c4c2b21134d1c8a3414091f5a5d4df01';
-const patch = fileURLToPath(new URL('patches/cowork-windows-dev-link.patch', import.meta.url));
+const patch = 'scripts/release/patches/cowork-windows-dev-link.patch';
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
 
 function stage(destination) {
-  const link = git(root, 'ls-tree', 'HEAD', '--', source);
+  const commit = git(root, 'rev-parse', 'HEAD');
+  const link = git(root, 'ls-tree', commit, '--', source);
   const match = /^160000 commit ([a-f0-9]{40})\ttools\/cowork-skills$/.exec(link);
   if (!match) throw new Error('The pack commit must pin tools/cowork-skills');
   const revision = match[1];
@@ -26,7 +27,10 @@ function stage(destination) {
     git(root, 'clone', '--quiet', '--shared', '--no-checkout', '-c', 'core.autocrlf=false', '--', original, destination);
     git(destination, 'sparse-checkout', 'set', '--cone', 'cli');
     git(destination, 'checkout', '--quiet', '--detach', revision);
-    git(destination, 'apply', '--index', patch);
+    // A CRLF checkout can change patch syntax, including empty context lines.
+    // Preserve every byte from the same commit that selected the source gitlink.
+    const bytes = execFileSync('git', ['cat-file', 'blob', commit + ':' + patch], { cwd: root });
+    execFileSync('git', ['apply', '--index', '-'], { cwd: destination, input: bytes });
   } catch (error) {
     rmSync(destination, { recursive: true, force: true, maxRetries: 3 });
     throw error;
