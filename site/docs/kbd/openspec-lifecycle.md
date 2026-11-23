@@ -6,14 +6,14 @@ description: Pack-pinned OpenSpec 2.0 selection, phase-entry refresh, verify-onl
 
 # OpenSpec lifecycle updates
 
-OpenSpec is the primary spec engine for KBD projects. The pack is certified against **exactly OpenSpec 2.1.0** ([release notes](https://github.com/Fission-AI/OpenSpec/releases/tag/v2.1.0), [upgrade guide](https://openspec.dev/docs/upgrade-2-1)). `package.json`, `config/spec-engines.json` and the managed runner's `PINNED_VERSION` carry the same exact pin. The runner never follows the npm registry past it: a newer release is reported as `newerAvailable`, a newer major as `migrationRequired`, and adopting either is a pack release (or an explicit operator pin). OpenSpec 2.1.0 needs Node.js 22.20.0 or newer, and the runner refuses an older Node with a clear receipt. New projects adopt OpenSpec through `/kbd-init`, which calls the runner's `init` operation; GitHub Spec Kit is the supported backup engine.
+OpenSpec is the primary spec engine for KBD projects. The pack is certified against **exactly OpenSpec 2.1.1** ([release notes](https://github.com/Fission-AI/OpenSpec/releases/tag/v2.1.1), [upgrade guide](https://openspec.dev/docs/upgrade-2-1)). `package.json`, `config/spec-engines.json` and the managed runner's `PINNED_VERSION` carry the same exact pin. The runner never follows the npm registry past it: a newer release is reported as `newerAvailable`, a newer major as `migrationRequired`, and adopting either is a pack release (or an explicit operator pin). OpenSpec 2.1.0 needs Node.js 22.20.0 or newer, and the runner refuses an older Node with a clear receipt. New projects adopt OpenSpec through `/kbd-init`, which calls the runner's `init` operation; GitHub Spec Kit is the supported backup engine.
 
 ## What OpenSpec 2.1 changed
 
-- **Skills are installed by Vercel's `skills` package.** Installing or refreshing them needs Git and access to GitHub, including for skills kept in the project.
+- **Skills ship inside the CLI package.** From 2.1.1, installing or refreshing them needs neither Git nor GitHub. OpenSpec 2.1.0 cloned them from GitHub, including for skills kept in the project.
 - **New repositories default to a global install.** `openspec init --tools` now puts skills in the user's home unless `--scope project` is given. The managed runner always passes `--scope project`, so KBD projects keep their OpenSpec skills in the repository.
 - **No version stamp in the skills.** The runner's session-start check now asks the pinned CLI for a dry run (`openspec update --dry-run --json`), which writes nothing to the project and works offline.
-- **A refresh with no GitHub access does not stop a phase.** The runner reports `refresh-unavailable` and the project keeps the skills it had. When nothing would change, the refresh does not use the network at all.
+- **A failed skill refresh does not stop a phase.** This matters under an operator pin of 2.1.0, which needs GitHub. The runner reports `refresh-unavailable` and the project keeps the skills it had. When nothing would change, the refresh does not use the network at all.
 - **Windows:** the standalone executables are now labelled as OpenSpec, published by FISSION AI INC. An antivirus product had been removing `openspec.exe`.
 
 ## What OpenSpec 2.0 changed
@@ -49,13 +49,13 @@ In an installed package, locate the complete bundled helper directory through th
 
 The managed installation lives under ~/.prometheus/openspec/versions. It executes the package's JavaScript entry with Node and shell disabled. Exact versions are installed without lifecycle scripts or binary symlinks. It does not upgrade project dependencies or global CLI installations. Mini retains its Node-only portability contract; Windows execution still requires independent runtime validation.
 
-For a separately installed global CLI, use the package manager that owns that installation and verify every executable found on PATH. An npm-managed installation can be explicitly upgraded with npm install --global @fission-ai/openspec@2.1.0. A newer managed KBD CLI does not prove an older global shim was replaced.
+For a separately installed global CLI, use the package manager that owns that installation and verify every executable found on PATH. An npm-managed installation can be explicitly upgraded with npm install --global @fission-ai/openspec@2.1.1. A newer managed KBD CLI does not prove an older global shim was replaced.
 
 ## Availability and operator controls
 
 | Condition/control | Behavior |
 | --- | --- |
-| Registry available | Install the pinned 2.1.0 if needed and probe its CLI version; record `registryLatest`, plus `newerAvailable` / `migrationRequired` when the registry is ahead. The selection never moves |
+| Registry available | Install the pinned 2.1.1 if needed and probe its CLI version; record `registryLatest`, plus `newerAvailable` / `migrationRequired` when the registry is ahead. The selection never moves |
 | Registry unavailable | Use the pinned version (installed if cached) and record `registryError` |
 | Cold startup with insufficient time to install | Report pending (exit 75); complete the longer refresh before OpenSpec work |
 | Concurrent managed operation | Report contention (exit 75); no parallel updater or background daemon |
