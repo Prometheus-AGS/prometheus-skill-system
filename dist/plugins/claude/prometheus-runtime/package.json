@@ -2,5 +2,5 @@
   "name": "@prometheus-ags/prometheus-runtime-payload",
   "private": true,
   "type": "module",
-  "version": "1.16.2"
+  "version": "1.17.0"
 }

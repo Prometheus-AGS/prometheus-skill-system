@@ -1890,6 +1890,11 @@ struct ControlClient {
     remote_enabled: bool,
 }
 
+pub(super) fn remote_control_enabled() -> bool {
+    std::env::var("PROMETHEUS_KBD_CONTROL_PLANE")
+        .is_ok_and(|value| matches!(value.as_str(), "1" | "true" | "yes"))
+}
+
 impl ControlClient {
     fn new(runtime: &Runtime) -> Result<Self> {
         let manifest = runtime
@@ -1904,8 +1909,7 @@ impl ControlClient {
             // Ordinary KBD work is local-first. sovereign-sync is an optional
             // passive sharing service and must never become a command-path
             // dependency merely because a stale socket or service exists.
-            remote_enabled: std::env::var("PROMETHEUS_KBD_CONTROL_PLANE")
-                .is_ok_and(|value| matches!(value.as_str(), "1" | "true" | "yes")),
+            remote_enabled: remote_control_enabled(),
         })
     }
 

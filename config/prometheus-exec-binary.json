@@ -10,5 +10,11 @@
     "aarch64-apple-darwin": "ca7ea8dec23cf21efffcbd5d86d4df1087714feb0ccd1700f2dfd7d2165aa065",
     "x86_64-apple-darwin": "fe2f2c5e66d68f5179609afded64650f5e7cd038787648b617991a324a84c95e"
   },
+  "appleBuildToolsByTarget": {
+    "aarch64-apple-darwin": {
+      "sdk": "27.0",
+      "ld": "27037.1"
+    }
+  },
   "installReceipt": "~/.prometheus/install/manifests/prometheus-exec.json"
 }

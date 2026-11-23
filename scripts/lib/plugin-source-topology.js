@@ -20,7 +20,6 @@ import { spawnSync } from 'node:child_process';
 import { resolveCodexHome } from './store-paths.js';
 
 export const MARKETPLACE = 'prometheus-skill-pack';
-const PLUGIN_ID = `${MARKETPLACE}@${MARKETPLACE}`;
 
 /** A branch a durable plugin source may track. A detached HEAD (a tag checkout) is fine. */
 export function isReleaseLineBranch(branch) {
@@ -361,42 +360,59 @@ export function nativeCacheSkew({ home = os.homedir() } = {}) {
     unreadableDirs.push(`${file} (unexpected ${what} shape)`);
     return null;
   };
-  const installedVersion = registryVersion(
-    path.join(home, '.claude/plugins/installed_plugins.json'),
-    value => {
-      const entries = value?.plugins?.[PLUGIN_ID];
-      return entries === undefined ? undefined : Array.isArray(entries) ? entries[0]?.version : null;
-    },
-    'plugin registry'
-  );
+  const settingsFile = path.join(home, '.claude/settings.json');
+  const settings = readJsonStrict(settingsFile);
+  if (settings.state === 'error') unreadableDirs.push(settingsFile);
+  const registryFile = path.join(home, '.claude/plugins/installed_plugins.json');
+  const registry = readJsonStrict(registryFile);
+  if (registry.state === 'error') unreadableDirs.push(registryFile);
+  const carriers = [];
+  for (const name of ['prometheus-runtime', MARKETPLACE]) {
+    const id = `${name}@${MARKETPLACE}`;
+    const entries = registry.value?.plugins?.[id];
+    if (settings.value?.enabledPlugins?.[id] === false || entries === undefined) continue;
+    if (!Array.isArray(entries)) {
+      unreadableDirs.push(`${registryFile} (unexpected registry shape for ${id})`);
+      continue;
+    }
+    // Old registries omitted scope. A project install cannot establish a global version.
+    const row = entries.find(entry => entry?.scope === 'user') ?? entries.find(entry => entry && !entry.scope);
+    if (!row) continue;
+    if (typeof row.version !== 'string' || !row.version) {
+      unreadableDirs.push(`${registryFile} (missing version for ${id})`);
+      continue;
+    }
+    carriers.push({ name, version: row.version });
+  }
+  const installedVersion = carriers[0]?.version ?? null;
   const activeGeneration = registryVersion(
     path.join(home, '.prometheus/plugins/prometheus-skill-pack/current/skill-system.json'),
     value => (value?.releaseVersion === undefined ? undefined : value.releaseVersion),
     'generation manifest'
   );
-  if (installedVersion && activeGeneration && installedVersion !== activeGeneration) {
-    const order = compareVersions(installedVersion, activeGeneration);
+  for (const { name, version } of carriers) {
+    if (!activeGeneration || version === activeGeneration) continue;
+    const order = compareVersions(version, activeGeneration);
     if (order === null) {
       findings.push({
         code: 'CACHE_VERSION_MISMATCH',
         severity: 'warn',
-        message: `the installed Claude plugin is ${installedVersion} and the active generation is ${activeGeneration}; the versions differ and cannot be ordered.`,
+        message: `the installed Claude plugin ${name} is ${version} and the active generation is ${activeGeneration}; the versions differ and cannot be ordered.`,
       });
     } else if (order < 0) {
       findings.push({
         code: 'CACHE_BEHIND_GENERATION',
         severity: 'warn',
-        message: `the installed Claude plugin is ${installedVersion} but the active generation is ${activeGeneration}; refresh the native plugin installs.`,
+        message: `the installed Claude plugin ${name} is ${version} but the active generation is ${activeGeneration}; refresh the native plugin installs.`,
       });
     } else if (order > 0) {
       findings.push({
         code: 'CACHE_AHEAD_OF_GENERATION',
         severity: 'info',
-        message: `the installed Claude plugin (${installedVersion}) is newer than the active generation (${activeGeneration}); the generation will be updated by the next hook bootstrap.`,
+        message: `the installed Claude plugin ${name} (${version}) is newer than the active generation (${activeGeneration}); the generation will be updated by the next hook bootstrap.`,
       });
     }
   }
-  const cacheRoot = path.join(home, '.claude/plugins/cache', MARKETPLACE, MARKETPLACE);
   // An absent directory is simply empty; any other failure (EACCES, ENOTDIR...) makes the
   // inspection incomplete and must be said so rather than read as "no live sessions".
   const list = dir => {
@@ -407,9 +423,10 @@ export function nativeCacheSkew({ home = os.homedir() } = {}) {
       return [];
     }
   };
-  if (installedVersion) {
+  for (const carrier of carriers) {
+    const cacheRoot = path.join(home, '.claude/plugins/cache', MARKETPLACE, carrier.name);
     for (const version of list(cacheRoot)) {
-      if (version === installedVersion) continue;
+      if (version === carrier.version) continue;
       const inUse = path.join(cacheRoot, version, '.in_use');
       const pids = list(inUse).map(Number).filter(pid => Number.isInteger(pid) && pid > 0 && pidAlive(pid)).sort((a, b) => a - b);
       if (pids.length > 0) {
@@ -418,7 +435,7 @@ export function nativeCacheSkew({ home = os.homedir() } = {}) {
           severity: 'info',
           version,
           pids,
-          message: `${pids.length} live process(es) (${pids.join(', ')}) still use superseded plugin version ${version}; restart those sessions to move them to ${installedVersion}.`,
+          message: `${pids.length} live process(es) (${pids.join(', ')}) still use superseded plugin version ${version}; restart those sessions to move them to ${carrier.version}.`,
         });
       }
     }

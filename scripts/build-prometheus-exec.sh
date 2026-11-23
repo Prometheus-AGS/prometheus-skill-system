@@ -106,6 +106,39 @@ fi
 # the binary hash depends on the exact rustc.
 cd "$STAGE/crates/prometheus-exec"
 
+# The linked Mach-O records both the macOS SDK and Apple's linker version.
+# Select the toolchain used to certify this target even if xcode-select has
+# moved to a newer Xcode. DEVELOPER_DIR applies only to this build.
+select_apple_tools() {
+    local host manifest key sdk linker tools version ld_version
+    . "$REPO_ROOT/scripts/prometheus-exec-pin.sh"
+    host="$(prometheus_exec_host_target .)"
+    manifest="$REPO_ROOT/config/prometheus-exec-binary.json"
+    key="appleBuildToolsByTarget.$host"
+    plutil -extract "$key" json -o - "$manifest" >/dev/null 2>&1 || return 0
+    sdk="$(plutil -extract "$key.sdk" raw -o - "$manifest")"
+    linker="$(plutil -extract "$key.ld" raw -o - "$manifest")"
+    for tools in "${DEVELOPER_DIR:-}" "$(xcode-select -p 2>/dev/null || true)" \
+        /Library/Developer/CommandLineTools /Applications/Xcode.app/Contents/Developer; do
+        [[ -n "$tools" && -d "$tools" ]] || continue
+        version="$(DEVELOPER_DIR="$tools" xcrun --sdk "macosx$sdk" --show-sdk-version 2>/dev/null)" || continue
+        [[ "$version" == "$sdk" ]] || continue
+        ld_version="$(DEVELOPER_DIR="$tools" xcrun --sdk "macosx$sdk" ld -v 2>&1 | sed -n 's/^.*PROJECT:ld-\([^ ]*\).*$/\1/p')" || continue
+        [[ "$ld_version" == "$linker" ]] || continue
+        DEVELOPER_DIR="$tools"
+        SDKROOT="$(DEVELOPER_DIR="$tools" xcrun --sdk "macosx$sdk" --show-sdk-path)"
+        export DEVELOPER_DIR SDKROOT
+        apple_tool_identity="$tools|$SDKROOT|$sdk|$linker"
+        echo "prometheus-exec: $host uses $tools (macOS SDK $sdk, Apple ld $linker)" >&2
+        return 0
+    done
+    echo "prometheus-exec: $host requires macOS SDK $sdk and Apple ld $linker; set DEVELOPER_DIR to a matching Xcode or Command Line Tools installation" >&2
+    return 1
+}
+
+apple_tool_identity=""
+if [[ "$(uname -s)" == Darwin ]]; then select_apple_tools; fi
+
 CARGO_HOME_DIR="${CARGO_HOME:-${HOME}/.cargo}"
 CARGO_HOME_DIR="$(cd "$CARGO_HOME_DIR" 2>/dev/null && pwd -P || printf '%s' "$CARGO_HOME_DIR")"
 
@@ -145,7 +178,14 @@ fi
 export CARGO_ENCODED_RUSTFLAGS
 unset RUSTFLAGS
 
+# Cargo does not fingerprint the native linker selected by xcrun. On a
+# toolchain change, invalidate the final link in the disposable source mirror.
+apple_tool_stamp="$STAGE/.apple-build-tools"
+if [[ -n "$apple_tool_identity" && "$(cat "$apple_tool_stamp" 2>/dev/null || true)" != "$apple_tool_identity" ]]; then
+    touch src/main.rs
+fi
 cargo build --release --locked >&2
+if [[ -n "$apple_tool_identity" ]]; then printf '%s\n' "$apple_tool_identity" > "$apple_tool_stamp"; fi
 
 BUILT="${TARGET_DIR}/release/prometheus-exec"
 [ -x "$BUILT" ] || { echo "prometheus-exec build artifact is missing: $BUILT" >&2; exit 1; }

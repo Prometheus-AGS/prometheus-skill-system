@@ -88,6 +88,14 @@ longer affects the hash.
 Flags are passed through `CARGO_ENCODED_RUSTFLAGS` and `RUSTFLAGS` is unset, so
 ambient compiler flags cannot alter the certified binary.
 
+On Apple Silicon the certified build uses macOS SDK 27.0 and Apple linker
+27037.1. Both versions appear in the Mach-O header and affect the build hash.
+The builder reads them from `appleBuildToolsByTarget`, selects a matching
+local Xcode or Command Line Tools installation for this process, and relinks
+when the selection changes. If it cannot find the pair, set `DEVELOPER_DIR`
+to a matching installation and rerun. There is no need to change the
+machine-wide Xcode selection.
+
 ### When to recertify
 
 Recertify when one of these changed **on purpose**:

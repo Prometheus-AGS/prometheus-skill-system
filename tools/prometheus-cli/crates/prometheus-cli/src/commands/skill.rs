@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
@@ -40,6 +41,7 @@ struct BudgetReport {
     harness: String,
     skills: usize,
     inventory_chars: usize,
+    inventory_sha256: String,
     budget_chars: Option<usize>,
     utilization_percent: Option<f64>,
     measured: bool,
@@ -105,13 +107,26 @@ fn default_true() -> bool {
     true
 }
 
-pub fn inventory(root: &Path) -> Result<(usize, usize)> {
+fn inventory_digest(skills: &[SkillRecord]) -> String {
+    let mut entries: Vec<_> = skills.iter().map(|s| (&s.name, &s.description)).collect();
+    entries.sort_unstable();
+    let mut digest = Sha256::new();
+    for (name, description) in entries {
+        for field in [name, description] {
+            digest.update((field.len() as u64).to_be_bytes());
+            digest.update(field.as_bytes());
+        }
+    }
+    format!("{:x}", digest.finalize())
+}
+
+pub fn inventory(root: &Path) -> Result<(usize, usize, String)> {
     let (skills, _) = load_skills(root)?;
     let characters = skills
         .iter()
         .map(|skill| skill.name.chars().count() + skill.description.chars().count() + 2)
         .sum();
-    Ok((skills.len(), characters))
+    Ok((skills.len(), characters, inventory_digest(&skills)))
 }
 
 pub fn lint(root: &Path, json: bool) -> Result<()> {
@@ -243,6 +258,7 @@ pub fn budget(root: &Path, harness: &str, budget_chars: Option<usize>, json: boo
         harness: harness.into(),
         skills: skills.len(),
         inventory_chars,
+        inventory_sha256: inventory_digest(&skills),
         budget_chars,
         utilization_percent: budget_chars
             .map(|budget| inventory_chars as f64 * 100.0 / budget.max(1) as f64),

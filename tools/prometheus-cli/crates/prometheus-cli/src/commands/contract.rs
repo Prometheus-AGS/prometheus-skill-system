@@ -32,9 +32,8 @@ pub struct ContractReport {
 
 /// Resolve the control endpoint using the same order as the KBD transport.
 ///
-/// A socket path is reported when it exists on disk; a configured-but-absent
-/// socket reports `absent` rather than a path that nothing is serving, because
-/// the contract promises callers a discovered endpoint, not a guess.
+/// An explicit Unix socket remains the operator's target during a restart.
+/// An implicit socket is discovered only when it exists on disk.
 fn discover(root: &Path) -> (Option<String>, &'static str) {
     if let Ok(endpoint) = std::env::var("PROMETHEUS_CONTROL_ENDPOINT") {
         let trimmed = endpoint.trim_end_matches('/').to_string();
@@ -47,13 +46,10 @@ fn discover(root: &Path) -> (Option<String>, &'static str) {
     {
         if let Some(socket) = std::env::var_os("SOVEREIGN_SYNC_SOCKET") {
             let path = PathBuf::from(socket);
-            if path.exists() {
-                return (
-                    Some(path.to_string_lossy().into_owned()),
-                    "env:SOVEREIGN_SYNC_SOCKET",
-                );
-            }
-            return (None, "absent");
+            return (
+                Some(path.to_string_lossy().into_owned()),
+                "env:SOVEREIGN_SYNC_SOCKET",
+            );
         }
         if let Some(path) =
             dirs::data_local_dir().map(|base| base.join("prometheus/run/sovereign-sync.sock"))
