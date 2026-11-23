@@ -127,7 +127,7 @@
       "id": "prometheus-knowledge",
       "path": "tools/prometheus-knowledge",
       "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
-      "commit": "4b3a6744a4211512ff88a1cb96cf1e2a7db4c3ef",
+      "commit": "99c2a13dc69992b561876852350aab06de4b2948",
       "requiredFor": [
         "full"
       ]
