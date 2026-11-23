@@ -1,0 +1,130 @@
+[
+  {
+    "id": "build-cli",
+    "argv": [
+      "cargo",
+      "build",
+      "--locked",
+      "--manifest-path",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/Cargo.toml",
+      "--release",
+      "-p",
+      "prometheus-cli",
+      "--bin",
+      "prometheus"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/build-cli.log"
+  },
+  {
+    "id": "emit-adapters",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/generate-harness-adapters.js"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/emit-adapters.log"
+  },
+  {
+    "id": "emit-full",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/generate-skill-system-distribution.js"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/emit-full.log"
+  },
+  {
+    "id": "emit-mini-attached",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skills-mini/scripts/generate-skill-system-distribution.mjs"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/emit-mini-attached.log"
+  },
+  {
+    "id": "emit-mini-main",
+    "argv": [
+      "node",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/generate-skill-system-distribution.mjs"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/emit-mini-main.log"
+  },
+  {
+    "id": "check-adapters",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/generate-harness-adapters.js",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/check-adapters.log"
+  },
+  {
+    "id": "check-full",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/generate-skill-system-distribution.js",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/check-full.log"
+  },
+  {
+    "id": "check-mini-attached",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skills-mini/scripts/generate-skill-system-distribution.mjs",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/check-mini-attached.log"
+  },
+  {
+    "id": "check-mini-main",
+    "argv": [
+      "node",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/generate-skill-system-distribution.mjs",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/check-mini-main.log"
+  },
+  {
+    "id": "issue",
+    "argv": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=tap",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/tests/kbd-operator-exit-241.integration.test.mjs"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/issue.log"
+  },
+  {
+    "id": "issue-controls",
+    "argv": [
+      "python3",
+      "-c",
+      "import pathlib,re,sys; t=pathlib.Path(sys.argv[1]).read_text(); assert re.search(r\"(?m)^# pass [1-9][0-9]*$\",t) and all(re.search(r\"(?m)^# \"+k+\" 0$\",t) for k in (\"fail\",\"skipped\",\"cancelled\"))",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/issue.log"
+    ],
+    "exit": 0,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/issue-controls.log"
+  },
+  {
+    "id": "full-hooks",
+    "argv": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=tap",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/tests/kbd-after-hooks-241.integration.test.mjs"
+    ],
+    "exit": 1,
+    "log": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/full-hooks.log"
+  }
+]

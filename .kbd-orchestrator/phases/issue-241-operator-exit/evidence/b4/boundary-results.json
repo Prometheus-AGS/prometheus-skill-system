@@ -1,0 +1,98 @@
+{
+  "phase": "issue-241-operator-exit",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+  "boundary": "B4",
+  "verdict": "FAIL",
+  "recordedAt": "2026-11-23T10:47:42.713509+00:00",
+  "executedBy": {
+    "harness": "Codex desktop",
+    "version": "not captured",
+    "model": "gpt-6.2-astra"
+  },
+  "sourceDigests": {
+    "shared/scripts/kbd-phase-close-eval.sh": "9f16387cc8a627ac9ae87deb61bfcb0aae3794236f17fd9e5a37415c6e645a1c",
+    "substrate/kbd-runtime/src/registry.rs": "6bd19c2d9250b392827ba4bd693a136e66acdf0e7c9fa0eac059480b0fec4107",
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/kbd-child-exit.sh": "34f1229e388e091b1de8ae3f9c3a4a9151f686bead2633a9e1417cd411be3d20"
+  },
+  "scenarios": [
+    {
+      "id": "KBD-1",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A signed exit with fifteen observed checks closes the phase and admits its authorized successor",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-2",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A signed manifest that omits a bound scenario is refused without a journal write",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-3",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "Mini preserves withdrawals in status and the packet without certifying them",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-4",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "Restricted read processes preserve the registry and a later unrestricted write succeeds",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-5",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A real lock denial names recovery and re-probing clears an old transient flag only",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-6",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "An unknown owner task fails lint and both templates before signing",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-7",
+      "status": "FAIL",
+      "attempted": "local production integration",
+      "observed": "3 installed subtests passed; Bash nounset expansion of empty ancestor_args aborted the child exit before resuming its parent.",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/full-hooks.log"
+    },
+    {
+      "id": "KBD-8",
+      "status": "NOT_EXERCISED",
+      "attempted": "not run",
+      "observed": "Packet stopped at the preceding Full nested-child failure.",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/commands.json"
+    }
+  ],
+  "budgetConsumption": {
+    "source": "B4 timestamps, command ledger and observed attempts",
+    "values": {
+      "timeMinutes": {
+        "value": 11,
+        "class": "measured"
+      },
+      "toolCalls": {
+        "value": null,
+        "class": "unknown"
+      },
+      "repairAttempts": {
+        "value": 0,
+        "class": "measured"
+      },
+      "noProgress": {
+        "value": 0,
+        "class": "measured"
+      }
+    }
+  }
+}

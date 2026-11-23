@@ -1,0 +1,100 @@
+{
+  "phase": "issue-241-operator-exit",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+  "boundary": "B5",
+  "verdict": "FAIL",
+  "recordedAt": "2026-11-23T10:53:57.834952+00:00",
+  "executedBy": {
+    "harness": "Codex desktop",
+    "version": "not captured",
+    "model": "gpt-6.2-astra"
+  },
+  "sourceDigests": {
+    "shared/scripts/kbd-phase-close-eval.sh": "9f16387cc8a627ac9ae87deb61bfcb0aae3794236f17fd9e5a37415c6e645a1c",
+    "substrate/kbd-runtime/src/registry.rs": "6bd19c2d9250b392827ba4bd693a136e66acdf0e7c9fa0eac059480b0fec4107",
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/kbd-child-exit.sh": "1af3991191a5e4966f34336ccdbc9c50cb7d88cd28129b2f92c2cf5a8e861c5e",
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/resume-parent.mjs": "c18771244056c5f69eab113f8132524cdde6f48fc041d73b9ef8d2037f3abf97",
+    "scripts/tests/kbd-after-hooks-241.integration.test.mjs": "0c9abb4deb2cb31cedbc90ccc4e151be07a5d17fdd5d4512579f219097fc2f39"
+  },
+  "scenarios": [
+    {
+      "id": "KBD-1",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A signed exit with fifteen observed checks closes the phase and admits its authorized successor",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-2",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A signed manifest that omits a bound scenario is refused without a journal write",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-3",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "Mini preserves withdrawals in status and the packet without certifying them",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-4",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "Restricted read processes preserve the registry and a later unrestricted write succeeds",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-5",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A real lock denial names recovery and re-probing clears an old transient flag only",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-6",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "An unknown owner task fails lint and both templates before signing",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log"
+    },
+    {
+      "id": "KBD-7",
+      "status": "PASS",
+      "attempted": "local installed package integration",
+      "observed": "Four Full cases passed, including grandchild and direct child parent resume.",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5/full-hooks.log"
+    },
+    {
+      "id": "KBD-8",
+      "status": "FAIL",
+      "attempted": "local installed package integration",
+      "observed": "Claude and Codex Mini installations reached contract adoption, where the fixture scenario S1 failed scenario-id-pattern. Subsequent hook assertions were not reached.",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5/mini-hooks.log"
+    }
+  ],
+  "budgetConsumption": {
+    "source": "B4 archive and B5 local command ledger, artifact timestamps and recorded repair authorization. Tool-call count unavailable.",
+    "values": {
+      "timeMinutes": {
+        "value": 17,
+        "class": "measured"
+      },
+      "toolCalls": {
+        "value": null,
+        "class": "unknown"
+      },
+      "repairAttempts": {
+        "value": 1,
+        "class": "measured"
+      },
+      "noProgress": {
+        "value": 0,
+        "class": "measured"
+      }
+    }
+  }
+}

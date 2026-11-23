@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 2572,
+  "derivedRevision": 2572,
+  "frontier": {
+    "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "aa57090a-86ae-41df-944d-92d20688da11": 11,
+    "ae1d970b-c060-4b28-9a7f-a9624bca0ed8": 118,
+    "d5226c9c-a7c2-4754-86fa-2d9e46e45021": 21,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
+  },
+  "conflictCount": 0,
+  "phase": "issue-241-operator-exit",
+  "phaseId": "issue-241-operator-exit",
+  "parentPhase": null,
+  "last_updated": "2026-11-23T11:13:16.486377Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 1,
+  "changes_completed": 1,
+  "implementation_total": 1,
+  "implementation_completed": 1,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 1,
+      "total": 1,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 109,
+      "total": 112,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "I241",
+      "title": "Recover operator-decided exits across both packs",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Implement and verify issue 241 and installed lifecycle hooks",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

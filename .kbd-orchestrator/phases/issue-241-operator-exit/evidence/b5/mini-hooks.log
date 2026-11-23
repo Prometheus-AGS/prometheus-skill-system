@@ -1,0 +1,78 @@
+TAP version 13
+# Subtest: installed Mini operator exit, hooks and task projections on claude
+not ok 1 - installed Mini operator exit, hooks and task projections on claude
+  ---
+  duration_ms: 2443.116416
+  type: 'test'
+  location: '/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs:39:45'
+  failureType: 'testCodeFailure'
+  error: |-
+    /Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node
+    /private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/mini 241 hL1x4x/installed package/scripts/kbd-contract-adopt.mjs
+    .kbd-orchestrator/phases/operator-exit/adopted-contract.json
+    
+    
+    kbd-contract-adopt: contract fails structural validation:
+    scenario-id-pattern
+    
+    
+    2 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 2
+  operator: 'strictEqual'
+  stack: |-
+    run (file:///Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs:51:12)
+    helper (file:///Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs:55:48)
+    TestContext.<anonymous> (file:///Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs:93:3)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1382:25)
+    Test.start (node:internal/test_runner/test:1242:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+  ...
+# Subtest: installed Mini operator exit, hooks and task projections on codex
+not ok 2 - installed Mini operator exit, hooks and task projections on codex
+  ---
+  duration_ms: 2426.802042
+  type: 'test'
+  location: '/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs:39:45'
+  failureType: 'testCodeFailure'
+  error: |-
+    /Users/gqadonis/.local/share/fnm/node-versions/v26.5.0/installation/bin/node
+    /private/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/mini 241 xJfHHK/installed package/scripts/kbd-contract-adopt.mjs
+    .kbd-orchestrator/phases/operator-exit/adopted-contract.json
+    
+    
+    kbd-contract-adopt: contract fails structural validation:
+    scenario-id-pattern
+    
+    
+    2 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 2
+  operator: 'strictEqual'
+  stack: |-
+    run (file:///Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs:51:12)
+    helper (file:///Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs:55:48)
+    TestContext.<anonymous> (file:///Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs:93:3)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1382:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+    Test.postRun (node:internal/test_runner/test:1522:19)
+    Test.run (node:internal/test_runner/test:1447:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4928.289833

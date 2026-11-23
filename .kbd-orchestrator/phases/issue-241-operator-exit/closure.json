@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "kind": "kbd.closure-view",
+  "generatedAt": "2026-11-23T11:13:16.715Z",
+  "authority": "derived view; the canonical disposition recorded by prometheus kbd phase close is authoritative",
+  "phaseId": "issue-241-operator-exit",
+  "contractVersion": "2",
+  "contractDigest": "99f3d33dc245a1af798b86b3b5ecec33dbd4dab0ac63113f55ae01a0e2f7f93a",
+  "evidenceDigest": "f0886e8823755866be7702b85e1f50a9c87bc11bd4b516ac79ef1b4950504725",
+  "disposition": "CLOSED",
+  "reason": "budget-exhausted",
+  "states": {
+    "implementationComplete": true,
+    "behaviorAccepted": true,
+    "releaseEligible": true,
+    "releaseAuthorized": false
+  },
+  "method": {
+    "name": "VLBV",
+    "source": "contract",
+    "deviation": null
+  },
+  "executedBy": {
+    "harness": "Codex desktop",
+    "version": "Codex Desktop 0.171.0-alpha.13",
+    "model": "gpt-6.2-astra"
+  },
+  "preAuthorizationArtifacts": {
+    "status": "no-globs",
+    "authorizedAt": "2026-11-23T10:36:37.928Z",
+    "globs": [],
+    "scanned": 0,
+    "artifacts": []
+  },
+  "scenarios": [
+    {
+      "id": "KBD-1",
+      "name": "An operator can close on 15 evidenced scenarios and start the separately authorized successor",
+      "actor": "KBD project operator",
+      "usefulOutcome": "An operator can close on 15 evidenced scenarios and start the separately authorized successor",
+      "mandatory": true,
+      "verdict": "PASS",
+      "limitations": [],
+      "substitutedBoundaries": [],
+      "realCollaborators": [
+        "prometheus runtime and CLI",
+        "local filesystem and operator key",
+        "generated skill package"
+      ]
+    },
+    {
+      "id": "KBD-2",
+      "name": "An omitted bound scenario refuses the exit before a journal write",
+      "actor": "KBD project operator",
+      "usefulOutcome": "An omitted bound scenario refuses the exit before a journal write",
+      "mandatory": true,
+      "verdict": "PASS",
+      "limitations": [],
+      "substitutedBoundaries": [],
+      "realCollaborators": [
+        "prometheus runtime and CLI",
+        "local filesystem and operator key",
+        "generated skill package"
+      ]
+    },
+    {
+      "id": "KBD-3",
+      "name": "Withdrawn work stays withdrawn in the immutable record and status",
+      "actor": "KBD project operator",
+      "usefulOutcome": "Withdrawn work stays withdrawn in the immutable record and status",
+      "mandatory": true,
+      "verdict": "PASS",
+      "limitations": [],
+      "substitutedBoundaries": [],
+      "realCollaborators": [
+        "prometheus runtime and CLI",
+        "local filesystem and operator key",
+        "generated skill package"
+      ]
+    },
+    {
+      "id": "KBD-4",
+      "name": "A restricted process can read without poisoning the next process writing",
+      "actor": "KBD project operator",
+      "usefulOutcome": "A restricted process can read without poisoning the next process writing",
+      "mandatory": true,
+      "verdict": "PASS",
+      "limitations": [],
+      "substitutedBoundaries": [],
+      "realCollaborators": [
+        "prometheus runtime and CLI",
+        "local filesystem and operator key",
+        "generated skill package"
+      ]
+    },
+    {
+      "id": "KBD-5",
+      "name": "An operator can recover a stale probe classification while intentional restrictions persist",
+      "actor": "KBD project operator",
+      "usefulOutcome": "An operator can recover a stale probe classification while intentional restrictions persist",
+      "mandatory": true,
+      "verdict": "PASS",
+      "limitations": [],
+      "substitutedBoundaries": [],
+      "realCollaborators": [
+        "prometheus runtime and CLI",
+        "local filesystem and operator key",
+        "generated skill package"
+      ]
+    },
+    {
+      "id": "KBD-6",
+      "name": "A contract with an unregistered owner task never receives a signable manifest",
+      "actor": "KBD project operator",
+      "usefulOutcome": "A contract with an unregistered owner task never receives a signable manifest",
+      "mandatory": true,
+      "verdict": "PASS",
+      "limitations": [],
+      "substitutedBoundaries": [],
+      "realCollaborators": [
+        "prometheus runtime and CLI",
+        "local filesystem and operator key",
+        "generated skill package"
+      ]
+    },
+    {
+      "id": "KBD-7",
+      "name": "Full delivers accepted reflection and terminal actions to the correct phase and reconciles task counts",
+      "actor": "KBD project operator",
+      "usefulOutcome": "Full delivers accepted reflection and terminal actions to the correct phase and reconciles task counts",
+      "mandatory": true,
+      "verdict": "PASS",
+      "limitations": [],
+      "substitutedBoundaries": [],
+      "realCollaborators": [
+        "prometheus runtime and CLI",
+        "local filesystem and operator key",
+        "generated skill package"
+      ]
+    },
+    {
+      "id": "KBD-8",
+      "name": "Mini delivers accepted reflection and terminal actions to the correct phase and reconciles task counts",
+      "actor": "KBD project operator",
+      "usefulOutcome": "Mini delivers accepted reflection and terminal actions to the correct phase and reconciles task counts",
+      "mandatory": true,
+      "verdict": "PASS",
+      "limitations": [],
+      "substitutedBoundaries": [],
+      "realCollaborators": [
+        "prometheus runtime and CLI",
+        "local filesystem and operator key",
+        "generated skill package"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "mini-hooks",
+    "argv": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "--test-reporter=tap",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/tests/issue-241-installed.integration.test.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "id": "mini-hooks-controls",
+    "argv": [
+      "/Users/gqadonis/.pyenv/versions/3.11.3/bin/python3",
+      "-c",
+      "import sys,re,pathlib; t=pathlib.Path(sys.argv[1]).read_text(); assert all(re.search(r'(?m)^# '+k+' '+str(v)+'$',t) for k,v in dict(tests=2,pass_=2,fail=0,skipped=0,cancelled=0).items() if k!='pass_') and re.search(r'(?m)^# pass 2$',t) and all(re.search(r'(?m)^ok [12] - installed Mini operator exit, hooks and task projections on '+k+'$',t) for k in ('claude','codex'))",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/b5-mini-phase-start/mini-hooks.log"
+    ],
+    "exit": 0
+  }
+]

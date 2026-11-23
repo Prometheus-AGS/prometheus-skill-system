@@ -1,0 +1,6 @@
+   Compiling prometheus-learn v1.15.0 (/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/crates/prometheus-learn)
+   Compiling kbd-runtime v0.1.0 (/Volumes/T7/Projects/prometheus/prometheus-skill-pack/substrate/kbd-runtime)
+   Compiling prometheus-agents v1.15.0 (/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/crates/prometheus-agents)
+   Compiling prometheus-cedar v1.15.0 (/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/crates/prometheus-cedar)
+   Compiling prometheus-cli v1.15.0 (/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/crates/prometheus-cli)
+    Finished `release` profile [optimized] target(s) in 4m 57s

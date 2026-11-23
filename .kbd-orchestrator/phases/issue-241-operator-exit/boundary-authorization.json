@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "kbd.boundary-authorization",
+  "phaseId": "issue-241-operator-exit",
+  "events": [
+    {
+      "boundary": "B4",
+      "authorizedAt": "2026-11-23T10:36:37.928Z",
+      "authorizer": "Repository owner via explicit implementation of the approved issue 241 plan",
+      "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+      "reason": "One consolidated local run of the approved acceptance and distribution stages"
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-23T10:52:30.447Z",
+      "authorizer": "Repository owner via Do it in response to the proposed Node parent-resume B5 repair",
+      "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+      "reason": "Port the parent resume argv to Node, regenerate Full, exercise both depths, and finish the pending Mini suite."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-23T10:56:37.926Z",
+      "authorizer": "Repository owner, explicit approval for the additional S-1 Mini fixture repair",
+      "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+      "reason": "Change the three fixture references and rerun the two installed cases and result check."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-23T10:59:54.629Z",
+      "authorizer": "Repository owner, explicit Yes to the Mini phase-start fixture repair",
+      "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+      "reason": "Apply the phase-before guard and in-progress transition and rerun both Mini cases and their result check."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-23T11:09:38.605Z",
+      "authorizer": "Owner approved combined repair of all five review findings",
+      "contractDigest": "99f3d33dc245a1af798b86b3b5ecec33dbd4dab0ac63113f55ae01a0e2f7f93a",
+      "reason": "Targeted pre-sign, Full hook and Mini lifecycle integrations plus negative controls and generated distributions."
+    }
+  ]
+}
