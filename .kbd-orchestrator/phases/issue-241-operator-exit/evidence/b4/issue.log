@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: A signed exit with fifteen observed checks closes the phase and admits its authorized successor
+ok 1 - A signed exit with fifteen observed checks closes the phase and admits its authorized successor
+  ---
+  duration_ms: 20100.630292
+  type: 'test'
+  ...
+# Subtest: A signed manifest that omits a bound scenario is refused without a journal write
+ok 2 - A signed manifest that omits a bound scenario is refused without a journal write
+  ---
+  duration_ms: 9003.583541
+  type: 'test'
+  ...
+# Subtest: Mini preserves withdrawals in status and the packet without certifying them
+ok 3 - Mini preserves withdrawals in status and the packet without certifying them
+  ---
+  duration_ms: 11422.854208
+  type: 'test'
+  ...
+# Subtest: Restricted read processes preserve the registry and a later unrestricted write succeeds
+ok 4 - Restricted read processes preserve the registry and a later unrestricted write succeeds
+  ---
+  duration_ms: 7708.204
+  type: 'test'
+  ...
+# Subtest: A real lock denial names recovery and re-probing clears an old transient flag only
+ok 5 - A real lock denial names recovery and re-probing clears an old transient flag only
+  ---
+  duration_ms: 8379.559333
+  type: 'test'
+  ...
+# Subtest: An unknown owner task fails lint and both templates before signing
+ok 6 - An unknown owner task fails lint and both templates before signing
+  ---
+  duration_ms: 11210.36325
+  type: 'test'
+  ...
+# Subtest: An invalid signer or stale evidence cannot close; an explicit empty-evidence exit records CLOSED_UNMET
+ok 7 - An invalid signer or stale evidence cannot close; an explicit empty-evidence exit records CLOSED_UNMET
+  ---
+  duration_ms: 11051.282333
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 79035.648125

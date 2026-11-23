@@ -1,0 +1,151 @@
+[
+  {
+    "id": "emit-adapters",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/generate-harness-adapters.js"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "exit": 0
+  },
+  {
+    "id": "emit-full",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/generate-skill-system-distribution.js"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "exit": 0
+  },
+  {
+    "id": "emit-mini-attached",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skills-mini/scripts/generate-skill-system-distribution.mjs"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skills-mini",
+    "exit": 0
+  },
+  {
+    "id": "emit-mini-main",
+    "argv": [
+      "node",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/generate-skill-system-distribution.mjs"
+    ],
+    "cwd": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main",
+    "exit": 0
+  },
+  {
+    "id": "check-adapters",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/generate-harness-adapters.js",
+      "--check"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "exit": 0
+  },
+  {
+    "id": "check-full",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/generate-skill-system-distribution.js",
+      "--check"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "exit": 0
+  },
+  {
+    "id": "check-mini-attached",
+    "argv": [
+      "node",
+      "/Volumes/T7/Projects/prometheus/prometheus-skills-mini/scripts/generate-skill-system-distribution.mjs",
+      "--check"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skills-mini",
+    "exit": 0
+  },
+  {
+    "id": "check-mini-main",
+    "argv": [
+      "node",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main/scripts/generate-skill-system-distribution.mjs",
+      "--check"
+    ],
+    "cwd": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main",
+    "exit": 0
+  },
+  {
+    "id": "issue-owner",
+    "argv": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "--test-concurrency=1",
+      "--test-name-pattern=An unknown owner|A canonically bound|Both amendment",
+      "scripts/tests/kbd-operator-exit-241.integration.test.mjs"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "exit": 0
+  },
+  {
+    "id": "issue-owner-controls",
+    "argv": [
+      "python3",
+      "-c",
+      "import re,sys,pathlib; t=pathlib.Path(sys.argv[1]).read_text(); assert re.search(r'(?m)^# pass '+sys.argv[2]+'$',t) and all(re.search(r'(?m)^# '+k+' 0$',t) for k in ('skipped','fail','cancelled'))",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/b5-review/issue-owner.log",
+      "3"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "exit": 0
+  },
+  {
+    "id": "full-hooks",
+    "argv": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "--test-concurrency=1",
+      "scripts/tests/kbd-after-hooks-241.integration.test.mjs"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "exit": 0
+  },
+  {
+    "id": "full-hooks-controls",
+    "argv": [
+      "python3",
+      "-c",
+      "import re,sys,pathlib; t=pathlib.Path(sys.argv[1]).read_text(); assert re.search(r'(?m)^# pass '+sys.argv[2]+'$',t) and all(re.search(r'(?m)^# '+k+' 0$',t) for k in ('skipped','fail','cancelled'))",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/b5-review/full-hooks.log",
+      "5"
+    ],
+    "cwd": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "exit": 0
+  },
+  {
+    "id": "mini-hooks",
+    "argv": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "--test-concurrency=1",
+      "scripts/tests/issue-241-installed.integration.test.mjs"
+    ],
+    "cwd": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main",
+    "exit": 0
+  },
+  {
+    "id": "mini-hooks-controls",
+    "argv": [
+      "python3",
+      "-c",
+      "import re,sys,pathlib; t=pathlib.Path(sys.argv[1]).read_text(); assert re.search(r'(?m)^# pass '+sys.argv[2]+'$',t) and all(re.search(r'(?m)^# '+k+' 0$',t) for k in ('skipped','fail','cancelled'))",
+      "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/b5-review/mini-hooks.log",
+      "3"
+    ],
+    "cwd": "/Users/gqadonis/.prometheus/issue-241-evidence/run.MNdZgPxT/mini-main",
+    "exit": 0
+  }
+]

@@ -1,0 +1,231 @@
+{
+  "phase": "issue-241-operator-exit",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "contractDigest": "99f3d33dc245a1af798b86b3b5ecec33dbd4dab0ac63113f55ae01a0e2f7f93a",
+  "boundary": "B5",
+  "verdict": "PASS",
+  "recordedAt": "2026-11-23T11:11:29.503158+00:00",
+  "executedBy": {
+    "harness": "Codex desktop",
+    "version": "Codex Desktop 0.171.0-alpha.13",
+    "model": "gpt-6.2-astra"
+  },
+  "sourceDigests": {
+    "docs/guide/15-hooks-and-lifecycle.md": "9cbe5a681cda31a8962f62b5682ca10842793a60237681ff08a5ea7ef546433a",
+    "scripts/tests/kbd-after-hooks-241.integration.test.mjs": "311cc261723dd9eac881d59d203b004d8d1c8489113fa9647ea5f8487d434d18",
+    "scripts/tests/kbd-operator-exit-241.integration.test.mjs": "6766ae3c7f72ca58b8e9dcfae948349bc6de63b4985ff530c2f68c23370c59d4",
+    "shared/references/conformance/kbd-phase-closure/v1/schemas/phase-disposition.schema.json": "a1edf6d4617da5f6433a77c67043866d4a29b7dcd59f2dc73ce884179bd01f67",
+    "shared/references/conformance/kbd-phase-closure/v1/schemas/scope-authority-manifest.schema.json": "193e0edf60a34c2d5c9c9ec40a53d7fa94a6257f4e8b98f215677695f98bccf3",
+    "shared/scripts/kbd-closure-packet.mjs": "ff4171d87ae81b13386b88efbc22d5642230f20ef0ade68d1c48e3c8772b18c0",
+    "shared/scripts/kbd-contract-adopt.sh": "dd878aa1a972e0866d95196298a0a2d382dbea3aacdd252f364ed413683e552a",
+    "shared/scripts/kbd-contract-lint.mjs": "3f9fe529c6bb537d4fae7080101a9f6bb4c551f193e75c032424a90f47530cbf",
+    "shared/scripts/kbd-phase-close-eval.sh": "9f16387cc8a627ac9ae87deb61bfcb0aae3794236f17fd9e5a37415c6e645a1c",
+    "shared/scripts/kbd-scope-authority-template.sh": "f8d6c6cb9d6d3ff8690f84068849e0f7e4d58e7f50b426873a5ba402976cf9ce",
+    "shared/scripts/memory-writeback.sh": "413adf7d2cfec163c8a4d38652f631f4d83dc8bd71404bf92ac06594e04e5d8c",
+    "skills/process/karpathy-progress-memory/scripts/record-progress.py": "5499f7baae0ef870585d5293dbea0ab941e5ebc4b58957e9487da1e086306ca8",
+    "skills/process/kbd-process-orchestrator/hooks/hooks.json": "510f5119cd05d7b864f53004c821e975d1b1e91c85b3f20e178e8dd4ad01146b",
+    "skills/process/kbd-process-orchestrator/prompts/reflect.md": "36f8b16643ce64500102cc0d7e0eb4297002b62bd60cb1ec1429d741fafbb468",
+    "skills/process/kbd-process-orchestrator/shared/lib/finalize-reflection.sh": "aeacb815b53e0804a074b4747259c5c7dbd4978017ed3848b56726383802ac34",
+    "skills/process/kbd-process-orchestrator/shared/lib/hooks.sh": "19c5b4dd20d76990d1792a1a4301990967002a16d47aa08831b752496eff0e03",
+    "skills/process/kbd-process-orchestrator/shared/lib/phase-disposition.sh": "fe6ad96c3a53d06710a520e76621d6caf4ecffe0aeb1aa135244772eb0be386c",
+    "skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh": "9ecefcfe1a07ce6b9860156222482521c0d4dd85c16858635814e0b7a5297d0a",
+    "skills/process/kbd-process-orchestrator/shared/method-context.mjs": "18945d92f6aa84d93b0329a582ae404c19d9b9008993dc1d49c6eca135507dab",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/SKILL.md": "7c8d6d5f2cb18632c8d40285945f5348a8e10ea6b84b301bac8d32e5cc11423e",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile-artifacts.mjs": "b1f417127d5712cde38b45936524c586cd9d6295773c9c38c3dcf96bcbb4a008",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile-command.mjs": "3ca9d7d08e8f47144e2b19fb3ac61bb4d5eb5b338a215392ce4795a333946b76",
+    "skills/process/kbd-process-orchestrator/skills/kbd-apply/reconcile.mjs": "5321c86b6b9453e042e7558ba752992a041fe95302abce85659fdfa7bec6d969",
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/kbd-child-exit.sh": "1af3991191a5e4966f34336ccdbc9c50cb7d88cd28129b2f92c2cf5a8e861c5e",
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/resume-parent.mjs": "c18771244056c5f69eab113f8132524cdde6f48fc041d73b9ef8d2037f3abf97",
+    "skills/process/kbd-process-orchestrator/skills/kbd-new-phase/SKILL.md": "4aca5e370d96e28d0b5a6393834322a3be7b0f2f0043b4fdda8d0def6c2f15b0",
+    "skills/process/kbd-process-orchestrator/skills/kbd-next-phase/SKILL.md": "c878ae61f423027215d604d8afa1424e33cb3e5e3209dde7720ca64e5f285b0a",
+    "skills/process/kbd-process-orchestrator/skills/kbd-next-phase/scripts/kbd-next-phase.sh": "9993bac9635cc2718a1c67596c8f80e24ce976faa9cbd1acf31673c8997bb6c8",
+    "skills/process/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md": "3545a479f95f44ca3ac728b7a6c704f207ec1ebcbc29ee361ca04ce0b0152d78",
+    "skills/process/kbd-process-orchestrator/skills/kbd-reflect/scripts/finalize.sh": "62fd128a59e2e88d5808d272047f9db91ac4fea504d2d0d9194fa3d23daa431e",
+    "skills/process/kbd-process-orchestrator/skills/kbd-status/SKILL.md": "2da875594c872d437ca9875cc4a1fac229dfca8898b3243b1983841ed0eb6a34",
+    "substrate/kbd-runtime/src/lib.rs": "29afa537fda8602eb8eb20864e58aa2a58fa9bec9b22f777ee431e9a2e00a387",
+    "substrate/kbd-runtime/src/operator_exit.rs": "f5113149e19a834d393a59cdba866e801a93c7445509533c943b19dcde5dfcb7",
+    "substrate/kbd-runtime/src/phase_closure.rs": "528fa57856c5d1acc192a63cc0dacc5e958a2985b9722156ead01c7cbe9453af",
+    "substrate/kbd-runtime/src/registry.rs": "6bd19c2d9250b392827ba4bd693a136e66acdf0e7c9fa0eac059480b0fec4107",
+    "substrate/kbd-runtime/src/scope_authority.rs": "55e13803931e95bbd6a9d8370769e3338bc3b849d4bada43a1a0198a83684b62",
+    "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs": "c422e1e67eacbbdf71c598ceb0c5a9865113d842e8386f34679024a8f117f5ce",
+    "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd_phase.rs": "db706d0173e1ef53f120e12d23965e09af480bd509f1136158703e2183c13ca0",
+    "tools/prometheus-cli/crates/prometheus-cli/src/main.rs": "e77dffd9455e91590bb21cc94cff824fc6d842d4392e23a9eedb92acab5373fa",
+    ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/source-candidates.json": "cf70bfc504be3d6134fbfc836f975152544b662fc0a8f00ab9c59adcde6c0a79"
+  },
+  "scenarios": [
+    {
+      "id": "KBD-1",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A signed exit with fifteen observed checks closes the phase and admits its authorized successor",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log",
+      "scenarioDigest": "636ce941d3e5cfb854a8c5d7556c10df13f5e04cc1c6c781c5770b124eff0e00",
+      "carriedFrom": {
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "bindingRevision": 1
+      }
+    },
+    {
+      "id": "KBD-2",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A signed manifest that omits a bound scenario is refused without a journal write",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log",
+      "scenarioDigest": "82032f3632f81e9ffd61fe3cc952f56e694d685f8fdd0d24d882200ea09a8838",
+      "carriedFrom": {
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "bindingRevision": 1
+      }
+    },
+    {
+      "id": "KBD-3",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "Mini preserves withdrawals in status and the packet without certifying them",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log",
+      "scenarioDigest": "c9908d429157c8bf19b7e6d22c5a6769369cb8856a625fded0630d3b7758d07b",
+      "carriedFrom": {
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "bindingRevision": 1
+      }
+    },
+    {
+      "id": "KBD-4",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "Restricted read processes preserve the registry and a later unrestricted write succeeds",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log",
+      "scenarioDigest": "dfd54af5d4474cb53d9cfc8bc814c808606d6a59565c8ef0c5a4ae42d10451f2",
+      "carriedFrom": {
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "bindingRevision": 1
+      }
+    },
+    {
+      "id": "KBD-5",
+      "status": "PASS",
+      "attempted": "local production integration",
+      "observed": "A real lock denial names recovery and re-probing clears an old transient flag only",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/issue.log",
+      "scenarioDigest": "28bd46ab603fdbb620cad759f5c508374345773a5c9025754279ffd66a33edcb",
+      "carriedFrom": {
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "bindingRevision": 1
+      }
+    },
+    {
+      "id": "KBD-6",
+      "status": "PASS",
+      "attempted": "Local production integration after the combined repair",
+      "observed": "Both production templates rejected unknown and unregistered owners, including an empty canonical task registry, and refused identical amendment input outside the accepted phase directory. A valid correctly placed amendment produced a template. Three cases passed.",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/issue-owner.log",
+      "scenarioDigest": "f8734120df0d06d99760fdb6fcfec82a55fcbd96b1d910f19403407f4785105c",
+      "negativeControl": {
+        "log": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/issue-owner-controls.log",
+        "commandLedger": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/commands.json",
+        "id": "issue-owner-controls"
+      }
+    },
+    {
+      "id": "KBD-7",
+      "status": "PASS",
+      "attempted": "Local production integration after the combined repair",
+      "observed": "Four installed Full hook and reconciliation scenarios passed, including required writeback failure propagation, successful local retry, idempotent effects, and parent resume at both child depths.",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/full-hooks.log",
+      "scenarioDigest": "b475d364811ae53960297e44eac36ab64407ac49bb224559a8b1c7c6881f1d96",
+      "negativeControl": {
+        "log": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/full-hooks-controls.log",
+        "commandLedger": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/commands.json",
+        "id": "full-hooks-controls"
+      }
+    },
+    {
+      "id": "KBD-8",
+      "status": "PASS",
+      "attempted": "Local production integration after the combined repair",
+      "observed": "The installed Claude and Codex cases passed signed closure, reflection, retry and task reconciliation. A third installed case closed a nested bound phase from historical evidence and delivered to its nested projection. All three cases passed.",
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/mini-hooks.log",
+      "scenarioDigest": "3e4ce191a7c48726b198e9873815645687936e318af7b3e03bcf3d9753679026",
+      "negativeControl": {
+        "log": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/mini-hooks-controls.log",
+        "commandLedger": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/commands.json",
+        "id": "mini-hooks-controls"
+      }
+    }
+  ],
+  "budgetConsumption": {
+    "source": "Codex producer session timestamps and tool-call requests through completion of the final local B5 command ledger. Four owner-authorized repairs from boundary-authorization.json; each repair advanced acceptance. Includes all prior consumption.",
+    "values": {
+      "timeMinutes": {
+        "value": 77,
+        "class": "measured"
+      },
+      "toolCalls": {
+        "value": 240,
+        "class": "measured"
+      },
+      "repairAttempts": {
+        "value": 4,
+        "class": "measured"
+      },
+      "noProgress": {
+        "value": 0,
+        "class": "measured"
+      }
+    }
+  },
+  "repairHistory": [
+    {
+      "authorization": {
+        "boundary": "B4",
+        "authorizedAt": "2026-11-23T10:36:37.928Z",
+        "authorizer": "Repository owner via explicit implementation of the approved issue 241 plan",
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "reason": "One consolidated local run of the approved acceptance and distribution stages"
+      },
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b4/commands.json"
+    },
+    {
+      "authorization": {
+        "boundary": "B5",
+        "authorizedAt": "2026-11-23T10:52:30.447Z",
+        "authorizer": "Repository owner via Do it in response to the proposed Node parent-resume B5 repair",
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "reason": "Port the parent resume argv to Node, regenerate Full, exercise both depths, and finish the pending Mini suite."
+      },
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5/commands.json"
+    },
+    {
+      "authorization": {
+        "boundary": "B5",
+        "authorizedAt": "2026-11-23T10:56:37.926Z",
+        "authorizer": "Repository owner, explicit approval for the additional S-1 Mini fixture repair",
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "reason": "Change the three fixture references and rerun the two installed cases and result check."
+      },
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-mini/commands.json"
+    },
+    {
+      "authorization": {
+        "boundary": "B5",
+        "authorizedAt": "2026-11-23T10:59:54.629Z",
+        "authorizer": "Repository owner, explicit Yes to the Mini phase-start fixture repair",
+        "contractDigest": "750716370a0bd3467574f7b49aa57e6224c4c2ff9b5c2cd9878452130ec68122",
+        "reason": "Apply the phase-before guard and in-progress transition and rerun both Mini cases and their result check."
+      },
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-mini-phase-start/commands.json"
+    },
+    {
+      "authorization": {
+        "boundary": "B5",
+        "authorizedAt": "2026-11-23T11:09:38.605Z",
+        "authorizer": "Owner approved combined repair of all five review findings",
+        "contractDigest": "99f3d33dc245a1af798b86b3b5ecec33dbd4dab0ac63113f55ae01a0e2f7f93a",
+        "reason": "Targeted pre-sign, Full hook and Mini lifecycle integrations plus negative controls and generated distributions."
+      },
+      "evidence": ".kbd-orchestrator/phases/issue-241-operator-exit/evidence/b5-review/commands.json"
+    }
+  ],
+  "bindingRevision": 2
+}
