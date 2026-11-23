@@ -138,7 +138,7 @@
   "license": "MIT",
   "devDependencies": {
     "@cucumber/cucumber": "^13.0.0",
-    "@fission-ai/openspec": "2.1.0",
+    "@fission-ai/openspec": "2.1.1",
     "@opencode-ai/plugin": "1.15.12",
     "@opencode-ai/sdk": "^1.15.12",
     "@types/node": "^25.9.1",
