@@ -1495,6 +1495,39 @@ function verifyReleaseManifest(payloadRoot, expectedBundle = null, executableOf 
   return release;
 }
 
+// Full installs may supply the dispatcher from the release archive they just
+// verified. Copy those exact bytes into the generation before signing it.
+function stageReleaseHook(home, version, staging, ingest) {
+  const input = process.env.PROMETHEUS_RELEASE_HOOK_BIN;
+  if (!input) return;
+  const osName = { darwin: 'darwin', linux: 'linux', win32: 'windows' }[process.platform];
+  const arch = { arm64: 'arm64', x64: 'amd64' }[process.arch];
+  if (!osName || !arch) fail('release hook has an unsupported host target');
+  const platform = `${osName}-${arch}`;
+  const tag = `v${version}`;
+  const filename = process.platform === 'win32' ? 'prometheus-hook.exe' : 'prometheus-hook';
+  const cache = path.join(home, '.prometheus/install/releases', tag, platform);
+  const manifestBytes = fs.readFileSync(path.join(cache, 'manifest.json'));
+  const sidecar = `prometheus-binaries-${tag}-${platform}.manifest.json`;
+  const sums = fs.readFileSync(path.join(cache, 'SHA256SUMS'), 'utf8').split(/\r?\n/);
+  const matching = sums.filter(line => line.slice(66) === sidecar);
+  if (matching.length !== 1 || ![`${sha256(manifestBytes)}  ${sidecar}`, `${sha256(manifestBytes)} *${sidecar}`].includes(matching[0])) {
+    fail('release hook manifest does not match the verified release checksums');
+  }
+  const manifest = JSON.parse(manifestBytes);
+  const file = manifest.files.filter(row => row.name === 'prometheus-hook');
+  if (manifest.schemaVersion !== 1 || manifest.version !== version || manifest.tag !== tag ||
+      manifest.platform !== platform || file.length !== 1 || file[0].path !== `bin/${filename}` ||
+      !fs.lstatSync(input).isFile()) fail('release hook does not match the selected version or host');
+  const bytes = fs.readFileSync(input);
+  if (sha256(bytes) !== file[0].sha256) fail('release hook executable has changed after verification');
+  const relative = `bin/${platform}/${filename}`;
+  const target = path.join(staging, relative);
+  ensureDirectory(path.dirname(target));
+  atomicWrite(target, bytes, 0o755);
+  ingest.intents.set(relative, { type: 'file', executable: true });
+}
+
 function stageReleaseRuntimeSupport(source, staging, ingest) {
   const file = path.join(source, 'shared/harnesses/generated/release-manifest.json');
   const release = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -3337,6 +3370,7 @@ function install(args) {
     }
     stagePluginMetadata(source, staging, contract.releaseVersion, ingest);
     stageReleaseRuntimeSupport(source, staging, ingest);
+    stageReleaseHook(args.home, contract.releaseVersion, staging, ingest);
     const executionComponent = stageExecutionComponent(
       source,
       staging,

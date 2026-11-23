@@ -1,0 +1,170 @@
+name: Native binary release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths: [skill-system.json]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Exact pack tag (defaults to the version on the selected ref)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    outputs:
+      active: ${{ steps.select.outputs.active }}
+      sha: ${{ steps.select.outputs.sha }}
+      tag: ${{ steps.select.outputs.tag }}
+      builds: ${{ steps.select.outputs.builds }}
+      platforms: ${{ steps.select.outputs.platforms }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Select immutable source
+        id: select
+        shell: bash
+        env:
+          REQUESTED_TAG: ${{ inputs.tag }}
+          BEFORE_SHA: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$REQUESTED_TAG" ]]; then
+            [[ "$REQUESTED_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$ ]]
+            if git show-ref --verify --quiet "refs/tags/$REQUESTED_TAG"; then
+              git checkout --detach "refs/tags/$REQUESTED_TAG"
+            fi
+          fi
+          python3 scripts/release/publish_binaries.py prepare
+
+  build:
+    needs: source
+    if: needs.source.outputs.active == 'true'
+    name: Build ${{ matrix.platform }} ${{ matrix.group }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.source.outputs.builds) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    env:
+      PLATFORM: ${{ matrix.platform }}
+      COMPONENT: ${{ matrix.group }}
+      CARGO_INCREMENTAL: '0'
+      RUSTC_WRAPPER: ''
+      CARGO_BUILD_JOBS: '3'
+    steps:
+      - if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.source.outputs.sha }}
+          persist-credentials: false
+      - if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libclang-dev libssl-dev protobuf-compiler cmake pkg-config libudev-dev libdbus-1-dev libasound2-dev
+      - if: runner.os == 'macOS' && matrix.group != 'exec'
+        shell: bash
+        run: |
+          command -v protoc >/dev/null || brew install protobuf
+          if [[ "$PLATFORM" == darwin-arm64 && ( "$COMPONENT" == mlx || "$COMPONENT" == memory ) ]]; then
+            xcrun -f metal >/dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
+          fi
+      - if: runner.os == 'Windows'
+        name: Prepare native MSVC dependencies
+        shell: pwsh
+        run: |
+          $arch = if ($env:PLATFORM -eq "windows-arm64") { "arm64" } else { "x64" }
+          $triplet = "$arch-windows-static-md"
+          $vcpkg = if ($env:VCPKG_INSTALLATION_ROOT) { $env:VCPKG_INSTALLATION_ROOT } else { $env:VCPKG_ROOT }
+          if (-not $vcpkg) { throw "The native MSVC runner requires vcpkg" }
+          & "$vcpkg/vcpkg.exe" install "openssl:$triplet"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          "VCPKG_ROOT=$vcpkg" >> $env:GITHUB_ENV
+          "VCPKGRS_TRIPLET=$triplet" >> $env:GITHUB_ENV
+          "OPENSSL_DIR=$vcpkg/installed/$triplet" >> $env:GITHUB_ENV
+          "OPENSSL_STATIC=1" >> $env:GITHUB_ENV
+          if (-not (Get-Command protoc -ErrorAction SilentlyContinue)) {
+            & "$vcpkg/vcpkg.exe" install "protobuf:$triplet"
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+            "$vcpkg/installed/$triplet/tools/protobuf" >> $env:GITHUB_PATH
+          }
+      - name: Build native payload
+        shell: bash
+        env:
+          GH_TOKEN: ${{ matrix.group == 'exec' && github.token || '' }}
+          PROMETHEUS_EXEC_DARWIN_ARM64_URL: ${{ vars.PROMETHEUS_EXEC_DARWIN_ARM64_URL }}
+        run: |
+          if [[ "$RUNNER_OS" == Windows ]]; then python=python; else python=python3; fi
+          "$python" scripts/release/binaries.py build "$PLATFORM" "$COMPONENT" parts
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: part-${{ matrix.platform }}-${{ matrix.group }}
+          path: parts/*.tar
+          if-no-files-found: error
+          compression-level: 1
+          overwrite: true
+          retention-days: 7
+
+  assemble:
+    needs: [source, build]
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(needs.source.outputs.platforms) }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.source.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: part-${{ matrix.platform }}-*
+          path: parts
+          merge-multiple: true
+      - name: Assemble platform archive and checksum manifest
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: python3 scripts/release/binaries.py assemble "$PLATFORM" parts dist
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-${{ matrix.platform }}
+          path: dist/*
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: true
+          retention-days: 7
+
+  publish:
+    needs: [source, assemble]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    concurrency:
+      group: native-release-${{ needs.source.outputs.tag }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.source.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Publish complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/release/publish_binaries.py publish dist

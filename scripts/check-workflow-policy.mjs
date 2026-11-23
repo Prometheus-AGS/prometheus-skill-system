@@ -7,7 +7,7 @@ const args = process.argv.slice(2);
 const rootIndex = args.indexOf('--root');
 const repoRoot = path.resolve(rootIndex >= 0 ? args[rootIndex + 1] : process.cwd());
 const workflowsRoot = path.join(repoRoot, '.github', 'workflows');
-const allowed = new Set(['docs-pages.yml', 'docs-pages.yaml', 'docs-sync.yml', 'docs-sync.yaml']);
+const allowed = new Set(['docs-pages.yml', 'docs-pages.yaml', 'docs-sync.yml', 'docs-sync.yaml', 'binary-release.yml']);
 const failures = [];
 
 const forbiddenCommands = [
@@ -28,7 +28,7 @@ if (fs.existsSync(workflowsRoot)) {
     const relative = path.relative(repoRoot, file);
 
     if (!allowed.has(name)) {
-      failures.push(`${relative}: hosted workflow is not an authorized documentation workflow`);
+      failures.push(`${relative}: hosted workflow is not an authorized deployment or documentation workflow`);
       continue;
     }
     if (/^\s*pull_request\s*:/m.test(source)) {
@@ -85,4 +85,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('Workflow policy passed: hosted automation is documentation-only.');
+console.log('Workflow policy passed: only authorized deployment and documentation workflows are present.');

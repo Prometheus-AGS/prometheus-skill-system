@@ -28,5 +28,5 @@ tracing        = { workspace = true }
 tracing-subscriber = { workspace = true }
 zip            = { workspace = true }
 
-[dependencies.tikv-jemallocator]
+[target.'cfg(not(target_env = "msvc"))'.dependencies.tikv-jemallocator]
 workspace = true

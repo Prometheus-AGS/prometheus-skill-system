@@ -10,8 +10,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BIN_DIR="${HOME}/.local/bin"
-mkdir -p "${BIN_DIR}"
+BIN_DIR="${PROMETHEUS_COMMAND_DIRECTORY:-${HOME}/.local/bin}"
 DRY_RUN=false
 
 while [ "$#" -gt 0 ]; do
@@ -38,6 +37,17 @@ fail()  { echo "  ❌ $*" >&2; }
 # unbound-variable error under `set -u` in macOS's bash 3.2.
 FAILED_COMPONENTS=""
 
+# Prefer the exact package release; source builds cover unpublished targets.
+. "$REPO_ROOT/scripts/binary-release.sh"
+if $DRY_RUN; then
+    info "[dry-run] would verify the release bundle for this pack version and host before any source build"
+else
+    if [ -n "${PROMETHEUS_BINARY_RELEASE_STAGE:-}" ] || [ "${PROMETHEUS_BINARY_RELEASE_PROBED:-}" != 1 ]; then
+        prepare_binary_release
+    fi
+    mkdir -p "$BIN_DIR"
+fi
+
 # prometheus-exec has a stricter evidence-producing installation contract than
 # the legacy installers below: version/hash/signature readback is mandatory and
 # replacement is atomic with rollback evidence.
@@ -50,7 +60,13 @@ PROMETHEUS_EXEC_ARGS=()
 if $DRY_RUN; then
     PROMETHEUS_EXEC_ARGS=(--dry-run)
 fi
-if ! bash "${REPO_ROOT}/scripts/install-prometheus-exec.sh" ${PROMETHEUS_EXEC_ARGS[@]+"${PROMETHEUS_EXEC_ARGS[@]}"}; then
+if ! (
+    if release_has prometheus-exec && [ -z "${PROMETHEUS_EXEC_SOURCE_BIN:-}" ]; then
+        export PROMETHEUS_EXEC_RELEASE_MANIFEST="$release_stage/manifest.json"
+        export PROMETHEUS_EXEC_SOURCE_BIN="$release_stage/bin/prometheus-exec$release_suffix"
+    fi
+    PROMETHEUS_EXEC_BIN_DIR="${PROMETHEUS_EXEC_BIN_DIR:-$BIN_DIR}" PROMETHEUS_BINARY_RELEASE_PROBED=1 bash "${REPO_ROOT}/scripts/install-prometheus-exec.sh" ${PROMETHEUS_EXEC_ARGS[@]+"${PROMETHEUS_EXEC_ARGS[@]}"}
+); then
     fail "prometheus-exec install failed — continuing with the remaining binaries"
     FAILED_COMPONENTS="${FAILED_COMPONENTS} prometheus-exec"
 fi
@@ -65,13 +81,18 @@ install_bin() {
         info "[dry-run] would install ${src} -> ${dst}"
         return 0
     fi
+    if [ -n "$release_stage" ] && [ "$src" = "$release_stage/bin/$(basename "$dst")" ]; then
+        node "$REPO_ROOT/scripts/binary-release.mjs" copy "$dst" "$src"
+        return
+    fi
     # -f: if dst exists and can't be opened for write (e.g. owned by another
     # user, as happens when a prior install ran under sudo), unlink and retry
     # instead of failing outright.
-    cp -f "${src}" "${dst}"
+    cp -f "${src}" "${dst}" || return 1
     if [ "$(uname -s)" = "Darwin" ]; then
         codesign --force --sign - "${dst}" >/dev/null 2>&1 || true
     fi
+    node "$REPO_ROOT/scripts/binary-release.mjs" mark "$dst"
 }
 
 # cargo_release_dir <workspace-dir> prints where cargo really writes that
@@ -81,126 +102,52 @@ install_bin() {
 # shellcheck source=cargo-release-dir.sh
 . "${REPO_ROOT}/scripts/cargo-release-dir.sh"
 
-# ── 1. prometheus-cli ───────────────────────────────────────────────────────
-if [ -f "${REPO_ROOT}/tools/prometheus-cli/Cargo.toml" ]; then
-    info "Building prometheus-cli..."
-    if ! $DRY_RUN; then
-        (cd "${REPO_ROOT}/tools/prometheus-cli" && cargo build --release -p prometheus-cli 2>&1 | tail -3)
+# Install a workspace's release products as one group. Cargo is needed only if
+# this host/version lacks the requested product in the published bundle.
+install_products() {
+    local workspace="$1" products="$2" release_dir name
+    shift 2
+    if release_has $products; then
+        release_dir="$release_stage/bin"
+    elif [ ! -f "$workspace/Cargo.toml" ]; then
+        fail "No published binary or initialized source for $products ($workspace)"
+        return 1
+    elif $DRY_RUN; then
+        info "[dry-run] source fallback: cargo build --release $* in $workspace"
+        return 0
     else
-        info "[dry-run] would run cargo build --release -p prometheus-cli"
+        (cd "$workspace" && cargo build --release "$@") || return 1
+        release_dir="$(cargo_release_dir "$workspace")"
     fi
-    install_bin "$(cargo_release_dir "${REPO_ROOT}/tools/prometheus-cli")/prometheus" "${BIN_DIR}/prometheus"
-    ok "prometheus → ${BIN_DIR}/prometheus"
-else
-    info "skip prometheus-cli (submodule not initialized)"
-fi
+    for name in $products; do
+        install_bin "$release_dir/$name$release_suffix" "$BIN_DIR/$name$release_suffix" || return 1
+        ok "$name → $BIN_DIR/$name$release_suffix"
+    done
+}
+required_products() {
+    install_products "$@" || FAILED_COMPONENTS="${FAILED_COMPONENTS} $2"
+}
 
-# ── 2. forge (forge-rs CLI) ──────────────────────────────────────────────────
-# Upstream renamed the CLI package `forge` → `forge-cli` (still produces the `forge` binary).
-if [ -f "${REPO_ROOT}/tools/forge-rs/Cargo.toml" ]; then
-    info "Building forge..."
-    if ! $DRY_RUN; then
-        (cd "${REPO_ROOT}/tools/forge-rs" && cargo build --release -p forge-cli 2>&1 | tail -3)
-    else
-        info "[dry-run] would run cargo build --release -p forge-cli"
-    fi
-    install_bin "$(cargo_release_dir "${REPO_ROOT}/tools/forge-rs")/forge" "${BIN_DIR}/forge"
-    ok "forge → ${BIN_DIR}/forge"
-else
-    info "skip forge-rs (submodule not initialized)"
-fi
-
-# ── 3. pk + pk-cherry + learning worker ─────────────────────────────────────
-# pk-cherry serves the knowledge MCP on :8942; pk is the CLI that the hooks
-# (bounded context dispatch, pk-health.sh, and the learning worker) invoke. pk-mcp is a
-# library, not a bin — do not try to build it as a binary target.
-if [ -f "${REPO_ROOT}/tools/prometheus-knowledge/Cargo.toml" ]; then
-    info "Building pk + pk-cherry + prometheus-learning-worker..."
-    if ! $DRY_RUN; then
-        (cd "${REPO_ROOT}/tools/prometheus-knowledge" && cargo build --release -p pk-cli -p pk-cherry -p pk-learning-worker 2>&1 | tail -3)
-    else
-        info "[dry-run] would run cargo build --release -p pk-cli -p pk-cherry -p pk-learning-worker"
-    fi
-    PK_RELEASE="$(cargo_release_dir "${REPO_ROOT}/tools/prometheus-knowledge")"
-    install_bin "${PK_RELEASE}/pk"        "${BIN_DIR}/pk"
-    install_bin "${PK_RELEASE}/pk-cherry" "${BIN_DIR}/pk-cherry"
-    install_bin "${PK_RELEASE}/prometheus-learning-worker" "${BIN_DIR}/prometheus-learning-worker"
-    ok "pk        → ${BIN_DIR}/pk"
-    ok "pk-cherry → ${BIN_DIR}/pk-cherry"
-    ok "prometheus-learning-worker → ${BIN_DIR}/prometheus-learning-worker"
-else
-    info "skip prometheus-knowledge (submodule not initialized)"
-fi
-
-# ── 4. Learning substrate binaries ───────────────────────────────────────────
-substrate_bins=(learner-model surface-bridge)
-for substrate_bin in "${substrate_bins[@]}"; do
-    substrate_manifest="${REPO_ROOT}/substrate/${substrate_bin}/Cargo.toml"
-    if [ ! -f "$substrate_manifest" ]; then
-        info "skip ${substrate_bin} (manifest not found)"
-        continue
-    fi
-    info "Building ${substrate_bin}..."
-    if ! $DRY_RUN; then
-        cargo build --release --manifest-path "$substrate_manifest" 2>&1 | tail -3
-    else
-        info "[dry-run] would build ${substrate_bin}"
-    fi
-    install_bin \
-        "$(cargo_release_dir "${REPO_ROOT}/substrate/${substrate_bin}")/${substrate_bin}" \
-        "${BIN_DIR}/${substrate_bin}"
-    ok "${substrate_bin} → ${BIN_DIR}/${substrate_bin}"
+required_products "$REPO_ROOT/tools/prometheus-cli" prometheus -p prometheus-cli
+required_products "$REPO_ROOT/crates/prometheus-hook" prometheus-hook
+required_products "$REPO_ROOT/tools/prometheus-rust-auditor" prometheus-rust-auditor
+required_products "$REPO_ROOT/tools/forge-rs" forge -p forge-cli
+required_products "$REPO_ROOT/tools/prometheus-knowledge" 'pk pk-cherry prometheus-learning-worker' -p pk-cli -p pk-cherry -p pk-learning-worker
+for substrate_bin in learner-model surface-bridge; do
+    required_products "$REPO_ROOT/substrate/$substrate_bin" "$substrate_bin"
 done
 
-# ── 5. liter-llm ─────────────────────────────────────────────────────────────
-# Upstream renamed the CLI package to `liter-llm-cli` (still produces the `liter-llm` binary).
-if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
-    info "Building liter-llm..."
-    # A failed build must not abort the installer. This is the block that did
-    # exactly that on 2026-07-30: the submodule's Cargo.toml disagreed with its
-    # workspace version, cargo exited 101, and under `set -e` every binary after
-    # this one was left stale. The failure is recorded and reported at the end.
-    _llm_built=1
-    if ! $DRY_RUN; then
-        # `|| _llm_built=0` keeps a non-zero cargo exit from tripping `set -e`
-        # (`pipefail` carries cargo's status through `tail`).
-        (cd "${REPO_ROOT}/tools/liter-llm" && cargo build --release -p liter-llm-cli 2>&1 | tail -3) \
-            || _llm_built=0
-    else
-        info "[dry-run] would run cargo build --release -p liter-llm-cli"
-    fi
-    if [ "${_llm_built}" -eq 1 ]; then
-        # liter-llm binary may be in workspace root target or crate target
-        # `|| true`: under `set -e` an assignment from a failing command
-        # substitution is fatal, and `find` on a release dir that was never built
-        # exits non-zero.
-        LLM_BIN=$(find "$(cargo_release_dir "${REPO_ROOT}/tools/liter-llm")" -maxdepth 1 -name "liter-llm" -type f 2>/dev/null | head -1) || true
-        if [ -n "${LLM_BIN}" ]; then
-            install_bin "${LLM_BIN}" "${BIN_DIR}/liter-llm"
-            ok "liter-llm → ${BIN_DIR}/liter-llm"
-        else
-            fail "liter-llm binary not found after build"
-            $DRY_RUN || FAILED_COMPONENTS="${FAILED_COMPONENTS} liter-llm"
-        fi
-    else
-        # Do not fall through to the lookup: after a failed build the release
-        # directory can still hold a binary from an OLDER build, and installing
-        # that would report a stale gateway as freshly built. The copy already
-        # in ${BIN_DIR}, if any, is left as it is.
-        fail "liter-llm build failed — continuing with the remaining binaries"
-        FAILED_COMPONENTS="${FAILED_COMPONENTS} liter-llm"
-    fi
-    unset _llm_built
+if install_products "$REPO_ROOT/tools/liter-llm" liter-llm -p liter-llm-cli; then
     # `liter-llm mcp` REQUIRES a config file — without it the stdio server exits
     # and Claude Code fails to load it. Install the default proxy/MCP config
     # (routes via the local :8181 openai-proxy) unless the user already has one.
     LLM_CFG_DIR="${HOME}/.config/liter-llm"
     LLM_CFG="${LLM_CFG_DIR}/liter-llm-proxy.toml"
     if [ ! -f "${LLM_CFG}" ] && [ -f "${REPO_ROOT}/shared/config/liter-llm-proxy.toml" ]; then
-        mkdir -p "${LLM_CFG_DIR}"
         if $DRY_RUN; then
             info "[dry-run] would install liter-llm config at ${LLM_CFG}"
         else
+            mkdir -p "${LLM_CFG_DIR}"
             cp "${REPO_ROOT}/shared/config/liter-llm-proxy.toml" "${LLM_CFG}"
         fi
         ok "liter-llm config → ${LLM_CFG}"
@@ -227,7 +174,7 @@ if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
         unset _llm_missing
     fi
 else
-    info "skip liter-llm (submodule not initialized)"
+    FAILED_COMPONENTS="${FAILED_COMPONENTS} liter-llm"
 fi
 
 # ── 5a. liter-llm MCP launcher ───────────────────────────────────────────────
@@ -252,56 +199,10 @@ else
     info "skip liter-llm MCP launcher (node unavailable)"
 fi
 
-# ── 5b. openai-proxy (judge gateway on :8181 — OPTIONAL) ─────────────────────
-# This is what the `kbd-judge` role resolves to, and its absence silently
-# degrades every adversarial review to a same-model self-grade. It is therefore
-# vendored (change-arc-009) so the source is pinned and obtainable.
-#
-# STRICTLY NON-FATAL, and that is the whole point of the block below.
-# This script runs under `set -euo pipefail`. Earlier this session, `tools/liter-llm`
-# was pinned to a commit whose Cargo.toml hardcoded version = "1.9.3" against a
-# workspace that had moved to 1.11.0; `cargo metadata` exited 101, THIS SCRIPT
-# ABORTED MID-RUN, and 7 of 14 binaries were left stale. Nothing about that was
-# specific to liter-llm — any required submodule build can do it.
-#
-# So every failure path here warns and continues:
-#   - submodule not initialized  -> skip
-#   - cargo missing              -> skip
-#   - build fails                -> warn, keep going
-#   - binary not produced        -> warn, keep going
-# A user who never runs an adversarial review must never lose an install to this.
-if [ -f "${REPO_ROOT}/tools/openai-proxy/Cargo.toml" ] && command -v cargo >/dev/null 2>&1; then
-    info "Building openai-proxy (optional judge gateway)..."
-    _oap_built=1
-    if ! $DRY_RUN; then
-        # `|| _oap_built=0` keeps a non-zero cargo exit from tripping `set -e`.
-        (cd "${REPO_ROOT}/tools/openai-proxy" && cargo build --release 2>&1 | tail -3) \
-            || _oap_built=0
-    else
-        info "[dry-run] would run cargo build --release for openai-proxy"
-    fi
-    if [ "${_oap_built}" -eq 1 ]; then
-        # `|| true` is required, not decorative: under `set -e`, an assignment
-        # from a command substitution whose command FAILS aborts the script, and
-        # `find` on a missing target/release (never built, or a dry-run) exits
-        # non-zero. Without it, `--dry-run` died right here.
-        OAP_BIN=$(find "$(cargo_release_dir "${REPO_ROOT}/tools/openai-proxy")" -maxdepth 1 \
-                       -name "openai-proxy" -type f 2>/dev/null | head -1) || true
-        if [ -n "${OAP_BIN:-}" ]; then
-            install_bin "${OAP_BIN}" "${BIN_DIR}/openai-proxy"
-            ok "openai-proxy → ${BIN_DIR}/openai-proxy"
-        else
-            echo "  ⚠️  openai-proxy binary not found after build — adversarial review" >&2
-            echo "      will degrade to a same-model self-grade. Install continues." >&2
-        fi
-    else
-        echo "  ⚠️  openai-proxy build failed — adversarial review will degrade to a" >&2
-        echo "      same-model self-grade. Install continues; see" >&2
-        echo "      docs/decisions/openai-proxy-vendoring.md" >&2
-    fi
-    unset _oap_built
-else
-    info "skip openai-proxy (submodule not initialized or cargo unavailable)"
+# The judge gateway is optional. Its own source build failure never obstructs
+# the remaining installation; corrupt release archives are rejected above.
+if ! install_products "$REPO_ROOT/tools/openai-proxy" openai-proxy; then
+    info "Optional openai-proxy unavailable; see docs/decisions/openai-proxy-vendoring.md"
 fi
 
 # ── 5. surreal-memory-server (memory MCP daemon on :23001) ───────────────────
@@ -313,19 +214,25 @@ fi
 # GPU feature is platform-dependent: `metal` is Apple-only (pulls in objc2,
 # which hard-fails compile_error! on any non-Apple target); `cuda` requires an
 # NVIDIA GPU. Select the right accelerator instead of hardcoding `metal`.
-if [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
+if release_has surreal-memory-server || [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
     SM_MLX_DIR="${REPO_ROOT}/tools/surreal-memory-server/executors/mlx"
     if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ] && \
-       [ -f "${SM_MLX_DIR}/Package.swift" ]; then
-        info "Building surreal-memory MLX executor..."
-        if ! $DRY_RUN; then
-            swift build --package-path "${SM_MLX_DIR}" -c release \
-                --product surreal-memory-mlx-executor
+       { release_has surreal-memory-mlx-executor || [ -f "${SM_MLX_DIR}/Package.swift" ]; }; then
+        if release_has surreal-memory-mlx-executor; then
+            SM_MLX_BIN="$release_stage/bin/surreal-memory-mlx-executor"
+            SM_MLX_BUNDLE="$release_stage/bin/mlx-swift_Cmlx.bundle"
         else
-            info "[dry-run] would build surreal-memory-mlx-executor with SwiftPM"
+            mlx_build="${SM_MLX_DIR}/.build/xcode"
+            SM_MLX_BIN="${mlx_build}/Build/Products/Release/surreal-memory-mlx-executor"
+            SM_MLX_BUNDLE="${mlx_build}/Build/Products/Release/mlx-swift_Cmlx.bundle"
+            if $DRY_RUN; then
+                info "[dry-run] would build surreal-memory-mlx-executor and Metal resources with Xcode"
+            else
+                (cd "$SM_MLX_DIR" && xcodebuild build -scheme surreal-memory-mlx-executor -configuration Release \
+                    -destination platform=macOS,arch=arm64 -derivedDataPath "$mlx_build" \
+                    -onlyUsePackageVersionsFromResolvedFile CODE_SIGN_IDENTITY=-)
+            fi
         fi
-        SM_MLX_BIN="${SM_MLX_DIR}/.build/release/surreal-memory-mlx-executor"
-        SM_MLX_BUNDLE="${SM_MLX_DIR}/.build/release/mlx-swift_Cmlx.bundle"
         if ! $DRY_RUN && [ ! -x "${SM_MLX_BIN}" ]; then
             fail "surreal-memory-mlx-executor binary not found after build"
             exit 1
@@ -391,19 +298,22 @@ if [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
     elif command -v nvidia-smi >/dev/null 2>&1; then
         SM_FEATURES="embedded,cuda,local-embeddings"
     fi
-    if ! $DRY_RUN; then
-        (cd "${REPO_ROOT}/tools/surreal-memory-server" && \
-            RUSTFLAGS="-Dwarnings" cargo build --release --no-default-features \
-                --features "${SM_FEATURES}" 2>&1 | tail -3)
+    if release_has surreal-memory-server; then
+        SM_BIN="$release_stage/bin/surreal-memory-server$release_suffix"
     else
-        info "[dry-run] would run cargo build for surreal-memory-server with features ${SM_FEATURES}"
+        if ! $DRY_RUN; then
+            (cd "${REPO_ROOT}/tools/surreal-memory-server" &&
+                RUSTFLAGS="-Dwarnings" cargo build --release --no-default-features --features "${SM_FEATURES}")
+        else
+            info "[dry-run] would build surreal-memory-server with features ${SM_FEATURES}"
+        fi
+        SM_BIN="$(cargo_release_dir "${REPO_ROOT}/tools/surreal-memory-server")/surreal-memory-server$release_suffix"
     fi
-    SM_BIN="$(cargo_release_dir "${REPO_ROOT}/tools/surreal-memory-server")/surreal-memory-server"
     if [ -f "${SM_BIN}" ]; then
-        install_bin "${SM_BIN}" "${BIN_DIR}/surreal-memory-server"
+        install_bin "${SM_BIN}" "${BIN_DIR}/surreal-memory-server$release_suffix"
         ok "surreal-memory-server → ${BIN_DIR}/surreal-memory-server"
         if [ -w /usr/local/bin ] || [ "$(id -u)" = "0" ]; then
-            install_bin "${SM_BIN}" "/usr/local/bin/surreal-memory-server"
+            install_bin "${SM_BIN}" "/usr/local/bin/surreal-memory-server$release_suffix"
             ok "surreal-memory-server → /usr/local/bin/surreal-memory-server"
         else
             info "skip /usr/local/bin/surreal-memory-server (not writable) — run: sudo cp ${SM_BIN} /usr/local/bin/ && sudo codesign --force --sign - /usr/local/bin/surreal-memory-server"
@@ -420,19 +330,23 @@ fi
 # command; /usr/local/bin is the canonical location the reflector gate and
 # every tool's MCP config resolve.
 SYCO_DIR="${REPO_ROOT}/skills/imported/sycophancy-correction"
-if [ -f "${SYCO_DIR}/Cargo.toml" ]; then
+if release_has sycophancy-correction || [ -f "${SYCO_DIR}/Cargo.toml" ]; then
     info "Building sycophancy-correction..."
-    if ! $DRY_RUN; then
-        (cd "${SYCO_DIR}" && cargo build --release 2>&1 | tail -3)
+    if release_has sycophancy-correction; then
+        SYCO_BIN="$release_stage/bin/sycophancy-correction$release_suffix"
     else
-        info "[dry-run] would run cargo build --release for sycophancy-correction"
+        if ! $DRY_RUN; then
+            (cd "${SYCO_DIR}" && cargo build --release)
+        else
+            info "[dry-run] would build sycophancy-correction"
+        fi
+        SYCO_BIN="$(cargo_release_dir "${SYCO_DIR}")/sycophancy-correction$release_suffix"
     fi
-    SYCO_BIN="$(cargo_release_dir "${SYCO_DIR}")/sycophancy-correction"
     if [ -f "${SYCO_BIN}" ]; then
-        install_bin "${SYCO_BIN}" "${BIN_DIR}/sycophancy-correction"
+        install_bin "${SYCO_BIN}" "${BIN_DIR}/sycophancy-correction$release_suffix"
         ok "sycophancy-correction → ${BIN_DIR}/sycophancy-correction"
         if [ -w /usr/local/bin ] || [ "$(id -u)" = "0" ]; then
-            install_bin "${SYCO_BIN}" "/usr/local/bin/sycophancy-correction"
+            install_bin "${SYCO_BIN}" "/usr/local/bin/sycophancy-correction$release_suffix"
             ok "sycophancy-correction → /usr/local/bin/sycophancy-correction"
         else
             info "skip /usr/local/bin/sycophancy-correction (not writable) — run: sudo cp ${SYCO_BIN} /usr/local/bin/ && sudo codesign --force --sign - /usr/local/bin/sycophancy-correction"
@@ -444,223 +358,36 @@ else
     info "skip sycophancy-correction (submodule not initialized)"
 fi
 
-# ── 7. template-forge + template-forge-mcp (artifact-refiner submodule) ──────
 TEMPLATE_FORGE_DIR="${REPO_ROOT}/skills/imported/artifact-refiner/tools/template-forge-rs"
-if [ -f "${TEMPLATE_FORGE_DIR}/Cargo.toml" ]; then
-    info "Building template-forge and template-forge-mcp..."
-    # rust-toolchain.toml in this submodule is comment-only — override via env
-    if ! $DRY_RUN; then
-        (cd "${TEMPLATE_FORGE_DIR}" && RUSTUP_TOOLCHAIN=stable cargo build --release 2>&1 | tail -3)
-    else
-        info "[dry-run] would run RUSTUP_TOOLCHAIN=stable cargo build --release for template-forge-rs"
-    fi
-    TEMPLATE_FORGE_RELEASE="$(cargo_release_dir "${TEMPLATE_FORGE_DIR}")"
-    install_bin "${TEMPLATE_FORGE_RELEASE}/template-forge"     "${BIN_DIR}/template-forge"
-    install_bin "${TEMPLATE_FORGE_RELEASE}/template-forge-mcp" "${BIN_DIR}/template-forge-mcp"
-    ok "template-forge     → ${BIN_DIR}/template-forge"
-    ok "template-forge-mcp → ${BIN_DIR}/template-forge-mcp"
-else
-    fail "template-forge-rs not found — run: git submodule update --init --recursive"
-fi
-
-# ── 8. cowork + co (cowork-skills CLI — skill management utility) ────────────
-# Two-path install:
-#   Path A (preferred): source build from tools/cowork-skills submodule
-#   Path B (fallback):  download pre-built binary from GitHub Releases
-install_cowork() {
-    local cowork_dir="${REPO_ROOT}/tools/cowork-skills"
-    local cli_dir="${cowork_dir}/cli"
-
-    if [ -d "${cli_dir}" ]; then
-        # Path A — source build
-        info "Building cowork from source (tools/cowork-skills)..."
-        if $DRY_RUN; then
-            info "[dry-run] would run cargo build --release in ${cli_dir}"
-            return
-        elif (cd "${cli_dir}" && cargo build --release 2>&1 | tail -3); then
-            local cowork_release
-            cowork_release="$(cargo_release_dir "${cli_dir}")"
-            if [ -x "${cowork_release}/cowork" ] && [ -x "${cowork_release}/co" ]; then
-                install_bin "${cowork_release}/cowork" "${BIN_DIR}/cowork"
-                install_bin "${cowork_release}/co"     "${BIN_DIR}/co"
-                ok "cowork → ${BIN_DIR}/cowork"
-                ok "co     → ${BIN_DIR}/co"
-                return
-            fi
-            fail "cowork source build completed without both binaries; falling through to release download"
-        else
-            fail "cowork source build failed; falling through to release download"
-        fi
-    fi
-
-    # Path B — download from GitHub Releases
-    if $DRY_RUN; then
-        info "[dry-run] would download cowork from GitHub Releases (tools/cowork-skills/cli not present)"
-        return
-    fi
-    info "cowork-skills submodule not present; downloading from GitHub Releases..."
-    local os arch target archive_ext
-    os="$(uname -s)"
-    arch="$(uname -m)"
-
-    case "${os}-${arch}" in
-        Darwin-arm64)   target="aarch64-apple-darwin";        archive_ext="tar.gz" ;;
-        Darwin-x86_64)  target="x86_64-apple-darwin";         archive_ext="tar.gz" ;;
-        Linux-x86_64)   target="x86_64-unknown-linux-musl";   archive_ext="tar.gz" ;;
-        MINGW*|MSYS*|Windows*) target="x86_64-pc-windows-msvc"; archive_ext="zip" ;;
-        *)
-            fail "Unsupported platform ${os}-${arch} for cowork download; run: cd tools/cowork-skills/cli && cargo build --release"
-            return
-            ;;
-    esac
-
-    # Resolve latest release tag via GitHub API redirect
-    local latest_url="https://github.com/GQAdonis/cowork-skills/releases/latest/download"
-    local version
-    version="$(curl -fsL -o /dev/null -w '%{url_effective}' \
-        "https://github.com/GQAdonis/cowork-skills/releases/latest" \
-        | sed 's|.*/tag/v||')" || version="latest"
-
-    local archive="cowork-${version}-${target}.${archive_ext}"
-    local download_url="${latest_url}/${archive}"
-    local tmp_dir
-    tmp_dir="$(mktemp -d)"
-
-    info "Downloading ${archive} from GitHub Releases..."
-    if ! curl -fsL "${download_url}" -o "${tmp_dir}/${archive}"; then
-        fail "Failed to download ${download_url}; run: git submodule update --init tools/cowork-skills"
-        rm -rf "${tmp_dir}"
-        return
-    fi
-
-    # Extract
-    if [ "${archive_ext}" = "tar.gz" ]; then
-        tar -C "${tmp_dir}" -xzf "${tmp_dir}/${archive}"
-        local bin_dir="${tmp_dir}/cowork-${version}-${target}"
-        install_bin "${bin_dir}/cowork" "${BIN_DIR}/cowork"
-        # Create co symlink/copy
-        cp "${BIN_DIR}/cowork" "${BIN_DIR}/co"
-        if [ "$(uname -s)" = "Darwin" ]; then
-            codesign --force --sign - "${BIN_DIR}/co" >/dev/null 2>&1 || true
-        fi
-    else
-        fail "zip extraction on Windows: run scripts/install-binaries.ps1 instead"
-        rm -rf "${tmp_dir}"
-        return
-    fi
-
-    rm -rf "${tmp_dir}"
-    ok "cowork → ${BIN_DIR}/cowork (downloaded)"
-    ok "co     → ${BIN_DIR}/co (downloaded)"
-}
-
-install_cowork
-
-# ── 9. dsg (disk-space-guardian — safe build cache cleanup) ──────────────────
-# Two-path install:
-#   Path A (preferred): source build from tools/disk-space-guardian submodule
-#   Path B (fallback):  download pre-built binary from GitHub Releases
-install_dsg() {
-    local dsg_dir="${REPO_ROOT}/tools/disk-space-guardian"
-
-    if [ -f "${dsg_dir}/Cargo.toml" ]; then
-        # Path A — source build
-        info "Building dsg from source (tools/disk-space-guardian)..."
-        if $DRY_RUN; then
-            info "[dry-run] would run cargo build --release in ${dsg_dir}"
-            return
-        elif (cd "${dsg_dir}" && cargo build --release 2>&1 | tail -3); then
-            local dsg_bin
-            dsg_bin="$(find "$(cargo_release_dir "${dsg_dir}")" -maxdepth 1 -name "dsg" -type f 2>/dev/null | head -1)" || true
-            if [ -n "${dsg_bin}" ]; then
-                install_bin "${dsg_bin}" "${BIN_DIR}/dsg"
-                ok "dsg → ${BIN_DIR}/dsg"
-                return
-            fi
-            fail "dsg binary not found after source build; falling through to download"
-        else
-            fail "dsg source build failed; falling through to download"
-        fi
-    fi
-
-    # Path B — download from GitHub Releases
-    if $DRY_RUN; then
-        info "[dry-run] would download dsg from GitHub Releases (tools/disk-space-guardian not present)"
-        return
-    fi
-    info "dsg source not present or build failed; downloading from GitHub Releases..."
-    local os arch target archive_ext
-    os="$(uname -s)"
-    arch="$(uname -m)"
-
-    case "${os}-${arch}" in
-        Darwin-arm64)   target="aarch64-apple-darwin";        archive_ext="tar.gz" ;;
-        Darwin-x86_64)  target="x86_64-apple-darwin";         archive_ext="tar.gz" ;;
-        Linux-x86_64)   target="x86_64-unknown-linux-musl";   archive_ext="tar.gz" ;;
-        MINGW*|MSYS*|Windows*) target="x86_64-pc-windows-msvc"; archive_ext="zip" ;;
-        *)
-            fail "Unsupported platform ${os}-${arch} for dsg download; run: cd tools/disk-space-guardian && cargo build --release"
-            return
-            ;;
-    esac
-
-    local version
-    version="$(curl -fsL -o /dev/null -w '%{url_effective}' \
-        "https://github.com/GQAdonis/disk-space-guardian/releases/latest" \
-        | sed 's|.*/tag/v||')" || version="latest"
-
-    local archive="dsg-${version}-${target}.${archive_ext}"
-    local download_url="https://github.com/GQAdonis/disk-space-guardian/releases/latest/download/${archive}"
-    local tmp_dir
-    tmp_dir="$(mktemp -d)"
-
-    info "Downloading ${archive} from GitHub Releases..."
-    if ! curl -fsL "${download_url}" -o "${tmp_dir}/${archive}"; then
-        fail "Failed to download ${download_url}; run: git submodule update --init tools/disk-space-guardian && cd tools/disk-space-guardian && cargo build --release"
-        rm -rf "${tmp_dir}"
-        return
-    fi
-
-    if [ "${archive_ext}" = "tar.gz" ]; then
-        tar -C "${tmp_dir}" -xzf "${tmp_dir}/${archive}"
-        local extracted_bin
-        extracted_bin="$(find "${tmp_dir}" -name "dsg" -type f | head -1)"
-        if [ -n "${extracted_bin}" ]; then
-            install_bin "${extracted_bin}" "${BIN_DIR}/dsg"
-            ok "dsg → ${BIN_DIR}/dsg (downloaded)"
-        else
-            fail "dsg binary not found in archive"
-        fi
-    else
-        fail "zip extraction on Windows: run scripts/install-binaries.ps1 instead"
-    fi
-
-    rm -rf "${tmp_dir}"
-}
-
-install_dsg
+RUSTUP_TOOLCHAIN=stable required_products "$TEMPLATE_FORGE_DIR" 'template-forge template-forge-mcp'
+required_products "$REPO_ROOT/tools/cowork-skills/cli" 'cowork co'
+required_products "$REPO_ROOT/tools/disk-space-guardian" dsg
 
 # ── 10. prometheus-research (HTTP + MCP research server on :7891) ────────────
-if [ -f "${REPO_ROOT}/substrate/prometheus-research/Cargo.toml" ]; then
+if release_has prometheus-research || [ -f "${REPO_ROOT}/substrate/prometheus-research/Cargo.toml" ]; then
     info "Building prometheus-research..."
-    PR_BIN="$(cargo_release_dir "${REPO_ROOT}/substrate/prometheus-research")/prometheus-research"
+    if release_has prometheus-research; then
+        PR_BIN="$release_stage/bin/prometheus-research$release_suffix"
+    else
+        PR_BIN="$(cargo_release_dir "${REPO_ROOT}/substrate/prometheus-research")/prometheus-research$release_suffix"
+    fi
     # A dry run must change nothing. Beyond the build and the binary, this
     # section copies static assets into the repository and re-registers a
     # launchd service, which restarts the running daemon.
     if $DRY_RUN; then
         info "[dry-run] would run cargo build --release for prometheus-research"
-        install_bin "${PR_BIN}" "${BIN_DIR}/prometheus-research"
+        install_bin "${PR_BIN}" "${BIN_DIR}/prometheus-research$release_suffix"
         info "[dry-run] would copy static assets to docs/deep-research/static/"
         if [ "$(uname -s)" = "Darwin" ]; then
             info "[dry-run] would render and re-register the com.prometheus.research launchd service"
         fi
-    elif ! (cd "${REPO_ROOT}/substrate/prometheus-research" && cargo build --release 2>&1 | tail -3); then
+    elif ! release_has prometheus-research && ! (cd "${REPO_ROOT}/substrate/prometheus-research" && cargo build --release 2>&1 | tail -3); then
         # Record it so the run still ends non-zero, as it did when this build
         # ran unguarded and aborted the script.
         fail "prometheus-research build failed"
         FAILED_COMPONENTS="${FAILED_COMPONENTS} prometheus-research"
     elif [ -f "${PR_BIN}" ]; then
-        install_bin "${PR_BIN}" "${BIN_DIR}/prometheus-research"
+        install_bin "${PR_BIN}" "${BIN_DIR}/prometheus-research$release_suffix"
         ok "prometheus-research → ${BIN_DIR}/prometheus-research"
 
         STATIC_SRC="${REPO_ROOT}/substrate/prometheus-research/src/static"

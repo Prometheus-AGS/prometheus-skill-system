@@ -214,8 +214,9 @@ function verifyImportCommit(sourceRoot, entry) {
   if (actual !== entry.commit) fail(`import ${entry.path} is ${actual}; expected ${entry.commit}`);
 }
 
-function initializeImports(sourceRoot, contract, profile) {
-  const required = contract.imports.filter(entry => entry.requiredFor?.includes(profile));
+function initializeImports(sourceRoot, contract, profile, hasBinaries) {
+  const required = contract.imports.filter(entry => entry.requiredFor?.includes(profile)
+    && !(hasBinaries && entry.path.startsWith('tools/')));
   const paths = required.map(entry => entry.path);
   run('git', ['-C', sourceRoot, 'submodule', 'update', '--init', '--recursive', '--', ...paths]);
   for (const entry of required) verifyImportCommit(sourceRoot, entry);
@@ -250,18 +251,21 @@ function mcpTools(targets, home) {
 function configureFull(args, targets, contract) {
   const supported = contract.platforms.full.includes(platformKind());
   if (!supported) fail('full installation is supported on macOS and Linux only. On Windows, use --profile skills from Git Bash or WSL.');
-  const prereq = spawnSync('bash', [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh')], { cwd: args.sourceRoot, stdio: 'inherit' });
+  const prereqArgs = [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh'), '--core-only'];
+  if (process.env.PROMETHEUS_BINARY_RELEASE_STAGE) prereqArgs.push('--prebuilt');
+  const prereq = spawnSync('bash', prereqArgs, { cwd: args.sourceRoot, stdio: 'inherit' });
   if (prereq.status !== 0) {
     if (!args.yes) fail('missing prerequisites; rerun with --yes to approve local prerequisite installation');
-    run('bash', [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh'), '--install'], { cwd: args.sourceRoot });
+    run('bash', [...prereqArgs, '--install'], { cwd: args.sourceRoot });
   }
-  run('bash', [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh'), '--build-tools'], { cwd: args.sourceRoot });
+  run('bash', [path.join(args.sourceRoot, 'scripts/install-binaries.sh')], { cwd: args.sourceRoot });
   run('bash', [path.join(args.sourceRoot, 'scripts/install-mcp-services.sh')], { cwd: args.sourceRoot });
   for (const tool of mcpTools(targets, args.home)) {
     run('bash', [path.join(args.sourceRoot, 'scripts/configure-mcp-all-tools.sh'), '--tool', tool], { cwd: args.sourceRoot });
   }
   run('bash', [path.join(args.sourceRoot, 'scripts/check-mcp-health.sh')], { cwd: args.sourceRoot });
-  run('npm', ['run', 'doctor'], { cwd: args.sourceRoot });
+  const prometheus = path.join(process.env.PROMETHEUS_COMMAND_DIRECTORY || path.join(args.home, '.local/bin'), 'prometheus');
+  run(prometheus, ['doctor', '--exclude', 'control.kbd-runtime', '--exclude', 'state.kbd-orchestrator', '--exclude', 'control.kbd-rollout', '--exclude', 'remote-queue'], { cwd: args.sourceRoot });
 }
 
 async function main() {
@@ -290,7 +294,7 @@ async function main() {
     `  release: ${contract.releaseVersion} (minimum active ${contract.minimumActiveVersion})`,
     `  profile: ${profile}`,
     `  targets: ${targets.map(target => `${target.id}:${target.mode}`).join(', ')}`,
-    `  imports: ${args.verify || args.uninstall ? 'none' : imports.join(', ')}`,
+    `  imports${profile === 'full' ? ' (tool sources only on fallback)' : ''}: ${args.verify || args.uninstall ? 'none' : imports.join(', ')}`,
     `  plugin root: ${path.join(args.home, '.prometheus/plugins/prometheus-skill-pack')}`,
     `  Codex root: ${args.codexHome}`,
     ...(operation === 'install' && servesCodex(targets, args.home)
@@ -316,25 +320,44 @@ async function main() {
     }
   };
 
-  const installerArgs = generationArgs(args, targets);
-  if (args.verify) installerArgs.push('--verify');
-  else if (args.uninstall) installerArgs.push('--uninstall');
-  else attempt('submodule initialization', () => initializeImports(args.sourceRoot, contract, profile));
-  const generation = attempt(operation, () => run(process.execPath, installerArgs, { capture: true }));
-  if (!args.verify && !args.uninstall && servesCodex(targets, args.home)) {
-    attempt('Codex memory policy', () => {
-      if (!applyCodexMemories({ home: args.home })) fail('could not apply Codex memory policy');
-    });
-    attempt('Codex catalog policy', () => {
-      if (!applyCodexCatalog({ home: args.home, sourceRoot: args.sourceRoot })) fail('could not apply Codex catalog policy');
-    });
-  }
-  if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract));
+  const useBinaries = operation === 'install' && profile === 'full';
+  const stage = useBinaries ? fs.mkdtempSync(path.join(os.tmpdir(), 'prometheus-full-release-')) : null;
+  try {
+    if (stage) {
+      const fetcher = path.join(args.sourceRoot, 'scripts/binary-release.mjs');
+      const resolve = spawnSync(process.execPath, [fetcher, 'prepare', stage], { stdio: 'inherit' });
+      if (resolve.error) throw resolve.error;
+      if (resolve.status === 0) {
+        process.env.PROMETHEUS_BINARY_RELEASE_STAGE = stage;
+        process.env.PROMETHEUS_RELEASE_HOOK_BIN = path.join(stage, 'bin/prometheus-hook');
+      } else if (resolve.status === 3) {
+        delete process.env.PROMETHEUS_BINARY_RELEASE_STAGE;
+        delete process.env.PROMETHEUS_RELEASE_HOOK_BIN;
+        process.env.PROMETHEUS_BINARY_RELEASE_PROBED = '1';
+      } else fail('binary release verification failed');
+    }
+    const installerArgs = generationArgs(args, targets);
+    if (args.verify) installerArgs.push('--verify');
+    else if (args.uninstall) installerArgs.push('--uninstall');
+    else attempt('submodule initialization', () => initializeImports(args.sourceRoot, contract, profile, useBinaries && Boolean(process.env.PROMETHEUS_BINARY_RELEASE_STAGE)));
+    const generation = attempt(operation, () => run(process.execPath, installerArgs, { capture: true }));
+    if (!args.verify && !args.uninstall && servesCodex(targets, args.home)) {
+      attempt('Codex memory policy', () => {
+        if (!applyCodexMemories({ home: args.home })) fail('could not apply Codex memory policy');
+      });
+      attempt('Codex catalog policy', () => {
+        if (!applyCodexCatalog({ home: args.home, sourceRoot: args.sourceRoot })) fail('could not apply Codex catalog policy');
+      });
+    }
+    if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract));
 
-  if (failures.length) {
-    process.stdout.write(`Best-effort run completed without certification (${failures.length} failure(s)).\n`);
-  } else {
-    process.stdout.write(`Prometheus ${operation} verified${generation ? `: ${generation}` : ''}\n`);
+    if (failures.length) {
+      process.stdout.write(`Best-effort run completed without certification (${failures.length} failure(s)).\n`);
+    } else {
+      process.stdout.write(`Prometheus ${operation} verified${generation ? `: ${generation}` : ''}\n`);
+    }
+  } finally {
+    if (stage) fs.rmSync(stage, { recursive: true, force: true });
   }
 }
 

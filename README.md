@@ -142,7 +142,7 @@ publication and installation are separate from a pack release. See
 [the extension contract](docs/integration-contract.md) and
 [the relocation decision](docs/decisions/sovereign-sync-relocated-to-companion.md).
 
-On macOS or Linux, preview the full profile before opting into native builds,
+On macOS or Linux, preview the full profile before opting into native binaries,
 MCP configuration and user-service installation. The service installer requires
 Bash 4+; ensure `bash` on PATH is a modern installation, rather than macOS's
 system Bash 3.2:
@@ -151,6 +151,12 @@ system Bash 3.2:
 ./install.sh --profile full --targets detected --dry-run
 ./install.sh --profile full --targets detected
 ```
+
+The native installer first requests the GitHub release for the pack version in
+this checkout and the host CPU. On Windows, install the native tools from
+PowerShell with `.\scripts\install-binaries.ps1`. The installer checks the
+platform manifest and SHA-256 digests before installation. An unpublished
+bundle permits a source build. [Platform packages and installation](docs/guide/19-installation.md#versioned-native-binaries)
 
 Service components have independent versions and storage configuration. A
 successful installer exit can include warnings and does not certify every

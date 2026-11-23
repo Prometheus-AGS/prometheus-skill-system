@@ -17,6 +17,7 @@ use super::cargo_paths;
 use super::control_transport::ControlTransport;
 
 mod discovery_budget;
+mod release_binaries;
 mod learning_queue;
 mod plugin_source;
 mod project_root;
@@ -2501,6 +2502,17 @@ fn check_managed_binaries() -> CheckResult {
                 .is_ok_and(|status| status.success());
         if !signed {
             failures.push(format!("{name} does not have a valid macOS code signature"));
+        }
+        match release_binaries::provenance(&home, name, &installed, &installed_hash) {
+            Ok(Some(release)) => {
+                details.push(format!("{name}: installed sha256 {installed_hash}; GitHub release {release}"));
+                continue;
+            }
+            Err(error) => {
+                failures.push(format!("{name}: {error}"));
+                continue;
+            }
+            Ok(None) => {}
         }
         let source_hash = hash_path(&source).unwrap_or_else(|| "not-built".into());
         details.push(format!(

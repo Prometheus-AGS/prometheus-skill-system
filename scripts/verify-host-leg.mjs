@@ -7,7 +7,7 @@
  * The task list asks for a "four-leg CI matrix". This repository forbids that:
  * CLAUDE.md's local-only validation rule is marked MANDATORY, and
  * `scripts/check-workflow-policy.mjs` mechanically rejects any hosted workflow
- * that is not `docs-sync` or `docs-pages`, along with any workflow containing
+ * outside documentation and binary release deployment, along with workflows containing
  * `npm test`, `cargo test`, and friends. A hosted matrix would fail the
  * repository's own gate before it ever ran.
  *

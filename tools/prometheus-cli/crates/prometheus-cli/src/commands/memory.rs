@@ -155,6 +155,16 @@ pub async fn install(dry_run: bool) -> Result<()> {
         return Ok(());
     }
 
+    if let Some(root) = super::setup::repo_root() {
+        if dry_run {
+            println!("  Would check the exact pack release for surreal-memory-server before building.");
+        } else if super::release_binaries::ReleaseBinaries::default()
+            .install(&root, &super::setup::bin_dir(), &["surreal-memory-server"])? {
+            println!("  Installed surreal-memory-server from the verified pack release.");
+            return Ok(());
+        }
+    }
+
     // ── Step 2: Detect available installation methods ───────────────────
     println!("\n  {} Checking installation methods...", "→".cyan());
 
@@ -225,8 +235,11 @@ pub async fn install(dry_run: bool) -> Result<()> {
             let binary = super::cargo_paths::release_dir(source_path).join("surreal-memory-server");
             let target = Path::new("/usr/local/bin/surreal-memory-server");
 
-            match std::fs::copy(&binary, target) {
-                Ok(_) => println!("  {} Installed to {}", "✅".green(), target.display()),
+            let installed = match std::fs::copy(&binary, target) {
+                Ok(_) => {
+                    println!("  {} Installed to {}", "✅".green(), target.display());
+                    target.to_path_buf()
+                }
                 Err(e) => {
                     // Try ~/.local/bin as fallback
                     let home_bin = dirs::home_dir().unwrap_or_default().join(".local/bin");
@@ -236,7 +249,11 @@ pub async fn install(dry_run: bool) -> Result<()> {
                         .context(format!("Failed to install: {} (try sudo)", e))?;
                     println!("  {} Installed to {}", "✅".green(), fallback.display());
                     println!("  {} Ensure ~/.local/bin is on your PATH", "ℹ️".dimmed());
+                    fallback
                 }
+            };
+            if let Some(root) = super::setup::repo_root() {
+                super::release_binaries::clear_source_marker(&root, &installed)?;
             }
 
             println!("\n  Start the server with:");

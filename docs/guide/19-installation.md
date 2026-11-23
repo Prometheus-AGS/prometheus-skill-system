@@ -42,10 +42,30 @@ The [service operations guide](26-service-operations.md) is the canonical runboo
 
 Codex memory policy disables `features.memories`, `memories.generate_memories` and `memories.use_memories`, archives only known v1/v2 summary files, and preserves other memory data. Existing sessions retain configuration; start a new session and account for explicit overrides. See [memory tiers](memory-tiers.md).
 
+## Versioned native binaries
+
+Each release uses the pack version as its Git tag, for example `v1.17.0`. To
+obtain the exact source, clone with `git clone --branch v1.17.0 --recurse-submodules
+https://github.com/Prometheus-AGS/prometheus-skill-system.git` (one command).
+The release contains a platform archive and a file manifest for each of macOS,
+Linux and Windows on AMD64 and ARM64. SHA256SUMS covers both. See the
+[GitHub releases](https://github.com/Prometheus-AGS/prometheus-skill-system/releases).
+
+- On macOS and Linux, run `bash scripts/install-binaries.sh` for the managed
+  binaries or use `./install.sh --profile full` for the full setup.
+- On Windows, run `.\scripts\install-binaries.ps1` in PowerShell from the
+  checkout. Add the destination to your user PATH to use the tools in a new shell.
+  The Windows native binary installer is separate from Unix service setup.
+
+The installer requests the exact tag and platform. A missing asset permits the
+source-build path. A corrupt download or a manifest mismatch stops installation.
+Apple MLX resources are included on Apple Silicon, and the Darwin execution
+binary must also match its independently pinned hash.
+
 ## Local evidence
 
 Maintainers finish every phase production change before tests, formatting, builds or review. Use isolated homes, data, keys and ports. Serialize Cargo/rustc machine-wide and keep separate worktree target directories; use `sccache` for reuse.
 
-After source completion, exercise the real installed production entrypoints and archive exact local results. Version strings, configured endpoints, listening ports and build success each prove only their own observation. Hosted testing is forbidden; permitted documentation packaging does not replace local certification.
+After source completion, exercise the real installed production entrypoints and archive exact local results. Version strings, configured endpoints, listening ports and build success each prove only their own observation. Hosted testing is forbidden; documentation and binary release packaging are separate from local certification.
 
 Previous: [Plugins and Immutable Distribution](18-plugins-and-marketplace.md) · Next: [Updating](20-updating.md).

@@ -154,7 +154,7 @@ fn is_stale(binary_mtime: SystemTime, source_commit_time: SystemTime) -> bool {
 
 /// Locate the skill-pack repo root.
 /// Prefers PROMETHEUS_SKILL_PACK_ROOT env; falls back to walking up from the current exe.
-fn repo_root() -> Option<PathBuf> {
+pub(super) fn repo_root() -> Option<PathBuf> {
     fn is_repo_root(path: &Path) -> bool {
         path.join("skills/imported/artifact-refiner").exists()
     }
@@ -358,21 +358,7 @@ async fn detect_control_plane_extension() -> ComponentStatus {
 }
 
 fn install_template_forge_binaries() -> Result<()> {
-    let repo_root = std::env::var("PROMETHEUS_SKILL_PACK_ROOT")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(|_| {
-            // Heuristic: walk up from the prometheus binary location
-            std::env::current_exe()
-                .ok()
-                .and_then(|p| {
-                    // target/release/prometheus → look for skills/imported/artifact-refiner
-                    p.ancestors()
-                        .find(|a| a.join("skills/imported/artifact-refiner").exists())
-                        .map(|p| p.to_path_buf())
-                })
-                .unwrap_or_default()
-        });
-
+    let repo_root = repo_root().context("Could not locate pack root for template-forge")?;
     let forge_dir = repo_root.join("skills/imported/artifact-refiner/tools/template-forge-rs");
     anyhow::ensure!(
         forge_dir.exists(),
@@ -387,13 +373,13 @@ fn install_template_forge_binaries() -> Result<()> {
         .status()?;
     anyhow::ensure!(status.success(), "cargo build failed for template-forge-rs");
 
-    let bin_dir = dirs::home_dir().unwrap_or_default().join(".local/bin");
+    let bin_dir = bin_dir();
     std::fs::create_dir_all(&bin_dir)?;
     for name in &["template-forge", "template-forge-mcp"] {
-        std::fs::copy(
-            super::cargo_paths::release_dir(&forge_dir).join(name),
-            bin_dir.join(name),
-        )?;
+        let filename = format!("{name}{}", std::env::consts::EXE_SUFFIX);
+        let installed = bin_dir.join(&filename);
+        std::fs::copy(super::cargo_paths::release_dir(&forge_dir).join(filename), &installed)?;
+        super::release_binaries::clear_source_marker(&repo_root, &installed)?;
     }
     Ok(())
 }
@@ -427,7 +413,7 @@ fn load_launchd_pk_mcp() -> Result<()> {
 // caught in the machine-refresh phase: forge-cli (not forge), liter-llm-cli
 // (not liter-llm).
 
-fn bin_dir() -> PathBuf {
+pub(super) fn bin_dir() -> PathBuf {
     std::env::var_os("PROMETHEUS_COMMAND_DIRECTORY")
         .map(PathBuf::from)
         .unwrap_or_else(|| dirs::home_dir().unwrap_or_default().join(".local/bin"))
@@ -455,6 +441,7 @@ fn cargo_build_and_install(crate_dir: &Path, pkg: &str, bin_name: &str) -> Resul
     let dst = dst_dir.join(&filename);
     std::fs::copy(&src, &dst)
         .with_context(|| format!("failed to copy {} → {}", src.display(), dst.display()))?;
+    if let Some(root) = repo_root() { super::release_binaries::clear_source_marker(&root, &dst)?; }
     Ok(())
 }
 
@@ -792,6 +779,7 @@ pub async fn run(
         .map(|(c, s)| (c.id.to_string(), *s))
         .collect();
 
+    let mut release = super::release_binaries::ReleaseBinaries::default();
     for (i, (comp, status)) in statuses.iter().enumerate() {
         if !comp.install.is_some() {
             continue;
@@ -826,6 +814,25 @@ pub async fn run(
                 "Installing"
             };
             println!("  {} {}...", verb, comp.description);
+            // --rebuild is an explicit source build. Normal repairs prefer the
+            // host bundle and preserve each service's existing restart policy.
+            if !force_rebuild && (comp.install.is_cargo() || comp.id == "template-forge") {
+                let names = if comp.id == "template-forge" {
+                    vec!["template-forge", "template-forge-mcp"]
+                } else { vec![comp.id] };
+                if let Some(root) = repo_root() {
+                    if release.install(&root, &bin_dir(), &names)? {
+                        match comp.id {
+                            "forge" => kickstart_or_warn("dev.prometheusags.forge-mcp"),
+                            "pk-cherry" => kickstart_or_warn("dev.prometheusags.pk-mcp"),
+                            _ => {}
+                        }
+                        final_states[i].1 = ComponentStatus::Installed;
+                        println!("    {}","installed verified release".green());
+                        continue;
+                    }
+                }
+            }
             match comp.install.invoke() {
                 Some(Ok(())) => {
                     println!("    {}", "done".green());

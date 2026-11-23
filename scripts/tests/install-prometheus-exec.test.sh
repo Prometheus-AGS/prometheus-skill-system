@@ -129,7 +129,8 @@ cp "$REPO_ROOT/config/prometheus-exec-binary.json" "$SECOND/config/"
 # Drive the production entry point in the second checkout: it builds, then
 # gates on the committed hash for this host target.
 mkdir -p "$TMP_ROOT/real/bin" "$TMP_ROOT/real/manifests" "$TMP_ROOT/real/backups"
-if ! env PROMETHEUS_EXEC_BIN_DIR="$TMP_ROOT/real/bin" \
+# This scenario specifically exercises the source fallback in its second checkout.
+if ! env PROMETHEUS_BINARY_RELEASE_PROBED=1 PROMETHEUS_EXEC_BIN_DIR="$TMP_ROOT/real/bin" \
     PROMETHEUS_EXEC_MANIFEST_DIR="$TMP_ROOT/real/manifests" \
     PROMETHEUS_EXEC_BACKUP_DIR="$TMP_ROOT/real/backups" \
     PROMETHEUS_EXEC_CODESIGN="$TMP_ROOT/codesign" \

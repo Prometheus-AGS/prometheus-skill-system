@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "platforms": {
+    "darwin-amd64": {"target": "x86_64-apple-darwin", "runner": "macos-26-intel"},
+    "darwin-arm64": {"target": "aarch64-apple-darwin", "runner": "xcode-27"},
+    "linux-amd64": {"target": "x86_64-unknown-linux-gnu", "runner": "ubuntu-24.04"},
+    "linux-arm64": {"target": "aarch64-unknown-linux-gnu", "runner": "ubuntu-24.04-arm"},
+    "windows-amd64": {"target": "x86_64-pc-windows-msvc", "runner": "windows-2025"},
+    "windows-arm64": {"target": "aarch64-pc-windows-msvc", "runner": "windows-11-arm"}
+  },
+  "components": [
+    {"group": "exec", "directory": "crates/prometheus-exec", "binaries": ["prometheus-exec"]},
+    {"group": "core", "directory": "crates/prometheus-hook", "binaries": ["prometheus-hook"]},
+    {"group": "core", "directory": "tools/prometheus-cli", "packages": ["prometheus-cli"], "binaries": ["prometheus"]},
+    {"group": "core", "directory": "tools/prometheus-rust-auditor", "binaries": ["prometheus-rust-auditor"]},
+    {"group": "core", "directory": "tools/forge-rs", "packages": ["forge-cli"], "binaries": ["forge"]},
+    {"group": "knowledge", "directory": "tools/prometheus-knowledge", "packages": ["pk-cli","pk-cherry","pk-learning-worker"], "binaries": ["pk","pk-cherry","prometheus-learning-worker"]},
+    {"group": "core", "directory": "substrate/learner-model", "binaries": ["learner-model"]},
+    {"group": "core", "directory": "substrate/surface-bridge", "binaries": ["surface-bridge"]},
+    {"group": "liter", "directory": "tools/liter-llm", "packages": ["liter-llm-cli"], "binaries": ["liter-llm"]},
+    {"group": "proxy", "directory": "tools/openai-proxy", "binaries": ["openai-proxy"]},
+    {"group": "memory", "directory": "tools/surreal-memory-server", "noDefaultFeatures": true, "features": ["embedded","local-embeddings"], "featuresByPlatform": {"darwin-arm64": ["metal"]}, "binaries": ["surreal-memory-server"]},
+    {"group": "mlx", "directory": "tools/surreal-memory-server/executors/mlx", "platforms": ["darwin-arm64"], "binaries": ["surreal-memory-mlx-executor"], "resourceTree": "mlx-swift_Cmlx.bundle"},
+    {"group": "tools", "directory": "skills/imported/sycophancy-correction", "packages": ["sycophancy-mcp"], "binaries": ["sycophancy-correction"]},
+    {"group": "tools", "directory": "skills/imported/artifact-refiner/tools/template-forge-rs", "packages": ["template-cli","template-mcp"], "binaries": ["template-forge","template-forge-mcp"]},
+    {"group": "tools", "directory": "tools/cowork-skills/cli", "binaries": ["cowork","co"]},
+    {"group": "tools", "directory": "tools/disk-space-guardian", "packages": ["dsg"], "binaries": ["dsg"]},
+    {"group": "tools", "directory": "substrate/prometheus-research", "binaries": ["prometheus-research"]}
+  ]
+}

@@ -28,11 +28,15 @@ set -euo pipefail
 
 INSTALL=false
 BUILD_TOOLS=false
+CORE_ONLY=false
+PREBUILT=false
 RUNTIME="auto"   # auto | docker | native — how to run daemon services
 for arg in "$@"; do
     case "$arg" in
         --install) INSTALL=true ;;
         --build-tools) BUILD_TOOLS=true ;;
+        --core-only) CORE_ONLY=true ;;
+        --prebuilt) PREBUILT=true ;;
         --runtime=*) RUNTIME="${arg#*=}" ;;
         --docker) RUNTIME="docker" ;;
         --native) RUNTIME="native" ;;
@@ -189,6 +193,7 @@ check_rust() {
             fi
             if command -v rustc >/dev/null 2>&1; then
                 echo "     ✅ Rust $(rustc --version | awk '{print $2}') installed"
+                MISSING=$((MISSING - 1))
                 check_wasm_target
             else
                 echo "     ⚠️  Restart your shell to use Rust, or run: source ~/.cargo/env"
@@ -393,64 +398,78 @@ build_and_install() {
     local pkg="${3:-}"   # optional -p flag
     local label="$bin"
 
-    if [ ! -d "$REPO_ROOT/$workspace" ]; then
-        if command -v "$bin" >/dev/null 2>&1; then
-            echo "    ⚠️  $label workspace missing at $workspace — keeping $(command -v "$bin") (version unverified)"
-            return 0
-        fi
-        echo "    ⚠️  $label workspace missing at $workspace — run: git submodule update --init"
-        TOOL_FAILURES+=("$label: workspace missing ($workspace)")
-        return 1
-    fi
-
-    if ! command -v cargo >/dev/null 2>&1; then
-        echo "    ⚠️  cargo not on PATH — cannot build $label"
-        TOOL_FAILURES+=("$label: cargo missing")
-        return 1
-    fi
-
-    local info target_dir expected_version installed
-    info=$(workspace_bin_info "$REPO_ROOT/$workspace" "$bin" || true)
-    target_dir="${info%%$'\t'*}"
-    expected_version="${info#*$'\t'}"
-    [ -n "$info" ] && [ -n "$target_dir" ] || target_dir="$REPO_ROOT/$workspace/target"
-    [ "$info" = "$target_dir" ] && expected_version=""
-    installed="$INSTALL_DIR/$bin$EXE"
-
-    if [ -n "$expected_version" ] && command -v "$bin" >/dev/null 2>&1; then
-        local on_path real_on_path real_installed
-        on_path=$(command -v "$bin")
-        real_on_path=$(resolve_real_path "$on_path" || echo "$on_path")
-        real_installed=$(resolve_real_path "$installed" || echo "$installed")
-        if [ "$real_on_path" = "$real_installed" ] \
-            && "$on_path" --version 2>/dev/null | grep -qF "$expected_version"; then
-            echo "    ✅ $label $expected_version up to date ($on_path)"
-            return 0
-        fi
-        echo "    ℹ️  $label on PATH ($on_path) is not the current build${expected_version:+ ($expected_version)} — rebuilding"
-    fi
-
-    echo "    🔨 Building $label from $workspace..."
-    local cargo_args=("build" "--release")
-    [ -n "$pkg" ] && cargo_args+=("-p" "$pkg")
-
-    if (cd "$REPO_ROOT/$workspace" && cargo "${cargo_args[@]}"); then
-        local built="$target_dir/release/$bin$EXE"
-        if [ -f "$built" ]; then
-            cp -f "$built" "$installed" && chmod +x "$installed"
-            if [ "$OS" = "macos" ] || [ "$(uname -s)" = "Darwin" ]; then
-                codesign --force --sign - "$installed" >/dev/null 2>&1 || true
-            fi
-            echo "    ✅ $label installed → $installed"
-        else
-            echo "    ⚠️  Build succeeded but binary not found at $built"
-            TOOL_FAILURES+=("$label: binary not produced")
-            return 1
+    local installed="$INSTALL_DIR/$bin$EXE"
+    if release_has "$bin"; then
+        local source="$release_stage/bin/$bin$EXE"
+        # A current copy still needs PATH and provenance readback.
+        if [ -x "$installed" ] && cmp -s "$source" "$installed"; then
+            echo "    ✅ $label up to date ($installed)"
+            node "$REPO_ROOT/scripts/binary-release.mjs" mark "$installed" "$release_stage" || {
+                TOOL_FAILURES+=("$label: receipt failure"); return 1; }
+        elif ! node "$REPO_ROOT/scripts/binary-release.mjs" copy "$installed" "$source"; then
+            TOOL_FAILURES+=("$label: binary install failed"); return 1
         fi
     else
-        echo "    ❌ Build failed for $label"
-        TOOL_FAILURES+=("$label: cargo build failed")
-        return 1
+        if [ ! -d "$REPO_ROOT/$workspace" ]; then
+            if command -v "$bin" >/dev/null 2>&1; then
+                echo "    ⚠️  $label workspace missing at $workspace — keeping $(command -v "$bin") (version unverified)"
+                return 0
+            fi
+            echo "    ⚠️  $label workspace missing at $workspace — run: git submodule update --init"
+            TOOL_FAILURES+=("$label: workspace missing ($workspace)")
+            return 1
+        fi
+
+        if ! command -v cargo >/dev/null 2>&1; then
+            echo "    ⚠️  cargo not on PATH — cannot build $label"
+            TOOL_FAILURES+=("$label: cargo missing")
+            return 1
+        fi
+
+        local info target_dir expected_version
+        info=$(workspace_bin_info "$REPO_ROOT/$workspace" "$bin" || true)
+        target_dir="${info%%$'\t'*}"
+        expected_version="${info#*$'\t'}"
+        [ -n "$info" ] && [ -n "$target_dir" ] || target_dir="$REPO_ROOT/$workspace/target"
+        [ "$info" = "$target_dir" ] && expected_version=""
+
+        if [ -n "$expected_version" ] && command -v "$bin" >/dev/null 2>&1; then
+            local on_path real_on_path real_installed
+            on_path=$(command -v "$bin")
+            real_on_path=$(resolve_real_path "$on_path" || echo "$on_path")
+            real_installed=$(resolve_real_path "$installed" || echo "$installed")
+            if [ "$real_on_path" = "$real_installed" ] \
+                && "$on_path" --version 2>/dev/null | grep -qF "$expected_version"; then
+                echo "    ✅ $label $expected_version up to date ($on_path)"
+                return 0
+            fi
+            echo "    ℹ️  $label on PATH ($on_path) is not the current build${expected_version:+ ($expected_version)} — rebuilding"
+        fi
+
+        echo "    🔨 Building $label from $workspace..."
+        local cargo_args=("build" "--release")
+        [ -n "$pkg" ] && cargo_args+=("-p" "$pkg")
+
+        if (cd "$REPO_ROOT/$workspace" && cargo "${cargo_args[@]}"); then
+            local built="$target_dir/release/$bin$EXE"
+            if [ -f "$built" ]; then
+                cp -f "$built" "$installed" && chmod +x "$installed"
+                if [ "$OS" = "macos" ] || [ "$(uname -s)" = "Darwin" ]; then
+                    codesign --force --sign - "$installed" >/dev/null 2>&1 || true
+                fi
+                echo "    ✅ $label installed → $installed"
+            else
+                echo "    ⚠️  Build succeeded but binary not found at $built"
+                TOOL_FAILURES+=("$label: binary not produced")
+                return 1
+            fi
+        else
+            echo "    ❌ Build failed for $label"
+            TOOL_FAILURES+=("$label: cargo build failed")
+            return 1
+        fi
+        node "$REPO_ROOT/scripts/binary-release.mjs" mark "$installed" || {
+            TOOL_FAILURES+=("$label: receipt failure"); return 1; }
     fi
 
     # The install is only useful if PATH finds it.
@@ -591,7 +610,7 @@ build_submodule_tools() {
     echo "  Submodule Tool Builds:"
 
     # Make sure submodules are checked out before any cargo build.
-    if [ -f "$REPO_ROOT/.gitmodules" ]; then
+    if ! release_has prometheus && [ -f "$REPO_ROOT/.gitmodules" ]; then
         if (cd "$REPO_ROOT" && git submodule update --init --recursive >/dev/null 2>&1); then
             echo "    ✅ Submodules initialized"
         else
@@ -710,15 +729,23 @@ check_mcp_services() {
 }
 
 # ── Run all checks ───────────────────────────────────────────────────────────
+. "$REPO_ROOT/scripts/binary-release.sh"
+if $BUILD_TOOLS; then
+    prepare_binary_release
+    if release_has prometheus; then PREBUILT=true; fi
+fi
 echo "  Core Requirements:"
 check_node
-check_rust
-check_build_tools
+if ! $PREBUILT; then
+    check_rust
+    check_build_tools
+fi
 check_git
 echo ""
 echo "  Optional:"
 check_docker
 check_npm
+if $CORE_ONLY; then [ "$MISSING" -eq 0 ]; exit; fi
 
   # AI CLI platforms
   echo ""

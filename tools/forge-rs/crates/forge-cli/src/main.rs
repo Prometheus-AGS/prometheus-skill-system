@@ -12,6 +12,7 @@
 //!   forge skill list                                  — list available skills
 //!   forge package-librefang <agent-dir> [--no-build] — package WASM agent as .lf-skill.zip
 
+#[cfg(not(target_env = "msvc"))]
 #[global_allocator]
 static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 

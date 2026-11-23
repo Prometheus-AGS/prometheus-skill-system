@@ -28,8 +28,8 @@ This is a comprehensive, enterprise-grade skills package collection for AI-assis
 
 ## Local-Only Validation (MANDATORY)
 
-All builds, tests, linting, formatting, type checks, documentation checks, API
-contract checks, doctor runs, health checks, diagnosis, and release certification
+Development builds, tests, linting, formatting, type checks, documentation checks,
+API contract checks, doctor runs, health checks, diagnosis, and release certification
 must run on the local development machine.
 
 - **Never use GitHub Actions or any hosted CI/CD runner for testing or validation.**
@@ -41,9 +41,10 @@ must run on the local development machine.
 - GitHub may be used for source hosting, review, and an explicitly authorized
   deployment such as GitHub Pages. A deployment workflow must not substitute for
   local testing.
-- The only hosted automation exceptions are deterministic `docs:sync` updates
-  after a commit reaches `main` and GitHub Pages packaging/deployment. Neither
-  workflow may run tests, lint, doctors, contract checks, or certification.
+- Hosted automation may synchronize documentation on `main`, deploy GitHub Pages,
+  and build and publish versioned platform binaries from `main` with
+  `.github/workflows/binary-release.yml`. Release packaging includes checksums.
+  Tests, lint, doctors, contract checks, and release certification remain local.
 - If a legacy test workflow starts automatically, cancel it when authorized and
   continue locally. Its result is not validation evidence.
 

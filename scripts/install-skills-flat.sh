@@ -534,6 +534,16 @@ install_learn_substrate() {
         return
     fi
 
+    . "$REPO_ROOT/scripts/binary-release.sh"
+    prepare_binary_release || return 1
+    if release_has learner-model surface-bridge; then
+        local name
+        for name in learner-model surface-bridge; do
+            node "$REPO_ROOT/scripts/binary-release.mjs" copy "$HOME/.local/bin/$name$release_suffix" "$release_stage/bin/$name$release_suffix" || return 1
+        done
+        return 0
+    fi
+
     if ! command -v cargo &>/dev/null; then
         install_failure "learn-substrate prerequisite: cargo" || return 1
         return 0
@@ -560,6 +570,7 @@ install_learn_substrate() {
         install_substrate_bin "learner-model" \
             "$(cargo_release_dir "$substrate_dir/learner-model")/learner-model" \
             "$bin_dir/learner-model" || return 1
+        node "$REPO_ROOT/scripts/binary-release.mjs" mark "$bin_dir/learner-model" || return 1
         echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model"
     else
         install_failure "learn-substrate learner-model build" || return 1
@@ -574,6 +585,7 @@ install_learn_substrate() {
         install_substrate_bin "surface-bridge" \
             "$(cargo_release_dir "$substrate_dir/surface-bridge")/surface-bridge" \
             "$bin_dir/surface-bridge" || return 1
+        node "$REPO_ROOT/scripts/binary-release.mjs" mark "$bin_dir/surface-bridge" || return 1
         echo "  ℹ️  learn-substrate: run 'npm run install:daemons' to install/start the surface-bridge service (macOS + Linux)"
     else
         install_failure "learn-substrate surface-bridge build" || return 1

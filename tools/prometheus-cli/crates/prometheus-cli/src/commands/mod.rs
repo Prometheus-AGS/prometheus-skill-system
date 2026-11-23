@@ -1,6 +1,7 @@
 pub mod audit;
 pub mod build;
 mod cargo_paths;
+mod release_binaries;
 pub mod contract;
 mod control_transport;
 pub mod doctor;
