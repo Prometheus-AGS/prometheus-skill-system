@@ -151,6 +151,61 @@ def darwin_exec(stage, platform):
     shutil.copyfile(unsigned, output)
 
 
+def prepare_metal(env, scratch):
+    # Xcode can resolve a placeholder named "metal" even when the optional
+    # Apple compiler isn't installed. Use the caller's exact Xcode and HOME,
+    # including the isolated SwiftPM home used by the MLX package.
+    env.setdefault("DEVELOPER_DIR", subprocess.check_output(["xcode-select", "-p"], text=True).strip())
+    setup_env = env.copy()
+    setup_env.pop("TOOLCHAINS", None)
+    work = scratch / "metal-toolchain"
+    work.mkdir()
+    source = work / "setup.metal"
+    source.write_text("#include <metal_stdlib>\nkernel void setup(device uint *out [[buffer(0)]], "
+                      "uint i [[thread_position_in_grid]]) { out[i] = i; }\n")
+    air = work / "setup.air"
+    library = work / "setup.metallib"
+    driver = ["xcrun", "--no-cache", "--sdk", "macosx", "metal"]
+
+    def compile_and_link():
+        # Use the same registered component for both xcrun and the subsequent
+        # Xcode/Cargo invocation. Otherwise Xcode may still invoke its placeholder.
+        component = subprocess.run(["xcodebuild", "-showComponent", "metalToolchain", "-json"],
+                                   env=setup_env, text=True, capture_output=True)
+        if component.returncode == 0:
+            info = json.loads(component.stdout)
+            if info.get("status") == "installed":
+                identifier = info["toolchainIdentifier"]
+                require(identifier.startswith("com.apple.dt.toolchain.Metal."), "Unexpected Apple Metal component identity")
+                env["TOOLCHAINS"] = identifier
+        for args in (["-c", str(source), "-o", str(air)], [str(air), "-o", str(library)]):
+            result = subprocess.run([*driver, *args], cwd=work, env=env)
+            if result.returncode:
+                return False
+        if not library.is_file() or library.read_bytes()[:4] != b"MTLB":
+            return False
+        print(f"Compiled and linked macOS Metal using {env.get('TOOLCHAINS', 'the bundled Xcode toolchain')}", flush=True)
+        return True
+
+    if compile_and_link():
+        return
+    print(f"Installing Apple's Metal toolchain for {env['DEVELOPER_DIR']}", flush=True)
+    subprocess.run(["xcodebuild", "-downloadComponent", "metalToolchain"], cwd=work, env=setup_env, check=True)
+    if compile_and_link():
+        return
+    # Re-import a matching Apple disk image when a cached component is reported
+    # as present but its compiler remains unavailable to this build process.
+    images = work / "images"
+    images.mkdir()
+    subprocess.run(["xcodebuild", "-downloadComponent", "metalToolchain", "-exportPath", str(images)],
+                   cwd=work, env=setup_env, check=True)
+    dmg = list(images.rglob("*.dmg"))
+    require(len(dmg) == 1, f"Expected one exported Metal toolchain disk image in {images}, found {dmg}")
+    subprocess.run(["xcodebuild", "-importComponent", "metalToolchain", "-importPath", str(dmg[0])],
+                   cwd=work, env=setup_env, check=True)
+    require(compile_and_link(), "Apple's Metal compiler could not produce a macOS metallib after component import")
+
+
 def build_rust(c, platform, stage, scratch):
     cwd = ROOT / c["directory"]
     if platform.startswith("windows") and c["directory"] == "tools/cowork-skills/cli":
@@ -162,6 +217,8 @@ def build_rust(c, platform, stage, scratch):
     obj = scratch / "cargo"
     env = {**os.environ, "CARGO_TARGET_DIR": str(obj), "CARGO_BUILD_BUILD_DIR": str(obj),
            "RUSTC_WRAPPER": "", "CARGO_INCREMENTAL": "0"}
+    if platform == "darwin-arm64" and c["group"] == "memory":
+        prepare_metal(env, scratch)
     # The liter-llm workspace config names a cross compiler even on native arm64.
     if platform == "linux-arm64":
         env["CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER"] = "cc"
@@ -203,6 +260,7 @@ def build_mlx(c, stage, scratch):
     (home / ".swiftpm/security").symlink_to(security, target_is_directory=True)
     (security / "macros.json").write_text(json.dumps([macro]))
     env = {**os.environ, "HOME": str(home), "CFFIXED_USER_HOME": str(home)}
+    prepare_metal(env, scratch)
     derived = scratch / "derived"
     # Only the executable requires a signature. Ad-hoc signing a resource-only
     # bundle creates a zero-byte CodeSignature placeholder in the payload.

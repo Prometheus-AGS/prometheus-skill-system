@@ -76,11 +76,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends libclang-dev libssl-dev protobuf-compiler cmake pkg-config libudev-dev libdbus-1-dev libasound2-dev
       - if: runner.os == 'macOS' && matrix.group != 'exec'
         shell: bash
-        run: |
-          command -v protoc >/dev/null || brew install protobuf
-          if [[ "$PLATFORM" == darwin-arm64 && ( "$COMPONENT" == mlx || "$COMPONENT" == memory ) ]]; then
-            xcrun -f metal >/dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
-          fi
+        run: command -v protoc >/dev/null || brew install protobuf
       - name: Build native payload
         shell: bash
         run: |
