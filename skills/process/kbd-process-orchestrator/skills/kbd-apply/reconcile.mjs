@@ -68,7 +68,8 @@ function readBackendFor(root, names, pinned) {
 export async function scanReconcile(root, requested, { readCanonical, resolveIdentity = resolveRuntimeTaskId } = {}) {
   const drift = [];
   const errors = [];
-  const context = { root, artifacts: {}, repairs: [] };
+  const context = { root, artifacts: {}, repairs: [], checkboxRepairs: [] };
+  const taskCounts = { runtime: null, projection: null, backend: null };
   let phase = requested ?? '';
   try {
     const waypoint = readJson(path.join(root, '.kbd-orchestrator', 'current-waypoint.json'));
@@ -86,7 +87,14 @@ export async function scanReconcile(root, requested, { readCanonical, resolveIde
       if (rows.has(row.id)) throw new Error(`phase ${phase}: duplicate progress change ID ${JSON.stringify(row.id)} at row ${index}; inspect canonical keys/embedded IDs before repair`);
       rows.set(row.id, row);
     }
+    taskCounts.projection = progress.changes.reduce((counts, row) => ({
+      completed: counts.completed + (row.tasks_done ?? 0),
+      total: counts.total + (row.tasks_total ?? 0),
+    }), { completed: 0, total: 0 });
+    taskCounts.backend = { completed: 0, total: 0 };
     if (state) {
+      const tasks = Object.values(state.phases[phase].changes ?? {}).flatMap(change => Object.values(change.tasks ?? {}));
+      taskCounts.runtime = { completed: tasks.filter(task => complete(task.status)).length, total: tasks.length };
       const identities = new Map();
       const issues = [];
       for (const [key, change] of Object.entries(state.phases[phase].changes ?? {})) {
@@ -121,6 +129,8 @@ export async function scanReconcile(root, requested, { readCanonical, resolveIde
         const { tasks, archived } = artifact;
         const total = tasks.length;
         const bcomp = tasks.filter((task) => task.done).length;
+        taskCounts.backend.completed += bcomp;
+        taskCounts.backend.total += total;
         const add = (task, kind, title = task.title) => drift.push({ change, task: task.id, sequence: task.sequence, total, kind, title });
         if (state) {
           const registered = ledger?.tasks ?? {};
@@ -141,7 +151,14 @@ export async function scanReconcile(root, requested, { readCanonical, resolveIde
               const kind = isCancelled ? 'cancelled' : archived ? 'archived' : status ? 'ledger-pending' : 'ledger-missing';
               add(task, kind);
               if (kind === 'ledger-pending' || kind === 'ledger-missing') context.repairs.push({ change, backendChange, ...task, total, runtimeId: id, status });
-            } else if (!task.done && complete(status)) add(task, 'ledger-ahead');
+            } else if (!task.done && complete(status)) {
+              add(task, 'ledger-ahead');
+              if (!archived && !isCancelled && artifact.backend === 'openspec' &&
+                registered[id].title === task.title &&
+                tasks.filter(item => item.title === task.title).length === 1) {
+                context.checkboxRepairs.push({ change, id, sequence: task.sequence, title: task.title });
+              }
+            }
           }
           for (const [id, task] of Object.entries(registered)) {
             if (!mapped.has(id) && !cancelled(task.status)) add({ id, sequence: task.sequence ?? 0, title: task.title ?? id }, 'ledger-only');
@@ -149,7 +166,7 @@ export async function scanReconcile(root, requested, { readCanonical, resolveIde
           const expectedDone = Object.values(registered).filter((task) => complete(task.status) || cancelled(task.status)).length;
           const expectedTotal = Object.keys(registered).length;
           if (!projection || projection.tasks_done !== expectedDone || projection.tasks_total !== expectedTotal) {
-            add({ id: '-', sequence: 0 }, 'projection', `progress.json counts must match ledger ${expectedDone}/${expectedTotal}`);
+            add({ id: '-', sequence: 0 }, 'projection', `progress.json counts must match ledger ${expectedDone}/${expectedTotal}; inspect 'prometheus kbd migrate-projections --dry-run'`);
           }
         } else if (projection.tasks_done !== bcomp || projection.tasks_total !== total) {
           add({ id: '-', sequence: 0 }, archived ? 'archived' : 'count', `progress.json counts must match backend ${bcomp}/${total}`);
@@ -165,10 +182,11 @@ export async function scanReconcile(root, requested, { readCanonical, resolveIde
     ];
     if (pairs.some(([done, total]) => (done !== undefined || total !== undefined) && (done !== counts.completed || total !== counts.total))) {
       drift.push({ change: '-', task: '-', sequence: 0, total: counts.total,
-        kind: state ? 'projection' : 'phase-count', title: `phase implementation counts must match change ledger ${counts.completed}/${counts.total}` });
+        kind: state ? 'projection' : 'phase-count', title: `phase implementation counts must match change ledger ${counts.completed}/${counts.total}; inspect 'prometheus kbd migrate-projections --dry-run' before any projection migration` });
     }
   } catch (error) { errors.push(errorRow('scan', error.message)); }
-  return { report: result(phase, drift, errors), context };
+  if (errors.length) taskCounts.backend = null;
+  return { report: { ...result(phase, drift, errors), taskCounts }, context };
 }
 
 export async function reconcile(root, options, adapters) {
@@ -186,6 +204,7 @@ export async function reconcile(root, options, adapters) {
     if (context.authoritative) {
       // Multiple backend rows mapping to one identity are never independently repairable.
       const ambiguousChanges = new Set(scanned.report.drift.filter((row) => row.kind === 'unmappable').map((row) => row.change));
+      if (adapters.repairViews) await adapters.repairViews(context, ambiguousChanges);
       for (const task of context.repairs) {
         if (ambiguousChanges.has(task.change)) continue;
         await adapters.repairTask(root, context.phase, task);
@@ -203,6 +222,9 @@ export async function reconcile(root, options, adapters) {
 export function printReconcile(report, json, stdout = process.stdout, stderr = process.stderr) {
   if (json) stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   else {
+    for (const [source, counts] of Object.entries(report.taskCounts ?? {})) {
+      if (counts) stdout.write(`Tasks (${source}): ${counts.completed}/${counts.total}\n`);
+    }
     for (const row of report.drift) stdout.write(`DRIFT ${row.change} task ${row.task} (${row.kind}): ${row.title}\n`);
     for (const row of report.errors) stderr.write(`reconcile: ${row.kind}: ${row.message}\n`);
     stdout.write(`reconcile: ${report.errors.length ? 'incomplete' : report.clean ? 'clean' : `${report.drifted} drifted item(s)`} — ${report.phase}\n`);

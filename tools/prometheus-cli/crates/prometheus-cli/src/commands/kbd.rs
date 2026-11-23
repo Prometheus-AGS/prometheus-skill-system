@@ -33,6 +33,8 @@ pub enum Action {
     },
     Replicas {
         project_id: Option<String>,
+        reprobe: bool,
+        replica: Option<String>,
         json: bool,
     },
     Adopt {
@@ -207,7 +209,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             println!("{}", serde_json::to_string_pretty(&outcome)?);
             return Ok(());
         }
-        Action::Replicas { project_id, json } => {
+        Action::Replicas { project_id, json, reprobe, replica } => {
             let registry = ProjectRegistry::open();
             let project_id = match project_id {
                 Some(project_id) => project_id,
@@ -222,6 +224,22 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                         .project_id
                 }
             };
+            if reprobe {
+                let selected = if let Some(id) = replica {
+                    registry.lookup_project(&project_id)?.into_iter()
+                        .find(|(_, entry)| entry.replica_id == id)
+                        .map(|(root, _)| root)
+                        .ok_or_else(|| anyhow!("unknown replica {id} for project {project_id}"))?
+                } else {
+                    find_manifest_project_root(Path::new(path))?
+                };
+                let entry = registry.lookup_path(&selected)?
+                    .ok_or_else(|| anyhow!("checkout is not registered: {}", selected.display()))?;
+                if entry.project_id != project_id {
+                    anyhow::bail!("checkout belongs to a different project");
+                }
+                registry.register_existing(&selected)?;
+            }
             let replicas = registry.lookup_project(&project_id)?;
             if json {
                 println!(
@@ -280,9 +298,26 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         action => action,
     };
     let root = find_project_root(Path::new(path))?;
+    // A legacy checkout has a readable waypoint before its first typed write
+    // creates a project identity. Inspecting it must not register the checkout.
+    if let Action::Status { json } = &action {
+        if !root.join(".prometheus/project.json").try_exists()? {
+            return print_uninitialized_status(&root, None, *json);
+        }
+    }
     let runtime = if matches!(
         &action,
-        Action::GuardEvaluate {
+        Action::Status { .. }
+        | Action::Audit { .. }
+        | Action::Conflicts { .. }
+        | Action::Claims { .. }
+        | Action::Watch
+        | Action::Device(DeviceAction::List { .. })
+        | Action::Submodules { scan: false, .. }
+        | Action::Migrate { apply: false, .. }
+        | Action::RolloutStatus
+        | Action::PhaseClosure(PhaseClosureAction::Disposition { .. } | PhaseClosureAction::ValidateExit { .. })
+        | Action::GuardEvaluate {
             precommit: true,
             ..
         }
@@ -1715,35 +1750,39 @@ async fn status(
         Err(remote_error) => match runtime.replay() {
             Ok(state) if state.revision > 0 => print_state(&state, json_output),
             Ok(_) | Err(RuntimeError::NotInitialized) => {
-                let legacy = read_waypoint(root);
-                let output = json!({
-                    "mode": "legacy",
-                    "phase": string_field(&legacy, &["phase"]),
-                    "status": string_field(&legacy, &["status", "stage"]),
-                    "exactNextWork": string_field(&legacy, &["exactNextCommand", "exact_next_command"]),
-                    "runtimeInitialized": false,
-                    "initializationRequired": true,
-                    "initializationAction": "run the intended typed mutation; initialization is automatic",
-                    "runtimePath": runtime.runtime_root().display().to_string()
-                });
-                if json_output {
-                    println!("{}", serde_json::to_string_pretty(&output)?);
-                } else {
-                    if client.remote_enabled {
-                        eprintln!("Control plane unavailable: {remote_error}");
-                    }
-                    println!(
-                        "KBD mode: legacy (the first typed mutation initializes automatically)"
-                    );
-                    println!("Runtime: {}", runtime.runtime_root().display());
-                    println!("Phase: {}", output["phase"].as_str().unwrap_or("unknown"));
-                    println!("Status: {}", output["status"].as_str().unwrap_or("unknown"));
+                if !json_output && client.remote_enabled {
+                    eprintln!("Control plane unavailable: {remote_error}");
                 }
-                Ok(())
+                print_uninitialized_status(root, Some(runtime.runtime_root()), json_output)
             }
             Err(error) => Err(error.into()),
         },
     }
+}
+
+fn print_uninitialized_status(root: &Path, runtime_path: Option<&Path>, json_output: bool) -> Result<()> {
+    let legacy = read_waypoint(root);
+    let output = json!({
+        "mode": "legacy",
+        "phase": string_field(&legacy, &["phase"]),
+        "status": string_field(&legacy, &["status", "stage"]),
+        "exactNextWork": string_field(&legacy, &["exactNextCommand", "exact_next_command"]),
+        "runtimeInitialized": false,
+        "initializationRequired": true,
+        "initializationAction": "run the intended typed mutation; initialization is automatic",
+        "runtimePath": runtime_path
+    });
+    if json_output {
+        println!("{}", serde_json::to_string_pretty(&output)?);
+    } else {
+        println!("KBD mode: legacy (the first typed mutation initializes automatically)");
+        if let Some(path) = runtime_path {
+            println!("Runtime: {}", path.display());
+        }
+        println!("Phase: {}", output["phase"].as_str().unwrap_or("unknown"));
+        println!("Status: {}", output["status"].as_str().unwrap_or("unknown"));
+    }
+    Ok(())
 }
 
 fn print_state(state: &RuntimeState, json_output: bool) -> Result<()> {

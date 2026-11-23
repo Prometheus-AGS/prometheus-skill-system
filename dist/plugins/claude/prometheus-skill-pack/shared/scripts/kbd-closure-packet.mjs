@@ -35,9 +35,20 @@ if (!outDir) {
   process.exit(1);
 }
 
+// For signed exits the caller passes the manifest returned by the canonical
+// disposition reader. The signed contract and its original scenario rows remain intact.
+const operatorDisposition = ['CLOSED_SUPERSEDED', 'CLOSED_UNMET'].includes(disposition);
+const operatorExit = operatorDisposition ? readJson(opt('--exit-manifest')) : null;
+if (operatorDisposition && (!operatorExit || !Array.isArray(operatorExit.exercised) || !Array.isArray(operatorExit.withdrawn))) {
+  throw new Error('canonical operator exit manifest required for signed closure');
+}
+
 const scenarios = contract.scenarioMatrix ?? [];
 const entries = evidence.scenarios ?? [];
 const verdictOf = id => {
+  if (operatorExit) {
+    return operatorExit.exercised.find(item => item.id === id)?.verdict ?? 'WITHDRAWN';
+  }
   const own = entries.filter(e => e.id === id || String(e.id).startsWith(`${id}-`));
   if (!own.length) return 'NOT_EXERCISED';
   if (own.some(e => e.status === 'FAIL')) return 'FAIL';
@@ -129,7 +140,8 @@ const closure = {
     'derived view; the canonical disposition recorded by prometheus kbd phase close is authoritative',
   phaseId: contract.identity?.phaseId ?? evidence.phase ?? null,
   contractVersion: contract.contractVersion ?? null,
-  contractDigest: evidence.contractDigest ?? null,
+  contractDigest: operatorExit?.boundContractDigest ?? evidence.contractDigest ?? null,
+  ...(operatorExit ? { operatorExit } : {}),
   evidenceDigest:
     evidencePath && fs.existsSync(evidencePath)
       ? crypto.createHash('sha256').update(fs.readFileSync(evidencePath)).digest('hex')
@@ -219,4 +231,20 @@ This scan is passive evidence (VLBV 04, 10): it reports and never blocks.
 Method: ${closure.method.name}${closure.method.deviation ? ` — **deviation** to ${closure.method.deviation.method}: cadence "${closure.method.deviation.cadence}", reason "${closure.method.deviation.reason}" (decision ${closure.method.deviation.decisionId})` : ''}.
 Executed by: ${closure.executedBy ? `${closure.executedBy.harness ?? '?'} ${closure.executedBy.version ?? ''} (${closure.executedBy.model ?? 'model unknown'})` : 'not recorded in boundary-results.json'}.
 `;
-fs.writeFileSync(path.join(outDir, 'closure-packet.md'), md);
+if (operatorExit) {
+  const { operatorDecision, budgetAccounting, exercised, withdrawn, limits } = operatorExit;
+  const signed = [
+    `# Closure packet — ${closure.phaseId}`, '', `Disposition: **${disposition}**`,
+    `Bound contract: ${operatorExit.boundContractDigest}`,
+    '', '## Operator decision', operatorDecision.reference, operatorDecision.text,
+    '', '## Exercised', list(exercised.map(item =>
+      `${item.id} — ${item.verdict}; evidence: ${item.evidence.map(file => `${file.path} (sha256:${file.sha256})`).join(', ')}`)),
+    '', '## Withdrawn', list(withdrawn.map(item => `${item.kind} ${item.id} → ${item.destination}`)),
+    '', '## Budget accounting', JSON.stringify(budgetAccounting),
+    '', '## Limits', list(limits),
+    '', 'Withdrawn work carries no passing verdict. Release authorization requires its own evidence.', '',
+  ];
+  fs.writeFileSync(path.join(outDir, 'closure-packet.md'), signed.join('\n'));
+} else {
+  fs.writeFileSync(path.join(outDir, 'closure-packet.md'), md);
+}

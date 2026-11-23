@@ -51,6 +51,7 @@ AMENDMENT=""
 AMEND_SIG=""
 OWNER_DECISION=""
 LINT_ONLY=0
+REQUIRE_STATUS=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --supersedes) SUPERSEDES="${2:?--supersedes needs a decision id}"; shift 2 ;;
@@ -59,6 +60,7 @@ while [ $# -gt 0 ]; do
     --signature) AMEND_SIG="${2:?--signature needs a signature path}"; shift 2 ;;
     --owner-decision) OWNER_DECISION="${2:?--owner-decision needs a decision id}"; shift 2 ;;
     --lint-only) LINT_ONLY=1; shift ;;
+    --require-status) REQUIRE_STATUS=1; shift ;;
     -h|--help) sed -n '1,30p' "$0"; exit 0 ;;
     -*) fail "unknown flag: $1" 1 ;;
     *) [ -z "$CONTRACT" ] && CONTRACT="$1" || fail "unexpected argument: $1" 1; shift ;;
@@ -119,13 +121,23 @@ fi
 # --- 1b. Adoption lint (document checks; legal before the value-phase boundary) ---
 LINT="$(dirname "${BASH_SOURCE[0]}")/kbd-contract-lint.mjs"
 LINT_ARGS=(--contract "$CONTRACT")
+if [ "$LINT_ONLY" -eq 0 ] || [ "$REQUIRE_STATUS" -eq 1 ]; then
+  LINT_ARGS+=(--require-owners)
+fi
 LINT_PHASE="$(jq -r '.identity.phaseId // empty' "$CONTRACT")"
 REVIEW_FILE="$ROOT/.kbd-orchestrator/phases/$LINT_PHASE/review/contract/findings.json"
 [ -f "$REVIEW_FILE" ] && LINT_ARGS+=(--review "$REVIEW_FILE")
 [ -n "$OWNER_DECISION" ] && LINT_ARGS+=(--owner-decision "$OWNER_DECISION")
-if [ "$LINT_ONLY" -eq 0 ]; then
-  LINT_STATUS="$(mktemp)"
-  prometheus kbd --path "$ROOT" status --json > "$LINT_STATUS" 2>/dev/null && LINT_ARGS+=(--status "$LINT_STATUS")
+LINT_STATUS="$(mktemp)"
+if prometheus kbd --path "$ROOT" status --json > "$LINT_STATUS" 2>/dev/null \
+    && jq -e '.projectId and .runId and (.phases | type == "object")' "$LINT_STATUS" >/dev/null; then
+  LINT_ARGS+=(--status "$LINT_STATUS")
+  STATUS_JSON="$(cat "$LINT_STATUS")"
+elif [ "$LINT_ONLY" -eq 1 ] && [ "$REQUIRE_STATUS" -eq 0 ]; then
+  printf 'Canonical status unavailable; owner-task checks skipped.\n' >&2
+else
+  rm -f "$LINT_STATUS"
+  fail "canonical status required for adoption and signing; owner-task checks could not run" 2
 fi
 LINT_RC=0; LINT_OUT="$(node "$LINT" "${LINT_ARGS[@]}" 2>&1)" || LINT_RC=$?
 [ -n "${LINT_STATUS:-}" ] && rm -f "$LINT_STATUS"
@@ -133,7 +145,7 @@ if [ "$LINT_RC" -ne 0 ]; then
   printf 'kbd-contract-adopt: contract fails adoption lint:\n%s\n' "$LINT_OUT" >&2
   exit 2
 fi
-if [ "$LINT_ONLY" -eq 1 ]; then
+if [ "$LINT_ONLY" -eq 1 ] && [ "$REQUIRE_STATUS" -eq 0 ]; then
   printf '%s\n' "$LINT_OUT"
   exit 0
 fi
@@ -143,7 +155,6 @@ EXPECTED_DIR="$ROOT/.kbd-orchestrator/phases/$PHASE_ID"
 [ "$(dirname "$CONTRACT")" = "$EXPECTED_DIR" ] || fail "identity.phaseId=$PHASE_ID but contract is not at $EXPECTED_DIR" 3
 
 # --- 2. Canonical identity cross-check ---
-STATUS_JSON="$(prometheus kbd --path "$ROOT" status --json 2>/dev/null)" || fail "prometheus kbd status failed" 1
 CANON_PROJECT="$(printf '%s' "$STATUS_JSON" | jq -r '.projectId // empty')"
 CANON_RUN="$(printf '%s' "$STATUS_JSON" | jq -r '.runId // empty')"
 CANON_PLAN_REV="$(printf '%s' "$STATUS_JSON" | jq -r '.planRevision // empty')"
@@ -151,6 +162,13 @@ C_PROJECT="$(jq -r '.identity.projectId' "$CONTRACT")"
 C_RUN="$(jq -r '.identity.runId' "$CONTRACT")"
 [ "$C_PROJECT" = "$CANON_PROJECT" ] || fail "identity.projectId mismatch: contract=$C_PROJECT canonical=$CANON_PROJECT" 3
 [ "$C_RUN" = "$CANON_RUN" ] || fail "identity.runId mismatch: contract=$C_RUN canonical=$CANON_RUN (stale run — amend the contract for the active run)" 3
+
+# Strict pre-sign lint follows the same phase placement and canonical identity
+# checks as the writer. It stops before computing or writing a new snapshot.
+if [ "$LINT_ONLY" -eq 1 ]; then
+  printf '%s\n' "$LINT_OUT"
+  exit 0
+fi
 
 # --- 3. Digest (frozen normalization; stamping fields excluded) ---
 DIGEST="$(jq -S -c 'del(.identity.contractDigest) | del(.identity.planRevision)' "$CONTRACT" | shasum -a 256 | awk '{print $1}')"

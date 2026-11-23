@@ -46,6 +46,8 @@
         "UNBOUND",
         "OPEN",
         "CLOSED",
+        "CLOSED_SUPERSEDED",
+        "CLOSED_UNMET",
         "REFUSED_BLOCKED",
         "REFUSED_FAIL"
       ]
@@ -106,7 +108,11 @@
           "pattern": "^[0-9a-f]{64}$"
         },
         "disposition": {
-          "const": "pass"
+          "enum": [
+            "pass",
+            "superseded",
+            "unmet"
+          ]
         },
         "admissionVersion": {
           "type": "integer",
@@ -131,6 +137,222 @@
             },
             "budgetSource": {
               "type": "string"
+            }
+          }
+        },
+        "operatorExit": {
+          "type": "object",
+          "description": "Parsed signed supersede-exit manifest. See kbd.scope-authority/v1.",
+          "required": [
+            "action",
+            "boundContractDigest",
+            "operatorDecision",
+            "exercised",
+            "withdrawn",
+            "budgetAccounting",
+            "limits"
+          ],
+          "properties": {
+            "action": {
+              "const": "supersede-exit"
+            },
+            "boundContractDigest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "operatorDecision": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "reference",
+                "text"
+              ],
+              "properties": {
+                "reference": {
+                  "type": "string",
+                  "pattern": "\\S"
+                },
+                "text": {
+                  "type": "string",
+                  "pattern": "\\S"
+                }
+              }
+            },
+            "exercised": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "verdict",
+                  "evidence"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "\\S"
+                  },
+                  "verdict": {
+                    "enum": [
+                      "PASS",
+                      "FAIL"
+                    ]
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "path",
+                        "sha256"
+                      ],
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "pattern": "\\S"
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{64}$"
+                        }
+                      }
+                    }
+                  },
+                  "scopeRefs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "\\S"
+                    }
+                  }
+                }
+              }
+            },
+            "withdrawn": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "kind",
+                  "destination"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "\\S"
+                  },
+                  "kind": {
+                    "enum": [
+                      "scenario",
+                      "scope"
+                    ]
+                  },
+                  "destination": {
+                    "type": "string",
+                    "pattern": "^(https://[^\\s/]+/[^\\s]+|[A-Za-z0-9_.-]+)$"
+                  }
+                }
+              }
+            },
+            "budgetAccounting": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "class"
+              ],
+              "properties": {
+                "class": {
+                  "enum": [
+                    "measured",
+                    "estimated",
+                    "unmetered"
+                  ]
+                },
+                "values": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "class": {
+                        "const": "unmetered"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "values": {
+                        "maxProperties": 0
+                      }
+                    }
+                  },
+                  "else": {
+                    "required": [
+                      "values"
+                    ],
+                    "properties": {
+                      "values": {
+                        "minProperties": 1
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "limits": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "\\S"
+              }
+            }
+          }
+        },
+        "exitAuthority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "manifestRaw",
+            "manifestSha256",
+            "signature",
+            "approver",
+            "namespace",
+            "allowedSignersSha256"
+          ],
+          "properties": {
+            "manifestRaw": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "manifestSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "signature": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "approver": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "namespace": {
+              "const": "prometheus-kbd-scope-amendment"
+            },
+            "allowedSignersSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
             }
           }
         }
@@ -180,5 +402,119 @@
     "successorAllowed": {
       "type": "boolean"
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "disposition": {
+            "const": "CLOSED"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "closure"
+        ],
+        "properties": {
+          "contractBound": {
+            "const": true
+          },
+          "dispatchAllowed": {
+            "const": false
+          },
+          "closure": {
+            "type": "object",
+            "properties": {
+              "disposition": {
+                "const": "pass"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "disposition": {
+            "const": "CLOSED_SUPERSEDED"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "closure"
+        ],
+        "properties": {
+          "contractBound": {
+            "const": true
+          },
+          "dispatchAllowed": {
+            "const": false
+          },
+          "closure": {
+            "type": "object",
+            "properties": {
+              "disposition": {
+                "const": "superseded"
+              },
+              "operatorExit": {
+                "properties": {
+                  "exercised": {
+                    "minItems": 1
+                  }
+                }
+              }
+            },
+            "required": [
+              "operatorExit",
+              "exitAuthority"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "disposition": {
+            "const": "CLOSED_UNMET"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "closure"
+        ],
+        "properties": {
+          "contractBound": {
+            "const": true
+          },
+          "dispatchAllowed": {
+            "const": false
+          },
+          "closure": {
+            "type": "object",
+            "properties": {
+              "disposition": {
+                "const": "unmet"
+              },
+              "operatorExit": {
+                "properties": {
+                  "exercised": {
+                    "maxItems": 0
+                  }
+                }
+              }
+            },
+            "required": [
+              "operatorExit",
+              "exitAuthority"
+            ]
+          }
+        }
+      }
+    }
+  ]
 }

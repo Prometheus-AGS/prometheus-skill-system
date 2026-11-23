@@ -37,6 +37,13 @@ object is absent. Never derive implementation completion from `tasks_done`,
 unchecked OpenSpec boxes, evidence availability, elapsed time, authorization,
 certification, or publication.
 
+Read `prometheus kbd --path . phase disposition --id <phase> --json` for the
+canonical closure. Report `CLOSED_SUPERSEDED` or `CLOSED_UNMET`, the decision,
+exercised verdicts, withdrawn destinations, budget class and explicit limits
+from `.closure.operatorExit`. Report discrepancies between the runtime task
+counts, projected counts and OpenSpec checkboxes from `kbd-apply reconcile
+<phase> --json`. Label the task counts separately from change completion.
+
 Render evidence, certification, and publication on separate lines. A phase can
 therefore be `24/24 implementation complete` while certification or publication
 is still pending. In that state, do not describe any implemented change as a

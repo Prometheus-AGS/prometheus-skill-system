@@ -154,6 +154,7 @@
         "type": "command",
         "command": "script=\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../karpathy-progress-memory/scripts/record-progress.py\"; python3 \"$script\" --project-root \"$PWD\" --from-hook --boundary phase",
         "timeout": 15,
+        "required_for_completion": true,
         "on_failure": "warn"
       }
     },
@@ -210,7 +211,7 @@
       "event": "on_reflection_complete",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Reflection complete \u2014 waypoint advanced to next phase, run /kbd-new-phase <name> to begin'"
+        "command": "echo '[kbd-orchestrator] Reflection recorded \u2014 inspect the phase disposition before starting a successor'"
       }
     },
     {
@@ -232,9 +233,10 @@
       "description": "Persist the accepted phase reflection (Delta / Root Cause / Corrective Actions, Lessons Learned, Next Phase Seed) as attributed lessons through learning_write: [GLOBAL]/[USER] lines to global/user scope, the rest to project. Skips rejected reflections. Resolves memory-writeback.sh through the plugin root, then the flat installed layout, then the source tree.",
       "action": {
         "type": "command",
-        "command": "for r in \"${KBD_PACK_ROOT:-}\" \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../..\" \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../..\"; do if [ -n \"$r\" ] && [ -f \"$r/shared/scripts/memory-writeback.sh\" ]; then bash \"$r/shared/scripts/memory-writeback.sh\" </dev/null || true; exit 0; fi; done; exit 0",
+        "command": "bash \"${KBD_PACK_ROOT:?missing KBD package}/shared/scripts/memory-writeback.sh\" </dev/null",
         "timeout": 8,
-        "on_failure": "ignore"
+        "required_for_completion": true,
+        "on_failure": "warn"
       }
     },
     {
@@ -244,8 +246,9 @@
       "description": "Refresh derived selected-method/contract recovery references only; no test, build, import, installation or authority transfer. Missing references remain explicit in the index.",
       "action": {
         "type": "command",
-        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --write >/dev/null",
+        "command": "node \"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/method-context.mjs\" --project \"$PWD\" --phase \"$KBD_HOOK_NAME\" --write >/dev/null",
         "timeout": 30,
+        "required_for_completion": true,
         "on_failure": "warn"
       }
     },

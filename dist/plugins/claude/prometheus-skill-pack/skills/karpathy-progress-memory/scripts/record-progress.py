@@ -138,6 +138,8 @@ def event_from_hook(root: Path, boundary: str) -> tuple[dict[str, Any], dict[str
     state = kbd_status(root)
     active = state.get("activePath") or {}
     phase_id = active.get("phaseId")
+    if boundary == "phase":
+        phase_id = os.environ.get("KBD_HOOK_PHASE_ID") or os.environ.get("KBD_HOOK_NAME") or phase_id
     if not isinstance(phase_id, str) or not phase_id:
         raise ProgressError("canonical status has no active phase")
     name = os.environ.get("KBD_HOOK_NAME", "")
@@ -182,6 +184,15 @@ def event_from_hook(root: Path, boundary: str) -> tuple[dict[str, Any], dict[str
         "blocker": None,
         "exactNextWork": state.get("exactNextWork"),
     }
+    if boundary == "phase":
+        terminal = (state.get("phaseClosure") or {}).get("phases", {}).get(phase_id, {}).get("terminal")
+        if terminal and terminal.get("operatorExit"):
+            disposition = "CLOSED_SUPERSEDED" if terminal["operatorExit"].get("exercised") else "CLOSED_UNMET"
+            event["verification"].append({
+                "command": "prometheus kbd status --json",
+                "exitCode": 0,
+                "summary": f"Canonical closure {disposition} ({terminal['closureKey']})",
+            })
     return event, state
 
 
@@ -426,23 +437,18 @@ def memory_write(
     pk_error = "pk executable unavailable" if result.returncode == 127 else f"pk exited {result.returncode}"
 
     configured_enqueue = os.environ.get("KPM_MEMORY_ENQUEUE")
-    enqueue_candidates = (
-        [Path(configured_enqueue)]
-        if configured_enqueue
-        else [
-            root / "shared" / "scripts" / "enqueue-memory-operation.py",
-            Path(__file__).resolve().parents[4]
-            / "shared"
-            / "scripts"
-            / "enqueue-memory-operation.py",
-            Path.home()
-            / ".prometheus"
-            / "plugins"
-            / "prometheus-skill-pack"
-            / "stable"
-            / "enqueue-memory-operation.py",
+    package_root = os.environ.get("KBD_PACK_ROOT")
+    script = Path("shared/scripts/enqueue-memory-operation.py")
+    if configured_enqueue:
+        enqueue_candidates = [Path(configured_enqueue)]
+    else:
+        enqueue_candidates = [
+            root / script,
+            Path(__file__).resolve().parents[4] / script,
+            Path.home() / ".prometheus/plugins/prometheus-skill-pack/stable" / script.name,
         ]
-    )
+        if package_root:
+            enqueue_candidates.insert(0, Path(package_root) / script)
     enqueue_path = next((path for path in enqueue_candidates if path.is_file()), enqueue_candidates[0])
     if enqueue_path.is_file():
         arguments = json.dumps(
@@ -545,6 +551,9 @@ def main() -> int:
     parser.add_argument("--from-hook", action="store_true")
     parser.add_argument("--boundary", choices=sorted(BOUNDARIES))
     args = parser.parse_args()
+    require_memory_delivery = (
+        args.from_hook and args.boundary == "phase" and bool(os.environ.get("KBD_HOOK_DELIVERY_KEY"))
+    )
     try:
         root = project_root(Path(args.project_root))
         if args.from_hook:
@@ -611,7 +620,7 @@ def main() -> int:
                             }
                         )
                     )
-                    return 0
+                    return 1 if require_memory_delivery and not delivery_complete else 0
                 print(
                     json.dumps(
                         {
@@ -659,7 +668,7 @@ def main() -> int:
                     ensure_ascii=False,
                 )
             )
-            return 0
+            return 1 if require_memory_delivery and not delivery_complete else 0
         finally:
             release_lock(event_lock, lock_descriptor)
     except (OSError, ProgressError) as error:

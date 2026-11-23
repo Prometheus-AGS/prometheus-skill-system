@@ -38,9 +38,11 @@
 #             6 phase already closed under a different evidence identity.
 set -euo pipefail
 
-PHASE=""; EVIDENCE=""; STATUS_FILE=""; DISPOSITION_FILE=""; SINK=""
+SUPERSEDED=""; SIGNATURE=""; PHASE=""; EVIDENCE=""; STATUS_FILE=""; DISPOSITION_FILE=""; SINK=""
 while [ $# -gt 0 ]; do
   case "$1" in
+    --superseded) SUPERSEDED="${2:?}"; shift 2 ;;
+    --signature) SIGNATURE="${2:?}"; shift 2 ;;
     --phase) PHASE="${2:?}"; shift 2 ;;
     --evidence-file) EVIDENCE="${2:?}"; shift 2 ;;
     --status-file) STATUS_FILE="${2:?}"; shift 2 ;;
@@ -74,6 +76,37 @@ printf '%s' "$DISP_JSON" | jq -e '.schema == "kbd.phase-disposition/v1"' >/dev/n
 S_RUN="$(printf '%s' "$STATUS_JSON" | jq -r '.runId // empty')"
 S_PROJECT="$(printf '%s' "$STATUS_JSON" | jq -r '.projectId // empty')"
 TOKEN="$(printf '%s' "$DISP_JSON" | jq -r '.disposition')"
+# Do not dispatch live hooks from a fixture-only evaluator.
+phase_after() {
+  [ -z "$SINK$STATUS_FILE$DISPOSITION_FILE" ] || return 0
+  local pack_root orchestrator
+  pack_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
+  for orchestrator in "${KBD_ORCHESTRATOR_ROOT:-}" "$pack_root/skills/process/kbd-process-orchestrator" "$pack_root/skills/kbd-process-orchestrator"; do
+    if [ -n "$orchestrator" ] && [ -f "$orchestrator/shared/lib/finalize-reflection.sh" ]; then
+      (cd "$ROOT" && bash "$orchestrator/shared/lib/finalize-reflection.sh" phase-after "$PHASE")
+      return
+    fi
+  done
+  printf 'phase %s closed; finalization helper missing from pack %s\n' "$PHASE" "$pack_root" >&2
+  return 1
+}
+
+if [ -n "$SUPERSEDED$SIGNATURE" ]; then
+  [ -n "$SUPERSEDED" ] && [ -n "$SIGNATURE" ] || { printf 'supply both --superseded and --signature\n' >&2; exit 1; }
+  [ -z "$SINK$STATUS_FILE$DISPOSITION_FILE" ] || { printf 'operator exit requires the canonical writer\n' >&2; exit 1; }
+  prometheus kbd --path "$ROOT" phase close --id "$PHASE" --disposition superseded --manifest "$SUPERSEDED" --signature "$SIGNATURE"
+  closed="$(prometheus kbd --path "$ROOT" phase disposition --id "$PHASE" --json)"
+  terminal="$(jq -er '.disposition | select(. == "CLOSED_SUPERSEDED" or . == "CLOSED_UNMET")' <<<"$closed")"
+  digest="$(jq -er '.binding.contractDigest' <<<"$closed")"
+  jq -e '.closure.operatorExit' <<<"$closed" > "$ERRF"
+  node "$(dirname "${BASH_SOURCE[0]}")/kbd-closure-packet.mjs" --snapshot "$PHASE_DIR/adopted/$digest.json" \
+    --exit-manifest "$ERRF" --out-dir "$PHASE_DIR" --project-root "$ROOT" --disposition "$terminal" --reason operator-decision
+  phase_after
+  exit 0
+fi
+case "$TOKEN" in
+  CLOSED_SUPERSEDED|CLOSED_UNMET) printf '%s phase=%s (immutable operator exit)\n' "$TOKEN" "$PHASE"; exit 6 ;;
+esac
 EV_TRUSTED=0
 
 # Record one disposition through the typed writer. Prints nothing; returns the
@@ -141,6 +174,7 @@ if [ "$TOKEN" = "CLOSED" ]; then
   if [ -n "$EV_DIGEST" ] && [ "$C_EV" = "$EV_DIGEST" ] && [ "$C_RUN" = "$S_RUN" ]; then
     printf 'ALREADY-CLOSED phase=%s run=%s contract=%s evidence=sha256:%s (identical closure already recorded; no-op)\n' \
       "$PHASE" "$S_RUN" "$B_DIGEST" "$EV_DIGEST"
+    phase_after
     exit 0
   fi
   printf 'CLOSED-DIFFERENT-IDENTITY phase=%s closedEvidence=sha256:%s offered=sha256:%s (a closed phase is immutable)\n' \
@@ -274,4 +308,5 @@ closure_packet CLOSED "${PASS_REASON:-pass}"
 printf 'CLOSED phase=%s verdict=PASS evidence=sha256:%s contract=%s run=%s entries=%s%s%s%s (dispatch for this phase now refused)\n' \
   "$PHASE" "$EV_DIGEST" "$B_DIGEST" "$S_RUN" "$N_ENTRIES" \
   "${PASS_REASON:+ budget-note=$PASS_REASON}" "$SCOPE_NOTE" "$DRIFT_NOTE"
+phase_after
 exit 0

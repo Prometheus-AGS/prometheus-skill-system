@@ -237,8 +237,8 @@ _sg_validate_handoff() { # <handoff-file> <expected-stage> <phase_dir> <for-stag
     worked_phase="$(jq -r '.identity.phaseId // empty' "$handoff" 2>/dev/null)"
     [ -n "$worked_phase" ] || worked_phase="$(basename "$phase_dir")"
     if sg_token="$(kbd_phase_disposition "$sg_root" "$worked_phase")"; then
-      if [ "$sg_token" = "CLOSED" ]; then
-        printf 'kbd_stage_gate: execute blocked — phase %s is CLOSED in canonical state (typed phase disposition).\n' "$worked_phase" >&2
+      if kbd_phase_terminal "$sg_token"; then
+        printf 'kbd_stage_gate: execute blocked — phase %s is %s in canonical state (typed phase disposition).\n' "$worked_phase" "$sg_token" >&2
         printf 'A closed phase receives no further dispatch. A successor starts only with a signed start-successor authorization (kbd-next-phase --authorize-successor).\n' >&2
         return 2
       fi

@@ -7,13 +7,13 @@
 //!
 //! Invariants enforced in `apply` (so a refusal emits no event and replay is
 //! deterministic):
-//! * a bound phase reaches `Complete` only through a PASS disposition;
+//! * a bound phase reaches `Complete` through admitted PASS evidence or a signed operator exit;
 //! * a terminal closure is immutable; a repeated identical close is a no-op;
 //! * PASS requires every bound scenario to have PASS evidence; evidence for
 //!   scenarios outside the bound contract never changes the verdict;
 //! * recorded budget consumption never decreases;
 //! * a changed contract digest requires a signed amendment manifest;
-//! * a successor phase starts only from a PASS closure with a signed
+//! * a successor phase starts only from a terminal closure with a signed
 //!   start-successor manifest, exactly once.
 //!
 //! Phases that were never bound keep their legacy behaviour unchanged.
@@ -46,6 +46,14 @@ pub enum PhaseDisposition {
     Blocked,
     Cancelled,
     Deferred,
+    Superseded,
+    Unmet,
+}
+
+impl PhaseDisposition {
+    pub fn is_operator_exit(self) -> bool {
+        matches!(self, Self::Superseded | Self::Unmet)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -122,6 +130,10 @@ pub struct PhaseClosure {
     /// written before evidence admission; those replay as recorded.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub admission_version: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub operator_exit: Option<ScopeAuthorityManifest>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exit_authority: Option<ScopeAuthorityRecord>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -328,12 +340,17 @@ pub(crate) fn prepare_close(
     phase_id: &str,
     input: &PhaseCloseInput,
 ) -> Result<EventKind> {
+    if input.disposition.is_operator_exit() {
+        return Err(refused(phase_id, "operator-decided exit requires a signed supersede-exit manifest"));
+    }
     Ok(EventKind::PhaseDispositionRecorded {
         phase_id: phase_id.to_string(),
         closure: Box::new(PhaseClosure {
             closure_key: closure_key(&state.project_id, phase_id, input)?,
             input: input.clone(),
             admission_version: Some(EVIDENCE_ADMISSION_VERSION),
+            operator_exit: None,
+            exit_authority: None,
         }),
     })
 }
@@ -389,7 +406,21 @@ pub(crate) fn prepare_successor(
 /// identical outcome is already recorded and nothing must be appended.
 pub fn idempotent_replay(state: &KbdStateV2, command: &CommandKind) -> Result<Option<u64>> {
     match command {
+        CommandKind::PhaseSupersedeExit { phase_id, authority } => {
+            let Some(terminal) = state.phase_closure.terminal(phase_id) else {
+                return Ok(None);
+            };
+            if terminal.closure.exit_authority.as_ref().is_some_and(|a|
+                a.manifest_raw == authority.manifest_raw && a.signature == authority.signature) {
+                return Ok(Some(terminal.recorded_at_revision));
+            }
+            Err(RuntimeError::PhaseAlreadyClosed { phase_id: phase_id.clone(),
+                existing_key: terminal.closure.closure_key.clone() })
+        }
         CommandKind::PhaseClose { phase_id, closure } => {
+            if closure.disposition.is_operator_exit() {
+                return Err(refused(phase_id, "operator exit requires signed authority"));
+            }
             let key = closure_key(&state.project_id, phase_id, closure)?;
             let Some(entry) = state.phase_closure.get(phase_id) else {
                 return Ok(None);
@@ -449,6 +480,7 @@ pub fn is_closure_command(command: &CommandKind) -> bool {
     matches!(
         command,
         CommandKind::PhaseClose { .. }
+            | CommandKind::PhaseSupersedeExit { .. }
             | CommandKind::PhaseContractBind { .. }
             | CommandKind::PhaseSuccessorStart { .. }
     )
@@ -742,6 +774,11 @@ pub(crate) fn apply_disposition(
             existing_key: terminal.closure.closure_key.clone(),
         });
     }
+    if input.disposition.is_operator_exit() {
+        crate::operator_exit::check_record(state, phase_id, &binding, closure)?;
+    } else if closure.operator_exit.is_some() || closure.exit_authority.is_some() {
+        return Err(refused(phase_id, "operator authority requires an operator exit"));
+    }
     let enforces_evidence = input.disposition == PhaseDisposition::Pass
         && evidence_admission::enforces_evidence(closure.admission_version);
     if enforces_evidence {
@@ -802,7 +839,7 @@ pub(crate) fn apply_disposition(
     let mut entry = entry;
     entry.consumption_high_water = high_water;
     match input.disposition {
-        PhaseDisposition::Pass => {
+        PhaseDisposition::Pass | PhaseDisposition::Superseded | PhaseDisposition::Unmet => {
             if enforces_evidence {
                 evidence_admission::check_observations(
                     phase_id,
@@ -810,7 +847,9 @@ pub(crate) fn apply_disposition(
                     &input.scenarios,
                 )?;
             }
-            require_pass_evidence(phase_id, &binding, &input.scenarios)?;
+            if claims_pass {
+                require_pass_evidence(phase_id, &binding, &input.scenarios)?;
+            }
             let was_active = state.active_path.phase_id.as_deref() == Some(phase_id);
             let phase = state.phase_mut(phase_id)?;
             if !matches!(phase.status, WorkStatus::InProgress | WorkStatus::Blocked) {
@@ -911,11 +950,10 @@ pub(crate) fn apply_successor(
     let terminal = entry
         .terminal
         .as_ref()
-        .filter(|t| t.closure.input.disposition == PhaseDisposition::Pass)
         .ok_or_else(|| {
             refused(
                 predecessor_phase_id,
-                "a successor requires a PASS closure of its predecessor",
+                "a successor requires a terminal closure of its predecessor",
             )
         })?;
     if let Some(existing) = &entry.successor {
@@ -1027,7 +1065,11 @@ pub fn disposition_view(state: &KbdStateV2, phase_id: &str) -> Result<PhaseDispo
         .unwrap_or_default();
     let token = match (&entry.binding, &entry.terminal, &entry.last_refusal) {
         (None, _, _) => "UNBOUND",
-        (Some(_), Some(_), _) => "CLOSED",
+        (Some(_), Some(terminal), _) => match terminal.closure.input.disposition {
+            PhaseDisposition::Superseded => "CLOSED_SUPERSEDED",
+            PhaseDisposition::Unmet => "CLOSED_UNMET",
+            _ => "CLOSED",
+        },
         (Some(_), None, Some(refusal))
             if refusal.closure.input.disposition == PhaseDisposition::Fail =>
         {
@@ -1036,7 +1078,7 @@ pub fn disposition_view(state: &KbdStateV2, phase_id: &str) -> Result<PhaseDispo
         (Some(_), None, Some(_)) => "REFUSED_BLOCKED",
         (Some(_), None, None) => "OPEN",
     };
-    let closed = token == "CLOSED";
+    let closed = entry.terminal.is_some();
     Ok(PhaseDispositionView {
         schema: DISPOSITION_SCHEMA.into(),
         project_id: state.project_id.clone(),

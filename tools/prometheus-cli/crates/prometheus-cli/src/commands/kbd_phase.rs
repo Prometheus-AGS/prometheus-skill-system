@@ -45,8 +45,14 @@ pub enum PhaseClosureAction {
         command_id: Option<String>,
         phase_id: String,
         evidence_file: Option<PathBuf>,
+        manifest: Option<PathBuf>,
+        signature: Option<PathBuf>,
         disposition: PhaseDisposition,
         reason_code: Option<String>,
+    },
+    ValidateExit {
+        phase_id: String,
+        manifest: PathBuf,
     },
     Disposition {
         phase_id: String,
@@ -69,6 +75,18 @@ pub async fn run(
     client: &ControlClient,
     action: PhaseClosureAction,
 ) -> Result<()> {
+    if let PhaseClosureAction::ValidateExit { phase_id, manifest } = &action {
+        let state = state_or_replay(client, runtime).await?;
+        let raw = std::fs::read_to_string(manifest)?;
+        return match kbd_runtime::operator_exit::validate_exit(&state, phase_id,
+            raw.strip_suffix('\n').unwrap_or(&raw), runtime.project_root()) {
+            Ok(()) => {
+                println!("{}", json!({"phaseId": phase_id, "valid": true}));
+                Ok(())
+            }
+            Err(error) => refuse(&anyhow::Error::new(error)),
+        };
+    }
     if let PhaseClosureAction::Disposition { phase_id, json } = &action {
         let state = state_or_replay(client, runtime).await?;
         return match phase_closure::disposition_view(&state, phase_id) {
@@ -152,9 +170,25 @@ fn build(
             command_id,
             phase_id,
             evidence_file,
+            manifest,
+            signature,
             disposition,
             reason_code,
         } => {
+            if disposition == PhaseDisposition::Superseded {
+                if evidence_file.is_some() || reason_code.is_some() {
+                    return Err(anyhow!("operator-decided exits take evidence and reason from the signed manifest"));
+                }
+                let manifest = manifest.ok_or_else(|| anyhow!("superseded requires --manifest"))?;
+                let signature = signature.ok_or_else(|| anyhow!("superseded requires --signature"))?;
+                let authority = read_authority(&manifest, &signature)?;
+                let derived = format!("phase-exit:{phase_id}:{}", short(&sha256_hex(authority.manifest_raw.as_bytes())));
+                let command = CommandKind::PhaseSupersedeExit { phase_id: phase_id.clone(), authority };
+                return Ok((checked_id(command_id, derived)?, phase_id, command));
+            }
+            if manifest.is_some() || signature.is_some() {
+                return Err(anyhow!("--manifest and --signature require --disposition superseded"));
+            }
             let closure = close_input(
                 state,
                 &phase_id,
@@ -199,7 +233,7 @@ fn build(
                 command,
             ))
         }
-        PhaseClosureAction::Disposition { .. } => unreachable!("disposition is read-only"),
+        PhaseClosureAction::ValidateExit { .. } | PhaseClosureAction::Disposition { .. } => unreachable!("disposition is read-only"),
     }
 }
 
@@ -383,6 +417,7 @@ fn print_outcome(
 ) -> Result<()> {
     let view = phase_closure::disposition_view(state, phase_id)?;
     let closure_key = match command {
+        CommandKind::PhaseSupersedeExit { .. } => view.closure.as_ref().map(|c| c.closure.closure_key.clone()),
         CommandKind::PhaseClose { closure, .. } => Some(phase_closure::closure_key(
             &state.project_id,
             phase_id,

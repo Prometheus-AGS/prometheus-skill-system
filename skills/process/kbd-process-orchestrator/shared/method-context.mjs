@@ -262,21 +262,28 @@ export function writeMethodContext(project, context) {
 const invokedDirectly = () => { try { return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; } };
 if (invokedDirectly()) {
   try {
-    const args = process.argv.slice(2); let project = process.cwd(); let phase; let harness; let write = false; let json = false; let requireReady = false;
+    const args = process.argv.slice(2); let project = process.cwd(); let phase; let harness; let write = false; let json = false; let requireReady = false; let directoryOnly = false;
     for (let i = 0; i < args.length; i++) {
       if (args[i] === '--project' && args[i + 1]) project = args[++i];
       else if (args[i] === '--phase' && args[i + 1]) phase = args[++i];
       else if (args[i] === '--harness' && args[i + 1]) harness = args[++i];
       else if (args[i] === '--write') write = true;
       else if (args[i] === '--json') json = true;
+      else if (args[i] === '--phase-dir') directoryOnly = true;
       else if (args[i] === '--require-resolved') requireReady = true;
       else throw new Error(`unknown or incomplete argument: ${args[i]}`);
     }
-    const context = discoverMethodContext({ project, phase, harness });
-    if (write) writeMethodContext(project, context);
-    process.stdout.write(json ? JSON.stringify(context, null, 2) + '\n' : renderMethodContext(context));
-    if (context.deviation) process.stderr.write(`method-context: phase deviates from VLBV to ${context.deviation.method}; disclose it in the closure packet\n`);
-    if (requireReady && context.status !== 'RESOLVED_REFERENCES') process.exitCode = 2;
+    if (directoryOnly) {
+      const root = realpathSync(project);
+      const state = command(['status', '--json'], root);
+      process.stdout.write(phaseDirectory(root, state, phase ?? state.activePath?.phaseId) + '\n');
+    } else {
+      const context = discoverMethodContext({ project, phase, harness });
+      if (write) writeMethodContext(project, context);
+      process.stdout.write(json ? JSON.stringify(context, null, 2) + '\n' : renderMethodContext(context));
+      if (context.deviation) process.stderr.write(`method-context: phase deviates from VLBV to ${context.deviation.method}; disclose it in the closure packet\n`);
+      if (requireReady && context.status !== 'RESOLVED_REFERENCES') process.exitCode = 2;
+    }
   } catch (error) {
     process.stderr.write(`method-context: ${error.message}\n`); process.exitCode = 2;
   }

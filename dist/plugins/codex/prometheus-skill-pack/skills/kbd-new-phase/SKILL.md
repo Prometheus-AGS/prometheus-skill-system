@@ -147,8 +147,7 @@ Signal — so any hook reading state sees the new phase as authoritative.
 kbd_hooks_fire phase before "$name" 1 1
 ```
 
-The closing `phase:after` is the responsibility of `kbd-reflect` for
-the *previous* phase, which should have run already.
+The terminal evaluator or guarded legacy transition delivers `phase:after` for the previous phase.
 
 See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload, and
 `references/schemas/current-waypoint.template.json` for the canonical

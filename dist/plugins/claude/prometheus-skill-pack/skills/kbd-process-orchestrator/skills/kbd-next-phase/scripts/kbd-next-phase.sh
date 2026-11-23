@@ -122,9 +122,9 @@ if [[ "$RUNTIME_AUTHORITATIVE" == 1 && -n "$REQUESTED_SUCCESSOR" && "$REQUESTED_
   predecessor="$(kbd_runtime_status_json "$PROJECT_ROOT" 2>/dev/null | jq -r --arg s "$REQUESTED_SUCCESSOR" \
     '[(.phaseClosure.phases // {}) | to_entries[] | select(.value.successor.phaseId == $s) | .key] | first // empty')"
   if [[ -n "$predecessor" ]]; then
-    echo "[kbd-next-phase] ALREADY-STARTED: successor '${REQUESTED_SUCCESSOR}' of '${predecessor}' was already started; no new events."
-    printf '  Next:  /kbd-assess %s\n' "$REQUESTED_SUCCESSOR"
-    exit 0
+    # Recover a missing goals view if the initial start was interrupted after
+    # the authoritative write. The predecessor remains the source of the seed.
+    CURRENT_PHASE="$predecessor"
   fi
 fi
 if [[ "$RUNTIME_AUTHORITATIVE" == 1 ]]; then
@@ -135,7 +135,7 @@ if [[ "$RUNTIME_AUTHORITATIVE" == 1 ]]; then
 fi
 if [[ -n "$CURRENT_DISPOSITION" ]] && [[ "$(printf '%s' "$CURRENT_DISPOSITION" | jq -r '.contractBound')" == "true" ]]; then
   token="$(printf '%s' "$CURRENT_DISPOSITION" | jq -r '.disposition')"
-  if [[ "$token" != "CLOSED" ]]; then
+  if ! kbd_phase_terminal "$token"; then
     echo "[kbd-next-phase] NOT-CLOSED: phase '${CURRENT_PHASE}' disposition is ${token}; nothing was written."
     echo "  A contract-bound phase closes only through its terminal evaluator:"
     echo "    bash shared/scripts/kbd-phase-close-eval.sh --phase ${CURRENT_PHASE}"
@@ -248,6 +248,11 @@ fi
 # start leaves no orphan successor directory and a rerun stays idempotent.
 write_goals() {
   mkdir -p "$NEW_PHASE_DIR"
+  local withdrawn=""
+  if [[ -n "$CURRENT_DISPOSITION" ]]; then
+    if jq -e '.closure.operatorExit != null' <<<"$CURRENT_DISPOSITION" >/dev/null; then SEED_CONTENT=""; fi
+    withdrawn="$(jq -r --arg id "$NEW_PHASE" '.closure.operatorExit.withdrawn[]? | select(.destination == $id) | "- " + .kind + ": " + .id' <<<"$CURRENT_DISPOSITION")"
+  fi
   cat > "${NEW_PHASE_DIR}/goals.md" << GOALS_EOF
 # Goals: ${NEW_PHASE}
 
@@ -262,6 +267,10 @@ adopted (and any later change is a signed amendment).
 
 ${SEED_CONTENT:-"(No seed content found in reflection -- add goals manually before running /kbd-assess)"}
 
+${withdrawn:+## Withdrawn work assigned to this successor
+
+$withdrawn
+}
 ---
 
 ## Instructions
@@ -337,10 +346,6 @@ if [[ "$RUNTIME_AUTHORITATIVE" == 1 ]]; then
       printf '%s\n' "$start_out" >&2
       exit 4
     fi
-    if [[ "$hooks_avail" == 1 ]]; then
-      (cd "$PROJECT_ROOT" && kbd_hooks_fire phase after "$CURRENT_PHASE" 1 1) \
-        || echo "[kbd-next-phase] phase completion hook failed" >&2
-    fi
   else
     canonical_state="$(kbd_runtime_status_json "$PROJECT_ROOT")" \
       || { echo "[kbd-next-phase] canonical status read failed" >&2; exit 1; }
@@ -361,7 +366,7 @@ if [[ "$RUNTIME_AUTHORITATIVE" == 1 ]]; then
           || { echo "[kbd-next-phase] current phase completion postcommit blocked" >&2; exit 1; }
       fi
       if [[ "$hooks_avail" == 1 ]]; then
-        (cd "$PROJECT_ROOT" && kbd_hooks_fire phase after "$CURRENT_PHASE" 1 1) \
+        (cd "$PROJECT_ROOT" && bash "$SKILL_ROOT/shared/lib/finalize-reflection.sh" phase-after "$CURRENT_PHASE") \
           || echo "[kbd-next-phase] phase completion hook failed" >&2
       fi
     fi

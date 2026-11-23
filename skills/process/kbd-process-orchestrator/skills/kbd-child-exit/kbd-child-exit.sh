@@ -120,7 +120,6 @@ if [[ "$runtime_avail" == "1" ]]; then
   [[ "$path_count" -gt 1 ]] || die "runtime is not inside a child phase"
   child_runtime_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phaseId // empty')"
   [[ -n "$child_runtime_id" ]] || die "runtime omitted active child phase"
-  parent_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[-2]')"
   # Issue #192: a contract-bound child closes only through its terminal
   # evaluator; child-exit then returns control without its own transition.
   child_bound=false
@@ -132,7 +131,7 @@ if [[ "$runtime_avail" == "1" ]]; then
   fi
   if [[ "$child_bound" == "true" ]]; then
     child_token="$(printf '%s' "$child_disposition" | jq -r '.disposition')"
-    [[ "$child_token" == "CLOSED" ]] || {
+    kbd_phase_terminal "$child_token" || {
       printf 'kbd-child-exit: NOT-CLOSED: contract-bound child %s is %s; run kbd-phase-close-eval.sh --phase %s first\n' \
         "$child_runtime_id" "$child_token" "$child_runtime_id" >&2
       exit 2
@@ -150,19 +149,11 @@ if [[ "$runtime_avail" == "1" ]]; then
         || die "child phase completion postcommit evaluation blocked"
       kbd_bottleneck_print_signal "$guard_output"
     fi
+    bash "$KBD_ORCHESTRATOR_ROOT/shared/lib/finalize-reflection.sh" phase-after "$child_runtime_id" ||
+      warn "phase:after hook fire failed"
   fi
-  [[ "$hooks_avail" == "1" ]] &&
-    kbd_hooks_fire phase after "$child_runtime_id" "$depth" "$depth" ||
-    warn "phase:after hook fire failed"
-  ancestor_args=()
-  while IFS= read -r ancestor; do
-    [[ -n "$ancestor" ]] || continue
-    ancestor_args+=(--ancestor "$ancestor")
-  done < <(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[0:-2][]?')
-  prometheus kbd --path . phase activate \
-    --command-id "phase-exit:${child_name}" \
-    --id "$parent_id" "${ancestor_args[@]}" \
-    --exact-next-work "/kbd-status" >/dev/null
+  printf '%s' "$runtime_state" | jq -ce '.activePath.phasePath' | \
+    node "$KBD_ORCHESTRATOR_ROOT/skills/kbd-child-exit/resume-parent.mjs" "$child_name" >/dev/null
   [[ "$hooks_avail" == "1" ]] &&
     kbd_hooks_fire child after "$child_name" "$depth" "$depth" ||
     warn "child:after hook fire failed"

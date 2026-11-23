@@ -80,7 +80,8 @@ _kbd_hooks_collect_one() {
       command:    ($h.action.command // $h.action.target // ""),
       timeout:    ($h.action.timeout // 15),
       on_failure: ($h.action.on_failure // "warn"),
-      enabled:    ($h.enabled // true),
+      required_for_completion: ($layer == "builtin" and $h.action.required_for_completion == true),
+      enabled:    (if ($h | has("enabled")) then $h.enabled else true end),
       layer:      $layer
     } + (if (($h.action // {}) | has("args")) then {args: $h.action.args} else {} end)
   ' "$file" 2>/dev/null
@@ -183,6 +184,7 @@ _kbd_hooks_resolve_overrides() {
 
 # Resolve the active phase directory (or empty string if none).
 _kbd_hooks_active_phase_dir() {
+  if [[ -n "${KBD_HOOK_PHASE_DIR:-}" ]]; then printf '%s' "$KBD_HOOK_PHASE_DIR"; return 0; fi
   local wp=".kbd-orchestrator/current-waypoint.json"
   [[ -f "$wp" ]] || { printf ''; return 0; }
   command -v jq >/dev/null 2>&1 || { printf ''; return 0; }
@@ -298,6 +300,13 @@ _kbd_hooks_run() {
   mode="$(printf '%s' "$entry" | jq -r '.mode')"
 
   [[ -n "$command" ]] || return 0
+  local log
+  log="$(_kbd_hooks_log_path)"
+  if [[ -n "${KBD_HOOK_DELIVERY_KEY:-}" && -f "$log" ]] &&
+    jq -se --arg key "$KBD_HOOK_DELIVERY_KEY" --arg id "$id" --arg layer "$layer" --arg kind "$kind" \
+      'any(.[]; .deliveryKey == $key and .layer == $layer and .hookId == $id and .kind == $kind and .status == 0)' "$log" >/dev/null; then
+    return 0
+  fi
 
   # Build context env. waypoint.sh is expected to be sourced; chain_separator
   # is optional (fallback to "› " inline).
@@ -323,6 +332,11 @@ _kbd_hooks_run() {
     phase_path=""
     child_path=""
     source_tool="unknown"
+  fi
+  if [[ -n "${KBD_HOOK_PHASE_ID:-}" ]]; then
+    phase_path="$KBD_HOOK_PHASE_ID"
+    child_path=""
+    [[ "$phase_path" != *::* ]] || child_path="${phase_path##*::}"
   fi
   started_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
@@ -370,9 +384,11 @@ _kbd_hooks_run() {
     --arg phasePath "$phase_path" --arg sourceTool "$source_tool" \
     --arg logPath "$(_kbd_hooks_log_path)" \
     --arg hookId "$id" --arg layer "$layer" --arg mode "$mode" \
+    --arg deliveryKey "${KBD_HOOK_DELIVERY_KEY:-}" --arg disposition "${KBD_HOOK_DISPOSITION:-}" \
     --argjson status "$rc" --arg stderrSnippet "$stderr_snippet" '
       {ts:$ts, kind:$kind, edge:$edge, name:$name, index:$index, total:$total,
-       phasePath:$phasePath, sourceTool:$sourceTool, hookId:$hookId,
+       deliveryKey:(if $deliveryKey == "" then null else $deliveryKey end),
+       disposition:(if $disposition == "" then null else $disposition end), phasePath:$phasePath, sourceTool:$sourceTool, hookId:$hookId,
        layer:$layer, mode:$mode, status:$status, logPath:$logPath,
        stderrSnippet: (if $status == 0 then null else $stderrSnippet end)}
       | with_entries(select(.value != null))
@@ -381,6 +397,10 @@ _kbd_hooks_run() {
   _kbd_hooks_status_update "$entry_log"
 
   if [[ "$rc" -ne 0 ]]; then
+    if [[ -n "${KBD_HOOK_DELIVERY_KEY:-}" ]] && jq -e '.required_for_completion' <<<"$entry" >/dev/null; then
+      _kbd_hooks_warn "required hook $id has pending delivery (exit $rc); retry $kind:$edge for $name; log=$log"
+      return "$rc"
+    fi
     case "$on_failure" in
       error)  _kbd_hooks_warn "hook $id failed (exit $rc); on_failure=error; log=$(_kbd_hooks_log_path); status=$(_kbd_hooks_status_path)"; return "$rc" ;;
       ignore) : ;;
@@ -398,7 +418,8 @@ kbd_hooks_fire() {
 
   if ! command -v jq >/dev/null 2>&1; then
     _kbd_hooks_warn "jq not available; hooks dispatch skipped"
-    return 0
+    [[ -z "${KBD_HOOK_DELIVERY_KEY:-}" ]] && return 0
+    return 1
   fi
 
   # Hook commands locate the pack's shared scripts through KBD_PACK_ROOT.
@@ -410,12 +431,17 @@ kbd_hooks_fire() {
     fi
   fi
 
+  if [[ ! -r "$KBD_ORCHESTRATOR_ROOT/hooks/hooks.json" ]]; then
+    _kbd_hooks_warn "installation missing builtin lifecycle manifest: $KBD_ORCHESTRATOR_ROOT/hooks/hooks.json"
+    return 1
+  fi
   local resolved
   resolved="$(_kbd_hooks_collect "$kind" "$edge" | _kbd_hooks_resolve_overrides "$kind" "$edge")"
 
+  local failed=0
   while IFS= read -r entry; do
     [[ -n "$entry" ]] || continue
-    _kbd_hooks_run "$entry" "$kind" "$edge" "$name" "$index" "$total"
+    _kbd_hooks_run "$entry" "$kind" "$edge" "$name" "$index" "$total" || failed=$?
   done <<EOF
 $resolved
 EOF
@@ -437,4 +463,5 @@ EOF
 $oc_matches
 EOF
   fi
+  return "$failed"
 }

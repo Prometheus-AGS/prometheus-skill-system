@@ -66,20 +66,17 @@ strategic goals.
 
 ## Prerequisites
 
-The phase must have completed the B4 sequence (`references/boundaries.md`):
+For the ordinary acceptance path, read the adopted contract, B4/B5 boundary
+results, independent review, closure packet and archive status. Report
+implementation, acceptance, certification and publication independently.
 
-- Every change implemented (`implementation_status: COMPLETE` in `progress.json`)
-- The boundary packet ran once (plus any authorized B5 repair) and
-  `boundary-results.json` exists
-- The cumulative B4 step-5 QA and adversarial review ran (or carry a signed waiver)
-- `kbd-phase-close-eval.sh` wrote the closure object and `closure-packet.md`
-- After CLOSED: OpenSpec changes verified and archived through `kbd-apply`; native
-  changes moved to `.kbd-orchestrator/changes/archive/<date>-<id>/`
-
-These are separate prerequisites: implementation completion drives the N/N
-counter, while the boundary verdicts, QA, verification and archival drive
-evidence, certification and publication/lifecycle fields. A phase closed unmet
-(FAIL or BLOCKED) is still reflected; record what remains.
+For a signed `CLOSED_SUPERSEDED` or `CLOSED_UNMET` exit, read the canonical
+`phase disposition --id <phase> --json` response. Use
+`.closure.operatorExit` for the operator decision, exercised verdicts and
+evidence, withdrawals and destinations, budget class and explicit limits. Fill
+the goal table from those facts. List each withdrawal with its destination in
+Next Phase Seed. An unexercised goal has no passing verdict. A refused phase
+remains open.
 
 ## Progress Signals (MANDATORY)
 
@@ -98,11 +95,11 @@ Completed kbd-reflect — <phase-name> (step N of T)
 ```
 
 **How to get N and T (MANDATORY — never estimate):**
-- Read `.kbd-orchestrator/phases/<phase>/progress.json` →
-  `completion.implementation.completed` = N and `.total` = T; fall back to
-  legacy `changes_completed` / `changes_total` only when canonical fields are absent.
-- If `progress.json` is absent, read `current-waypoint.json` →
-  `implementationCompleted` / `implementationTotal`, then legacy aliases.
+- Run `kbd-apply reconcile <phase> --json`. In a runtime-owned project report
+  `taskCounts.runtime.completed/total` and show the projected and backend counts
+  when they disagree. An incomplete scan leaves the backend count unknown.
+- For a legacy file-owned phase use the projection's implementation count and
+  label it as a change count.
 
 Use the canonical phase name from the argument or `current-waypoint.json`. Emit to plain response text — no tool call needed.
 
@@ -120,14 +117,17 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
    reconciled progress. Exit **1** reports drift, which may include ledger-ahead,
    cancelled or archived discrepancies; do not describe all drift as undelivered
    code. Use `--repair` only for unambiguous active-phase backend-complete
-   tasks. Exit **2** means invalid input or an incomplete scan: report its errors
+   tasks and exact-title OpenSpec checkbox repairs. The runtime owns its generated
+   progress view. If its counts disagree, inspect `prometheus kbd migrate-projections
+   --dry-run` and the reported task identities before selecting a projection
+   migration. Exit **2** means invalid input or an incomplete scan: report its errors
    and restore readable input/runtime authority rather than claiming clean.
    Reconciliation supports archived changes and does not change live state.
 5. **Read artifact-refiner logs** — aggregate QA results
 6. **Load all change data** — from `openspec/changes/archive/` if OpenSpec,
    or `.kbd-orchestrator/changes/archive/` if native KBD
 7. **Follow the reflect protocol** in `../prompts/reflect.md`
-8. **Write reflection** to `.kbd-orchestrator/phases/<phase>/reflection.md`
+8. **Write reflection** to the phase directory and run the packaged finalizer in Hook integration.
 9. **Review promotion candidates** — run `pk candidates list --kind promotion`
    (pk >= 1.11.0; skip silently when `pk` or the `candidates` subcommand is
    absent) and present each pending candidate to the human with its scope,
@@ -153,7 +153,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
     pending.
 11. **If evolver bridge exists**: write execution results back to evolver state
 12. **Advance only when authorized** through `kbd-next-phase`. For a contract-bound phase that authorization is an operator-signed start-successor manifest (`kbd-next-phase.sh --authorize-successor <manifest> --signature <sig>`); closure alone never starts a successor, and reflection cannot supply that authority
-13. **Trigger**: `echo '[kbd] Reflection complete — advance to next phase with /kbd-new-phase'`
+13. Report the recorded disposition, task counts, and remaining work.
 
 ## Examples
 
@@ -164,61 +164,28 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 
 ## Hook integration
 
-`kbd-reflect` is the canonical *phase-end* boundary. After the
-reflection report is written, fire `reflect:after`, then immediately
-fire `phase:after` for the closing phase. `phase:before` for the *next*
-phase is fired by `kbd-new-phase` / `kbd-next-phase`, not here.
+From the consumer project, resolve the orchestrator relative to this skill.
+In a flat installation it is the sibling `kbd-process-orchestrator` directory.
+In a nested installation it is two directories above this skill. Set
+`KBD_ORCHESTRATOR_ROOT` to the directory containing `shared/lib/hooks.sh`.
+
+Before collecting prior context, source that library and run
+`kbd_hooks_fire reflect before "$phase" 1 1`. After writing the report, run:
 
 ```sh
-. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
-. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
-. "$KBD_ORCHESTRATOR_ROOT/shared/lib/bottleneck-guard.sh"
-
-kbd_hooks_fire reflect before "$phase" 1 1
-# … write reflection.md …
-kbd_hooks_fire reflect after  "$phase" 1 1
-bound="$(prometheus kbd --path . phase disposition --id "$phase" --json | jq -r '.contractBound')" || exit 1
-if [ "$bound" = "true" ]; then
-  # Contract-bound phase (issue #192): only the terminal evaluator closes it,
-  # against the bound contract snapshot. 0 = CLOSED (or identical no-op);
-  # 2/3 = BLOCKED/FAIL recorded, phase stays open; 5 = writer failed;
-  # 6 = already closed under other evidence. Report the disposition and stop.
-  bash "$PACK_ROOT/shared/scripts/kbd-phase-close-eval.sh" --phase "$phase" || exit $?
-else
-  export KBD_BOTTLENECK_PATH="${KBD_BOTTLENECK_PATH:-.}"
-  guard_enabled=0
-  if kbd_bottleneck_active; then
-    guard_enabled=1
-    kbd_bottleneck_evaluate phase after "$phase" 1 >/dev/null || exit 1
-  fi
-  prometheus kbd --path . phase transition \
-    --command-id "reflect-complete:$phase" \
-    --id "$phase" --status complete || exit 1
-  if [ "$guard_enabled" = "1" ]; then
-    kbd_bottleneck_evaluate phase after "$phase" 0 >/dev/null || exit 1
-  fi
-fi
-kbd_hooks_fire phase   after  "$phase" 1 1   # canonical phase-end boundary
+bash "<kbd-reflect skill directory>/scripts/finalize.sh" reflect "$phase"
 ```
 
-`$PACK_ROOT` is the package root (`kbd_package_root` from
-`shared/lib/package-root.sh`). A contract-bound phase is never moved to
-`complete` with `phase transition`; the runtime refuses that edge and only a
-PASS disposition closes it. Reflection text, review findings and the
-`## Next Phase Seed` are proposals: they never add requirements to this phase
-and never start a successor.
-
-Both phase guard evaluations and the phase transition (or, for a bound phase,
-the evaluator's CLOSED result) must succeed before `phase:after` fires. This ordering prevents a rejected or partial reflection
-from producing a completion memory record. `kbd-next-phase` reads canonical
-phase status and skips this terminal transition and completion hook when
-reflection has already completed the phase.
-
-See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.
+This command checks the reflection gate, delivers reflection writeback, and
+uses the typed evaluator for an open bound phase or the guarded transition for
+a legacy phase. A recorded terminal disposition delivers phase completion
+against the closing phase's identity. Hook status and retry history live beside
+the report. A failed auxiliary action can be retried by rerunning the command.
+A successor still requires its own authority.
 
 ## Stage gate & handoff
 
-The reflect gate requires the execute handoff. After the reflection report
+The ordinary reflect gate requires the execute handoff. Signed operator exits use the recorded terminal disposition when the predecessor work was withdrawn. After the reflection report
 is written (and passes the sycophancy gate), record the closing handoff —
 `kbd-next-phase` seeds the next phase from it plus `reflection.md`:
 

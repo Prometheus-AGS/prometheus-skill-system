@@ -47,6 +47,24 @@ export function resolvePhase(root, requested, waypoint, state) {
     if (matches.length !== 1) throw new Error(`phase ${phase} is unknown or ambiguous`);
     [phase] = matches;
   }
+  if (state) {
+    const slugs = [];
+    const visited = new Set();
+    let current = phase;
+    while (current) {
+      if (visited.has(current)) throw new Error('cyclic phase ancestry');
+      visited.add(current);
+      const entry = state.phases[current];
+      if (!entry) throw new Error(`unknown phase ancestor ${current}`);
+      slugs.unshift(safeId(entry.slug || current.split('::').at(-1), 'phase slug'));
+      current = entry.parentPhaseId;
+    }
+    // Legacy test and imported records can have no parent or slug metadata.
+    if (state.phases[phase].slug || state.phases[phase].parentPhaseId) {
+      return { phase, active, directory: path.join(root, '.kbd-orchestrator', 'phases',
+        ...slugs.flatMap((slug, i) => i ? ['children', slug] : [slug])) };
+    }
+  }
   return { phase, active, directory: phaseDirectory(root, phase) };
 }
 

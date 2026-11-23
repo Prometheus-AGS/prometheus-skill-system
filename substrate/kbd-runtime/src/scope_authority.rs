@@ -29,6 +29,7 @@ const MIN_REASON_CHARS: usize = 10;
 pub enum ScopeAction {
     AmendContract,
     StartSuccessor,
+    SupersedeExit,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -84,6 +85,18 @@ pub struct ScopeAuthorityManifest {
     pub successor_phase_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub successor_title: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bound_contract_digest: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub operator_decision: Option<crate::operator_exit::OperatorDecision>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub exercised: Option<Vec<crate::operator_exit::Exercised>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub withdrawn: Option<Vec<crate::operator_exit::Withdrawal>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub budget_accounting: Option<crate::operator_exit::BudgetAccounting>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limits: Option<Vec<String>>,
     pub reason: String,
     pub approver: String,
     pub timestamp: String,
@@ -129,9 +142,9 @@ fn is_digest(value: &str) -> bool {
 /// Parse a manifest and require it to be its own canonical form, so the
 /// bytes that were signed are the bytes every pack reproduces.
 pub fn parse_manifest(raw: &str) -> Result<ScopeAuthorityManifest> {
-    if !raw.bytes().all(|b| (0x20..0x7f).contains(&b)) {
+    if raw.chars().any(char::is_control) {
         return Err(authority_error(
-            "manifest must be printable ASCII canonical JSON with no line breaks",
+            "manifest must be printable canonical JSON with no line breaks",
         ));
     }
     let value: serde_json::Value = serde_json::from_str(raw)
@@ -177,7 +190,32 @@ fn validate_common_fields(manifest: &ScopeAuthorityManifest) -> Result<()> {
     if chrono::DateTime::parse_from_rfc3339(&manifest.timestamp).is_err() {
         return Err(authority_error("manifest timestamp must be RFC 3339"));
     }
+    if manifest.action != ScopeAction::SupersedeExit
+        && (manifest.bound_contract_digest.is_some()
+            || manifest.operator_decision.is_some()
+            || manifest.exercised.is_some()
+            || manifest.withdrawn.is_some()
+            || manifest.budget_accounting.is_some()
+            || manifest.limits.is_some())
+    {
+        return Err(authority_error("exit fields require action supersede-exit"));
+    }
     match manifest.action {
+        ScopeAction::SupersedeExit => {
+            if manifest.contract_path.is_some()
+                || manifest.previous_contract_digest.is_some()
+                || manifest.new_contract_digest.is_some()
+                || manifest.scenario_changes.is_some()
+                || manifest.predecessor_closure_key.is_some()
+                || manifest.successor_phase_id.is_some()
+                || manifest.successor_title.is_some()
+            {
+                return Err(authority_error(
+                    "supersede-exit cannot amend a contract or start a successor",
+                ));
+            }
+            crate::operator_exit::validate_shape(manifest)?;
+        }
         ScopeAction::AmendContract => {
             let digests = [
                 manifest.previous_contract_digest.as_deref(),

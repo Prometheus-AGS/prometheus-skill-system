@@ -69,3 +69,21 @@ the final gate, then restart sessions whose hook configuration was loaded earlie
 See [Service operations](26-service-operations.md) for log and service ownership.
 
 *Previous: [Rust Toolchain](14-rust-toolchain.md) · Next: [CLI & Scripts](16-cli-and-scripts.md)*
+
+## Operator-decided phase exit
+
+For a contract-bound phase, prepare a JSON details file with the operator's decision-log reference and verbatim text in `operatorDecision`, the scenarios actually `exercised` with verdicts and evidence file hashes, the `withdrawn` scenario and scope IDs and their issue or successor destinations, `budgetAccounting`, and the explicit `limits` of the evidence. The template checks these details against the live phase before it offers the signing command.
+
+```bash
+bash shared/scripts/kbd-scope-authority-template.sh supersede-exit \
+  --phase "$phase" --details exit-details.json --approver "$principal" \
+  --reason "$reason" > exit-manifest.json
+# The operator signs exit-manifest.json with the command printed by the template.
+bash shared/scripts/kbd-phase-close-eval.sh --phase "$phase" \
+  --superseded exit-manifest.json --signature exit-manifest.json.sig
+prometheus kbd phase disposition --id "$phase" --json
+```
+
+An exercised exit records `CLOSED_SUPERSEDED`. An empty exercised list records `CLOSED_UNMET`. The closure packet preserves the verdict for each exercised scenario, each withdrawal and destination, and the limits of the operator's claim. Starting a successor uses the existing signed `start-successor` action.
+
+To recover a stale lock-probe classification, run `prometheus kbd replicas --reprobe` from the checkout in a writable terminal. To select another registered replica of the same project, add `--replica <id>`. The diagnostic identifies the volume and probe path. Bare, CI, mobile, and recovered replicas retain their observation-only policy.

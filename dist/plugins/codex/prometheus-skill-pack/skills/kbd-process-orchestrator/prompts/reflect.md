@@ -6,6 +6,13 @@ You are executing the **Reflect** phase of the KBD lifecycle for the **current p
 
 ## Goal
 
+Read the canonical phase disposition before interpreting evidence. For
+`CLOSED_SUPERSEDED` or `CLOSED_UNMET`, use the recorded operator exit to
+populate the goal table with exercised verdicts, evidence, withdrawals and
+destinations. Include the decision, budget accounting and stated limits.
+List every withdrawal with its destination in Next Phase Seed. Use task counts
+from `kbd-apply reconcile <phase> --json` and disclose projection drift.
+
 Generate a complete phase reflection report that:
 
 1. Measures goal achievement honestly, including cross-tool contributions

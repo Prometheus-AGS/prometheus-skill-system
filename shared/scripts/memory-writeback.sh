@@ -35,9 +35,16 @@ else
 fi
 hook_log_start "PostToolUse" "memory-writeback.sh"
 finish() { hook_log_end 0; exit 0; }
-command -v python3 >/dev/null 2>&1 || finish
+required() {
+  if [ -n "${KBD_HOOK_DELIVERY_KEY:-}" ]; then
+    echo "[memory-writeback] $1" >&2
+    exit 1
+  fi
+  finish
+}
+command -v python3 >/dev/null 2>&1 || required "python3 unavailable"
 LW="$HERE/lib/learning_write.py"
-[ -f "$LW" ] || finish
+[ -f "$LW" ] || required "missing learning writer $LW"
 
 # Resolve the reflection.md to persist.
 REFLECTION=""
@@ -67,7 +74,16 @@ _root() {
   done
   return 1
 }
-ROOT="$(_root)" || finish
+ROOT="$(_root)" || required "project root unavailable"
+if [ -n "${KBD_HOOK_PHASE_DIR:-}" ]; then REFLECTION="$KBD_HOOK_PHASE_DIR/reflection.md"; fi
+
+# The runtime finalizer checks the owning phase and its canonical review
+# blockers. A raw Write/Edit notification can arrive before that decision.
+if [ -n "$REFLECTION" ] && [ -z "${KBD_HOOK_DELIVERY_KEY:-}" ] &&
+  python3 -c 'import json,sys; sys.exit(json.load(open(sys.argv[1])).get("generatedBy") != "kbd-runtime")' \
+    "$ROOT/.kbd-orchestrator/current-waypoint.json" 2>/dev/null; then
+  finish
+fi
 
 # Orchestrator-action path: resolve the active phase's reflection.md.
 if [ -z "$REFLECTION" ]; then
@@ -78,7 +94,7 @@ if [ -z "$REFLECTION" ]; then
   REFLECTION="$ROOT/.kbd-orchestrator/phases/$PHASE/reflection.md"
 fi
 case "$REFLECTION" in /*) ;; *) REFLECTION="$PWD/$REFLECTION" ;; esac
-[ -f "$REFLECTION" ] || finish
+[ -f "$REFLECTION" ] || required "missing reflection $REFLECTION"
 
 # Gate: never persist a rejected reflection.
 PROGRESS="$(dirname "$REFLECTION")/progress.json"
@@ -86,11 +102,11 @@ if [ -f "$PROGRESS" ]; then
   GATE="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("reflect_gate") or "")' "$PROGRESS" 2>/dev/null || true)"
   if [ "$GATE" = "rejected" ]; then
     echo "[memory-writeback] skip: reflect_gate=rejected — not persisting" >&2
-    finish
+    required "reflection rejected"
   fi
 fi
 
-python3 -B - "$REFLECTION" "$LW" "$ROOT" <<'PY' >/dev/null 2>"${TMPDIR:-/tmp}/memory-writeback.$$.err" || true
+python3 -B - "$REFLECTION" "$LW" "$ROOT" <<'PY' >/dev/null 2>"${TMPDIR:-/tmp}/memory-writeback.$$.err"
 import hashlib, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
@@ -99,7 +115,7 @@ sys.path.insert(0, str(lw_path.parent))
 import learning_write  # noqa: E402
 
 text = reflection.read_text(encoding="utf-8", errors="replace")
-phase = reflection.parent.name
+phase = os.environ.get("KBD_HOOK_PHASE_ID") or reflection.parent.name
 
 
 def section(*names):
@@ -162,6 +178,8 @@ for body, visibility, kind, importance in records:
         continue
     result = learning_write.write_lesson(body, {}, cwd=root, kind=kind, visibility=visibility,
                                          stage="reflect", importance=importance)
+    if not result.get("written") and not result.get("duplicate"):
+        raise RuntimeError(f"could not persist reflection record for {phase}")
     if result.get("written") or result.get("duplicate"):
         done.add(digest)
         with open(ledger, "a", encoding="utf-8") as handle:
@@ -200,7 +218,9 @@ if jobs:
         pass
 print(f"[memory-writeback] persisted {written} record(s) from {phase}", file=sys.stderr)
 PY
+rc=$?
 ERR="${TMPDIR:-/tmp}/memory-writeback.$$.err"
 if [ -s "$ERR" ]; then grep -E '^\[memory-writeback\]' "$ERR" >&2 || true; fi
 rm -f "$ERR"
+[ "$rc" -eq 0 ] || required "learning writer failed (exit $rc)"
 finish

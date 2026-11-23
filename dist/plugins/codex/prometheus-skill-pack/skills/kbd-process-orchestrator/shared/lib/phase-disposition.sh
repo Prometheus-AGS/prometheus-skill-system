@@ -29,7 +29,11 @@ kbd_phase_disposition() { # <root> <phase>
   json="$(kbd_phase_disposition_json "$1" "$2")" || return 1
   token="$(printf '%s' "$json" | jq -r '.disposition // empty')"
   case "$token" in
-    UNBOUND|OPEN|CLOSED|REFUSED_BLOCKED|REFUSED_FAIL) printf '%s\n' "$token" ;;
+    UNBOUND|OPEN|CLOSED|CLOSED_SUPERSEDED|CLOSED_UNMET|REFUSED_BLOCKED|REFUSED_FAIL) printf '%s\n' "$token" ;;
     *) return 1 ;;
   esac
+}
+
+kbd_phase_terminal() {
+  case "$1" in CLOSED|CLOSED_SUPERSEDED|CLOSED_UNMET) return 0 ;; *) return 1 ;; esac
 }

@@ -20,6 +20,7 @@ use project_document::ProjectDocument;
 mod authority;
 pub mod change_identity;
 pub mod evidence_admission;
+pub mod operator_exit;
 pub mod phase_closure;
 pub mod project_document;
 pub mod registry;
@@ -1679,6 +1680,10 @@ pub enum CommandKind {
         phase_id: String,
         closure: PhaseCloseInput,
     },
+    PhaseSupersedeExit {
+        phase_id: String,
+        authority: ScopeAuthorityInput,
+    },
     PhaseSuccessorStart {
         predecessor_phase_id: String,
         successor_phase_id: String,
@@ -1711,6 +1716,7 @@ impl ProjectionScope {
             | CommandKind::TaskRegister { phase_id, .. }
             | CommandKind::TaskTransition { phase_id, .. }
             | CommandKind::PhaseContractBind { phase_id, .. }
+            | CommandKind::PhaseSupersedeExit { phase_id, .. }
             | CommandKind::PhaseClose { phase_id, .. } => Some(phase_id.as_str()),
             CommandKind::PhaseSuccessorStart { .. } => return Self::AllPhases,
             CommandKind::BoundaryReceiptRecord { receipt } => receipt.phase_id.as_deref(),
@@ -3463,6 +3469,12 @@ impl Runtime {
                     project_root.display()
                 ))
             })?;
+        if registration.project_id != manifest.project_id {
+            return Err(RuntimeError::ProjectMismatch {
+                supplied: manifest.project_id,
+                current: registration.project_id,
+            });
+        }
         Ok(Self {
             root: canonical_runtime_root(&manifest.project_id),
             project_root,
@@ -4721,6 +4733,10 @@ impl Runtime {
                 actual: state.revision,
             });
         }
+        if matches!(&kind, EventKind::PhaseDispositionRecorded { closure, .. }
+            if closure.input.disposition.is_operator_exit()) {
+            return Err(RuntimeError::ScopeAuthority("operator exit requires the signed phase close command".into()));
+        }
         if let EventKind::ChangeRegistered { phase_id, change } = &kind {
             change_identity::admit_registration(&state, phase_id, change)?;
         }
@@ -4733,6 +4749,9 @@ impl Runtime {
     /// place the evidence sources and the bound contract snapshot are read.
     /// The reducer never reads files.
     fn admit_close_evidence(&self, state: &KbdStateV2, command: &CommandKind) -> Result<()> {
+        if let CommandKind::PhaseSupersedeExit { phase_id, authority } = command {
+            return operator_exit::validate_exit(state, phase_id, &authority.manifest_raw, &self.project_root);
+        }
         let CommandKind::PhaseClose { phase_id, closure } = command else {
             return Ok(());
         };
@@ -4932,7 +4951,7 @@ impl Runtime {
         if self.read_only {
             return Err(RuntimeError::ReplicaReadOnly {
                 replica_id: self.replica_id.clone(),
-                reason: "registry classification forbids authoritative writes".into(),
+                reason: "registry classification forbids authoritative writes; inspect with prometheus kbd replicas and retry a lock probe with prometheus kbd replicas --reprobe".into(),
             });
         }
         Ok(())
@@ -8040,6 +8059,10 @@ pub fn prepare_host_signed_event(
     validate_command_frontier(state, &envelope)?;
     validate_claim_write(state, &envelope.actor, &envelope.command)?;
     validate_replica_write_state(state, &envelope.actor, &envelope.command)?;
+    if let CommandKind::PhaseSupersedeExit { phase_id, .. } = &envelope.command {
+        return Err(RuntimeError::PhaseCloseRefused { phase_id: phase_id.clone(),
+            reason: "supersede-exit requires a host with the bound snapshot and evidence".into() });
+    }
     // A filesystem-free replica cannot hash the evidence sources, so it
     // cannot admit a PASS closure.
     if let CommandKind::PhaseClose { phase_id, closure } = &envelope.command {
@@ -8326,7 +8349,8 @@ fn command_scope(command: &CommandKind) -> Option<String> {
         CommandKind::GateFinish { receipt } => format!("gate:{}", receipt.scope),
         CommandKind::SubmodulePinSet { pin } => format!("submodule:{}", pin.path),
         CommandKind::PhaseContractBind { phase_id, .. }
-        | CommandKind::PhaseClose { phase_id, .. } => format!("phase:{phase_id}"),
+        | CommandKind::PhaseSupersedeExit { phase_id, .. }
+            | CommandKind::PhaseClose { phase_id, .. } => format!("phase:{phase_id}"),
         CommandKind::PhaseSuccessorStart {
             predecessor_phase_id,
             ..
@@ -8795,6 +8819,9 @@ fn prepare_command_event(
             binding,
             authority,
         } => phase_closure::prepare_bind(state, phase_id, binding, authority.as_ref())?,
+        CommandKind::PhaseSupersedeExit { phase_id, authority } => {
+            operator_exit::prepare(state, phase_id, authority)?
+        }
         CommandKind::PhaseClose { phase_id, closure } => {
             phase_closure::prepare_close(state, phase_id, closure)?
         }

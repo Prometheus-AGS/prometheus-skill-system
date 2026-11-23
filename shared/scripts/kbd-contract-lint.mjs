@@ -47,6 +47,31 @@ const VERDICTS = ['PASS', 'FAIL', 'BLOCKED', 'NOT_EXERCISED'];
 for (const s of scenarios)
   if (!ID.test(s.id ?? '')) add('scenario-id', `${s.id ?? '<missing>'} does not match ${ID}`);
 
+// A canonical status snapshot is authoritative even before a phase registers its
+// first task. Offline draft lint can still validate the document alone.
+if (status && (v2 || args.includes('--require-owners'))) {
+  const phaseId = contract.identity?.phaseId;
+  const phase = status.phases?.[phaseId];
+  const owners = new Map();
+  for (const [changeId, change] of Object.entries(phase?.changes ?? {})) {
+    for (const task of Object.values(change.tasks ?? {})) {
+      if (!task?.id) continue;
+      owners.set(task.id, (owners.get(task.id) ?? 0) + 1);
+      owners.set(`${changeId}/${task.id}`, 1);
+    }
+  }
+  for (const scenario of scenarios) {
+    for (const ref of String(scenario.ownerTask ?? '').split('+')) {
+      const owner = ref.trim();
+      const count = owners.get(owner) ?? 0;
+      if (count === 0)
+        add('owner-task', `${scenario.id}: ownerTask ${owner || '<empty>'} is not a registered task of phase ${phaseId}`);
+      else if (count > 1)
+        add('owner-task', `${scenario.id}: ownerTask ${owner} is ambiguous in phase ${phaseId}; qualify it with its change ID`);
+    }
+  }
+}
+
 // The remaining checks are new in version 2; a bound v1 contract keeps the rules
 // it was adopted under until its phase closes.
 if (v2) {
@@ -65,32 +90,6 @@ if (v2) {
         walk(v, `${where}.${k}`);
       }
   })(contract, 'contract');
-
-  // ownerTask must exist in the canonical task surface once tasks are registered.
-  if (status) {
-    const phase = status.phases?.[contract.identity?.phaseId];
-    const tasks = new Set();
-    for (const [changeId, change] of Object.entries(phase?.changes ?? {})) {
-      const list = Array.isArray(change.tasks) ? change.tasks : Object.values(change.tasks ?? {});
-      for (const task of list)
-        if (task?.id) {
-          tasks.add(task.id);
-          tasks.add(`${changeId}/${task.id}`);
-        }
-    }
-    if (tasks.size)
-      for (const s of scenarios)
-        for (const task of String(s.ownerTask ?? '')
-          .split('+')
-          .map(t => t.trim())
-          .filter(Boolean)) {
-          if (!tasks.has(task))
-            add(
-              'owner-task',
-              `${s.id}: ownerTask ${task} is not a registered task of phase ${contract.identity?.phaseId}`
-            );
-        }
-  }
 
   // Unresolved CRITICAL review findings on acceptance content block adoption (CR-30, FR-C6).
   if (reviewUnreadable) add('review-unreadable', `${reviewPath} exists but is not valid findings JSON (findings[]); fix it before adoption`);

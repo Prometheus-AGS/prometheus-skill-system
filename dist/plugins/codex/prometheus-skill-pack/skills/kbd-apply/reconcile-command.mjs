@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runReconcile } from './reconcile.mjs';
@@ -36,6 +37,47 @@ const adapters = {
     if (!['in-progress', 'in_progress'].includes(status)) call('begin-task');
     status = check();
     if (!complete(status)) call('end-task');
+  },
+  repairViews(context, ambiguousChanges) {
+    const { root, phase, state, checkboxRepairs, artifacts } = context;
+    const assertCurrent = () => {
+      const current = readReconcileState(root).state;
+      if (current.activePath?.phaseId !== phase || current.revision !== state.revision) {
+        throw new Error('canonical state changed during projection repair; rerun reconcile');
+      }
+    };
+    const changes = new Set(checkboxRepairs.map(task => task.change));
+    for (const change of changes) {
+      if (ambiguousChanges.has(change)) continue;
+      const file = path.join(artifacts[change].directory, 'tasks.md');
+      if (!fs.lstatSync(file).isFile() || fs.realpathSync(file) !== path.join(fs.realpathSync(root), path.relative(root, file))) {
+        throw new Error(`refusing to edit redirected OpenSpec artifact ${file}`);
+      }
+      const original = fs.readFileSync(file, 'utf8');
+      const corrections = new Map(checkboxRepairs.filter(task => task.change === change)
+        .map(task => [task.sequence, task.title]));
+      let ordinal = 0;
+      // Operate on checkbox lines only. Preserve comments, text, CRLF and mode.
+      const updated = original.replace(/^([ \t]*[-*][ \t]*\[)([^\]\r\n]*)(\][ \t]*)([^\r\n]*)/gm,
+        (line, start, mark, end, title) => {
+          const expected = corrections.get(++ordinal);
+          if (!expected) return line;
+          if (title.trim() !== expected || !['', 'x'].includes(mark.trim().toLowerCase())) {
+            throw new Error(`task identity changed in ${file} at checkbox ${ordinal}`);
+          }
+          corrections.delete(ordinal);
+          return start + 'x' + end + title;
+        });
+      if (corrections.size) throw new Error(`task order changed in ${file}`);
+      if (updated === original) continue;
+      assertCurrent();
+      const temporary = `${file}.${randomUUID()}.tmp`;
+      try {
+        fs.writeFileSync(temporary, updated, { flag: 'wx', mode: fs.statSync(file).mode });
+        if (fs.readFileSync(file, 'utf8') !== original) throw new Error(`concurrent edit in ${file}; rerun reconcile`);
+        fs.renameSync(temporary, file);
+      } finally { fs.rmSync(temporary, { force: true }); }
+    }
   },
   repairCounts(context, rows) {
     const current = JSON.parse(fs.readFileSync(path.join(context.root, '.kbd-orchestrator/current-waypoint.json'), 'utf8'));

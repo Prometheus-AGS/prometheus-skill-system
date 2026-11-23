@@ -84,7 +84,7 @@ Emit to plain response text — no tool call needed.
 
 ## Prerequisites
 
-- Contract-bound phase: CLOSED in canonical state plus a signed
+- Contract-bound phase: CLOSED, CLOSED_SUPERSEDED, or CLOSED_UNMET in canonical state plus a signed
   start-successor manifest (refused otherwise)
 - Unbound phase: `kbd-reflect` must have completed and the operator must have
   explicitly authorized the next scope; otherwise stop and ask (never continue
@@ -96,7 +96,7 @@ Emit to plain response text — no tool call needed.
 
 1. **Read current waypoint** — confirm current phase name and stage
 2. **Check the disposition** — `prometheus kbd phase disposition --id <phase>`;
-   for a bound phase stop unless it is `CLOSED` and the operator supplied a
+   for a bound phase stop unless its disposition is terminal and the operator supplied a
    signed manifest. Never write or sign the manifest yourself.
 3. **Run the bundled `scripts/kbd-next-phase.sh`** — resolve it relative to this
    `SKILL.md` and pass `$ARGUMENTS` as the optional phase name, plus
@@ -117,18 +117,9 @@ Emit to plain response text — no tool call needed.
 
 ## Hook integration
 
-`kbd-next-phase` is the canonical phase-bracket transition. It MUST
-fire `phase:before` for the new phase exactly once, after the new phase
-directory is created and `current-waypoint.json` is flipped to it. (The
-*closing* `phase:after` is the responsibility of `kbd-reflect`, which
-fires it for the previous phase before this skill is invoked.)
-
-```sh
-. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
-. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
-
-# … seed new phase from previous reflection, flip waypoint …
-kbd_hooks_fire phase before "$new_phase_name" 1 1
-```
+The bundled transition fires `phase:before` once the successor is active.
+A bound predecessor's evaluator delivers its completion hook. Starting the
+successor consumes its own signed authorization. Signed withdrawals assigned
+to the successor appear in its goals as proposals.
 
 See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.

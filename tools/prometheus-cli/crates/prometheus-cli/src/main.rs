@@ -376,6 +376,11 @@ enum KbdAction {
     Replicas {
         #[arg(long)]
         project_id: Option<String>,
+        /// Recheck locking for the current checkout, or the named replica of this project
+        #[arg(long)]
+        reprobe: bool,
+        #[arg(long, requires = "reprobe")]
+        replica: Option<String>,
         #[arg(long)]
         json: bool,
     },
@@ -800,12 +805,23 @@ enum KbdPhaseAction {
         id: String,
         #[arg(long)]
         evidence_file: Option<PathBuf>,
+        #[arg(long, requires = "signature", conflicts_with = "evidence_file")]
+        manifest: Option<PathBuf>,
+        #[arg(long, requires = "manifest")]
+        signature: Option<PathBuf>,
         #[arg(long, value_enum)]
         disposition: KbdPhaseDisposition,
         #[arg(long)]
         reason_code: Option<String>,
     },
-    /// Print the canonical disposition (UNBOUND, OPEN, CLOSED, REFUSED_BLOCKED, REFUSED_FAIL)
+    /// Validate an unsigned operator-exit manifest against current evidence before signing
+    ValidateExit {
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        manifest: PathBuf,
+    },
+    /// Print the canonical phase disposition, including operator-decided terminal outcomes
     Disposition {
         #[arg(long)]
         id: String,
@@ -843,6 +859,7 @@ enum KbdSuccessorAction {
 
 #[derive(Clone, clap::ValueEnum)]
 enum KbdPhaseDisposition {
+    Superseded,
     Pass,
     Fail,
     Blocked,
@@ -851,6 +868,7 @@ enum KbdPhaseDisposition {
 impl From<KbdPhaseDisposition> for kbd_runtime::PhaseDisposition {
     fn from(value: KbdPhaseDisposition) -> Self {
         match value {
+            KbdPhaseDisposition::Superseded => Self::Superseded,
             KbdPhaseDisposition::Pass => Self::Pass,
             KbdPhaseDisposition::Fail => Self::Fail,
             KbdPhaseDisposition::Blocked => Self::Blocked,
@@ -1124,8 +1142,8 @@ async fn run() -> Result<()> {
                     apply,
                 },
                 KbdAction::Register { path } => commands::kbd::Action::Register { path },
-                KbdAction::Replicas { project_id, json } => {
-                    commands::kbd::Action::Replicas { project_id, json }
+                KbdAction::Replicas { project_id, json, reprobe, replica } => {
+                    commands::kbd::Action::Replicas { project_id, json, reprobe, replica }
                 }
                 KbdAction::Adopt {
                     path,
@@ -1350,6 +1368,8 @@ async fn run() -> Result<()> {
                         command_id,
                         id,
                         evidence_file,
+                        manifest,
+                        signature,
                         disposition,
                         reason_code,
                     } => commands::kbd::Action::PhaseClosure(
@@ -1357,10 +1377,16 @@ async fn run() -> Result<()> {
                             command_id,
                             phase_id: id,
                             evidence_file,
+                            manifest,
+                            signature,
                             disposition: disposition.into(),
                             reason_code,
                         },
                     ),
+                    KbdPhaseAction::ValidateExit { id, manifest } =>
+                        commands::kbd::Action::PhaseClosure(commands::kbd::PhaseClosureAction::ValidateExit {
+                            phase_id: id, manifest,
+                        }),
                     KbdPhaseAction::Disposition { id, json } => {
                         commands::kbd::Action::PhaseClosure(
                             commands::kbd::PhaseClosureAction::Disposition { phase_id: id, json },

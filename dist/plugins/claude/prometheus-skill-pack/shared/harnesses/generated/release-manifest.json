@@ -208,17 +208,17 @@
     },
     {
       "path": "shared/scripts/kbd-closure-packet.mjs",
-      "sha256": "eca555fd84de9d2486f1c64249e6b3e8a003c3a18e332c8fb4f6103590e72a1a",
+      "sha256": "ff4171d87ae81b13386b88efbc22d5642230f20ef0ade68d1c48e3c8772b18c0",
       "executable": false
     },
     {
       "path": "shared/scripts/kbd-contract-adopt.sh",
-      "sha256": "6af92e33d2e98dee6b770effce5b887106ccd13ed6ddc1ca5b977db916b3b413",
+      "sha256": "dd878aa1a972e0866d95196298a0a2d382dbea3aacdd252f364ed413683e552a",
       "executable": true
     },
     {
       "path": "shared/scripts/kbd-contract-lint.mjs",
-      "sha256": "404ae389478d2c45c147d8f8044c5299e067b4dd17ff6f40f5b5636ae134ce74",
+      "sha256": "3f9fe529c6bb537d4fae7080101a9f6bb4c551f193e75c032424a90f47530cbf",
       "executable": false
     },
     {
@@ -238,7 +238,7 @@
     },
     {
       "path": "shared/scripts/kbd-phase-close-eval.sh",
-      "sha256": "e5b7d9e2f20a5b2352b877271b576b9cd5b9ef45de7481e17068a02320f7f403",
+      "sha256": "9f16387cc8a627ac9ae87deb61bfcb0aae3794236f17fd9e5a37415c6e645a1c",
       "executable": true
     },
     {
@@ -253,7 +253,7 @@
     },
     {
       "path": "shared/scripts/kbd-scope-authority-template.sh",
-      "sha256": "4b340a829615e8e013112b8c5db4d46aa66718acd31061f84542210e8495fd01",
+      "sha256": "f8d6c6cb9d6d3ff8690f84068849e0f7e4d58e7f50b426873a5ba402976cf9ce",
       "executable": true
     },
     {
@@ -378,7 +378,7 @@
     },
     {
       "path": "shared/scripts/memory-writeback.sh",
-      "sha256": "3b5e7455ff4e26efbdf09dc71e1491faba27017255e2c7e797a745bf58d127e0",
+      "sha256": "413adf7d2cfec163c8a4d38652f631f4d83dc8bd71404bf92ac06594e04e5d8c",
       "executable": true
     },
     {
@@ -577,5 +577,5 @@
       "executable": true
     }
   ],
-  "bundleId": "bb22609af918d5c7c5fee79e1ba9f04505763a2e563cdb43068f035f41599dfe"
+  "bundleId": "736fc01c97aeb8620870c85c2b622842dc21a49dbe09721fc79f107b5650e2c7"
 }

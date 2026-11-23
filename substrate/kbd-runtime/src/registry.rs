@@ -325,12 +325,9 @@ impl ProjectRegistry {
     }
 
     pub fn load(&self) -> Result<RegistryDocument> {
-        fs::create_dir_all(&self.root)?;
-        let lock = self.open_lock()?;
-        lock.lock_exclusive()?;
-        let result = self.load_or_create_locked();
-        FileExt::unlock(&lock)?;
-        result
+        // Writers replace registry.json atomically. Reading one published inode
+        // requires neither a probe nor a writable lock file.
+        self.read_existing()
     }
 
     /// Inventory replica registrations whose recorded paths do not exist.
@@ -346,7 +343,7 @@ impl ProjectRegistry {
         let result = (|| {
             let registry_path = self.registry_path();
             let (mut candidates, retained_registrations) = if registry_path.exists() {
-                let document = self.load_existing_locked()?;
+                let document = self.read_existing()?;
                 let retained_registrations = document.replicas.len();
                 (missing_registrations(&document)?, retained_registrations)
             } else {
@@ -401,7 +398,7 @@ impl ProjectRegistry {
                 });
             }
 
-            let mut document = self.load_existing_locked()?;
+            let mut document = self.read_existing()?;
             let mut candidates = missing_registrations(&document)?;
             candidates.sort_by(|left, right| left.path.cmp(&right.path));
             if candidates.is_empty() {
@@ -554,7 +551,7 @@ impl ProjectRegistry {
                 canonical.display()
             ))
         })?;
-        let evidence = inspect_replica(&canonical, &manifest, forced_kind, &self.root)?;
+        let evidence = inspect_replica(&canonical, forced_kind, &self.root)?;
 
         fs::create_dir_all(&self.root)?;
         let lock = self.open_lock()?;
@@ -581,7 +578,8 @@ impl ProjectRegistry {
                 .map(|registration| registration.registered_at)
                 .unwrap_or(now);
             let protected = existing.as_ref().filter(|registration| {
-                registration.read_only
+                (registration.read_only
+                    && !registration.read_only_reason.as_deref().is_some_and(is_probe_denial))
                     || matches!(
                         registration.kind,
                         ReplicaKind::Bare
@@ -658,7 +656,7 @@ impl ProjectRegistry {
         let lock = self.open_lock()?;
         lock.lock_shared()?;
         let result = (|| {
-            let document = self.load_existing_locked()?;
+            let document = self.read_existing()?;
             self.adoption_plan_locked(&document, &source_path, &source_manifest, into_project_id)
         })();
         FileExt::unlock(&lock)?;
@@ -686,6 +684,7 @@ impl ProjectRegistry {
                 source_path.display()
             ))
         })?;
+        let evidence = inspect_replica(&source_path, None, &self.root)?;
         fs::create_dir_all(&self.root)?;
         let lock = self.open_lock()?;
         lock.lock_exclusive()?;
@@ -783,7 +782,6 @@ impl ProjectRegistry {
 
             let source_key = path_key(&source_path)?;
             let now = Utc::now();
-            let evidence = inspect_replica(&source_path, &adopted_manifest, None, &self.root)?;
             let parent = resolve_parent_replica(&evidence.parent, &document);
             let registration = ReplicaRegistration {
                 project_id: into_project_id.into(),
@@ -850,7 +848,7 @@ impl ProjectRegistry {
             .open(self.lock_path())?)
     }
 
-    fn load_existing_locked(&self) -> Result<RegistryDocument> {
+    fn read_existing(&self) -> Result<RegistryDocument> {
         let path = self.registry_path();
         if !path.exists() {
             return Err(RuntimeError::InvalidState(
@@ -893,10 +891,10 @@ impl ProjectRegistry {
                 })?;
         let source_key = path_key(source_path)?;
         let source_registration = document.replicas.get(&source_key);
-        let evidence = inspect_replica(source_path, source_manifest, None, &self.root)?;
+        let (source_kind, _) = replica_kind(source_path, None);
         let source_events = read_events(&self.project_events_path(&source_manifest.project_id))?;
         let mut warnings = Vec::new();
-        if evidence.kind == ReplicaKind::Standalone && target.kind == ReplicaKind::Standalone {
+        if source_kind == ReplicaKind::Standalone && target.kind == ReplicaKind::Standalone {
             warnings.push(
                 "both source and target are standalone checkouts; no authority winner is inferred"
                     .into(),
@@ -924,7 +922,7 @@ impl ProjectRegistry {
                 .map(|event| event.integrity_hash.clone())
                 .collect(),
             backup_root: path_key(&backup_root)?,
-            source_kind: evidence.kind,
+            source_kind,
             target_kind: target.kind.clone(),
             warnings,
         })
@@ -1015,7 +1013,7 @@ pub fn probe_flock_exclusion(probe_root: &Path) -> Result<FlockProbe> {
         Err(error) => {
             return Ok(FlockProbe::Unavailable {
                 child_pid: None,
-                reason: format!("cannot create lock probe file: {error}"),
+                reason: format!("cannot create lock probe file {}: {error}", path.display()),
             })
         }
     };
@@ -1118,12 +1116,11 @@ struct ReplicaEvidence {
     read_only_reason: Option<String>,
 }
 
-fn inspect_replica(
-    path: &Path,
-    _manifest: &ProjectManifest,
-    forced_kind: Option<ReplicaKind>,
-    probe_root: &Path,
-) -> Result<ReplicaEvidence> {
+fn is_probe_denial(reason: &str) -> bool {
+    reason.starts_with("cross-process flock exclusion could not be proven:")
+}
+
+fn replica_kind(path: &Path, forced_kind: Option<ReplicaKind>) -> (ReplicaKind, Option<String>) {
     let bare = git_output(path, &["rev-parse", "--is-bare-repository"]).as_deref() == Some("true");
     let superproject = git_output(path, &["rev-parse", "--show-superproject-working-tree"])
         .filter(|value| !value.is_empty());
@@ -1145,6 +1142,15 @@ fn inspect_replica(
             ReplicaKind::Standalone
         }
     });
+    (kind, superproject)
+}
+
+fn inspect_replica(
+    path: &Path,
+    forced_kind: Option<ReplicaKind>,
+    probe_root: &Path,
+) -> Result<ReplicaEvidence> {
+    let (kind, superproject) = replica_kind(path, forced_kind);
     let parent = superproject.and_then(|parent| {
         let parent = canonical_existing_path(Path::new(&parent)).ok()?;
         let project_id = read_project_manifest(&parent)
@@ -1158,6 +1164,7 @@ fn inspect_replica(
         })
     });
     let (read_only, read_only_reason) = match kind {
+        ReplicaKind::Mobile => (true, Some("mobile replicas are observation-only".into())),
         ReplicaKind::Bare => (
             true,
             Some("bare replicas do not have a writable worktree".into()),
@@ -1184,9 +1191,9 @@ fn inspect_replica(
                     .find_map(|(label, root)| match probe_flock_exclusion(&root) {
                         Ok(FlockProbe::Proven { .. }) => None,
                         Ok(FlockProbe::Unavailable { reason, .. }) => {
-                            Some(format!("{label}: {reason}"))
+                            Some(format!("{label} ({}): {reason}", root.display()))
                         }
-                        Err(error) => Some(format!("{label}: {error}")),
+                        Err(error) => Some(format!("{label} ({}): {error}", root.display())),
                     });
             match unavailable {
                 None => (false, None),
@@ -1199,6 +1206,12 @@ fn inspect_replica(
             }
         }
     };
+    if let Some(reason) = read_only_reason.as_deref().filter(|reason| is_probe_denial(reason)) {
+        return Err(RuntimeError::InvalidState(format!(
+            "write refused at {}: {reason}. Retry from a writable process with prometheus kbd replicas --reprobe",
+            path.display()
+        )));
+    }
     Ok(ReplicaEvidence {
         kind,
         parent,

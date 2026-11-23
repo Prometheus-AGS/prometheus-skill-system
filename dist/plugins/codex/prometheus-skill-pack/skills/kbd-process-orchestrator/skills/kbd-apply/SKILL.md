@@ -132,7 +132,10 @@ ledger agree. Inputs are read-only: canonical authority replayed by the installe
 
 Exit **0** means the complete scan is clean; **1** means drift; **2** means invalid input or incomplete inspection. JSON preserves `phase`, `clean`, `drifted`, `drift` and adds `errors`; diagnostics stay off JSON stdout. Never infer clean from missing files, unavailable runtime state, or a failed scan.
 
-Drift includes backend-ahead, ledger-ahead, unmappable or ledger-only identities, cancellations, archived discrepancies, and projection counts. `--repair` requires the selected phase to be active and only closes unambiguous, active backend-complete tasks through canonical boundaries. It preserves cancellations and archived history, stops after a failed transition, and rescans actual state. Legacy progress counts may be repaired; runtime-owned projections cannot be edited directly. Repeat repair is idempotent. The default selects the actual active nested phase; an explicit phase selects that phase's changes.
+Drift includes backend-ahead, ledger-ahead, unmappable or ledger-only identities, cancellations, archived discrepancies, and projection counts. `--repair` requires the selected phase to be active and closes unambiguous, active backend-complete tasks through canonical boundaries.
+For active OpenSpec tasks whose unique title and canonical identity agree, it
+also sets an unchecked box when the runtime has already recorded completion.
+The JSON report returns separate runtime, projection and backend task counts. It preserves cancellations and archived history, stops after a failed transition, and rescans actual state. Legacy progress counts may be repaired; runtime-owned projections cannot be edited directly. Repeat repair is idempotent. The default selects the actual active nested phase; an explicit phase selects that phase's changes.
 
 Run reconciliation before Reflect and at delivery-cadence refresh boundaries.
 
