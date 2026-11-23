@@ -66,6 +66,25 @@ with its agreed plausible false positive. Earlier failures, consumed budget and
 unknown effects are kept. After a failure the authorized repair is a complete
 implementation batch followed by the smallest confirming run, with lineage kept.
 
+## Worked example — changing the default provider in Settings
+
+In a disposable Settings pilot, the browser saved a new default and showed it after reload. The service also reported the new value as saved and effective. The next browser conversation returned HTTP 401 before either synthetic provider saw the request. These observations answer two different questions. The operator could see that the value persisted. With an admitted principal and verified synthetic models, the observer saw provider A serve a marked turn before the switch and provider B serve one afterward. Both replies rendered in the browser. After UAR rejected an invalid configuration, B still served a fresh turn. On the Settings page that was open across the rejection, the observer found no matching warning text or visible alert during a 5.16-second window. Routing and visible failure reporting therefore had different outcomes on the same build.
+
+Suppose the owner has adopted separate scenarios for persistence and routing. Keep their existing IDs, fixtures, protected oracles and acceptance criteria. Record the following outcomes in the adopted packet when the corresponding conditions occur.
+
+| Observation | What to record |
+|---|---|
+| The browser reload and the independent settings read agree on the new default. | Record the persistence observation for its scenario. Award a scoped PASS only when that scenario's agreed controls and evidence are complete. |
+| A valid, authorized request goes to the old provider. | Record FAIL for routing. The provider observation contradicts the promised outcome even if the Settings UI looks correct. |
+| The disposable principal cannot start a conversation, as in the 401 attempt. | Record BLOCKED for the attempt and identify the missing prerequisite. The provider assertion was NOT_EXERCISED. Keep the earlier persistence observation. |
+| An invalid candidate is rejected. | Record the rejection. A claim that the last good provider still serves requires a fresh observed request. An empty observer log supplies no PASS. |
+
+For a later authorized boundary, compare each receipt with the current candidate. If a budget-only amendment kept the same phase lineage, scenario, serving artifacts, inputs, fixture and oracle, an earlier admitted PASS for persistence can be carried. Record the unchanged `scenarioDigest` on the carried outcome and set its `carriedFrom.contractDigest` to the prior binding's `contractDigest`. Retain the original receipt and source identities. Check the previous binding and receipt in the phase record. A pair of digest fields alone cannot demonstrate that the operator observed the outcome.
+
+If fixing the principal changes the configuration used by a scenario, repeat that scenario on the new configuration. Changed code or served assets, changed inputs, a changed oracle, and unknown impact also require fresh evidence for the affected claim. Retain the earlier attempt as history. To challenge the comparison, present a receipt for a different serving artifact to the same oracle and confirm it cannot earn PASS. The existing closure command remains responsible for admission.
+
+This example uses the bounded closure, method selection, scenario calibration and evidence admission already delivered in [#184](https://github.com/Prometheus-AGS/prometheus-skill-system/issues/184), [#195](https://github.com/Prometheus-AGS/prometheus-skill-system/issues/195), [#196](https://github.com/Prometheus-AGS/prometheus-skill-system/issues/196) and [#219](https://github.com/Prometheus-AGS/prometheus-skill-system/issues/219).
+
 ## Closure
 
 Evidence goes to the existing canonical writer through `boundary-results.json`
