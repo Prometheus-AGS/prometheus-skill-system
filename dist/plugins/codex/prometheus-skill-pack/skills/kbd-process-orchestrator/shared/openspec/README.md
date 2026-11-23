@@ -29,14 +29,15 @@ OpenSpec command's stdout, including JSON output.
   per-user registry when it runs.
 - **`refresh` asks before it fetches.** It runs the same dry run first and skips
   `update` when nothing would change, so a phase can start with no network.
-- **`refresh-unavailable` (exit 0).** 2.1.0 installs skills by cloning the OpenSpec
-  repository from GitHub, even for project-scoped skills. Without Git or GitHub the
+- **`refresh-unavailable` (exit 0).** 2.1.1, the pinned release, ships its skills inside
+  the CLI package and needs no network to install them. 2.1.0 (reachable only through an
+  operator pin) clones the OpenSpec repository from GitHub; without Git or GitHub that
   CLI fails and leaves the skills as they were; the runner reports that and lets the
   phase start. Run the refresh again when GitHub is reachable.
 
 ## Selection and installation
 
-The pack is certified against **exactly OpenSpec 2.1.0** (`PINNED_VERSION` in
+The pack is certified against **exactly OpenSpec 2.1.1** (`PINNED_VERSION` in
 `state.mjs`; also `package.json` and `config/spec-engines.json`). `refresh`,
 `run` and `init` always use that version unless an operator pins another. The
 npm registry is consulted only to *report*: a newer release is recorded as

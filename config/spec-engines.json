@@ -3,9 +3,9 @@
   "engines": {
     "openspec": {
       "cli": "openspec",
-      "pinnedVersion": "2.1.0",
+      "pinnedVersion": "2.1.1",
       "pinSource": "package.json devDependencies @fission-ai/openspec (exact)",
-      "rationale": "Primary engine. Exact pin per the repo dependency-pin discipline; version matches package.json and the managed runner's PINNED_VERSION. OpenSpec 2.x installs skills once in .agents/skills (plus a copy for tools that do not read it) and has no /opsx:* commands. 2.1.0 installs skills through Vercel's skills package (needs Git and GitHub to install or refresh) and defaults new repositories to a global install; the managed runner always passes --scope project. Needs Node.js 22.20.0+. See docs/guide/spec-engines.md.",
+      "rationale": "Primary engine. Exact pin per the repo dependency-pin discipline; version matches package.json and the managed runner's PINNED_VERSION. OpenSpec 2.x installs skills once in .agents/skills (plus a copy for tools that do not read it) and has no /opsx:* commands. 2.1.x defaults new repositories to a global install; from 2.1.1 the skills ship inside the CLI package (2.1.0 cloned them from GitHub); the managed runner always passes --scope project. Needs Node.js 22.20.0+. See docs/guide/spec-engines.md.",
       "adapter": "os_* in skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh"
     },
     "speckit": {

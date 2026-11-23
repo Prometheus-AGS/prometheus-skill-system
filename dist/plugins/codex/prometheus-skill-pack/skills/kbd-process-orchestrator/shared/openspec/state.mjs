@@ -9,7 +9,7 @@ export const MINIMUM_VERSION = '2.1.0';
 // The pack is certified against exactly this release. Refresh never follows the
 // registry past it; a newer release is reported (newerAvailable /
 // migrationRequired) and adopted only by a pack release or an operator pin.
-export const PINNED_VERSION = '2.1.0';
+export const PINNED_VERSION = '2.1.1';
 // OpenSpec 2.1.0 requires Node.js 22.20.0 or newer for npm installs (its package
 // `engines`); 2.0.0 and 1.16.0 needed 22.12.0.
 export const NODE_MINIMUM = '22.20.0';

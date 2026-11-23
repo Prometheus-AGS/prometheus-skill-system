@@ -66,7 +66,7 @@ export async function refresh({ project: requested = process.cwd(), timeoutMs = 
     if (result.code !== 0 && NETWORK_FAILURE.test(result.output)) {
       return finish('refresh-unavailable', {
         ...details, plannedChanges: plan?.changes.map(entry => entry.path) ?? null,
-        reason: 'OpenSpec could not reach GitHub to refresh its skills (2.1.0 fetches them with Git). The project keeps its current skills; run the refresh again when Git and GitHub are reachable.',
+        reason: 'OpenSpec could not refresh its skills (2.1.0 fetches them from GitHub with Git). The project keeps its current skills; run the refresh again when Git and GitHub are reachable.',
       });
     }
     if (result.code !== 0) return finish('failed', { ...details, reason: `openspec update exited ${result.code}` }, result.code);

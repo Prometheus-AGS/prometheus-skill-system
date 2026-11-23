@@ -21,7 +21,7 @@ Converts `assessment.md` (and `analysis.json` / `library-candidates.json` when
 the Analyze stage ran) into concrete change specs that the Plan stage will
 order and the Execute stage will drive one task per turn:
 
-- **openspec backend** (primary, OpenSpec 2.1.0, pack-pinned): creates each change
+- **openspec backend** (primary, OpenSpec 2.1.1, pack-pinned): creates each change
   with the CLI through the managed runner (`node "$KBD_ORCHESTRATOR_ROOT/shared/openspec/cli.mjs" run --project <root> -- new change <change-id>`;
   OpenSpec 2.0 removed the `/opsx:*` commands), producing
   `openspec/changes/<change-id>/{proposal.md, design.md, specs/, tasks.md}`.
