@@ -16,6 +16,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use super::cargo_paths;
 use super::control_transport::ControlTransport;
 
+mod discovery_budget;
 mod learning_queue;
 mod plugin_source;
 mod project_root;
@@ -2375,67 +2376,7 @@ fn check_harness_adapter_parity() -> CheckResult {
 }
 
 fn check_instruction_budgets() -> CheckResult {
-    let inventory = super::skill::inventory(Path::new("skills"));
-    let baseline_path = Path::new("evals/skill-activation/harness-budgets.json");
-    let baseline = fs::read(baseline_path)
-        .ok()
-        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok());
-    let mut failures = Vec::new();
-    let (skills, characters) = match inventory {
-        Ok(inventory) => inventory,
-        Err(error) => {
-            failures.push(error.to_string());
-            (0, 0)
-        }
-    };
-    let mut measured = 0;
-    for harness in ["claude-code", "codex", "opencode", "kimi"] {
-        let entry = baseline
-            .as_ref()
-            .and_then(|value| value["harnesses"].get(harness));
-        match entry {
-            Some(entry)
-                if entry["measured"] == true
-                    && entry["budgetChars"].as_u64().is_some()
-                    && entry["sourceTrace"].as_str().is_some() =>
-            {
-                measured += 1;
-                if entry["inventoryChars"].as_u64() != Some(characters as u64) {
-                    failures.push(format!(
-                        "{harness} baseline was measured against a different inventory"
-                    ));
-                }
-            }
-            Some(_) => failures.push(format!("{harness} discovery budget is not measured")),
-            None => failures.push(format!("{harness} discovery baseline is missing")),
-        }
-    }
-    let healthy = failures.is_empty() && skills == 145;
-    CheckResult {
-        id: "skills.discovery-budget".into(),
-        group: "skills".into(),
-        label: "Harness instruction discovery budgets".into(),
-        severity: if healthy {
-            Severity::Green
-        } else {
-            Severity::Yellow
-        },
-        status: if healthy {
-            CheckStatus::Pass
-        } else {
-            CheckStatus::Warn
-        },
-        summary: format!(
-            "{skills} skills, {characters} discovery characters, {measured}/4 measured harnesses"
-        ),
-        details: if failures.is_empty() {
-            vec!["Every budget is trace-backed and matches the current inventory.".into()]
-        } else {
-            failures
-        },
-        optional: false,
-        actions: vec![],
-    }
+    discovery_budget::check(&selected_doctor_home())
 }
 
 fn check_evolver_state() -> CheckResult {

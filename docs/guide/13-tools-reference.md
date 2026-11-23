@@ -95,8 +95,19 @@ prometheus kbd --path <project> <phase|stage|change|task|completion|decision|blo
 Known non-fatal warnings: `KBD production rollout gate` stays yellow while rollout is in
 shadow mode, which needs 7 consecutive successful days, 100 real mutations and 10,000
 synthetic replay mutations before promotion. `Harness instruction discovery budgets` stays
-yellow until real harness traces are recorded with `prometheus skill budget`; the doctor
-does not invent ceilings. Neither indicates a broken install.
+yellow until each harness has a current local measurement. Run
+`python3 scripts/certification/measure-discovery.py --harness NAME` for
+`claude-code`, `codex`, `opencode` and `kimi`. This probes disposable synthetic
+catalogues in the native prompt renderer with no model inference. The receipt
+under `~/.prometheus/skill-activation/harness-budgets/` names the calibration
+profile and fingerprints the source inventory. A fully rendered sample records a
+lower bound. A partially rendered sample bounds the first observed truncation. Changes to the
+client version, settings, source inventory or Codex selection policy invalidate
+the corresponding receipt. Codex intentionally advertises a curated pack
+selection. Its check compares each selected installed path and native description
+against a low-pressure rendering of that same skill, reports any shortening,
+and applies the existing catalogue health threshold of 120 mean characters.
+All selected paths must appear with a nonempty matching description. Rerun the affected measurement after changing the client version, its settings, or the skill catalog.
 
 The `policy check` subcommand gates the operations `skill.mutate`, `skill.generate`, `skill.promote`, and `trace.capture` against the Cedar policy per environment. The `sycophancy` subcommands are a CLI front-end to the [sycophancy-correction](07-sycophancy-correction.md) server. **Build:** `cargo build --release -p prometheus-cli` → copied to `~/.local/bin/prometheus`. (This crate has no README; its surface is documented here from `Cargo.toml` and the clap definitions in `main.rs`.)
 
