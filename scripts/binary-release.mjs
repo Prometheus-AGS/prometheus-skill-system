@@ -12,6 +12,8 @@ import { pipeline } from 'node:stream/promises';
 import { text as readText } from 'node:stream/consumers';
 import { spawnSync } from 'node:child_process';
 
+import { changedImports, buildPinned } from './release-source-pins.mjs';
+
 const root = fileURLToPath(new URL('..', import.meta.url));
 const missing = 3;
 const suffix = process.platform === 'win32' ? '.exe' : '';
@@ -187,6 +189,45 @@ async function verifyStage(directory, release, sums, members = []) {
   console.error(`Verified ${name} (${verified.size} files)`);
   return { tag, platform, target, execHash, manifestHash: checksum(sums, sidecar(name)) };
 }
+async function sourceChanges(manifest, names) {
+  return changedImports(root, manifest, names, async commit => {
+    const base = new URL(`https://raw.githubusercontent.com/Prometheus-AGS/prometheus-skill-system/${commit}/`);
+    const response = await get(base, 'skill-system.json');
+    assert(response, `Cannot resolve binary source pins at release commit ${commit}`);
+    return JSON.parse(await readText(response));
+  });
+}
+
+async function installProducts(stage, destinations, manifest) {
+  const changes = await sourceChanges(manifest, new Set(destinations.keys()));
+  const builds = new Map();
+  for (const [name, destination] of destinations) {
+    const record = manifest.files.find(file => file.name === name);
+    assert(record, `Release omits ${name}`);
+    const selected = changes.get(name);
+    if (selected) {
+      const group = builds.get(selected.component.directory) || { selected, names: [] };
+      group.names.push(name);
+      builds.set(selected.component.directory, group);
+      continue;
+    }
+    if (name === 'prometheus-exec') await windowsExec(stage, destination, path.join(stage, record.path), record, manifest);
+    else await installReleaseProduct(stage, destination, record, manifest);
+    await markInstalled(destination, stage);
+  }
+  for (const { selected, names } of builds.values()) {
+    const scratch = await fs.mkdtemp(path.join(tmpdir(), 'prometheus-source-'));
+    try {
+      const images = await buildPinned(root, selected, names, manifest.platform, scratch);
+      for (const name of names) {
+        const image = images.get(name);
+        await copyVerified(image, destinations.get(name), await sha256(image));
+        await markInstalled(destinations.get(name));
+      }
+    } finally { await fs.rm(scratch, {recursive: true, force: true}); }
+  }
+}
+
 async function markInstalled(destination, stage, buildHash) {
   const release = await identity();
   if (!release) return;
@@ -321,7 +362,24 @@ async function windowsExec(stage, destination, source, record, manifest) {
 async function main() {
   const [action, destination, ...names] = process.argv.slice(2);
   if (action === 'mark' && destination) {
+    if (names[0] && path.basename(destination, suffix) !== 'prometheus-exec') {
+      const manifest = await readAuthenticatedManifest(names[0]);
+      const changes = await sourceChanges(manifest, new Set([path.basename(destination, suffix)]));
+      assert(!changes.has(path.basename(destination, suffix)), 'Refusing a stale release receipt for a changed source pin');
+    }
     await markInstalled(destination, names[0], names[1]);
+    return 0;
+  }
+  if (action === 'source-imports' && destination) {
+    const manifest = await readAuthenticatedManifest(destination);
+    const changes = await sourceChanges(manifest, new Set(manifest.files.map(file => file.name)));
+    for (const pinPath of new Set([...changes.values()].map(({pin}) => pin.path))) console.log(pinPath);
+    return 0;
+  }
+  if (action === 'install-staged' && destination && names.length >= 2) {
+    const stage = names.shift();
+    assert(names.every(name => /^[a-z0-9][a-z0-9-]*$/.test(name) && name !== 'prometheus-exec'), 'Invalid staged product');
+    await installProducts(stage, new Map(names.map(name => [name, path.join(destination, name + suffix)])), await readAuthenticatedManifest(stage));
     return 0;
   }
   if (action === 'copy' && destination && names.length === 1) {
@@ -332,8 +390,7 @@ async function main() {
     assert.notEqual(name, 'prometheus-exec', 'Use the dedicated exec installer');
     const record = manifest.files.find(file => file.name === name);
     assert(record && path.resolve(stage, record.path) === source, 'Invalid release source');
-    await installReleaseProduct(stage, destination, record, manifest);
-    await markInstalled(destination, stage);
+    await installProducts(stage, new Map([[name, destination]]), manifest);
     return 0;
   }
   if (!destination || !['prepare','verify','verify-exec','install','windows'].includes(action)) throw new Error('Usage: binary-release.mjs prepare EMPTY_DIR | install BIN_DIR NAME ...');
@@ -357,15 +414,7 @@ async function main() {
     if (!await prepare(stage)) return missing;
     const manifest = JSON.parse(await fs.readFile(path.join(stage, 'manifest.json'), 'utf8'));
     if (action === 'windows') names.push(...manifest.files.map(file => file.name));
-    for (const name of names) {
-      const record = manifest.files.find(file => file.name === name);
-      assert(record, `Release omits ${name}`);
-      const source = path.join(stage, record.path);
-      const installed = path.join(destination, name + suffix);
-      if (name === 'prometheus-exec') await windowsExec(stage, installed, source, record, manifest);
-      else await installReleaseProduct(stage, installed, record, manifest);
-      await markInstalled(installed, stage);
-    }
+    await installProducts(stage, new Map(names.map(name => [name, path.join(destination, name + suffix)])), manifest);
     return 0;
   } finally { await fs.rm(stage, { recursive: true, force: true }); }
 }

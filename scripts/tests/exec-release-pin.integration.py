@@ -36,9 +36,17 @@ def main(stage, release_dir, work):
     build_hash = sha256(exe.read_bytes()).hexdigest()
     fixture = work / "checkout"
     for name in ["skill-system.json", "config/release-binaries.json", "config/prometheus-exec-binary.json",
-                 "scripts/prometheus-exec-pin.sh", "scripts/binary-release.mjs", "scripts/install-prometheus-exec.sh"]:
+                 "scripts/prometheus-exec-pin.sh", "scripts/binary-release.mjs", "scripts/release-source-pins.mjs", "scripts/install-prometheus-exec.sh"]:
         (fixture / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / name, fixture / name)
+    # Exercise an exact-release checkout; a moving main can carry newer import pins.
+    commit = manifest["sourceCommit"]
+    (fixture / "skill-system.json").write_bytes(subprocess.check_output(
+        ["git", "show", f"{commit}:skill-system.json"], cwd=ROOT))
+    subprocess.run(["git", "init", "-q", str(fixture)], check=True)
+    objects = subprocess.check_output(["git", "rev-parse", "--path-format=absolute", "--git-path", "objects"],
+                                      cwd=ROOT, text=True).strip()
+    (fixture / ".git/objects/info/alternates").write_text(objects + "\n")
     policy_file = fixture / "config/prometheus-exec-binary.json"
     policy = json.loads(policy_file.read_bytes())
     assert policy["expectedBuildSha256ByTarget"][INTEL] == INTEL_SOURCE

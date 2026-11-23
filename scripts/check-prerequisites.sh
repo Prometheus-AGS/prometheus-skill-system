@@ -401,12 +401,8 @@ build_and_install() {
     local installed="$INSTALL_DIR/$bin$EXE"
     if release_has "$bin"; then
         local source="$release_stage/bin/$bin$EXE"
-        # A current copy still needs PATH and provenance readback.
-        if [ -x "$installed" ] && cmp -s "$source" "$installed"; then
-            echo "    ✅ $label up to date ($installed)"
-            node "$REPO_ROOT/scripts/binary-release.mjs" mark "$installed" "$release_stage" || {
-                TOOL_FAILURES+=("$label: receipt failure"); return 1; }
-        elif ! node "$REPO_ROOT/scripts/binary-release.mjs" copy "$installed" "$source"; then
+        # Reconcile the source pin even when the old released image is already installed.
+        if ! node "$REPO_ROOT/scripts/binary-release.mjs" copy "$installed" "$source"; then
             TOOL_FAILURES+=("$label: binary install failed"); return 1
         fi
     else
@@ -732,7 +728,10 @@ check_mcp_services() {
 . "$REPO_ROOT/scripts/binary-release.sh"
 if $BUILD_TOOLS; then
     prepare_binary_release
-    if release_has prometheus; then PREBUILT=true; fi
+    if release_has prometheus; then
+        changed_sources=$(node "$REPO_ROOT/scripts/binary-release.mjs" source-imports "$release_stage") || exit 1
+        if [ -z "$changed_sources" ]; then PREBUILT=true; else PREBUILT=false; fi
+    fi
 fi
 echo "  Core Requirements:"
 check_node

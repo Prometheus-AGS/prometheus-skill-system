@@ -108,7 +108,9 @@ install_products() (
     local workspace="$1" products="$2" release_dir name
     shift 2
     if release_has $products; then
-        release_dir="$release_stage/bin"
+        node "$REPO_ROOT/scripts/binary-release.mjs" install-staged "$BIN_DIR" "$release_stage" $products || return 1
+        for name in $products; do ok "$name → $BIN_DIR/$name$release_suffix"; done
+        return 0
     elif [ ! -f "$workspace/Cargo.toml" ]; then
         fail "No published binary or initialized source for $products ($workspace)"
         return 1

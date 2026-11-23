@@ -214,9 +214,9 @@ function verifyImportCommit(sourceRoot, entry) {
   if (actual !== entry.commit) fail(`import ${entry.path} is ${actual}; expected ${entry.commit}`);
 }
 
-function initializeImports(sourceRoot, contract, profile, hasBinaries) {
+function initializeImports(sourceRoot, contract, profile, hasBinaries, sourceImports) {
   const required = contract.imports.filter(entry => entry.requiredFor?.includes(profile)
-    && !(hasBinaries && entry.path.startsWith('tools/')));
+    && (!hasBinaries || !entry.path.startsWith('tools/') || sourceImports.includes(entry.path)));
   const paths = required.map(entry => entry.path);
   run('git', ['-C', sourceRoot, 'submodule', 'update', '--init', '--recursive', '--', ...paths]);
   for (const entry of required) verifyImportCommit(sourceRoot, entry);
@@ -248,11 +248,11 @@ function mcpTools(targets, home) {
   return tools;
 }
 
-function configureFull(args, targets, contract) {
+function configureFull(args, targets, contract, sourceImports) {
   const supported = contract.platforms.full.includes(platformKind());
   if (!supported) fail('full installation is supported on macOS and Linux only. On Windows, use --profile skills from Git Bash or WSL.');
   const prereqArgs = [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh'), '--core-only'];
-  if (process.env.PROMETHEUS_BINARY_RELEASE_STAGE) prereqArgs.push('--prebuilt');
+  if (process.env.PROMETHEUS_BINARY_RELEASE_STAGE && !sourceImports.length) prereqArgs.push('--prebuilt');
   const prereq = spawnSync('bash', prereqArgs, { cwd: args.sourceRoot, stdio: 'inherit' });
   if (prereq.status !== 0) {
     if (!args.yes) fail('missing prerequisites; rerun with --yes to approve local prerequisite installation');
@@ -321,6 +321,7 @@ async function main() {
   };
 
   const useBinaries = operation === 'install' && profile === 'full';
+  let sourceImports = [];
   const stage = useBinaries ? fs.mkdtempSync(path.join(os.tmpdir(), 'prometheus-full-release-')) : null;
   try {
     if (stage) {
@@ -328,6 +329,7 @@ async function main() {
       const resolve = spawnSync(process.execPath, [fetcher, 'prepare', stage], { stdio: 'inherit' });
       if (resolve.error) throw resolve.error;
       if (resolve.status === 0) {
+        sourceImports = run(process.execPath, [fetcher, 'source-imports', stage], {capture: true}).split(/\r?\n/).filter(Boolean);
         process.env.PROMETHEUS_BINARY_RELEASE_STAGE = stage;
         process.env.PROMETHEUS_RELEASE_HOOK_BIN = path.join(stage, 'bin/prometheus-hook');
       } else if (resolve.status === 3) {
@@ -339,7 +341,7 @@ async function main() {
     const installerArgs = generationArgs(args, targets);
     if (args.verify) installerArgs.push('--verify');
     else if (args.uninstall) installerArgs.push('--uninstall');
-    else attempt('submodule initialization', () => initializeImports(args.sourceRoot, contract, profile, useBinaries && Boolean(process.env.PROMETHEUS_BINARY_RELEASE_STAGE)));
+    else attempt('submodule initialization', () => initializeImports(args.sourceRoot, contract, profile, useBinaries && Boolean(process.env.PROMETHEUS_BINARY_RELEASE_STAGE), sourceImports));
     const generation = attempt(operation, () => run(process.execPath, installerArgs, { capture: true }));
     if (!args.verify && !args.uninstall && servesCodex(targets, args.home)) {
       attempt('Codex memory policy', () => {
@@ -349,7 +351,7 @@ async function main() {
         if (!applyCodexCatalog({ home: args.home, sourceRoot: args.sourceRoot })) fail('could not apply Codex catalog policy');
       });
     }
-    if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract));
+    if (!args.verify && !args.uninstall && profile === 'full') attempt('full profile', () => configureFull(args, targets, contract, sourceImports));
 
     if (failures.length) {
       process.stdout.write(`Best-effort run completed without certification (${failures.length} failure(s)).\n`);
