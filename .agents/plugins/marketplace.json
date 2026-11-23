@@ -21,7 +21,7 @@
         "path": "./dist/plugins/codex/prometheus-skill-pack",
         "source": "local"
       },
-      "version": "1.16.2"
+      "version": "1.17.0"
     },
     {
       "category": "frontend",
@@ -368,5 +368,5 @@
       }
     }
   ],
-  "version": "1.16.2"
+  "version": "1.17.0"
 }

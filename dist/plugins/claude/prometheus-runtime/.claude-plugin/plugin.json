@@ -15,5 +15,5 @@
   "mcpServers": "./.mcp.json",
   "name": "prometheus-runtime",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system",
-  "version": "1.16.2"
+  "version": "1.17.0"
 }
