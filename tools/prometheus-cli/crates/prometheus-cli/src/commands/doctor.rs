@@ -1608,7 +1608,7 @@ fn check_codex_memories() -> CheckResult {
 /// checking for a launchd/systemd service this repository does not install.
 async fn check_kbd_control_plane() -> CheckResult {
     let contract = super::contract::report(".");
-    if contract.endpoint.is_none() {
+    if contract.endpoint.is_none() && !super::kbd::remote_control_enabled() {
         return CheckResult {
             id: "control.kbd-runtime".into(),
             group: "control".into(),
@@ -1934,7 +1934,20 @@ fn check_kbd_rollout() -> CheckResult {
     }
     let runtime = Runtime::open(".");
     let path = runtime.runtime_root().join("rollout-evidence.json");
-    if !path.exists() {
+    if matches!(path.try_exists(), Ok(false)) {
+        if super::contract::report(".").endpoint.is_none() && !super::kbd::remote_control_enabled() {
+            return CheckResult {
+                id: "control.kbd-rollout".into(),
+                group: "control".into(),
+                label: "KBD production rollout gate".into(),
+                severity: Severity::Green,
+                status: CheckStatus::Skip,
+                summary: "local KBD is authoritative; no connected rollout is configured".into(),
+                details: vec![],
+                optional: true,
+                actions: vec![],
+            };
+        }
         return CheckResult {
             id: "control.kbd-rollout".into(),
             group: "control".into(),
