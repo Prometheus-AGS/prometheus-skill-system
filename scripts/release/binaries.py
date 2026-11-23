@@ -57,9 +57,24 @@ def basename(platform):
     return f"prometheus-binaries-{TAG}-{platform}"
 
 
-def pin(platform):
+def exec_release_record(platform):
+    manifest = config("config/prometheus-exec-binary.json")
     target = PLATFORMS[platform]["target"]
-    return config("config/prometheus-exec-binary.json")["expectedBuildSha256ByTarget"].get(target)
+    record = manifest.get("releaseBuildsByPackVersion", {}).get(VERSION, {}).get(target)
+    if record:
+        paths = [".cargo", "crates/prometheus-exec", "scripts/build-prometheus-exec.sh",
+                 "scripts/prometheus-exec-pin.sh", "wit"]
+        paths.extend(p.relative_to(ROOT).as_posix() for p in (ROOT / "substrate").glob("exec-*") if p.is_dir())
+        tree = subprocess.check_output(["git", "ls-tree", "-z", "HEAD", "--", *paths], cwd=ROOT)
+        require(hashlib.sha256(tree).hexdigest() == record["sourceInputsSha256"],
+                f"Release exec build inputs changed for {TAG} {target}")
+    return record
+
+
+def pin(platform):
+    if record := exec_release_record(platform):
+        return record["sha256"]
+    return config("config/prometheus-exec-binary.json")["expectedBuildSha256ByTarget"].get(PLATFORMS[platform]["target"])
 
 
 def cpu_check(path, platform):
@@ -80,10 +95,43 @@ def cpu_check(path, platform):
     raise SystemExit(f"{path} is not a {platform} native executable")
 
 
+def build_pinned_xcode_exec(record, platform, output):
+    target = PLATFORMS[platform]["target"]
+    require(PLATFORMS[platform]["runner"] == record["runner"], "Wrong macOS release runner selection")
+    cwd = ROOT / "crates/prometheus-exec"
+    rust = subprocess.check_output(["rustc", "-vV"], cwd=cwd, text=True).splitlines()
+    for field, value in (("release", record["rustc"]), ("commit-hash", record["rustcCommit"]), ("host", target)):
+        require(f"{field}: {value}" in rust, f"Expected native {field}: {value}")
+    dev = Path("/Applications") / f"Xcode_{record['xcode']}.app/Contents/Developer"
+    env = {**os.environ, "DEVELOPER_DIR": str(dev)}
+    version = subprocess.check_output(["xcodebuild", "-version"], env=env, text=True).splitlines()
+    require(version == ["Xcode " + record["xcode"], "Build version " + record["xcodeBuild"]],
+            f"Expected Xcode {record['xcode']} build {record['xcodeBuild']}, got {version}")
+    xcrun = ["xcrun", "--sdk", "macosx" + record["sdk"]]
+    sdk = subprocess.check_output([*xcrun, "--show-sdk-version"], env=env, text=True).strip()
+    require(sdk == record["sdk"], f"Unexpected release SDK {sdk}")
+    env["SDKROOT"] = subprocess.check_output([*xcrun, "--show-sdk-path"], env=env, text=True).strip()
+    ld = subprocess.run([*xcrun, "ld", "-v"], env=env, text=True, capture_output=True)
+    identity = re.search(r"PROJECT:ld-([^\s]+)", ld.stdout + ld.stderr)
+    require(identity, "Could not identify the Apple linker")
+    print(f"Building {target} with rustc {record['rustc']} ({record['rustcCommit']}), "
+          f"{' / '.join(version)}, SDK {sdk}, ld {identity[1]}", flush=True)
+    subprocess.run(["bash", str(ROOT / "scripts/build-prometheus-exec.sh")], cwd=ROOT, env=env, check=True)
+    unsigned = ROOT / config("config/prometheus-exec-binary.json")["sourcePath"]
+    subprocess.run([*xcrun, "vtool", "-show-build", str(unsigned)], env=env, check=True)
+    actual = digest(unsigned)
+    require(actual == record["sha256"], f"Official {TAG} {target} exec pin mismatch: produced {actual}")
+    print(f"Native release exec SHA-256 {actual}", flush=True)
+    shutil.copyfile(unsigned, output)
+
+
 def darwin_exec(stage, platform):
+    output = stage / "prometheus-exec"
+    if record := exec_release_record(platform):
+        build_pinned_xcode_exec(record, platform, output)
+        return
     expected = pin(platform)
     require(expected, f"Missing independent {platform} exec pin")
-    output = stage / "prometheus-exec"
     # gh can access drafts. Never pass release credentials to a configurable URL.
     url = os.environ.get(f"PROMETHEUS_EXEC_{platform.upper().replace('-', '_')}_URL")
     if url and platform == "darwin-arm64":

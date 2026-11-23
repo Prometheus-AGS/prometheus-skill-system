@@ -67,7 +67,6 @@ owned_release_stage=""
 case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*|Windows*) DESTINATION="${DESTINATION}.exe";; esac
 if [ -n "${PROMETHEUS_EXEC_RELEASE_MANIFEST:-}" ]; then
     release_stage="$(dirname "$PROMETHEUS_EXEC_RELEASE_MANIFEST")"
-    node "$REPO_ROOT/scripts/binary-release.mjs" verify "$release_stage"
 elif [ -z "${PROMETHEUS_EXEC_SOURCE_BIN:-}" ] && [ "${PROMETHEUS_BINARY_RELEASE_PROBED:-}" != 1 ]; then
     . "$REPO_ROOT/scripts/binary-release.sh"
     prepare_binary_release
@@ -76,16 +75,19 @@ fi
 RELEASE_TAG=""
 RELEASE_PLATFORM=""
 RELEASE_MANIFEST_HASH=""
-if [ -n "$release_stage" ] && [ -f "$release_stage/manifest.json" ]; then
-    read -r RELEASE_TAG RELEASE_PLATFORM RELEASE_HASH BUILD_TARGET < <(node -e '
-      const manifest=require(process.argv[1]), catalog=require(process.argv[2]);
-      const exec=manifest.files.find(entry => entry.name==="prometheus-exec");
-      console.log(manifest.tag,manifest.platform,exec.sha256,catalog.platforms[manifest.platform].target);
-    ' "$release_stage/manifest.json" "$REPO_ROOT/config/release-binaries.json")
+if [ -n "${PROMETHEUS_EXEC_RELEASE_MANIFEST:-}" ] || { [ -n "$release_stage" ] && [ -f "$release_stage/manifest.json" ]; }; then
+    # Read the exact exec digest and manifest identity from the same verification
+    # that authenticates the tag, host, file bytes and independently approved pin.
+    verified_exec="$(node "$REPO_ROOT/scripts/binary-release.mjs" verify-exec "$release_stage")"
+    read -r RELEASE_TAG RELEASE_PLATFORM BUILD_TARGET EXPECTED_BUILD_HASH RELEASE_MANIFEST_HASH <<< "$verified_exec"
     SOURCE_BIN="$release_stage/bin/$(basename "$DESTINATION")"
-    RELEASE_MANIFEST_HASH="$(sha256_file "$release_stage/manifest.json")"
-    EXPECTED_BUILD_HASH="$(prometheus_exec_pin "$HASH_MANIFEST" "$BUILD_TARGET")"
-    EXPECTED_BUILD_HASH="${EXPECTED_BUILD_HASH:-$RELEASE_HASH}"
+    if [ -n "${PROMETHEUS_EXEC_HASH_MANIFEST:-}" ]; then
+        override_pin="$(prometheus_exec_pin "$HASH_MANIFEST" "$BUILD_TARGET")"
+        if [ -n "$override_pin" ] && [ "$override_pin" != "$EXPECTED_BUILD_HASH" ]; then
+            echo "Verified release conflicts with the operator's exec pin for $BUILD_TARGET" >&2
+            exit 1
+        fi
+    fi
 else
     BUILD_TARGET="$(prometheus_exec_host_target "${REPO_ROOT}/crates/prometheus-exec")"
     EXPECTED_BUILD_HASH="${EXPECTED_BUILD_HASH:-$(prometheus_exec_pin "$HASH_MANIFEST" "$BUILD_TARGET")}"

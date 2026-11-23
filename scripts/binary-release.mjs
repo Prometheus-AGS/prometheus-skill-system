@@ -127,9 +127,12 @@ async function verifyStage(directory, release, sums, members = []) {
     'windows-arm64': 'aarch64-pc-windows-msvc', 'windows-amd64': 'x86_64-pc-windows-msvc' }[platform];
   const pins = JSON.parse(await fs.readFile(path.join(root, 'config/prometheus-exec-binary.json'), 'utf8'));
   const pin = pins.expectedBuildSha256ByTarget?.[target];
-  if (os === 'darwin' || pin) {
+  const releasePin = pins.releaseBuildsByPackVersion?.[version]?.[target]?.sha256;
+  const execHash = manifest.files.find(file => file.name === 'prometheus-exec')?.sha256;
+  if (os === 'darwin' || pin || releasePin) {
     assert.match(pin || '', /^[0-9a-f]{64}$/, 'Missing independent Darwin exec pin');
-    assert.equal(manifest.files.find(file => file.name === 'prometheus-exec')?.sha256, pin, 'Release violates the independent prometheus-exec pin');
+    if (releasePin !== undefined) assert.match(releasePin, /^[0-9a-f]{64}$/, 'Invalid release-specific exec pin');
+    assert(execHash === pin || (releasePin !== undefined && execHash === releasePin), 'Release violates the independent prometheus-exec pin');
   }
   for (const member of members) {
     if (member !== 'manifest.json' && (await fs.lstat(path.join(directory, member))).isFile()) {
@@ -154,7 +157,7 @@ async function verifyStage(directory, release, sums, members = []) {
     }
   } finally { await fs.rm(scratch, { recursive: true, force: true }); }
   console.error(`Verified ${name} (${verified.size} files)`);
-  return true;
+  return { tag, platform, target, execHash, manifestHash: checksum(sums, sidecar(name)) };
 }
 async function markInstalled(destination, stage, buildHash) {
   const release = await identity();
@@ -259,11 +262,14 @@ async function main() {
     await markInstalled(destination, stage);
     return 0;
   }
-  if (!destination || !['prepare','verify','install','windows'].includes(action)) throw new Error('Usage: binary-release.mjs prepare EMPTY_DIR | install BIN_DIR NAME ...');
-  if (action === 'verify') {
+  if (!destination || !['prepare','verify','verify-exec','install','windows'].includes(action)) throw new Error('Usage: binary-release.mjs prepare EMPTY_DIR | install BIN_DIR NAME ...');
+  if (action === 'verify' || action === 'verify-exec') {
     const release = await identity();
     if (!release) return missing;
-    await verifyStage(destination, release, await readSums(release.base));
+    const verified = await verifyStage(destination, release, await readSums(release.base));
+    if (action === 'verify-exec') {
+      console.log(verified.tag, verified.platform, verified.target, verified.execHash, verified.manifestHash);
+    }
     return 0;
   }
   if (action === 'prepare') {
