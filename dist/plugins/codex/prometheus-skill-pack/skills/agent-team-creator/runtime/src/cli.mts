@@ -8,8 +8,8 @@ import { exportTeam } from './adapters.mjs';
 import { writeExport } from './export-files.mjs';
 import { installProject } from './project-install.mjs';
 import { bindUiRoles } from './ui-bindings.mjs';
-import { readState, initState, mutateState, mutateStateAsync, taskAction, completeKbdTask } from './state.mjs';
-import { createHandoff, acceptHandoff } from './handoff.mjs';
+import { readState, initState, mutateState, mutateStateAsync, acceptStateHandoff, taskAction, completeKbdTask } from './state.mjs';
+import { createHandoff } from './handoff.mjs';
 import { inspectHandoff } from './handoff-provenance.mjs';
 import { discoverModels, selectModel } from './models.mjs';
 import { queueMemory, publishMemory } from './memory.mjs';
@@ -106,12 +106,14 @@ async function dispatch(command: string, input: ObjectValue): Promise<unknown> {
       createHandoff(state, object(input.handoff, 'handoff'), text(input.cwd, 'cwd'));
     });
     case 'handoff-inspect': return inspectHandoff(readState(stateFile(input)), text(input.id, 'handoff id'), text(input.cwd, 'cwd'), input);
-    case 'handoff-accept': return mutateState(stateFile(input), revision(input), state => {
+    case 'handoff-accept': {
       const destination = object(input.destination, 'destination');
       const harness = target(destination.harness);
       if (harness === 'bossfang') throw Error('Destination harness must name an execution harness');
-      acceptHandoff(state, text(input.id, 'handoff id'), { owner: text(destination.owner, 'destination owner'), harness });
-    });
+      return acceptStateHandoff(stateFile(input), revision(input), text(input.id, 'handoff id'), {
+        owner: text(destination.owner, 'destination owner'), harness,
+      });
+    }
     case 'models-discover': return discoverModels(input);
     case 'models-select': return selectModel(validateTeam(input.team), text(input.roleId, 'roleId'), strings(input.skills ?? [], 'skills'), (input.taskPolicy ?? {}) as ModelPolicy, input.catalog);
     case 'memory-queue': return mutateState(stateFile(input), revision(input), state => { queueMemory(state, withQueueProject(object(input.entry, 'entry'))); });

@@ -1,7 +1,7 @@
 # cowork-skill-discovery Specification
 
 ## Purpose
-TBD - created by archiving change change-arc-008-cowork-skill-discovery. Update Purpose after archive.
+Use cowork search results as an input to the build-or-adopt decision during ideation. Keep installation subject to an explicit decision and document discovery on the project site.
 ## Requirements
 ### Requirement: Skill discovery is available as a build-vs-adopt input during ideation
 

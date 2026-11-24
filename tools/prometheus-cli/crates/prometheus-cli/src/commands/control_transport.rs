@@ -2,8 +2,10 @@
 use anyhow::anyhow;
 use anyhow::{Context, Result};
 use bytes::Bytes;
-use hyper::{Method, StatusCode};
+use hyper::{header::CONTENT_TYPE, Method, StatusCode};
 use serde::Serialize;
+use std::error::Error;
+use std::io::ErrorKind;
 use std::time::Duration;
 
 #[cfg(unix)]
@@ -20,19 +22,25 @@ use tokio::net::UnixStream;
 #[derive(Debug)]
 pub(super) struct ControlResponse {
     pub(super) status: StatusCode,
+    pub(super) content_type: Option<String>,
     pub(super) body: String,
 }
 
 #[derive(Debug)]
 pub(super) enum TransportFailure {
     Unreachable(anyhow::Error),
+    Disconnected(anyhow::Error),
     Ambiguous(anyhow::Error),
+    Invalid(anyhow::Error),
 }
 
 impl TransportFailure {
     pub(super) fn into_error(self) -> anyhow::Error {
         match self {
-            Self::Unreachable(error) | Self::Ambiguous(error) => error,
+            Self::Unreachable(error)
+            | Self::Disconnected(error)
+            | Self::Ambiguous(error)
+            | Self::Invalid(error) => error,
         }
     }
 }
@@ -59,7 +67,10 @@ impl ControlTransport {
             Err(_) => default_target(),
         };
         Ok(Self {
-            http: reqwest::Client::builder().timeout(timeout).build()?,
+            http: reqwest::Client::builder()
+                .timeout(timeout)
+                .redirect(reqwest::redirect::Policy::none())
+                .build()?,
             target,
             timeout,
         })
@@ -75,9 +86,16 @@ impl ControlTransport {
     }
 
     pub(super) async fn get(&self, path: &str) -> Result<ControlResponse> {
-        self.request(Method::GET, path, Bytes::new())
+        self.get_classified(path)
             .await
             .map_err(TransportFailure::into_error)
+    }
+
+    pub(super) async fn get_classified(
+        &self,
+        path: &str,
+    ) -> std::result::Result<ControlResponse, TransportFailure> {
+        self.request(Method::GET, path, Bytes::new()).await
     }
 
     pub(super) async fn post_json<T: Serialize + ?Sized>(
@@ -130,22 +148,104 @@ impl ControlTransport {
         let mut request = self.http.request(method, format!("{endpoint}{path}"));
         if !body.is_empty() {
             request = request
-                .header("content-type", "application/json")
+                .header(CONTENT_TYPE, "application/json")
                 .body(body);
         }
         let response = request.send().await.map_err(|error| {
-            if error.is_connect() {
+            if error.is_builder() {
+                TransportFailure::Invalid(error.into())
+            } else if error.is_connect()
+                && with_error_source(&error, |cause| {
+                    cause
+                        .downcast_ref::<std::io::Error>()
+                        .is_some_and(|error| is_endpoint_unreachable(error.kind()))
+                })
+            {
                 TransportFailure::Unreachable(error.into())
             } else {
-                TransportFailure::Ambiguous(error.into())
+                classify_started_request_error(error)
             }
         })?;
         let status = response.status();
+        let content_type = response.headers().get(CONTENT_TYPE)
+            .and_then(|value| value.to_str().ok())
+            .map(str::to_owned);
         let body = response
-            .text()
+            .bytes()
             .await
-            .map_err(|error| TransportFailure::Ambiguous(error.into()))?;
-        Ok(ControlResponse { status, body })
+            .map_err(|error| incomplete_response(status, error))?;
+        control_response(status, content_type, body)
+    }
+}
+
+fn with_error_source(
+    mut error: &(dyn Error + 'static),
+    predicate: impl Fn(&(dyn Error + 'static)) -> bool,
+) -> bool {
+    loop {
+        if predicate(error) {
+            return true;
+        }
+        let Some(source) = error.source() else {
+            return false;
+        };
+        error = source;
+    }
+}
+
+fn is_endpoint_unreachable(kind: ErrorKind) -> bool {
+    matches!(
+        kind,
+        ErrorKind::NotFound | ErrorKind::ConnectionRefused | ErrorKind::AddrNotAvailable
+            | ErrorKind::NetworkUnreachable | ErrorKind::HostUnreachable
+    )
+}
+
+fn classify_started_request_error(
+    error: impl Error + Send + Sync + 'static,
+) -> TransportFailure {
+    if with_error_source(&error, |cause| {
+        cause.downcast_ref::<hyper::Error>().is_some_and(hyper::Error::is_parse)
+    }) {
+        TransportFailure::Invalid(error.into())
+    } else if with_error_source(&error, |cause| {
+        cause.downcast_ref::<hyper::Error>().is_some_and(|error| {
+            error.is_incomplete_message() || error.is_closed() || error.is_canceled()
+        }) || cause.downcast_ref::<std::io::Error>().is_some_and(|error| {
+            matches!(error.kind(), ErrorKind::ConnectionReset | ErrorKind::ConnectionAborted
+                | ErrorKind::BrokenPipe | ErrorKind::UnexpectedEof)
+        })
+    }) {
+        TransportFailure::Disconnected(error.into())
+    } else {
+        TransportFailure::Ambiguous(error.into())
+    }
+}
+
+fn control_response(
+    status: StatusCode,
+    content_type: Option<String>,
+    body: Bytes,
+) -> std::result::Result<ControlResponse, TransportFailure> {
+    let body = String::from_utf8(body.to_vec())
+        .context("control-plane response was not UTF-8")
+        .map_err(TransportFailure::Invalid)?;
+    Ok(ControlResponse { status, content_type, body })
+}
+
+fn incomplete_response(
+    status: StatusCode,
+    error: impl Error + Send + Sync + 'static,
+) -> TransportFailure {
+    let error = anyhow::Error::new(error)
+        .context(format!("incomplete control-plane response with HTTP status {status}"));
+    // A response with protocol headers already identifies a reachable endpoint.
+    // Preserve a lost success response as an ambiguous submission, but never
+    // treat a partial response as proof that the authority was unreachable.
+    if status.is_success() || status.is_server_error() {
+        TransportFailure::Ambiguous(error)
+    } else {
+        TransportFailure::Invalid(error)
     }
 }
 
@@ -169,6 +269,16 @@ fn default_target() -> Target {
 }
 
 #[cfg(unix)]
+struct ControlConnection(tokio::task::JoinHandle<std::result::Result<(), hyper::Error>>);
+
+#[cfg(unix)]
+impl Drop for ControlConnection {
+    fn drop(&mut self) {
+        self.0.abort();
+    }
+}
+
+#[cfg(unix)]
 async fn request_unix(
     socket: PathBuf,
     method: Method,
@@ -176,43 +286,45 @@ async fn request_unix(
     body: Bytes,
 ) -> std::result::Result<ControlResponse, TransportFailure> {
     let stream = UnixStream::connect(&socket).await.map_err(|error| {
-        TransportFailure::Unreachable(
-            anyhow!(error).context(format!("connect to control socket {}", socket.display())),
-        )
+        let kind = error.kind();
+        let error = anyhow!(error).context(format!("connect to control socket {}", socket.display()));
+        if is_endpoint_unreachable(kind) {
+            TransportFailure::Unreachable(error)
+        } else {
+            TransportFailure::Invalid(error)
+        }
     })?;
     let (mut sender, connection) =
         hyper::client::conn::http1::handshake::<_, Full<Bytes>>(TokioIo::new(stream))
             .await
-            .map_err(|error| TransportFailure::Unreachable(error.into()))?;
-    let connection_task = tokio::spawn(connection);
+            .map_err(|error| TransportFailure::Invalid(error.into()))?;
+    let _connection = ControlConnection(tokio::spawn(connection));
 
     let mut request = Request::builder()
         .method(method)
         .uri(&path)
         .header("host", "localhost");
     if !body.is_empty() {
-        request = request.header("content-type", "application/json");
+        request = request.header(CONTENT_TYPE, "application/json");
     }
     let request = request
         .body(Full::new(body))
-        .map_err(|error| TransportFailure::Unreachable(error.into()))?;
+        .map_err(|error| TransportFailure::Invalid(error.into()))?;
     let response = sender
         .send_request(request)
         .await
-        .map_err(|error| TransportFailure::Ambiguous(error.into()))?;
+        .map_err(classify_started_request_error)?;
     let status = response.status();
+    let content_type = response.headers().get(CONTENT_TYPE)
+        .and_then(|value| value.to_str().ok())
+        .map(str::to_owned);
     let body = response
         .into_body()
         .collect()
         .await
-        .map_err(|error| TransportFailure::Ambiguous(error.into()))?
+        .map_err(|error| incomplete_response(status, error))?
         .to_bytes();
-    drop(sender);
-    connection_task.abort();
-    let body = String::from_utf8(body.to_vec())
-        .context("control-plane response was not UTF-8")
-        .map_err(TransportFailure::Ambiguous)?;
-    Ok(ControlResponse { status, body })
+    control_response(status, content_type, body)
 }
 
 #[cfg(all(test, target_family = "unix"))]

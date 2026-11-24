@@ -1,18 +1,16 @@
 # judge-gateway-availability Specification
 
 ## Purpose
-TBD - created by archiving change change-arc-009-openai-proxy-vendoring-decision. Update Purpose after archive.
+Record how the review judge gateway is supplied, keep proxy availability independent of the main build, and report availability explicitly.
 ## Requirements
 ### Requirement: The openai-proxy vendoring decision is recorded
 
-A written decision SHALL record whether `openai-proxy` is vendored, referenced as a sibling
-with a doctor check, or vendored-but-optional, together with the rejected alternatives. It is
-what `kbd-judge` resolves to, and it is currently a referenced sibling rather than a tracked
-dependency, so its absence degrades every review to harness-native.
+A written decision SHALL select vendoring, a sibling reference with a doctor check, or optional vendoring for the `openai-proxy` judge gateway. It SHALL record rejected alternatives and cite the `liter-llm` installation failure.
 
-The decision SHALL cite the `liter-llm` precedent observed in this repository: an unbuildable
-submodule caused `cargo metadata` to exit 101, which aborted `install-binaries.sh` mid-run and
-left 7 of 14 binaries stale.
+#### Scenario: Prior dependency failure informs the decision
+
+- **WHEN** the decision explains the risk of a mandatory dependency
+- **THEN** it records that the unbuildable `liter-llm` submodule made `cargo metadata` exit 101, aborting `install-binaries.sh` and leaving 7 of 14 binaries stale
 
 #### Scenario: The decision names the choice and the rejected alternatives
 

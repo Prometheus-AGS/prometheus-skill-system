@@ -83,17 +83,74 @@ prometheus kbd --path "/path/to/project" status --json
 
 | Command | Purpose |
 |---|---|
-| `status [--json]` | Lifecycle, revision, plan, checkpoint, active path, and completion |
+| `status [--json] [--receiver-only]` | Lifecycle, revision, plan, checkpoint, active path, and read source |
 | `projects [--json] [--prune-missing [--apply]]` | List registered replicas or explicitly inventory/apply recoverable cleanup of missing checkout paths |
 | `pause --reason <text>` | Create the emergency valve and durable checkpoint |
 | `revise --reason <text> [--exact-next-work <text>]` | Append immutable plan revision N+1 |
 | `resume [--plan-revision <n>]` | Validate checkpoint and resume |
 | `cancel --reason <text>` | Terminal cancellation with audit history |
-| `audit [--since <revision-or-event>] [--json]` / `watch` | Inspect immutable events |
+| `audit [--since <revision-or-event>] [--json] [--receiver-only]` | Read signed history, optionally starting at an inclusive revision or event |
+| `watch [--after-event <event-id>] [--receiver-only]` | Follow signed events and optionally resume after a saved event |
+| `claim acquire <scope> [--holder <id>] [--command-id <id>]` | Acquire a work claim and identify it in the signed audit |
 | `migrate --check|--apply` | Inventory or import legacy ledgers |
 | `rollout status|observe|promote` | Record non-authoritative shadow/canary evidence |
 | `phase`, `stage`, `change`, `task` | Submit typed work-structure mutations |
 | `completion`, `decision`, `blocker` | Record independent completion, decisions, and blockers |
+
+#### Follow updates in two sessions
+
+In each session, run `prometheus kbd --path "$PROJECT" watch` against a checkout
+registered to the same project UUID. Start both readers before sending an
+update. Each reader emits one signed event per stdout line and reports its
+first source on stderr after flushing the initial events.
+
+```bash
+# Session A records the blocker after both readers see a shared baseline event.
+prometheus kbd --path "$PROJECT" blocker record --command-id "$ASK" \
+  --id "$BLOCKER" --summary "Review is blocking release"
+
+# Session B clears the same blocker after its reader sees the record.
+prometheus kbd --path "$PROJECT" blocker clear --command-id "$ACK" \
+  --id "$BLOCKER" --resolution "Reviewed and ready"
+```
+
+Persist the last `eventId` after applying its effect. After a restart, pass
+`watch --after-event "$EVENT_ID"` to emit the current signed audit suffix
+after that exact event. Events can share a revision, so persist the event ID
+and deduplicate by `eventId`. If you retain `integrityHash`, a changed hash for
+an already applied ID is an integrity error.
+
+With `PROMETHEUS_KBD_CONTROL_PLANE=1`, the CLI requests the configured
+Companion first. The stderr markers are `KBD source: companion`, `KBD source:
+local-fallback`, and `KBD source: local`. The last marker identifies ordinary
+local mode. Status JSON also carries `readSource`. Audit JSON remains an event
+array, and watch stdout remains newline-delimited JSON events.
+
+An optional watcher keeps requesting Companion on each poll after an outage.
+It applies new local events during fallback, then reads the restored Companion
+audit and emits unseen events in its audit order. The watcher reports the new
+source after flushing those events and retains event IDs for the lifetime of
+the process. A resumed watcher waits for Companion if its saved cursor is
+missing from the fallback history. Use `--receiver-only` on status, audit, or
+watch when a receipt must come from the selected Companion. A denied request,
+wrong project, or incompatible response fails the read.
+
+#### Reconcile an interrupted write
+
+Choose a stable `--command-id` for each blocker or claim acquisition. If
+Companion cannot be contacted before dispatch in optional mode, the CLI can
+commit the command through the local authority using that ID. If a response is
+lost after dispatch, the CLI checks the signed Companion audit for the
+original command ID before reporting success. When the CLI can verify the
+commit, a typed command reports the original event ID and integrity hash.
+
+If the CLI reports an unresolved submission or the client was interrupted,
+restore the same Companion endpoint and run
+`prometheus kbd --path "$PROJECT" audit --receiver-only --json`. If the signed
+audit contains the intended event with the original command ID, use that
+receipt. If the ID is absent, retry the same logical command with the same ID.
+Use `claim list --json` to inspect the active claim after contention. The
+canonical authority can report a claim conflict or a stale frontier.
 
 Full runbooks: [KBD control plane](/docs/kbd/control-plane),
 [tokens](/docs/kbd/tokens-and-authentication), and

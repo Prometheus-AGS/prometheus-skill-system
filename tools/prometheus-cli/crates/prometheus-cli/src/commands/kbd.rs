@@ -1,15 +1,18 @@
 use anyhow::{anyhow, Context, Result};
 use kbd_runtime::{
+    project_document::fold_project_events,
     registry::{scan_submodule_pins, ProjectRegistry, RegistryPruneReport},
     rollout::{RolloutObservation, RolloutTracker},
     Actor, ActorKind, Blocker, BoundaryEdge, BoundaryKind, BoundaryOutcome, BoundaryReceipt,
-    Checkpoint, ClaimMode, CommandEnvelope, CommandKind, Event, GateKind, GateOutcome, GateReceipt,
-    GateRun, LifecycleState, ProjectionScope, Runtime, RuntimeError, RuntimeState, WorkStatus,
+    Checkpoint, ClaimMode, CommandEnvelope, CommandKind, CommandResult, Event, EventKind, GateKind,
+    GateOutcome, GateReceipt, GateRun, LifecycleState, ProjectionScope, Runtime, RuntimeError,
+    RuntimeState, WorkStatus, EVENT_SCHEMA_VERSION,
 };
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration, Instant};
@@ -22,6 +25,7 @@ pub enum Action {
     },
     Status {
         json: bool,
+        receiver_only: bool,
     },
     Projects {
         json: bool,
@@ -58,6 +62,7 @@ pub enum Action {
         mode: ClaimMode,
         ttl_seconds: u64,
         holder_id: Option<String>,
+        command_id: Option<String>,
     },
     ClaimRenew {
         claim_id: String,
@@ -93,8 +98,12 @@ pub enum Action {
         since: Option<String>,
         json: bool,
         export_git: bool,
+        receiver_only: bool,
     },
-    Watch,
+    Watch {
+        after_event: Option<String>,
+        receiver_only: bool,
+    },
     Migrate {
         check: bool,
         apply: bool,
@@ -300,9 +309,22 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
     let root = find_project_root(Path::new(path))?;
     // A legacy checkout has a readable waypoint before its first typed write
     // creates a project identity. Inspecting it must not register the checkout.
-    if let Action::Status { json } = &action {
-        if !root.join(".prometheus/project.json").try_exists()? {
-            return print_uninitialized_status(&root, None, *json);
+    let read_mode = match &action {
+        Action::Status {
+            receiver_only: true, ..
+        }
+        | Action::Audit {
+            receiver_only: true, ..
+        }
+        | Action::Watch {
+            receiver_only: true, ..
+        } => ControlMode::ReceiverOnly,
+        _ if remote_control_enabled() => ControlMode::CompanionWithFallback,
+        _ => ControlMode::Local,
+    };
+    if let Action::Status { json, .. } = &action {
+        if read_mode == ControlMode::Local && !root.join(".prometheus/project.json").try_exists()? {
+            return print_uninitialized_status(&root, None, *json, ReadSource::Local);
         }
     }
     let runtime = if matches!(
@@ -311,7 +333,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         | Action::Audit { .. }
         | Action::Conflicts { .. }
         | Action::Claims { .. }
-        | Action::Watch
+        | Action::Watch { .. }
         | Action::Device(DeviceAction::List { .. })
         | Action::Submodules { scan: false, .. }
         | Action::Migrate { apply: false, .. }
@@ -326,9 +348,9 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
     } else {
         Runtime::open_canonical(&root)?
     };
-    let client = ControlClient::new(&runtime)?;
+    let client = ControlClient::new(&runtime, read_mode)?;
     match action {
-        Action::Status { json } => status(&root, &runtime, &client, json).await,
+        Action::Status { json, .. } => status(&root, &runtime, &client, json).await,
         Action::Conflicts { json } => {
             let state = state_or_replay(&client, &runtime).await?;
             if json {
@@ -409,6 +431,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             mode,
             ttl_seconds,
             holder_id,
+            command_id,
         } => {
             let state = state_or_initialize(&client, &runtime).await?;
             let mut actor = current_actor(ActorKind::Harness);
@@ -416,17 +439,14 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 actor.id = holder_id;
             }
             let holder_id = actor.id.clone();
+            let command = CommandKind::ClaimAcquire {
+                scope,
+                mode,
+                ttl_seconds,
+                holder_id,
+            };
             let next = client
-                .submit_fresh(
-                    &state,
-                    actor,
-                    CommandKind::ClaimAcquire {
-                        scope,
-                        mode,
-                        ttl_seconds,
-                        holder_id,
-                    },
-                )
+                .submit_with_id(&state, actor, command_id, command)
                 .await?;
             print_state(&next, false)
         }
@@ -615,8 +635,9 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             since,
             json,
             export_git,
+            ..
         } => audit(&runtime, &client, since.as_deref(), json, export_git).await,
-        Action::Watch => watch(&client).await,
+        Action::Watch { after_event, .. } => watch(&client, after_event.as_deref()).await,
         Action::Migrate { check, apply } => {
             let report = runtime.migrate_legacy_ledgers(false)?;
             if apply {
@@ -675,7 +696,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 .transpose()?
                 .unwrap_or_else(chrono::Utc::now);
             let state = state_or_replay(&client, &runtime).await?;
-            let events = client.events().await?;
+            let events = client.read_history().await?.value.events;
             let projection_time = events
                 .last()
                 .map(|event| event.timestamp)
@@ -830,19 +851,7 @@ async fn submit_typed(
         }),
         command,
     };
-    match client.submit(envelope.clone()).await {
-        Ok(result) => Ok(result),
-        Err(failure) if !failure.may_execute_locally() => Err(failure.into_error()),
-        Err(failure) => {
-            let ambiguous = matches!(failure, ControlFailure::Ambiguous(_));
-            let state = client.execute_locally(envelope, Some(&failure.into_error()), ambiguous)?;
-            Ok(json!({
-                "state": state,
-                "committedLocally": true,
-                "remoteStatusUnknown": ambiguous
-            }))
-        }
-    }
+    client.submit(state, envelope).await
 }
 
 fn print_registry_prune_report(report: &RegistryPruneReport) {
@@ -1745,22 +1754,29 @@ async fn status(
     client: &ControlClient,
     json_output: bool,
 ) -> Result<()> {
-    match client.status().await {
-        Ok(state) => print_state(&state, json_output),
-        Err(remote_error) => match runtime.replay() {
-            Ok(state) if state.revision > 0 => print_state(&state, json_output),
-            Ok(_) | Err(RuntimeError::NotInitialized) => {
-                if !json_output && client.remote_enabled {
-                    eprintln!("Control plane unavailable: {remote_error}");
-                }
-                print_uninitialized_status(root, Some(runtime.runtime_root()), json_output)
-            }
-            Err(error) => Err(error.into()),
-        },
+    let Sourced { value: state, source } =
+        client.status().await.map_err(ControlFailure::into_error)?;
+    if state.revision == 0 {
+        return print_uninitialized_status(root, Some(runtime.runtime_root()), json_output, source);
+    }
+    source.report();
+    if json_output {
+        let mut output = serde_json::to_value(&state)?;
+        output["readSource"] = json!(source.name());
+        println!("{}", serde_json::to_string_pretty(&output)?);
+        Ok(())
+    } else {
+        print_state(&state, false)
     }
 }
 
-fn print_uninitialized_status(root: &Path, runtime_path: Option<&Path>, json_output: bool) -> Result<()> {
+fn print_uninitialized_status(
+    root: &Path,
+    runtime_path: Option<&Path>,
+    json_output: bool,
+    source: ReadSource,
+) -> Result<()> {
+    source.report();
     let legacy = read_waypoint(root);
     let output = json!({
         "mode": "legacy",
@@ -1770,7 +1786,8 @@ fn print_uninitialized_status(root: &Path, runtime_path: Option<&Path>, json_out
         "runtimeInitialized": false,
         "initializationRequired": true,
         "initializationAction": "run the intended typed mutation; initialization is automatic",
-        "runtimePath": runtime_path
+        "runtimePath": runtime_path,
+        "readSource": source.name()
     });
     if json_output {
         println!("{}", serde_json::to_string_pretty(&output)?);
@@ -1883,11 +1900,49 @@ fn ensure_runtime(root: &Path, runtime: &Runtime) -> Result<RuntimeState> {
     )?)
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ControlMode {
+    Local,
+    CompanionWithFallback,
+    ReceiverOnly,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ReadSource {
+    Local,
+    LocalFallback,
+    Companion,
+}
+
+impl ReadSource {
+    fn name(self) -> &'static str {
+        match self {
+            Self::Local => "local",
+            Self::LocalFallback => "local-fallback",
+            Self::Companion => "companion",
+        }
+    }
+
+    fn report(self) {
+        eprintln!("KBD source: {}", self.name());
+    }
+}
+
+struct Sourced<T> {
+    value: T,
+    source: ReadSource,
+}
+
+struct VerifiedHistory {
+    events: Vec<Event>,
+    state: RuntimeState,
+}
+
 struct ControlClient {
     transport: ControlTransport,
     project_id: String,
     runtime: Runtime,
-    remote_enabled: bool,
+    mode: ControlMode,
 }
 
 pub(super) fn remote_control_enabled() -> bool {
@@ -1896,7 +1951,7 @@ pub(super) fn remote_control_enabled() -> bool {
 }
 
 impl ControlClient {
-    fn new(runtime: &Runtime) -> Result<Self> {
+    fn new(runtime: &Runtime, mode: ControlMode) -> Result<Self> {
         let manifest = runtime
             .project_manifest(false)?
             .ok_or_else(|| anyhow!("missing .prometheus/project.json"))?;
@@ -1906,84 +1961,171 @@ impl ControlClient {
             transport: ControlTransport::new(Duration::from_secs(30))?,
             project_id: manifest.project_id,
             runtime: runtime.clone(),
-            // Ordinary KBD work is local-first. sovereign-sync is an optional
-            // passive sharing service and must never become a command-path
-            // dependency merely because a stale socket or service exists.
-            remote_enabled: remote_control_enabled(),
+            mode,
         })
     }
 
-    async fn status(&self) -> Result<RuntimeState> {
-        if !self.remote_enabled {
-            return match self.runtime.replay() {
-                Ok(state) if state.revision > 0 => Ok(state),
-                Ok(_) | Err(RuntimeError::NotInitialized) => {
-                    Err(RuntimeError::NotInitialized.into())
+    fn route(&self, resource: &str) -> String {
+        format!("/api/v1/kbd/projects/{}/{resource}", self.project_id)
+    }
+
+    async fn read_remote(&self, resource: &str) -> Result<ControlResponse, ControlFailure> {
+        let response = self
+            .transport
+            .get_classified(&self.route(resource))
+            .await
+            .map_err(|failure| match failure {
+                TransportFailure::Unreachable(error) | TransportFailure::Disconnected(error) => {
+                    ControlFailure::Unreachable(error)
                 }
-                Err(error) => Err(error.into()),
-            };
+                TransportFailure::Ambiguous(error) | TransportFailure::Invalid(error) => {
+                    ControlFailure::Rejected(error)
+                }
+            })?;
+        if response.status.is_success() {
+            return Ok(response);
         }
-        let response = self
-            .transport
-            .get(&format!("/api/v1/kbd/projects/{}/status", self.project_id))
-            .await?;
-        decode_response(response)
+        Err(classify_status(&response))
     }
 
-    async fn events(&self) -> Result<Vec<Event>> {
-        if !self.remote_enabled {
-            self.runtime.replay()?;
-            return Ok(self.runtime.events()?);
-        }
-        let response = self
-            .transport
-            .get(&format!("/api/v1/kbd/projects/{}/events", self.project_id))
-            .await?;
-        decode_response(response)
+    async fn status(&self) -> Result<Sourced<RuntimeState>, ControlFailure> {
+        let source = match self.mode {
+            ControlMode::Local => ReadSource::Local,
+            ControlMode::CompanionWithFallback | ControlMode::ReceiverOnly => {
+                match self.read_remote_status().await {
+                    Ok(value) => return Ok(Sourced { value, source: ReadSource::Companion }),
+                    Err(ControlFailure::Unreachable(_))
+                        if self.mode == ControlMode::CompanionWithFallback =>
+                    {
+                        ReadSource::LocalFallback
+                    }
+                    Err(error) => return Err(error),
+                }
+            }
+        };
+        let value = match self.runtime.replay() {
+            Ok(state) => state,
+            Err(RuntimeError::NotInitialized) => RuntimeState::default(),
+            Err(error) => return Err(ControlFailure::Rejected(error.into())),
+        };
+        Ok(Sourced { value, source })
     }
 
-    async fn audit_events(&self) -> Result<Vec<Event>> {
-        if !self.remote_enabled {
-            self.runtime.replay()?;
-            return Ok(self.runtime.events()?);
+    async fn read_remote_status(&self) -> Result<RuntimeState, ControlFailure> {
+        let response = self.read_remote("status").await?;
+        let state: RuntimeState =
+            decode_json_response(&response).map_err(ControlFailure::Rejected)?;
+        self.validate_remote_state(&state)
+            .map_err(ControlFailure::Rejected)?;
+        Ok(state)
+    }
+
+    fn validate_remote_state(&self, state: &RuntimeState) -> Result<()> {
+        if state.schema_version != EVENT_SCHEMA_VERSION || state.revision == 0 {
+            anyhow::bail!("incompatible Companion status schema or revision");
         }
-        let response = self
-            .transport
-            .get(&format!("/api/v1/kbd/projects/{}/audit", self.project_id))
-            .await?;
-        if !response.status.is_success() {
-            return Err(anyhow!(
-                "control plane returned {}: {}",
-                response.status,
-                response.body
-            ));
+        if state.project_id != self.project_id {
+            anyhow::bail!(
+                "Companion returned project {} for requested project {}",
+                state.project_id, self.project_id
+            );
         }
-        response
+        Ok(())
+    }
+
+    async fn read_history(&self) -> Result<Sourced<VerifiedHistory>> {
+        let source = match self.mode {
+            ControlMode::Local => ReadSource::Local,
+            ControlMode::CompanionWithFallback | ControlMode::ReceiverOnly => {
+                match self.read_remote_history().await {
+                    Ok(value) => return Ok(Sourced { value, source: ReadSource::Companion }),
+                    Err(ControlFailure::Unreachable(_))
+                        if self.mode == ControlMode::CompanionWithFallback =>
+                    {
+                        ReadSource::LocalFallback
+                    }
+                    Err(error) => return Err(error.into_error()),
+                }
+            }
+        };
+        let value = self.verify_history(self.runtime.events()?)?;
+        Ok(Sourced { value, source })
+    }
+
+    async fn read_remote_history(&self) -> Result<VerifiedHistory, ControlFailure> {
+        let response = self.read_remote("audit").await?;
+        self.decode_history(&response)
+            .map_err(ControlFailure::Rejected)
+    }
+
+    fn decode_history(&self, response: &ControlResponse) -> Result<VerifiedHistory> {
+        require_media_type(response, "application/x-ndjson")?;
+        let events = response
             .body
             .lines()
             .filter(|line| !line.trim().is_empty())
             .enumerate()
             .map(|(index, line)| {
                 serde_json::from_str(line)
-                    .with_context(|| format!("invalid audit JSONL at line {}", index + 1))
+                    .with_context(|| format!("invalid Companion audit JSONL at line {}", index + 1))
             })
-            .collect()
+            .collect::<Result<_>>()?;
+        self.verify_history(events)
     }
 
-    async fn submit(
-        &self,
-        envelope: CommandEnvelope,
-    ) -> std::result::Result<Value, ControlFailure> {
-        if !self.remote_enabled {
-            let state = self
-                .execute_locally(envelope, None, false)
-                .map_err(ControlFailure::Rejected)?;
-            return Ok(json!({
-                "state": state,
-                "committedLocally": true,
-                "controlPlane": "disabled"
-            }));
+    fn verify_history(&self, events: Vec<Event>) -> Result<VerifiedHistory> {
+        if let Some(event) = events
+            .iter()
+            .find(|event| event.project_id != self.project_id)
+        {
+            anyhow::bail!(
+                "event {} belongs to project {}, expected {}",
+                event.event_id, event.project_id, self.project_id
+            );
         }
+        let state = fold_project_events(&events).context("invalid signed KBD audit")?;
+        Ok(VerifiedHistory { events, state })
+    }
+
+    async fn submit(&self, state: &RuntimeState, envelope: CommandEnvelope) -> Result<Value> {
+        if state.command_revisions.contains_key(&envelope.command_id)
+            && is_session_command(&envelope.command)
+        {
+            let history = self.read_history().await?;
+            Self::audit_receipt(&history.value, &envelope)?
+                .ok_or_else(|| anyhow!(
+                    "command {} is absent from the selected audit; reconcile before retrying",
+                    envelope.command_id
+                ))?;
+        }
+        if self.mode == ControlMode::Local {
+            let mut result = serde_json::to_value(self.execute_locally(envelope)?)?;
+            result["committedLocally"] = json!(true);
+            result["controlPlane"] = json!("disabled");
+            return Ok(result);
+        }
+        match self.submit_remote(&envelope).await {
+            Ok(response) => Ok(response),
+            Err(ControlFailure::Unreachable(error))
+                if self.mode == ControlMode::CompanionWithFallback =>
+            {
+                eprintln!(
+                    "control plane unreachable before dispatch ({error}); committing command {} locally",
+                    envelope.command_id
+                );
+                let mut result = serde_json::to_value(self.execute_locally(envelope)?)?;
+                result["committedLocally"] = json!(true);
+                result["remoteStatusUnknown"] = json!(false);
+                Ok(result)
+            }
+            Err(ControlFailure::Ambiguous(error)) => {
+                self.reconcile_submission(&envelope, error).await
+            }
+            Err(error) => Err(error.into_error()),
+        }
+    }
+
+    async fn submit_remote(&self, envelope: &CommandEnvelope) -> Result<Value, ControlFailure> {
         // Read-only commands must never touch the platform credential store.
         // Resolve the signer only for an actual mutation, and keep the
         // synchronous OS credential lookup off the async executor.
@@ -1992,6 +2134,8 @@ impl ControlClient {
             .runtime
             .replay_authority()
             .map_err(|error| ControlFailure::Rejected(error.into()))?;
+        let command_id = envelope.command_id.clone();
+        let envelope = envelope.clone();
         let signed = match tokio::task::spawn_blocking(move || {
             runtime.sign_command_envelope(&signing_state, envelope)
         })
@@ -2006,18 +2150,87 @@ impl ControlClient {
         };
         let response = self
             .transport
-            .post_json(
-                &format!("/api/v1/kbd/projects/{}/commands", self.project_id),
-                &signed,
-            )
+            .post_json(&self.route("commands"), &signed)
             .await
             .map_err(classify_transport_failure)?;
         if !response.status.is_success() {
-            return Err(classify_status(response.status, &response.body));
+            return Err(classify_status(&response));
         }
-        serde_json::from_str(&response.body)
-            .context("invalid control-plane JSON response")
+        self.decode_commit(&response, &command_id)
+            .with_context(|| format!("invalid Companion response for command {command_id}"))
             .map_err(ControlFailure::Rejected)
+    }
+
+    fn decode_commit(&self, response: &ControlResponse, command_id: &str) -> Result<Value> {
+        let value: Value = decode_json_response(response)?;
+        let result: CommandResult = serde_json::from_value(value.clone())?;
+        self.validate_remote_state(&result.state)?;
+        if result.command_id != command_id
+            || result.committed_revision == 0
+            || result.committed_revision > result.state.revision
+        {
+            anyhow::bail!("Companion did not acknowledge command {command_id}");
+        }
+        if let Some(error) = &result.apply_error {
+            anyhow::bail!("Companion rejected command {command_id}: {error}");
+        }
+        Ok(value)
+    }
+
+    async fn reconcile_submission(
+        &self,
+        envelope: &CommandEnvelope,
+        error: anyhow::Error,
+    ) -> Result<Value> {
+        let command_id = &envelope.command_id;
+        let history = self.read_remote_history().await.map_err(|audit_error| {
+            anyhow!(
+                "control plane submission ambiguous for command {command_id} ({error}). \
+                 Companion audit unavailable ({}). Check `prometheus kbd audit --receiver-only --json` \
+                 before retrying with the same command ID",
+                audit_error.into_error()
+            )
+        })?;
+        let receipt = Self::audit_receipt(&history, envelope)?.ok_or_else(|| {
+            anyhow!(
+                "control plane submission ambiguous for command {command_id} ({error}). \
+                 No committed effect found in the Companion audit. Recheck the audit before \
+                 retrying with the same command ID"
+            )
+        })?;
+        eprintln!(
+            "control plane submission ambiguous for command {command_id}. Confirmed by signed Companion audit"
+        );
+        Ok(receipt)
+    }
+
+    fn audit_receipt(history: &VerifiedHistory, envelope: &CommandEnvelope) -> Result<Option<Value>> {
+        let Some(committed_revision) = history.state.command_revisions.get(&envelope.command_id) else {
+            return Ok(None);
+        };
+        let mut events = history
+            .events
+            .iter()
+            .filter(|event| event.command_id.as_deref() == Some(envelope.command_id.as_str()));
+        let event = events.next().ok_or_else(|| anyhow!(
+            "signed audit omitted committed command {}", envelope.command_id
+        ))?;
+        if events.next().is_some()
+            || event.actor.id != envelope.actor.id
+            || event.actor.kind != envelope.actor.kind
+            || !matches_session_command(&envelope.command, &event.kind)
+        {
+            anyhow::bail!("signed audit conflicts with command {}", envelope.command_id);
+        }
+        Ok(Some(json!({
+            "commandId": envelope.command_id,
+            "committedRevision": committed_revision,
+            "duplicate": true,
+            "state": history.state,
+            "eventId": event.event_id,
+            "integrityHash": event.integrity_hash,
+            "reconciledFromAudit": true
+        })))
     }
 
     async fn submit_fresh(
@@ -2026,41 +2239,30 @@ impl ControlClient {
         actor: Actor,
         command: CommandKind,
     ) -> Result<RuntimeState> {
-        // One envelope, reused for both paths. `command_id` is generated ONCE so
-        // the local fallback carries the same idempotency key the daemon would
-        // have seen — if the daemon later replays this journal it recognises the
-        // command instead of double-applying it.
+        self.submit_with_id(state, actor, None, command).await
+    }
+
+    async fn submit_with_id(
+        &self,
+        state: &RuntimeState,
+        actor: Actor,
+        command_id: Option<String>,
+        command: CommandKind,
+    ) -> Result<RuntimeState> {
         let envelope = CommandEnvelope {
             schema_version: "2".into(),
             project_id: state.project_id.clone(),
             run_id: state.run_id.clone(),
-            command_id: uuid::Uuid::new_v4().to_string(),
+            command_id: command_id.unwrap_or_else(|| uuid::Uuid::new_v4().to_string()),
             frontier: Some(state.frontier.clone()),
             expected_revision: state.revision,
             actor,
             command,
         };
-        match self.submit(envelope.clone()).await {
-            Ok(response) => serde_json::from_value(
-                response
-                    .get("state")
-                    .cloned()
-                    .ok_or_else(|| anyhow!("control response omitted committed state"))?,
-            )
-            .context("invalid committed state in control response"),
-            // The daemon adjudicated and said no. Honour it — never launder a
-            // rejection into a local success.
-            Err(failure) if !failure.may_execute_locally() => Err(failure.into_error()),
-            // Execute against the same runtime the daemon itself would have used:
-            // identical journal, identical signing, identical validation, and
-            // mutual exclusion by the same exclusive flock inside
-            // `execute_command`. sovereign-sync is a passive replicator and must
-            // never gate local KBD work.
-            Err(failure) => {
-                let ambiguous = matches!(failure, ControlFailure::Ambiguous(_));
-                self.execute_locally(envelope, Some(&failure.into_error()), ambiguous)
-            }
-        }
+        let response = self.submit(state, envelope).await?;
+        let committed: CommandResult = serde_json::from_value(response)
+            .context("invalid committed result in KBD response")?;
+        Ok(committed.state)
     }
 
     /// Commit a command through the in-process runtime.
@@ -2069,28 +2271,7 @@ impl ControlClient {
     /// durability contract is unchanged: WAL append + fsync, Loro ingest, folded
     /// checkpoint, all under one exclusive flock. Two CLI processes serialize
     /// exactly as two daemon requests do.
-    fn execute_locally(
-        &self,
-        envelope: CommandEnvelope,
-        remote_error: Option<&anyhow::Error>,
-        ambiguous: bool,
-    ) -> Result<RuntimeState> {
-        if ambiguous {
-            let remote_error = remote_error.expect("ambiguous remote execution has an error");
-            // The command may already be committed in the daemon's journal. The
-            // stable `command_id` makes a later merge idempotent, but say so
-            // rather than implying a clean local-only commit.
-            eprintln!(
-                "control plane status UNKNOWN ({remote_error}); the command may already be \
-                 committed remotely. Committing locally with the same commandId {} — a later \
-                 sync deduplicates on that id. Run `prometheus kbd status` to reconcile.",
-                envelope.command_id
-            );
-        } else if let Some(remote_error) = remote_error {
-            eprintln!(
-                "control plane unreachable ({remote_error}); committing locally via the canonical runtime"
-            );
-        }
+    fn execute_locally(&self, envelope: CommandEnvelope) -> Result<CommandResult> {
         let projection_command = envelope.command.clone();
         let result = self
             .runtime
@@ -2127,73 +2308,32 @@ impl ControlClient {
                 result.state.revision
             );
         }
-        Ok(result.state)
+        Ok(result)
     }
 }
 
-/// Why a control-plane call did not produce a committed result.
-///
-/// The distinction is load-bearing for local fallback. `Unreachable` means the
-/// daemon never adjudicated the command — nothing was committed anywhere, so
-/// executing it locally is safe and produces exactly the state the daemon would
-/// have produced. `Rejected` means the daemon DID adjudicate and said no (a
-/// revision conflict, an invalid transition, a read-only replica). Retrying a
-/// rejection locally would launder a legitimate "no" into a "yes" and is the
-/// one thing this fallback must never do.
+/// Distinguish an unavailable endpoint, a lost response, and an authoritative refusal.
 #[derive(Debug)]
 enum ControlFailure {
-    /// Delivery is provably impossible: the connection was never established, or
-    /// the startup gate refused the route before dispatch (503). The daemon
-    /// cannot have adjudicated this command, so committing locally is safe.
     Unreachable(anyhow::Error),
-    /// The request may or may not have been committed — a timeout, a reset after
-    /// send, or a non-503 5xx. Safe to retry locally ONLY because the command
-    /// carries a stable `command_id` and the runtime deduplicates on it, but the
-    /// operator is told the remote status is unknown.
     Ambiguous(anyhow::Error),
-    /// The control plane adjudicated this command and refused it (4xx). Never
-    /// retried locally — that would launder a legitimate "no" into a "yes".
+    Uninitialized(anyhow::Error),
     Rejected(anyhow::Error),
 }
 
 impl ControlFailure {
     fn into_error(self) -> anyhow::Error {
         match self {
-            Self::Unreachable(error) | Self::Ambiguous(error) | Self::Rejected(error) => error,
+            Self::Unreachable(error)
+            | Self::Ambiguous(error)
+            | Self::Uninitialized(error)
+            | Self::Rejected(error) => error,
         }
-    }
-
-    /// Whether a local commit may proceed. False only for an adjudicated refusal.
-    fn may_execute_locally(&self) -> bool {
-        !matches!(self, Self::Rejected(_))
     }
 }
 
-/// Read current state, falling back to local replay when the daemon is unreachable.
-///
-/// Every mutating action needs the current state first, to build a `CommandEnvelope`
-/// carrying the expected revision and causal frontier. Reading that via a bare
-/// `client.status().await?` makes the daemon a hard dependency of *writes* — the
-/// command dies at the precondition read and never reaches `submit_fresh`, whose
-/// `Unreachable` → `execute_locally` fallback exists precisely so local work is never
-/// gated on a passive replicator.
-///
-/// That is not hypothetical: under the managed configuration sovereign-sync serves over
-/// a Unix socket and TCP :7892 is never bound, so `status()` ALWAYS fails and every
-/// mutation is unreachable. This is the failure Codex hit ("the typed mutation endpoint
-/// refused the connection"), and it silently cost recorded work — a `migrate --apply`
-/// then rebuilt the projections from canonical state that no harness had been able to
-/// write to, resetting a completed change back to PENDING.
-///
-/// Local replay is the same journal the daemon itself would read, so the envelope built
-/// from it is identical to the one the daemon would have produced.
-async fn state_or_replay(client: &ControlClient, runtime: &Runtime) -> Result<RuntimeState> {
-    match client.status().await {
-        Ok(state) => Ok(state),
-        Err(remote_error) => runtime
-            .replay()
-            .with_context(|| format!("control plane unavailable ({remote_error})")),
-    }
+async fn state_or_replay(client: &ControlClient, _runtime: &Runtime) -> Result<RuntimeState> {
+    Ok(client.status().await.map_err(ControlFailure::into_error)?.value)
 }
 
 /// Resolve the state required to construct a mutation envelope.
@@ -2203,11 +2343,11 @@ async fn state_or_replay(client: &ControlClient, runtime: &Runtime) -> Result<Ru
 /// authority using the same legacy-aware initializer as migration. Read-only commands
 /// continue to use `state_or_replay` so inspecting status never creates history.
 async fn state_or_initialize(client: &ControlClient, runtime: &Runtime) -> Result<RuntimeState> {
-    let remote_error = match client.status().await {
-        Ok(state) if state.revision > 0 => return Ok(state),
-        Ok(_) => None,
-        Err(error) => Some(error),
-    };
+    match client.status().await {
+        Ok(Sourced { value: state, .. }) if state.revision > 0 => return Ok(state),
+        Ok(_) | Err(ControlFailure::Uninitialized(_)) => {}
+        Err(error) => return Err(error.into_error()),
+    }
     match runtime.replay() {
         Ok(state) if state.revision > 0 => Ok(state),
         Ok(_) | Err(RuntimeError::NotInitialized) => {
@@ -2242,54 +2382,84 @@ async fn state_or_initialize(client: &ControlClient, runtime: &Runtime) -> Resul
                 Ok(initialized)
             }
         }
-        Err(error) => match remote_error {
-            Some(remote_error) => {
-                Err(error).with_context(|| format!("control plane unavailable ({remote_error})"))
-            }
-            None => Err(error.into()),
-        },
+        Err(error) => Err(error.into()),
     }
 }
 
-/// Classify a transport error by whether delivery is *provably* impossible.
-///
-/// Only a failure to establish the connection proves the daemon never saw the
-/// command. Once bytes are on the wire, a timeout or a reset is AMBIGUOUS: the
-/// daemon may have validated, journaled, fsynced and committed, and only the
-/// response died. Committing locally in that case is still safe — the command
-/// carries the same `command_id`, and `Runtime::execute_command` checks
-/// `state.command_revisions` for that id BEFORE validating the frontier, so a
-/// replay short-circuits to `duplicate: true` with the original revision rather
-/// than double-applying. But the local runtime cannot see a commit that only
-/// exists in the daemon's journal yet, so we surface the ambiguity instead of
-/// silently reconciling it.
 fn classify_transport_failure(failure: TransportFailure) -> ControlFailure {
     match failure {
         TransportFailure::Unreachable(error) => ControlFailure::Unreachable(error),
-        TransportFailure::Ambiguous(error) => ControlFailure::Ambiguous(error),
+        TransportFailure::Disconnected(error) | TransportFailure::Ambiguous(error) => {
+            ControlFailure::Ambiguous(error)
+        }
+        TransportFailure::Invalid(error) => ControlFailure::Rejected(error),
     }
 }
 
-/// A 503 from the startup gate means the daemon refused the route before any
-/// command was dispatched — unreachability wearing an HTTP status. Any other
-/// 5xx is ambiguous: the daemon may have committed and then failed to respond.
-/// A 4xx is a decision about this command.
-fn classify_status(status: hyper::StatusCode, body: &str) -> ControlFailure {
-    let error = anyhow!("control plane returned {status}: {body}");
-    if status == hyper::StatusCode::SERVICE_UNAVAILABLE {
-        ControlFailure::Unreachable(error)
-    } else if status.is_server_error() {
-        ControlFailure::Ambiguous(error)
-    } else {
-        ControlFailure::Rejected(error)
+fn classify_status(response: &ControlResponse) -> ControlFailure {
+    let status = response.status;
+    let error = anyhow!("control plane returned {status}: {}", response.body);
+    let body = decode_json_response::<Value>(response).unwrap_or_default();
+    match (status, body["error"].as_str(), body["status"].as_str()) {
+        (
+            hyper::StatusCode::SERVICE_UNAVAILABLE,
+            Some("local authority routes are not ready"),
+            Some("initializing"),
+        ) => ControlFailure::Unreachable(error),
+        (hyper::StatusCode::NOT_FOUND, Some("kbd runtime is not initialized"), _) => {
+            ControlFailure::Uninitialized(error)
+        }
+        _ if status.is_server_error() => ControlFailure::Ambiguous(error),
+        _ => ControlFailure::Rejected(error),
     }
 }
 
-fn decode_response<T: serde::de::DeserializeOwned>(response: ControlResponse) -> Result<T> {
-    if !response.status.is_success() {
-        return Err(classify_status(response.status, &response.body).into_error());
+fn require_media_type(response: &ControlResponse, expected: &str) -> Result<()> {
+    let actual = response.content_type.as_deref()
+        .and_then(|value| value.split(';').next())
+        .unwrap_or_default()
+        .trim();
+    if !actual.eq_ignore_ascii_case(expected) {
+        anyhow::bail!("incompatible control-plane media type {actual:?}; expected {expected}");
     }
+    Ok(())
+}
+
+fn decode_json_response<T: serde::de::DeserializeOwned>(response: &ControlResponse) -> Result<T> {
+    require_media_type(response, "application/json")?;
     serde_json::from_str(&response.body).context("invalid control-plane JSON response")
+}
+
+fn is_session_command(command: &CommandKind) -> bool {
+    matches!(
+        command,
+        CommandKind::BlockerRecord { .. }
+            | CommandKind::BlockerClear { .. }
+            | CommandKind::ClaimAcquire { .. }
+    )
+}
+
+fn matches_session_command(command: &CommandKind, event: &EventKind) -> bool {
+    match (command, event) {
+        (
+            CommandKind::BlockerRecord { blocker },
+            EventKind::BlockerRecorded { blocker: recorded },
+        ) => blocker == recorded,
+        (
+            CommandKind::BlockerClear { blocker_id, resolution },
+            EventKind::BlockerCleared { blocker_id: recorded_id, resolution: recorded_resolution },
+        ) => blocker_id == recorded_id && resolution == recorded_resolution,
+        (
+            CommandKind::ClaimAcquire { scope, holder_id, mode, .. },
+            EventKind::ClaimAcquired {
+                scope: recorded_scope,
+                holder_id: recorded_holder,
+                mode: recorded_mode,
+                ..
+            },
+        ) => scope == recorded_scope && holder_id == recorded_holder && mode == recorded_mode,
+        _ => !is_session_command(command),
+    }
 }
 
 async fn audit(
@@ -2304,16 +2474,8 @@ async fn audit(
         println!("{}", serde_json::to_string_pretty(&exported)?);
         return Ok(());
     }
-    let events = match client.audit_events().await {
-        Ok(events) => events,
-        Err(_) => {
-            // A freshly migrated standalone project may have a valid local
-            // canonical journal before the daemon has registered the project.
-            // Audit must remain available for operator recovery in that state.
-            runtime.replay()?;
-            runtime.events()?
-        }
-    };
+    let Sourced { value, source } = client.read_history().await?;
+    let events = value.events;
     let filtered: Vec<&Event> = match since {
         Some(value) => match value.parse::<u64>() {
             Ok(revision) => events
@@ -2330,6 +2492,7 @@ async fn audit(
         },
         None => events.iter().collect(),
     };
+    source.report();
     if json_output {
         println!("{}", serde_json::to_string_pretty(&filtered)?);
     } else {
@@ -2343,20 +2506,55 @@ async fn audit(
     Ok(())
 }
 
-async fn watch(client: &ControlClient) -> Result<()> {
-    let mut seen = BTreeSet::new();
+async fn watch(client: &ControlClient, after_event: Option<&str>) -> Result<()> {
+    let mut seen = BTreeMap::new();
+    let mut after_event = after_event;
+    let mut previous_source = None;
+    let interrupt = tokio::signal::ctrl_c();
+    tokio::pin!(interrupt);
     loop {
-        let fresh: Vec<_> = client
-            .events()
-            .await?
-            .into_iter()
-            .filter(|event| seen.insert(event.event_id.clone()))
-            .collect();
-        for event in fresh {
-            println!("{}", serde_json::to_string(&event)?);
+        let Sourced { value, source } = tokio::select! {
+            result = &mut interrupt => return result.map_err(Into::into),
+            result = client.read_history() => result?,
+        };
+        let events = value.events;
+        let start = match after_event {
+            Some(cursor) => match events.iter().position(|event| event.event_id == cursor) {
+                Some(index) => {
+                    seen.extend(events[..=index].iter().map(|event| {
+                        (event.event_id.clone(), event.integrity_hash.clone())
+                    }));
+                    after_event = None;
+                    Some(index + 1)
+                }
+                // A cursor previously read from Companion may not have replicated
+                // to the fallback journal yet. Wait for a snapshot carrying it.
+                None if source == ReadSource::LocalFallback => None,
+                None => anyhow::bail!("watch cursor event not found: {cursor}"),
+            },
+            None => Some(0),
+        };
+        if let Some(start) = start {
+            let mut stdout = io::stdout().lock();
+            for event in events.into_iter().skip(start) {
+                if let Some(previous_hash) = seen.get(&event.event_id) {
+                    if previous_hash != &event.integrity_hash {
+                        anyhow::bail!("event {} changed its integrity hash", event.event_id);
+                    }
+                    continue;
+                }
+                serde_json::to_writer(&mut stdout, &event)?;
+                writeln!(stdout)?;
+                seen.insert(event.event_id, event.integrity_hash);
+            }
+            stdout.flush()?;
+        }
+        if previous_source != Some(source) {
+            source.report();
+            previous_source = Some(source);
         }
         tokio::select! {
-            _ = tokio::signal::ctrl_c() => return Ok(()),
+            result = &mut interrupt => return result.map_err(Into::into),
             _ = tokio::time::sleep(Duration::from_secs(1)) => {}
         }
     }

@@ -102,6 +102,18 @@ fn assess_projection(projection: Projection, root: &Path) -> Result<(bool, Strin
     Ok((healthy, summary))
 }
 
+fn config_path(harness: &str, home: &Path) -> Result<PathBuf> {
+    match harness {
+        "claude-code" => Ok(home.join(".claude/settings.json")),
+        "codex" => super::effective_doctor_codex_home(home)
+            .map(|dir| dir.join("config.toml"))
+            .map_err(|error| anyhow!(error)),
+        "opencode" => Ok(home.join(".config/opencode/opencode.json")),
+        "kimi" => Ok(home.join(".kimi-code/config.toml")),
+        _ => bail!("unsupported harness"),
+    }
+}
+
 fn describe(
     file: &Path,
     harness: &str,
@@ -119,14 +131,8 @@ fn describe(
     {
         bail!("measurement identity is invalid");
     }
-    let config = match harness {
-        "claude-code" => ".claude/settings.json",
-        "codex" => ".codex/config.toml",
-        "opencode" => ".config/opencode/opencode.json",
-        "kimi" => ".kimi-code/config.toml",
-        _ => bail!("unsupported harness"),
-    };
-    if hash_path(&home.join(config)) != receipt.config_sha256
+    let config = config_path(harness, home)?;
+    if hash_path(&config) != receipt.config_sha256
         || harness == "claude-code"
             && std::env::var("SLASH_COMMAND_TOOL_CHAR_BUDGET").ok() != receipt.environment_budget
     {
@@ -207,6 +213,13 @@ fn describe(
 }
 
 fn inventory_root(home: &Path) -> PathBuf {
+    if let Some(selections) = super::installed_selections(&super::doctor_plugin_store()) {
+        if let Some(source) = selections.into_iter().map(|s| s.source_root)
+            .find(|path| path.is_absolute() && path.join("evals/skill-activation/harness-budgets.json").is_file())
+        {
+            return source;
+        }
+    }
     let project = super::project_root::resolve_project_root().path;
     if project
         .join("evals/skill-activation/harness-budgets.json")
@@ -235,12 +248,20 @@ pub(super) fn check(home: &Path) -> CheckResult {
     let root = inventory_root(home);
     let inventory = super::super::skill::inventory(&root.join("skills"));
     let dir = home.join(".prometheus/skill-activation/harness-budgets");
+    let all = ["claude-code", "codex", "opencode", "kimi"];
+    let configured = super::installed_selections(&super::doctor_plugin_store()).map(|profiles| {
+        let recorded: std::collections::BTreeSet<_> = profiles.into_iter().flat_map(|p| p.harnesses).collect();
+        all.into_iter().filter(|name| {
+            recorded.contains(*name) || config_path(name, home).map_or(true, |path| path.is_file())
+        }).collect::<Vec<_>>()
+    }).unwrap_or_else(|| all.to_vec());
+    let expected = configured.len();
     let mut details = Vec::new();
     let mut measured = 0;
     let mut covered = 0;
     let (skills, characters) = match inventory {
         Ok(inventory) if inventory.0 > 0 => {
-            for harness in ["claude-code", "codex", "opencode", "kimi"] {
+            for harness in configured {
                 match describe(
                     &dir.join(format!("{harness}.json")),
                     harness,
@@ -267,18 +288,21 @@ pub(super) fn check(home: &Path) -> CheckResult {
             (0, 0)
         }
     };
-    if measured != 4 {
+    if expected == 0 {
+        details.push("Install selection and current local configuration identify no supported discovery harness.".into());
+    }
+    if measured != expected {
         details.push("Capture current native prompt measurements with scripts/certification/measure-discovery.py.".into());
     }
     CheckResult {
         id: "skills.discovery-budget".into(),
         group: "skills".into(),
         label: "Harness instruction discovery budgets".into(),
-        severity: if covered == 4 { Severity::Green } else { Severity::Yellow },
-        status: if covered == 4 { CheckStatus::Pass } else { CheckStatus::Warn },
-        summary: format!("{skills} skills, {characters} discovery characters, {measured}/4 measured harnesses, {covered}/4 cover configured discovery profiles"),
+        severity: if covered == expected && skills > 0 { Severity::Green } else { Severity::Yellow },
+        status: if expected == 0 && skills > 0 { CheckStatus::Skip } else if covered == expected && skills > 0 { CheckStatus::Pass } else { CheckStatus::Warn },
+        summary: format!("{skills} skills, {characters} discovery characters, {measured}/{expected} measured harnesses, {covered}/{expected} cover configured discovery profiles"),
         details,
-        optional: false,
+        optional: expected == 0 && skills > 0,
         actions: vec![],
     }
 }

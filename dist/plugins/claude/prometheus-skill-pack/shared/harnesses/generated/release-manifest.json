@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.17.0",
+  "sourceVersion": "1.18.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -203,7 +203,7 @@
     },
     {
       "path": "shared/scripts/kbd-boundary-authorize.mjs",
-      "sha256": "a1efba84198f7c9419d849de8893135f5d784d290b8837f6c3a895438fe4c4da",
+      "sha256": "3a3b8cf07c31d5f63c2b36d7a434b7859176d35ca9a8f0ece11b0f725e309b6b",
       "executable": false
     },
     {
@@ -213,7 +213,7 @@
     },
     {
       "path": "shared/scripts/kbd-contract-adopt.sh",
-      "sha256": "dd878aa1a972e0866d95196298a0a2d382dbea3aacdd252f364ed413683e552a",
+      "sha256": "6a75fa8e5e8d108932192ef40107c725d14fa706f94f96f79637e4ca6c47f037",
       "executable": true
     },
     {
@@ -238,12 +238,12 @@
     },
     {
       "path": "shared/scripts/kbd-phase-close-eval.sh",
-      "sha256": "9f16387cc8a627ac9ae87deb61bfcb0aae3794236f17fd9e5a37415c6e645a1c",
+      "sha256": "7e3e4e49a05a1ad968f3d7cdc5e5567f7241bb819f753942737508ab39b2771d",
       "executable": true
     },
     {
       "path": "shared/scripts/kbd-phase-readiness-check.sh",
-      "sha256": "03e8592dc0c585bd59237035c7eb2bade7353ebf84b8e155da2751865dbc52ed",
+      "sha256": "c4091243ebae3420e603f07dbdd7bd80f433fc6e8222ab6a7f412eb51f5943e7",
       "executable": true
     },
     {
@@ -295,6 +295,11 @@
       "path": "shared/scripts/lib/kbd-model-resolve.sh",
       "sha256": "af72638a54322829227cc7dd0c29387e2d55cad73e520cb96917e279b5963348",
       "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/kbd-phase-directory.mjs",
+      "sha256": "32784f1beb87e4e297a21cb620ece713b5ce3c4b5a467314e5e877174c9036f7",
+      "executable": false
     },
     {
       "path": "shared/scripts/lib/learning_recall.py",
@@ -577,5 +582,5 @@
       "executable": true
     }
   ],
-  "bundleId": "decad18e67ddca5aef47f7fa76ba4b610a472fdc2b73f49131d183f5df9bd0a8"
+  "bundleId": "d3a09acdc6c279aa7b0309999e9c7f8cf166279d9171ad04d92f0094d14c407f"
 }

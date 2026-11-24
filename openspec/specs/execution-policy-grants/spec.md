@@ -1,7 +1,7 @@
 # execution-policy-grants Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-002-tier-p-sidecar. Update Purpose after archive.
+Bound automatic execution approval and require recorded evidence for privileged grants.
 ## Requirements
 ### Requirement: Hard auto-approval ceiling
 The execution PEP SHALL auto-approve only network-free requests whose writable paths are confined to `outputs/` and whose environment passthrough is empty. Operator Cedar policy MAY tighten but MUST NOT broaden this ceiling.

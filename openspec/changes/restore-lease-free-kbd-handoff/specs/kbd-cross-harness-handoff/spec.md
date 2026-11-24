@@ -16,14 +16,16 @@ or task checkboxes. Its only writes SHALL be the packet and its JSON sidecar und
 - **THEN** the skill SHALL print the packet and write nothing
 
 ### Requirement: Handoff refuses a half-closed boundary
-The skill SHALL classify each open obligation in `prometheus kbd status --json`. It SHALL
-ignore obligations on the active phase path and on the active change while that change is
-not complete. It SHALL exit 1 without writing on an open `task` obligation, or on a
-`change` or `phase` obligation the runtime marks complete or does not know, printing
-`prometheus kbd guard evaluate --boundary <boundary> --edge after --subject <subject> --json --repair-projections`
-for each. It SHALL warn, as carried work, on a `change` or `phase` obligation outside the
-active position that was started and not finished. When status is unavailable it SHALL
-fall back to the projections and record that obligations were not checked.
+
+The skill SHALL classify open obligations from `prometheus kbd status --json`. It SHALL ignore obligations on the active phase path and the active incomplete change, refuse interrupted closes without writing, and warn about carried work. If status is unavailable it SHALL fall back to projections and record the obligations check as unavailable.
+
+#### Scenario: Unfinished boundary close requires repair
+- **WHEN** an open obligation outside the active exceptions is a task, or a change or phase the runtime marks complete or does not know
+- **THEN** the skill exits 1 without writing and prints `prometheus kbd guard evaluate --boundary <boundary> --edge after --subject <subject> --json --repair-projections` for each such obligation
+
+#### Scenario: An earlier change or phase remains in progress
+- **WHEN** the obligation is an earlier change or phase that started and remains unfinished
+- **THEN** the skill warns about carried work
 
 #### Scenario: Interrupted close
 - **WHEN** `boundaryObligations` contains a `task` entry, or a `change` entry whose change the runtime marks complete

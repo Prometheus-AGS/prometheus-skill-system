@@ -303,7 +303,7 @@ fn stale_actions(raw_threshold: &str, base: &str, oldest: &str) -> Vec<RepairAct
     ]
 }
 
-pub(super) async fn check_learning_queue() -> CheckResult {
+pub(super) async fn check_learning_queue(probe_server: bool) -> CheckResult {
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
     let root = queue_root(&home);
     let (raw_threshold, threshold) = stale_after();
@@ -340,7 +340,11 @@ pub(super) async fn check_learning_queue() -> CheckResult {
             .iter()
             .map(|p| format!("  {} {} {}", p.id, p.state, format_age(p.age))),
     );
-    details.extend(server_lines(&base, &ids).await);
+    if probe_server {
+        details.extend(server_lines(&base, &ids).await);
+    } else {
+        details.push("Local queue inspected. The installation selected no remote learning service.".into());
+    }
 
     let needs_attention = !stale.is_empty() || legacy > 0;
     if needs_attention {

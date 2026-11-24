@@ -1,7 +1,7 @@
 # adversarial-review-gating Specification
 
 ## Purpose
-TBD - created by archiving change change-arc-001-ratify-goal-wording. Update Purpose after archive.
+Apply an independent, fail-closed review before declaring generated skills and agents ready. Preserve producer identity, bound review retries, and record findings and permitted overrides.
 ## Requirements
 ### Requirement: Producer model is required, never synthesized
 
@@ -48,14 +48,7 @@ its logic. Creators SHALL invoke `validate-skill.sh` and SHALL NOT call the help
 
 ### Requirement: Shared producer-model guard
 
-The producer-model refusal SHALL be implemented once, as `kbd_require_producer_model()` in
-`shared/scripts/lib/kbd-model-resolve.sh`, and SHALL be sourced by every creator entry point
-that dispatches an adversarial review. A per-creator reimplementation would let the two
-creators drift, so that one fails closed and the other silently fabricates a producer.
-
-This requirement covers the *mechanism*. The behavioural contract it enforces —
-"Producer model is required, never synthesized" — is already specified by
-`change-arc-001-ratify-goal-wording` and is not restated here.
+Every creator entry point that dispatches an adversarial review SHALL source and call the single `kbd_require_producer_model()` guard in `shared/scripts/lib/kbd-model-resolve.sh`.
 
 #### Scenario: Guard is defined in the shared resolver
 
@@ -339,16 +332,7 @@ expensive to keep enabled, and a disabled gate proves nothing.
 
 ### Requirement: The sycophancy-screen cap is user-overridable within a hard ceiling
 
-`check-findings-sycophancy.sh` SHALL read its rejection cap from
-`PROMETHEUS_ADV_REJECT_CAP`, defaulting to 2, following the same pattern as
-`PROMETHEUS_REFLECT_STRICTNESS`. A hardcoded cap decides on the operator's behalf in contexts
-the author of the constant never saw.
-
-The override SHALL be bounded by a hard ceiling of 5. A value above the ceiling SHALL be an
-error rather than being clamped or ignored, so a typo cannot silently disable the bound.
-
-This requirement governs the **sycophancy-screen** cap only. The two-round retry cap in the
-skill and agent creators is a separate bound and is unchanged.
+`check-findings-sycophancy.sh` SHALL read its rejection cap from `PROMETHEUS_ADV_REJECT_CAP`, default to 2, and reject any setting above 5. The creators SHALL enforce their separate two-round retry limit.
 
 #### Scenario: The default cap is unchanged
 

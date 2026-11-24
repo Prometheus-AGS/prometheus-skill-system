@@ -1207,6 +1207,10 @@ This is enforced architecturally, not as optional guidance. Pedagogical sycophan
 
 ## Codex CLI Integration
 
+Run `prometheus doctor --json` from the consumer project to check the selected
+installation. The installer records the profile and discovery harnesses for the
+active generation. See [Codex installation and health checks](docs/codex-plugin.md).
+
 Codex CLI (OpenAI) discovers skills differently from every other platform in this pack.
 Two of its behaviours are load-bearing and non-obvious — both were verified empirically
 against codex-cli 0.144.1.

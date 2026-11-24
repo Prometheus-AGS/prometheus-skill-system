@@ -19,6 +19,7 @@
 //       3 ordering violated.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const argv = process.argv.slice(2);
@@ -29,15 +30,21 @@ const phase = opt('--phase');
 const authorizer = opt('--authorizer');
 const boundary = opt('--boundary') ?? 'B4';
 const reason = opt('--reason') ?? '';
-if (!phase || !/^[a-z0-9][a-z0-9._-]*$/.test(phase)) fail(1, '--phase <id> is required (kebab-case)');
+if (!phase) fail(1, '--phase <registered id> is required');
 if (!authorizer) fail(1, '--authorizer <who> is required');
 if (!['B4', 'B5'].includes(boundary)) fail(1, '--boundary must be B4 or B5');
 
 let root = path.resolve(opt('--project') ?? process.cwd());
 while (root !== path.dirname(root) && !fs.existsSync(path.join(root, '.kbd-orchestrator'))) root = path.dirname(root);
 if (!fs.existsSync(path.join(root, '.kbd-orchestrator'))) fail(1, 'no .kbd-orchestrator above the working directory');
-const phaseDir = path.join(root, '.kbd-orchestrator', 'phases', phase);
-if (!fs.existsSync(phaseDir)) fail(1, `phase directory ${phaseDir} does not exist`);
+const status = spawnSync('prometheus', ['kbd', '--path', root, 'status', '--json'],
+  {encoding: 'utf8', timeout: 60_000, maxBuffer: 64 * 1024 * 1024});
+if (status.status !== 0) fail(2, 'cannot read canonical phase status');
+const helper = fileURLToPath(new URL('./lib/kbd-phase-directory.mjs', import.meta.url));
+const directory = spawnSync(process.execPath, [helper, root, phase], {input: status.stdout, encoding: 'utf8'});
+if (directory.status !== 0) fail(2, directory.stderr?.trim() || 'cannot resolve registered phase directory');
+const phaseDir = directory.stdout.trimEnd();
+if (!fs.statSync(phaseDir, {throwIfNoEntry: false})?.isDirectory()) fail(1, `phase directory ${phaseDir} does not exist`);
 
 const disposition = spawnSync('prometheus', ['kbd', '--path', root, 'phase', 'disposition', '--id', phase, '--json'], { encoding: 'utf8', timeout: 60_000 });
 let digest = null;

@@ -1,7 +1,7 @@
 # execution-release-distribution Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-004-remote-mcp-docs. Update Purpose after archive.
+Install verified execution binaries and components with consistent release metadata, transactional updates, and read-only diagnosis.
 ## Requirements
 ### Requirement: Strict signed binary installation
 The strict installer SHALL build or select the certified `prometheus-exec` binary, verify its expected version and hash, install it atomically, apply the platform signature, and verify the installed identity before reporting success. Development best-effort mode SHALL report every skipped or failed step without claiming installation.

@@ -1,7 +1,7 @@
 # installed-surface-verification Specification
 
 ## Purpose
-TBD - created by archiving change change-drift-405-reinstall-verify. Update Purpose after archive.
+Verify that a merged fix is visible through the installed user entry point.
 
 ## Requirements
 

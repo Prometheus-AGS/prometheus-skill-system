@@ -358,6 +358,9 @@ enum KbdAction {
     Status {
         #[arg(long)]
         json: bool,
+        /// Read only from the configured Companion endpoint
+        #[arg(long)]
+        receiver_only: bool,
     },
     /// List all registered projects and replicas on this machine
     Projects {
@@ -455,9 +458,19 @@ enum KbdAction {
         /// Export the full converged chain to refs/heads/audit/kbd without checkout
         #[arg(long, conflicts_with_all = ["since", "json"])]
         export_git: bool,
+        /// Read only from the configured Companion endpoint
+        #[arg(long, conflicts_with = "export_git")]
+        receiver_only: bool,
     },
     /// Follow new events until interrupted
-    Watch,
+    Watch {
+        /// Resume after this signed event ID, excluding the cursor event itself
+        #[arg(long)]
+        after_event: Option<String>,
+        /// Read only from the configured Companion endpoint
+        #[arg(long)]
+        receiver_only: bool,
+    },
     /// Inventory/apply legacy state, or migrate phase projections without events
     Migrate {
         #[arg(long, conflicts_with = "apply")]
@@ -655,6 +668,9 @@ enum KbdClaimAction {
         ttl: u64,
         #[arg(long)]
         holder: Option<String>,
+        /// Reuse this ID when retrying this claim acquisition
+        #[arg(long)]
+        command_id: Option<String>,
     },
     /// Renew a claim with a larger monotonic token
     Renew {
@@ -1131,7 +1147,9 @@ async fn run() -> Result<()> {
                 }
             };
             let action = match action {
-                KbdAction::Status { json } => commands::kbd::Action::Status { json },
+                KbdAction::Status { json, receiver_only } => {
+                    commands::kbd::Action::Status { json, receiver_only }
+                }
                 KbdAction::Projects {
                     json,
                     prune_missing,
@@ -1171,11 +1189,13 @@ async fn run() -> Result<()> {
                         mode,
                         ttl,
                         holder,
+                        command_id,
                     } => commands::kbd::Action::ClaimAcquire {
                         scope,
                         mode: mode.into(),
                         ttl_seconds: ttl,
                         holder_id: holder,
+                        command_id,
                     },
                     KbdClaimAction::Renew { claim_id, ttl } => commands::kbd::Action::ClaimRenew {
                         claim_id,
@@ -1217,12 +1237,16 @@ async fn run() -> Result<()> {
                     since,
                     json,
                     export_git,
+                    receiver_only,
                 } => commands::kbd::Action::Audit {
                     since,
                     json,
                     export_git,
+                    receiver_only,
                 },
-                KbdAction::Watch => commands::kbd::Action::Watch,
+                KbdAction::Watch { after_event, receiver_only } => {
+                    commands::kbd::Action::Watch { after_event, receiver_only }
+                }
                 KbdAction::Migrate {
                     check,
                     apply,

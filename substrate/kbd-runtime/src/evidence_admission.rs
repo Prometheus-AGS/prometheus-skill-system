@@ -182,7 +182,7 @@ pub(crate) fn admit_close(
         return Ok(());
     };
     let snapshot = project_root
-        .map(|root| bound_snapshot(root, phase_id, &binding.contract_digest))
+        .map(|root| bound_snapshot(root, state, phase_id, &binding.contract_digest))
         .transpose()?;
     check_identity(&state.project_id, phase_id, input)?;
     if input.run_id != state.run_id || input.contract_digest != binding.contract_digest {
@@ -243,9 +243,20 @@ fn observe_source(project_root: &Path, relative: &str) -> SourceObservation {
 
 /// The adopted contract snapshot the binding names. It defines the budget
 /// ceilings; the mutable working contract is never read.
-fn bound_snapshot(project_root: &Path, phase_id: &str, contract_digest: &str) -> Result<Value> {
-    let relative = format!(".kbd-orchestrator/phases/{phase_id}/adopted/{contract_digest}.json");
-    read_confined(project_root, &relative)
+fn bound_snapshot(
+    project_root: &Path,
+    state: &KbdStateV2,
+    phase_id: &str,
+    contract_digest: &str,
+) -> Result<Value> {
+    let phase = state.phases.get(phase_id).ok_or_else(|| RuntimeError::WorkItemNotFound {
+        kind: "phase",
+        id: phase_id.to_owned(),
+    })?;
+    let directory = crate::phase_projection_directory(Path::new(".kbd-orchestrator"), state, phase)?;
+    let snapshot = directory.join("adopted").join(format!("{contract_digest}.json"));
+    let relative = snapshot.to_string_lossy();
+    read_confined(project_root, relative.as_ref())
         .filter(|bytes| sha256_hex(bytes) == contract_digest)
         .and_then(|bytes| serde_json::from_slice(&bytes).ok())
         .ok_or_else(|| {

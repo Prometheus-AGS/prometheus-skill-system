@@ -56,7 +56,13 @@ Execution SHALL carry assignments into its dispatch contract and recheck them be
 - **THEN** execution records an explicit current selection without requiring runtime-state migration.
 
 ### Requirement: Latest stable OpenSpec lifecycle
-The packs SHALL standardize on latest stable upstream OpenSpec, with release baseline1.14.0, and refresh generated instructions for existing KBD/OpenSpec projects at startup and phase entry through a portable managed runner. Authored specs, changes, task completion and KBD state SHALL be preserved. Subsequent OpenSpec commands SHALL use the selected CLI. Explicit overrides, offline freshness uncertainty, backup locations and incomplete migrations SHALL be visible in receipts; authored Markdown SHALL NOT be relabeled as semantically migrated.
+
+The packs SHALL use a portable managed runner to select latest stable upstream OpenSpec (release baseline 1.14.0), refresh generated instructions at startup and phase entry, and route subsequent commands through the selected CLI. The runner SHALL preserve authored specs, changes, task completion, and KBD state.
+
+#### Scenario: Selection and migration receipts
+- **WHEN** the runner selects a CLI or refreshes generated instructions
+- **THEN** the receipt identifies any version override, offline freshness uncertainty, backup location, or incomplete migration
+- **AND** it identifies authored Markdown as preserved, without claiming semantic migration
 
 #### Scenario: Existing project startup and phase entry
 - **WHEN** startup or a phase/child creation or entry encounters an existing KBD/OpenSpec project

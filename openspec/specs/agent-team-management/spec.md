@@ -1,7 +1,7 @@
 # agent-team-management Specification
 
 ## Purpose
-TBD - created by archiving change agent-team-creator. Update Purpose after archive.
+Author, operate, update, and distribute portable agent teams while preserving each harness’s native capabilities, model policy, task ownership, handoff state, and validation.
 
 ## Requirements
 

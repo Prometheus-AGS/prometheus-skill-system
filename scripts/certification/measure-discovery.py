@@ -224,6 +224,8 @@ def measure(args):
             else:
                 high = mid
     config_file = Path.home() / CONFIGS[harness]
+    if harness == "codex" and os.environ.get("CODEX_HOME"):
+        config_file = Path(os.environ["CODEX_HOME"]).resolve() / "config.toml"
     config_digest = hashlib.sha256(config_file.read_bytes()).hexdigest() if config_file.is_file() else None
     receipt = {"schemaVersion": 2, "configSha256": config_digest, "harness": harness, "harnessVersion": version,
                "capturedAt": datetime.now(timezone.utc).isoformat(), "source": source,

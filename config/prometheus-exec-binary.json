@@ -46,6 +46,35 @@
         "observedRunnerImage": "xcode-27-arm64/20261104.0337",
         "ld": "27037.1"
       }
+    },
+    "1.18.0": {
+      "x86_64-apple-darwin": {
+        "sha256": "00718e7e89f17909d6b47d1d3f5cf61aa68cc0e8a3a1219bdc9f73ee6bb12354",
+        "sourceInputsSha256": "589a55186ceb4afac4eeb2cf5bc041d77bf6996a907d458e8543c26d851195a3",
+        "rustc": "1.97.1",
+        "rustcCommit": "8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+        "xcode": "26.6",
+        "xcodeBuild": "17F113",
+        "sdk": "26.5",
+        "runner": "macos-26-intel",
+        "observedSourceCommit": "85eef4b2f55aa238c287a9c456e4ebbffc479c3d",
+        "observedJob": "https://github.com/Prometheus-AGS/prometheus-skill-system/actions/runs/45176578329/job/137699369968",
+        "observedRunnerImage": "macos-26/20260824.0517"
+      },
+      "aarch64-apple-darwin": {
+        "sha256": "cd8cb3d7bb806d6eff314f974fff0aec0c002ddca4d32e0b87275e29bec0c6f9",
+        "sourceInputsSha256": "589a55186ceb4afac4eeb2cf5bc041d77bf6996a907d458e8543c26d851195a3",
+        "rustc": "1.97.1",
+        "rustcCommit": "8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+        "xcode": "27.1",
+        "xcodeBuild": "27A9275",
+        "sdk": "27.0",
+        "runner": "xcode-27",
+        "observedSourceCommit": "85eef4b2f55aa238c287a9c456e4ebbffc479c3d",
+        "observedJob": "https://github.com/Prometheus-AGS/prometheus-skill-system/actions/runs/45176578329/job/137699370445",
+        "observedRunnerImage": "xcode-27-arm64/20261104.0337",
+        "ld": "27037.1"
+      }
     }
   }
 }

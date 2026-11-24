@@ -1,7 +1,7 @@
 # execution-certification-evidence Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-004-remote-mcp-docs. Update Purpose after archive.
+Tie execution evidence to real receipts and distinguish pending evidence, admission, and certification across supported verification methods.
 ## Requirements
 ### Requirement: Receipt-backed evidence references
 Certification records SHALL resolve a cited execution run to its signed receipt, request hash, public verification identity, referenced content-addressed artifacts, and verification result without requiring the generating session or a running daemon.

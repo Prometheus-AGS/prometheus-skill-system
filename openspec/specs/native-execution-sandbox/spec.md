@@ -1,7 +1,7 @@
 # native-execution-sandbox Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-002-tier-p-sidecar. Update Purpose after archive.
+Run native workloads only through supported sandboxes with default isolation, resource limits, and receipts that accurately identify the execution tier.
 ## Requirements
 ### Requirement: Supported sandbox required
 Tier P SHALL execute Python, Node, and Bash only through a supported OS sandbox selected before process creation. If the requested capabilities cannot be enforced, the run MUST be rejected as `tier_unavailable` and MUST NOT emit an attested execution receipt.

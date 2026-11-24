@@ -1,7 +1,7 @@
 # execution-sidecar-service Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-002-tier-p-sidecar. Update Purpose after archive.
+Provide a health-aware local execution sidecar over a Unix socket with restart-safe run identity, event retrieval, read-only diagnosis, and verified offline replay.
 ## Requirements
 ### Requirement: Restart-safe idempotent runs
 The service SHALL atomically persist request identity before spawn and terminal receipt before response. Same-ID/same-hash replay SHALL return the existing run/receipt; same-ID/different-hash SHALL return conflict, including after restart.

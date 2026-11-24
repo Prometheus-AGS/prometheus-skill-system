@@ -58,9 +58,6 @@ command -v jq >/dev/null || { printf 'jq is required\n' >&2; exit 1; }
 ROOT="$PWD"
 while [ -n "$ROOT" ] && [ "$ROOT" != "/" ] && [ ! -d "$ROOT/.kbd-orchestrator" ]; do ROOT="$(dirname "$ROOT")"; done
 [ -d "$ROOT/.kbd-orchestrator" ] || { printf 'no .kbd-orchestrator above %s\n' "$PWD" >&2; exit 1; }
-PHASE_DIR="$ROOT/.kbd-orchestrator/phases/$PHASE"
-[ -d "$PHASE_DIR" ] || { printf 'BLOCKED missing=phase-dir(%s)\n' "$PHASE_DIR"; exit 2; }
-[ -n "$EVIDENCE" ] || EVIDENCE="$PHASE_DIR/boundary-results.json"
 ENFORCED_DIMS="timeMinutes toolCalls repairAttempts noProgress"
 ERRF="$(mktemp)"; trap 'rm -f "$ERRF"' EXIT
 
@@ -70,6 +67,11 @@ read_fixture_or() { # <fixture-file> <command...>
 }
 STATUS_JSON="$(read_fixture_or "$STATUS_FILE" prometheus kbd --path "$ROOT" status --json)" || {
   printf 'BLOCKED missing=canonical-status(prometheus kbd status failed)\n'; exit 2; }
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")/lib/.." && pwd -P)"
+PHASE_DIR="$(printf '%s' "$STATUS_JSON" | node "$SCRIPT_DIR/lib/kbd-phase-directory.mjs" "$ROOT" "$PHASE")" || {
+  printf 'BLOCKED missing=phase-dir(%s)\n' "$PHASE"; exit 2; }
+[ -d "$PHASE_DIR" ] || { printf 'BLOCKED missing=phase-dir(%s)\n' "$PHASE_DIR"; exit 2; }
+[ -n "$EVIDENCE" ] || EVIDENCE="$PHASE_DIR/boundary-results.json"
 DISP_JSON="$(read_fixture_or "$DISPOSITION_FILE" prometheus kbd --path "$ROOT" phase disposition --id "$PHASE" --json)" || DISP_JSON=""
 printf '%s' "$DISP_JSON" | jq -e '.schema == "kbd.phase-disposition/v1"' >/dev/null 2>&1 || {
   printf 'BLOCKED missing=canonical-disposition(prometheus kbd phase disposition failed for %s)\n' "$PHASE"; exit 2; }

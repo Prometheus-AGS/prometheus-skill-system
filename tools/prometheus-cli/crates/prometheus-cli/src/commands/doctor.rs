@@ -189,10 +189,25 @@ pub async fn run(options: DoctorOptions) -> Result<()> {
 
 async fn build_report(options: &DoctorOptions) -> DoctorReport {
     let mut checks = Vec::new();
+    let skills_only = skills_only_generation();
     macro_rules! run_check {
         ($id:literal, $group:literal, $check:expr) => {
             if check_selected(options, $id, $group) {
-                checks.push($check);
+                if let Some(generation) = skills_only.as_deref().filter(|_| full_profile_component($id)) {
+                    checks.push(CheckResult {
+                        id: $id.into(),
+                        group: $group.into(),
+                        label: $id.into(),
+                        severity: Severity::Green,
+                        status: CheckStatus::Skip,
+                        summary: "Component is outside the installed skills profile".into(),
+                        details: vec![format!("Installed skills profile for generation {generation} selected no services")],
+                        optional: true,
+                        actions: vec![],
+                    });
+                } else {
+                    checks.push($check);
+                }
             }
         };
     }
@@ -233,7 +248,7 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
     run_check!(
         "learning.queue",
         "learning",
-        learning_queue::check_learning_queue().await
+        learning_queue::check_learning_queue(skills_only.is_none() || !full_profile_component("learning.surreal-memory")).await
     );
     run_check!("learning.snapshots", "learning", check_prompt_snapshots());
     run_check!("hooks.rotation", "hooks", check_hook_log_rotation());
@@ -903,17 +918,98 @@ fn check_plist_hardening() -> CheckResult {
     }
 }
 
+fn doctor_plugin_store() -> PathBuf {
+    std::env::var_os("PROMETHEUS_PLUGIN_ROOT")
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from)
+        .unwrap_or_else(|| selected_doctor_home().join(".prometheus/plugins/prometheus-skill-pack"))
+}
+
+fn full_profile_component(id: &str) -> bool {
+    // A configured standalone endpoint still belongs to this installation.
+    if id == "learning.surreal-memory" || id == "review.judge-gateway" {
+        let variable = if id == "learning.surreal-memory" { "SURREAL_MEMORY_URL" } else { "LITER_LLM_BASE_URL" };
+        return std::env::var(variable).map_or(true, |value| value.trim().is_empty());
+    }
+    matches!(id, "binaries.manifest" | "execution.runtime" | "services.launch-agents"
+        | "learning.worker" | "learning.snapshots" | "hooks.rotation")
+}
+
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct InstallSelection {
+    schema_version: u32,
+    generation: String,
+    profile: String,
+    targets: Vec<String>,
+    services: Vec<String>,
+    harnesses: Vec<String>,
+    source_root: PathBuf,
+}
+
+fn installed_selections(store: &Path) -> Option<Vec<InstallSelection>> {
+    let active = store.join("current").canonicalize().ok()?;
+    let generations = store.join("generations").canonicalize().ok()?;
+    if active.parent()? != generations { return None; }
+    let id = active.file_name()?.to_str()?;
+    if id.len() != 64 || !id.bytes().all(|b| b.is_ascii_hexdigit()) { return None; }
+    let manifest: serde_json::Value = serde_json::from_slice(&fs::read(active.join("manifest.json")).ok()?).ok()?;
+    if manifest["generation"].as_str() != Some(id) { return None; }
+    let mut selections = Vec::new();
+    for entry in fs::read_dir(store.join("receipts").join(id).join("install-profiles")).ok()? {
+        let path = entry.ok()?.path();
+        if path.extension().and_then(|extension| extension.to_str()) != Some("json") { continue; }
+        let record: InstallSelection = serde_json::from_slice(&fs::read(path).ok()?).ok()?;
+        if record.schema_version != 1 || record.generation != id || record.targets.is_empty()
+            || !matches!(record.profile.as_str(), "skills" | "full")
+            || record.targets.iter().any(|t| !matches!(t.as_str(), "agents" | "claude" | "qwen")) {
+            return None;
+        }
+        selections.push(record);
+    }
+    (!selections.is_empty()).then_some(selections)
+}
+
+fn skills_only_generation() -> Option<String> {
+    if selected_doctor_home().join(".prometheus/service-providers/full.json").exists() {
+        return None;
+    }
+    let selections = installed_selections(&doctor_plugin_store())?;
+    if selections.iter().any(|s| s.profile != "skills" || !s.services.is_empty()) {
+        return None;
+    }
+    selections.into_iter().next().map(|s| s.generation)
+}
+
 fn check_skills_directory() -> CheckResult {
-    let exists = Path::new("skills").exists();
-    if exists {
+    let store = doctor_plugin_store();
+    let active = store.join("current");
+    let installed = store.is_dir();
+    let skills = if installed { active.join("skills") } else { PathBuf::from("skills") };
+    // The installed index lists top-level skill directories. A skill may carry
+    // nested examples or subskills that are deliberately absent from that index.
+    let count = if installed {
+        fs::read_dir(&skills).ok().and_then(|items| {
+            items.map(|entry| {
+                let path = entry?.path().join("SKILL.md");
+                Ok(usize::from(path.is_file()))
+            }).sum::<std::io::Result<usize>>().ok()
+        })
+    } else {
+        super::skill::inventory(&skills).ok().map(|inventory| inventory.0)
+    };
+    let expected = fs::read(active.join("manifest.json")).ok()
+        .and_then(|data| serde_json::from_slice::<serde_json::Value>(&data).ok())
+        .and_then(|manifest| manifest["skillIndex"]["entryCount"].as_u64());
+    if count.is_some_and(|count| count > 0 && (!installed || expected == Some(count as u64))) {
         CheckResult {
             id: "skills.directory".into(),
             group: "skills".into(),
             label: "Skills directory".into(),
             severity: Severity::Green,
             status: CheckStatus::Pass,
-            summary: "skills/ exists".into(),
-            details: vec![],
+            summary: format!("{} skills in the selected catalog", count.unwrap_or_default()),
+            details: vec![skills.display().to_string()],
             optional: false,
             actions: vec![],
         }
@@ -924,8 +1020,8 @@ fn check_skills_directory() -> CheckResult {
             label: "Skills directory".into(),
             severity: Severity::Red,
             status: CheckStatus::Fail,
-            summary: "skills/ is missing".into(),
-            details: vec!["Required runtime skill catalog is absent.".into()],
+            summary: "Selected skill catalog is missing, empty, or incomplete".into(),
+            details: vec![format!("{}: expected {expected:?}, found {count:?}", skills.display())],
             optional: false,
             actions: vec![RepairAction {
                 id: "manual.restore-checkout".into(),
@@ -2197,7 +2293,18 @@ fn validate_codex_hook_graph(
 
 fn check_harness_adapter_parity() -> CheckResult {
     let mut failures = Vec::new();
-    let source_root = Path::new(".");
+    let store = doctor_plugin_store();
+    let current = store.join("current");
+    let mut cache_observation = String::new();
+    let source = std::env::var_os("PROMETHEUS_SOURCE_ROOT").map(PathBuf::from)
+        .or_else(|| fs::read_to_string(store.join(".source-repo")).ok()
+            .map(|value| PathBuf::from(value.trim())).filter(|p| p.is_absolute() && p.is_dir()));
+    let source_root = source.as_deref().unwrap_or(&current);
+    let manifest_path = if source.is_some() {
+        source_root.join("dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json")
+    } else {
+        current.join(".codex-plugin/plugin.json")
+    };
     let release_path = source_root.join("shared/harnesses/generated/release-manifest.json");
     let contract_path = source_root.join("shared/harnesses/hook-contract.json");
     let release = read_json_for_doctor(&release_path, "release manifest", &mut failures);
@@ -2251,7 +2358,7 @@ fn check_harness_adapter_parity() -> CheckResult {
     }
     let source_version = validate_codex_hook_graph(
         source_root,
-        &source_root.join("dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json"),
+        &manifest_path,
         &bundle,
         &expected_hook_ids,
         &expected_hooks_sha,
@@ -2325,15 +2432,28 @@ fn check_harness_adapter_parity() -> CheckResult {
             let cache_root = codex_home
                 .join("plugins/cache/prometheus-skill-pack/prometheus-skill-pack")
                 .join(&source_version);
-            validate_codex_hook_graph(
-                &cache_root,
-                &cache_root.join(".codex-plugin/plugin.json"),
-                &bundle,
-                &expected_hook_ids,
-                &expected_hooks_sha,
-                "Codex native cache",
-                &mut failures,
-            );
+            let config_file = codex_home.join("config.toml");
+            let config = match fs::read_to_string(&config_file) {
+                Ok(text) => match text.parse::<toml::Value>() {
+                    Ok(config) => Some(config),
+                    Err(error) => { failures.push(format!("{}: {error}", config_file.display())); None }
+                },
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+                Err(error) => { failures.push(format!("{}: {error}", config_file.display())); None }
+            };
+            let enabled = config.as_ref()
+                .and_then(|c| c.get("plugins"))
+                .and_then(|plugins| plugins.get("prometheus-skill-pack@prometheus-skill-pack"))
+                .is_some_and(|plugin| plugin.get("enabled").and_then(toml::Value::as_bool) != Some(false));
+            if enabled || cache_root.parent().is_some_and(Path::exists) || installed_selections(&store).is_none() {
+                validate_codex_hook_graph(
+                    &cache_root, &cache_root.join(".codex-plugin/plugin.json"), &bundle,
+                    &expected_hook_ids, &expected_hooks_sha, "Codex native cache", &mut failures,
+                );
+                cache_observation = format!("Native Codex plugin cache inspected at {}", cache_root.display());
+            } else {
+                cache_observation = format!("Native Codex plugin absent from {} and its cache. Checked installed generation and bundle.", config_file.display());
+            }
         } else {
             failures.push("effective Codex home could not be resolved".into());
         }
@@ -2357,7 +2477,7 @@ fn check_harness_adapter_parity() -> CheckResult {
         },
         summary: if failures.is_empty() {
             format!(
-                "source, immutable generation, bundle index, and Codex cache agree on {} pinned hooks",
+                "verified {} pinned hooks across selected install surfaces",
                 expected_hook_ids.len()
             )
         } else {
@@ -2365,6 +2485,7 @@ fn check_harness_adapter_parity() -> CheckResult {
         },
         details: if failures.is_empty() {
             vec![
+                cache_observation,
                 format!("bundle: {bundle}"),
                 "No selected command resolves business logic through stable or current.".into(),
             ]
@@ -3091,14 +3212,21 @@ fn check_managed_mcp() -> CheckResult {
 }
 
 fn check_managed_hooks() -> CheckResult {
-    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
-    let plugin_root = home.join(".prometheus/plugins/prometheus-skill-pack");
+    let home = selected_doctor_home();
+    let plugin_root = doctor_plugin_store();
+    let active = plugin_root.join("current");
+    let targets = installed_selections(&plugin_root)
+        .map(|selections| selections.into_iter().flat_map(|s| s.targets).collect::<BTreeSet<_>>()
+            .into_iter().collect::<Vec<_>>().join(","))
+        .unwrap_or_else(|| "all".to_owned());
     let output = Command::new("node")
-        .args([
-            "scripts/install-plugin-generation.js",
-            "--verify",
-            "--plugin-root",
-        ])
+        .arg(active.join("scripts/install-plugin-generation.js"))
+        .arg("--targets")
+        .arg(&targets)
+        .arg("--verify")
+        .arg("--source-root")
+        .arg(&active)
+        .arg("--plugin-root")
         .arg(&plugin_root)
         .arg("--home")
         .arg(&home)
@@ -3119,7 +3247,7 @@ fn check_managed_hooks() -> CheckResult {
         status: if healthy { CheckStatus::Pass } else { CheckStatus::Fail },
         summary: generation
             .as_ref()
-            .map(|generation| format!("active generation {generation} passed manifest, dispatcher, and 14-target verification"))
+            .map(|generation| format!("active generation {generation} passed manifest, dispatcher and target verification ({targets})"))
             .unwrap_or_else(|| "active plugin generation verification failed".into()),
         details: if healthy {
             vec![format!("plugin root: {}", plugin_root.display())]

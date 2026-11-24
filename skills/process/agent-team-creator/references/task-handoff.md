@@ -295,9 +295,15 @@ node <skill>/scripts/cli.mjs handoff-accept --input handoff-accept.json
 
 Acceptance checks the targeted owner/harness against the packet, then checks the task's current owner, source harness, and recorded task revision. A stale, reassigned, cancelled, or completed task is rejected. On success, ownership and harness transfer, task revision advances to `2`, a running task becomes `pending`, packet evidence and remaining work are retained, and `acceptedAt` plus an acceptance event commit atomically in the same state file. Blocked tasks stay blocked. The destination must explicitly start its task before completing it.
 
-At this snapshot state revision is `4`. To retry the **same** acceptance, use the same ID and destination but set `expectedRevision` to **4**, or to the latest state revision if unrelated work changed it. Reusing the original `expectedRevision: 3` fails the state check before idempotency is considered. An unchanged duplicate returns the same receipt without incrementing either revision. If the accepted task subsequently changes revision, owner, harness, or becomes terminal, the old acceptance is rejected as stale. This prevents an old packet from reclaiming ownership after later work.
+At this snapshot state revision is `4`. If the acceptance response was interrupted, resubmit the original request with the same handoff ID, destination and `expectedRevision: 3`. The recorded acceptance returns the same receipt without rewriting the state file or incrementing either revision. You can also use the latest state revision. Receipts recorded before the runtime saved the original revision require the latest revision. If the accepted task changes revision, owner, or harness, or becomes terminal, the runtime rejects the retry as stale.
 
 Handoff snapshots and accepted receipts are immutable through the runtime. Task events are append-only. A rejected or superseded pending packet remains historical; create a fresh handoff from the current task when needed.
+
+### Two sessions on one Mac
+
+Both sessions should use the same absolute `state` path. In session A, create the handoff and give B its ID and the path to the evidence. In session B, inspect the handoff from B's checkout, open the evidence with B's own permissions, and verify the destination role and harness. Then accept using the current team revision. Run `status` from each session against that same state file to see the new owner and revision. No Companion process is required for this exchange.
+
+A state file copied into another checkout has its own ownership history. An acceptance made against that copy changes only the copy. A reader who cannot open a role-private artifact should request access from its owner.
 
 ## Complete a task linked to canonical KBD
 

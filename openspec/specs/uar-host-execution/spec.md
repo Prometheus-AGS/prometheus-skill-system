@@ -1,7 +1,7 @@
 # uar-host-execution Specification
 
 ## Purpose
-TBD - created by archiving change change-uhe-001-cursor-tier1. Update Purpose after archive.
+Qualify UAR skill execution and distribution across harness, embedded, and mobile hosts with explicit compatibility, lifecycle, and evidence contracts.
 ## Requirements
 ### Requirement: cursor delivery is either verified Tier 1 or recorded Tier 0
 

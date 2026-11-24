@@ -7,6 +7,7 @@ import path from 'node:path';
 import readline from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 
+import { atomic } from './service-providers/catalog.mjs';
 import { planServices, applyServices } from './service-providers/index.mjs';
 import {syncInstalledMcp} from './service-providers/mcp-config.mjs';
 import native from './service-providers/native.mjs';
@@ -287,6 +288,32 @@ async function configureFull(args, targets, contract, sourceImports, options, pl
   run(process.execPath,[path.join(args.sourceRoot,'scripts/service-providers/doctor.mjs')],{cwd:args.sourceRoot,env});
 }
 
+// Bind the doctor's component selection to the generation that actually completed.
+// Separate profile files keep a later skills-only installation of the same
+// generation from erasing an existing full-profile obligation.
+function recordInstallSelection(args, generation, profile, targets, servicePlan) {
+  if (!/^[a-f0-9]{64}$/.test(generation)) fail('installer returned an invalid generation');
+  const store = path.join(args.home, '.prometheus/plugins/prometheus-skill-pack');
+  const active = fs.realpathSync(path.join(store, 'current'));
+  if (active !== fs.realpathSync(path.join(store, 'generations', generation))) {
+    fail('active generation changed during installation');
+  }
+  const dir = path.join(store, 'receipts', generation, 'install-profiles');
+  const services = (servicePlan?.services || []).filter(s => s.provider !== 'off').map(s => s.id);
+  const name = profile === 'skills' && services.length ? 'skills-with-services' : profile;
+  const harnesses = [
+    ['claude-code', 'command:claude', '.claude/settings.json'],
+    ['codex', 'command:codex', '.codex/config.toml'],
+    ['opencode', 'command:opencode', '.config/opencode/opencode.json'],
+    ['kimi', 'command:kimi', '.kimi-code/config.toml'],
+  ].filter(([, command, config]) => probeDetected(command, args.home) || probeDetected(config, args.home))
+    .map(([id]) => id);
+  const record = {schemaVersion: 1, generation, profile, sourceRoot: args.sourceRoot,
+    targets: targets.map(t => t.id).sort(), services, harnesses};
+  const filename = [name, ...record.targets].join('-') + '.json';
+  atomic(path.join(dir, filename), JSON.stringify(record) + '\n');
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) return help();
@@ -402,6 +429,8 @@ async function main() {
     if (failures.length) {
       process.stdout.write(`Best-effort run completed without certification (${failures.length} failure(s)).\n`);
     } else {
+      if (operation === 'install' && !args.dryRun)
+        recordInstallSelection(args, generation.trim(), profile, targets, servicePlan);
       process.stdout.write(`Prometheus ${operation} verified${generation ? `: ${generation}` : ''}\n`);
     }
   } finally {

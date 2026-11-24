@@ -39,14 +39,13 @@ given goal, concept, and artifact id:
 
 ### Requirement: The corpus carries key points and misconceptions
 
-Every source emitted by `content-grounding-kb.sh` SHALL carry `key_points[]`
-and `misconceptions[]` alongside `source_ref`, `source_type`, `confidence`,
-`is_misconception`, and `content_summary` (`schema_version` 1.1.0).
-`key_points` are the sentences of `content_summary` unless the KB entry authored
-its own list, which is kept verbatim; `misconceptions` is `[content_summary]`
-for a source flagged `is_misconception` and `[]` otherwise. A corpus at the
-older shape SHALL be brought to this shape by the same script's `--normalize`
-mode, never by a second derivation.
+`content-grounding-kb.sh` SHALL emit schema 1.1.0 sources with `key_points[]` and `misconceptions[]` alongside `source_ref`, `source_type`, `confidence`, `is_misconception`, and `content_summary`. Its `--normalize` mode SHALL apply the same derivation to older corpora.
+
+#### Scenario: A source supplies summary text or authored key points
+
+- **WHEN** the script emits or normalizes that source
+- **THEN** it keeps authored key points verbatim when supplied and otherwise uses the sentences of `content_summary`
+- **AND** it emits `[content_summary]` for a source flagged `is_misconception` and `[]` for every other source
 
 #### Scenario: Local KB
 

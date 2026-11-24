@@ -2,6 +2,7 @@ import { closeSync, existsSync, fsyncSync, lstatSync, mkdirSync, openSync, readF
 import { basename, dirname, join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { integer, validateMutation, validateState } from './state-validation.mjs';
+import { acceptHandoff, isOriginalAcceptance } from './handoff.mjs';
 export { taskAction } from './state-tasks.mjs';
 export { completeKbdTask } from './state-kbd.mjs';
 function statePath(file, createDirectory = false) {
@@ -91,14 +92,12 @@ export function initState(file, team) {
         release();
     }
 }
-function prepare(file, expectedRevision) {
-    integer(expectedRevision, 'expectedRevision');
-    const before = readState(file);
+function prepare(before, expectedRevision) {
     if (before.revision !== expectedRevision)
         throw new Error(`State revision conflict: expected ${expectedRevision}, current ${before.revision}`);
     if (before.revision === Number.MAX_SAFE_INTEGER)
         throw new Error('State revision exhausted');
-    return { before, state: structuredClone(before) };
+    return structuredClone(before);
 }
 function commit(file, before, state) {
     validateMutation(before, state);
@@ -112,10 +111,28 @@ export function mutateState(file, expectedRevision, callback) {
     const path = statePath(file);
     const release = lock(path);
     try {
-        const { before, state } = prepare(path, expectedRevision);
+        integer(expectedRevision, 'expectedRevision');
+        const before = readState(path);
+        const state = prepare(before, expectedRevision);
         const result = callback(state);
         if (result && typeof result.then === 'function')
             throw new Error('Async callback requires mutateStateAsync');
+        return commit(path, before, state);
+    }
+    finally {
+        release();
+    }
+}
+export function acceptStateHandoff(file, expectedRevision, id, destination) {
+    const path = statePath(file);
+    const release = lock(path);
+    try {
+        integer(expectedRevision, 'expectedRevision');
+        const before = readState(path);
+        if (isOriginalAcceptance(before, id, destination, expectedRevision))
+            return before;
+        const state = prepare(before, expectedRevision);
+        acceptHandoff(state, id, destination);
         return commit(path, before, state);
     }
     finally {
@@ -126,7 +143,9 @@ export async function mutateStateAsync(file, expectedRevision, callback) {
     const path = statePath(file);
     const release = lock(path);
     try {
-        const { before, state } = prepare(path, expectedRevision);
+        integer(expectedRevision, 'expectedRevision');
+        const before = readState(path);
+        const state = prepare(before, expectedRevision);
         await callback(state);
         return commit(path, before, state);
     }

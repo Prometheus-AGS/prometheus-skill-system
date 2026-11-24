@@ -1,7 +1,7 @@
 # harness-declaration-integrity Specification
 
 ## Purpose
-TBD - created by archiving change change-drift-401-windsurf-harness. Update Purpose after archive.
+Keep OpenSpec harness declarations consistent with the harness trees actually shipped by the project.
 
 ## Requirements
 
