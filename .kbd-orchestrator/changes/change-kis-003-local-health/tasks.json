@@ -1,0 +1,36 @@
+{
+  "changeId": "change-kis-003-local-health",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "GREEN-01",
+      "title": "Restore unfiltered installed-profile health and retain signed standalone and service regressions",
+      "done": true,
+      "doneAt": "2026-11-24T11:01:40Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/install-system.js",
+        "scripts/service-providers",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor",
+        "scripts/verify-kbd-intersession.sh"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case GREEN-001",
+      "notes": "Coordinate shared boundary runner edits with the live-sessions and local-companion changes. Repair only demonstrated defects. GREEN-001 is the positive and negative local acceptance case. Task model assignment for GREEN-01 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    },
+    {
+      "id": "GREEN-02",
+      "title": "Restore whole-workspace strict validation with complete historical item accounting",
+      "done": true,
+      "doneAt": "2026-11-24T11:01:58Z",
+      "doneBy": "claude-code",
+      "files": [
+        "openspec/changes",
+        "openspec/specs",
+        "scripts/verify-kbd-intersession.sh"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case GREEN-002",
+      "notes": "Recover authored requirements and purpose from real sources for each original issue. Preserve evidence for previously passing Full checks and the passing Companion mirror. GREEN-002 covers the full inventory. Task model assignment for GREEN-02 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    }
+  ]
+}

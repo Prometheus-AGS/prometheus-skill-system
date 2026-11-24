@@ -1,0 +1,15 @@
+{
+  "operation": "Independent readback of the new child assessment stage",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "phase": "vlbv-r4-portability::intersession-communication",
+  "configuredEndpointExists": false,
+  "endpointSource": "env:SOVEREIGN_SYNC_SOCKET",
+  "remoteControlRequested": false,
+  "statusReaderPid": 83837,
+  "auditReaderPid": 84048,
+  "eventId": "95b06a47-8521-4767-9ec2-e97021637924",
+  "commandId": "assess-enter:vlbv-r4-portability::intersession-communication",
+  "integrityHash": "be5bbaeba98b3cfbf0643a6826ea5d81b2df3826c999312592dea372e2891c79",
+  "revision": 2577,
+  "signaturePresent": true
+}

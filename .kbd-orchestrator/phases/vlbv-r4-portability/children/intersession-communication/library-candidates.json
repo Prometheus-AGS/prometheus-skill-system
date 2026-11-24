@@ -1,0 +1,175 @@
+{
+  "phase": "vlbv-r4-portability::intersession-communication",
+  "generated_at": "2026-11-24T09:36:21.907902+00:00",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier_1": 2,
+      "tier_2": 6,
+      "tier_3": 2,
+      "tier_4": 0
+    }
+  },
+  "gaps_addressed": [
+    "reader compatibility",
+    "local continuation",
+    "handoff",
+    "addressed peer delivery",
+    "offline catch-up"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "Full pack KBD runtime v1.17.0",
+      "kind": "library",
+      "fit_for_gap": "reader compatibility and local authority",
+      "verdict": "adopt",
+      "decision_rationale": "Use the same released event semantics as the writer and keep the four pack crates at one revision.",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/v1.17.0/substrate/kbd-runtime/src/lib.rs",
+          "claim": "The tagged implementation defines OperatorGranted."
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Volumes/T7/Projects/prometheus/prometheus-companion/Cargo.toml",
+          "claim": "Companion pins the older common revision cfbc262."
+        }
+      ],
+      "risks": [
+        "Other event variants and dependency changes require verification with actual signed histories."
+      ]
+    },
+    {
+      "id": "cand-002",
+      "name": "Full pack KBD CLI read and retry paths",
+      "kind": "pattern",
+      "fit_for_gap": "local continuation, fallback and watch",
+      "verdict": "adapt",
+      "decision_rationale": "Keep the current CLI and make local fallback observable when the operator requested a remote read.",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/v1.17.0/tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+          "claim": "Status, audit and watch have distinct remote read and fallback paths."
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Volumes/T7/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/evidence/explicit-remote-missing.json",
+          "claim": "When the requested socket was absent status/audit succeeded silently and watch exited 1."
+        }
+      ],
+      "risks": [
+        "Changing stdout framing would break scripts.",
+        "A blanket fallback on any remote read error can mask denial or schema incompatibility with a successful local response."
+      ]
+    },
+    {
+      "id": "cand-003",
+      "name": "Full pack agent-team handoff",
+      "kind": "pattern",
+      "fit_for_gap": "revision-checked transfer of task ownership",
+      "verdict": "adopt",
+      "decision_rationale": "Use the existing durable packet and explicit recipient acceptance.",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/v1.17.0/skills/process/agent-team-handoff/SKILL.md",
+          "claim": "The destination explicitly accepts a revision-checked handoff."
+        }
+      ],
+      "risks": [
+        "Referenced checkout files and attachments need their own availability check.",
+        "Acceptance is atomic in one authoritative local team-state file. A copied packet or journal on B cannot transfer ownership at A; network-share or multi-machine writes are unsupported."
+      ]
+    },
+    {
+      "id": "cand-004",
+      "name": "iroh and Companion addressed peer transport",
+      "kind": "library",
+      "fit_for_gap": "addressed delivery and peer identity",
+      "verdict": "adapt",
+      "decision_rationale": "Reuse the locked QUIC implementation and the existing application-level checks.",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/n0-computer/iroh",
+          "claim": "iroh supports direct communication with a named endpoint."
+        },
+        {
+          "tier": 2,
+          "source_url": "https://docs.rs/iroh/latest/src/iroh/tls/verifier.rs.html",
+          "claim": "The transport verifies remote public-key identity."
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/iroh/1.1.0",
+          "claim": "Locked 1.1.0 is published and not yanked."
+        },
+        {
+          "tier": 1,
+          "source_url": "file:///Volumes/T7/Projects/prometheus/prometheus-companion/crates/sovereign-sync/src/p2p.rs",
+          "claim": "The directed receive path distinguishes transport admission from application."
+        }
+      ],
+      "risks": [
+        "Pairing alone does not enroll a project device.",
+        "Same-host checks cannot establish physical LAN discovery."
+      ]
+    },
+    {
+      "id": "cand-005",
+      "name": "Loro and KBD signed project updates",
+      "kind": "library",
+      "fit_for_gap": "history convergence and bounded catch-up",
+      "verdict": "adopt",
+      "decision_rationale": "Retain the existing document model. Measure full-history transfer before deciding whether incremental payloads are needed.",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/loro-dev/loro",
+          "claim": "Loro provides local-first replicated documents."
+        },
+        {
+          "tier": 2,
+          "source_url": "https://github.com/loro-dev/loro/blob/main/crates/loro/src/lib.rs",
+          "claim": "Document export supports full or receiver-relative updates."
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/loro/1.13.9",
+          "claim": "Locked 1.13.9 is published and not yanked."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system/blob/v1.17.0/substrate/kbd-runtime/src/project_document.rs",
+          "claim": "The KBD export uses all_updates."
+        }
+      ],
+      "risks": [
+        "Signed KBD event validity is an application responsibility.",
+        "Encoded frame sizes may exceed the bounded transport."
+      ]
+    }
+  ],
+  "build_required": [
+    {
+      "need": "Pin and verify the supported writer/reader pair",
+      "why_no_candidate": "Dependency selection and signed fixture compatibility belong to the two projects."
+    },
+    {
+      "need": "Identify the actual read source and support watcher recovery",
+      "why_no_candidate": "Only the CLI can preserve its output contracts and distinguish a local fallback."
+    },
+    {
+      "need": "Verify receiver application, failure isolation, scale and restart",
+      "why_no_candidate": "An upstream transport receipt cannot attest to this application\u2019s durable history and waypoint."
+    },
+    {
+      "need": "Recover when a durable import advances the journal but refreshing the checkout fails",
+      "why_no_candidate": "The runtime has comparison and projection-writing APIs. Companion logs the refresh error and returns success; retries with zero new events skip the refresh. The integration must detect or expose this condition and exercise recovery."
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # execution-mobile-ffi Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-003-tier-w-mobile. Update Purpose after archive.
+Provide a single embedded execution interface for mobile clients. Keep execution off the UI thread and qualify backends through lifecycle, size, and physical-device evidence.
 ## Requirements
 ### Requirement: Single embedded execution surface
 The mobile/desktop embedded boundary SHALL expose run, status/events, receipt, artifact, and offline-verify operations through one Rust API and SHALL reuse the process-global runtime owned by `gen_ui_core`.

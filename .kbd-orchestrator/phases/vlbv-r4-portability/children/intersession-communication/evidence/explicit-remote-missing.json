@@ -1,0 +1,19 @@
+{
+  "status": {
+    "exit": 0,
+    "stderr": "",
+    "phase": "vlbv-r4-portability::intersession-communication",
+    "revision": 2577
+  },
+  "audit": {
+    "exit": 0,
+    "stderr": "",
+    "commandIds": [
+      "assess-enter:vlbv-r4-portability::intersession-communication"
+    ]
+  },
+  "watch": {
+    "exit": 1,
+    "stderr": "Error: connect to control socket <temp>/missing.sock\n\nCaused by:\n    No such file or directory (os error 2)\n"
+  }
+}

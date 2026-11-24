@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-004",
+  "negativeOnly": true,
+  "passed": true,
+  "result": "PASS",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "05f3b14e79077653ad59ced7008a1ffebda083b10c1a54ded85469d0c0ec576b"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "06113ada1cdf469cf53f9374610af4431c114c78e644e4723deb30f556490ab5"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "f85d92250b0cdd06b3c7f847f860368808736fd4671c4478539d0a60034c1d54"
+    },
+    "receiverFileCheck": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-receiver-file-check",
+      "sha256": "2ee477cb0be5f875a00a1ac053ab19d54d164b203a261c97c79579f68fb3e867"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "299764acf75a7128be0b0426ed6f0e8398cd840589ff6e9e046c19b72293944d",
+    "dirtySourceCount": 52
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "55b8be379b2065a8b69aa66a63087e7c38df9846a7ddf00d312ebee962a2a3e4",
+  "baselineCopy": {
+    "senderSha256": "2dfdee04c8af68a301729ede29eedf9a9403195d2482ca6385e76dbd2cdafe5a",
+    "receiverSha256": "2dfdee04c8af68a301729ede29eedf9a9403195d2482ca6385e76dbd2cdafe5a"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:c45f069649e0e92a9141299b19e2a235fdf199c3ea02129c84f4d21edb747d43",
+      "endpointId": "4c1498d174a3b0dcdf750763646c58b851819ec7f69934a77afa6c3407f39977",
+      "projectId": "3e9b6205-6991-455e-a856-12a5017ae61f",
+      "replicaId": "b746d65f-4d0f-4798-a529-899acf681b47",
+      "checkout": "/tmp/kbd-peers-zfdghnnq/A/project",
+      "authority": "/tmp/kbd-peers-zfdghnnq/A/data/prometheus/kbd/projects/3e9b6205-6991-455e-a856-12a5017ae61f",
+      "socket": "/tmp/kbd-peers-zfdghnnq/A/control.sock",
+      "companionPids": [
+        19526
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:c16b919282663eb0af7bc41bb73cbcfc26ce7003be176a52564f5bfeaf518de1",
+      "endpointId": "f7eb35e921f8d70715a5046c0e90dca8e078da990bb51dd2e726f80beb7d45c1",
+      "projectId": "3e9b6205-6991-455e-a856-12a5017ae61f",
+      "replicaId": "58a9d5ad-bcba-4ce9-b684-d34aa9364a1d",
+      "checkout": "/tmp/kbd-peers-zfdghnnq/B/project",
+      "authority": "/tmp/kbd-peers-zfdghnnq/B/data/prometheus/kbd/projects/3e9b6205-6991-455e-a856-12a5017ae61f",
+      "socket": "/tmp/kbd-peers-zfdghnnq/B/control.sock",
+      "companionPids": [
+        19527
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "b746d65f-4d0f-4798-a529-899acf681b47": 3
+    },
+    "eventHashes": [
+      "ea2ad818b485081eb651cbeb273e188a13bf5eb7476806ad037d0638db826a78",
+      "fd688331c94d7a54520ad8af718eb6d1d731292b45eddf362294bbfe92c6ae90",
+      "52c7291a6f6c4dfc4b100f08b2fb2ef7e2c41587c42667a0b8591e720aa5c36e"
+    ]
+  },
+  "oversize": {
+    "result": "PASS",
+    "input": "receiver-local files",
+    "receipt": {
+      "acceptedBytes": 16777216,
+      "maximumBytes": 16777216,
+      "pid": 19527,
+      "rejectedBytes": 16777217,
+      "rejection": "too_large"
+    },
+    "before": {
+      "revision": 3,
+      "frontier": {
+        "b746d65f-4d0f-4798-a529-899acf681b47": 3
+      },
+      "eventHashes": [
+        "ea2ad818b485081eb651cbeb273e188a13bf5eb7476806ad037d0638db826a78",
+        "fd688331c94d7a54520ad8af718eb6d1d731292b45eddf362294bbfe92c6ae90",
+        "52c7291a6f6c4dfc4b100f08b2fb2ef7e2c41587c42667a0b8591e720aa5c36e"
+      ],
+      "documentSha256": "2dfdee04c8af68a301729ede29eedf9a9403195d2482ca6385e76dbd2cdafe5a",
+      "waypointSha256": "b75e30fdb41332de8a4e4de5df569b960c401ce3b4d25e965cef6458200689f9"
+    },
+    "after": {
+      "revision": 3,
+      "frontier": {
+        "b746d65f-4d0f-4798-a529-899acf681b47": 3
+      },
+      "eventHashes": [
+        "ea2ad818b485081eb651cbeb273e188a13bf5eb7476806ad037d0638db826a78",
+        "fd688331c94d7a54520ad8af718eb6d1d731292b45eddf362294bbfe92c6ae90",
+        "52c7291a6f6c4dfc4b100f08b2fb2ef7e2c41587c42667a0b8591e720aa5c36e"
+      ],
+      "documentSha256": "2dfdee04c8af68a301729ede29eedf9a9403195d2482ca6385e76dbd2cdafe5a",
+      "waypointSha256": "b75e30fdb41332de8a4e4de5df569b960c401ce3b4d25e965cef6458200689f9"
+    }
+  },
+  "projectionRecovery": {
+    "commandId": "e66d4056cfa243afb6fc65b6226810a4",
+    "eventHash": "0712aee1d2a358de7b23c24272d95eff6579131d29760cebae470ed61a25e218",
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "142f6d1d-8adf-4fa4-96a2-d2dc50b28f84",
+      "canonicalPayloadHash": "41441ec0ad819dc63c33a8bf0107953123272f16ab5a82167e460be4a03d19cc",
+      "domain": "kbd-control:3e9b6205-6991-455e-a856-12a5017ae61f",
+      "targets": [
+        "f7eb35e921f8d70715a5046c0e90dca8e078da990bb51dd2e726f80beb7d45c1"
+      ],
+      "localState": "broadcast",
+      "perPeer": {
+        "f7eb35e921f8d70715a5046c0e90dca8e078da990bb51dd2e726f80beb7d45c1": {
+          "state": "applied",
+          "updatedAtMs": 1795530870492,
+          "acceptedFrameBytes": [
+            3058,
+            20318
+          ],
+          "insertedEvents": 1,
+          "receiverFrontier": {
+            "b746d65f-4d0f-4798-a529-899acf681b47": 4
+          },
+          "projectionCurrent": false,
+          "projectionError": "I/O error: Is a directory (os error 21)"
+        }
+      },
+      "createdAtMs": 1795530870407,
+      "updatedAtMs": 1795530870492,
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795530870407,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795530870417,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "applied_at_targets",
+          "timestampMs": 1795530870492,
+          "localState": "broadcast"
+        }
+      ]
+    },
+    "stale": {
+      "matchesRuntime": false,
+      "path": "/private/tmp/kbd-peers-zfdghnnq/B/project/.kbd-orchestrator/current-waypoint.json",
+      "revision": null
+    },
+    "refresh": {
+      "sourceRevision": 4,
+      "frontier": {
+        "b746d65f-4d0f-4798-a529-899acf681b47": 4
+      },
+      "current": true
+    },
+    "waypoint": {
+      "sha256": "9c4eadab4a19733acc9b8e75a5d8980fbe1d160df5a7fdac06bb915e4785d4e1",
+      "sourceRevision": 4,
+      "frontier": {
+        "b746d65f-4d0f-4798-a529-899acf681b47": 4
+      }
+    },
+    "auditPreserved": true,
+    "identicalRequestReplayed": true
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 19526,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 19527,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 61
+}

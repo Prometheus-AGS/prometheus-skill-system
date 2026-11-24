@@ -1,0 +1,17 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-11-24T09:48:54Z",
+  "outputs": [
+    "spec.md",
+    "adopted-contract.json",
+    "calibration.json",
+    "../../../../changes/change-kis-001-live-sessions/spec.md",
+    "../../../../changes/change-kis-002-local-companion/spec.md",
+    "../../../../changes/change-kis-003-local-health/spec.md",
+    "review/spec/findings.json"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "Three native changes and nine pending tasks cover two already-running local sessions, optional same-host Companion, and restoration of all recorded local failures. Draft contract lint and independent spec review passed. Before execution resolve the nested child path in strict adoption and obtain formal binding; no behavioral pass is claimed.",
+  "skipped": false,
+  "skipReason": null
+}

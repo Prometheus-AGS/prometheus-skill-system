@@ -1,7 +1,7 @@
 # wasm-component-execution Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-003-tier-w-mobile. Update Purpose after archive.
+Execute typed WebAssembly components within explicit capability and resource limits. Verify deterministic behavior across available backends and report unavailable ones.
 ## Requirements
 ### Requirement: Typed component execution
 Tier W SHALL execute only components valid for `prometheus:component@0.1.0` through the typed `capabilities.wit` host boundary and SHALL never interpret a component as an ambient WASI command.

@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-003",
+  "negativeOnly": false,
+  "passed": true,
+  "result": "PASS",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "1ca8d012a581ac033e11c23413ba70ece59430f7b609d868e09d64723406e5b5"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "85c9691cdc3c7a4e654b5c0bb9ee73780d69932b94b9b4c52471bfdc329ae976"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "5ce9cec3b59a3c19654f8b35864b2922597790205e7b222357b358cde5e699ed"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "531b24ec38bf825c9655f7b716e19165b9ece4858bdad257ffcecb6c82314e00",
+    "dirtySourceCount": 52
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "fe138dca744b50a5899dde026dc979f037886157af285fe2d4da107a12aaec50",
+  "baselineCopy": {
+    "senderSha256": "b7eaeb7f8d24a9f6464dde00dbf068973825a5cc4ac2f08c474699c24402af22",
+    "receiverSha256": "b7eaeb7f8d24a9f6464dde00dbf068973825a5cc4ac2f08c474699c24402af22"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:19cba51029ee518bdd836f0c52d6ac8ad306b95eb0492becd7280e57cd47f1d9",
+      "endpointId": "6e68166f6c9e23163cc57d769608ef1e98c461607de0503d0828dce2336d202f",
+      "projectId": "c078c7f7-f29f-4b8d-b779-b3330ed811cb",
+      "replicaId": "aa5b0074-d799-4b1f-89bc-1c93f952d5cd",
+      "checkout": "/tmp/kbd-peers-fhodgbry/A/project",
+      "authority": "/tmp/kbd-peers-fhodgbry/A/data/prometheus/kbd/projects/c078c7f7-f29f-4b8d-b779-b3330ed811cb",
+      "socket": "/tmp/kbd-peers-fhodgbry/A/control.sock",
+      "companionPids": [
+        91347,
+        91378
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:73d75f6f03af1842a82a935294e1136c281de5fe9d8c416fcc4c14c279de4c09",
+      "endpointId": "f8b9342178c0a4aa4fae7d656abe934cd9aef084c05cb9e7bd1348409e488839",
+      "projectId": "c078c7f7-f29f-4b8d-b779-b3330ed811cb",
+      "replicaId": "b09df27c-bb14-4f2a-9c12-81b770928203",
+      "checkout": "/tmp/kbd-peers-fhodgbry/B/project",
+      "authority": "/tmp/kbd-peers-fhodgbry/B/data/prometheus/kbd/projects/c078c7f7-f29f-4b8d-b779-b3330ed811cb",
+      "socket": "/tmp/kbd-peers-fhodgbry/B/control.sock",
+      "companionPids": [
+        91348,
+        93430
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "aa5b0074-d799-4b1f-89bc-1c93f952d5cd": 3
+    },
+    "eventHashes": [
+      "38a46e1eabcce51ab2954b0f69e2a236abdfe1b215b24de8cc86bd34b1c21b3e",
+      "bfeda9d1d1e208db2a0aab8d9994b0bfa5c710587df80556cc573bf7096b2ab9",
+      "651da40e844eda444cd9f0e5a3467616c31dd52a4aad4599fa3f7a747e3167e3"
+    ]
+  },
+  "session": {
+    "sessionId": "ecfeb23428254959ad6ae70e8c755416",
+    "ready": true,
+    "pid": 91356,
+    "atNs": 14440959123000,
+    "checkout": "/tmp/kbd-peers-fhodgbry/A/project",
+    "authority": "/tmp/kbd-peers-fhodgbry/A/data/prometheus/kbd/projects/c078c7f7-f29f-4b8d-b779-b3330ed811cb"
+  },
+  "shutdownProbe": {
+    "pid": 91347,
+    "exit": 0,
+    "socketPathExists": true,
+    "connectErrno": 61,
+    "result": "ECONNREFUSED"
+  },
+  "offline": {
+    "originCli": {
+      "pid": 91356,
+      "cliPid": 91357,
+      "exit": 0,
+      "outputSha256": "3d688c078fa7d496e4f77710316d561961628ccad14dc8cf6f8e29ddb5bb6c73",
+      "diagnostic": "control plane unreachable before dispatch (connect to control socket /tmp/kbd-peers-fhodgbry/A/control.sock); committing command 2dda0f519a694e8b8ccc7049226216dd locally",
+      "atNs": 14441251084375
+    },
+    "commandId": "2dda0f519a694e8b8ccc7049226216dd",
+    "eventHash": "da150199152fd789041b11ce423985685915edbc5a9e849619fc382af5b3bd64",
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "771fef5c-caf8-4d03-9f20-d3610e2da8db",
+      "canonicalPayloadHash": "2e2b3a00c84bdb6051d3ceb973205ac5cc9edab579cad7b6552b89de77fea171",
+      "domain": "kbd-control:c078c7f7-f29f-4b8d-b779-b3330ed811cb",
+      "targets": [
+        "f8b9342178c0a4aa4fae7d656abe934cd9aef084c05cb9e7bd1348409e488839"
+      ],
+      "localState": "broadcast",
+      "perPeer": {
+        "f8b9342178c0a4aa4fae7d656abe934cd9aef084c05cb9e7bd1348409e488839": {
+          "state": "applied",
+          "updatedAtMs": 1795530067623,
+          "acceptedFrameBytes": [
+            3061,
+            19227
+          ],
+          "insertedEvents": 1,
+          "receiverFrontier": {
+            "aa5b0074-d799-4b1f-89bc-1c93f952d5cd": 4
+          },
+          "projectionCurrent": true
+        }
+      },
+      "createdAtMs": 1795530067508,
+      "updatedAtMs": 1795530067623,
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795530067508,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795530067519,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "applied_at_targets",
+          "timestampMs": 1795530067623,
+          "localState": "broadcast"
+        }
+      ]
+    },
+    "absentAtReceiverUntilPush": true
+  },
+  "uncertainty": {
+    "commandId": "4f012b8fe33f46108339eb15a5cd5bc8",
+    "originatingPost": {
+      "method": "POST",
+      "path": "/api/v1/kbd/projects/c078c7f7-f29f-4b8d-b779-b3330ed811cb/commands",
+      "acceptedHttp": 200,
+      "targetSocket": "/tmp/kbd-peers-fhodgbry/A/control.sock",
+      "requestSha256": "7f9f54e22080106dcd057c9f0d06d1310d49e307cfeded55e26fe2322b75e0ec",
+      "responseSha256": "ede07078633395f2df05f1c268c4d0c98b70069fcee2913d11e2c7a05cff83f1",
+      "acceptedAtNs": 14442794799708,
+      "responseSuppressed": true
+    },
+    "ambiguousCli": {
+      "pid": 91356,
+      "cliPid": 91392,
+      "exit": 1,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostic": "Error: control plane submission ambiguous for command 4f012b8fe33f46108339eb15a5cd5bc8 (connection closed before message completed). Companion audit unavailable (control plane returned 503 Service Unavailable: <!DOCTYPE HTML>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"utf-8\">\n        <title>Error response</title>\n    </head>\n    <body>\n        <h1>Error response</h1>\n        <p>Error code: 503</p>\n        <p>Message: audit deliberately disconnected after accepted submission.</p>\n        <p>Error code explanation: 503 - The server cannot process the request due to a high load.</p>\n    </body>\n</html>\n). Check `prometheus kbd audit --receiver-only --json` before retrying with the same command ID",
+      "atNs": 14442796183416
+    },
+    "sameCommandRetry": {
+      "pid": 91356,
+      "cliPid": 91429,
+      "exit": 0,
+      "outputSha256": "3fbbc49f871e39d7e9e53496daba20d56fbb1e05821da487ab83229d8349ce91",
+      "diagnostic": "",
+      "atNs": 14443187528833
+    },
+    "failedReceipt": {
+      "schemaVersion": "1.7",
+      "pushId": "caf3fc1e-610b-4b20-8718-3489617c0db9",
+      "canonicalPayloadHash": "d7c228e68503470c60a6bcb1b22f52c238de7e23cc0d2bd4a286ebe26b1cd2ba",
+      "domain": "kbd-control:c078c7f7-f29f-4b8d-b779-b3330ed811cb",
+      "targets": [
+        "f8b9342178c0a4aa4fae7d656abe934cd9aef084c05cb9e7bd1348409e488839"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "f8b9342178c0a4aa4fae7d656abe934cd9aef084c05cb9e7bd1348409e488839": {
+          "state": "failed",
+          "updatedAtMs": 1795530098447,
+          "failure": "peer delivery timed out while connecting to the peer endpoint"
+        }
+      },
+      "createdAtMs": 1795530068427,
+      "updatedAtMs": 1795530098447,
+      "failure": "peer delivery timed out while connecting to the peer endpoint",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795530068427,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795530068440,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795530098447,
+          "localState": "failed",
+          "detail": "peer delivery timed out while connecting to the peer endpoint"
+        }
+      ]
+    },
+    "failedReceiptReplayed": true,
+    "newReceipt": {
+      "schemaVersion": "1.7",
+      "pushId": "04fceaa9-a95c-4363-b343-9519493e2d57",
+      "canonicalPayloadHash": "04f9b3f3db2631dda834b115ea98b36a4de93a823c2de30aec8865c25c0db159",
+      "domain": "kbd-control:c078c7f7-f29f-4b8d-b779-b3330ed811cb",
+      "targets": [
+        "f8b9342178c0a4aa4fae7d656abe934cd9aef084c05cb9e7bd1348409e488839"
+      ],
+      "localState": "broadcast",
+      "perPeer": {
+        "f8b9342178c0a4aa4fae7d656abe934cd9aef084c05cb9e7bd1348409e488839": {
+          "state": "applied",
+          "updatedAtMs": 1795530099717,
+          "acceptedFrameBytes": [
+            3062,
+            19297
+          ],
+          "insertedEvents": 1,
+          "receiverFrontier": {
+            "aa5b0074-d799-4b1f-89bc-1c93f952d5cd": 5
+          },
+          "projectionCurrent": true
+        }
+      },
+      "createdAtMs": 1795530099574,
+      "updatedAtMs": 1795530099717,
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795530099574,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795530099598,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "applied_at_targets",
+          "timestampMs": 1795530099717,
+          "localState": "broadcast"
+        }
+      ]
+    },
+    "eventHash": "86fc1881291cd1043bd8c6815b8391d45acd21be72aeb37e17f5932e77e3e632"
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 91347,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 91348,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "A-sender-session",
+        "pid": 91356,
+        "exit": -15,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "A",
+        "pid": 91378,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 93430,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 87
+}

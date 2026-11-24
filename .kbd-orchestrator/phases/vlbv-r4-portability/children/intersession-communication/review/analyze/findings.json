@@ -1,0 +1,17 @@
+{
+  "mode": "artifact",
+  "target": "analyze",
+  "isolation": "fresh harness context",
+  "crossModelVerified": false,
+  "criticalCount": 0,
+  "warnings": [
+    {
+      "finding": "Ownership acceptance needs the same authoritative team-state file.",
+      "disposition": "Scoped supported ownership transfer to sessions sharing one local authority."
+    },
+    {
+      "finding": "Read fallback catches any remote error.",
+      "disposition": "Required explicit failure classification and denial/incompatible-response checks with populated local history."
+    }
+  ]
+}

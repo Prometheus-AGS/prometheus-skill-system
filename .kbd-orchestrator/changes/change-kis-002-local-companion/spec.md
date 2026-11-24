@@ -1,0 +1,35 @@
+# Two running KBD sessions with Companion on one machine
+
+**Change** `change-kis-002-local-companion` · **Backend** `native-kbd` · **Phase** `vlbv-r4-portability::intersession-communication`
+
+## User outcome
+
+Two running sessions on this Mac can observe the same authorized KBD work after an explicit push through Companion. A session with a stale checkout can distinguish a local commit, transport admission, durable receipt on the recipient, and a usable up-to-date waypoint. Sessions sharing one local journal use the Full pack behavior in `change-kis-001-live-sessions`. This change covers independent local authorities, which ensures that a successful read on the sender cannot stand in for delivery.
+
+The original peer run accepted the command on A while B's audit stayed empty. After the transport repair, the enrolled second operator's signed `operator_granted` event prevented the older embedded reader from opening A's history. The prior phase recall recorded that completion files and the canonical ledger have diverged before. For that reason the receiver's signed journal and its checkout projection have independent acceptance checks. [Peer run](/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/peer-check/live-result.json) · [Reader failure](/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/peer-check-repair/schema-diagnostic.json) · [Phase analysis](../../phases/vlbv-r4-portability/children/intersession-communication/analysis.md)
+
+## Scope and dependencies
+
+- The Full pack owns this specification and the shared `scripts/verify-kbd-intersession.sh` entry point specified by the sibling change. Companion owns its workspace manifest and lockfile, `crates/sovereign-sync`, `crates/prometheus-substrate`, compatibility with `crates/iroh-docs-adapter`, its `sync-push` guidance and `scripts/verify-kbd-peers.py`. Publish both repositories' resolved revisions with the eventual evidence.
+- Reuse the Full KBD release reader and signed history (`cand-001`), Companion's paired iroh endpoints (`cand-004`) and Loro import/export (`cand-005`). PEER-01 supplies the reader for PEER-02; PEER-03 and PEER-04 depend on the addressed path in PEER-02. Bundle overlapping `rest_api.rs`, `p2p.rs` and verifier changes under one owner per file during implementation.
+- Two already-running session clients and two already-running headless Companion processes on this one machine are the acceptance environment for live exchange. Each authority has its own writable journal, keys, checkout, project registry and actual Unix socket. An additional independent local endpoint exercises pairing and project authorization. Document a trusted baseline bootstrap using real CLI enrollment and access-controlled files; each key remains private to its device. The explicit signed push transfers KBD work history. Team-state ownership follows the Full handoff contract on the original local authority. Physical LAN discovery, WAN operation and transfer of handoff attachments are outside this release claim.
+
+## Requirements and scenarios
+
+### PEER-001 · Both local authorities can open the supported writer's history
+
+**GIVEN** the installed Full writer enrolls a second independently keyed device as co-operator and a trusted copy of that signed baseline is provisioned in B's offline fixture store, **WHEN** two rebuilt Companion readers start and replay the history, **THEN** both expose the same enrolled keys, signed grant and nonempty frontier. Pin all four pack crates to the supported Full v1.17.0 release commit `acd029107533c07a661a7e3ad90eb28834688afa`, regenerate Cargo.lock, and preserve the public entry points of the Companion consumers. A journal from the previously supported reader must still open. In a separate fixture, the rebuilt candidate reader must itself encounter a validly signed future event kind outside its supported set, identify the incompatibility, keep the full signed history intact and decline to serve that project as ready. The prior reader’s recorded rejection of operator_granted supplies the historical baseline only. Compare the immutable events and hash chain before and after read-only replay. Task **PEER-01**.
+
+### PEER-002 · A live session sees the other session's addressed push
+
+**GIVEN** paired endpoints A and B for the same enrolled project, session A running with A’s enrolled signing identity, and the separately identified session B already subscribed through B’s own socket, **WHEN** A’s pack CLI submits a fresh signed command through A’s actual control socket, **THEN** an independent observation of the accepted HTTP POST and A’s audit binds the request, signed event and A’s key to that same live sender session. Session B remains running and verifies the event from its own receiver PID and socket. A records the event and B retains its old frontier until the signed push explicitly names B. B must then expose the matching signed event over its own socket and project event stream. Its persisted frontier and checkout waypoint must agree with A. Replaying identical signed request bytes returns the same receipt and causes no second application. Restart B and reopen its own authority to verify the event and waypoint persist. An altered request sharing the request ID must be rejected. Task **PEER-02**.
+
+### PEER-003 · Outages and denied peers cannot masquerade as successful delivery
+
+**GIVEN** a local session with an unreachable Companion, **WHEN** the user commits a KBD change locally, **THEN** the session can keep working and its local result is distinguishable from an applied peer update. After reconnection an explicit signed push brings B up to date once. If A commits before the response is lost, reconcile the original command ID and preserve exactly one logical effect after retry. Explicit denials must remain visible. Exercise unpaired endpoint, actively paired but unenrolled signer, revoked signer, and incorrect project independently. No rejected attempt may create a corresponding event at B or change its pre-attempt project frontier. Task **PEER-03**.
+
+### PEER-004 · Catch-up is bounded and an interrupted projection refresh is recoverable
+
+**GIVEN** a realistic signed backlog and a stale B, **WHEN** the session pushes changes, **THEN** the receiver durably converges using bounded authenticated frames. Measure actual encoded wire size and include a backlog whose naive full-history encoding would exceed the current 16 MiB bound. Use supported bounded batches or receiver-relative updates when necessary. Interrupted catch-up must resume without logical duplicates. If the signed import succeeds while writing the derived waypoint fails, the session must be able to identify the stale projection and regenerate it from durable state after the filesystem is writable. Independent B audit, frontier and on-disk waypoint must finally agree. Task **PEER-04**.
+
+The production operations, fixture isolation, failing controls and final commands for each scenario are in [verification.md](verification.md). These four scenarios specify work for the final local integration boundary; no new peer result is asserted here.

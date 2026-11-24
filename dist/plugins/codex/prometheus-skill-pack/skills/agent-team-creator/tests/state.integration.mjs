@@ -201,9 +201,11 @@ test('handoff snapshots real clean/dirty Git and transfers only on targeted revi
     const acceptedBytes = bytes(f);
     f.call('handoff-accept', { ...request, expectedRevision: accepted.revision });
     assert.deepEqual(bytes(f), acceptedBytes, 'same accepted receipt must be byte-idempotent');
-    refused(f, 'handoff-accept', request, /State revision conflict/);
+    assert.deepEqual(f.call('handoff-accept', request), accepted, 'original acceptance input replays the same receipt');
+    assert.deepEqual(bytes(f), acceptedBytes, 'original acceptance input preserves exact state bytes');
     refused(f, 'handoff-accept', { ...request, expectedRevision: accepted.revision, id: clean.id }, /belongs to reviewer|revision conflict/);
     update(f, 'transfer', 'start');
+    refused(f, 'handoff-accept', request, /stale/);
     refused(f, 'handoff-accept', { ...request, expectedRevision: f.read().revision }, /stale/);
 });
 test('unknown Git stays explicit and changed, reassigned or cancelled work rejects pending handoffs', t => {

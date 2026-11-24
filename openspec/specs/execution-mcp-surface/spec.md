@@ -1,7 +1,7 @@
 # execution-mcp-surface Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-004-remote-mcp-docs. Update Purpose after archive.
+Expose the execution service through MCP with the same behavior as its other interfaces. Preserve the local stdio trust boundary and return bounded, deterministic results.
 ## Requirements
 ### Requirement: Shared-service MCP parity
 `prometheus-exec --mode mcp` SHALL expose run submission, run status, ordered events, terminal receipt, artifact retrieval, and offline verification through MCP tools backed by the same service interfaces and durable state as REST and embedded callers.

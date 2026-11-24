@@ -1,7 +1,7 @@
 # execution-component-provenance Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-003-tier-w-mobile. Update Purpose after archive.
+Bind a component’s executable identity to its provenance and authorize that identity before instantiation, including when a cached decision is present.
 ## Requirements
 ### Requirement: Pre-instantiation component authorization
 Component bytes SHALL be authorized before validation, compilation, caching, linking, or instantiation. Estate mode SHALL require an active signed-generation manifest entry whose component hash and capability metadata match the installed bytes and whose generation has consistent signed target receipts; standalone and bundled-mobile modes SHALL require an exact configured SHA-256 pin.

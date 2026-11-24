@@ -1,7 +1,7 @@
 # kbd-phase-consistency Specification
 
 ## Purpose
-TBD - created by archiving change kbd-consistency-before-agent-teams. Update Purpose after archive.
+Keep KBD phase creation, position, progress, instructions, verification, authorizations, and backend-owned execution boundaries consistent.
 
 ## Requirements
 

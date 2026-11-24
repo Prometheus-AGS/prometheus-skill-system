@@ -1,7 +1,7 @@
 # ideation-decision-gating Specification
 
 ## Purpose
-TBD - created by archiving change change-idt-001-decision-review-packet. Update Purpose after archive.
+Require distinct, reviewed options and an explicit user decision before analysis. Preserve decisions and outcomes and verify delivery across harnesses.
 ## Requirements
 ### Requirement: Decision artifacts are cross-model verified
 

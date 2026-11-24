@@ -1,0 +1,33 @@
+{
+  "commandId": "negative-LOCAL-002",
+  "case": "LOCAL-002",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T14:19:19.311Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator directed closure of open items. Verify the exact production receiver byte bound using local file inputs at B and recheck the same-host scenarios. Native installer validation is explicitly deferred to clean machines."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "LOCAL-002",
+    "--negative-only"
+  ],
+  "startedAt": "2026-11-24T14:20:34.109628+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/tests/kbd-intersession-local.py",
+  "runnerSha256": "f755652cc1ea0bb41c4252bcd92e7a29d75a6a19da323f8517b4ac42243ebace",
+  "candidateSha256": "e9d6f519e20305ad7363c01b6a63960431f3f4ee03c7a6f2ac850fdb395bfaca",
+  "observationsSha256": "d1fd6fe840ae63049b44add8689ee334434b3ff34c0018679dfa85fbce74db12",
+  "exitCode": 0,
+  "status": "PASS",
+  "durationSeconds": 3.383
+}

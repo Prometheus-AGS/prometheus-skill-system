@@ -1,8 +1,9 @@
 import { closeSync, existsSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import type { Team, TeamState } from './types.mjs';
+import type { Harness, Team, TeamState } from './types.mjs';
 import { integer, validateMutation, validateState } from './state-validation.mjs';
+import { acceptHandoff, isOriginalAcceptance } from './handoff.mjs';
 export { taskAction } from './state-tasks.mjs';
 export { completeKbdTask } from './state-kbd.mjs';
 
@@ -66,12 +67,10 @@ export function initState(file: string, team: Team): TeamState {
   } finally { release(); }
 }
 
-function prepare(file: string, expectedRevision: number): { before: TeamState; state: TeamState } {
-  integer(expectedRevision, 'expectedRevision');
-  const before = readState(file);
+function prepare(before: TeamState, expectedRevision: number): TeamState {
   if (before.revision !== expectedRevision) throw new Error(`State revision conflict: expected ${expectedRevision}, current ${before.revision}`);
   if (before.revision === Number.MAX_SAFE_INTEGER) throw new Error('State revision exhausted');
-  return { before, state: structuredClone(before) };
+  return structuredClone(before);
 }
 
 function commit(file: string, before: TeamState, state: TeamState): TeamState {
@@ -86,9 +85,26 @@ export function mutateState(file: string, expectedRevision: number, callback: (s
   const path = statePath(file);
   const release = lock(path);
   try {
-    const { before, state } = prepare(path, expectedRevision);
+    integer(expectedRevision, 'expectedRevision');
+    const before = readState(path);
+    const state = prepare(before, expectedRevision);
     const result: unknown = callback(state);
     if (result && typeof (result as { then?: unknown }).then === 'function') throw new Error('Async callback requires mutateStateAsync');
+    return commit(path, before, state);
+  } finally { release(); }
+}
+
+export function acceptStateHandoff(
+  file: string, expectedRevision: number, id: string, destination: { owner: string; harness: Harness },
+): TeamState {
+  const path = statePath(file);
+  const release = lock(path);
+  try {
+    integer(expectedRevision, 'expectedRevision');
+    const before = readState(path);
+    if (isOriginalAcceptance(before, id, destination, expectedRevision)) return before;
+    const state = prepare(before, expectedRevision);
+    acceptHandoff(state, id, destination);
     return commit(path, before, state);
   } finally { release(); }
 }
@@ -97,7 +113,9 @@ export async function mutateStateAsync(file: string, expectedRevision: number, c
   const path = statePath(file);
   const release = lock(path);
   try {
-    const { before, state } = prepare(path, expectedRevision);
+    integer(expectedRevision, 'expectedRevision');
+    const before = readState(path);
+    const state = prepare(before, expectedRevision);
     await callback(state);
     return commit(path, before, state);
   } finally { release(); }

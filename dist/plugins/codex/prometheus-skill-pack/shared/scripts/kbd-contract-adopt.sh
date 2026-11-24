@@ -119,26 +119,35 @@ if [ -n "$SCHEMA_ERR" ]; then
 fi
 
 # --- 1b. Adoption lint (document checks; legal before the value-phase boundary) ---
-LINT="$(dirname "${BASH_SOURCE[0]}")/kbd-contract-lint.mjs"
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")/lib/.." && pwd -P)"
+LINT="$SCRIPT_DIR/kbd-contract-lint.mjs"
 LINT_ARGS=(--contract "$CONTRACT")
 if [ "$LINT_ONLY" -eq 0 ] || [ "$REQUIRE_STATUS" -eq 1 ]; then
   LINT_ARGS+=(--require-owners)
 fi
 LINT_PHASE="$(jq -r '.identity.phaseId // empty' "$CONTRACT")"
-REVIEW_FILE="$ROOT/.kbd-orchestrator/phases/$LINT_PHASE/review/contract/findings.json"
-[ -f "$REVIEW_FILE" ] && LINT_ARGS+=(--review "$REVIEW_FILE")
 [ -n "$OWNER_DECISION" ] && LINT_ARGS+=(--owner-decision "$OWNER_DECISION")
+EXPECTED_DIR=""
 LINT_STATUS="$(mktemp)"
 if prometheus kbd --path "$ROOT" status --json > "$LINT_STATUS" 2>/dev/null \
     && jq -e '.projectId and .runId and (.phases | type == "object")' "$LINT_STATUS" >/dev/null; then
   LINT_ARGS+=(--status "$LINT_STATUS")
   STATUS_JSON="$(cat "$LINT_STATUS")"
+  if jq -e --arg phase "$LINT_PHASE" '.phases[$phase] != null' "$LINT_STATUS" >/dev/null; then
+    EXPECTED_DIR="$(node "$SCRIPT_DIR/lib/kbd-phase-directory.mjs" "$ROOT" "$LINT_PHASE" < "$LINT_STATUS")" || {
+      rm -f "$LINT_STATUS"; fail "cannot resolve canonical phase directory for $LINT_PHASE" 3; }
+  elif [ "$LINT_ONLY" -eq 0 ] || [ "$REQUIRE_STATUS" -eq 1 ]; then
+    rm -f "$LINT_STATUS"; fail "phase $LINT_PHASE missing from canonical status" 3
+  fi
 elif [ "$LINT_ONLY" -eq 1 ] && [ "$REQUIRE_STATUS" -eq 0 ]; then
   printf 'Canonical status unavailable; owner-task checks skipped.\n' >&2
 else
   rm -f "$LINT_STATUS"
   fail "canonical status required for adoption and signing; owner-task checks could not run" 2
 fi
+# With document-only lint a draft can predate registration. Check feedback beside it.
+REVIEW_FILE="${EXPECTED_DIR:-$(dirname "$CONTRACT")}/review/contract/findings.json"
+[ -f "$REVIEW_FILE" ] && LINT_ARGS+=(--review "$REVIEW_FILE")
 LINT_RC=0; LINT_OUT="$(node "$LINT" "${LINT_ARGS[@]}" 2>&1)" || LINT_RC=$?
 [ -n "${LINT_STATUS:-}" ] && rm -f "$LINT_STATUS"
 if [ "$LINT_RC" -ne 0 ]; then
@@ -150,8 +159,7 @@ if [ "$LINT_ONLY" -eq 1 ] && [ "$REQUIRE_STATUS" -eq 0 ]; then
   exit 0
 fi
 
-PHASE_ID="$(jq -r '.identity.phaseId' "$CONTRACT")"
-EXPECTED_DIR="$ROOT/.kbd-orchestrator/phases/$PHASE_ID"
+PHASE_ID="$LINT_PHASE"
 [ "$(dirname "$CONTRACT")" = "$EXPECTED_DIR" ] || fail "identity.phaseId=$PHASE_ID but contract is not at $EXPECTED_DIR" 3
 
 # --- 2. Canonical identity cross-check ---

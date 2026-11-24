@@ -1,7 +1,7 @@
 # mobile-skill-portability Specification
 
 ## Purpose
-TBD - created by archiving change change-msp-001-classify-script-skills. Update Purpose after archive.
+Classify which script-bearing skills can execute on mobile and verify harness delivery, component invariants, and mobile bindings against real target evidence.
 ## Requirements
 ### Requirement: Every script-bearing skill has a mobile execution verdict
 

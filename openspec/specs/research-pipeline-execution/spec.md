@@ -108,7 +108,27 @@ WHEN `--resume` is given, THEN a stage listed in `checkpoint.json.stages_complet
 
 ### Requirement: A provenance sidecar exists on every exit
 
-The driver SHALL write `<slug>.provenance.md` on success, on a block, and on interruption, via `scripts/write-provenance.sh` from `checkpoint.json` and the package artifacts. The verdict SHALL be `BLOCKED` when the run blocked or ended incomplete, `PASS WITH NOTES` when the run completed at direct scale, carried notes, had a failing hook, or completed a full run without an adversarial review, and `PASS` otherwise. A run awaiting a stage in checkpoint mode SHALL write an interim sidecar that is not `BLOCKED`.
+The driver SHALL use `scripts/write-provenance.sh` to derive `<slug>.provenance.md` from `checkpoint.json` and package artifacts on success, block, interruption, or a checkpoint wait.
+
+#### Scenario: An incomplete or blocked run
+
+- **WHEN** the run blocks or ends incomplete
+- **THEN** the verdict is `BLOCKED`
+
+#### Scenario: A completed run carries limitations
+
+- **WHEN** the run completes at direct scale, carries notes, has a failed hook, or completes a full run without adversarial review
+- **THEN** the verdict is `PASS WITH NOTES`
+
+#### Scenario: A completed run has no limitations
+
+- **WHEN** the run completes with none of those conditions
+- **THEN** the verdict is `PASS`
+
+#### Scenario: Checkpoint wait yields interim provenance
+
+- **WHEN** checkpoint mode is waiting for its next stage
+- **THEN** the driver writes an interim sidecar with a verdict other than `BLOCKED`
 
 #### Scenario: Failure leaves a BLOCKED sidecar
 

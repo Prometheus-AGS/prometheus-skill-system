@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-004",
+  "negativeOnly": false,
+  "passed": false,
+  "result": "FAIL",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "5fd7d446bc78ab1c7e42010b620ac4791c8a5a3479481f462119a22ac0c35efc"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "40784eeebb99b23401b4b4c3831bbe6f33fbeb9651ea9a1ff6f0b6c35613d5bc"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "807631f2ad7d48f971155542ddba788d139565c388ca57441a263abd0df7b1cf"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "a1a5b9f25385739d888f132c68f3dd27be10199e94ef1891de9fbacea826508e",
+    "dirtySourceCount": 51
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "0c93caac3b1313f3167e8044da69537c78709b786bc4fbce4affcc54c5f7bb94",
+  "baselineCopy": {
+    "senderSha256": "21d789b9dba15ad44a2158823ced35d3040a17057544cdcd94e9037aee77e8b5",
+    "receiverSha256": "21d789b9dba15ad44a2158823ced35d3040a17057544cdcd94e9037aee77e8b5"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:b7024a7fe5e3ec7a83481045ede6b66a84305302e99c1447e925033bb522a7ac",
+      "endpointId": "5eb9e772479001f3b5491c5f5ff0688a4950dddbbb66af688158c0ca715ab831",
+      "projectId": "9f4fd27d-ea3c-4614-a326-9f6a6ba3a60f",
+      "replicaId": "d5ebc2bf-04c1-4c52-a51d-f511c15add93",
+      "checkout": "/tmp/kbd-peers-0st776ts/A/project",
+      "authority": "/tmp/kbd-peers-0st776ts/A/data/prometheus/kbd/projects/9f4fd27d-ea3c-4614-a326-9f6a6ba3a60f",
+      "socket": "/tmp/kbd-peers-0st776ts/A/control.sock",
+      "companionPids": [
+        35946
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:a7215aee484d4a177e24926de582c550cb9cde766f239bbb74d7d13454ec2482",
+      "endpointId": "205a9ea23175601ae9d48db26c12fca6147692cdd8c8561f38a706b57f34ee40",
+      "projectId": "9f4fd27d-ea3c-4614-a326-9f6a6ba3a60f",
+      "replicaId": "2fab6856-a61c-4196-8cbe-40003685c334",
+      "checkout": "/tmp/kbd-peers-0st776ts/B/project",
+      "authority": "/tmp/kbd-peers-0st776ts/B/data/prometheus/kbd/projects/9f4fd27d-ea3c-4614-a326-9f6a6ba3a60f",
+      "socket": "/tmp/kbd-peers-0st776ts/B/control.sock",
+      "companionPids": [
+        35948,
+        43962
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "d5ebc2bf-04c1-4c52-a51d-f511c15add93": 3
+    },
+    "eventHashes": [
+      "48b4bdb0ef6adbe4c9fb5fa6961ebf71ed5ca46eeeb2c976fb79221dc8a0532c",
+      "8035c403b6ef5971ed266c1376e0134a269c2372cce247b8a827a1ad4988146f",
+      "9350a88283612d536f81e081913782d7143786f47fe9fb1ecf06f029432d1cdf"
+    ]
+  },
+  "sourceBacklog": {
+    "frameBytes": 114421928,
+    "maximumBytes": 16777216,
+    "commandCount": 40,
+    "fixtureInputSha256": "e83666798c4bf0344f09a47c9f2330e66b676bfa96744a242d292ce5acebecc2",
+    "sourceEventHashes": [
+      "48b4bdb0ef6adbe4c9fb5fa6961ebf71ed5ca46eeeb2c976fb79221dc8a0532c",
+      "8035c403b6ef5971ed266c1376e0134a269c2372cce247b8a827a1ad4988146f",
+      "9350a88283612d536f81e081913782d7143786f47fe9fb1ecf06f029432d1cdf",
+      "1524ed3965ed9b993fe9334d2a33ece33795ffac3caeef2447f6d3ef11db7881",
+      "a95b9f6a75b58ff0a059e8cc3ed076814b28819d3a060158012df4e8b1801f5e",
+      "8df97ef5cbd63201a65d59e6059973b6df0b94fd03a1bf01677f70a61f7c3b04",
+      "f817145e0b08c91d1f8b2454f2ca6657415d025732fcb6a8186082f2c148e71d",
+      "94a2345d38972a645c38c2e0a4abacc0a1ddaaed335de75b70d80ef1a105b5a1",
+      "1a4b5ec116ce2cb7ce498c41f56e6e81940c8bba37cb9055c05adaf17a09d38a",
+      "807cf32b332fefa1babfdf95859bd54cae9fa0fad770b7b80fbc59ebe9a59e88",
+      "5c4c24610fd151dcdd47ae1a08da51f2dffe7a9737c37c9ed2447815f4e8301e",
+      "a42dd96b6aa1202c4b80025ca54106ef10f30ea83e2bef415bcffcabbaf6d63d",
+      "12fe0bcccf8c73aae7821dfdd6a1da910c20a2a794dc44114140ba70c80bf23b",
+      "7f74da5340cc956ba93ea5558920e558ff0147b8006baf9263bfefd310151d20",
+      "5186ff5c3453e3ca9092572a818b80f9582f2a552a0ff0c661b7fd879f05f7c0",
+      "de012c8460ab3f04e5ac7b3cac7f3852d576d33e06cdfd454e8790f357d9efbd",
+      "087e848755ec85d4f378d200ad8318e9a10213ecaf204ee6e5db76f916e859db",
+      "0943767768d23bafa184305a84218fff53424de11031c6299ecc7cb15061a6dd",
+      "95c8e95f73b8a1940f5d1a18997a9278e7d27b810776dd8dd4f7e57f00cc5acf",
+      "15612fc0ed555aa9b5b95ac10956edde87f4879b8b84db869f24791c31986330",
+      "0eec533bf04d5cb69b3961f063a46e049d1463277d208318889fd758dd75fe25",
+      "660f4fc2783678359dbb3cae76276dfbf9167c4a83e70158957081b9a436a18f",
+      "0912cc9bbd550636de04819a85cf49f677306bdec6432db76abbcf11c1fb12b9",
+      "8a6a9844d0b62ae28693ed3564002758eadd7d43b771f392c910aa8029e28fe6",
+      "88fc4cc220b3ce82321ab20d0497336e4bf255f3c74c1654609ddc3af0cb4786",
+      "37ecfd562e62575b39cf79ec8570675c306912b1fe01a3887b103bbbbcae50d7",
+      "0babb42bf6d081b950d0493c61911511eeea4454f85d6df5868af6f32ad44a9c",
+      "baf8cfdf3b564e25266681211d9608db4e0cf61d4128ef558142aa88f6aafbe0",
+      "1bd11c197cc89ec7905fb42827441e0125a1e97e8c40e4981d85f42bc4179ab0",
+      "f082b77fc978879575c04055831072a9306eb26d5af2b6949b9dde0c2a7c5f4f",
+      "69bb052b80667a4fc18c59e7cd4fba4921bfb349cc548ba7b9e05d6625fe3848",
+      "0304da54ad7491f2f678b82542b06d4d651fdb180b9ec1d528e58ab0d5bbaebf",
+      "2b7bee4a638091e14229b9f408c75b765bff545f3743b35719ddea38b795a595",
+      "8934af003db098fffc13a74076717279e9683d86f3a588ce055c89ec95eb61bf",
+      "bb7f28f8fa33432826144cc58d8583213e3404ce79db84268b68c9ca33dd154e",
+      "76cbdfde083857b00d3457de65f362aebbada5a9a57f33fc7893a3241d43cdc7",
+      "09578f7e9c0df9ee17d642e399ec046ad9aed2bc4edf1ee414a94cb0dda19019",
+      "385f3b644d90898342db25794d83ba167d972e44655c33ded4b81ffe5324b127",
+      "91ef9719a4eb60dd9cf0d739b958963eb305da7797253a64df4c3e03d5b7ac40",
+      "e3dc4f65c3875b4f638ae0a37d0470f9c29c7572f949f19e893490b7381acefe",
+      "8e5c97b7f712df97396f141bc68af0e577318cb161a937fa6ebbc13e707506b2",
+      "35c06333722d778636039f33221bcbf8551a4e4bd66de0d9c91cc9aef854cfd4",
+      "483dd54e53596e8c18e294e595329a833f8abbac4e927a700955effaedc2964c"
+    ]
+  },
+  "budgets": {
+    "deliveryAttempts": 2,
+    "maximumFrameBytes": 16777216,
+    "operationSeconds": 45,
+    "progressPollSeconds": 0.025
+  },
+  "interruption": {
+    "stoppedPid": 35948,
+    "restartedPid": 43962,
+    "beforeRestart": {
+      "d5ebc2bf-04c1-4c52-a51d-f511c15add93": 11
+    },
+    "persistedFrontier": {
+      "d5ebc2bf-04c1-4c52-a51d-f511c15add93": 11
+    },
+    "persistedEventHashes": [
+      "48b4bdb0ef6adbe4c9fb5fa6961ebf71ed5ca46eeeb2c976fb79221dc8a0532c",
+      "8035c403b6ef5971ed266c1376e0134a269c2372cce247b8a827a1ad4988146f",
+      "9350a88283612d536f81e081913782d7143786f47fe9fb1ecf06f029432d1cdf",
+      "1524ed3965ed9b993fe9334d2a33ece33795ffac3caeef2447f6d3ef11db7881",
+      "a95b9f6a75b58ff0a059e8cc3ed076814b28819d3a060158012df4e8b1801f5e",
+      "8df97ef5cbd63201a65d59e6059973b6df0b94fd03a1bf01677f70a61f7c3b04",
+      "f817145e0b08c91d1f8b2454f2ca6657415d025732fcb6a8186082f2c148e71d",
+      "94a2345d38972a645c38c2e0a4abacc0a1ddaaed335de75b70d80ef1a105b5a1",
+      "1a4b5ec116ce2cb7ce498c41f56e6e81940c8bba37cb9055c05adaf17a09d38a",
+      "807cf32b332fefa1babfdf95859bd54cae9fa0fad770b7b80fbc59ebe9a59e88",
+      "5c4c24610fd151dcdd47ae1a08da51f2dffe7a9737c37c9ed2447815f4e8301e"
+    ],
+    "failedReceipt": {
+      "schemaVersion": "1.7",
+      "pushId": "bb28ca30-fa3b-42b7-8b22-207e00fa2245",
+      "canonicalPayloadHash": "bc9c1693dee1fa6e27b7ffc0d04d5807032598f1c614fab0a3f2b075a91c0311",
+      "domain": "kbd-control:9f4fd27d-ea3c-4614-a326-9f6a6ba3a60f",
+      "targets": [
+        "205a9ea23175601ae9d48db26c12fca6147692cdd8c8561f38a706b57f34ee40"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "205a9ea23175601ae9d48db26c12fca6147692cdd8c8561f38a706b57f34ee40": {
+          "state": "failed",
+          "updatedAtMs": 1795521795890,
+          "failure": "deadline has elapsed",
+          "acceptedFrameBytes": [
+            3075
+          ],
+          "insertedEvents": 0,
+          "receiverFrontier": {
+            "d5ebc2bf-04c1-4c52-a51d-f511c15add93": 3
+          },
+          "projectionCurrent": false,
+          "projectionError": "checkout waypoint is unavailable: No such file or directory (os error 2)"
+        }
+      },
+      "createdAtMs": 1795521764906,
+      "updatedAtMs": 1795521795890,
+      "failure": "deadline has elapsed",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795521764906,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795521764919,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795521795890,
+          "localState": "failed",
+          "detail": "deadline has elapsed"
+        }
+      ]
+    }
+  },
+  "resumedPush": {
+    "httpStatus": 503,
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "41543cab-e41c-49e6-8ea0-0495ecbc728f",
+      "canonicalPayloadHash": "cdabeebd0fa7926a505d625a5fd1887806fb5f7ad82ee5e9698aea338d0aa1e2",
+      "domain": "kbd-control:9f4fd27d-ea3c-4614-a326-9f6a6ba3a60f",
+      "targets": [
+        "205a9ea23175601ae9d48db26c12fca6147692cdd8c8561f38a706b57f34ee40"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "205a9ea23175601ae9d48db26c12fca6147692cdd8c8561f38a706b57f34ee40": {
+          "state": "failed",
+          "updatedAtMs": 1795521833487,
+          "failure": "deadline has elapsed"
+        }
+      },
+      "createdAtMs": 1795521803233,
+      "updatedAtMs": 1795521833488,
+      "failure": "deadline has elapsed",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795521803233,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795521803244,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795521833488,
+          "localState": "failed",
+          "detail": "deadline has elapsed"
+        }
+      ]
+    }
+  },
+  "error": "resumed push returned HTTP 503: {\"205a9ea23175601ae9d48db26c12fca6147692cdd8c8561f38a706b57f34ee40\": {\"state\": \"failed\", \"updatedAtMs\": 1795521833487, \"failure\": \"deadline has elapsed\"}}",
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 35946,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 35948,
+        "exit": -9,
+        "intentionalInterruption": true
+      },
+      {
+        "role": "B",
+        "pid": 43962,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 163
+}

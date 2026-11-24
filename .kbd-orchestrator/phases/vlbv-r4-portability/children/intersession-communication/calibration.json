@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "kind": "kbd.calibration",
+  "phaseId": "vlbv-r4-portability::intersession-communication",
+  "status": "proposal-awaiting-owner-adoption",
+  "source": "User explicitly requested a single-box, two-running-session focus and passing the locally failing checks on 2026-11-24. Detailed controls below are Spec proposals, not claims of independent owner review.",
+  "positive": [
+    {
+      "id": "P1",
+      "example": "Both live sessions observe signed work on this box with Companion stopped.",
+      "basis": "User request and earlier local signed readback; overlapping-session observation is still an acceptance case."
+    },
+    {
+      "id": "P2",
+      "example": "Full and Companion locally validate the same enrolled two-operator history.",
+      "basis": "Owner requested real two-project validation and authorized the transport repair. The schema failure remains."
+    }
+  ],
+  "rejectedOrDeferred": [
+    {
+      "id": "R1",
+      "example": "A healthy sending socket alone proves that the recipient applied the command.",
+      "basis": "The first peer receipt shows an empty receiving audit despite local success."
+    },
+    {
+      "id": "R2",
+      "example": "Physical multi-machine discovery as a requirement of this box’s acceptance.",
+      "basis": "Owner narrowed primary behavior to two running sessions on this single box. Cross-host claims need separate validation."
+    }
+  ],
+  "rareCritical": [
+    {
+      "id": "C1",
+      "example": "Remote denial becomes a reported success through local fallback; peer has no matching event.",
+      "basis": "Actual missing-socket readback and code analysis; independent denial coverage is proposed."
+    },
+    {
+      "id": "C2",
+      "example": "Filesystem interruption leaves a durable journal newer than the receiver’s displayed waypoint.",
+      "basis": "Companion import publishes history before a fallible projection refresh."
+    }
+  ],
+  "sourceIdentities": {
+    ".kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/assessment.md": "08758f5f8db3b77ee68563184e4b626dd23b21f859af06d1f187d053e8a2076f",
+    ".kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/analysis.md": "c8fd7594b8e93c4c61a2564cad9d4fa36c4178ad02472b1599f61aa002d86a51",
+    ".kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/evidence/local-readback.json": "d8b8dc58d0621fc8a6b870a93361c0cc1563e528296686bc0ccaeff8fd82bdc4",
+    ".kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/evidence/explicit-remote-missing.json": "1d502fd45112e644bf3e842f96007ea37de641fa428325f3d329a904ee6e055d",
+    "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/logs/doctor.json": "c2c4dd70dfd3d2cb36c721111bf17880b2d2dfe27f155b37cb8eecf789cd8488",
+    "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/prometheus-skill-pack/strict.json": "5a4512276687ab5984aa8ade546616bc22c1759558e10c35d6fade74c3353a0b",
+    "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/prometheus-companion/strict-after-mirror.json": "956268db4529e875a0f85678bf31e839e2c8c043fda6250a02b464b5d5498aca",
+    "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/peer-check/live-result.json": "bf666b662aac1c32bf8c013dd4ae9355af40e2dbf2919a9f5a4027ed52db0656",
+    "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/peer-check-repair/schema-diagnostic.json": "75fe3a33fcc4851cb93aac26607fda1d1ec10853bf37dc612217ef946bca2c42"
+  },
+  "methodReference": "skills/testing/vlbv/references/requirements.md",
+  "nativeRequirements": {
+    ".kbd-orchestrator/changes/change-kis-001-live-sessions/spec.md": "f8e182dd627cc667f2c7515bacb4bc02f3452054c6ef54585b4aa052cdb164b4",
+    ".kbd-orchestrator/changes/change-kis-001-live-sessions/verification.md": "f6cdc641ef74b861b4ccc1a610f469ef22ad504e99dc3a9671975751c895956d",
+    ".kbd-orchestrator/changes/change-kis-002-local-companion/spec.md": "aedb67d609ac1853473ea798bbfaa2cf9724d8e277e6059a65c2603e7ff42197",
+    ".kbd-orchestrator/changes/change-kis-002-local-companion/verification.md": "77003376435e8975ec2823edc6942c25a6f11b892d40a34e2e759eeaea12a829",
+    ".kbd-orchestrator/changes/change-kis-003-local-health/spec.md": "576feea3899da186e19ca2a9976df4bed0347123d0e1bfac607998d694ce02d0",
+    ".kbd-orchestrator/changes/change-kis-003-local-health/verification.md": "4278361a108d4650c1aa815f2746af6d1bda68cdaf4344d113b150415dc72717"
+  }
+}

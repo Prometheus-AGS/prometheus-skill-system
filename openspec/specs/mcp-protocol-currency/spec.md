@@ -1,7 +1,7 @@
 # mcp-protocol-currency Specification
 
 ## Purpose
-TBD - created by archiving change change-mcp-001-uar-build-unblock. Update Purpose after archive.
+Keep the MCP build compatible with its selected protocol dependencies by enforcing dependency constraints and rechecking recorded compatibility findings.
 ## Requirements
 ### Requirement: The build is protected by a constraint, not only by a lockfile
 

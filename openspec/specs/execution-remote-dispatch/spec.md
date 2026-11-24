@@ -1,7 +1,7 @@
 # execution-remote-dispatch Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-004-remote-mcp-docs. Update Purpose after archive.
+Deliver signed execution requests to enrolled estate peers with durable retry, replay defense, per-peer receipts, and isolation from remote outages.
 ## Requirements
 ### Requirement: Estate-only remote dependency boundary
 R-class dispatch SHALL live in an `exec-remote` crate enabled only by the estate feature. Contracts, core, Tier P, Tier W, standalone, and bundled-mobile profiles SHALL NOT depend on Sovereign Sync, KBD, or any remote transport crate.

@@ -1,0 +1,13 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-11-24T09:38:23Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json",
+    "decision-log.md"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "Five reuse candidates. Spec the release-aligned reader, source-aware local fallback, receiver-confirmed addressed delivery, backlog/waypoint recovery and same-authority ownership transfer. Peer durability and physical LAN discovery remain unverified.",
+  "skipped": false,
+  "skipReason": null
+}

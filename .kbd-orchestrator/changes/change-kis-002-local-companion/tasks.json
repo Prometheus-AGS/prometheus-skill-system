@@ -1,0 +1,71 @@
+{
+  "changeId": "change-kis-002-local-companion",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "PEER-01",
+      "title": "Align Companion’s four pack crate pins and replay supported co-operator and legacy journals",
+      "done": true,
+      "doneAt": "2026-11-24T11:00:48Z",
+      "doneBy": "claude-code",
+      "files": [
+        "../prometheus-companion/Cargo.toml",
+        "../prometheus-companion/Cargo.lock",
+        "../prometheus-companion/crates/iroh-docs-adapter/Cargo.toml",
+        "../prometheus-companion/crates/sovereign-sync/src/kbd_control.rs",
+        "../prometheus-companion/scripts/verify-kbd-peers.py"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case PEER-001",
+      "notes": "Reuses cand-001. Use the rebuilt candidate for both supported histories and a separately verified signed future-kind refusal; preserve independent keys and the operator_granted event. Negative gate: bash scripts/verify-kbd-intersession.sh --case PEER-001 --negative-only. Task model assignment for PEER-01 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    },
+    {
+      "id": "PEER-02",
+      "title": "Complete addressed delivery and confirm application from the second running session",
+      "done": true,
+      "doneAt": "2026-11-24T11:01:06Z",
+      "doneBy": "claude-code",
+      "files": [
+        "../prometheus-companion/crates/prometheus-substrate/src/node.rs",
+        "../prometheus-companion/crates/sovereign-sync/src/p2p.rs",
+        "../prometheus-companion/crates/sovereign-sync/src/main.rs",
+        "../prometheus-companion/crates/sovereign-sync/src/rest_api.rs",
+        "../prometheus-companion/skills/sync-push/SKILL.md",
+        "../prometheus-companion/scripts/verify-kbd-peers.py"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case PEER-002",
+      "notes": "After PEER-01. Reuses cand-004 and cand-005; bind A’s enrolled signer and live session PID to the command POST at A’s socket; bind B’s already-subscribed receiver PID to independent stream, audit, frontier, replay and restart. Negative gate: bash scripts/verify-kbd-intersession.sh --case PEER-002 --negative-only. Task model assignment for PEER-02 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    },
+    {
+      "id": "PEER-03",
+      "title": "Preserve project authority and reconcile an offline or interrupted submission",
+      "done": true,
+      "doneAt": "2026-11-24T11:01:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        "../prometheus-companion/crates/sovereign-sync/src/rest_api.rs",
+        "../prometheus-companion/crates/sovereign-sync/src/p2p.rs",
+        "../prometheus-companion/skills/sync-push/SKILL.md",
+        "../prometheus-companion/scripts/verify-kbd-peers.py"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case PEER-003",
+      "notes": "After PEER-02. Coordinate with Full owner for local submit and remote-denial behavior; use the same command identity. Negative gate: bash scripts/verify-kbd-intersession.sh --case PEER-003 --negative-only. Task model assignment for PEER-03 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    },
+    {
+      "id": "PEER-04",
+      "title": "Bound backlog transfer and restore stale checkout projections from durable history",
+      "done": true,
+      "doneAt": "2026-11-24T14:35:38Z",
+      "doneBy": "claude-code",
+      "files": [
+        "../prometheus-companion/crates/sovereign-sync/src/p2p.rs",
+        "../prometheus-companion/crates/sovereign-sync/src/kbd_sync.rs",
+        "../prometheus-companion/crates/sovereign-sync/src/kbd_control.rs",
+        "../prometheus-companion/crates/sovereign-sync/src/rest_api.rs",
+        "../prometheus-companion/skills/sync-push/SKILL.md",
+        "../prometheus-companion/scripts/verify-kbd-peers.py"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case PEER-004",
+      "notes": "After PEER-02. Record wire sizes; reproduce journal import during temporary waypoint write failure. Negative gate: bash scripts/verify-kbd-intersession.sh --case PEER-004 --negative-only. Task model assignment for PEER-04 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    }
+  ]
+}

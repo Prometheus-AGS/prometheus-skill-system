@@ -1,0 +1,292 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-004",
+  "negativeOnly": false,
+  "passed": false,
+  "result": "FAIL",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "dbb0b4e8a359560c9b7f89f4916ce7a64a259a1f8876458c94d64a4e1da92ef7"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "e1776e96b70020c814ad6a659a730090393ea2847ff8908e4904ad2d43d1fc04"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "6c06a220eb65ead8f51361bf42688f8cab7c3d4e89f5b706797b532f3be1e5d9"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "8d266ecc54967df1a3e268ccd9e17deb3686854d94b750c2101ff9285b88b992",
+    "dirtySourceCount": 51
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "2ed37743f1648317d8e5b343afd55dab47360934d1b92f245b8c0d4a2e8558e0",
+  "baselineCopy": {
+    "senderSha256": "24c219dda7b43d6d21a5c7eea271440698cd50aa1f587885d5cc5f603591c292",
+    "receiverSha256": "24c219dda7b43d6d21a5c7eea271440698cd50aa1f587885d5cc5f603591c292"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:65e7d0887bd3e00ba3b603404d8c7fac5bf90101dec8d7a069d32fb2ee045c0e",
+      "endpointId": "835901973d74c07a4f6c3877f36d8b022c70954412b4ca97c4a0be190f6c183a",
+      "projectId": "a6b6d634-97e8-433f-b71a-68cf4e9e6edc",
+      "replicaId": "3b764147-dd13-41cb-833f-830cf0aa9c94",
+      "checkout": "/tmp/kbd-peers-6kc2nt59/A/project",
+      "authority": "/tmp/kbd-peers-6kc2nt59/A/data/prometheus/kbd/projects/a6b6d634-97e8-433f-b71a-68cf4e9e6edc",
+      "socket": "/tmp/kbd-peers-6kc2nt59/A/control.sock",
+      "companionPids": [
+        53525
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:f47611327d83e4225591da10ad916bb09a86c642d2be67ac24209158fa702fbd",
+      "endpointId": "e18f881d42b065cc799513c737dfc093e5a526578adda6d3c11e917b2fae2eb0",
+      "projectId": "a6b6d634-97e8-433f-b71a-68cf4e9e6edc",
+      "replicaId": "a48b5aff-cc11-4e7c-8ea7-d710e96e9268",
+      "checkout": "/tmp/kbd-peers-6kc2nt59/B/project",
+      "authority": "/tmp/kbd-peers-6kc2nt59/B/data/prometheus/kbd/projects/a6b6d634-97e8-433f-b71a-68cf4e9e6edc",
+      "socket": "/tmp/kbd-peers-6kc2nt59/B/control.sock",
+      "companionPids": [
+        53526,
+        62148
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "3b764147-dd13-41cb-833f-830cf0aa9c94": 3
+    },
+    "eventHashes": [
+      "cebdd2505a6b4f139a4118742db0c22dd51415e102b50baef1037a038877fde5",
+      "1720dc72f6c858f6318bdf00694dea1241b6f91393730429da76d42a6cbf8a6b",
+      "111f9119576e35c9452119f187b80bd20af0216c5d58cc804aa28fe2ab61e418"
+    ]
+  },
+  "sourceBacklog": {
+    "frameBytes": 114418237,
+    "maximumBytes": 16777216,
+    "commandCount": 40,
+    "fixtureInputSha256": "25524cba7c7fef55e8f3da683c05f4e127e5b705069b056828727bb751288800",
+    "sourceEventHashes": [
+      "cebdd2505a6b4f139a4118742db0c22dd51415e102b50baef1037a038877fde5",
+      "1720dc72f6c858f6318bdf00694dea1241b6f91393730429da76d42a6cbf8a6b",
+      "111f9119576e35c9452119f187b80bd20af0216c5d58cc804aa28fe2ab61e418",
+      "5e0ef39b160da7c27ad4699d566cfefc71e77d895f14a30992019499ae73c03b",
+      "068977c55f2619aa9945878102501db30d0b857a9e9c4d92f47c76c03bcf3087",
+      "261c4bc50976bba105b7abcacbf601bcaad02d6731cabaa048317783f3f1cf7b",
+      "a4be03c779fc10df46db04ada73983b1b91550ded8b3b952bf1a2210bc9e285e",
+      "7bc9646da424f5fd79fdd481c6db7b616413d5fe54bfc012c96a149902b6e570",
+      "eef19721bdba985b9a383b01639b5981dcaebaf259cb7d3874a80de5adbbcf5e",
+      "78e75943ea1cbba10a03af79a7202eee4a2ad722cd8056ed1b8d5cc8f025fd0b",
+      "b32a77de560c2d406172a2691fd691a2f3d2628ae664fab098dbaceba4bfa35c",
+      "6b0f1518292706a480e678c2f3247681b04419ae1f732f0ca032527107f42e2b",
+      "05575fbf8b1e82c44082911cedc87427216b766a66fa1737631f3d3b0bb41e64",
+      "54ca52357ae71ae37a6257bf661fdf12a9768e021f8263f23bf00272a98668d8",
+      "e4e4a65d6d469a03c0378f8570e340842944a8b119127c79e28342bedb790382",
+      "b3ca2ef6b89bc32ebefff05b97cdc4f1a9541969cfcc581215544e7f0cd86677",
+      "119ac5f3825e4ff9b03196bd95c2a7277265e011b837dd32f81d0b350592de87",
+      "54857db1e929ca87b6efbb7b1c499e62c8ac611b57ad24bcf763a4d580d12f57",
+      "1c0c2b7875456bd1a08dd22a6a9ae246be6b54eb0fe70a3714b743cbe4886a30",
+      "bc577addd2190654863ec32649a5639af23b3b2bbe359256973092feac8f4536",
+      "80123331ff1a47ba1984d5de113209564f1771a5243f625a63c0f27e9c1c2617",
+      "14303bd3b561f907b9419606dd364164d89e11b9b00166f7f0f4cab3f7948050",
+      "e5e09ee66498ad1bbacbadc108ffd6068e074b071bfd8485c3d1b6c646e3001a",
+      "9b2e2710b33ddd09b6b68c2bd3dc96cfee365f0684372422da6d93f124a8568c",
+      "46e260f69da4bd740eb262e95a6eda538c6cd610473f1e8befe53e49e68a60c3",
+      "d70cb6a7e968a88425d2766d8eeab4232636b5b336527c864f6ae7fa8e256b86",
+      "5ba83e90a60696a49fd3e068549c437f79b19ca7b062636b5ba58a7d7aae5ba8",
+      "4eb60d0843acfebeb3298d6e25644c0c518fe8f4a9faf9c3211be6c6967bd262",
+      "20cd453ee0df5b5d704e502baf6bfe086abcf941691276893f4764856c8590a5",
+      "66a717926bad36441c1f3e368b65866a09ae1227089fe7b2a0e118af1f49a63c",
+      "7faec1d81cd383452916d621e4b0755aa031e3c1c5379f1ac3bde1d2753471ba",
+      "ed8f46332341a6668a867dc91613f894306a7b6c1bfa132bbb43ce3201af0f96",
+      "5bfb8801c622078a2acd2e0d85700befcc44465e1293c4b1ea77ae0df9ba3ed3",
+      "36108bb188b1f0989326f822845dcff6206436e89feba1b6cf14f1b873d0f12d",
+      "35adec8d0b6d24731041010c105b2210905a1197acd66239a0956ef0bb1c4015",
+      "6867642f7573b47cd01eb164cd7da2670d01d6f9639bd73af67e154a5af24040",
+      "fb5488b3b5ab3c1e9d85ead58dc31cb6b1758cc0f6897c8d8336cd02c83cea75",
+      "63436ffd88225a22788f604281277fbfb8b26580d028c3354ec5b24614c6232a",
+      "9a9cde67b04a61db963500fb1fe7575a04f360dc95a99eb337ab6f66a2da3c71",
+      "097ec82542cda37099e1cd5f299a6f1d3cf23be0a303dd4bddd8dbb381450428",
+      "991460c139225a1450302e9f75482a804378d0e893782e0f1dd565e0e2275ef4",
+      "f27e3f81909ef783a7010043ac124581e11b697e513a263f475424582f1ba027",
+      "158e1c6f03cf4df6a1ffad77d6252dce8ee9310cebeae5b33908f92a1c42edac"
+    ]
+  },
+  "budgets": {
+    "deliveryAttempts": 2,
+    "maximumFrameBytes": 16777216,
+    "operationSeconds": 45,
+    "progressPollSeconds": 0.025
+  },
+  "interruption": {
+    "stoppedPid": 53526,
+    "restartedPid": 62148,
+    "beforeRestart": {
+      "3b764147-dd13-41cb-833f-830cf0aa9c94": 11
+    },
+    "persistedFrontier": {
+      "3b764147-dd13-41cb-833f-830cf0aa9c94": 11
+    },
+    "persistedEventHashes": [
+      "cebdd2505a6b4f139a4118742db0c22dd51415e102b50baef1037a038877fde5",
+      "1720dc72f6c858f6318bdf00694dea1241b6f91393730429da76d42a6cbf8a6b",
+      "111f9119576e35c9452119f187b80bd20af0216c5d58cc804aa28fe2ab61e418",
+      "5e0ef39b160da7c27ad4699d566cfefc71e77d895f14a30992019499ae73c03b",
+      "068977c55f2619aa9945878102501db30d0b857a9e9c4d92f47c76c03bcf3087",
+      "261c4bc50976bba105b7abcacbf601bcaad02d6731cabaa048317783f3f1cf7b",
+      "a4be03c779fc10df46db04ada73983b1b91550ded8b3b952bf1a2210bc9e285e",
+      "7bc9646da424f5fd79fdd481c6db7b616413d5fe54bfc012c96a149902b6e570",
+      "eef19721bdba985b9a383b01639b5981dcaebaf259cb7d3874a80de5adbbcf5e",
+      "78e75943ea1cbba10a03af79a7202eee4a2ad722cd8056ed1b8d5cc8f025fd0b",
+      "b32a77de560c2d406172a2691fd691a2f3d2628ae664fab098dbaceba4bfa35c"
+    ],
+    "failedReceipt": {
+      "schemaVersion": "1.7",
+      "pushId": "75b4d3f8-475f-4aed-a26c-71540a0f8656",
+      "canonicalPayloadHash": "38b5283b4da1875bc0d1ef2710573fc244421aa4a5ec0603c784c5bf3a7f860a",
+      "domain": "kbd-control:a6b6d634-97e8-433f-b71a-68cf4e9e6edc",
+      "targets": [
+        "e18f881d42b065cc799513c737dfc093e5a526578adda6d3c11e917b2fae2eb0"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "e18f881d42b065cc799513c737dfc093e5a526578adda6d3c11e917b2fae2eb0": {
+          "state": "failed",
+          "updatedAtMs": 1795522062059,
+          "failure": "peer delivery timed out while waiting for the receiver acknowledgement",
+          "acceptedFrameBytes": [
+            3079
+          ],
+          "insertedEvents": 0,
+          "receiverFrontier": {
+            "3b764147-dd13-41cb-833f-830cf0aa9c94": 3
+          },
+          "projectionCurrent": false,
+          "projectionError": "checkout waypoint is unavailable: No such file or directory (os error 2)"
+        }
+      },
+      "createdAtMs": 1795522031077,
+      "updatedAtMs": 1795522062059,
+      "failure": "peer delivery timed out while waiting for the receiver acknowledgement",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795522031077,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795522031089,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795522062059,
+          "localState": "failed",
+          "detail": "peer delivery timed out while waiting for the receiver acknowledgement"
+        }
+      ]
+    }
+  },
+  "resumedPush": {
+    "httpStatus": 503,
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "ba9dbae4-815e-4ac5-9235-00fbfdac0a7a",
+      "canonicalPayloadHash": "736218e0af1688a21e5f8902aa6f6c86808b07de2625a36889a49a50ebf613cd",
+      "domain": "kbd-control:a6b6d634-97e8-433f-b71a-68cf4e9e6edc",
+      "targets": [
+        "e18f881d42b065cc799513c737dfc093e5a526578adda6d3c11e917b2fae2eb0"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "e18f881d42b065cc799513c737dfc093e5a526578adda6d3c11e917b2fae2eb0": {
+          "state": "failed",
+          "updatedAtMs": 1795522099785,
+          "failure": "peer delivery timed out while connecting to the peer endpoint"
+        }
+      },
+      "createdAtMs": 1795522069525,
+      "updatedAtMs": 1795522099786,
+      "failure": "peer delivery timed out while connecting to the peer endpoint",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795522069525,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795522069543,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795522099786,
+          "localState": "failed",
+          "detail": "peer delivery timed out while connecting to the peer endpoint"
+        }
+      ]
+    }
+  },
+  "receiverFrameLog": [
+    "2026-11-24T12:07:11.332418Z  INFO sovereign_sync::p2p: direct peer frame received peer=835901973d74c07a4f6c3877f36d8b022c70954412b4ca97c4a0be190f6c183a frame_bytes=3079",
+    "2026-11-24T12:07:11.337248Z  INFO sovereign_sync::p2p: direct peer frame accepted by project authority peer=835901973d74c07a4f6c3877f36d8b022c70954412b4ca97c4a0be190f6c183a frame_bytes=3079",
+    "2026-11-24T12:07:13.083311Z  INFO sovereign_sync::p2p: direct peer frame received peer=835901973d74c07a4f6c3877f36d8b022c70954412b4ca97c4a0be190f6c183a frame_bytes=10463163"
+  ],
+  "error": "resumed push returned HTTP 503: {\"e18f881d42b065cc799513c737dfc093e5a526578adda6d3c11e917b2fae2eb0\": {\"state\": \"failed\", \"updatedAtMs\": 1795522099785, \"failure\": \"peer delivery timed out while connecting to the peer endpoint\"}}",
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 53525,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 53526,
+        "exit": -9,
+        "intentionalInterruption": true
+      },
+      {
+        "role": "B",
+        "pid": 62148,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 161
+}

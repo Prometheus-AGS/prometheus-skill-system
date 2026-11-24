@@ -53,7 +53,7 @@ export function createHandoff(state, input, cwd) {
     recordEvent(state, 'handoff.created', { handoffId: handoff.id, taskId: task.id, taskRevision: task.revision, toOwner: to.owner, toHarness: to.harness });
     return structuredClone(handoff);
 }
-/** Run inside mutateState: receipt and ownership change commit in one atomic file replacement. */
+/** Run under the state lock: receipt and ownership change commit in one atomic file replacement. */
 export function acceptHandoff(state, id, destination) {
     validateState(state);
     const handoff = state.handoffs.find(candidate => candidate.id === text(id, 'handoff id'));
@@ -62,12 +62,11 @@ export function acceptHandoff(state, id, destination) {
     const to = { owner: owner(state, destination.owner), harness: harness(destination.harness) };
     if (handoff.to.owner !== to.owner || handoff.to.harness !== to.harness)
         throw new Error('Acceptance must come from the targeted destination');
-    const task = state.tasks.find(candidate => candidate.id === handoff.taskId);
     if (handoff.acceptedAt) {
-        if (task.owner !== to.owner || task.harness !== to.harness || task.revision !== handoff.taskRevision + 1 || ['complete', 'cancelled'].includes(task.status))
-            throw new Error('Accepted receipt is stale: task changed after transfer');
+        assertUnchangedAcceptance(state, handoff);
         return structuredClone(handoff);
     }
+    const task = state.tasks.find(candidate => candidate.id === handoff.taskId);
     checkedTask(state, { id: task.id, owner: handoff.from.owner, expectedTaskRevision: handoff.taskRevision });
     if (task.harness !== handoff.from.harness)
         throw new Error('Source harness changed after handoff creation');
@@ -81,8 +80,32 @@ export function acceptHandoff(state, id, destination) {
     handoff.acceptedAt = new Date().toISOString();
     recordEvent(state, 'handoff.accepted', {
         handoffId: handoff.id, taskId: task.id, taskRevision: task.revision,
+        expectedRevision: state.revision,
         fromOwner: handoff.from.owner, fromHarness: handoff.from.harness,
         owner: to.owner, harness: to.harness, acceptedAt: handoff.acceptedAt,
     });
     return structuredClone(handoff);
+}
+function assertUnchangedAcceptance(state, handoff) {
+    const task = state.tasks.find(candidate => candidate.id === handoff.taskId);
+    if (task.owner !== handoff.to.owner || task.harness !== handoff.to.harness ||
+        task.revision !== handoff.taskRevision + 1 || ['complete', 'cancelled'].includes(task.status)) {
+        throw new Error('Accepted receipt is stale: task changed after transfer');
+    }
+}
+/** Recognize a retry from the immutable acceptance event while holding the state lock. */
+export function isOriginalAcceptance(state, id, destination, expectedRevision) {
+    if (expectedRevision >= state.revision)
+        return false;
+    const handoff = state.handoffs.find(candidate => candidate.id === id);
+    if (!handoff?.acceptedAt || handoff.to.owner !== destination.owner ||
+        handoff.to.harness !== destination.harness)
+        return false;
+    const accepted = state.events.some(({ kind, detail }) => kind === 'handoff.accepted' && detail.handoffId === handoff.id &&
+        detail.taskId === handoff.taskId && detail.taskRevision === handoff.taskRevision + 1 &&
+        detail.owner === destination.owner && detail.harness === destination.harness &&
+        detail.acceptedAt === handoff.acceptedAt && detail.expectedRevision === expectedRevision);
+    if (accepted)
+        assertUnchangedAcceptance(state, handoff);
+    return accepted;
 }

@@ -1,0 +1,292 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-002",
+  "negativeOnly": true,
+  "passed": true,
+  "result": "PASS",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "05f3b14e79077653ad59ced7008a1ffebda083b10c1a54ded85469d0c0ec576b"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "06113ada1cdf469cf53f9374610af4431c114c78e644e4723deb30f556490ab5"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "f85d92250b0cdd06b3c7f847f860368808736fd4671c4478539d0a60034c1d54"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "bb27c467c42328779bd3ec7be13d20981d3368bce6ba7eabae7167b252040811",
+    "dirtySourceCount": 52
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "0b2712191069723eceff71a31d4a688f240f07c58e41898e3e4b26059bae018d",
+  "baselineCopy": {
+    "senderSha256": "f2b047be1b8179243c8d32311e5c34b23afea675ce1c17a5e04f7b079ec98aad",
+    "receiverSha256": "f2b047be1b8179243c8d32311e5c34b23afea675ce1c17a5e04f7b079ec98aad"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:7c9199d7202414d67feaf15fcbef892574e109016f8198d783e90ee42725c7ca",
+      "endpointId": "5aab2469bae3cfcab539799c7eb7785487331112d905e7d6b60978d91f06434f",
+      "projectId": "061006d5-9a50-4aac-bb47-d5e1314cc70d",
+      "replicaId": "7c3ebca4-d879-4ad7-9560-b222a35fdf5c",
+      "checkout": "/tmp/kbd-peers-pr3nhjyx/A/project",
+      "authority": "/tmp/kbd-peers-pr3nhjyx/A/data/prometheus/kbd/projects/061006d5-9a50-4aac-bb47-d5e1314cc70d",
+      "socket": "/tmp/kbd-peers-pr3nhjyx/A/control.sock",
+      "companionPids": [
+        10114
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:1fee30b95aa7c20e476b694f580ddc69cc0366f4e1d49b41529e225dc5f72471",
+      "endpointId": "36a24725e4b5731336ca488ffab73966ee809621cfc9d13feb52fe22f6ef7bec",
+      "projectId": "061006d5-9a50-4aac-bb47-d5e1314cc70d",
+      "replicaId": "d7ed7be5-e360-499e-bc72-b078ab123d10",
+      "checkout": "/tmp/kbd-peers-pr3nhjyx/B/project",
+      "authority": "/tmp/kbd-peers-pr3nhjyx/B/data/prometheus/kbd/projects/061006d5-9a50-4aac-bb47-d5e1314cc70d",
+      "socket": "/tmp/kbd-peers-pr3nhjyx/B/control.sock",
+      "companionPids": [
+        10115,
+        10224
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "7c3ebca4-d879-4ad7-9560-b222a35fdf5c": 3
+    },
+    "eventHashes": [
+      "0f8f67d4d23eff3a64e1b62d00ee8aa0337013a398e7954b4aea7d49a6a72459",
+      "312a475017e5639b3e4fc195209171cb96ee27b3200f2e99135a94de01970883",
+      "0f06b9c09533dee3b5f0541dfaaed54e9f421246427314542c3e24d7a12af2c7"
+    ]
+  },
+  "sessions": {
+    "A": {
+      "sessionId": "f0e9fb7fb27c46a1b4265f3a0a762417",
+      "ready": true,
+      "pid": 10138,
+      "atNs": 14867087556458,
+      "checkout": "/tmp/kbd-peers-pr3nhjyx/A/project",
+      "authority": "/tmp/kbd-peers-pr3nhjyx/A/data/prometheus/kbd/projects/061006d5-9a50-4aac-bb47-d5e1314cc70d"
+    },
+    "B": {
+      "sessionId": "7c94da85ccb24470a32340946ba5edbd",
+      "ready": true,
+      "pid": 10139,
+      "socket": "/tmp/kbd-peers-pr3nhjyx/B/control.sock",
+      "seedCursor": "3",
+      "initialEventCount": 0,
+      "atNs": 14868180393958,
+      "checkout": "/tmp/kbd-peers-pr3nhjyx/B/project",
+      "authority": "/tmp/kbd-peers-pr3nhjyx/B/data/prometheus/kbd/projects/061006d5-9a50-4aac-bb47-d5e1314cc70d"
+    }
+  },
+  "origin": {
+    "method": "POST",
+    "path": "/api/v1/kbd/projects/061006d5-9a50-4aac-bb47-d5e1314cc70d/commands",
+    "acceptedHttp": 200,
+    "targetSocket": "/tmp/kbd-peers-pr3nhjyx/A/control.sock",
+    "requestSha256": "48f862373b309a39c1f3b7fa30ace7b7d38c21b59571de2194d9bf973b642044",
+    "responseSha256": "4479eedc2fde953e268b82ea8048f2219e3bbcc4ef7104178b3e2296c36e7082",
+    "acceptedAtNs": 14868470827083,
+    "responseSuppressed": false,
+    "cli": {
+      "pid": 10138,
+      "cliPid": 10163,
+      "exit": 0,
+      "outputSha256": "2ca1e7661bb8faee7343e82a441ef8de7496f66c04f0d948d6dd1ba53cf6d8cf",
+      "diagnostic": "",
+      "atNs": 14868472389416
+    },
+    "event": "9c280ba9-5286-4640-9d36-2bc9cf4297f1",
+    "hash": "f1326c28231b902e0558170e6df3e221f18f1a2188ea44e5ac7dcac9a39874a1",
+    "bAbsentBeforePush": true
+  },
+  "withheld": {
+    "receiverPid": 10139,
+    "receiverFrontier": {
+      "7c3ebca4-d879-4ad7-9560-b222a35fdf5c": 3
+    }
+  },
+  "receiver": {
+    "pid": 10139,
+    "socket": "/tmp/kbd-peers-pr3nhjyx/B/control.sock",
+    "signedEvent": {
+      "schemaVersion": "2",
+      "projectId": "061006d5-9a50-4aac-bb47-d5e1314cc70d",
+      "replicaId": "7c3ebca4-d879-4ad7-9560-b222a35fdf5c",
+      "runId": "project-20261124T142810Z",
+      "eventId": "9c280ba9-5286-4640-9d36-2bc9cf4297f1",
+      "commandId": "3225713d6f63402c8acf80198a1861f1",
+      "revision": 4,
+      "expectedRevision": 3,
+      "lamport": 4,
+      "frontier": {
+        "7c3ebca4-d879-4ad7-9560-b222a35fdf5c": 3
+      },
+      "causalParent": "16ffae30-ee8b-4340-a7fd-23c2ead410fd",
+      "actor": {
+        "kind": "harness",
+        "id": "operator",
+        "device": "unknown-device",
+        "harness": "cli",
+        "session": "unknown"
+      },
+      "actorId": "operator",
+      "timestamp": "2026-11-24T14:28:13.530410Z",
+      "kind": {
+        "type": "phase_defined",
+        "payload": {
+          "phase": {
+            "id": "through-a-actual-control",
+            "slug": "through-a-actual-control",
+            "title": "through-a-actual-control",
+            "parentPhaseId": null,
+            "status": "pending",
+            "stages": {},
+            "changes": {},
+            "legacyReadOnly": false
+          }
+        }
+      },
+      "previousHash": "0f06b9c09533dee3b5f0541dfaaed54e9f421246427314542c3e24d7a12af2c7",
+      "integrityHash": "f1326c28231b902e0558170e6df3e221f18f1a2188ea44e5ac7dcac9a39874a1",
+      "signerKeyId": "ed25519:7c9199d7202414d67feaf15fcbef892574e109016f8198d783e90ee42725c7ca",
+      "signerPublicKey": "Uvjqny43NDWjHV3iZ1IVEtmCyCYMDBVV3jAVrgoJ6gs=",
+      "signature": "VgUMGBjjPjjzgxd7jy4ieS+PMz1Ci1p1ZwvfMG2o9m+fymYktZoXe2tpPKyNr9gJ6Ak2+EK+uOlbV1qBoYQ2Aw=="
+    },
+    "cursor": "4",
+    "atNs": 14872193958625
+  },
+  "projection": {
+    "sha256": "784485683f0d5ad5d30b4a62db44e9e0ef7889e8b78a7c0681325ba2476f4aac",
+    "sourceRevision": 4,
+    "frontier": {
+      "7c3ebca4-d879-4ad7-9560-b222a35fdf5c": 4
+    }
+  },
+  "collision": {
+    "http": 409,
+    "receiptPreserved": true,
+    "receiverEventCount": 1
+  },
+  "restarted": {
+    "previousPid": 10115,
+    "currentPid": 10224,
+    "projection": {
+      "sha256": "784485683f0d5ad5d30b4a62db44e9e0ef7889e8b78a7c0681325ba2476f4aac",
+      "sourceRevision": 4,
+      "frontier": {
+        "7c3ebca4-d879-4ad7-9560-b222a35fdf5c": 4
+      }
+    }
+  },
+  "push": {
+    "schemaVersion": "1.7",
+    "pushId": "032018f1-4a84-4d57-ab08-bcc37c180dde",
+    "canonicalPayloadHash": "b93cbc51acbe3bebc0b6c335c26475129e9442581d14cc221b0ad4e4890bc6c1",
+    "domain": "kbd-control:061006d5-9a50-4aac-bb47-d5e1314cc70d",
+    "targets": [
+      "36a24725e4b5731336ca488ffab73966ee809621cfc9d13feb52fe22f6ef7bec"
+    ],
+    "localState": "broadcast",
+    "perPeer": {
+      "36a24725e4b5731336ca488ffab73966ee809621cfc9d13feb52fe22f6ef7bec": {
+        "state": "applied",
+        "updatedAtMs": 1795530496504,
+        "acceptedFrameBytes": [
+          3056,
+          20335
+        ],
+        "insertedEvents": 1,
+        "receiverFrontier": {
+          "7c3ebca4-d879-4ad7-9560-b222a35fdf5c": 4
+        },
+        "projectionCurrent": true
+      }
+    },
+    "createdAtMs": 1795530496373,
+    "updatedAtMs": 1795530496504,
+    "events": [
+      {
+        "sequence": 1,
+        "event": "accepted",
+        "timestampMs": 1795530496373,
+        "localState": "accepted"
+      },
+      {
+        "sequence": 2,
+        "event": "prepared",
+        "timestampMs": 1795530496384,
+        "localState": "prepared"
+      },
+      {
+        "sequence": 3,
+        "event": "applied_at_targets",
+        "timestampMs": 1795530496504,
+        "localState": "broadcast"
+      }
+    ]
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 10114,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 10115,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "A-sender-session",
+        "pid": 10138,
+        "exit": -15,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B-receiver-session",
+        "pid": 10139,
+        "exit": -15,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 10224,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 72
+}

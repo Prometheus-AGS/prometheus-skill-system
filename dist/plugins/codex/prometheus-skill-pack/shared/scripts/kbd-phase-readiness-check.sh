@@ -49,13 +49,28 @@ command -v jq >/dev/null || { printf 'jq is required\n' >&2; exit 1; }
 
 ROOT="$PWD"
 while [ -n "$ROOT" ] && [ "$ROOT" != "/" ] && [ ! -d "$ROOT/.kbd-orchestrator" ]; do ROOT="$(dirname "$ROOT")"; done
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")/lib/.." && pwd -P)"
 if [ -z "$PHASE_DIR" ]; then
   [ -n "$PHASE" ] || { printf 'usage: --phase <id> or --phase-dir <dir>\n' >&2; exit 1; }
   [ -d "$ROOT/.kbd-orchestrator" ] || { printf 'no .kbd-orchestrator above %s\n' "$PWD" >&2; exit 1; }
-  PHASE_DIR="$ROOT/.kbd-orchestrator/phases/$PHASE"
+fi
+# --- canonical status (real or fixture) ---
+if [ -n "$STATUS_FILE" ]; then
+  STATUS_JSON="$(cat "$STATUS_FILE")"
+else
+  STATUS_JSON="$(prometheus kbd --path "$ROOT" status --json 2>/dev/null)" || {
+    printf 'BLOCKED missing=canonical-status(prometheus kbd status failed)\n'; exit 2; }
+fi
+
+if [ -z "$PHASE_DIR" ]; then
+  PHASE_DIR="$(printf '%s' "$STATUS_JSON" | node "$SCRIPT_DIR/lib/kbd-phase-directory.mjs" "$ROOT" "$PHASE")" || {
+    printf 'BLOCKED missing=phase-dir(%s)\n' "$PHASE"; exit 2; }
 fi
 [ -d "$PHASE_DIR" ] || { printf 'BLOCKED missing=phase-dir(%s)\n' "$PHASE_DIR"; exit 2; }
-[ -n "$PHASE" ] || PHASE="$(basename "$PHASE_DIR")"
+if [ -z "$PHASE" ]; then
+  PHASE="$(jq -r 'select(.generatedBy == "kbd-runtime") | .phaseId // empty' "$PHASE_DIR/progress.json" 2>/dev/null || true)"
+  [ -n "$PHASE" ] || PHASE="$(basename "$PHASE_DIR")"
+fi
 [ -n "$CONTRACT" ] || CONTRACT="$PHASE_DIR/adopted-contract.json"
 case "$CONTRACT" in /*) ;; *) CONTRACT="$PWD/$CONTRACT" ;; esac
 
@@ -84,14 +99,6 @@ SCHEMA_ERR="$(jq -r '
 ' "$CONTRACT")"
 if [ -n "$SCHEMA_ERR" ]; then
   printf 'MALFORMED contract(%s): %s\n' "$CONTRACT" "$SCHEMA_ERR" >&2; exit 5
-fi
-
-# --- canonical status (real or fixture) ---
-if [ -n "$STATUS_FILE" ]; then
-  STATUS_JSON="$(cat "$STATUS_FILE")"
-else
-  STATUS_JSON="$(prometheus kbd --path "$ROOT" status --json 2>/dev/null)" || {
-    printf 'BLOCKED missing=canonical-status(prometheus kbd status failed)\n'; exit 2; }
 fi
 
 # --- identity ---
@@ -155,7 +162,7 @@ fi
 SPEC_DIGEST="$(jq -r 'if .contractVersion == "2" then (.method.specDeltaDigest // empty) else empty end' "$CONTRACT")"
 if [ -n "$SPEC_DIGEST" ]; then
   STATUS_TMP="$(mktemp)"; printf '%s' "$STATUS_JSON" > "$STATUS_TMP"
-  NOW_DIGEST="$(bash "$(dirname "${BASH_SOURCE[0]}")/kbd-spec-delta-digest.sh" --phase "$PHASE" --root "$ROOT" --status-file "$STATUS_TMP" 2>/dev/null || true)"
+  NOW_DIGEST="$(bash "$SCRIPT_DIR/kbd-spec-delta-digest.sh" --phase "$PHASE" --root "$ROOT" --status-file "$STATUS_TMP" 2>/dev/null || true)"
   rm -f "$STATUS_TMP"
   if [ "$NOW_DIGEST" != "$SPEC_DIGEST" ]; then
     printf 'REJECT-STALE specDeltaDigest(bound=%s now=%s) — a bound OpenSpec requirement changed; adopt the new deltas through a signed amendment (kbd-contract-adopt.sh --supersedes --amendment --signature)\n' \

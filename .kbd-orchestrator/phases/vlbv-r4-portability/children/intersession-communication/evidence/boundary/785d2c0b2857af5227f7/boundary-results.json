@@ -1,0 +1,242 @@
+{
+  "phase": "vlbv-r4-portability::intersession-communication",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+  "attemptId": "B5-785d2c0b2857af5227f7",
+  "attempt": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T14:26:38.902Z",
+    "startedAt": "2026-11-24T14:26:39.219033+00:00",
+    "endedAt": "2026-11-24T14:31:29.411332+00:00",
+    "status": "BLOCKED",
+    "ended": "After B restarted, the fixture waited for gossip membership before any addressed push; no resumed request was issued. The independent direct check is outstanding on this candidate."
+  },
+  "executedBy": {
+    "harness": "Codex",
+    "role": "local execution coordinator"
+  },
+  "candidate": "evidence/boundary/785d2c0b2857af5227f7/candidate.json",
+  "scenarios": [
+    {
+      "id": "LOCAL-001",
+      "status": "PASS",
+      "observed": "Two running sessions exchanged a signed blocker and reply, both using local storage and using the Companion socket.",
+      "commands": [
+        "run-LOCAL-001",
+        "negative-LOCAL-001"
+      ]
+    },
+    {
+      "id": "LOCAL-002",
+      "status": "PASS",
+      "observed": "Fallback, claim, and refusal controls passed.",
+      "commands": [
+        "run-LOCAL-002",
+        "negative-LOCAL-002"
+      ]
+    },
+    {
+      "id": "LOCAL-003",
+      "status": "PASS",
+      "observed": "Handoff and negative controls passed.",
+      "commands": [
+        "run-LOCAL-003",
+        "negative-LOCAL-003"
+      ]
+    },
+    {
+      "id": "PEER-001",
+      "status": "PASS",
+      "observed": "Historical writer revision, frontier, 16 signed events and raw journal preserved. The separate negative control passed.",
+      "commands": [
+        "run-PEER-001",
+        "negative-PEER-001"
+      ]
+    },
+    {
+      "id": "PEER-002",
+      "status": "PASS",
+      "observed": "The signed blocker was received at B, matched A in the independent audits, appeared once, and survived a receiver restart. Withheld-delivery and replay controls passed.",
+      "commands": [
+        "run-PEER-002",
+        "negative-PEER-002"
+      ]
+    },
+    {
+      "id": "PEER-003",
+      "status": "PASS",
+      "observed": "Socket connection refused after clean shutdown. Offline signed event recovered and applied once. Ambiguous-response retry and all four denial controls passed.",
+      "commands": [
+        "run-PEER-003",
+        "negative-PEER-003"
+      ]
+    },
+    {
+      "id": "PEER-004",
+      "status": "BLOCKED",
+      "observed": "After B restarted, the fixture waited for gossip membership before any addressed push; no resumed request was issued. The independent direct check is outstanding on this candidate.",
+      "commands": [
+        "run-PEER-004",
+        "negative-PEER-004"
+      ]
+    },
+    {
+      "id": "GREEN-001",
+      "status": "NOT_EXERCISED",
+      "observed": "Operator deferred installer validation to clean machines. No installer validation claim.",
+      "commands": [
+        "run-GREEN-001",
+        "negative-GREEN-001"
+      ]
+    },
+    {
+      "id": "GREEN-002",
+      "status": "PASS",
+      "observed": "Direct and managed strict validation, real OpenSpec apply, generated distribution and all three independent negative controls passed.",
+      "commands": [
+        "run-GREEN-002",
+        "negative-GREEN-002"
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "id": "run-LOCAL-001",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/run-LOCAL-001-sissalo6/receipt.json",
+      "receiptSha256": "fb6035b8473361413f22c176020bf9d3ca505a32e22cebcd3e231b5d0982f927",
+      "assertionCount": 108
+    },
+    {
+      "id": "negative-LOCAL-001",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/negative-LOCAL-001-0tvp66p1/receipt.json",
+      "receiptSha256": "1b917064ea948f44a4fcbefdc6a283d4733587d431851c2f567fc0779eaa2bf3",
+      "assertionCount": 105
+    },
+    {
+      "id": "run-LOCAL-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/run-LOCAL-002-6wus4e9p/receipt.json",
+      "receiptSha256": "0b4096d578b72e1912f7129e724e2c27b2ad9c0458d409d2a76941a30f06502a",
+      "assertionCount": 56
+    },
+    {
+      "id": "negative-LOCAL-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/negative-LOCAL-002-inufq3ej/receipt.json",
+      "receiptSha256": "d624bf4da63359891cf3e527a6ab98c3fade64ee3af13da4256a7e18f66b0ea6",
+      "assertionCount": 53
+    },
+    {
+      "id": "run-LOCAL-003",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/run-LOCAL-003-mxdm3hty/receipt.json",
+      "receiptSha256": "764fd1cc87dbb814ea2e33af6241974b2f2f8c4e42810e772eb61dbc2ccca3a9",
+      "assertionCount": 26
+    },
+    {
+      "id": "negative-LOCAL-003",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/negative-LOCAL-003-vam2r9_l/receipt.json",
+      "receiptSha256": "215d408e4a0213407ef81a1c9d28784cac04b846b9e74af7ed40dddaf6296000",
+      "assertionCount": 33
+    },
+    {
+      "id": "run-PEER-001",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/run-PEER-001-83yfr5r7/receipt.json",
+      "receiptSha256": "3da3feee85a03ac9f9e911992cbf0a568dde8eb1e6adff7e03163f9ce0e07f5b",
+      "assertionCount": 61
+    },
+    {
+      "id": "negative-PEER-001",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/negative-PEER-001-zhb1aan5/receipt.json",
+      "receiptSha256": "ebfa7d72714cbc8fae0505c6d13c6282ed6a4534b3ea55538f36d92c860389ab",
+      "assertionCount": 21
+    },
+    {
+      "id": "run-PEER-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/run-PEER-002-fykp7a3a/receipt.json",
+      "receiptSha256": "68cfae6848a1f2c88f77746be12aa8341c1fcfc8c13bdfeac0b1a5ea87c6bfa8",
+      "assertionCount": 63
+    },
+    {
+      "id": "negative-PEER-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/negative-PEER-002-druitsu4/receipt.json",
+      "receiptSha256": "c6ffb7a8e48de03ee9429631d9aa101dc3c33b51fa314a674a2b37f30279f01b",
+      "assertionCount": 72
+    },
+    {
+      "id": "run-PEER-003",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/run-PEER-003-wa2hvm4_/receipt.json",
+      "receiptSha256": "13b9b89e6bffd442bbddf90e8ad5948c75cd947e9bd5e4d5ef35b21de6d32f4d",
+      "assertionCount": 94
+    },
+    {
+      "id": "negative-PEER-003",
+      "status": "PASS",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/negative-PEER-003-qec2rkav/receipt.json",
+      "receiptSha256": "d43181e41dc7fa43eeabaea0beec4d902c3ab52a92e8e739d27f720f4f3f05a5",
+      "assertionCount": 99
+    },
+    {
+      "id": "run-PEER-004",
+      "status": "BLOCKED",
+      "receipt": "evidence/boundary/785d2c0b2857af5227f7/run-PEER-004-3e2um0r3/receipt.json",
+      "receiptSha256": "43ad844496ca9367ed547700c1657f123612263f3cd1d36a89073b3cf60fc8d9",
+      "assertionCount": 578
+    },
+    {
+      "id": "negative-PEER-004",
+      "status": "BLOCKED",
+      "receipt": "evidence/boundary/3aa1f1f1a319d6b60a9a/negative-PEER-004-epi9fc8s/receipt.json",
+      "receiptSha256": "0661c5bd3f76c9739e14f924836beafb201d1c1cb3313d046045b162c68af37d",
+      "assertionCount": 53
+    },
+    {
+      "id": "run-GREEN-001",
+      "status": "NOT_EXERCISED",
+      "reason": "Installer deferred by operator"
+    },
+    {
+      "id": "negative-GREEN-001",
+      "status": "NOT_EXERCISED",
+      "reason": "Installer deferred by operator"
+    },
+    {
+      "id": "run-GREEN-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/8691c1404c3b13c0eca3/run-GREEN-002-22oxd95f/receipt.json",
+      "receiptSha256": "140c0c7f4f9462cd7c03dbdc8d18a7aa0caa3db8bb3f9fe0881ef950949ff9ee",
+      "assertionCount": 839,
+      "carriedForwardFrom": "B5-8691c1404c3b13c0eca3"
+    },
+    {
+      "id": "negative-GREEN-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/8691c1404c3b13c0eca3/negative-GREEN-002-vhnobds3/receipt.json",
+      "receiptSha256": "dd57961691cf5cc3e3369b01888d45d3752518955e22edbaadcb1ff3b1ff5752",
+      "assertionCount": 834,
+      "carriedForwardFrom": "B5-8691c1404c3b13c0eca3"
+    }
+  ],
+  "budgetConsumption": {
+    "repairAttempts": 8,
+    "additionalRepair": "After B restarted, the fixture waited for gossip membership before any addressed push; no resumed request was issued. The independent direct check is outstanding on this candidate."
+  },
+  "limitations": [
+    "Historical receipts identify their source candidates.",
+    "Installer validation deferred by operator for clean machines.",
+    "Exact receiver-limit evidence outstanding."
+  ],
+  "diagnosticReceipts": [
+    "evidence/boundary/905f2a74e5e5fb69896f/run-PEER-004-mby35y_4/receipt.json",
+    "evidence/boundary/3bf466e844d60dbab4a6/run-PEER-004-19188ibi/receipt.json"
+  ]
+}

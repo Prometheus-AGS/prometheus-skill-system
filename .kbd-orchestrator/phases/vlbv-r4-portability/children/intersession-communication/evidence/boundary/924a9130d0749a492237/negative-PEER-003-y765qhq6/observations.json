@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-003",
+  "negativeOnly": true,
+  "passed": true,
+  "result": "PASS",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "5fd7d446bc78ab1c7e42010b620ac4791c8a5a3479481f462119a22ac0c35efc"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "40784eeebb99b23401b4b4c3831bbe6f33fbeb9651ea9a1ff6f0b6c35613d5bc"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "807631f2ad7d48f971155542ddba788d139565c388ca57441a263abd0df7b1cf"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "8c205e773e0a2f9693d4c0e03f9acf6431fad23a8844da8ab17b6330017aa195",
+    "dirtySourceCount": 51
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "3266a34145f5593ae160ac07aea35b3ac4ee2da0edbe7045fdabfc23ec9a5e6a",
+  "baselineCopy": {
+    "senderSha256": "9fbd3ade0d71012036567cc432167e6522c60c14c6d9b97bb5543e41ded64f39",
+    "receiverSha256": "9fbd3ade0d71012036567cc432167e6522c60c14c6d9b97bb5543e41ded64f39"
+  },
+  "unjoinedBranchCopy": {
+    "senderSha256": "4b5ca154d49ded405e9728f2024d4aeb2da0e42f2cb28811e5d60d02ea6aabda",
+    "receiverSha256": "4b5ca154d49ded405e9728f2024d4aeb2da0e42f2cb28811e5d60d02ea6aabda"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:1bf765147e76afa3b644e50b69144f572ae164fbbb3e97a51cfee399fec735ed",
+      "endpointId": "5a699cc283723f6ca76990f1f72975e04b43d16df6faa1830357802524888097",
+      "projectId": "941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "replicaId": "4b32b696-56a2-4ad1-9f7c-1fcebcf7be4e",
+      "checkout": "/tmp/kbd-peers-evnbtmw0/A/project",
+      "authority": "/tmp/kbd-peers-evnbtmw0/A/data/prometheus/kbd/projects/941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "socket": "/tmp/kbd-peers-evnbtmw0/A/control.sock",
+      "companionPids": [
+        4519
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:2ca213663b314874142e64435ffc0c4ae102ddaa3652a814450a0936749ff386",
+      "endpointId": "5e64036fad2f02d499565c64e91a637dbf6b6ff2249b3ef7f327421909053cd3",
+      "projectId": "941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "replicaId": "80d6aa20-b175-4ed5-b7e8-a3990305c5f5",
+      "checkout": "/tmp/kbd-peers-evnbtmw0/B/project",
+      "authority": "/tmp/kbd-peers-evnbtmw0/B/data/prometheus/kbd/projects/941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "socket": "/tmp/kbd-peers-evnbtmw0/B/control.sock",
+      "companionPids": [
+        4520,
+        4636
+      ]
+    },
+    "C": {
+      "name": "C",
+      "keyId": "ed25519:c5323e2c30ff5d9baa0f6c641191795b607edb3167bf3259ea27ef47869e0d8f",
+      "endpointId": "e739b82810ca5a856db2003bd77033a8570ad0502931c4ca9b4c7da5ba77cccf",
+      "projectId": "941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "replicaId": "317234ec-fb3e-4e1a-af40-412310ebf563",
+      "checkout": "/tmp/kbd-peers-evnbtmw0/C/project",
+      "authority": "/tmp/kbd-peers-evnbtmw0/C/data/prometheus/kbd/projects/941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "socket": "/tmp/kbd-peers-evnbtmw0/C/control.sock",
+      "companionPids": [
+        4521
+      ]
+    },
+    "D": {
+      "name": "D",
+      "keyId": "ed25519:6bd577e94b397391c3eae72c4520dad5bfbbcca5a9950140e9cdffa651a2ad6c",
+      "endpointId": "bb78f86b80869692ad267ac721440f188e5ff62ba2be5ea1c8d8aa83fea0b6c5",
+      "projectId": "c34dbee1-602e-4c05-a4e5-38e03846e188",
+      "replicaId": "d33eaacc-02a7-455e-8f3b-97bc17a8c8d0",
+      "checkout": "/tmp/kbd-peers-evnbtmw0/D/project",
+      "authority": "/tmp/kbd-peers-evnbtmw0/D/data/prometheus/kbd/projects/c34dbee1-602e-4c05-a4e5-38e03846e188",
+      "socket": "/tmp/kbd-peers-evnbtmw0/D/control.sock",
+      "companionPids": [
+        4522,
+        4637
+      ]
+    }
+  },
+  "unpaired": {
+    "commandId": "880142a80d6a4e8c9ea9a307b85e6ac6",
+    "frontier": {
+      "d33eaacc-02a7-455e-8f3b-97bc17a8c8d0": 2
+    },
+    "eventHashes": [
+      "4b95cbc32a509c3a155e308a7a6fad2a7835c529ce6330731936b203d3caeeeb",
+      "3ea70bcbd8a6cb5d87cc5179baa98666b35c126486cf25a0bf2a06ef3c8bac24"
+    ],
+    "receiverPid": 4522,
+    "receiverSocket": "/tmp/kbd-peers-evnbtmw0/D/control.sock",
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "1f617234-58ef-43d8-b1ee-0828f25ac02f",
+      "canonicalPayloadHash": "e288b4bb709f1e9600b72e4fd5401b2eb8406540abe0b5835d9cef2c14be64db",
+      "domain": "kbd-control:941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "targets": [
+        "bb78f86b80869692ad267ac721440f188e5ff62ba2be5ea1c8d8aa83fea0b6c5"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "bb78f86b80869692ad267ac721440f188e5ff62ba2be5ea1c8d8aa83fea0b6c5": {
+          "state": "failed",
+          "updatedAtMs": 1795521157609,
+          "failure": "target endpoint is not paired"
+        }
+      },
+      "createdAtMs": 1795521157592,
+      "updatedAtMs": 1795521157609,
+      "failure": "target endpoint is not paired",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795521157592,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795521157604,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795521157609,
+          "localState": "failed",
+          "detail": "target endpoint is not paired"
+        }
+      ]
+    },
+    "auditUnchanged": true
+  },
+  "unenrolled": {
+    "commandId": "9986c1afcb2042f9a7c6b5cd7d6b0ff8",
+    "frontier": {
+      "4b32b696-56a2-4ad1-9f7c-1fcebcf7be4e": 3
+    },
+    "eventHashes": [
+      "13750bd0e34c7c6316becf180b94fae8f7df221e687ba87aae2163747bfd0286",
+      "8014a8624c8eac562d49d5edff890bef501de8fa61637863d669ed5b191cd0c0",
+      "e59574c2bfd6be87d9adaa80d905ef9bc1552d3984e0ab8649e2cce1ad45fac3"
+    ],
+    "receiverPid": 4520,
+    "receiverSocket": "/tmp/kbd-peers-evnbtmw0/B/control.sock",
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "5c64e24e-2d61-47cc-b43c-f25ca952dff9",
+      "canonicalPayloadHash": "118defed60d976d64f091db376e61c2cc8d59ec90960387955b2216198273d32",
+      "domain": "kbd-control:941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "targets": [
+        "5e64036fad2f02d499565c64e91a637dbf6b6ff2249b3ef7f327421909053cd3"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "5e64036fad2f02d499565c64e91a637dbf6b6ff2249b3ef7f327421909053cd3": {
+          "state": "failed",
+          "updatedAtMs": 1795521158024,
+          "failure": "receiver rejected transfer: signer is not enrolled in the receiving project"
+        }
+      },
+      "createdAtMs": 1795521158003,
+      "updatedAtMs": 1795521158024,
+      "failure": "receiver rejected transfer: signer is not enrolled in the receiving project",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795521158003,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795521158015,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795521158024,
+          "localState": "failed",
+          "detail": "receiver rejected transfer: signer is not enrolled in the receiving project"
+        }
+      ]
+    },
+    "auditUnchanged": true
+  },
+  "revoked": {
+    "commandId": "4ae259586ff34eeab4ecd009b951a3a1",
+    "frontier": {
+      "4b32b696-56a2-4ad1-9f7c-1fcebcf7be4e": 3,
+      "80d6aa20-b175-4ed5-b7e8-a3990305c5f5": 1
+    },
+    "eventHashes": [
+      "13750bd0e34c7c6316becf180b94fae8f7df221e687ba87aae2163747bfd0286",
+      "8014a8624c8eac562d49d5edff890bef501de8fa61637863d669ed5b191cd0c0",
+      "e59574c2bfd6be87d9adaa80d905ef9bc1552d3984e0ab8649e2cce1ad45fac3",
+      "a58c91dfa9df89d54bc4dd6212f3878dd6c8dc8739d51fd9333d21ab713d2405"
+    ],
+    "receiverPid": 4520,
+    "receiverSocket": "/tmp/kbd-peers-evnbtmw0/B/control.sock",
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "8e8d6336-d7d7-4579-a05c-5088eea9834e",
+      "canonicalPayloadHash": "7b58b2310b810ff9ec7743e1675ba9e0bcf6d30a0f90bc8d16333952388d2243",
+      "domain": "kbd-control:941a3fe3-38ce-40ad-96a8-304edb116ef6",
+      "targets": [
+        "5e64036fad2f02d499565c64e91a637dbf6b6ff2249b3ef7f327421909053cd3"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "5e64036fad2f02d499565c64e91a637dbf6b6ff2249b3ef7f327421909053cd3": {
+          "state": "failed",
+          "updatedAtMs": 1795521158704,
+          "failure": "receiver rejected transfer: signer is revoked in the receiving project"
+        }
+      },
+      "createdAtMs": 1795521158677,
+      "updatedAtMs": 1795521158704,
+      "failure": "receiver rejected transfer: signer is revoked in the receiving project",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795521158677,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795521158691,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795521158704,
+          "localState": "failed",
+          "detail": "receiver rejected transfer: signer is revoked in the receiving project"
+        }
+      ]
+    },
+    "auditUnchanged": true
+  },
+  "wrongProject": {
+    "commandId": "8c6c50a134154febb90dc2ee24e54d8f",
+    "frontier": {
+      "4b32b696-56a2-4ad1-9f7c-1fcebcf7be4e": 3,
+      "80d6aa20-b175-4ed5-b7e8-a3990305c5f5": 1
+    },
+    "eventHashes": [
+      "13750bd0e34c7c6316becf180b94fae8f7df221e687ba87aae2163747bfd0286",
+      "8014a8624c8eac562d49d5edff890bef501de8fa61637863d669ed5b191cd0c0",
+      "e59574c2bfd6be87d9adaa80d905ef9bc1552d3984e0ab8649e2cce1ad45fac3",
+      "a58c91dfa9df89d54bc4dd6212f3878dd6c8dc8739d51fd9333d21ab713d2405"
+    ],
+    "receiverPid": 4636,
+    "receiverSocket": "/tmp/kbd-peers-evnbtmw0/B/control.sock",
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "a9127141-46d4-4ab3-b30e-22d79dbfeb47",
+      "canonicalPayloadHash": "8d262848d16351a7bfd89b095ed0e2e4da14a955bd07c87de07cb2d92ae819e3",
+      "domain": "kbd-control:c34dbee1-602e-4c05-a4e5-38e03846e188",
+      "targets": [
+        "5e64036fad2f02d499565c64e91a637dbf6b6ff2249b3ef7f327421909053cd3"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "5e64036fad2f02d499565c64e91a637dbf6b6ff2249b3ef7f327421909053cd3": {
+          "state": "failed",
+          "updatedAtMs": 1795521160224,
+          "failure": "receiver rejected transfer: receiving KBD project is unavailable: unknown KBD project c34dbee1-602e-4c05-a4e5-38e03846e188"
+        }
+      },
+      "createdAtMs": 1795521160204,
+      "updatedAtMs": 1795521160224,
+      "failure": "receiver rejected transfer: receiving KBD project is unavailable: unknown KBD project c34dbee1-602e-4c05-a4e5-38e03846e188",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795521160204,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795521160218,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795521160224,
+          "localState": "failed",
+          "detail": "receiver rejected transfer: receiving KBD project is unavailable: unknown KBD project c34dbee1-602e-4c05-a4e5-38e03846e188"
+        }
+      ]
+    },
+    "auditUnchanged": true
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 4519,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 4520,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "C",
+        "pid": 4521,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "D",
+        "pid": 4522,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 4636,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "D",
+        "pid": 4637,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 101
+}

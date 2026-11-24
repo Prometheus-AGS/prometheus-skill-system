@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-002",
+  "negativeOnly": false,
+  "passed": true,
+  "result": "PASS",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "1ca8d012a581ac033e11c23413ba70ece59430f7b609d868e09d64723406e5b5"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "85c9691cdc3c7a4e654b5c0bb9ee73780d69932b94b9b4c52471bfdc329ae976"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "5ce9cec3b59a3c19654f8b35864b2922597790205e7b222357b358cde5e699ed"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "531b24ec38bf825c9655f7b716e19165b9ece4858bdad257ffcecb6c82314e00",
+    "dirtySourceCount": 52
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "fe138dca744b50a5899dde026dc979f037886157af285fe2d4da107a12aaec50",
+  "baselineCopy": {
+    "senderSha256": "12209225c25895b947660b2c807a6677c647f839fd9dfdef2403870cf70b9ed8",
+    "receiverSha256": "12209225c25895b947660b2c807a6677c647f839fd9dfdef2403870cf70b9ed8"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:05048dd525825c9a85bfc828ced19f53e1d09cb5e5bf8f5e37793412dbe71ccf",
+      "endpointId": "ae56faad6a77bf09e132ff448269e58c3e554fb0121ddfa8bbad2c8b56430e0a",
+      "projectId": "dde6a2d3-9dfe-4b22-babe-d76603e6caa1",
+      "replicaId": "fc381ab4-46a1-4b70-a4d6-e13fc2d043c5",
+      "checkout": "/tmp/kbd-peers-v7g51j3o/A/project",
+      "authority": "/tmp/kbd-peers-v7g51j3o/A/data/prometheus/kbd/projects/dde6a2d3-9dfe-4b22-babe-d76603e6caa1",
+      "socket": "/tmp/kbd-peers-v7g51j3o/A/control.sock",
+      "companionPids": [
+        90903
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:a5f5ea3b7f2097b5b52ebd2eafe009682cedaadab49ba6239b265b4a1f03cd52",
+      "endpointId": "0c6aad57e44ce74b2d80533c9d1022eff22c8700d1929f4db557ae80f0b892a7",
+      "projectId": "dde6a2d3-9dfe-4b22-babe-d76603e6caa1",
+      "replicaId": "7934412c-1d82-4958-81da-0f933a50e89a",
+      "checkout": "/tmp/kbd-peers-v7g51j3o/B/project",
+      "authority": "/tmp/kbd-peers-v7g51j3o/B/data/prometheus/kbd/projects/dde6a2d3-9dfe-4b22-babe-d76603e6caa1",
+      "socket": "/tmp/kbd-peers-v7g51j3o/B/control.sock",
+      "companionPids": [
+        90904,
+        91008
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "fc381ab4-46a1-4b70-a4d6-e13fc2d043c5": 3
+    },
+    "eventHashes": [
+      "15517a204351ead763ce887e50aa6783cbb98121b8d7e91bc9f7d1ae199e9a20",
+      "62023bc7e9a6018921c5b2b7575bdf345ecc5ee5f2a97fd1bf480d0a1fd285f3",
+      "57810d779dbaa18ae7673435e16e51e2d7525e57726682b7a7080dd5426faff4"
+    ]
+  },
+  "sessions": {
+    "A": {
+      "sessionId": "2ef2b02e0b6a44eabb9667c5043250c5",
+      "ready": true,
+      "pid": 90923,
+      "atNs": 14425560843000,
+      "checkout": "/tmp/kbd-peers-v7g51j3o/A/project",
+      "authority": "/tmp/kbd-peers-v7g51j3o/A/data/prometheus/kbd/projects/dde6a2d3-9dfe-4b22-babe-d76603e6caa1"
+    },
+    "B": {
+      "sessionId": "7d371509b93f41eab550b4c370348ebf",
+      "ready": true,
+      "pid": 90924,
+      "socket": "/tmp/kbd-peers-v7g51j3o/B/control.sock",
+      "seedCursor": "3",
+      "initialEventCount": 0,
+      "atNs": 14426650055875,
+      "checkout": "/tmp/kbd-peers-v7g51j3o/B/project",
+      "authority": "/tmp/kbd-peers-v7g51j3o/B/data/prometheus/kbd/projects/dde6a2d3-9dfe-4b22-babe-d76603e6caa1"
+    }
+  },
+  "origin": {
+    "method": "POST",
+    "path": "/api/v1/kbd/projects/dde6a2d3-9dfe-4b22-babe-d76603e6caa1/commands",
+    "acceptedHttp": 200,
+    "targetSocket": "/tmp/kbd-peers-v7g51j3o/A/control.sock",
+    "requestSha256": "e6591e1f22d1dd6185bd9d410520f6ec37b8c633a2463ef12b5674632d5c941f",
+    "responseSha256": "6d01cd1cf9addeb3795a256f1997bbfd1ee91a7f44e513ceb3ee3b107086aca2",
+    "acceptedAtNs": 14426951463166,
+    "responseSuppressed": false,
+    "cli": {
+      "pid": 90923,
+      "cliPid": 90927,
+      "exit": 0,
+      "outputSha256": "bde6e5114dc99b6e665126f7a20a591555f5c533c2b4385ef4bd31fdd566db60",
+      "diagnostic": "",
+      "atNs": 14426953019916
+    },
+    "event": "65fc1f1d-0174-406e-992c-ea808a51fc11",
+    "hash": "e26599eb57ce82c172490f90da5663d499fcd40500880d14257a3b3c776ef83c",
+    "bAbsentBeforePush": true
+  },
+  "receiver": {
+    "pid": 90924,
+    "socket": "/tmp/kbd-peers-v7g51j3o/B/control.sock",
+    "signedEvent": {
+      "schemaVersion": "2",
+      "projectId": "dde6a2d3-9dfe-4b22-babe-d76603e6caa1",
+      "replicaId": "fc381ab4-46a1-4b70-a4d6-e13fc2d043c5",
+      "runId": "project-20261124T142049Z",
+      "eventId": "65fc1f1d-0174-406e-992c-ea808a51fc11",
+      "commandId": "8beb5adfc4f745ad97cc6e2c7b5ba7b9",
+      "revision": 4,
+      "expectedRevision": 3,
+      "lamport": 4,
+      "frontier": {
+        "fc381ab4-46a1-4b70-a4d6-e13fc2d043c5": 3
+      },
+      "causalParent": "67524e2f-5916-4123-84f2-5c4780bbe7d2",
+      "actor": {
+        "kind": "harness",
+        "id": "operator",
+        "device": "unknown-device",
+        "harness": "cli",
+        "session": "unknown"
+      },
+      "actorId": "operator",
+      "timestamp": "2026-11-24T14:20:52.006390Z",
+      "kind": {
+        "type": "phase_defined",
+        "payload": {
+          "phase": {
+            "id": "through-a-actual-control",
+            "slug": "through-a-actual-control",
+            "title": "through-a-actual-control",
+            "parentPhaseId": null,
+            "status": "pending",
+            "stages": {},
+            "changes": {},
+            "legacyReadOnly": false
+          }
+        }
+      },
+      "previousHash": "57810d779dbaa18ae7673435e16e51e2d7525e57726682b7a7080dd5426faff4",
+      "integrityHash": "e26599eb57ce82c172490f90da5663d499fcd40500880d14257a3b3c776ef83c",
+      "signerKeyId": "ed25519:05048dd525825c9a85bfc828ced19f53e1d09cb5e5bf8f5e37793412dbe71ccf",
+      "signerPublicKey": "uAicbZIWlEs21EoNnT+D/MC6x2HR6fki0GcgHmvNLcw=",
+      "signature": "xC4XAE4kWSDh2bYzBuxcdd36rRwiXkKJXAxG5lQmV4BY9JIetrLKMsw3Q1A+zbnQvdf1bMD2/VnORYTbnh2qAw=="
+    },
+    "cursor": "4",
+    "atNs": 14427653925958
+  },
+  "projection": {
+    "sha256": "edd24b9b31ddd805ca73640c9a24671e579133f2b9bed9bc0cbc0c45020ad9ff",
+    "sourceRevision": 4,
+    "frontier": {
+      "fc381ab4-46a1-4b70-a4d6-e13fc2d043c5": 4
+    }
+  },
+  "restarted": {
+    "previousPid": 90904,
+    "currentPid": 91008,
+    "projection": {
+      "sha256": "edd24b9b31ddd805ca73640c9a24671e579133f2b9bed9bc0cbc0c45020ad9ff",
+      "sourceRevision": 4,
+      "frontier": {
+        "fc381ab4-46a1-4b70-a4d6-e13fc2d043c5": 4
+      }
+    }
+  },
+  "push": {
+    "schemaVersion": "1.7",
+    "pushId": "d4d3e32b-38cf-492a-a4c1-21d2fc22b0ef",
+    "canonicalPayloadHash": "972751dc3285c96a31fa6b79c8317e9aa8ecf0d8a80985a49560243bc36f5b0d",
+    "domain": "kbd-control:dde6a2d3-9dfe-4b22-babe-d76603e6caa1",
+    "targets": [
+      "0c6aad57e44ce74b2d80533c9d1022eff22c8700d1929f4db557ae80f0b892a7"
+    ],
+    "localState": "broadcast",
+    "perPeer": {
+      "0c6aad57e44ce74b2d80533c9d1022eff22c8700d1929f4db557ae80f0b892a7": {
+        "state": "applied",
+        "updatedAtMs": 1795530052446,
+        "acceptedFrameBytes": [
+          3065,
+          20320
+        ],
+        "insertedEvents": 1,
+        "receiverFrontier": {
+          "fc381ab4-46a1-4b70-a4d6-e13fc2d043c5": 4
+        },
+        "projectionCurrent": true
+      }
+    },
+    "createdAtMs": 1795530052317,
+    "updatedAtMs": 1795530052446,
+    "events": [
+      {
+        "sequence": 1,
+        "event": "accepted",
+        "timestampMs": 1795530052317,
+        "localState": "accepted"
+      },
+      {
+        "sequence": 2,
+        "event": "prepared",
+        "timestampMs": 1795530052328,
+        "localState": "prepared"
+      },
+      {
+        "sequence": 3,
+        "event": "applied_at_targets",
+        "timestampMs": 1795530052446,
+        "localState": "broadcast"
+      }
+    ]
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 90903,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 90904,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "A-sender-session",
+        "pid": 90923,
+        "exit": -15,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B-receiver-session",
+        "pid": 90924,
+        "exit": -15,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 91008,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 63
+}

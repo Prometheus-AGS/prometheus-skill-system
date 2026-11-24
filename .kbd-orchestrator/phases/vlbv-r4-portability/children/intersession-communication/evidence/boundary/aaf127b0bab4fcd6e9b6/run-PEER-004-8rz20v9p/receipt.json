@@ -1,0 +1,32 @@
+{
+  "commandId": "run-PEER-004",
+  "case": "PEER-004",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T14:32:20.398Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Exercise the authenticated direct resume after receiver readiness, recording gossip membership separately. Compare both UDP ports, signed convergence and exact reader rejection. Installer validation remains deferred."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-004"
+  ],
+  "startedAt": "2026-11-24T14:32:20.631154+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "55b8be379b2065a8b69aa66a63087e7c38df9846a7ddf00d312ebee962a2a3e4",
+  "candidateSha256": "48dd158a22c1bf9c57cd1658a15fe6fbb4832354019825b6e34eac07060475f2",
+  "observationsSha256": "5d0ff7452aa6330c8e7675c560897203becbd542292a2016ef486329bd1c03cf",
+  "exitCode": 0,
+  "status": "PASS",
+  "durationSeconds": 124.214
+}

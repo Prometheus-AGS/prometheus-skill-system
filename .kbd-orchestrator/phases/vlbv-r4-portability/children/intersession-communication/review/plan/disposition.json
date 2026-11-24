@@ -1,0 +1,36 @@
+{
+  "rounds": 2,
+  "lastJudgeVerdict": "BLOCK",
+  "lastJudgeModel": "mimo-v2.6-pro",
+  "canonicalProducerIdentity": "unverified by gateway",
+  "lastReviewDispositions": [
+    {
+      "severity": "CRITICAL",
+      "finding": "Binding proof absent from packet",
+      "disposition": "Resolved by actual first binding and read-only READY result. Plan now cites the typed decision, revision, receipt SHA-256 and immutable snapshot. Spec handoff predates this binding."
+    },
+    {
+      "severity": "WARNING",
+      "finding": "Docs deferral",
+      "disposition": "Codex surface docs explicitly belong in the same change that alters that surface."
+    },
+    {
+      "severity": "WARNING",
+      "finding": "Two negative controls underspecified in plan",
+      "disposition": "Added both exact commands and observed invariants from the adopted contract."
+    },
+    {
+      "severity": "WARNING",
+      "finding": "External historical report availability",
+      "disposition": "Sourced parent remarks from calibrated local receipt references. Exit depends on original inventory and fresh evidence."
+    },
+    {
+      "severity": "WARNING",
+      "finding": "Review receipt requirement",
+      "disposition": "Each change needs a completed review receipt or a signed waiver linked in the closure packet."
+    }
+  ],
+  "remainingCritical": 0,
+  "finalCorrectionsIndependentlyRejudged": false,
+  "finalPlanSha256": "cbcad6b9d4ae4d4a2ecaccc58598799a4d66cb1bf87a250217ff64f49624e6f2"
+}

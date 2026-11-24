@@ -1,0 +1,33 @@
+{
+  "commandId": "negative-PEER-001",
+  "case": "PEER-001",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T14:26:38.902Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator directed closure of these issues. Verify stable local receiver UDP ports across restart, signed backlog convergence, receiver-local limit rejection, and all non-installer controls."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-001",
+    "--negative-only"
+  ],
+  "startedAt": "2026-11-24T14:28:00.067348+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "0b2712191069723eceff71a31d4a688f240f07c58e41898e3e4b26059bae018d",
+  "candidateSha256": "521024e097ffb3c2d25853f1cbc3b2cc0461addb04a11020e2f4d3cc96187e4b",
+  "observationsSha256": "c2d76f3efaa6949a72752d536300d00fa85e1ffdf19d82a4f250270b863a459f",
+  "exitCode": 0,
+  "status": "PASS",
+  "durationSeconds": 2.432
+}

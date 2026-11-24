@@ -1,7 +1,7 @@
 # execution-artifact-cas Specification
 
 ## Purpose
-TBD - created by archiving change change-exec-002-tier-p-sidecar. Update Purpose after archive.
+Store execution output atomically by content digest and enforce artifact budgets while retaining the objects pinned by active receipts.
 ## Requirements
 ### Requirement: Atomic content-addressed outputs
 The artifact store SHALL identify content by SHA-256, install blobs atomically without overwrite, reject hash disagreement, and never follow an output symlink outside the run root.

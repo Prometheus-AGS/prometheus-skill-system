@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-004",
+  "negativeOnly": false,
+  "passed": false,
+  "result": "BLOCKED",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "05f3b14e79077653ad59ced7008a1ffebda083b10c1a54ded85469d0c0ec576b"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "06113ada1cdf469cf53f9374610af4431c114c78e644e4723deb30f556490ab5"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "f85d92250b0cdd06b3c7f847f860368808736fd4671c4478539d0a60034c1d54"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "bb27c467c42328779bd3ec7be13d20981d3368bce6ba7eabae7167b252040811",
+    "dirtySourceCount": 52
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "0b2712191069723eceff71a31d4a688f240f07c58e41898e3e4b26059bae018d",
+  "baselineCopy": {
+    "senderSha256": "b81830bb2921b44c5c24eef74cc80a2386c25c38ee739853092b5b5871e07c33",
+    "receiverSha256": "b81830bb2921b44c5c24eef74cc80a2386c25c38ee739853092b5b5871e07c33"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:4e4a2f4ebd716284de557d5d16c6203acb9765767ee4b0deced239bf6ce1acbc",
+      "endpointId": "60f72ad00af8a8c517033fcf968a614a2d8db753e585375a57fb52e27987fce1",
+      "projectId": "1cde2b64-a4ab-4a4d-a84a-77c115dbd876",
+      "replicaId": "f60f33c1-a664-4647-abb5-53b9db8fbe9d",
+      "checkout": "/tmp/kbd-peers-auss24i_/A/project",
+      "authority": "/tmp/kbd-peers-auss24i_/A/data/prometheus/kbd/projects/1cde2b64-a4ab-4a4d-a84a-77c115dbd876",
+      "socket": "/tmp/kbd-peers-auss24i_/A/control.sock",
+      "companionPids": [
+        11816
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:4ccd25938a7818cad10fc1bbaef8ed77852dc5a1b6d5465dc70381c4d7c7fb24",
+      "endpointId": "4f0464e2d31506b56f5386d8fc6712782e5ed5eec4462e9aab57f3815666627e",
+      "projectId": "1cde2b64-a4ab-4a4d-a84a-77c115dbd876",
+      "replicaId": "4e124a09-aef2-4178-bd87-aafb94eab6b4",
+      "checkout": "/tmp/kbd-peers-auss24i_/B/project",
+      "authority": "/tmp/kbd-peers-auss24i_/B/data/prometheus/kbd/projects/1cde2b64-a4ab-4a4d-a84a-77c115dbd876",
+      "socket": "/tmp/kbd-peers-auss24i_/B/control.sock",
+      "companionPids": [
+        11817,
+        14287
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "f60f33c1-a664-4647-abb5-53b9db8fbe9d": 3
+    },
+    "eventHashes": [
+      "66153a57a21657bc076e7c900058ad801b3aa9e55131e0046d08dd66ee6b84a3",
+      "879735052344644a0bb21dc152fa5a3f157d15a3809a4cdc3cd321fe06c2a55c",
+      "b5eb1dcb8769cf578eee4ffa535d27329b2c360321d37ff1e3f988fcf87e4505"
+    ]
+  },
+  "sourceBacklog": {
+    "frameBytes": 114411859,
+    "maximumBytes": 16777216,
+    "commandCount": 40,
+    "fixtureInputSha256": "5a321dd03f1d0ac651b9ccf328c449170f39850a2689cfd3bf5714fd94ec5aec",
+    "sourceEventHashes": [
+      "66153a57a21657bc076e7c900058ad801b3aa9e55131e0046d08dd66ee6b84a3",
+      "879735052344644a0bb21dc152fa5a3f157d15a3809a4cdc3cd321fe06c2a55c",
+      "b5eb1dcb8769cf578eee4ffa535d27329b2c360321d37ff1e3f988fcf87e4505",
+      "3cf979cfd5af81772b2ee1fc16482b584d222b02c5e5a1ccce50692950818275",
+      "fe6840bb09f360cc8d07349d4d50293b7f9d747ad4cceb6119d7a556d914c807",
+      "d6fe45d931b89e3300dc228879b3e07bbfca35457f439f5f08d95870455fddbf",
+      "f71df5c0985f3fe9476ae13f2d8e33f92e0cde3ef9dd5f61eb0e5d437fec6bb0",
+      "e98d937ded4f0eeaf7e69ad59866b3b610d90ca06ef61daa9c89d1e95ccfde61",
+      "ddbb62b2f55c5157ccf3d27aaa1c54eb6514892519e3463e216323ccf45fa87d",
+      "e373b92ebd8f35ffb6db3fe659eb30c69001305acb3f733fe8ac7b636335e6de",
+      "e7a4915c09eb55defc1c16f115d7e784693bf78b16b6bb0f80abc2c7337fcef6",
+      "3cb23bd95b3815d0cac462c74bbd5ea35fefa54ca50d83370ae30013e1c6ed21",
+      "19fb71be0f9ecb5d7cf5aee77195c1c1ff200f5777f981db83685257b25f18e2",
+      "37120808a4ddcf2d14120226bc89e4f8068be32e228694131cf6d3fd0cf9a424",
+      "28736c6b363b306c96149a0bfc00d5d15e2e1e5c56383bba365df2e20f5b9ed3",
+      "73e005313ea91e6c58c08fc405f8458b7f2074d5f312ee4fdef502d6521c6970",
+      "804484975d749e80aa459435cfdaeba50f8ccd4c3c49de8a2c3a36189a30d0d4",
+      "8e97a2ae0b299664cd63eb985f6d02025b0d1da660d7dad2ceccee8e1fc0b0b4",
+      "a732ce5ad3184691b544bab2cc7f39063f52c332ee93915a985dd68d8587b6b6",
+      "988b3771efcf44c76107a4c22bf78d8472bb44aea88b71ed611f41d4fa9878fd",
+      "6ad170c0806e435419658c52f3e359ccaad11f3a79388cb4e34a5b4356797c2d",
+      "02c402df1e5a7ea193f95503268b6a3395f8fa274acf8673682c936eca69912a",
+      "436ea4dcad081efd87333dc1b0ec944f2e3f7ae4420eadd2558aa68577c188c3",
+      "6d9900597e5b7382558c8495ba289c93e9e609a2a18fed91a5c8551044bcc67c",
+      "50286e732f39228ec3d98b571f80c1f739c07dbe2e96741942bac56423bdfdfd",
+      "c1966c52ceef562f9dcce83db8e4b26c82b8508ac14e7e081a88eacf9c008232",
+      "72775b0093addb40f2109c10efedd294f0465cb93ddafdae1b8042ba7d410fdc",
+      "2cb1ca95a1e312643782dfd5360754b0290bf7fd0ea14b566ec693f7eb3b55d5",
+      "d238845f9aa2691885c015ddbad7328421bbce1b571a2c3cc5021e3845547ebb",
+      "1ebeb1010b638db8de5c2973d4010f9032f910549ed43044392c5d58ca32e3d4",
+      "8c30842ce8e56c3adb6b147cf67399c0823d4fcadd1ea03c70584fe171afbb55",
+      "d3e64d1f85f7cb2ea64106a7db42ad61b8c7991c52e528eae9fc57a8c99f4a3e",
+      "af2ff34dfe90c4fc3eedbac64ce9663bb91ae9dc7a32e63c21cf53d87b3c70c0",
+      "c788905196aa9b4a72b050f6a7044b845a9aae344456ccee0188c9eff24e7e17",
+      "2b6756c40707f95fdc1eec98b017bdbe227f7ee888ddc602eb1360edeb4e2589",
+      "b81ee24fc762d25aee5dd796e669f8d6e6d83371f7cc8a382553410bdeccd225",
+      "f360cc7c61712fc5c938dbcc14134d873f1cd782e94e060505f3348ba60fc14e",
+      "25906acbd9ef33ccb679b1e23e008941109d1ae9542d44be28f959836e548457",
+      "e69dfcc34b22e18c249af9df98f8bec9c54fc7a02ad38310880da04ea19ca937",
+      "c064a461971abdc77039d90ec7205ed2d2429e000a35b1e5cd0ff14e4fc8cd27",
+      "930ed6e3883aea66db481c54cde3f1952d77f643bca895dc4e5a2fed9f74dc0d",
+      "c88f667b9266a2d9bdd566dfb276e6c5cb4753a944523decb42b385e80e52602",
+      "bbbf2c8bc52813b6bf7ba5a6c24be592d1bd97405a8fac826e0f26e1dd90b40e"
+    ]
+  },
+  "budgets": {
+    "deliveryAttempts": 2,
+    "maximumFrameBytes": 16777216,
+    "operationSeconds": 45,
+    "progressPollSeconds": 0.025
+  },
+  "error": "timed out waiting for paired same-host transport: local mDNS or paired endpoint is unavailable",
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 11816,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 11817,
+        "exit": -9,
+        "intentionalInterruption": true
+      },
+      {
+        "role": "B",
+        "pid": 14287,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 578
+}

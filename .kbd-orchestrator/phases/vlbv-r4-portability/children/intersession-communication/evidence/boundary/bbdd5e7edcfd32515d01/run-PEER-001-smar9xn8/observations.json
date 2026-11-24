@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-001",
+  "negativeOnly": false,
+  "passed": true,
+  "result": "PASS",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "5fd7d446bc78ab1c7e42010b620ac4791c8a5a3479481f462119a22ac0c35efc"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "40784eeebb99b23401b4b4c3831bbe6f33fbeb9651ea9a1ff6f0b6c35613d5bc"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "807631f2ad7d48f971155542ddba788d139565c388ca57441a263abd0df7b1cf"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "550a07b9ced5ce34863029435f92658ccbf5aa1c31ae6284057a5538fcdf9825",
+    "dirtySourceCount": 51
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "6c88289271d873ad8ed5055e5a0db763262635e057715941e13c4d42b4312e8b",
+  "baselineCopy": {
+    "senderSha256": "de5513e9b2a2c5a3b9e614aee5adc5b8960bfc7673eacc88de837a3b9984e9f1",
+    "receiverSha256": "de5513e9b2a2c5a3b9e614aee5adc5b8960bfc7673eacc88de837a3b9984e9f1"
+  },
+  "fixtureInputSha256": "ccde2e03417cb5a70a8f70f79dbd7138e3c46ee34fce93aadd95db4257f5990b",
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:911e75f6faaa111043c24987dbcb4a0b8cc56fe8c9ac302ce8111132d45fc29d",
+      "endpointId": "c3979ac0962b463b1f1dcba0554e3792fc431cec58c4baa989e77603d2ed8e40",
+      "projectId": "a6af5be7-f6bf-4c16-95f0-6b5c603181ac",
+      "replicaId": "14c3d4e2-bc16-43e7-bff1-2be6e4fb6306",
+      "checkout": "/tmp/kbd-peers-oj73_5nn/A/project",
+      "authority": "/tmp/kbd-peers-oj73_5nn/A/data/prometheus/kbd/projects/a6af5be7-f6bf-4c16-95f0-6b5c603181ac",
+      "socket": "/tmp/kbd-peers-oj73_5nn/A/control.sock",
+      "companionPids": [
+        94431
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:a1b2e477b994e9885bb5e63b77a6ebeba3764f467ea00681daba0a948a349ab2",
+      "endpointId": "69301d1d95c0e51e5627cfebdf873aa5e9f4d849b7fbc3f50421dff8eb139360",
+      "projectId": "a6af5be7-f6bf-4c16-95f0-6b5c603181ac",
+      "replicaId": "fc889349-3f5b-46c0-a084-2f94fc24dc70",
+      "checkout": "/tmp/kbd-peers-oj73_5nn/B/project",
+      "authority": "/tmp/kbd-peers-oj73_5nn/B/data/prometheus/kbd/projects/a6af5be7-f6bf-4c16-95f0-6b5c603181ac",
+      "socket": "/tmp/kbd-peers-oj73_5nn/B/control.sock",
+      "companionPids": [
+        94432
+      ]
+    },
+    "H": {
+      "name": "H",
+      "keyId": "ed25519:abfba9f55392d9d8e1d0bfdfc3fd17718ee102f967701aa8b3f488609e0cfcbc",
+      "endpointId": "b582ce999cae66242b6510f29527aac14ee787449378672a6fa88ef20df1cfcc",
+      "projectId": "0aca7068-8fb6-4b2d-86a8-50467b66c841",
+      "replicaId": "a3b5ec4c-a672-4916-8590-42fd02adc3a1",
+      "checkout": "/tmp/kbd-peers-oj73_5nn/H/project",
+      "authority": "/tmp/kbd-peers-oj73_5nn/H/data/prometheus/kbd/projects/0aca7068-8fb6-4b2d-86a8-50467b66c841",
+      "socket": "/tmp/kbd-peers-oj73_5nn/H/control.sock",
+      "companionPids": [
+        94472
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "14c3d4e2-bc16-43e7-bff1-2be6e4fb6306": 3
+    },
+    "eventHashes": [
+      "6a3a2133f74a6de33e08ce6e16253915691f5a2c4335027001108fa28107225f",
+      "46b4a5fab9c96e7d65085f2a2cde3bc23d8e102babab58c3614806d099040578",
+      "e46ef1b6570888d9d1dd5ebd64bd37d31386aa3501314e8e7825374ac8359f9e"
+    ],
+    "grant": "e46ef1b6570888d9d1dd5ebd64bd37d31386aa3501314e8e7825374ac8359f9e",
+    "snapshotBytesPreserved": true
+  },
+  "historical": {
+    "sourceRelease": "acd029107533c07a661a7e3ad90eb28834688afa",
+    "path": "substrate/kbd-runtime/tests/fixtures/pre-192-journal/events.jsonl",
+    "fixtureInputSha256": "2dc984667f307be3fd3f8b5a03dbffff7f06680e8ee8c46cd3d16eafac20e95a",
+    "eventHashes": [
+      "34a7776438c27557959681784c7bb19205712d212983c7d127ed795529ce2032",
+      "e3c7d0b3a7e57d41ca599ea9bd614e449798b6958cbd18722bc94bc0e19d6de0",
+      "9e5b97678c2d84d039f2f0ddf833f7966b19bae484ed9b682bfd9dcf93c9ef32",
+      "d6073c1f926ee0139d2d0c859b7f0bd9663a4d1e6e976e176f13a0b83dceb589",
+      "41718fe1f24764502b9fafea88a5872626a2297bf5f4d3eb334f223b0fe552fd",
+      "2924bc7ca2b3a3a1311f80f470585070d6b7ce8487d2bc3ee45da365d2a43366",
+      "821b7c0ebe90d1d0ceb6bccd78cce61546416a28b44702ccaec3a451baddff98",
+      "9e5f802a487cff6fbfff7d6ee3599f00f8a19ce051563329e919298eac73f552",
+      "de5077f7f6aa14b6dc4ca8b86e4dd6b57cd97d1761519c3982d632cef63cccce",
+      "0e7c263abcfd7a5481c7baac05bb10fb4bb71f561df1c2e961bacd76a7394f3d",
+      "d4d8f9e8b92ee72bc800d7553b0d758e951922dee1bfc5ff397ac3b359ee8d5d",
+      "c55236422bd9ea08b194b570027fec3215b6916d43dd0ce25d62fe4c09f48e5d",
+      "cbb1929128f8748dc1fac63d3d142a69d4274b2403da92dd4dda0567d8c058e0",
+      "225e7ccc8d838cbe4dc1eae74d3c4e04b0da43f15156761686c41ba1f9d0fa37",
+      "05746f94e2952a7dafd6c2bad77f98742843b903fb6762e780cdc372a7db8c9c",
+      "ca84b01f012afecfda5bed194835b7852992fadb04b1a18d35f3137e1ab79964"
+    ],
+    "writerStatusPath": "substrate/kbd-runtime/tests/fixtures/pre-192-journal/status-prometheus-1.13.0.json",
+    "writerStatusSha256": "4e9061500c2cbabecdb47267c27479b9ab2388bb28207c1149e5586d312d75c5",
+    "verifiedSignatures": 16,
+    "revision": 16,
+    "frontier": {
+      "e0bf575a-c284-4692-92e2-e207d0f0a101": 16
+    }
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 94431,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 94432,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "H",
+        "pid": 94472,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 61
+}

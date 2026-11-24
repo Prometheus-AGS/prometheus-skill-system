@@ -1,7 +1,7 @@
 # session-artifact-hygiene Specification
 
 ## Purpose
-TBD - created by archiving change change-drift-403-routine-artifacts. Update Purpose after archive.
+Scan session logs for sensitive content before they enter committed repository history.
 
 ## Requirements
 

@@ -99,7 +99,7 @@ function policyExceptions(text) {
   };
 }
 
-function phaseDirectory(root, state, id) {
+export function phaseDirectory(root, state, id) {
   const chain = []; const visited = new Set(); let cursor = id;
   while (cursor) {
     if (visited.has(cursor)) throw new Error('cyclic canonical phase ancestry');

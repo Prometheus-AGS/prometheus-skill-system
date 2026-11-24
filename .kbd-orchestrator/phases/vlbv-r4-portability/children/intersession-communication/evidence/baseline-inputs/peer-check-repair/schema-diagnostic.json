@@ -1,0 +1,7 @@
+{
+  "A": [
+    "2026-11-24T08:39:27.852936Z  WARN sovereign_sync::kbd_control: KBD authority startup project is unavailable startup_phase=\"project_open\" project_id=\"c8db2404-5e34-41f4-95b6-cb3f8e0e22aa\" error=invalid event JSON: unknown variant `operator_granted`, expected one of `run_initialized`, `lifecycle_transition`, `checkpoint_created`, `pause_checkpointed`, `plan_revised`, `legacy_state_imported`, `phase_defined`, `phase_transitioned`, `stage_entered`, `stage_transitioned`, `change_registered`, `change_transitioned`, `task_registered`, `task_transitioned`, `active_path_changed`, `completion_updated`, `decision_recorded`, `blocker_recorded`, `blocker_cleared`, `boundary_receipt_recorded`, `gate_started`, `gate_finished`, `claim_acquired`, `claim_renewed`, `claim_released`, `submodule_pin_recorded`, `device_enrolled`, `device_revoked`, `device_key_rotated`, `conflict_recorded`, `conflict_resolved` at line 1 column 600"
+  ],
+  "B": [],
+  "C": []
+}

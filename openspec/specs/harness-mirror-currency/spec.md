@@ -1,7 +1,7 @@
 # harness-mirror-currency Specification
 
 ## Purpose
-TBD - created by archiving change change-drift-400-openspec-110-upgrade. Update Purpose after archive.
+Adopt upstream changes to vendored harness mirrors through an explicit decision and retain a record of the selected version.
 
 ## Requirements
 

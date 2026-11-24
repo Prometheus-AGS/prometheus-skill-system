@@ -131,18 +131,63 @@ function exercise(label, payload, box, installed = false) {
   assert.equal(fs.existsSync(path.join(project, 'scripts')), false);
   console.log(`PASS ${label}: adoption, READY, real gate, idempotent journal, documented commands, missing/malformed/identity/stale state${installed ? ', missing helper, stable links, copied skill' : ''}; consumer has no scripts`);
 }
-try {
-  exercise('source', root, isolated('source'));
-  for (const platform of ['claude', 'codex']) {
-    const payload = path.join(root, 'dist/plugins', platform, 'prometheus-skill-pack');
-    exercise(`generated ${platform}`, payload, isolated(`generated ${platform}`));
-    const box = isolated(`installed ${platform}`);
-    box.store = path.join(box.home, '.prometheus/plugins/prometheus-skill-pack');
-    console.log(`Installing ${platform} payload into temporary home`);
-    run(process.execPath, [path.join(payload, 'scripts/install-plugin-generation.js'), '--source-root', payload,
-      '--home', box.home, '--plugin-root', box.store, '--targets', 'agents'], box.base, box.env);
-    const installed = fs.realpathSync(path.join(box.store, 'current'));
-    exercise(`installed ${platform}`, installed, box, true);
+// IDs and projection slugs are separate canonical fields. Verify both levels through
+// real CLI state, including first adoption, misplaced input and repeat adoption.
+function exerciseContractProjections() {
+  const { base, env } = isolated('contract projections');
+  const project = path.join(base, 'consumer');
+  fs.mkdirSync(path.join(project, '.kbd-orchestrator'), { recursive: true });
+  const native = (...args) => run('prometheus', ['kbd', '--path', project, ...args], project, env);
+  const helpers = path.join(root, 'shared/scripts');
+  const adopt = (file, expected, ...args) => run('bash', [path.join(helpers, 'kbd-contract-adopt.sh'), file, ...args], project, env, expected);
+  const readiness = (expected, ...args) => run('bash', [path.join(helpers, 'kbd-phase-readiness-check.sh'), ...args], project, env, expected);
+  native('status', '--json');
+  const parent = 'projection-parent', child = parent + '::projection-child';
+  const phaseRoot = path.join(project, '.kbd-orchestrator/phases');
+  const parentDir = path.join(phaseRoot, 'parent-dir');
+  for (const [id, slug, dir, args] of [
+    [parent, 'parent-dir', parentDir, []],
+    [child, 'child-dir', path.join(parentDir, 'children/child-dir'), ['--parent', parent]],
+  ]) {
+    native('phase', 'create', '--command-id', 'create-' + slug, '--id', id, '--slug', slug, '--title', slug, ...args);
+    native('change', 'register', '--command-id', 'change-' + slug, '--phase', id, '--id', 'C1', '--title', slug);
+    native('task', 'register', '--command-id', 'task-' + slug, '--phase', id, '--change', 'C1', '--id', 'T1', '--title', slug);
+    const draft = contract(JSON.parse(native('status', '--json')));
+    draft.identity.phaseId = id;
+    const file = path.join(dir, 'adopted-contract.json');
+    write(file, draft);
+    const misplaced = path.join(phaseRoot, id, 'adopted-contract.json');
+    write(misplaced, draft);
+    assert.match(adopt(misplaced, 3, '--lint-only', '--require-status'), /contract is not at/);
+    assert.match(adopt(file, 0, '--lint-only', '--require-status'), /clean/);
+    assert.match(readiness(2, '--phase', id), /BLOCKED missing=adoption/);
+    assert.match(adopt(file, 0), /^ADOPTED /);
+    const binding = JSON.parse(native('phase', 'disposition', '--id', id, '--json')).binding;
+    assert.equal(binding.contractPath, path.relative(project, file));
+    assert.equal(hash(fs.readFileSync(path.join(dir, 'adopted', binding.contractDigest + '.json'))), binding.contractDigest);
+    assert.match(readiness(0, '--phase', id), /^READY /);
+    assert.match(readiness(0, '--phase-dir', dir), /^READY /);
+    const revision = JSON.parse(native('status', '--json')).revision;
+    assert.match(adopt(file, 0), /^ALREADY-ADOPTED /);
+    assert.equal(JSON.parse(native('status', '--json')).revision, revision);
   }
-  console.log('PASS all isolated package surfaces');
+  console.log('PASS canonical parent and nested child adoption, placement, snapshot, readiness and idempotence');
+}
+try {
+  exerciseContractProjections();
+  if (!process.argv.includes('--contract-projections')) {
+    exercise('source', root, isolated('source'));
+    for (const platform of ['claude', 'codex']) {
+      const payload = path.join(root, 'dist/plugins', platform, 'prometheus-skill-pack');
+      exercise(`generated ${platform}`, payload, isolated(`generated ${platform}`));
+      const box = isolated(`installed ${platform}`);
+      box.store = path.join(box.home, '.prometheus/plugins/prometheus-skill-pack');
+      console.log(`Installing ${platform} payload into temporary home`);
+      run(process.execPath, [path.join(payload, 'scripts/install-plugin-generation.js'), '--source-root', payload,
+        '--home', box.home, '--plugin-root', box.store, '--targets', 'agents'], box.base, box.env);
+      const installed = fs.realpathSync(path.join(box.store, 'current'));
+      exercise(`installed ${platform}`, installed, box, true);
+    }
+    console.log('PASS all isolated package surfaces');
+  }
 } finally { fs.rmSync(scratch, { recursive: true, force: true }); }

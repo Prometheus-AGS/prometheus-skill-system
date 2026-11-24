@@ -1,0 +1,32 @@
+{
+  "commandId": "run-GREEN-002",
+  "case": "GREEN-002",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T12:09:35.424Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Verify PEER-004 addressed recovery with refreshed paired-peer mDNS routes and full push diagnostics; continue other approved local checks and leave installer pending."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "GREEN-002"
+  ],
+  "startedAt": "2026-11-24T12:12:38.875646+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/tests/kbd-intersession-health.py",
+  "runnerSha256": "eb91b274d02a289d9b72e22c0b08f848c8b114192bdd1151c953ae30e8cebc41",
+  "candidateSha256": "e316da795446e85729a6cb0262f97aaf8f3199a02ac33300df367edcb3243787",
+  "observationsSha256": "8f595d5fc57fcb27f25b332d0dc206ba1f4151787158f640ed7283896985ae7e",
+  "exitCode": 1,
+  "status": "FAIL",
+  "durationSeconds": 12.375
+}

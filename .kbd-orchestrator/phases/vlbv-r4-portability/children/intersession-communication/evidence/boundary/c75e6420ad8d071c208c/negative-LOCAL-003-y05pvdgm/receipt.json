@@ -1,0 +1,33 @@
+{
+  "commandId": "negative-LOCAL-003",
+  "case": "LOCAL-003",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T11:08:07.283Z",
+    "authorizer": "travis@tribehealthsolutions.com",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator approved the explicit JSON response type correction, serialized local rebuild and continuation of checks in order. Installer testing remains pending."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "LOCAL-003",
+    "--negative-only"
+  ],
+  "startedAt": "2026-11-24T11:15:39.458682+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/tests/kbd-intersession-local.py",
+  "runnerSha256": "f755652cc1ea0bb41c4252bcd92e7a29d75a6a19da323f8517b4ac42243ebace",
+  "candidateSha256": "4ae37882c81ef151cbc64b8f0e0e1ac3466e4b7355ae87af9cd52b4cebcf9218",
+  "observationsSha256": "c166a872c67598518d1c8ae34b8c1887387ed83d494d3e7980ab51dee1386f61",
+  "exitCode": 0,
+  "status": "PASS",
+  "durationSeconds": 2.049
+}
