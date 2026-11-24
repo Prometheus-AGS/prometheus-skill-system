@@ -1,6 +1,6 @@
 # Plan — vlbv-r4-portability
 
-Contract: `adopted-contract.json` (v2, 10 scenarios, lint clean; not yet adopted).
+The runtime bound the [v2 contract](adopted-contract.json) at plan revision 17, binding revision 1. Its ten scenarios remain the basis for acceptance.
 Method: VLBV. Every task below is implemented before the single B4 run; nothing
 executes generated code earlier (D1). LSP diagnostics are static reading (D5).
 
@@ -17,7 +17,7 @@ executes generated code earlier (D1). LSP diagnostics are static reading (D5).
 
 ## Order
 
-0. **Adopt the v2 contract** through `kbd-contract-adopt.sh` (digest per `digestNormalization`, planRevision pinned, phase bound). T1–T6 are blocked until the adoption decision is recorded.
+0. **Adopt the v2 contract** through `kbd-contract-adopt.sh` (digest per `digestNormalization`, planRevision pinned, phase bound). The recorded adoption satisfied this prerequisite for T1–T6.
 
 Then T1 → T4 → T2 → T3 → T5 → T6, then documentation (vlbv skill references, CHANGELOG
 Unreleased), then B4 authorization (owner) → the boundary packet once.
@@ -25,6 +25,24 @@ Unreleased), then B4 authorization (owner) → the boundary packet once.
 ## Boundary packet
 
 As declared in the contract: 28 commands, `singleRun`, machinery cases first (their verdicts feed every report), stop on AUTH-ISO-1 FAIL before any further harness; negative controls write only under `evals/reports/_negative/`. Expected spend: 255 agent harness sessions (17 × 3 × 5) plus grading; the 6 machinery cases run once (owner decision D-R4-03).
+
+## Exit with partial verification
+
+T1–T6 are recorded complete. The phase remains open. The original acceptance route requires verified behavior. For an operator who wants to end this phase with incomplete verification, use the existing signed `supersede-exit` route. This plan edit proposes that decision. The operator makes it separately.
+
+| Evidence to preserve | Treatment at exit |
+|---|---|
+| `EVAL-MACH-1` | Retain the machinery PASS and its six negative controls. |
+| `EVAL-CLAUDE-1`, `AUTH-ISO-1` | Retain both recorded B4 failures. Claude could not authenticate in the scratch environment. Interrupting the runner left scratch credentials that required manual cleanup. |
+| Remaining seven scenario IDs | The B4 packet records them as `NOT_EXERCISED`. Preserve the partial B5 evidence, including the blocked Kimi sessions. Withdraw these seven from R4 with a proposed destination of `vlbv-portability-verification-follow-up`. |
+
+[Proposed exit details](proposed-exit-details.json) maps each scenario to its evidence or destination. It also routes all six functional scope items to that proposed follow-up because the retained evidence does not qualify the full scope. B4 recorded 22 minutes. Total spending across repairs is unmetered. The follow-up is a backlog destination and requires separate authorization to start.
+
+1. The operator reviews the evidence, limits and destination. If they choose this exit, record their exact words and decision-log reference in a working copy of the details file under `operatorDecision.text` and `operatorDecision.reference`.
+2. From the registered checkout, generate and validate the unsigned manifest using the [operator exit procedure](../../../docs/guide/15-hooks-and-lifecycle.md#operator-decided-phase-exit), phase `vlbv-r4-portability` and that completed details file. The template checks the bound contract, evidence hashes and coverage against live state.
+3. The operator signs the validated manifest. Submit that manifest and signature with `kbd-phase-close-eval.sh --superseded` as documented. Confirm `prometheus kbd phase disposition --id vlbv-r4-portability --json` returns `CLOSED_SUPERSEDED` with the three exercised verdicts and all withdrawals. Reflect can then report the signed disposition. Until the runtime records it, R4 remains open.
+
+This exit grants neither release approval nor a promotion of any harness capability. CPC-010, CPC-011 and CPC-013 belong to the separate Companion plan and have no bearing on R4 closure.
 
 ## Risks carried
 

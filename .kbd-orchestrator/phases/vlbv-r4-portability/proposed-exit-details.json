@@ -1,0 +1,122 @@
+{
+  "operatorDecision": null,
+  "exercised": [
+    {
+      "id": "EVAL-MACH-1",
+      "verdict": "PASS",
+      "evidence": [
+        {
+          "path": ".kbd-orchestrator/phases/vlbv-r4-portability/boundary-results.json",
+          "sha256": "0f7ad1acac368c766807ba3b57f49fb59f1d4904cf622f7b75f6c23632dd4252"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/vlbv-r4-portability/evidence/b4/reports-attempt-1/machinery.json",
+          "sha256": "02a86b64b6a282ceb58a9b08d1979ca4da670a4463a92cdaed9d47ea565f864c"
+        }
+      ]
+    },
+    {
+      "id": "EVAL-CLAUDE-1",
+      "verdict": "FAIL",
+      "evidence": [
+        {
+          "path": ".kbd-orchestrator/phases/vlbv-r4-portability/boundary-results.json",
+          "sha256": "0f7ad1acac368c766807ba3b57f49fb59f1d4904cf622f7b75f6c23632dd4252"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/vlbv-r4-portability/evidence/b4/reports-attempt-1/claude-code.json",
+          "sha256": "d97198c6fb769bdc21b8439430c0d1a758abbfdd3d6ed6d57064b35798c42654"
+        }
+      ]
+    },
+    {
+      "id": "AUTH-ISO-1",
+      "verdict": "FAIL",
+      "evidence": [
+        {
+          "path": ".kbd-orchestrator/phases/vlbv-r4-portability/boundary-results.json",
+          "sha256": "0f7ad1acac368c766807ba3b57f49fb59f1d4904cf622f7b75f6c23632dd4252"
+        },
+        {
+          "path": ".kbd-orchestrator/phases/vlbv-r4-portability/evidence/b4/attempt-1-notes.md",
+          "sha256": "9b17c554c062068c10fa2caffc972253b3200d83c88c492a1bba958579f81660"
+        }
+      ]
+    }
+  ],
+  "withdrawn": [
+    {
+      "id": "EVAL-CODEX-1",
+      "kind": "scenario",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "EVAL-OPENCODE-1",
+      "kind": "scenario",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "EVAL-KIMI-1",
+      "kind": "scenario",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "EVAL-QWEN-1",
+      "kind": "scenario",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "EVAL-NOTRUN-1",
+      "kind": "scenario",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "CAP-UPDATE-1",
+      "kind": "scenario",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "SCAN-PRE-1",
+      "kind": "scenario",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "Per-harness protocol eval reports",
+      "kind": "scope",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "Machinery cases executed once and counted in every report",
+      "kind": "scope",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "Capability profiles derived from reports",
+      "kind": "scope",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "Passive pre-authorization artifact scan",
+      "kind": "scope",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "Isolated runs with temporary auth material",
+      "kind": "scope",
+      "destination": "vlbv-portability-verification-follow-up"
+    },
+    {
+      "id": "B4 authorization event record",
+      "kind": "scope",
+      "destination": "vlbv-portability-verification-follow-up"
+    }
+  ],
+  "budgetAccounting": {
+    "class": "unmetered"
+  },
+  "limits": [
+    "The three verdicts are from B4 attempt 1. Whole-phase portability, authentication isolation and release readiness are unverified.",
+    "Partial repair runs include blocked or interrupted sessions. No accepted replacement packet establishes a later phase verdict.",
+    "B4 recorded 22 minutes. Whole-phase spend including repairs is unmetered."
+  ]
+}
