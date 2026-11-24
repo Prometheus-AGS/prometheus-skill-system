@@ -1,0 +1,71 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "mimo-v2.6-pro",
+  "producer_model": "gpt-6.2-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "The plan schedules none of the mandatory C-01/C-03 gate actions for the surfaces its own changes will edit, and names no reconciliation change, so the QA gate will BLOCK these changes at archive time.",
+      "evidence": "Plan GREEN-01 will \"Resolve the nine failures covering skill directory, binary manifest, execution runtime, launch agents, learning worker and snapshots, hook rotation, lifecycle and harness adapters\" and GREEN-02 will \"Preserve the named real apply integration and Codex distribution gates\", but the plan never mentions `shared/services.manifest.json`, `npm run check:services-manifest`, `npm run validate:codex`, `docs/codex-plugin.md`, or any named C-01 reconciliation change. Constraints C-01: \"Any change that edits, adds, or deletes one of those templates MUST regenerate the manifest and pass `npm run check:services-manifest` in the same change\" and \"after touching `.claude-plugin/*`, `.mcp.json`, `hooks/hooks.json`, or `scripts/build-codex-plugin.js`, `npm run validate:codex` MUST pass\"; C-03 requires docs updates in the same change. The generator-input surfaces (launchagent templates, hook/plugin surfaces) are exactly what the named failures touch.",
+      "suggested_fix": "For GREEN-01/GREEN-02 name the concrete files each task edits; add per-change `generate-service-manifest` + `check:services-manifest` and `validate:codex` steps (and `docs/codex-plugin.md`/CLAUDE.md updates where the surface changes), or name one C-01 reconciliation change in persisted execution evidence with the required double-generator run and byte-identical hash proof, and forbid interim certification."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "C-05 bash 3.2 compatibility testing is absent from the GREEN-01 work that will repair launchd-invoked scripts.",
+      "evidence": "Constraint C-05: \"Any script that can be invoked by a launchd agent (macOS `/bin/bash` is 3.2) must avoid `mapfile` / `declare -A`. Test with `/bin/bash script.sh`, not just `bash`.\" GREEN-01 repairs \"launch agents, learning worker and snapshots, hook rotation, lifecycle\" and must produce \"an actual service restart\", yet no acceptance step invokes the repaired scripts under `/bin/bash` or forbids `mapfile`/`declare -A`.",
+      "suggested_fix": "Add to GREEN-01 acceptance: every script repaired for a launchd agent is executed once with `/bin/bash` and checked for bash-3.2-incompatible constructs."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The structured Prerequisites column omits dependencies the prose states for LIVE-01 and GREEN-01, so a scheduler using the table can dispatch work whose proof is unattainable at that point.",
+      "evidence": "Prose: \"The shared-Companion proof requires PEER-01's compatible candidate\" and \"GREEN-01 consumes the installed candidate and both communication paths\". But the task table gives LIVE-01 (Implementation order 1) Prerequisites \"two-process fixture\" only, and GREEN-01 Prerequisites \"isolated GUI domain\" only \u2014 neither lists PEER-01 (order 4) or PEER-02, whose rows do list their own prerequisites (\"PEER-01\", \"PEER-02\").",
+      "suggested_fix": "Add PEER-01's compatible candidate to LIVE-01's prerequisites (or explicitly mark the shared-Companion sub-proof as deferred to the joint boundary) and add PEER-01/PEER-02 to GREEN-01's Prerequisites cell."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The failure-stop protocol references authorization gates B4 and B5 that the plan never defines, and the repair/attempt budget is ambiguous.",
+      "evidence": "Plan: \"Once production and runner authoring are complete and B4 is authorized, take one serialized, locked local build...\", \"then rerun affected entries and their controls at B5\", \"The execution budget is eight hours and 1,000 tool calls, with one authorized repair and a stop after three attempts without progress\". No B1-B5 boundary definitions appear anywhere in the plan, and it is never stated whether \"one authorized repair\" is per failing case or for the whole run, or what counts as \"progress\" for the three-attempt stop.",
+      "suggested_fix": "Define the boundary labels (what B4 and B5 authorize and who signs them) and state the repair accounting explicitly (repair budget scope, attempt unit, progress criterion)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Two PEER acceptance criteria name no pass value, so a false result would satisfy them.",
+      "evidence": "PEER-01: \"Verify that the same candidate reader rejects a validly signed future event with a specific diagnostic\" \u2014 the diagnostic is never named in the plan. PEER-04: \"Measure encoded wire bytes, then implement bounded authenticated catch-up and retry for history larger than one 16 MiB frame\" \u2014 no byte bound, retry bound, or measurement threshold is stated; only the input size (16 MiB) is given.",
+      "suggested_fix": "Name the expected diagnostic ID/text and the numeric wire-size and retry bounds, or cite the exact adopted-contract field that carries each value so verification cannot accept any error message or any catch-up cost."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The task-model section contradicts itself on reasoning effort and on worker spawn route for all nine rows.",
+      "evidence": "\"Codex CLI 0.169.0 on this host configures OpenAI `gpt-6.2-sol` with medium effort\" while every row assigns \"Reasoning effort: high\" with \"Harness and route: Codex native\" and \"Native alternative: same model in CLI\" \u2014 the stated CLI route runs medium, and no mechanism is named to raise it. Also \"Each row uses a fresh native worker (`collaboration.spawn_agent`, no inherited transcript, explicit model and effort) if its role is available\" while every row is routed \"Full lead \u2192 Full lead\" or \"Companion runtime \u2192 Full lead\" and \"Companion uses the existing runtime role\" \u2014 no row spawns a fresh worker.",
+      "suggested_fix": "State which mechanism (desktop native worker catalog vs CLI config) delivers high effort on each row's primary route, and either change the rows to name spawn_agent workers or narrow the fresh-worker rule to the rows that actually use it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The pre-dispatch nested-phase gate requires a repair that the plan schedules inside a task that cannot be dispatched until the gate passes.",
+      "evidence": "\"Before dispatch confirm that strict adoption, readiness, evidence admission and closure all resolve this registered child under its parent\" and \"Repair any remaining flat-ID path in the production path before the packet\", while the repair owner is stated as \"The Full lead owns the runtime snapshot lookup in `substrate/kbd-runtime/src/evidence_admission.rs` and dependent closure helpers under LIVE-02\". If the pre-dispatch confirmation fails on a flat-ID path, the fix sits in LIVE-02, which is dispatched after the confirmation.",
+      "suggested_fix": "Move the flat-ID path repair (or a step-0 hotfix slot) ahead of the pre-dispatch confirmation, or state explicitly that the confirmation is re-evaluated after LIVE-02 and that no evidence is admitted through a path that fails it."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "The boundary command invocation does not name a working directory or the second wrapper, and two checkouts are in play.",
+      "evidence": "\"run the 18 argument vectors in `boundaryPacket.commands` in their recorded order. They invoke `bash scripts/verify-kbd-intersession.sh --case <ID>`\" with no cwd stated, while the plan uses both `/Volumes/T7/Projects/prometheus/` and `COMPANION_ROOT=/Volumes/T7/Projects/prometheus/prometheus-companion`; \"Preserve exit codes and per-case observations through both wrappers\" names only one wrapper (the other is implied to be \"the real Companion runner\").",
+      "suggested_fix": "Name both wrappers explicitly and record the working directory and checkout for each of the 18 commands."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "xiaomi-token-plan",
+    "providerId": "xiaomi",
+    "modelId": "mimo-v2.6-pro"
+  }
+}

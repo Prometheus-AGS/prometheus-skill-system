@@ -1,0 +1,32 @@
+{
+  "commandId": "run-PEER-004",
+  "case": "PEER-004",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T11:51:42.840Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator approved checking actual Unix socket connection availability after shutdown, then verifying offline recovery and continuing checks in order. Leave the installer pending."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-004"
+  ],
+  "startedAt": "2026-11-24T11:52:40.478873+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "3266a34145f5593ae160ac07aea35b3ac4ee2da0edbe7045fdabfc23ec9a5e6a",
+  "candidateSha256": "ef85d6406cc56dc87ae0a16b6d6c9e9fa9f467c6f29b042f4f87aff3a35214d4",
+  "observationsSha256": "c0fa8b1bfaaab4a38399912361671079073392eee810d014479bbd07da3baf88",
+  "exitCode": 1,
+  "status": "FAIL",
+  "durationSeconds": 136.108
+}

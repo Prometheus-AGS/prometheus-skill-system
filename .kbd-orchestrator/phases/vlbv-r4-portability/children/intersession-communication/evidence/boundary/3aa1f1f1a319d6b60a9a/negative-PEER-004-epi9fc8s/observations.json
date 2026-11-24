@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-004",
+  "negativeOnly": true,
+  "passed": false,
+  "result": "BLOCKED",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "ae9182e4bff3fb6c64d7e609e71cd52e9f5c3de444da987482c2451df6b6c8d3"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "1dc9f63b7375506b29a88a8197873e4d68d64a5e63deaffce3d276d01ab52eae"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "1f7ea0013f2dc196456d77d63c5674268d00e973a64b6f736ee24f48f10ef708"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "11f823638ebb38f01eab9fd24eb1534b9719fc1195f3ce8a99b9b06457327634",
+    "dirtySourceCount": 51
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "2ed37743f1648317d8e5b343afd55dab47360934d1b92f245b8c0d4a2e8558e0",
+  "baselineCopy": {
+    "senderSha256": "2a7d0650068398237e417d9ec4badea963a5cbde7c4856a7ddf61304a5c1e1d2",
+    "receiverSha256": "2a7d0650068398237e417d9ec4badea963a5cbde7c4856a7ddf61304a5c1e1d2"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:f219e6fda1187b29143d695db3a90bac3210ed22ea3889f2d63a5244ff40667a",
+      "endpointId": "60750b0ff5079ad0387a5ce11730c5bd0f44dc9d803e9adf0bf5601e9f801cc2",
+      "projectId": "c6a9562d-2252-4946-8677-f3909d0a5fa4",
+      "replicaId": "d35d313c-6a25-487d-b062-e2f79023dc0a",
+      "checkout": "/tmp/kbd-peers-7hu_09no/A/project",
+      "authority": "/tmp/kbd-peers-7hu_09no/A/data/prometheus/kbd/projects/c6a9562d-2252-4946-8677-f3909d0a5fa4",
+      "socket": "/tmp/kbd-peers-7hu_09no/A/control.sock",
+      "companionPids": [
+        72659
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:94380a73f43570ef051ee28f45d422b2ac455b5c7474822908a716e24a93aaa2",
+      "endpointId": "cbd4b1f0d56809967c6de7c918cd7116d3e94c92f83eabc27a8fd43184ca95e7",
+      "projectId": "c6a9562d-2252-4946-8677-f3909d0a5fa4",
+      "replicaId": "5acf7544-035e-4ef4-9913-cdbbbc036ce8",
+      "checkout": "/tmp/kbd-peers-7hu_09no/B/project",
+      "authority": "/tmp/kbd-peers-7hu_09no/B/data/prometheus/kbd/projects/c6a9562d-2252-4946-8677-f3909d0a5fa4",
+      "socket": "/tmp/kbd-peers-7hu_09no/B/control.sock",
+      "companionPids": [
+        72660
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "d35d313c-6a25-487d-b062-e2f79023dc0a": 3
+    },
+    "eventHashes": [
+      "2468575ba2861876f6242cafb1833c13109e35ff7f9724b3850666d38eba8ecf",
+      "c87451ca514fc3007207df1db0562021d4c706f24fb93c1e160eaba792e61109",
+      "ec8bc5e52efa647eb897a96612bd22758ac2e238b31c5f657ccb0c67f9181785"
+    ]
+  },
+  "projectionRecovery": {
+    "commandId": "dd14b50608974a34971325a2610d6ef2",
+    "eventHash": "683003a59c0df676cefb7df24ddc1b21581694bbef0d07effc8ac6d028428702",
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "8b3b9dfe-6ffc-4fd3-9c36-87288ede77a6",
+      "canonicalPayloadHash": "79cd81e520b9761412955a590629c63a0a8aa01ccb7201bb09879cfebdfca16f",
+      "domain": "kbd-control:c6a9562d-2252-4946-8677-f3909d0a5fa4",
+      "targets": [
+        "cbd4b1f0d56809967c6de7c918cd7116d3e94c92f83eabc27a8fd43184ca95e7"
+      ],
+      "localState": "broadcast",
+      "perPeer": {
+        "cbd4b1f0d56809967c6de7c918cd7116d3e94c92f83eabc27a8fd43184ca95e7": {
+          "state": "applied",
+          "updatedAtMs": 1795522358507,
+          "acceptedFrameBytes": [
+            3059,
+            20386
+          ],
+          "insertedEvents": 1,
+          "receiverFrontier": {
+            "d35d313c-6a25-487d-b062-e2f79023dc0a": 4
+          },
+          "projectionCurrent": false,
+          "projectionError": "I/O error: Is a directory (os error 21)"
+        }
+      },
+      "createdAtMs": 1795522358425,
+      "updatedAtMs": 1795522358507,
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795522358426,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795522358437,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "applied_at_targets",
+          "timestampMs": 1795522358507,
+          "localState": "broadcast"
+        }
+      ]
+    },
+    "stale": {
+      "matchesRuntime": false,
+      "path": "/private/tmp/kbd-peers-7hu_09no/B/project/.kbd-orchestrator/current-waypoint.json",
+      "revision": null
+    },
+    "refresh": {
+      "sourceRevision": 4,
+      "frontier": {
+        "d35d313c-6a25-487d-b062-e2f79023dc0a": 4
+      },
+      "current": true
+    },
+    "waypoint": {
+      "sha256": "6da2a3768072b5e00e1ac6bb04ca9dd6903c49ca0f80094c69c26e8787d79d86",
+      "sourceRevision": 4,
+      "frontier": {
+        "d35d313c-6a25-487d-b062-e2f79023dc0a": 4
+      }
+    },
+    "auditPreserved": true,
+    "identicalRequestReplayed": true
+  },
+  "oversize": {
+    "result": "NOT_EXERCISED",
+    "reason": "Independent receiver limit-rejection evidence required"
+  },
+  "error": "projection control completed; receiver limit-rejection evidence is outstanding",
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 72659,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 72660,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 53
+}

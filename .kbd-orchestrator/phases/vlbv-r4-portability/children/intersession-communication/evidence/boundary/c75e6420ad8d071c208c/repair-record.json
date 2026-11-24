@@ -1,0 +1,31 @@
+{
+  "boundary": "B5",
+  "scope": "Explicit JSON value type in Companion commit reply decoding.",
+  "cliSource": "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+  "cliSourceSha256": "4658040e23bcd9893cea3336ede2b2802a42622d050e337765ba55d840362801",
+  "preparationAttempts": [
+    {
+      "receipt": "evidence/boundary/c75e6420ad8d071c208c/run-LOCAL-001-a5q7av8p/receipt.json",
+      "logSha256": "65e4912875f15c4df6dff2c1d5f9c38964bb74dfe94a8099a2245c1767b783c4"
+    },
+    {
+      "receipt": "evidence/boundary/c75e6420ad8d071c208c/run-LOCAL-001-mnquth41/receipt.json",
+      "logSha256": "f8944d7e2ee1284eb808ea02cc9b64bbb2ebba1d218fd1f2188133969155ef35"
+    }
+  ],
+  "cacheRecovery": {
+    "method": "Restored immutable Git objects from local repositories and validated restored histories with git fsck --connectivity-only.",
+    "verifiedPin": {
+      "fullReleaseTag": "acd029107533c07a661a7e3ad90eb28834688afa",
+      "cargoCache": "acd029107533c07a661a7e3ad90eb28834688afa"
+    },
+    "restoredRepositoryCaches": [
+      "prometheus-skill-system",
+      "surreal-memory-server",
+      "liter-llm",
+      "prometheus-entity-management",
+      "openai-proxy"
+    ]
+  },
+  "installer": "Deferred by operator"
+}

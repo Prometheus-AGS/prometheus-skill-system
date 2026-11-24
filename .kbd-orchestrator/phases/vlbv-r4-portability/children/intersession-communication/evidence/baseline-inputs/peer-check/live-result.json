@@ -1,0 +1,267 @@
+{
+  "startedUTC": "2026-11-24T08:27:14.941117+00:00",
+  "case": "CPC-011",
+  "projectId": "bbd6c54e-9885-49fc-a95d-4d6a78c443a3",
+  "commandId": "cpc011-live-53019b2dee0244a98c14297faad89c82",
+  "companionSHA256": "125e35d51dd184b10e7db9277ced85fe5a05424b371d893346227bd47ed3e0bd",
+  "installedPackCLISHA256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+  "fullScenarioPassed": false,
+  "nodes": {
+    "A": {
+      "pid": 96144,
+      "dataRoot": "A/data",
+      "controlSocket": "A/companion.sock",
+      "keyId": "ed25519:5fbd8b39e8f5efaa44bb577e0ca8d13800e7d29ad5b098f2d9961ae0080b22f2"
+    },
+    "B": {
+      "pid": 96145,
+      "dataRoot": "B/data",
+      "controlSocket": "B/companion.sock",
+      "keyId": "ed25519:0002d8236a54dfc831abb3d05883d24d6c36186471072f92689580df1dd90c19"
+    }
+  },
+  "registrations": {
+    "A": {
+      "http": 200,
+      "registersExpectedProject": true,
+      "error": null
+    },
+    "B": {
+      "http": 200,
+      "registersExpectedProject": true,
+      "error": null
+    }
+  },
+  "beforeCommand": {
+    "A": {
+      "http": 200,
+      "eventCount": 0,
+      "matched": []
+    },
+    "B": {
+      "http": 200,
+      "eventCount": 0,
+      "matched": []
+    }
+  },
+  "transportSamples": [
+    {
+      "utc": "2026-11-24T08:27:16.497222+00:00",
+      "A": {
+        "healthHTTP": 200,
+        "readyHTTP": 200,
+        "syncHTTP": 200,
+        "peersHTTP": 200,
+        "nodeState": "Initializing",
+        "transport": {
+          "attempt": 0,
+          "lastError": null,
+          "nextRetryMs": null,
+          "nodeId": null,
+          "peers": [],
+          "state": "initializing"
+        },
+        "peers": []
+      },
+      "B": {
+        "healthHTTP": 200,
+        "readyHTTP": 200,
+        "syncHTTP": 200,
+        "peersHTTP": 200,
+        "nodeState": "Initializing",
+        "transport": {
+          "attempt": 0,
+          "lastError": null,
+          "nextRetryMs": null,
+          "nodeId": null,
+          "peers": [],
+          "state": "initializing"
+        },
+        "peers": []
+      }
+    },
+    {
+      "utc": "2026-11-24T08:27:19.018587+00:00",
+      "A": {
+        "healthHTTP": 200,
+        "readyHTTP": 200,
+        "syncHTTP": 200,
+        "peersHTTP": 200,
+        "nodeState": "Initializing",
+        "transport": {
+          "attempt": 0,
+          "lastError": null,
+          "nextRetryMs": null,
+          "nodeId": null,
+          "peers": [],
+          "state": "initializing"
+        },
+        "peers": []
+      },
+      "B": {
+        "healthHTTP": 200,
+        "readyHTTP": 200,
+        "syncHTTP": 200,
+        "peersHTTP": 200,
+        "nodeState": "Initializing",
+        "transport": {
+          "attempt": 0,
+          "lastError": null,
+          "nextRetryMs": null,
+          "nodeId": null,
+          "peers": [],
+          "state": "initializing"
+        },
+        "peers": []
+      }
+    },
+    {
+      "utc": "2026-11-24T08:27:22.029757+00:00",
+      "A": {
+        "healthHTTP": 200,
+        "readyHTTP": 200,
+        "syncHTTP": 200,
+        "peersHTTP": 200,
+        "nodeState": "Initializing",
+        "transport": {
+          "attempt": 0,
+          "lastError": null,
+          "nextRetryMs": null,
+          "nodeId": null,
+          "peers": [],
+          "state": "initializing"
+        },
+        "peers": []
+      },
+      "B": {
+        "healthHTTP": 200,
+        "readyHTTP": 200,
+        "syncHTTP": 200,
+        "peersHTTP": 200,
+        "nodeState": "Initializing",
+        "transport": {
+          "attempt": 0,
+          "lastError": null,
+          "nextRetryMs": null,
+          "nodeId": null,
+          "peers": [],
+          "state": "initializing"
+        },
+        "peers": []
+      }
+    },
+    {
+      "utc": "2026-11-24T08:27:29.041183+00:00",
+      "A": {
+        "healthHTTP": 200,
+        "readyHTTP": 200,
+        "syncHTTP": 200,
+        "peersHTTP": 200,
+        "nodeState": "Initializing",
+        "transport": {
+          "attempt": 0,
+          "lastError": null,
+          "nextRetryMs": null,
+          "nodeId": null,
+          "peers": [],
+          "state": "initializing"
+        },
+        "peers": []
+      },
+      "B": {
+        "healthHTTP": 200,
+        "readyHTTP": 200,
+        "syncHTTP": 200,
+        "peersHTTP": 200,
+        "nodeState": "Initializing",
+        "transport": {
+          "attempt": 0,
+          "lastError": null,
+          "nextRetryMs": null,
+          "nodeId": null,
+          "peers": [],
+          "state": "initializing"
+        },
+        "peers": []
+      }
+    }
+  ],
+  "services": {
+    "A": {
+      "http": 200,
+      "reportedCount": 0,
+      "hostServicesAdopted": false
+    },
+    "B": {
+      "http": 200,
+      "reportedCount": 0,
+      "hostServicesAdopted": false
+    }
+  },
+  "installedCLI": {
+    "exit": 0,
+    "remoteControlEnabled": true,
+    "stderr": "",
+    "remoteRequests": [
+      {
+        "method": "GET",
+        "path": "/api/v1/kbd/projects/bbd6c54e-9885-49fc-a95d-4d6a78c443a3/status",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/kbd/projects/bbd6c54e-9885-49fc-a95d-4d6a78c443a3/commands",
+        "status": 200
+      }
+    ]
+  },
+  "afterCommand": {
+    "A": {
+      "http": 200,
+      "eventCount": 2,
+      "matched": [
+        {
+          "eventId": "4fc792e9-d1a1-47b0-9ee7-29eb1f64d41b",
+          "revision": 2,
+          "integrityHash": "c04a75c7f49e4372f09a55e7cbbeabcc8ad23d6f10c4d3c43174e924c3a2cba3",
+          "signerKeyId": "ed25519:5fbd8b39e8f5efaa44bb577e0ca8d13800e7d29ad5b098f2d9961ae0080b22f2",
+          "commandId": "cpc011-live-53019b2dee0244a98c14297faad89c82",
+          "hasSignature": true
+        }
+      ]
+    },
+    "B": {
+      "http": 200,
+      "eventCount": 0,
+      "matched": []
+    }
+  },
+  "peerBEventStream": {
+    "response": "HTTP/1.1 200 OK",
+    "containsCommandId": false,
+    "observedBytes": 550
+  },
+  "authorityStatus": {
+    "A": {
+      "http": 200,
+      "revision": 2,
+      "frontier": {
+        "df197644-3191-42b1-98c8-0d7f8d7314d3": 2
+      }
+    },
+    "B": {
+      "http": 404,
+      "revision": null,
+      "frontier": null
+    }
+  },
+  "mutualPeerDiscovery": false,
+  "signedEventOnBoth": false,
+  "commandAcceptedOverControlSocket": true,
+  "exitCodes": {
+    "A": 0,
+    "B": 0
+  },
+  "scratchRemoved": true,
+  "finishedUTC": "2026-11-24T08:27:29.582777+00:00"
+}

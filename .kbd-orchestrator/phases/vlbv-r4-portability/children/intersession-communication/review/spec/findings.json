@@ -1,0 +1,29 @@
+{
+  "stage": "spec",
+  "mode": "artifact",
+  "reviewer": "fresh-context artifact critic",
+  "crossModelVerified": false,
+  "reviewRounds": 2,
+  "result": "PASS for specification corrections",
+  "unresolvedCriticalFindings": 0,
+  "dispositions": [
+    "LOCAL-002 requires the original watcher to prove it returned to the restored source.",
+    "PEER-001 requires the candidate itself to reject a validly signed unsupported event and preserve history.",
+    "PEER-002 binds session A and its key to the accepted socket POST, and B and its PID to receiving the event.",
+    "GREEN-001 and GREEN-002 require independent fault controls."
+  ],
+  "reviewedFiles": {
+    ".kbd-orchestrator/changes/change-kis-001-live-sessions/spec.md": "f8e182dd627cc667f2c7515bacb4bc02f3452054c6ef54585b4aa052cdb164b4",
+    ".kbd-orchestrator/changes/change-kis-001-live-sessions/tasks.json": "ba39f087fdd59200a955d4dfb5714f73d8fe07dbeec424619861df85ba8ee73b",
+    ".kbd-orchestrator/changes/change-kis-001-live-sessions/verification.md": "f6cdc641ef74b861b4ccc1a610f469ef22ad504e99dc3a9671975751c895956d",
+    ".kbd-orchestrator/changes/change-kis-002-local-companion/spec.md": "aedb67d609ac1853473ea798bbfaa2cf9724d8e277e6059a65c2603e7ff42197",
+    ".kbd-orchestrator/changes/change-kis-002-local-companion/tasks.json": "d41e2e6a0563a7c5a35326eebbde1b0f4f12aebf237db3dd5627b8afc29fe982",
+    ".kbd-orchestrator/changes/change-kis-002-local-companion/verification.md": "77003376435e8975ec2823edc6942c25a6f11b892d40a34e2e759eeaea12a829",
+    ".kbd-orchestrator/changes/change-kis-003-local-health/spec.md": "576feea3899da186e19ca2a9976df4bed0347123d0e1bfac607998d694ce02d0",
+    ".kbd-orchestrator/changes/change-kis-003-local-health/tasks.json": "05b5b30e65564512ed4f32f1b803b1f6a213d71ef4a4d1437f4d5b5fb621852c",
+    ".kbd-orchestrator/changes/change-kis-003-local-health/verification.md": "4278361a108d4650c1aa815f2746af6d1bda68cdaf4344d113b150415dc72717",
+    ".kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/adopted-contract.json": "a863560b6b0426257ec3be7535d33e6b62ca499883b0a142028b01df6d834e18",
+    ".kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/calibration.json": "f57ef1cd1bbe30132c82aa23ab8824ba00f769a9bcf6d236a46bd1c3993a4bc1"
+  },
+  "releaseTestsRun": false
+}

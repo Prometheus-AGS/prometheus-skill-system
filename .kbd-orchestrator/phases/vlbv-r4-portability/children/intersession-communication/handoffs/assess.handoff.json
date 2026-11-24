@@ -1,0 +1,13 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-11-24T09:17:13Z",
+  "outputs": [
+    "assessment.md",
+    "evidence/local-readback.json",
+    "evidence/explicit-remote-missing.json"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Same-machine status and audit recovered real signed progress without Companion. Align the Companion reader with the supported writer, label silent local fallbacks, and verify addressed replication through the receiver. Physical LAN behavior and disconnected catch-up remain open.",
+  "skipped": false,
+  "skipReason": null
+}

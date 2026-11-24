@@ -1,0 +1,50 @@
+{
+  "changeId": "change-kis-001-live-sessions",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "LIVE-01",
+      "title": "Exchange and resume signed work updates in two active sessions",
+      "done": true,
+      "doneAt": "2026-11-24T10:55:27Z",
+      "doneBy": "claude-code",
+      "files": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+        "scripts/verify-kbd-intersession.sh",
+        "scripts/tests/",
+        "docs/guide/"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case LOCAL-001",
+      "notes": "Acceptance and negative controls are in verification.md. Task model assignment for LIVE-01 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    },
+    {
+      "id": "LIVE-02",
+      "title": "Distinguish read sources, claim conflicts and ambiguous retries",
+      "done": true,
+      "doneAt": "2026-11-24T10:55:49Z",
+      "doneBy": "claude-code",
+      "files": [
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs",
+        "substrate/kbd-runtime/",
+        "scripts/tests/",
+        "docs/guide/"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case LOCAL-002",
+      "notes": "Acceptance and negative controls are in verification.md. Task model assignment for LIVE-02 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    },
+    {
+      "id": "LIVE-03",
+      "title": "Verify same-authority handoff acceptance between running sessions",
+      "done": true,
+      "doneAt": "2026-11-24T10:56:08Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/agent-team-creator/",
+        "skills/process/agent-team-handoff/",
+        "scripts/tests/"
+      ],
+      "verify": "bash scripts/verify-kbd-intersession.sh --case LOCAL-003",
+      "notes": "Acceptance and negative controls are in verification.md. Task model assignment for LIVE-03 is in ../../phases/vlbv-r4-portability/children/intersession-communication/plan.md under Task model assignments."
+    }
+  ]
+}

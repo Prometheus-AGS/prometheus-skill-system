@@ -1,0 +1,32 @@
+{
+  "commandId": "run-GREEN-002",
+  "case": "GREEN-002",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T12:20:10.704Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator directed continuation with the GREEN-002 TAP reporter fix and local distribution and negative checks. The installer remains deferred."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "GREEN-002"
+  ],
+  "startedAt": "2026-11-24T12:20:10.910022+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/scripts/tests/kbd-intersession-health.py",
+  "runnerSha256": "51e9a1cda1122104f82497c856ffed64743493014fe3caafd726c5eb1bafb3f2",
+  "candidateSha256": "a4581478d2c891ce4c8a014fba46dcfa220ef9b1c2f7ce6959d4856826c8f857",
+  "observationsSha256": "11fe5e3795e5cbbd1abd2825ee2cb151d891d46d9ae9c23f223a2d36a569ae4e",
+  "exitCode": 1,
+  "status": "FAIL",
+  "durationSeconds": 22.612
+}

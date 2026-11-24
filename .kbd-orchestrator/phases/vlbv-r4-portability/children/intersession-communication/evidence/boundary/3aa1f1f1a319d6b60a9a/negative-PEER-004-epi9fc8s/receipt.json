@@ -1,0 +1,33 @@
+{
+  "commandId": "negative-PEER-004",
+  "case": "PEER-004",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T12:09:35.424Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Verify PEER-004 addressed recovery with refreshed paired-peer mDNS routes and full push diagnostics; continue other approved local checks and leave installer pending."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-004",
+    "--negative-only"
+  ],
+  "startedAt": "2026-11-24T12:12:34.238727+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "2ed37743f1648317d8e5b343afd55dab47360934d1b92f245b8c0d4a2e8558e0",
+  "candidateSha256": "e316da795446e85729a6cb0262f97aaf8f3199a02ac33300df367edcb3243787",
+  "observationsSha256": "2f473a3a01754d41eab5cf83ed0e51856589f7bc34e3355b63fce0c3a55a2f25",
+  "exitCode": 2,
+  "status": "BLOCKED",
+  "durationSeconds": 4.581
+}

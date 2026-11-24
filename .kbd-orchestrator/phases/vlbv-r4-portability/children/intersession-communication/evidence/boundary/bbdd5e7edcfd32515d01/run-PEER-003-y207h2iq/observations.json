@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-003",
+  "negativeOnly": false,
+  "passed": false,
+  "result": "FAIL",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "5fd7d446bc78ab1c7e42010b620ac4791c8a5a3479481f462119a22ac0c35efc"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "40784eeebb99b23401b4b4c3831bbe6f33fbeb9651ea9a1ff6f0b6c35613d5bc"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "807631f2ad7d48f971155542ddba788d139565c388ca57441a263abd0df7b1cf"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "550a07b9ced5ce34863029435f92658ccbf5aa1c31ae6284057a5538fcdf9825",
+    "dirtySourceCount": 51
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "6c88289271d873ad8ed5055e5a0db763262635e057715941e13c4d42b4312e8b",
+  "baselineCopy": {
+    "senderSha256": "1dbbc950320726d3949b7f74d9a8adad6b31f6b0900b0fc6141edc791279aa4e",
+    "receiverSha256": "1dbbc950320726d3949b7f74d9a8adad6b31f6b0900b0fc6141edc791279aa4e"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:88178a6dfd6da177d0cc62862924f26a587d913bbc965a9abf1febbb17c6abeb",
+      "endpointId": "24bb3cfb4bc4b6b672ed1dad72f75e0d703ebb6e446882ca0304a2c349fc329a",
+      "projectId": "dd8f3951-9335-4fe9-b484-451f248f1889",
+      "replicaId": "c30128b9-1406-4441-b408-5d1f1d917828",
+      "checkout": "/tmp/kbd-peers-vigmlkl0/A/project",
+      "authority": "/tmp/kbd-peers-vigmlkl0/A/data/prometheus/kbd/projects/dd8f3951-9335-4fe9-b484-451f248f1889",
+      "socket": "/tmp/kbd-peers-vigmlkl0/A/control.sock",
+      "companionPids": [
+        95463
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:e01608f115d3e76a5b4721ed175a1fd87f03f3f34e93cbdf5472fb3a1b39e8cc",
+      "endpointId": "86b1d8cff01fac0d312c915a7cd43a031185e569a2f13aaea8b00c2e75d625e9",
+      "projectId": "dd8f3951-9335-4fe9-b484-451f248f1889",
+      "replicaId": "acee32cb-f2b3-42fc-8fc8-0b4588f596e9",
+      "checkout": "/tmp/kbd-peers-vigmlkl0/B/project",
+      "authority": "/tmp/kbd-peers-vigmlkl0/B/data/prometheus/kbd/projects/dd8f3951-9335-4fe9-b484-451f248f1889",
+      "socket": "/tmp/kbd-peers-vigmlkl0/B/control.sock",
+      "companionPids": [
+        95464
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "c30128b9-1406-4441-b408-5d1f1d917828": 3
+    },
+    "eventHashes": [
+      "b92651f969efe5372f7b46e4db886722c595bd993464acd6d5d37941e3ec7eb3",
+      "fbbc1b1212da33e93dc1c49a5df5e788472b7a51a450caf1a3e2de009b5a74a3",
+      "22f4d4fcb26787e66938d4785d19ef270a784c36e94114ce0b69990c63505efc"
+    ]
+  },
+  "session": {
+    "sessionId": "3dc5fa111c2f4318bb0c9463a8720f6f",
+    "ready": true,
+    "pid": 95478,
+    "atNs": 5335647839125,
+    "checkout": "/tmp/kbd-peers-vigmlkl0/A/project",
+    "authority": "/tmp/kbd-peers-vigmlkl0/A/data/prometheus/kbd/projects/dd8f3951-9335-4fe9-b484-451f248f1889"
+  },
+  "error": "A was not actually unavailable",
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 95463,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 95464,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "A-sender-session",
+        "pid": 95478,
+        "exit": -15,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 28
+}

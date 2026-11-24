@@ -1,0 +1,1939 @@
+{
+  "schemaVersion": "1",
+  "case": "LOCAL-002",
+  "negativeOnly": false,
+  "timeoutSeconds": 30,
+  "started": {
+    "utc": "2026-11-24T14:20:26.848290+00:00",
+    "monotonicNs": 14401691618208
+  },
+  "passed": true,
+  "result": "PASS",
+  "assertions": [
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync ['--mode', 'init']",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /usr/bin/git ['-c', 'core.hooksPath=/dev/null', '-c']",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /usr/bin/git ['-c', 'core.hooksPath=/dev/null', '-c']",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /usr/bin/git ['-c', 'core.hooksPath=/dev/null', '-c']",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "registered checkout maps to the declared UUID",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /usr/bin/git ['-c', 'core.hooksPath=/dev/null', '-c']",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "independent signed audit has one effect for 5c650004-3ce1-4922-a992-a9c69500d358",
+      "passed": true
+    },
+    {
+      "description": "persistent session reports its child PID and unique session label",
+      "passed": true
+    },
+    {
+      "description": "persistent session reports its child PID and unique session label",
+      "passed": true
+    },
+    {
+      "description": "headless control socket is absent before daemon startup",
+      "passed": true
+    },
+    {
+      "description": "actual Companion serves the registered authority",
+      "passed": true
+    },
+    {
+      "description": "watcher starts with an exact Companion baseline",
+      "passed": true
+    },
+    {
+      "description": "both fixture control sockets are absent during fallback",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "optional status identifies local fallback in state JSON and stderr",
+      "passed": true
+    },
+    {
+      "description": "optional audit keeps an unwrapped event array and labels the fallback",
+      "passed": true
+    },
+    {
+      "description": "status fails closed for connect to control socket",
+      "passed": true
+    },
+    {
+      "description": "audit fails closed for connect to control socket",
+      "passed": true
+    },
+    {
+      "description": "watch fails closed for connect to control socket",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "ordinary local mode stays distinguishable from explicit Companion fallback",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "connection refusal before dispatch makes a clearly identified local commit",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "headless control socket is absent before daemon startup",
+      "passed": true
+    },
+    {
+      "description": "actual Companion serves the registered authority",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "post-commit transport loss yields a distinct audit-confirmed receipt",
+      "passed": true
+    },
+    {
+      "description": "fault control dropped one successful real POST response after the backend commit",
+      "passed": true
+    },
+    {
+      "description": "watcher PID 89876 read the exact signed event from Companion socket",
+      "passed": true
+    },
+    {
+      "description": "same endpoint accepted a signed command from the fixture writer",
+      "passed": true
+    },
+    {
+      "description": "socket and watcher observations occurred after command dispatch in this case",
+      "passed": true
+    },
+    {
+      "description": "fresh restored Companion response came from the same original watcher PID",
+      "passed": true
+    },
+    {
+      "description": "restored watcher kept ordered catch-up and no duplicate effect at its cursor",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "independent signed audit has one effect for cf9fde01-25f7-4e31-9dc5-743a30670cde",
+      "passed": true
+    },
+    {
+      "description": "same logical command replays without another signed effect",
+      "passed": true
+    },
+    {
+      "description": "claim session armed before release",
+      "passed": true
+    },
+    {
+      "description": "claim session armed before release",
+      "passed": true
+    },
+    {
+      "description": "both claim processes were live concurrently after the release barrier",
+      "passed": true
+    },
+    {
+      "description": "concurrent independent claim clients report a single success",
+      "passed": true
+    },
+    {
+      "description": "losing client reports an explicit claim or frontier conflict",
+      "passed": true
+    },
+    {
+      "description": "actual headless socket returns the signed audit media type",
+      "passed": true
+    },
+    {
+      "description": "Companion audit confirms only the winning claim command",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "each session agrees on the exclusive canonical owner",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "each session agrees on the exclusive canonical owner",
+      "passed": true
+    },
+    {
+      "description": "expected exit 0 for /Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus ['kbd', '--path', '/tmp/kbd-live-9s28h8vb/project']",
+      "passed": true
+    },
+    {
+      "description": "actual headless socket returns the signed audit media type",
+      "passed": true
+    },
+    {
+      "description": "replaying the winning claim keeps one signed effect",
+      "passed": true
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+        "--mode",
+        "init"
+      ],
+      "pid": 89793,
+      "started": {
+        "utc": "2026-11-24T14:20:26.971549+00:00",
+        "monotonicNs": 14401814669958
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:26.999933+00:00",
+        "monotonicNs": 14401843081666
+      },
+      "exitCode": 0,
+      "stdout": "{\"deviceKeyFile\":\"/tmp/kbd-live-9s28h8vb/config/device-key.json\",\"keyId\":\"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\"}\n{\"endpointId\":\"4d27faead7cd39f9c134c45f79a924ca47e13ef5f26fd937c7c32baa0135e51d\",\"p2pIdentityFile\":\"/tmp/kbd-live-9s28h8vb/config/p2p.json\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "-c",
+        "user.name=KBD fixture",
+        "-c",
+        "user.email=kbd-fixture@example.invalid",
+        "init",
+        "--initial-branch=fixture"
+      ],
+      "pid": 89797,
+      "started": {
+        "utc": "2026-11-24T14:20:27.000397+00:00",
+        "monotonicNs": 14401843511416
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:27.134594+00:00",
+        "monotonicNs": 14401977733666
+      },
+      "exitCode": 0,
+      "stdout": "Initialized empty Git repository in /private/tmp/kbd-live-9s28h8vb/project/.git/\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "-c",
+        "user.name=KBD fixture",
+        "-c",
+        "user.email=kbd-fixture@example.invalid",
+        "add",
+        "--",
+        "."
+      ],
+      "pid": 89803,
+      "started": {
+        "utc": "2026-11-24T14:20:27.134902+00:00",
+        "monotonicNs": 14401978017291
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:27.160095+00:00",
+        "monotonicNs": 14402003245583
+      },
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "-c",
+        "user.name=KBD fixture",
+        "-c",
+        "user.email=kbd-fixture@example.invalid",
+        "commit",
+        "-m",
+        "fixture baseline"
+      ],
+      "pid": 89805,
+      "started": {
+        "utc": "2026-11-24T14:20:27.160190+00:00",
+        "monotonicNs": 14402003302708
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:27.194635+00:00",
+        "monotonicNs": 14402037768833
+      },
+      "exitCode": 0,
+      "stdout": "[fixture (root-commit) c1c86c9] fixture baseline\n 1 file changed, 1 insertion(+)\n create mode 100644 .prometheus/project.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "register",
+        "/tmp/kbd-live-9s28h8vb/project"
+      ],
+      "pid": 89809,
+      "started": {
+        "utc": "2026-11-24T14:20:27.194868+00:00",
+        "monotonicNs": 14402037979708
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:27.351482+00:00",
+        "monotonicNs": 14402194626791
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"path\": \"/private/tmp/kbd-live-9s28h8vb/project\",\n  \"registration\": {\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"machineId\": \"11786b50-d57b-4471-9047-62cba86cf335\",\n    \"kind\": \"standalone\",\n    \"parent\": null,\n    \"head\": \"c1c86c97bf40a2a6035094f3c956a6028b648266\",\n    \"origin\": null,\n    \"readOnly\": false,\n    \"registeredAt\": \"2026-11-24T14:20:27.339555Z\",\n    \"updatedAt\": \"2026-11-24T14:20:27.339555Z\"\n  },\n  \"created\": true,\n  \"duplicateCandidates\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "-c",
+        "user.name=KBD fixture",
+        "-c",
+        "user.email=kbd-fixture@example.invalid",
+        "rev-parse",
+        "HEAD"
+      ],
+      "pid": 89827,
+      "started": {
+        "utc": "2026-11-24T14:20:27.351667+00:00",
+        "monotonicNs": 14402194777833
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:27.369910+00:00",
+        "monotonicNs": 14402213048791
+      },
+      "exitCode": 0,
+      "stdout": "c1c86c97bf40a2a6035094f3c956a6028b648266\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "blocker",
+        "record",
+        "--command-id",
+        "5c650004-3ce1-4922-a992-a9c69500d358",
+        "--id",
+        "1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3",
+        "--summary",
+        "Review is blocking release"
+      ],
+      "pid": 89829,
+      "started": {
+        "utc": "2026-11-24T14:20:27.370034+00:00",
+        "monotonicNs": 14402213143833
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:27.727864+00:00",
+        "monotonicNs": 14402570999500
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"commandId\": \"5c650004-3ce1-4922-a992-a9c69500d358\",\n  \"committedRevision\": 2,\n  \"duplicate\": false,\n  \"state\": {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"revision\": 2,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 2\n    },\n    \"replicaHeads\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": {\n        \"eventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n        \"integrityHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n        \"lamport\": 2\n      }\n    },\n    \"lastEventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n    \"lastEventHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n    \"lastEventAt\": \"2026-11-24T14:20:27.640079Z\",\n    \"lifecycle\": \"ready\",\n    \"planRevision\": 1,\n    \"checkpoint\": null,\n    \"exactNextWork\": null,\n    \"activePath\": {\n      \"phasePath\": [],\n      \"phaseId\": null,\n      \"stageId\": null,\n      \"changeId\": null,\n      \"taskId\": null\n    },\n    \"phases\": {},\n    \"completion\": {\n      \"implementation\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"evidence\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"certification\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"publication\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      }\n    },\n    \"decisions\": {},\n    \"blockers\": {\n      \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\": {\n        \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n        \"summary\": \"Review is blocking release\",\n        \"resolved\": false,\n        \"resolution\": null\n      }\n    },\n    \"claims\": {},\n    \"submodulePins\": {},\n    \"replicaView\": {\n      \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n      \"localHead\": \"c1c86c97bf40a2a6035094f3c956a6028b648266\",\n      \"activePathStatus\": \"unknown\",\n      \"submodules\": {}\n    },\n    \"conflicts\": {},\n    \"devices\": {\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\": {\n        \"deviceId\": \"unknown-device\",\n        \"keyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n        \"publicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n        \"status\": \"active\",\n        \"enrolledAtRevision\": 1,\n        \"revokedAtRevision\": null\n      }\n    },\n    \"operatorKeyIds\": [\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\"\n    ],\n    \"commandRevisions\": {\n      \"406b29cb-b792-45bc-8d66-eb9d604a1852\": 1,\n      \"5c650004-3ce1-4922-a992-a9c69500d358\": 2\n    }\n  },\n  \"committedLocally\": true,\n  \"controlPlane\": \"disabled\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "audit",
+        "--json"
+      ],
+      "pid": 89870,
+      "started": {
+        "utc": "2026-11-24T14:20:27.727964+00:00",
+        "monotonicNs": 14402571071083
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:27.740274+00:00",
+        "monotonicNs": 14402583409125
+      },
+      "exitCode": 0,
+      "stdout": "[\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"1162b307-5a7c-4595-9202-7f8fe1566431\",\n    \"commandId\": \"406b29cb-b792-45bc-8d66-eb9d604a1852\",\n    \"revision\": 1,\n    \"expectedRevision\": 0,\n    \"lamport\": 1,\n    \"causalParent\": null,\n    \"actor\": {\n      \"kind\": \"operator\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"cli\",\n      \"session\": \"unknown\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:27.563275Z\",\n    \"kind\": {\n      \"type\": \"run_initialized\",\n      \"payload\": {\n        \"initial_state\": \"ready\",\n        \"exact_next_work\": null,\n        \"plan_revision\": 1\n      }\n    },\n    \"previousHash\": null,\n    \"integrityHash\": \"7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==\"\n  },\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n    \"commandId\": \"5c650004-3ce1-4922-a992-a9c69500d358\",\n    \"revision\": 2,\n    \"expectedRevision\": 1,\n    \"lamport\": 2,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 1\n    },\n    \"causalParent\": \"1162b307-5a7c-4595-9202-7f8fe1566431\",\n    \"actor\": {\n      \"kind\": \"harness\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"cli\",\n      \"session\": \"unknown\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:27.640079Z\",\n    \"kind\": {\n      \"type\": \"blocker_recorded\",\n      \"payload\": {\n        \"blocker\": {\n          \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n          \"summary\": \"Review is blocking release\",\n          \"resolved\": false,\n          \"resolution\": null\n        }\n      }\n    },\n    \"previousHash\": \"7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932\",\n    \"integrityHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==\"\n  }\n]\n",
+      "stderr": "KBD source: local\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "status",
+        "--json"
+      ],
+      "pid": 89878,
+      "started": {
+        "utc": "2026-11-24T14:20:29.059283+00:00",
+        "monotonicNs": 14403902378875
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:29.094033+00:00",
+        "monotonicNs": 14403937159791
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"schemaVersion\": \"2\",\n  \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n  \"runId\": \"project-20261124T142027Z\",\n  \"revision\": 2,\n  \"frontier\": {\n    \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 2\n  },\n  \"replicaHeads\": {\n    \"ebc9d73a-815d-4369-8ed5-262400a2555e\": {\n      \"eventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n      \"integrityHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n      \"lamport\": 2\n    }\n  },\n  \"lastEventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n  \"lastEventHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n  \"lastEventAt\": \"2026-11-24T14:20:27.640079Z\",\n  \"lifecycle\": \"ready\",\n  \"planRevision\": 1,\n  \"checkpoint\": null,\n  \"exactNextWork\": null,\n  \"activePath\": {\n    \"phasePath\": [],\n    \"phaseId\": null,\n    \"stageId\": null,\n    \"changeId\": null,\n    \"taskId\": null\n  },\n  \"phases\": {},\n  \"completion\": {\n    \"implementation\": {\n      \"completed\": 0,\n      \"total\": 0,\n      \"status\": \"pending\",\n      \"summary\": null,\n      \"blockers\": []\n    },\n    \"evidence\": {\n      \"completed\": 0,\n      \"total\": 0,\n      \"status\": \"pending\",\n      \"summary\": null,\n      \"blockers\": []\n    },\n    \"certification\": {\n      \"completed\": 0,\n      \"total\": 0,\n      \"status\": \"pending\",\n      \"summary\": null,\n      \"blockers\": []\n    },\n    \"publication\": {\n      \"completed\": 0,\n      \"total\": 0,\n      \"status\": \"pending\",\n      \"summary\": null,\n      \"blockers\": []\n    }\n  },\n  \"decisions\": {},\n  \"blockers\": {\n    \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\": {\n      \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n      \"summary\": \"Review is blocking release\",\n      \"resolved\": false,\n      \"resolution\": null\n    }\n  },\n  \"claims\": {},\n  \"submodulePins\": {},\n  \"replicaView\": {\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"localHead\": \"c1c86c97bf40a2a6035094f3c956a6028b648266\",\n    \"activePathStatus\": \"unknown\",\n    \"submodules\": {}\n  },\n  \"conflicts\": {},\n  \"devices\": {\n    \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\": {\n      \"deviceId\": \"unknown-device\",\n      \"keyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n      \"publicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n      \"status\": \"active\",\n      \"enrolledAtRevision\": 1,\n      \"revokedAtRevision\": null\n    }\n  },\n  \"operatorKeyIds\": [\n    \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\"\n  ],\n  \"commandRevisions\": {\n    \"406b29cb-b792-45bc-8d66-eb9d604a1852\": 1,\n    \"5c650004-3ce1-4922-a992-a9c69500d358\": 2\n  },\n  \"readSource\": \"local-fallback\"\n}\n",
+      "stderr": "KBD source: local-fallback\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "audit",
+        "--json"
+      ],
+      "pid": 89881,
+      "started": {
+        "utc": "2026-11-24T14:20:29.094130+00:00",
+        "monotonicNs": 14403937226500
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:29.106462+00:00",
+        "monotonicNs": 14403949589875
+      },
+      "exitCode": 0,
+      "stdout": "[\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"1162b307-5a7c-4595-9202-7f8fe1566431\",\n    \"commandId\": \"406b29cb-b792-45bc-8d66-eb9d604a1852\",\n    \"revision\": 1,\n    \"expectedRevision\": 0,\n    \"lamport\": 1,\n    \"causalParent\": null,\n    \"actor\": {\n      \"kind\": \"operator\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"cli\",\n      \"session\": \"unknown\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:27.563275Z\",\n    \"kind\": {\n      \"type\": \"run_initialized\",\n      \"payload\": {\n        \"initial_state\": \"ready\",\n        \"exact_next_work\": null,\n        \"plan_revision\": 1\n      }\n    },\n    \"previousHash\": null,\n    \"integrityHash\": \"7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==\"\n  },\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n    \"commandId\": \"5c650004-3ce1-4922-a992-a9c69500d358\",\n    \"revision\": 2,\n    \"expectedRevision\": 1,\n    \"lamport\": 2,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 1\n    },\n    \"causalParent\": \"1162b307-5a7c-4595-9202-7f8fe1566431\",\n    \"actor\": {\n      \"kind\": \"harness\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"cli\",\n      \"session\": \"unknown\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:27.640079Z\",\n    \"kind\": {\n      \"type\": \"blocker_recorded\",\n      \"payload\": {\n        \"blocker\": {\n          \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n          \"summary\": \"Review is blocking release\",\n          \"resolved\": false,\n          \"resolution\": null\n        }\n      }\n    },\n    \"previousHash\": \"7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932\",\n    \"integrityHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==\"\n  }\n]\n",
+      "stderr": "KBD source: local-fallback\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "status",
+        "--json",
+        "--receiver-only"
+      ],
+      "pid": 89882,
+      "started": {
+        "utc": "2026-11-24T14:20:29.106630+00:00",
+        "monotonicNs": 14403949725875
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:29.117709+00:00",
+        "monotonicNs": 14403960843083
+      },
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Error: connect to control socket /tmp/kbd-live-9s28h8vb/p/control.sock\n\nCaused by:\n    No such file or directory (os error 2)\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "audit",
+        "--json",
+        "--receiver-only"
+      ],
+      "pid": 89883,
+      "started": {
+        "utc": "2026-11-24T14:20:29.117814+00:00",
+        "monotonicNs": 14403960909833
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:29.127963+00:00",
+        "monotonicNs": 14403971079125
+      },
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Error: connect to control socket /tmp/kbd-live-9s28h8vb/p/control.sock\n\nCaused by:\n    No such file or directory (os error 2)\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "watch",
+        "--receiver-only"
+      ],
+      "pid": 89884,
+      "started": {
+        "utc": "2026-11-24T14:20:29.128040+00:00",
+        "monotonicNs": 14403971135416
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:29.137470+00:00",
+        "monotonicNs": 14403980585708
+      },
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Error: connect to control socket /tmp/kbd-live-9s28h8vb/p/control.sock\n\nCaused by:\n    No such file or directory (os error 2)\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "status",
+        "--json"
+      ],
+      "pid": 89885,
+      "started": {
+        "utc": "2026-11-24T14:20:29.137538+00:00",
+        "monotonicNs": 14403980633375
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:29.168538+00:00",
+        "monotonicNs": 14404011669375
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"schemaVersion\": \"2\",\n  \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n  \"runId\": \"project-20261124T142027Z\",\n  \"revision\": 2,\n  \"frontier\": {\n    \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 2\n  },\n  \"replicaHeads\": {\n    \"ebc9d73a-815d-4369-8ed5-262400a2555e\": {\n      \"eventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n      \"integrityHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n      \"lamport\": 2\n    }\n  },\n  \"lastEventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n  \"lastEventHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n  \"lastEventAt\": \"2026-11-24T14:20:27.640079Z\",\n  \"lifecycle\": \"ready\",\n  \"planRevision\": 1,\n  \"checkpoint\": null,\n  \"exactNextWork\": null,\n  \"activePath\": {\n    \"phasePath\": [],\n    \"phaseId\": null,\n    \"stageId\": null,\n    \"changeId\": null,\n    \"taskId\": null\n  },\n  \"phases\": {},\n  \"completion\": {\n    \"implementation\": {\n      \"completed\": 0,\n      \"total\": 0,\n      \"status\": \"pending\",\n      \"summary\": null,\n      \"blockers\": []\n    },\n    \"evidence\": {\n      \"completed\": 0,\n      \"total\": 0,\n      \"status\": \"pending\",\n      \"summary\": null,\n      \"blockers\": []\n    },\n    \"certification\": {\n      \"completed\": 0,\n      \"total\": 0,\n      \"status\": \"pending\",\n      \"summary\": null,\n      \"blockers\": []\n    },\n    \"publication\": {\n      \"completed\": 0,\n      \"total\": 0,\n      \"status\": \"pending\",\n      \"summary\": null,\n      \"blockers\": []\n    }\n  },\n  \"decisions\": {},\n  \"blockers\": {\n    \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\": {\n      \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n      \"summary\": \"Review is blocking release\",\n      \"resolved\": false,\n      \"resolution\": null\n    }\n  },\n  \"claims\": {},\n  \"submodulePins\": {},\n  \"replicaView\": {\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"localHead\": \"c1c86c97bf40a2a6035094f3c956a6028b648266\",\n    \"activePathStatus\": \"unknown\",\n    \"submodules\": {}\n  },\n  \"conflicts\": {},\n  \"devices\": {\n    \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\": {\n      \"deviceId\": \"unknown-device\",\n      \"keyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n      \"publicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n      \"status\": \"active\",\n      \"enrolledAtRevision\": 1,\n      \"revokedAtRevision\": null\n    }\n  },\n  \"operatorKeyIds\": [\n    \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\"\n  ],\n  \"commandRevisions\": {\n    \"406b29cb-b792-45bc-8d66-eb9d604a1852\": 1,\n    \"5c650004-3ce1-4922-a992-a9c69500d358\": 2\n  },\n  \"readSource\": \"local\"\n}\n",
+      "stderr": "KBD source: local\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "blocker",
+        "record",
+        "--command-id",
+        "46c3b477-719b-4007-b414-de2ff2ba97c4",
+        "--id",
+        "23350966-d8f5-4f10-820b-ba61fda03079",
+        "--summary",
+        "Review is blocking release"
+      ],
+      "pid": 89889,
+      "started": {
+        "utc": "2026-11-24T14:20:29.168936+00:00",
+        "monotonicNs": 14404012043125
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:29.432667+00:00",
+        "monotonicNs": 14404275804125
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"commandId\": \"46c3b477-719b-4007-b414-de2ff2ba97c4\",\n  \"committedRevision\": 3,\n  \"duplicate\": false,\n  \"state\": {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"revision\": 3,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 3\n    },\n    \"replicaHeads\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": {\n        \"eventId\": \"fa05d06e-90cb-4868-89fd-a6575b730e10\",\n        \"integrityHash\": \"bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c\",\n        \"lamport\": 3\n      }\n    },\n    \"lastEventId\": \"fa05d06e-90cb-4868-89fd-a6575b730e10\",\n    \"lastEventHash\": \"bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c\",\n    \"lastEventAt\": \"2026-11-24T14:20:29.335781Z\",\n    \"lifecycle\": \"ready\",\n    \"planRevision\": 1,\n    \"checkpoint\": null,\n    \"exactNextWork\": null,\n    \"activePath\": {\n      \"phasePath\": [],\n      \"phaseId\": null,\n      \"stageId\": null,\n      \"changeId\": null,\n      \"taskId\": null\n    },\n    \"phases\": {},\n    \"completion\": {\n      \"implementation\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"evidence\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"certification\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"publication\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      }\n    },\n    \"decisions\": {},\n    \"blockers\": {\n      \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\": {\n        \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n        \"summary\": \"Review is blocking release\",\n        \"resolved\": false,\n        \"resolution\": null\n      },\n      \"23350966-d8f5-4f10-820b-ba61fda03079\": {\n        \"id\": \"23350966-d8f5-4f10-820b-ba61fda03079\",\n        \"summary\": \"Review is blocking release\",\n        \"resolved\": false,\n        \"resolution\": null\n      }\n    },\n    \"claims\": {},\n    \"submodulePins\": {},\n    \"replicaView\": {\n      \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n      \"localHead\": \"c1c86c97bf40a2a6035094f3c956a6028b648266\",\n      \"activePathStatus\": \"unknown\",\n      \"submodules\": {}\n    },\n    \"conflicts\": {},\n    \"devices\": {\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\": {\n        \"deviceId\": \"unknown-device\",\n        \"keyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n        \"publicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n        \"status\": \"active\",\n        \"enrolledAtRevision\": 1,\n        \"revokedAtRevision\": null\n      }\n    },\n    \"operatorKeyIds\": [\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\"\n    ],\n    \"commandRevisions\": {\n      \"406b29cb-b792-45bc-8d66-eb9d604a1852\": 1,\n      \"46c3b477-719b-4007-b414-de2ff2ba97c4\": 3,\n      \"5c650004-3ce1-4922-a992-a9c69500d358\": 2\n    }\n  },\n  \"committedLocally\": true,\n  \"remoteStatusUnknown\": false\n}\n",
+      "stderr": "control plane unreachable before dispatch (connect to control socket /tmp/kbd-live-9s28h8vb/p/control.sock); committing command 46c3b477-719b-4007-b414-de2ff2ba97c4 locally\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "blocker",
+        "clear",
+        "--command-id",
+        "87356726-cc85-401a-8922-91d413374b25",
+        "--id",
+        "23350966-d8f5-4f10-820b-ba61fda03079",
+        "--resolution",
+        "Reviewed and ready"
+      ],
+      "pid": 89909,
+      "started": {
+        "utc": "2026-11-24T14:20:30.027121+00:00",
+        "monotonicNs": 14404870223166
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:30.308138+00:00",
+        "monotonicNs": 14405151264333
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"commandId\": \"87356726-cc85-401a-8922-91d413374b25\",\n  \"committedRevision\": 4,\n  \"duplicate\": false,\n  \"state\": {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"revision\": 4,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 4\n    },\n    \"replicaHeads\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": {\n        \"eventId\": \"619f4b16-d3cd-451a-9b5d-35e09a46062b\",\n        \"integrityHash\": \"4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692\",\n        \"lamport\": 4\n      }\n    },\n    \"lastEventId\": \"619f4b16-d3cd-451a-9b5d-35e09a46062b\",\n    \"lastEventHash\": \"4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692\",\n    \"lastEventAt\": \"2026-11-24T14:20:30.203389Z\",\n    \"lifecycle\": \"ready\",\n    \"planRevision\": 1,\n    \"checkpoint\": null,\n    \"exactNextWork\": null,\n    \"activePath\": {\n      \"phasePath\": [],\n      \"phaseId\": null,\n      \"stageId\": null,\n      \"changeId\": null,\n      \"taskId\": null\n    },\n    \"phases\": {},\n    \"completion\": {\n      \"implementation\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"evidence\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"certification\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"publication\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      }\n    },\n    \"decisions\": {},\n    \"blockers\": {\n      \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\": {\n        \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n        \"summary\": \"Review is blocking release\",\n        \"resolved\": false,\n        \"resolution\": null\n      },\n      \"23350966-d8f5-4f10-820b-ba61fda03079\": {\n        \"id\": \"23350966-d8f5-4f10-820b-ba61fda03079\",\n        \"summary\": \"Review is blocking release\",\n        \"resolved\": true,\n        \"resolution\": \"Reviewed and ready\"\n      }\n    },\n    \"claims\": {},\n    \"submodulePins\": {},\n    \"replicaView\": {\n      \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n      \"localHead\": \"c1c86c97bf40a2a6035094f3c956a6028b648266\",\n      \"activePathStatus\": \"unknown\",\n      \"submodules\": {}\n    },\n    \"conflicts\": {},\n    \"devices\": {\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\": {\n        \"deviceId\": \"unknown-device\",\n        \"keyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n        \"publicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n        \"status\": \"active\",\n        \"enrolledAtRevision\": 1,\n        \"revokedAtRevision\": null\n      }\n    },\n    \"operatorKeyIds\": [\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\"\n    ],\n    \"commandRevisions\": {\n      \"406b29cb-b792-45bc-8d66-eb9d604a1852\": 1,\n      \"46c3b477-719b-4007-b414-de2ff2ba97c4\": 3,\n      \"5c650004-3ce1-4922-a992-a9c69500d358\": 2,\n      \"87356726-cc85-401a-8922-91d413374b25\": 4\n    }\n  },\n  \"committedLocally\": true,\n  \"remoteStatusUnknown\": false\n}\n",
+      "stderr": "control plane unreachable before dispatch (connect to control socket /tmp/kbd-live-9s28h8vb/p/control.sock); committing command 87356726-cc85-401a-8922-91d413374b25 locally\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "blocker",
+        "record",
+        "--command-id",
+        "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+        "--id",
+        "70beeada-20c4-4df4-94a6-2baece1ba09e",
+        "--summary",
+        "Review is blocking release"
+      ],
+      "pid": 89947,
+      "started": {
+        "utc": "2026-11-24T14:20:32.100331+00:00",
+        "monotonicNs": 14406943424833
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:32.388421+00:00",
+        "monotonicNs": 14407231526541
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"commandId\": \"cf9fde01-25f7-4e31-9dc5-743a30670cde\",\n  \"committedRevision\": 5,\n  \"duplicate\": true,\n  \"state\": {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"revision\": 5,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 5\n    },\n    \"replicaHeads\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": {\n        \"eventId\": \"da6f93c1-22be-4542-aa8b-5bfabbda2142\",\n        \"integrityHash\": \"092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3\",\n        \"lamport\": 5\n      }\n    },\n    \"lastEventId\": \"da6f93c1-22be-4542-aa8b-5bfabbda2142\",\n    \"lastEventHash\": \"092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3\",\n    \"lastEventAt\": \"2026-11-24T14:20:32.288673Z\",\n    \"lifecycle\": \"ready\",\n    \"planRevision\": 1,\n    \"checkpoint\": null,\n    \"exactNextWork\": null,\n    \"activePath\": {\n      \"phasePath\": [],\n      \"phaseId\": null,\n      \"stageId\": null,\n      \"changeId\": null,\n      \"taskId\": null\n    },\n    \"phases\": {},\n    \"completion\": {\n      \"implementation\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"evidence\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"certification\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      },\n      \"publication\": {\n        \"completed\": 0,\n        \"total\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"blockers\": []\n      }\n    },\n    \"decisions\": {},\n    \"blockers\": {\n      \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\": {\n        \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n        \"summary\": \"Review is blocking release\",\n        \"resolved\": false,\n        \"resolution\": null\n      },\n      \"23350966-d8f5-4f10-820b-ba61fda03079\": {\n        \"id\": \"23350966-d8f5-4f10-820b-ba61fda03079\",\n        \"summary\": \"Review is blocking release\",\n        \"resolved\": true,\n        \"resolution\": \"Reviewed and ready\"\n      },\n      \"70beeada-20c4-4df4-94a6-2baece1ba09e\": {\n        \"id\": \"70beeada-20c4-4df4-94a6-2baece1ba09e\",\n        \"summary\": \"Review is blocking release\",\n        \"resolved\": false,\n        \"resolution\": null\n      }\n    },\n    \"claims\": {},\n    \"submodulePins\": {},\n    \"conflicts\": {},\n    \"devices\": {\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\": {\n        \"deviceId\": \"unknown-device\",\n        \"keyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n        \"publicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n        \"status\": \"active\",\n        \"enrolledAtRevision\": 1,\n        \"revokedAtRevision\": null\n      }\n    },\n    \"operatorKeyIds\": [\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\"\n    ],\n    \"commandRevisions\": {\n      \"406b29cb-b792-45bc-8d66-eb9d604a1852\": 1,\n      \"46c3b477-719b-4007-b414-de2ff2ba97c4\": 3,\n      \"5c650004-3ce1-4922-a992-a9c69500d358\": 2,\n      \"87356726-cc85-401a-8922-91d413374b25\": 4,\n      \"cf9fde01-25f7-4e31-9dc5-743a30670cde\": 5\n    }\n  },\n  \"eventId\": \"da6f93c1-22be-4542-aa8b-5bfabbda2142\",\n  \"integrityHash\": \"092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3\",\n  \"reconciledFromAudit\": true\n}\n",
+      "stderr": "control plane submission ambiguous for command cf9fde01-25f7-4e31-9dc5-743a30670cde. Confirmed by signed Companion audit\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "blocker",
+        "record",
+        "--command-id",
+        "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+        "--id",
+        "70beeada-20c4-4df4-94a6-2baece1ba09e",
+        "--summary",
+        "Review is blocking release"
+      ],
+      "pid": 89996,
+      "started": {
+        "utc": "2026-11-24T14:20:33.067948+00:00",
+        "monotonicNs": 14407911031083
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:33.316224+00:00",
+        "monotonicNs": 14408159322791
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"commandId\": \"cf9fde01-25f7-4e31-9dc5-743a30670cde\",\n  \"committedRevision\": 5,\n  \"duplicate\": true,\n  \"projectionError\": null,\n  \"state\": {\n    \"activePath\": {\n      \"changeId\": null,\n      \"phaseId\": null,\n      \"phasePath\": [],\n      \"stageId\": null,\n      \"taskId\": null\n    },\n    \"blockers\": {\n      \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\": {\n        \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n        \"resolution\": null,\n        \"resolved\": false,\n        \"summary\": \"Review is blocking release\"\n      },\n      \"23350966-d8f5-4f10-820b-ba61fda03079\": {\n        \"id\": \"23350966-d8f5-4f10-820b-ba61fda03079\",\n        \"resolution\": \"Reviewed and ready\",\n        \"resolved\": true,\n        \"summary\": \"Review is blocking release\"\n      },\n      \"70beeada-20c4-4df4-94a6-2baece1ba09e\": {\n        \"id\": \"70beeada-20c4-4df4-94a6-2baece1ba09e\",\n        \"resolution\": null,\n        \"resolved\": false,\n        \"summary\": \"Review is blocking release\"\n      }\n    },\n    \"checkpoint\": null,\n    \"claims\": {},\n    \"commandRevisions\": {\n      \"406b29cb-b792-45bc-8d66-eb9d604a1852\": 1,\n      \"46c3b477-719b-4007-b414-de2ff2ba97c4\": 3,\n      \"5c650004-3ce1-4922-a992-a9c69500d358\": 2,\n      \"87356726-cc85-401a-8922-91d413374b25\": 4,\n      \"cf9fde01-25f7-4e31-9dc5-743a30670cde\": 5\n    },\n    \"completion\": {\n      \"certification\": {\n        \"blockers\": [],\n        \"completed\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"total\": 0\n      },\n      \"evidence\": {\n        \"blockers\": [],\n        \"completed\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"total\": 0\n      },\n      \"implementation\": {\n        \"blockers\": [],\n        \"completed\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"total\": 0\n      },\n      \"publication\": {\n        \"blockers\": [],\n        \"completed\": 0,\n        \"status\": \"pending\",\n        \"summary\": null,\n        \"total\": 0\n      }\n    },\n    \"conflicts\": {},\n    \"decisions\": {},\n    \"devices\": {\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\": {\n        \"deviceId\": \"unknown-device\",\n        \"enrolledAtRevision\": 1,\n        \"keyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n        \"publicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n        \"revokedAtRevision\": null,\n        \"status\": \"active\"\n      }\n    },\n    \"exactNextWork\": null,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 5\n    },\n    \"lastEventAt\": \"2026-11-24T14:20:32.288673Z\",\n    \"lastEventHash\": \"092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3\",\n    \"lastEventId\": \"da6f93c1-22be-4542-aa8b-5bfabbda2142\",\n    \"lifecycle\": \"ready\",\n    \"operatorKeyIds\": [\n      \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\"\n    ],\n    \"phases\": {},\n    \"planRevision\": 1,\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaHeads\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": {\n        \"eventId\": \"da6f93c1-22be-4542-aa8b-5bfabbda2142\",\n        \"integrityHash\": \"092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3\",\n        \"lamport\": 5\n      }\n    },\n    \"replicaView\": {\n      \"activePathStatus\": \"unknown\",\n      \"localHead\": \"c1c86c97bf40a2a6035094f3c956a6028b648266\",\n      \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n      \"submodules\": {}\n    },\n    \"revision\": 5,\n    \"runId\": \"project-20261124T142027Z\",\n    \"schemaVersion\": \"2\",\n    \"submodulePins\": {}\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "audit",
+        "--json"
+      ],
+      "pid": 90018,
+      "started": {
+        "utc": "2026-11-24T14:20:33.316452+00:00",
+        "monotonicNs": 14408159515500
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:33.330031+00:00",
+        "monotonicNs": 14408173126916
+      },
+      "exitCode": 0,
+      "stdout": "[\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"1162b307-5a7c-4595-9202-7f8fe1566431\",\n    \"commandId\": \"406b29cb-b792-45bc-8d66-eb9d604a1852\",\n    \"revision\": 1,\n    \"expectedRevision\": 0,\n    \"lamport\": 1,\n    \"causalParent\": null,\n    \"actor\": {\n      \"kind\": \"operator\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"cli\",\n      \"session\": \"unknown\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:27.563275Z\",\n    \"kind\": {\n      \"type\": \"run_initialized\",\n      \"payload\": {\n        \"initial_state\": \"ready\",\n        \"exact_next_work\": null,\n        \"plan_revision\": 1\n      }\n    },\n    \"previousHash\": null,\n    \"integrityHash\": \"7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==\"\n  },\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n    \"commandId\": \"5c650004-3ce1-4922-a992-a9c69500d358\",\n    \"revision\": 2,\n    \"expectedRevision\": 1,\n    \"lamport\": 2,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 1\n    },\n    \"causalParent\": \"1162b307-5a7c-4595-9202-7f8fe1566431\",\n    \"actor\": {\n      \"kind\": \"harness\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"cli\",\n      \"session\": \"unknown\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:27.640079Z\",\n    \"kind\": {\n      \"type\": \"blocker_recorded\",\n      \"payload\": {\n        \"blocker\": {\n          \"id\": \"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\n          \"summary\": \"Review is blocking release\",\n          \"resolved\": false,\n          \"resolution\": null\n        }\n      }\n    },\n    \"previousHash\": \"7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932\",\n    \"integrityHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==\"\n  },\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"fa05d06e-90cb-4868-89fd-a6575b730e10\",\n    \"commandId\": \"46c3b477-719b-4007-b414-de2ff2ba97c4\",\n    \"revision\": 3,\n    \"expectedRevision\": 2,\n    \"lamport\": 3,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 2\n    },\n    \"causalParent\": \"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\n    \"actor\": {\n      \"kind\": \"harness\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"b\",\n      \"session\": \"b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:29.335781Z\",\n    \"kind\": {\n      \"type\": \"blocker_recorded\",\n      \"payload\": {\n        \"blocker\": {\n          \"id\": \"23350966-d8f5-4f10-820b-ba61fda03079\",\n          \"summary\": \"Review is blocking release\",\n          \"resolved\": false,\n          \"resolution\": null\n        }\n      }\n    },\n    \"previousHash\": \"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\n    \"integrityHash\": \"bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==\"\n  },\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"619f4b16-d3cd-451a-9b5d-35e09a46062b\",\n    \"commandId\": \"87356726-cc85-401a-8922-91d413374b25\",\n    \"revision\": 4,\n    \"expectedRevision\": 3,\n    \"lamport\": 4,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 3\n    },\n    \"causalParent\": \"fa05d06e-90cb-4868-89fd-a6575b730e10\",\n    \"actor\": {\n      \"kind\": \"harness\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"b\",\n      \"session\": \"b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:30.203389Z\",\n    \"kind\": {\n      \"type\": \"blocker_cleared\",\n      \"payload\": {\n        \"blocker_id\": \"23350966-d8f5-4f10-820b-ba61fda03079\",\n        \"resolution\": \"Reviewed and ready\"\n      }\n    },\n    \"previousHash\": \"bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c\",\n    \"integrityHash\": \"4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==\"\n  },\n  {\n    \"schemaVersion\": \"2\",\n    \"projectId\": \"10e4c473-0d6e-432a-a348-87da759ade13\",\n    \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n    \"runId\": \"project-20261124T142027Z\",\n    \"eventId\": \"da6f93c1-22be-4542-aa8b-5bfabbda2142\",\n    \"commandId\": \"cf9fde01-25f7-4e31-9dc5-743a30670cde\",\n    \"revision\": 5,\n    \"expectedRevision\": 4,\n    \"lamport\": 5,\n    \"frontier\": {\n      \"ebc9d73a-815d-4369-8ed5-262400a2555e\": 4\n    },\n    \"causalParent\": \"619f4b16-d3cd-451a-9b5d-35e09a46062b\",\n    \"actor\": {\n      \"kind\": \"harness\",\n      \"id\": \"kbd-fixture\",\n      \"device\": \"unknown-device\",\n      \"harness\": \"b\",\n      \"session\": \"b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d\"\n    },\n    \"actorId\": \"kbd-fixture\",\n    \"timestamp\": \"2026-11-24T14:20:32.288673Z\",\n    \"kind\": {\n      \"type\": \"blocker_recorded\",\n      \"payload\": {\n        \"blocker\": {\n          \"id\": \"70beeada-20c4-4df4-94a6-2baece1ba09e\",\n          \"summary\": \"Review is blocking release\",\n          \"resolved\": false,\n          \"resolution\": null\n        }\n      }\n    },\n    \"previousHash\": \"4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692\",\n    \"integrityHash\": \"092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3\",\n    \"signerKeyId\": \"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\n    \"signerPublicKey\": \"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\n    \"signature\": \"mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==\"\n  }\n]\n",
+      "stderr": "KBD source: local\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "claim",
+        "acquire",
+        "task:33953978-c0f5-461e-bcd4-993f0e185b99",
+        "--holder",
+        "session-a",
+        "--command-id",
+        "22a88bb6-0595-4c9c-a832-10040be283cb",
+        "--ttl",
+        "600"
+      ],
+      "pid": 90019,
+      "started": {
+        "utc": "2026-11-24T14:20:33.333254+00:00",
+        "monotonicNs": 14408176328791
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:33.663660+00:00",
+        "monotonicNs": 14408506754666
+      },
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Error: control plane returned 409 Conflict: {\"error\":\"causal frontier conflict: supplied CausalFrontier({\\\"ebc9d73a-815d-4369-8ed5-262400a2555e\\\": 5}), current CausalFrontier({\\\"ebc9d73a-815d-4369-8ed5-262400a2555e\\\": 6})\"}\n"
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "claim",
+        "acquire",
+        "task:33953978-c0f5-461e-bcd4-993f0e185b99",
+        "--holder",
+        "session-b",
+        "--command-id",
+        "edfbd6e3-a844-4c5b-aba9-30869b9fc030",
+        "--ttl",
+        "600"
+      ],
+      "pid": 90020,
+      "started": {
+        "utc": "2026-11-24T14:20:33.333336+00:00",
+        "monotonicNs": 14408176403166
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:33.639584+00:00",
+        "monotonicNs": 14408482680708
+      },
+      "exitCode": 0,
+      "stdout": "Run: project-20261124T142027Z  revision 6\nLifecycle: Ready  plan revision 1\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "claim",
+        "list",
+        "--json"
+      ],
+      "pid": 90061,
+      "started": {
+        "utc": "2026-11-24T14:20:33.667732+00:00",
+        "monotonicNs": 14408510792916
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:33.698680+00:00",
+        "monotonicNs": 14408541772000
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"claims\": {\n    \"b8c583c9-67e8-4d67-a40c-9f3e3cd0cf49\": {\n      \"claimId\": \"b8c583c9-67e8-4d67-a40c-9f3e3cd0cf49\",\n      \"scope\": \"task:33953978-c0f5-461e-bcd4-993f0e185b99\",\n      \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n      \"holderId\": \"session-b\",\n      \"mode\": \"exclusive\",\n      \"expiresAt\": \"2026-11-24T14:30:33.547690Z\",\n      \"monotonicToken\": 1,\n      \"acquiredEventId\": \"b7208c30-2b46-4623-b33a-abeb6ec7a6fd\",\n      \"lastEventId\": \"b7208c30-2b46-4623-b33a-abeb6ec7a6fd\",\n      \"released\": false\n    }\n  },\n  \"conflicts\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "claim",
+        "list",
+        "--json"
+      ],
+      "pid": 90064,
+      "started": {
+        "utc": "2026-11-24T14:20:33.699026+00:00",
+        "monotonicNs": 14408542087166
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:33.730026+00:00",
+        "monotonicNs": 14408573119375
+      },
+      "exitCode": 0,
+      "stdout": "{\n  \"claims\": {\n    \"b8c583c9-67e8-4d67-a40c-9f3e3cd0cf49\": {\n      \"claimId\": \"b8c583c9-67e8-4d67-a40c-9f3e3cd0cf49\",\n      \"scope\": \"task:33953978-c0f5-461e-bcd4-993f0e185b99\",\n      \"replicaId\": \"ebc9d73a-815d-4369-8ed5-262400a2555e\",\n      \"holderId\": \"session-b\",\n      \"mode\": \"exclusive\",\n      \"expiresAt\": \"2026-11-24T14:30:33.547690Z\",\n      \"monotonicToken\": 1,\n      \"acquiredEventId\": \"b7208c30-2b46-4623-b33a-abeb6ec7a6fd\",\n      \"lastEventId\": \"b7208c30-2b46-4623-b33a-abeb6ec7a6fd\",\n      \"released\": false\n    }\n  },\n  \"conflicts\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "claim",
+        "acquire",
+        "task:33953978-c0f5-461e-bcd4-993f0e185b99",
+        "--holder",
+        "session-b",
+        "--command-id",
+        "edfbd6e3-a844-4c5b-aba9-30869b9fc030",
+        "--ttl",
+        "600"
+      ],
+      "pid": 90067,
+      "started": {
+        "utc": "2026-11-24T14:20:33.730333+00:00",
+        "monotonicNs": 14408573392208
+      },
+      "finished": {
+        "utc": "2026-11-24T14:20:33.972897+00:00",
+        "monotonicNs": 14408815993458
+      },
+      "exitCode": 0,
+      "stdout": "Run: project-20261124T142027Z  revision 6\nLifecycle: Ready  plan revision 1\n",
+      "stderr": ""
+    }
+  ],
+  "processes": [
+    {
+      "pid": 89871,
+      "kind": "session",
+      "started": {
+        "utc": "2026-11-24T14:20:27.742410+00:00",
+        "monotonicNs": 14402585533500
+      },
+      "label": "a-e283a075-6da2-4dc4-9186-a80f82ee23cc",
+      "exitCode": 0,
+      "stopped": {
+        "utc": "2026-11-24T14:20:34.038557+00:00",
+        "monotonicNs": 14408881620000
+      }
+    },
+    {
+      "pid": 89872,
+      "kind": "session",
+      "started": {
+        "utc": "2026-11-24T14:20:27.807503+00:00",
+        "monotonicNs": 14402650637541
+      },
+      "label": "b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d",
+      "exitCode": 0,
+      "stopped": {
+        "utc": "2026-11-24T14:20:34.030536+00:00",
+        "monotonicNs": 14408873599041
+      }
+    },
+    {
+      "pid": 89873,
+      "kind": "headless",
+      "started": {
+        "utc": "2026-11-24T14:20:27.872740+00:00",
+        "monotonicNs": 14402715890291
+      },
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless"
+      ],
+      "ready": {
+        "utc": "2026-11-24T14:20:27.978120+00:00",
+        "monotonicNs": 14402821234875
+      },
+      "stopped": {
+        "utc": "2026-11-24T14:20:28.092126+00:00",
+        "monotonicNs": 14402935239833
+      },
+      "exitCode": 0
+    },
+    {
+      "pid": 89876,
+      "kind": "watcher",
+      "started": {
+        "utc": "2026-11-24T14:20:27.981202+00:00",
+        "monotonicNs": 14402824338250
+      },
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+        "kbd",
+        "--path",
+        "/tmp/kbd-live-9s28h8vb/project",
+        "watch"
+      ],
+      "sessionPid": 89871,
+      "sessionLabel": "a-e283a075-6da2-4dc4-9186-a80f82ee23cc",
+      "afterEvent": null,
+      "controlSocket": "/tmp/kbd-live-9s28h8vb/p/control.sock",
+      "observations": [
+        {
+          "event": {
+            "schemaVersion": "2",
+            "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+            "replicaId": "ebc9d73a-815d-4369-8ed5-262400a2555e",
+            "runId": "project-20261124T142027Z",
+            "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+            "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+            "revision": 2,
+            "expectedRevision": 1,
+            "lamport": 2,
+            "frontier": {
+              "ebc9d73a-815d-4369-8ed5-262400a2555e": 1
+            },
+            "causalParent": "1162b307-5a7c-4595-9202-7f8fe1566431",
+            "actor": {
+              "kind": "harness",
+              "id": "kbd-fixture",
+              "device": "unknown-device",
+              "harness": "cli",
+              "session": "unknown"
+            },
+            "actorId": "kbd-fixture",
+            "timestamp": "2026-11-24T14:20:27.640079Z",
+            "kind": {
+              "type": "blocker_recorded",
+              "payload": {
+                "blocker": {
+                  "id": "1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3",
+                  "summary": "Review is blocking release",
+                  "resolved": false,
+                  "resolution": null
+                }
+              }
+            },
+            "previousHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+            "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+            "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+            "signerPublicKey": "nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=",
+            "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ=="
+          },
+          "observed": {
+            "utc": "2026-11-24T14:20:28.066824+00:00",
+            "monotonicNs": 14402909935291
+          }
+        },
+        {
+          "event": {
+            "schemaVersion": "2",
+            "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+            "replicaId": "ebc9d73a-815d-4369-8ed5-262400a2555e",
+            "runId": "project-20261124T142027Z",
+            "eventId": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+            "commandId": "46c3b477-719b-4007-b414-de2ff2ba97c4",
+            "revision": 3,
+            "expectedRevision": 2,
+            "lamport": 3,
+            "frontier": {
+              "ebc9d73a-815d-4369-8ed5-262400a2555e": 2
+            },
+            "causalParent": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+            "actor": {
+              "kind": "harness",
+              "id": "kbd-fixture",
+              "device": "unknown-device",
+              "harness": "b",
+              "session": "b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d"
+            },
+            "actorId": "kbd-fixture",
+            "timestamp": "2026-11-24T14:20:29.335781Z",
+            "kind": {
+              "type": "blocker_recorded",
+              "payload": {
+                "blocker": {
+                  "id": "23350966-d8f5-4f10-820b-ba61fda03079",
+                  "summary": "Review is blocking release",
+                  "resolved": false,
+                  "resolution": null
+                }
+              }
+            },
+            "previousHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+            "integrityHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+            "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+            "signerPublicKey": "nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=",
+            "signature": "8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw=="
+          },
+          "observed": {
+            "utc": "2026-11-24T14:20:30.026713+00:00",
+            "monotonicNs": 14404869871666
+          }
+        },
+        {
+          "event": {
+            "schemaVersion": "2",
+            "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+            "replicaId": "ebc9d73a-815d-4369-8ed5-262400a2555e",
+            "runId": "project-20261124T142027Z",
+            "eventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+            "commandId": "87356726-cc85-401a-8922-91d413374b25",
+            "revision": 4,
+            "expectedRevision": 3,
+            "lamport": 4,
+            "frontier": {
+              "ebc9d73a-815d-4369-8ed5-262400a2555e": 3
+            },
+            "causalParent": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+            "actor": {
+              "kind": "harness",
+              "id": "kbd-fixture",
+              "device": "unknown-device",
+              "harness": "b",
+              "session": "b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d"
+            },
+            "actorId": "kbd-fixture",
+            "timestamp": "2026-11-24T14:20:30.203389Z",
+            "kind": {
+              "type": "blocker_cleared",
+              "payload": {
+                "blocker_id": "23350966-d8f5-4f10-820b-ba61fda03079",
+                "resolution": "Reviewed and ready"
+              }
+            },
+            "previousHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+            "integrityHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+            "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+            "signerPublicKey": "nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=",
+            "signature": "bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg=="
+          },
+          "observed": {
+            "utc": "2026-11-24T14:20:31.060617+00:00",
+            "monotonicNs": 14405903727500
+          }
+        },
+        {
+          "event": {
+            "schemaVersion": "2",
+            "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+            "replicaId": "ebc9d73a-815d-4369-8ed5-262400a2555e",
+            "runId": "project-20261124T142027Z",
+            "eventId": "da6f93c1-22be-4542-aa8b-5bfabbda2142",
+            "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+            "revision": 5,
+            "expectedRevision": 4,
+            "lamport": 5,
+            "frontier": {
+              "ebc9d73a-815d-4369-8ed5-262400a2555e": 4
+            },
+            "causalParent": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+            "actor": {
+              "kind": "harness",
+              "id": "kbd-fixture",
+              "device": "unknown-device",
+              "harness": "b",
+              "session": "b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d"
+            },
+            "actorId": "kbd-fixture",
+            "timestamp": "2026-11-24T14:20:32.288673Z",
+            "kind": {
+              "type": "blocker_recorded",
+              "payload": {
+                "blocker": {
+                  "id": "70beeada-20c4-4df4-94a6-2baece1ba09e",
+                  "summary": "Review is blocking release",
+                  "resolved": false,
+                  "resolution": null
+                }
+              }
+            },
+            "previousHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+            "integrityHash": "092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3",
+            "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+            "signerPublicKey": "nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=",
+            "signature": "mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ=="
+          },
+          "observed": {
+            "utc": "2026-11-24T14:20:33.066734+00:00",
+            "monotonicNs": 14407909819250
+          }
+        }
+      ],
+      "sourceObservations": [
+        {
+          "source": "companion",
+          "observed": {
+            "utc": "2026-11-24T14:20:28.066969+00:00",
+            "monotonicNs": 14402910074875
+          }
+        },
+        {
+          "source": "local-fallback",
+          "observed": {
+            "utc": "2026-11-24T14:20:29.059255+00:00",
+            "monotonicNs": 14403902358166
+          }
+        },
+        {
+          "source": "companion",
+          "observed": {
+            "utc": "2026-11-24T14:20:32.099559+00:00",
+            "monotonicNs": 14406942671416
+          }
+        }
+      ],
+      "exitCode": 0,
+      "stopped": {
+        "utc": "2026-11-24T14:20:34.011296+00:00",
+        "monotonicNs": 14408854360125
+      },
+      "stdout": "{\"schemaVersion\":\"2\",\"projectId\":\"10e4c473-0d6e-432a-a348-87da759ade13\",\"replicaId\":\"ebc9d73a-815d-4369-8ed5-262400a2555e\",\"runId\":\"project-20261124T142027Z\",\"eventId\":\"1162b307-5a7c-4595-9202-7f8fe1566431\",\"commandId\":\"406b29cb-b792-45bc-8d66-eb9d604a1852\",\"revision\":1,\"expectedRevision\":0,\"lamport\":1,\"causalParent\":null,\"actor\":{\"kind\":\"operator\",\"id\":\"kbd-fixture\",\"device\":\"unknown-device\",\"harness\":\"cli\",\"session\":\"unknown\"},\"actorId\":\"kbd-fixture\",\"timestamp\":\"2026-11-24T14:20:27.563275Z\",\"kind\":{\"type\":\"run_initialized\",\"payload\":{\"initial_state\":\"ready\",\"exact_next_work\":null,\"plan_revision\":1}},\"previousHash\":null,\"integrityHash\":\"7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932\",\"signerKeyId\":\"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\"signerPublicKey\":\"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\"signature\":\"OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==\"}\n{\"schemaVersion\":\"2\",\"projectId\":\"10e4c473-0d6e-432a-a348-87da759ade13\",\"replicaId\":\"ebc9d73a-815d-4369-8ed5-262400a2555e\",\"runId\":\"project-20261124T142027Z\",\"eventId\":\"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\"commandId\":\"5c650004-3ce1-4922-a992-a9c69500d358\",\"revision\":2,\"expectedRevision\":1,\"lamport\":2,\"frontier\":{\"ebc9d73a-815d-4369-8ed5-262400a2555e\":1},\"causalParent\":\"1162b307-5a7c-4595-9202-7f8fe1566431\",\"actor\":{\"kind\":\"harness\",\"id\":\"kbd-fixture\",\"device\":\"unknown-device\",\"harness\":\"cli\",\"session\":\"unknown\"},\"actorId\":\"kbd-fixture\",\"timestamp\":\"2026-11-24T14:20:27.640079Z\",\"kind\":{\"type\":\"blocker_recorded\",\"payload\":{\"blocker\":{\"id\":\"1a5d52f6-2fe8-49f0-9e5e-877eb3f772d3\",\"summary\":\"Review is blocking release\",\"resolved\":false,\"resolution\":null}}},\"previousHash\":\"7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932\",\"integrityHash\":\"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\"signerKeyId\":\"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\"signerPublicKey\":\"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\"signature\":\"iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==\"}\n{\"schemaVersion\":\"2\",\"projectId\":\"10e4c473-0d6e-432a-a348-87da759ade13\",\"replicaId\":\"ebc9d73a-815d-4369-8ed5-262400a2555e\",\"runId\":\"project-20261124T142027Z\",\"eventId\":\"fa05d06e-90cb-4868-89fd-a6575b730e10\",\"commandId\":\"46c3b477-719b-4007-b414-de2ff2ba97c4\",\"revision\":3,\"expectedRevision\":2,\"lamport\":3,\"frontier\":{\"ebc9d73a-815d-4369-8ed5-262400a2555e\":2},\"causalParent\":\"299d335f-5157-4e7e-a2f8-0fd2dfa96b32\",\"actor\":{\"kind\":\"harness\",\"id\":\"kbd-fixture\",\"device\":\"unknown-device\",\"harness\":\"b\",\"session\":\"b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d\"},\"actorId\":\"kbd-fixture\",\"timestamp\":\"2026-11-24T14:20:29.335781Z\",\"kind\":{\"type\":\"blocker_recorded\",\"payload\":{\"blocker\":{\"id\":\"23350966-d8f5-4f10-820b-ba61fda03079\",\"summary\":\"Review is blocking release\",\"resolved\":false,\"resolution\":null}}},\"previousHash\":\"8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b\",\"integrityHash\":\"bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c\",\"signerKeyId\":\"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\"signerPublicKey\":\"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\"signature\":\"8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==\"}\n{\"schemaVersion\":\"2\",\"projectId\":\"10e4c473-0d6e-432a-a348-87da759ade13\",\"replicaId\":\"ebc9d73a-815d-4369-8ed5-262400a2555e\",\"runId\":\"project-20261124T142027Z\",\"eventId\":\"619f4b16-d3cd-451a-9b5d-35e09a46062b\",\"commandId\":\"87356726-cc85-401a-8922-91d413374b25\",\"revision\":4,\"expectedRevision\":3,\"lamport\":4,\"frontier\":{\"ebc9d73a-815d-4369-8ed5-262400a2555e\":3},\"causalParent\":\"fa05d06e-90cb-4868-89fd-a6575b730e10\",\"actor\":{\"kind\":\"harness\",\"id\":\"kbd-fixture\",\"device\":\"unknown-device\",\"harness\":\"b\",\"session\":\"b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d\"},\"actorId\":\"kbd-fixture\",\"timestamp\":\"2026-11-24T14:20:30.203389Z\",\"kind\":{\"type\":\"blocker_cleared\",\"payload\":{\"blocker_id\":\"23350966-d8f5-4f10-820b-ba61fda03079\",\"resolution\":\"Reviewed and ready\"}},\"previousHash\":\"bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c\",\"integrityHash\":\"4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692\",\"signerKeyId\":\"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\"signerPublicKey\":\"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\"signature\":\"bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==\"}\n{\"schemaVersion\":\"2\",\"projectId\":\"10e4c473-0d6e-432a-a348-87da759ade13\",\"replicaId\":\"ebc9d73a-815d-4369-8ed5-262400a2555e\",\"runId\":\"project-20261124T142027Z\",\"eventId\":\"da6f93c1-22be-4542-aa8b-5bfabbda2142\",\"commandId\":\"cf9fde01-25f7-4e31-9dc5-743a30670cde\",\"revision\":5,\"expectedRevision\":4,\"lamport\":5,\"frontier\":{\"ebc9d73a-815d-4369-8ed5-262400a2555e\":4},\"causalParent\":\"619f4b16-d3cd-451a-9b5d-35e09a46062b\",\"actor\":{\"kind\":\"harness\",\"id\":\"kbd-fixture\",\"device\":\"unknown-device\",\"harness\":\"b\",\"session\":\"b-6d51e62a-c6a5-4840-8ac1-7e981ad6dc4d\"},\"actorId\":\"kbd-fixture\",\"timestamp\":\"2026-11-24T14:20:32.288673Z\",\"kind\":{\"type\":\"blocker_recorded\",\"payload\":{\"blocker\":{\"id\":\"70beeada-20c4-4df4-94a6-2baece1ba09e\",\"summary\":\"Review is blocking release\",\"resolved\":false,\"resolution\":null}}},\"previousHash\":\"4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692\",\"integrityHash\":\"092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3\",\"signerKeyId\":\"ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b\",\"signerPublicKey\":\"nZ6vcVEhCdtXRLubgpR+iyM+Fns9tcvFKnwsbeQ7lXM=\",\"signature\":\"mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==\"}\n",
+      "stderr": "KBD source: companion\nKBD source: local-fallback\nKBD source: companion\n"
+    },
+    {
+      "pid": 89933,
+      "kind": "headless",
+      "started": {
+        "utc": "2026-11-24T14:20:31.065563+00:00",
+        "monotonicNs": 14405908669583
+      },
+      "argv": [
+        "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless"
+      ],
+      "ready": {
+        "utc": "2026-11-24T14:20:31.171855+00:00",
+        "monotonicNs": 14406014944000
+      },
+      "stopped": {
+        "utc": "2026-11-24T14:20:33.976769+00:00",
+        "monotonicNs": 14408819825375
+      },
+      "exitCode": 0
+    }
+  ],
+  "publicFixtures": [
+    {
+      "keyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+      "endpointId": "4d27faead7cd39f9c134c45f79a924ca47e13ef5f26fd937c7c32baa0135e51d"
+    }
+  ],
+  "fixtureManifests": [
+    {
+      "checkout": "/tmp/kbd-live-9s28h8vb/project",
+      "manifest": {
+        "schemaVersion": "1",
+        "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+        "repositoryFingerprint": "sha256:008324a02836633f64fd385ce8d9ec012a01fb66992a77d7dda2d7be812f416a"
+      },
+      "sha256": "4a679cd20f8d03baa92e28bf885226987bc9643eb7873e2a10080ab00d668662",
+      "registration": {
+        "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+        "replicaId": "ebc9d73a-815d-4369-8ed5-262400a2555e",
+        "machineId": "11786b50-d57b-4471-9047-62cba86cf335",
+        "kind": "standalone",
+        "parent": null,
+        "head": "c1c86c97bf40a2a6035094f3c956a6028b648266",
+        "origin": null,
+        "readOnly": false,
+        "registeredAt": "2026-11-24T14:20:27.339555Z",
+        "updatedAt": "2026-11-24T14:20:27.339555Z"
+      },
+      "head": "c1c86c97bf40a2a6035094f3c956a6028b648266"
+    }
+  ],
+  "exchanges": [],
+  "directSocketReads": [
+    {
+      "at": {
+        "utc": "2026-11-24T14:20:33.667463+00:00",
+        "monotonicNs": 14408510527833
+      },
+      "socket": "/tmp/kbd-live-9s28h8vb/s/control.sock",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/audit",
+      "status": 200,
+      "responseSha256": "9a654b12ba4277bac4ff3a7e20b245b705bfab0ef9dfef69f315dfa20a604f04",
+      "events": [
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "406b29cb-b792-45bc-8d66-eb9d604a1852",
+          "eventId": "1162b307-5a7c-4595-9202-7f8fe1566431",
+          "integrityHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+          "signature": "OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 1,
+          "timestamp": "2026-11-24T14:20:27.563275Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+          "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+          "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+          "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 2,
+          "timestamp": "2026-11-24T14:20:27.640079Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "46c3b477-719b-4007-b414-de2ff2ba97c4",
+          "eventId": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+          "integrityHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+          "signature": "8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 3,
+          "timestamp": "2026-11-24T14:20:29.335781Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "87356726-cc85-401a-8922-91d413374b25",
+          "eventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+          "integrityHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+          "signature": "bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 4,
+          "timestamp": "2026-11-24T14:20:30.203389Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+          "eventId": "da6f93c1-22be-4542-aa8b-5bfabbda2142",
+          "integrityHash": "092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3",
+          "signature": "mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 5,
+          "timestamp": "2026-11-24T14:20:32.288673Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "edfbd6e3-a844-4c5b-aba9-30869b9fc030",
+          "eventId": "b7208c30-2b46-4623-b33a-abeb6ec7a6fd",
+          "integrityHash": "71d0f0637369f318bebb743bc8ecf978b2b43cb86b055c830337a157cf67041c",
+          "signature": "87Bp9sHaQCN8LFEJBrLRWjEe4Q49iIaphIgaApFuzSsn0kMI8lXUm73GiyE+RXXZUTDsotVd59E/ig0l7ZwkAQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 6,
+          "timestamp": "2026-11-24T14:20:33.547698Z"
+        }
+      ]
+    },
+    {
+      "at": {
+        "utc": "2026-11-24T14:20:33.976616+00:00",
+        "monotonicNs": 14408819673791
+      },
+      "socket": "/tmp/kbd-live-9s28h8vb/s/control.sock",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/audit",
+      "status": 200,
+      "responseSha256": "9a654b12ba4277bac4ff3a7e20b245b705bfab0ef9dfef69f315dfa20a604f04",
+      "events": [
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "406b29cb-b792-45bc-8d66-eb9d604a1852",
+          "eventId": "1162b307-5a7c-4595-9202-7f8fe1566431",
+          "integrityHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+          "signature": "OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 1,
+          "timestamp": "2026-11-24T14:20:27.563275Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+          "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+          "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+          "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 2,
+          "timestamp": "2026-11-24T14:20:27.640079Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "46c3b477-719b-4007-b414-de2ff2ba97c4",
+          "eventId": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+          "integrityHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+          "signature": "8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 3,
+          "timestamp": "2026-11-24T14:20:29.335781Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "87356726-cc85-401a-8922-91d413374b25",
+          "eventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+          "integrityHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+          "signature": "bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 4,
+          "timestamp": "2026-11-24T14:20:30.203389Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+          "eventId": "da6f93c1-22be-4542-aa8b-5bfabbda2142",
+          "integrityHash": "092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3",
+          "signature": "mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 5,
+          "timestamp": "2026-11-24T14:20:32.288673Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "edfbd6e3-a844-4c5b-aba9-30869b9fc030",
+          "eventId": "b7208c30-2b46-4623-b33a-abeb6ec7a6fd",
+          "integrityHash": "71d0f0637369f318bebb743bc8ecf978b2b43cb86b055c830337a157cf67041c",
+          "signature": "87Bp9sHaQCN8LFEJBrLRWjEe4Q49iIaphIgaApFuzSsn0kMI8lXUm73GiyE+RXXZUTDsotVd59E/ig0l7ZwkAQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 6,
+          "timestamp": "2026-11-24T14:20:33.547698Z"
+        }
+      ]
+    }
+  ],
+  "relayedSocketRequests": [
+    {
+      "pid": 89876,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/audit",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:27.987350+00:00",
+        "monotonicNs": 14402830460958
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:27.989700+00:00",
+        "monotonicNs": 14402832809750
+      },
+      "responseSha256": "5287f4c1e11de6e21ff65bed32fb428bf8e0d264589e10420b2295aa6cc0a2d5",
+      "events": [
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "406b29cb-b792-45bc-8d66-eb9d604a1852",
+          "eventId": "1162b307-5a7c-4595-9202-7f8fe1566431",
+          "integrityHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+          "signature": "OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 1,
+          "timestamp": "2026-11-24T14:20:27.563275Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+          "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+          "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+          "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 2,
+          "timestamp": "2026-11-24T14:20:27.640079Z"
+        }
+      ]
+    },
+    {
+      "pid": 89876,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/audit",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:32.010066+00:00",
+        "monotonicNs": 14406853147875
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:32.014415+00:00",
+        "monotonicNs": 14406857492375
+      },
+      "responseSha256": "17dc8b51aab3607de783a61d47ab7a5e85b73b31391c518c8c5eb71d6ace3577",
+      "events": [
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "406b29cb-b792-45bc-8d66-eb9d604a1852",
+          "eventId": "1162b307-5a7c-4595-9202-7f8fe1566431",
+          "integrityHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+          "signature": "OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 1,
+          "timestamp": "2026-11-24T14:20:27.563275Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+          "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+          "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+          "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 2,
+          "timestamp": "2026-11-24T14:20:27.640079Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "46c3b477-719b-4007-b414-de2ff2ba97c4",
+          "eventId": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+          "integrityHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+          "signature": "8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 3,
+          "timestamp": "2026-11-24T14:20:29.335781Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "87356726-cc85-401a-8922-91d413374b25",
+          "eventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+          "integrityHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+          "signature": "bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 4,
+          "timestamp": "2026-11-24T14:20:30.203389Z"
+        }
+      ]
+    },
+    {
+      "pid": 89947,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/status",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:32.240268+00:00",
+        "monotonicNs": 14407083345583
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:32.260419+00:00",
+        "monotonicNs": 14407103495500
+      },
+      "responseSha256": "10087a44fcc533bf9d519144c8ad1ce9697b97a336a46a1144036c41050b44a3"
+    },
+    {
+      "pid": 89947,
+      "method": "POST",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/commands",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:32.265212+00:00",
+        "monotonicNs": 14407108284916
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:32.381426+00:00",
+        "monotonicNs": 14407224517125
+      },
+      "responseSha256": "49b72d82ea853f7545127ae8128299fa019d1245310f032741881a706a9718d0",
+      "requestSha256": "791c87e644f0221bb3fde220e9213123c77931a764b986c496eab3bf9a6df76c",
+      "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+      "signed": true,
+      "responseDroppedAfterCommit": true
+    },
+    {
+      "pid": 89947,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/audit",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:32.382008+00:00",
+        "monotonicNs": 14407225082541
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:32.385532+00:00",
+        "monotonicNs": 14407228609541
+      },
+      "responseSha256": "f5a9f006011451dcc633e050bdf875a829a123f87cf0aafd43c793249be0e3cc",
+      "events": [
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "406b29cb-b792-45bc-8d66-eb9d604a1852",
+          "eventId": "1162b307-5a7c-4595-9202-7f8fe1566431",
+          "integrityHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+          "signature": "OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 1,
+          "timestamp": "2026-11-24T14:20:27.563275Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+          "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+          "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+          "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 2,
+          "timestamp": "2026-11-24T14:20:27.640079Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "46c3b477-719b-4007-b414-de2ff2ba97c4",
+          "eventId": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+          "integrityHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+          "signature": "8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 3,
+          "timestamp": "2026-11-24T14:20:29.335781Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "87356726-cc85-401a-8922-91d413374b25",
+          "eventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+          "integrityHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+          "signature": "bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 4,
+          "timestamp": "2026-11-24T14:20:30.203389Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+          "eventId": "da6f93c1-22be-4542-aa8b-5bfabbda2142",
+          "integrityHash": "092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3",
+          "signature": "mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 5,
+          "timestamp": "2026-11-24T14:20:32.288673Z"
+        }
+      ]
+    },
+    {
+      "pid": 89876,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/audit",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.018967+00:00",
+        "monotonicNs": 14407862065250
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.026906+00:00",
+        "monotonicNs": 14407869975791
+      },
+      "responseSha256": "f5a9f006011451dcc633e050bdf875a829a123f87cf0aafd43c793249be0e3cc",
+      "events": [
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "406b29cb-b792-45bc-8d66-eb9d604a1852",
+          "eventId": "1162b307-5a7c-4595-9202-7f8fe1566431",
+          "integrityHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+          "signature": "OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 1,
+          "timestamp": "2026-11-24T14:20:27.563275Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+          "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+          "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+          "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 2,
+          "timestamp": "2026-11-24T14:20:27.640079Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "46c3b477-719b-4007-b414-de2ff2ba97c4",
+          "eventId": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+          "integrityHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+          "signature": "8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 3,
+          "timestamp": "2026-11-24T14:20:29.335781Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "87356726-cc85-401a-8922-91d413374b25",
+          "eventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+          "integrityHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+          "signature": "bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 4,
+          "timestamp": "2026-11-24T14:20:30.203389Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+          "eventId": "da6f93c1-22be-4542-aa8b-5bfabbda2142",
+          "integrityHash": "092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3",
+          "signature": "mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 5,
+          "timestamp": "2026-11-24T14:20:32.288673Z"
+        }
+      ]
+    },
+    {
+      "pid": 89996,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/status",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.208666+00:00",
+        "monotonicNs": 14408051735916
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.229576+00:00",
+        "monotonicNs": 14408072647625
+      },
+      "responseSha256": "a2c2fddf735e382e917e8d110bbc49d1c35af8221ccca02623b7a11675da050b"
+    },
+    {
+      "pid": 89996,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/audit",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.230121+00:00",
+        "monotonicNs": 14408073185041
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.233265+00:00",
+        "monotonicNs": 14408076331541
+      },
+      "responseSha256": "f5a9f006011451dcc633e050bdf875a829a123f87cf0aafd43c793249be0e3cc",
+      "events": [
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "406b29cb-b792-45bc-8d66-eb9d604a1852",
+          "eventId": "1162b307-5a7c-4595-9202-7f8fe1566431",
+          "integrityHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+          "signature": "OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 1,
+          "timestamp": "2026-11-24T14:20:27.563275Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+          "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+          "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+          "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 2,
+          "timestamp": "2026-11-24T14:20:27.640079Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "46c3b477-719b-4007-b414-de2ff2ba97c4",
+          "eventId": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+          "integrityHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+          "signature": "8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 3,
+          "timestamp": "2026-11-24T14:20:29.335781Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "87356726-cc85-401a-8922-91d413374b25",
+          "eventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+          "integrityHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+          "signature": "bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 4,
+          "timestamp": "2026-11-24T14:20:30.203389Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+          "eventId": "da6f93c1-22be-4542-aa8b-5bfabbda2142",
+          "integrityHash": "092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3",
+          "signature": "mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 5,
+          "timestamp": "2026-11-24T14:20:32.288673Z"
+        }
+      ]
+    },
+    {
+      "pid": 89996,
+      "method": "POST",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/commands",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.239746+00:00",
+        "monotonicNs": 14408082812250
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.314667+00:00",
+        "monotonicNs": 14408157736583
+      },
+      "responseSha256": "5d19721e428660b700c77d2b5eab52a774b5a2404f895182bdd66c759cf7c237",
+      "requestSha256": "ed963e326faca31562fffed4039a0c09fcf478d91b8b586a538c1fea92ee8fbb",
+      "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+      "signed": true
+    },
+    {
+      "pid": 90020,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/status",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.476463+00:00",
+        "monotonicNs": 14408319534000
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.498390+00:00",
+        "monotonicNs": 14408341459208
+      },
+      "responseSha256": "a2c2fddf735e382e917e8d110bbc49d1c35af8221ccca02623b7a11675da050b"
+    },
+    {
+      "pid": 90019,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/status",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.498559+00:00",
+        "monotonicNs": 14408341619791
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.521984+00:00",
+        "monotonicNs": 14408365052166
+      },
+      "responseSha256": "a2c2fddf735e382e917e8d110bbc49d1c35af8221ccca02623b7a11675da050b"
+    },
+    {
+      "pid": 90020,
+      "method": "POST",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/commands",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.522126+00:00",
+        "monotonicNs": 14408365186375
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.637856+00:00",
+        "monotonicNs": 14408480923958
+      },
+      "responseSha256": "26a93ca6f7165190a0c2642e840ec7037f2af9231160f4cb6ea3cba107a3eb26",
+      "requestSha256": "d56098ec4c12b0d4308f81e81470e7266c8f50cf0cb9306e3e36585b112cb5ec",
+      "commandId": "edfbd6e3-a844-4c5b-aba9-30869b9fc030",
+      "signed": true
+    },
+    {
+      "pid": 90019,
+      "method": "POST",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/commands",
+      "status": 409,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.638038+00:00",
+        "monotonicNs": 14408481097416
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.662453+00:00",
+        "monotonicNs": 14408505520750
+      },
+      "responseSha256": "a7482364433eb32c44ab82de8b9c485d7325fbcdd616130348a129718d0fa0ac",
+      "requestSha256": "90ac7ebaa03c5e29d449530fad6fc7c9fa13fead81a82eff00645c0b438c5c8b",
+      "commandId": "22a88bb6-0595-4c9c-a832-10040be283cb",
+      "signed": true
+    },
+    {
+      "pid": 90061,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/status",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.675447+00:00",
+        "monotonicNs": 14408518510916
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.697230+00:00",
+        "monotonicNs": 14408540295625
+      },
+      "responseSha256": "92b31ba2fb4a2fc41b4164934a8c75ae63991971e9f94a166c97208d3a3ed515"
+    },
+    {
+      "pid": 90064,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/status",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.707087+00:00",
+        "monotonicNs": 14408550149791
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.728666+00:00",
+        "monotonicNs": 14408571731875
+      },
+      "responseSha256": "92b31ba2fb4a2fc41b4164934a8c75ae63991971e9f94a166c97208d3a3ed515"
+    },
+    {
+      "pid": 90067,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/status",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.864463+00:00",
+        "monotonicNs": 14408707530541
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.885663+00:00",
+        "monotonicNs": 14408728727875
+      },
+      "responseSha256": "92b31ba2fb4a2fc41b4164934a8c75ae63991971e9f94a166c97208d3a3ed515"
+    },
+    {
+      "pid": 90067,
+      "method": "GET",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/audit",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.886190+00:00",
+        "monotonicNs": 14408729249541
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.889835+00:00",
+        "monotonicNs": 14408732896833
+      },
+      "responseSha256": "9a654b12ba4277bac4ff3a7e20b245b705bfab0ef9dfef69f315dfa20a604f04",
+      "events": [
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "406b29cb-b792-45bc-8d66-eb9d604a1852",
+          "eventId": "1162b307-5a7c-4595-9202-7f8fe1566431",
+          "integrityHash": "7f40e3a7922a42fbd5e72e7c345792ad1869e083f32d8f550a8eeb0de01d8932",
+          "signature": "OxytV0rdjuSRZCXrerFQE6cV6EzwwDZ25RSYDosR63mX7uMOtJORnyzl/Po4aGzmG2V+/LBsFGRsckdao3rbDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 1,
+          "timestamp": "2026-11-24T14:20:27.563275Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "5c650004-3ce1-4922-a992-a9c69500d358",
+          "eventId": "299d335f-5157-4e7e-a2f8-0fd2dfa96b32",
+          "integrityHash": "8340105af6f2f8f656ea2f23982bf6ca568a02ef33fd75770f301881cf12660b",
+          "signature": "iZU3Ybk8Vl1z42yOJiyiu3t5fnGY028yOb28H6f8jNIl5xa8+Lpu5yjhoLRxp9ZtF9FYt9PbALEhUo8XhajoDQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 2,
+          "timestamp": "2026-11-24T14:20:27.640079Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "46c3b477-719b-4007-b414-de2ff2ba97c4",
+          "eventId": "fa05d06e-90cb-4868-89fd-a6575b730e10",
+          "integrityHash": "bbbaec5d6c7f5cd99c21da4367a3b064050825958ff5a1ad5ca1a1bef2cb8a1c",
+          "signature": "8u4IM+VVO+Ia7XVoPBY8oXhZX2E0GHdOHEom1DhAAN1QsIHAOKKWQL3fQS1VakPCjF662bpQWE3UHoKWAfd2Cw==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 3,
+          "timestamp": "2026-11-24T14:20:29.335781Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "87356726-cc85-401a-8922-91d413374b25",
+          "eventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+          "integrityHash": "4594e0a4beaebe234e83aa9efafce1e4e8f0f4de0a0b321044005368ba28c692",
+          "signature": "bEbzRWmXbbQ95HSrgfbd2RGz1rBFIyoX6hnvsYYVZjEaCUYCoGAuRVX7nJBgPN1iCkCO2gXT+gIkCCJ727/1Cg==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 4,
+          "timestamp": "2026-11-24T14:20:30.203389Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+          "eventId": "da6f93c1-22be-4542-aa8b-5bfabbda2142",
+          "integrityHash": "092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3",
+          "signature": "mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 5,
+          "timestamp": "2026-11-24T14:20:32.288673Z"
+        },
+        {
+          "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+          "commandId": "edfbd6e3-a844-4c5b-aba9-30869b9fc030",
+          "eventId": "b7208c30-2b46-4623-b33a-abeb6ec7a6fd",
+          "integrityHash": "71d0f0637369f318bebb743bc8ecf978b2b43cb86b055c830337a157cf67041c",
+          "signature": "87Bp9sHaQCN8LFEJBrLRWjEe4Q49iIaphIgaApFuzSsn0kMI8lXUm73GiyE+RXXZUTDsotVd59E/ig0l7ZwkAQ==",
+          "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+          "revision": 6,
+          "timestamp": "2026-11-24T14:20:33.547698Z"
+        }
+      ]
+    },
+    {
+      "pid": 90067,
+      "method": "POST",
+      "route": "/api/v1/kbd/projects/10e4c473-0d6e-432a-a348-87da759ade13/commands",
+      "status": 200,
+      "requestAt": {
+        "utc": "2026-11-24T14:20:33.897243+00:00",
+        "monotonicNs": 14408740304083
+      },
+      "responseAt": {
+        "utc": "2026-11-24T14:20:33.971409+00:00",
+        "monotonicNs": 14408814474541
+      },
+      "responseSha256": "221794121593b33a911806fc55b7c27672f28c0a2573431ebbdd4dbfcc21b185",
+      "requestSha256": "a15f4a47894329c11345e710784d97a3fbe2700f56c3e1a636d0508c9aadf775",
+      "commandId": "edfbd6e3-a844-4c5b-aba9-30869b9fc030",
+      "signed": true
+    }
+  ],
+  "incompatibleRequests": [],
+  "binaries": {
+    "pack_cli": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f"
+    },
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "1ca8d012a581ac033e11c23413ba70ece59430f7b609d868e09d64723406e5b5"
+    },
+    "sync_cli": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "85c9691cdc3c7a4e654b5c0bb9ee73780d69932b94b9b4c52471bfdc329ae976"
+    },
+    "git": {
+      "path": "/usr/bin/git",
+      "sha256": "1025ceb64342aa35b18fa36ab7e0d4d3732566a9e172fd9eff9c4d82d9c617ee"
+    }
+  },
+  "sourceDigests": {
+    "scripts/tests/kbd-intersession-local.py": "f755652cc1ea0bb41c4252bcd92e7a29d75a6a19da323f8517b4ac42243ebace",
+    ".kbd-orchestrator/changes/change-kis-001-live-sessions/spec.md": "f8e182dd627cc667f2c7515bacb4bc02f3452054c6ef54585b4aa052cdb164b4",
+    ".kbd-orchestrator/changes/change-kis-001-live-sessions/verification.md": "f6cdc641ef74b861b4ccc1a610f469ef22ad504e99dc3a9671975751c895956d",
+    "tools/prometheus-cli/crates/prometheus-cli/src/main.rs": "deb7a43629f50ff27a5549459a44db7cd20347049fc143fb0d795d0971006a8d",
+    "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs": "4658040e23bcd9893cea3336ede2b2802a42622d050e337765ba55d840362801",
+    "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs": "63df7ab69968750ecfa97800881c8971b01d3da8d7a502ce430f307a60d05b24"
+  },
+  "fallback": {
+    "watcherPid": 89876,
+    "restoredAt": {
+      "utc": "2026-11-24T14:20:31.171871+00:00",
+      "monotonicNs": 14406014949458
+    },
+    "cursorEventId": "619f4b16-d3cd-451a-9b5d-35e09a46062b",
+    "observedAfterRestore": {
+      "projectId": "10e4c473-0d6e-432a-a348-87da759ade13",
+      "commandId": "cf9fde01-25f7-4e31-9dc5-743a30670cde",
+      "eventId": "da6f93c1-22be-4542-aa8b-5bfabbda2142",
+      "integrityHash": "092790345676d09dc74ad2d62cca31848b95ad38f38d53f56045848f5fe13ee3",
+      "signature": "mjh6+1uF9nnUIF+Tf6ZCoLhQwQJ8a5fIM8Ts473QPLWuUjBmcGktcE7Fl92OWl8FeSogdwnGG8WIiiPHQQw7DQ==",
+      "signerKeyId": "ed25519:af8f0a692389edafc56cfd6a53ee283d077165694b55a30f7ee7aa2e4763572b",
+      "revision": 5,
+      "timestamp": "2026-11-24T14:20:32.288673Z"
+    },
+    "winner": "session-b",
+    "winningCommandId": "edfbd6e3-a844-4c5b-aba9-30869b9fc030"
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "survivingFixturePids": []
+  },
+  "assertionCount": 56,
+  "fixtureManifestSha256": "b5959ef53029024d577e5092066088566c550b1caac67625967828899751745c",
+  "finished": {
+    "utc": "2026-11-24T14:20:34.044281+00:00",
+    "monotonicNs": 14408887336416
+  }
+}

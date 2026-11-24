@@ -1,0 +1,250 @@
+{
+  "phase": "vlbv-r4-portability::intersession-communication",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+  "attemptId": "B5-3aa1f1f1a319d6b60a9a",
+  "attempt": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T12:09:35.424Z",
+    "startedAt": "2026-11-24T12:09:42.898991+00:00",
+    "endedAt": "2026-11-24T12:12:51.250646+00:00",
+    "status": "FAIL",
+    "ended": "GREEN-002 verifier failed to recognize the Node test reporter after the strict validations and apply integration passed."
+  },
+  "executedBy": {
+    "harness": "Codex",
+    "role": "local execution coordinator"
+  },
+  "candidate": "evidence/boundary/3aa1f1f1a319d6b60a9a/candidate.json",
+  "scenarios": [
+    {
+      "id": "LOCAL-001",
+      "status": "PASS",
+      "observed": "Two running sessions exchanged a signed blocker and reply, both using local storage and using the Companion socket.",
+      "commands": [
+        "run-LOCAL-001",
+        "negative-LOCAL-001"
+      ]
+    },
+    {
+      "id": "LOCAL-002",
+      "status": "PASS",
+      "observed": "Fallback, claim, and refusal controls passed.",
+      "commands": [
+        "run-LOCAL-002",
+        "negative-LOCAL-002"
+      ]
+    },
+    {
+      "id": "LOCAL-003",
+      "status": "PASS",
+      "observed": "Handoff and negative controls passed.",
+      "commands": [
+        "run-LOCAL-003",
+        "negative-LOCAL-003"
+      ]
+    },
+    {
+      "id": "PEER-001",
+      "status": "PASS",
+      "observed": "Historical writer revision, frontier, 16 signed events and raw journal preserved. The separate negative control passed.",
+      "commands": [
+        "run-PEER-001",
+        "negative-PEER-001"
+      ]
+    },
+    {
+      "id": "PEER-002",
+      "status": "PASS",
+      "observed": "The signed blocker was received at B, matched A in the independent audits, appeared once, and survived a receiver restart. Withheld-delivery and replay controls passed.",
+      "commands": [
+        "run-PEER-002",
+        "negative-PEER-002"
+      ]
+    },
+    {
+      "id": "PEER-003",
+      "status": "PASS",
+      "observed": "Socket connection refused after clean shutdown. Offline signed event recovered and applied once. Ambiguous-response retry and all four denial controls passed.",
+      "commands": [
+        "run-PEER-003",
+        "negative-PEER-003"
+      ]
+    },
+    {
+      "id": "PEER-004",
+      "status": "BLOCKED",
+      "observed": "All 43 signed events converged, including the 40 backlog commands, with 32 inserted after restart. The projection recovery and identical retry control succeeded. Independent receiver rejection of an oversize input remains unexercised.",
+      "commands": [
+        "run-PEER-004",
+        "negative-PEER-004"
+      ]
+    },
+    {
+      "id": "GREEN-001",
+      "status": "NOT_EXERCISED",
+      "observed": "Installer deferred by operator.",
+      "commands": [
+        "run-GREEN-001",
+        "negative-GREEN-001"
+      ]
+    },
+    {
+      "id": "GREEN-002",
+      "status": "FAIL",
+      "observed": "OpenSpec strict validation passed for 158 Full items and one Companion item. The actual apply integration reported one pass and zero skips. Its wrapper expected TAP and rejected the default Node reporter. Later checks have no passing result.",
+      "commands": [
+        "run-GREEN-002",
+        "negative-GREEN-002"
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "id": "run-LOCAL-001",
+      "status": "PASS",
+      "receipt": "evidence/boundary/c75e6420ad8d071c208c/run-LOCAL-001-pkiewk1v/receipt.json",
+      "receiptSha256": "ff563e188aa5c60e1d442e92dd8900fcbc0c6037f206b0387b5af479c34a797f",
+      "assertionCount": 108,
+      "carriedForwardFrom": "B5-c75e6420ad8d071c208c"
+    },
+    {
+      "id": "negative-LOCAL-001",
+      "status": "PASS",
+      "receipt": "evidence/boundary/c75e6420ad8d071c208c/negative-LOCAL-001-1usibtrw/receipt.json",
+      "receiptSha256": "f5cdf424b0025d9a15167c8673ba3a8e47138362a7009eb5e70c514359068f46",
+      "assertionCount": 105,
+      "carriedForwardFrom": "B5-c75e6420ad8d071c208c"
+    },
+    {
+      "id": "run-LOCAL-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/c75e6420ad8d071c208c/run-LOCAL-002-z_1r069t/receipt.json",
+      "receiptSha256": "33ea80155f4b1d723a0965aca191a1b05c8558289ef582e1197ca7cd80603372",
+      "assertionCount": 56,
+      "carriedForwardFrom": "B5-c75e6420ad8d071c208c"
+    },
+    {
+      "id": "negative-LOCAL-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/c75e6420ad8d071c208c/negative-LOCAL-002-z8p2d7s7/receipt.json",
+      "receiptSha256": "64ee97bba43d3e2aa2fbb80b8f5f1080511a7e771ff0f3a7087c4382933dd29e",
+      "assertionCount": 53,
+      "carriedForwardFrom": "B5-c75e6420ad8d071c208c"
+    },
+    {
+      "id": "run-LOCAL-003",
+      "status": "PASS",
+      "receipt": "evidence/boundary/c75e6420ad8d071c208c/run-LOCAL-003-aw73njd4/receipt.json",
+      "receiptSha256": "368c7b9311e48a39cf4685da0fed4269d505a0e1725a81008767158db99a9437",
+      "assertionCount": 26,
+      "carriedForwardFrom": "B5-c75e6420ad8d071c208c"
+    },
+    {
+      "id": "negative-LOCAL-003",
+      "status": "PASS",
+      "receipt": "evidence/boundary/c75e6420ad8d071c208c/negative-LOCAL-003-y05pvdgm/receipt.json",
+      "receiptSha256": "ece4a72c2e5d2876dbc6210bccc66a51f9db0d0fe03bb28609d55f469fa0340c",
+      "assertionCount": 33,
+      "carriedForwardFrom": "B5-c75e6420ad8d071c208c"
+    },
+    {
+      "id": "run-PEER-001",
+      "status": "PASS",
+      "receipt": "evidence/boundary/bbdd5e7edcfd32515d01/run-PEER-001-smar9xn8/receipt.json",
+      "receiptSha256": "700f848a49a23949444b3bf1272a49039b4f08867dad8f89ff0c40489e10d900",
+      "assertionCount": 61,
+      "carriedForwardFrom": "B5-bbdd5e7edcfd32515d01"
+    },
+    {
+      "id": "negative-PEER-001",
+      "status": "PASS",
+      "receipt": "evidence/boundary/bbdd5e7edcfd32515d01/negative-PEER-001-4hgfuf97/receipt.json",
+      "receiptSha256": "aca0332cc1359a0fcbd7c3e5f1dc5aa867c34a7dada1c117aa599cdd4f6e391d",
+      "assertionCount": 21,
+      "carriedForwardFrom": "B5-bbdd5e7edcfd32515d01"
+    },
+    {
+      "id": "run-PEER-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/bbdd5e7edcfd32515d01/run-PEER-002-sp0lzba0/receipt.json",
+      "receiptSha256": "a0f31c6a0a8c368cf9e18e42c9be773da43472feb70f752cc02a5f054c00fa9d",
+      "assertionCount": 63,
+      "carriedForwardFrom": "B5-bbdd5e7edcfd32515d01"
+    },
+    {
+      "id": "negative-PEER-002",
+      "status": "PASS",
+      "receipt": "evidence/boundary/bbdd5e7edcfd32515d01/negative-PEER-002-6odbtlwl/receipt.json",
+      "receiptSha256": "af6783ac720a4fcb494895e6a1bef5cfc6887283226b29c971a8f890293dc64d",
+      "assertionCount": 72,
+      "carriedForwardFrom": "B5-bbdd5e7edcfd32515d01"
+    },
+    {
+      "id": "run-PEER-003",
+      "status": "PASS",
+      "receipt": "evidence/boundary/924a9130d0749a492237/run-PEER-003-va4fo6rb/receipt.json",
+      "receiptSha256": "bb742b4c57141c7011de67452038a118b0958f3752c058646b5e0a28092b8536",
+      "assertionCount": 91,
+      "carriedForwardFrom": "B5-924a9130d0749a492237"
+    },
+    {
+      "id": "negative-PEER-003",
+      "status": "PASS",
+      "receipt": "evidence/boundary/924a9130d0749a492237/negative-PEER-003-y765qhq6/receipt.json",
+      "receiptSha256": "0fc4c090223435f2d815fd64e6b0cfd39880df0f7bec8db18ef814009732cb0e",
+      "assertionCount": 101,
+      "carriedForwardFrom": "B5-924a9130d0749a492237"
+    },
+    {
+      "id": "run-PEER-004",
+      "status": "PASS",
+      "receipt": "evidence/boundary/3aa1f1f1a319d6b60a9a/run-PEER-004-jmyxq7ze/receipt.json",
+      "receiptSha256": "faff0e3b3a3e2f5fb947bd15ba0c2609c9900464e445a7ca609762ac80975b27",
+      "assertionCount": 165
+    },
+    {
+      "id": "negative-PEER-004",
+      "status": "BLOCKED",
+      "receipt": "evidence/boundary/3aa1f1f1a319d6b60a9a/negative-PEER-004-epi9fc8s/receipt.json",
+      "receiptSha256": "0661c5bd3f76c9739e14f924836beafb201d1c1cb3313d046045b162c68af37d",
+      "assertionCount": 53
+    },
+    {
+      "id": "run-GREEN-001",
+      "status": "NOT_EXERCISED",
+      "reason": "Installer deferred by operator"
+    },
+    {
+      "id": "negative-GREEN-001",
+      "status": "NOT_EXERCISED",
+      "reason": "Installer deferred by operator"
+    },
+    {
+      "id": "run-GREEN-002",
+      "status": "FAIL",
+      "receipt": "evidence/boundary/3aa1f1f1a319d6b60a9a/run-GREEN-002-n_00_92f/receipt.json",
+      "receiptSha256": "35d15c1ac444b45374a473a537ec48cb3ff3ac4b8806006e7a6c9f7c337a6afb",
+      "assertionCount": 838
+    },
+    {
+      "id": "negative-GREEN-002",
+      "status": "NOT_EXERCISED"
+    }
+  ],
+  "budgetConsumption": {
+    "repairAttempts": 4,
+    "additionalRepair": "Operator authorized identifying and repairing the PEER-004 resume failure."
+  },
+  "limitations": [
+    "Earlier receipts identify their own source candidates. Prior passes do not establish regression coverage for the new mDNS routing.",
+    "Receiver oversized-frame rejection remains unverified.",
+    "Installer deferred by operator.",
+    "OpenSpec distribution and negative checks have no current pass."
+  ],
+  "diagnosticReceipts": [
+    "evidence/boundary/905f2a74e5e5fb69896f/run-PEER-004-mby35y_4/receipt.json",
+    "evidence/boundary/3bf466e844d60dbab4a6/run-PEER-004-19188ibi/receipt.json"
+  ]
+}

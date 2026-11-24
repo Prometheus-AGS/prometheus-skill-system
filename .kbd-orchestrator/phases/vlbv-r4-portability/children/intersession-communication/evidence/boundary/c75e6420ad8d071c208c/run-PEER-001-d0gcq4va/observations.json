@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-001",
+  "negativeOnly": false,
+  "passed": false,
+  "result": "FAIL",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "5fd7d446bc78ab1c7e42010b620ac4791c8a5a3479481f462119a22ac0c35efc"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "40784eeebb99b23401b4b4c3831bbe6f33fbeb9651ea9a1ff6f0b6c35613d5bc"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "807631f2ad7d48f971155542ddba788d139565c388ca57441a263abd0df7b1cf"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "46b230badc6889b3af83d5cf6cb30f9e06a14e22971ffcb3ead5256ec3a1aa6c",
+    "dirtySourceCount": 51
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "1cbf2d4590d3175315cf0a0ad18cf1bcfbef6feb28173300394ffc9be38ce9a6",
+  "baselineCopy": {
+    "senderSha256": "384ad605f09589fb329d8d9293bb98f3f9c1a405ed3029d04e3829c56f023069",
+    "receiverSha256": "384ad605f09589fb329d8d9293bb98f3f9c1a405ed3029d04e3829c56f023069"
+  },
+  "fixtureInputSha256": "b81b4825abc0b301b089f2e786ea68ed02f912c4aabac59481c5fcb599e4d53c",
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:30a5eb2e9947813b5d12ccf1e5707cd4eb6b15f8447ab4036d5fb1736a0b3419",
+      "endpointId": "00337dd61598a8b877efc005eaaf12876fff75e57c9a97f37925d2fa13bc34f9",
+      "projectId": "1f89c9ec-da64-471c-8ce2-aea70d34a669",
+      "replicaId": "f5b70aeb-7f69-4763-903d-772c8536d918",
+      "checkout": "/tmp/kbd-peers-_1zj82dk/A/project",
+      "authority": "/tmp/kbd-peers-_1zj82dk/A/data/prometheus/kbd/projects/1f89c9ec-da64-471c-8ce2-aea70d34a669",
+      "socket": "/tmp/kbd-peers-_1zj82dk/A/control.sock",
+      "companionPids": [
+        72970
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:acd65f26089cf217be5575fb17640cc76a1e821aa1de148c4fcc6eccd575f393",
+      "endpointId": "42d28c23ac02187e57e157bc5d26117a50cfc618ae7b96dd0d8bad846db9e781",
+      "projectId": "1f89c9ec-da64-471c-8ce2-aea70d34a669",
+      "replicaId": "ff2d8439-4dd3-4679-9636-53d03ef5de0c",
+      "checkout": "/tmp/kbd-peers-_1zj82dk/B/project",
+      "authority": "/tmp/kbd-peers-_1zj82dk/B/data/prometheus/kbd/projects/1f89c9ec-da64-471c-8ce2-aea70d34a669",
+      "socket": "/tmp/kbd-peers-_1zj82dk/B/control.sock",
+      "companionPids": [
+        72971
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "f5b70aeb-7f69-4763-903d-772c8536d918": 3
+    },
+    "eventHashes": [
+      "ce241b7fa0973b4912d72b2f1ac3e1f984e667651820fc546f19b1f71e5b2b8e",
+      "527027c574a39a6f38ed8446417a6b46ab6536f17dcfd065ed3d4530aee28971",
+      "1b94597e4604c7973a35a60359f1bb8a27d29f4e70e7881f534fc5eb386577b9"
+    ],
+    "grant": "1b94597e4604c7973a35a60359f1bb8a27d29f4e70e7881f534fc5eb386577b9",
+    "snapshotBytesPreserved": true
+  },
+  "error": "timed out waiting for independent node readiness: [Errno 2] No such file or directory: 4T11:15:43.949224Z  INFO sovereign_sync::rest_api: skill index startup scan completed startup_phase=\"skill_index\" elapsed_ms=0 success=true\n2026-11-24T11:15:43.962678Z  INFO sovereign_sync::kbd_control: KBD authority startup project open completed startup_phase=\"project_open\" project_id=\"6ac090a4-3656-4d83-8eb6-2891508196d5\" elapsed_ms=13 success=false\n2026-11-24T11:15:43.962739Z  WARN sovereign_sync::kbd_control: KBD authority startup project is unavailable startup_phase=\"project_open\" project_id=\"6ac090a4-3656-4d83-8eb6-2891508196d5\" error=invalid compatibility state: project.loro contains an event whose causal frontier cannot be satisfied\n2026-11-24T11:15:43.962787Z  INFO sovereign_sync::kbd_control: KBD registered authorities loaded startup_phase=\"registry_reload\" elapsed_ms=13 project_count=1\n2026-11-24T11:15:43.963207Z  WARN prometheus_substrate::node: local authority initialization failed; diagnostic routes remain active error=all 1 registered local KBD authority failed to open\n",
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 72970,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 72971,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "H",
+        "pid": 72994,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 19
+}

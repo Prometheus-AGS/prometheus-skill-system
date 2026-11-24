@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "dispatchedAt": "2026-11-24T10:31:50.369223+00:00",
+  "phase": "vlbv-r4-portability::intersession-communication",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "14be1398ed9e08575e2aa7a0b5f2e8aed02e8bbfa858e5485ffd78b05e354f45"
+  },
+  "backend": "native-tool",
+  "specBackend": "native-kbd",
+  "assignedChanges": [
+    "change-kis-001-live-sessions",
+    "change-kis-002-local-companion",
+    "change-kis-003-local-health"
+  ],
+  "status": "in_progress",
+  "workers": {
+    "live_cli": [
+      "LIVE-01",
+      "LIVE-02"
+    ],
+    "peer_runtime": [
+      "PEER-01",
+      "PEER-02",
+      "PEER-03",
+      "PEER-04"
+    ],
+    "strict_recovery": [
+      "GREEN-02"
+    ],
+    "Full lead": [
+      "LIVE-02 nested closure",
+      "LIVE-03",
+      "GREEN-01",
+      "boundary runner"
+    ]
+  },
+  "pendingWork": "All nine scenario receipts. Final boundary authorization is separate."
+}

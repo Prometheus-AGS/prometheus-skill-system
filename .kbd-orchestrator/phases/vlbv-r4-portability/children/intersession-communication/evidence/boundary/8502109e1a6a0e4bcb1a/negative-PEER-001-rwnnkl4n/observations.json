@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-001",
+  "negativeOnly": true,
+  "passed": true,
+  "result": "PASS",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "1ca8d012a581ac033e11c23413ba70ece59430f7b609d868e09d64723406e5b5"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "85c9691cdc3c7a4e654b5c0bb9ee73780d69932b94b9b4c52471bfdc329ae976"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "5ce9cec3b59a3c19654f8b35864b2922597790205e7b222357b358cde5e699ed"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "531b24ec38bf825c9655f7b716e19165b9ece4858bdad257ffcecb6c82314e00",
+    "dirtySourceCount": 52
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "fe138dca744b50a5899dde026dc979f037886157af285fe2d4da107a12aaec50",
+  "baselineCopy": {
+    "senderSha256": "ce9503d7ce675766acaf733c7b914c6af86e9646526144949cb554093eae2108",
+    "receiverSha256": "ce9503d7ce675766acaf733c7b914c6af86e9646526144949cb554093eae2108"
+  },
+  "fixtureInputSha256": "727508dbc0c50f88737114593351554717371c8ff2ac27a91707fa4d6afb8a92",
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:86f2aae5212a8aa72a2db544819ddf52fb810f0d7a65d3975e847828e0be3728",
+      "endpointId": "d0027733798b798a74ee8e87fdff85751ed124d96bac49b50fbf23131e9f3fa6",
+      "projectId": "1bf3537f-8484-44f6-840f-feea72a46ac1",
+      "replicaId": "fe98bd6c-ba09-43f8-b437-634d8e6048b9",
+      "checkout": "/tmp/kbd-peers-jj1h2uis/A/project",
+      "authority": "/tmp/kbd-peers-jj1h2uis/A/data/prometheus/kbd/projects/1bf3537f-8484-44f6-840f-feea72a46ac1",
+      "socket": "/tmp/kbd-peers-jj1h2uis/A/control.sock",
+      "companionPids": []
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:e54b52f8bbc304c0d7693833c71583b205686b96a7b422d7e3941fe5e0ef30f0",
+      "endpointId": "b3414979bf53627737d5ee44a41b41a921e656730b29b6fdabc904b1c9b09ca3",
+      "projectId": "1bf3537f-8484-44f6-840f-feea72a46ac1",
+      "replicaId": "7e73b4b3-ea74-4295-952d-150d3ab41b2c",
+      "checkout": "/tmp/kbd-peers-jj1h2uis/B/project",
+      "authority": "/tmp/kbd-peers-jj1h2uis/B/data/prometheus/kbd/projects/1bf3537f-8484-44f6-840f-feea72a46ac1",
+      "socket": "/tmp/kbd-peers-jj1h2uis/B/control.sock",
+      "companionPids": [
+        90772
+      ]
+    }
+  },
+  "futureEvent": {
+    "kind": "future_peer_boundary_unsupported",
+    "signerKeyId": "ed25519:86f2aae5212a8aa72a2db544819ddf52fb810f0d7a65d3975e847828e0be3728",
+    "eventHash": "662f765e6b6fb03dc407029b55dd1a6d2f91fde7455106ec492f67e3994080af",
+    "recordSha256": "eb5d6731aa623fbcdd36bb6adb89611767ee6dcb4b55ed98456cf33b8a6ddf0c",
+    "baselineHashes": [
+      "b74df771278973a058b5392d45d651f264ff73dca5a388a98e7f5b36f9f17a00",
+      "c41b234212cb39400179c1c82dfd38f624d121a000304cc606230363cea7e6b8",
+      "fa6d8a0444234c0b3d61a766e50a08e508d9fa81d947aa5b77da09814489e57e"
+    ],
+    "eventCount": 4,
+    "bytesPreserved": true,
+    "readiness": {
+      "startup": {
+        "elapsedMs": 192,
+        "failedProjects": 1,
+        "openedProjects": 0,
+        "projectTotal": 1,
+        "skillIndex": "ready",
+        "stage": "failed",
+        "terminalError": "local authority initialization failed; inspect the Companion log"
+      },
+      "status": "failed"
+    },
+    "diagnostic": "2026-11-24T14:20:47.141258Z  WARN sovereign_sync::kbd_control: KBD authority startup project is unavailable startup_phase=\"project_open\" project_id=\"1bf3537f-8484-44f6-840f-feea72a46ac1\" error=unreadable signed journal event: unknown variant `future_peer_boundary_unsupported`, expected one of `run_initialized`, `lifecycle_transition`, `checkpoint_created`, `pause_checkpointed`, `plan_revised`, `legacy_state_imported`, `phase_defined`, `phase_transitioned`, `stage_entered`, `stage_transitioned`, `change_registered`, `change_identity_repaired`, `change_transitioned`, `task_registered`, `task_transitioned`, `active_path_changed`, `completion_updated`, `decision_recorded`, `blocker_recorded`, `blocker_cleared`, `boundary_receipt_recorded`, `gate_started`, `gate_finished`, `claim_acquired`, `claim_renewed`, `claim_released`, `submodule_pin_recorded`, `device_enrolled`, `device_revoked`, `device_key_rotated`, `operator_granted`, `conflict_recorded`, `conflict_resolved`, `phase_contract_bound`, `phase_disposition_recorded`, `phase_successor_started`"
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "B",
+        "pid": 90772,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 21
+}

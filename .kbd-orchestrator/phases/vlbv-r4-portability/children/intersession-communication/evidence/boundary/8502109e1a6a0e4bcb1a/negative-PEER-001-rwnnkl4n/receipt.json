@@ -1,0 +1,33 @@
+{
+  "commandId": "negative-PEER-001",
+  "case": "PEER-001",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T14:19:19.311Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator directed closure of open items. Verify the exact production receiver byte bound using local file inputs at B and recheck the same-host scenarios. Native installer validation is explicitly deferred to clean machines."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-001",
+    "--negative-only"
+  ],
+  "startedAt": "2026-11-24T14:20:44.985019+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "fe138dca744b50a5899dde026dc979f037886157af285fe2d4da107a12aaec50",
+  "candidateSha256": "e9d6f519e20305ad7363c01b6a63960431f3f4ee03c7a6f2ac850fdb395bfaca",
+  "observationsSha256": "51235c4c36487c0282381dd258902b222e7ca87e6a4e6274feaec0b7a9a86153",
+  "exitCode": 0,
+  "status": "PASS",
+  "durationSeconds": 2.401
+}

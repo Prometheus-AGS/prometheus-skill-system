@@ -1,0 +1,492 @@
+{
+  "schema_version": 1,
+  "contractVersion": "2.0.0",
+  "mode": "diagnose",
+  "selection": {
+    "check": null,
+    "excluded": []
+  },
+  "summary": {
+    "failed": 9,
+    "warned": 1,
+    "passed": 6,
+    "skipped": 8,
+    "exit_code": 1
+  },
+  "checks": [
+    {
+      "id": "services.plist-hardening",
+      "group": "services",
+      "label": "LaunchAgent restart throttling",
+      "severity": "yellow",
+      "status": "skip",
+      "summary": "shared/launchagents/ not present in this working directory",
+      "details": [],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "skills.directory",
+      "group": "skills",
+      "label": "Skills directory",
+      "severity": "red",
+      "status": "fail",
+      "summary": "skills/ is missing",
+      "details": [
+        "Required runtime skill catalog is absent."
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "manual.restore-checkout",
+          "description": "Restore the checked-out skills catalog before any automated repair run.",
+          "safe": false,
+          "reversible": false,
+          "dry_run_only": false,
+          "command_hint": null,
+          "reason_blocked": "Doctor must not recreate or overwrite an unknown checkout tree automatically."
+        }
+      ]
+    },
+    {
+      "id": "skills.installed-agents",
+      "group": "skills",
+      "label": "Installed agents",
+      "severity": "green",
+      "status": "pass",
+      "summary": "Detected 2 installed agent(s)",
+      "details": [
+        "OpenAI Codex",
+        "Amp"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "skills.sync-codex-skills",
+          "description": "Resync the managed Codex skill catalog into the installed Codex runtime.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/codex-sync-skills.sh --dry-run",
+          "reason_blocked": null
+        }
+      ]
+    },
+    {
+      "id": "learning.surreal-memory",
+      "group": "learning",
+      "label": "Surreal-memory",
+      "severity": "green",
+      "status": "pass",
+      "summary": "Durable operation ledger is ready at http://127.0.0.1:23001",
+      "details": [
+        "readiness: {\"capabilities\":{\"coordinator\":true,\"ledger\":true,\"model_executor\":true,\"search_index\":true,\"storage\":true,\"tokenizer\":true},\"ingestion_ready\":true,\"search_ready\":true,\"status\":\"ready\"}"
+      ],
+      "optional": false,
+      "actions": []
+    },
+    {
+      "id": "review.judge-gateway",
+      "group": "review",
+      "label": "Adversarial judge gateway",
+      "severity": "green",
+      "status": "pass",
+      "summary": "Reachable at http://localhost:8181/v1",
+      "details": [
+        "Adversarial review can resolve a judge distinct from the producer."
+      ],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "binaries.manifest",
+      "group": "binaries",
+      "label": "Managed binary manifest",
+      "severity": "red",
+      "status": "fail",
+      "summary": "6 managed binary defect(s)",
+      "details": [
+        "prometheus is missing from /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.local/bin",
+        "pk is missing from /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.local/bin",
+        "pk-cherry is missing from /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.local/bin",
+        "prometheus-learning-worker is missing from /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.local/bin",
+        "surreal-memory-server is missing from /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.local/bin",
+        "prometheus-exec is missing from /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.local/bin"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "binaries.install-binaries",
+          "description": "Rebuild and reinstall the managed binaries from the pinned source checkout.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/install-binaries.sh --dry-run",
+          "reason_blocked": null
+        }
+      ]
+    },
+    {
+      "id": "execution.runtime",
+      "group": "execution",
+      "label": "Prometheus Exec runtime",
+      "severity": "red",
+      "status": "fail",
+      "summary": "2 execution runtime defect(s)",
+      "details": [
+        "prometheus-exec is missing: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.local/bin/prometheus-exec",
+        "execution service is missing: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/Library/LaunchAgents/ai.prometheus.exec.plist"
+      ],
+      "optional": false,
+      "actions": []
+    },
+    {
+      "id": "services.launch-agents",
+      "group": "services",
+      "label": "Managed LaunchAgents",
+      "severity": "red",
+      "status": "fail",
+      "summary": "4 managed service defect(s)",
+      "details": [
+        "missing service definition: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/Library/LaunchAgents/ai.prometheus.surreal-memory-native.plist",
+        "missing service definition: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/Library/LaunchAgents/ai.prometheus.pk-cherry.plist",
+        "missing service definition: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/Library/LaunchAgents/ai.prometheus.learning-worker.plist",
+        "missing service definition: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/Library/LaunchAgents/ai.prometheus.hooks-logrotate.plist"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "services.install-mcp-services",
+          "description": "Reload only the managed MCP service definitions owned by this repository.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/install-mcp-services.sh --dry-run",
+          "reason_blocked": null
+        }
+      ]
+    },
+    {
+      "id": "learning.worker",
+      "group": "learning",
+      "label": "Asynchronous learning worker",
+      "severity": "red",
+      "status": "fail",
+      "summary": "worker missing, service loaded",
+      "details": [
+        "worker binary: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.local/bin/prometheus-learning-worker",
+        "queue backlog is reported separately by learning.queue"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "services.install-mcp-services",
+          "description": "Install the learning worker and reload its supervised queue service.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/install-mcp-services.sh --restart",
+          "reason_blocked": null
+        }
+      ]
+    },
+    {
+      "id": "learning.queue",
+      "group": "learning",
+      "label": "Learning queue backlog",
+      "severity": "green",
+      "status": "pass",
+      "summary": "0 record(s) in flight, none older than 6h",
+      "details": [
+        "queue: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.prometheus/learning-queue",
+        "jobs 0/0/0/0 (pending/processing/completed/rejected)",
+        "memory 0/0/0/0/0/0 (pending/submitting/accepted/stalled/completed/rejected)",
+        "legacy retry/dead-letter: 0",
+        "stale after 6h (PROMETHEUS_LEARNING_STALE_AFTER); 0 in flight, 0 stale",
+        "server: http://127.0.0.1:23001/api/v2/operations/stats could not connect (error sending request for url (http://127.0.0.1:23001/api/v2/operations/stats)); the server may be down or predate the stats route"
+      ],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "learning.snapshots",
+      "group": "learning",
+      "label": "Immutable prompt snapshots",
+      "severity": "red",
+      "status": "fail",
+      "summary": "3 prompt snapshot defect(s)",
+      "details": [
+        "project root: /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/project (from .prometheus/project.json ancestor)",
+        "project: no valid committed snapshot at /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/project/.prometheus/knowledge/.prompt-snapshots/project/current",
+        "shared: no valid committed snapshot at /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.prometheus/knowledge/shared/.prompt-snapshots/shared/current",
+        "global: no valid committed snapshot at /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.prometheus/knowledge/.prompt-snapshots/global/current"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "manual.publish-prompt-snapshots",
+          "description": "Publish project, shared, and global snapshots with `pk snapshot`.",
+          "safe": false,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "pk snapshot --scope project --scope shared; pk snapshot --scope global",
+          "reason_blocked": "Snapshot publication requires an explicit knowledge-root choice."
+        }
+      ]
+    },
+    {
+      "id": "hooks.rotation",
+      "group": "hooks",
+      "label": "Hook log rotation",
+      "severity": "red",
+      "status": "fail",
+      "summary": "config missing, service loaded, dependencies ready, hook-log mode missing",
+      "details": [
+        "logrotate: /opt/homebrew/opt/logrotate/sbin/logrotate (executable)",
+        "flock: /opt/homebrew/bin/flock (executable)",
+        "30 daily archives, delayed compression, and writer-lock coordination are required."
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "services.install-mcp-services",
+          "description": "Render and load the owner-only hook rotation service.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/install-mcp-services.sh --restart",
+          "reason_blocked": null
+        }
+      ]
+    },
+    {
+      "id": "mcp.config",
+      "group": "mcp",
+      "label": "Managed MCP configuration",
+      "severity": "yellow",
+      "status": "skip",
+      "summary": "MCP reconciliation checks are not implemented yet",
+      "details": [
+        "Doctor registry now reserves the mcp group for declarative client config verification."
+      ],
+      "optional": true,
+      "actions": [
+        {
+          "id": "mcp.configure-all-tools",
+          "description": "Reconcile only the managed MCP sections for supported client tools.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/configure-mcp-all-tools.sh --dry-run",
+          "reason_blocked": null
+        }
+      ]
+    },
+    {
+      "id": "hooks.lifecycle",
+      "group": "hooks",
+      "label": "Lifecycle hooks",
+      "severity": "red",
+      "status": "fail",
+      "summary": "active plugin generation verification failed",
+      "details": [
+        "node:internal/modules/cjs/loader:1573\n  throw err;\n  ^\n\nError: Cannot find module '/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/project/scripts/install-plugin-generation.js'\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)\n    at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)\n    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)\n    at Module._load (node:internal/modules/cjs/loader:1346:5)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.8.2\n"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "manual.review-hooks",
+          "description": "Review hook ownership and payload integrity before any automatic replacement.",
+          "safe": false,
+          "reversible": false,
+          "dry_run_only": false,
+          "command_hint": null,
+          "reason_blocked": "Doctor must not overwrite unknown hook customizations or local user workflow hooks."
+        }
+      ]
+    },
+    {
+      "id": "plugins.source-topology",
+      "group": "plugins",
+      "label": "Plugin marketplace source",
+      "severity": "green",
+      "status": "skip",
+      "summary": "no directory marketplace source is registered for this pack",
+      "details": [],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "plugins.native-cache-skew",
+      "group": "plugins",
+      "label": "Native plugin cache",
+      "severity": "green",
+      "status": "skip",
+      "summary": "plugin source checker unavailable",
+      "details": [
+        "the installed plugin version or the active generation version could not be determined"
+      ],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "control.kbd-runtime",
+      "group": "control",
+      "label": "Optional control-plane extension",
+      "severity": "green",
+      "status": "skip",
+      "summary": "no control endpoint discovered; local KBD runtime is authoritative",
+      "details": [
+        "Ordinary KBD commands read and commit the signed local journal directly.",
+        "A control-plane extension (integration contract seam 1) is optional; the pack works fully without one."
+      ],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "state.kbd-orchestrator",
+      "group": "state",
+      "label": "KBD compatibility projections",
+      "severity": "green",
+      "status": "pass",
+      "summary": "revision 2, projections consistent",
+      "details": [
+        "Compatibility JSON is projection-only; control.kbd-runtime checks authority."
+      ],
+      "optional": false,
+      "actions": []
+    },
+    {
+      "id": "control.kbd-rollout",
+      "group": "control",
+      "label": "KBD production rollout gate",
+      "severity": "green",
+      "status": "skip",
+      "summary": "local KBD is authoritative; no connected rollout is configured",
+      "details": [],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "hooks.harness-adapters",
+      "group": "hooks",
+      "label": "Installed Codex hook graph",
+      "severity": "red",
+      "status": "fail",
+      "summary": "47 installed hook graph defect(s)",
+      "details": [
+        "release manifest is unreadable at ./shared/harnesses/generated/release-manifest.json: No such file or directory (os error 2)",
+        "hook contract is unreadable at ./shared/harnesses/hook-contract.json: No such file or directory (os error 2)",
+        "release manifest has no valid bundle id",
+        "release manifest does not select hook-runtime-v1",
+        "hook contract contains no hooks",
+        "./hooks/codex-hooks.json is unreadable",
+        "source plugin manifest is unreadable at ./dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json: No such file or directory (os error 2)",
+        "active immutable generation selected hooks differ from the generated source manifest",
+        "active immutable generation exposes 34 hook commands; expected 0",
+        "active immutable generation hook command 1 is not pinned to bundle ",
+        "active immutable generation hook command 2 is not pinned to bundle ",
+        "active immutable generation hook command 3 is not pinned to bundle ",
+        "active immutable generation hook command 4 is not pinned to bundle ",
+        "active immutable generation hook command 5 is not pinned to bundle ",
+        "active immutable generation hook command 6 is not pinned to bundle ",
+        "active immutable generation hook command 7 is not pinned to bundle ",
+        "active immutable generation hook command 8 is not pinned to bundle ",
+        "active immutable generation hook command 9 is not pinned to bundle ",
+        "active immutable generation hook command 10 is not pinned to bundle ",
+        "active immutable generation hook command 11 is not pinned to bundle ",
+        "active immutable generation hook command 12 is not pinned to bundle ",
+        "active immutable generation hook command 13 is not pinned to bundle ",
+        "active immutable generation hook command 14 is not pinned to bundle ",
+        "active immutable generation hook command 15 is not pinned to bundle ",
+        "active immutable generation hook command 16 is not pinned to bundle ",
+        "active immutable generation hook command 17 is not pinned to bundle ",
+        "active immutable generation hook command 18 is not pinned to bundle ",
+        "active immutable generation hook command 19 is not pinned to bundle ",
+        "active immutable generation hook command 20 is not pinned to bundle ",
+        "active immutable generation hook command 21 is not pinned to bundle ",
+        "active immutable generation hook command 22 is not pinned to bundle ",
+        "active immutable generation hook command 23 is not pinned to bundle ",
+        "active immutable generation hook command 24 is not pinned to bundle ",
+        "active immutable generation hook command 25 is not pinned to bundle ",
+        "active immutable generation hook command 26 is not pinned to bundle ",
+        "active immutable generation hook command 27 is not pinned to bundle ",
+        "active immutable generation hook command 28 is not pinned to bundle ",
+        "active immutable generation hook command 29 is not pinned to bundle ",
+        "active immutable generation hook command 30 is not pinned to bundle ",
+        "active immutable generation hook command 31 is not pinned to bundle ",
+        "active immutable generation hook command 32 is not pinned to bundle ",
+        "active immutable generation hook command 33 is not pinned to bundle ",
+        "active immutable generation hook command 34 is not pinned to bundle ",
+        "active immutable generation hook identities differ from the generated hook contract",
+        "active immutable generation is bundle decad18e67ddca5aef47f7fa76ba4b610a472fdc2b73f49131d183f5df9bd0a8, not ",
+        "bundle index resolves to /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.prometheus/plugins/prometheus-skill-pack/bundles, not the active generation",
+        "source plugin version is missing"
+      ],
+      "optional": false,
+      "actions": []
+    },
+    {
+      "id": "skills.discovery-budget",
+      "group": "skills",
+      "label": "Harness instruction discovery budgets",
+      "severity": "yellow",
+      "status": "warn",
+      "summary": "313 skills, 93808 discovery characters, 0/4 measured harnesses, 0/4 cover configured discovery profiles",
+      "details": [
+        "claude-code: no readable local measurement at /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.prometheus/skill-activation/harness-budgets/claude-code.json",
+        "codex: no readable local measurement at /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.prometheus/skill-activation/harness-budgets/codex.json",
+        "opencode: no readable local measurement at /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.prometheus/skill-activation/harness-budgets/opencode.json",
+        "kimi: no readable local measurement at /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.prometheus/skill-activation/harness-budgets/kimi.json",
+        "Capture current native prompt measurements with scripts/certification/measure-discovery.py."
+      ],
+      "optional": false,
+      "actions": []
+    },
+    {
+      "id": "state.evolver",
+      "group": "state",
+      "label": "Evolver state",
+      "severity": "yellow",
+      "status": "skip",
+      "summary": ".evolver is not initialized",
+      "details": [
+        "Evolution state is optional until an evolution cycle is started."
+      ],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "learning.trace-store",
+      "group": "learning",
+      "label": "Trace store",
+      "severity": "yellow",
+      "status": "skip",
+      "summary": "No trace store yet",
+      "details": [
+        "Trace capture has not yet produced .prometheus/traces."
+      ],
+      "optional": true,
+      "actions": []
+    },
+    {
+      "id": "codex.memories",
+      "group": "codex",
+      "label": "Codex memory generation",
+      "severity": "green",
+      "status": "pass",
+      "summary": "All three memory settings are false; known v1/v2 summaries are absent",
+      "details": [
+        "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.codex/config.toml: features.memories=false",
+        "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.codex/config.toml: memories.generate_memories=false",
+        "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.codex/config.toml: memories.use_memories=false",
+        "v1 summary /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.codex/memories/memory_summary.md: absent",
+        "v2 summary /Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/standalone/home/.codex/memories_v2/memory_summary.md: absent",
+        "Static user configuration only; effective profile/CLI overrides and running sessions are not inspected."
+      ],
+      "optional": true,
+      "actions": []
+    }
+  ],
+  "repair_plan": null
+}

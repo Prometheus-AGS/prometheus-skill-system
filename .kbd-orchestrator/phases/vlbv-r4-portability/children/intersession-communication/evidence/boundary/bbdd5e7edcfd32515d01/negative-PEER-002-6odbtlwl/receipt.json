@@ -1,0 +1,33 @@
+{
+  "commandId": "negative-PEER-002",
+  "case": "PEER-002",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T11:48:43.251Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator approved one additional repair for the PEER-001 historical fixture and the ordered local checks beginning at PEER-001. Carry the six local checks forward. Defer the installer."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-002",
+    "--negative-only"
+  ],
+  "startedAt": "2026-11-24T11:49:08.153859+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "6c88289271d873ad8ed5055e5a0db763262635e057715941e13c4d42b4312e8b",
+  "candidateSha256": "1d5eac15097e23a87232cb2ca57db96294db0fb1aa00d0d5701570c52a070461",
+  "observationsSha256": "bfae8126e2334cf6c9551bbce331efa601893d60fed745bacbc4fa4de0db8b81",
+  "exitCode": 0,
+  "status": "PASS",
+  "durationSeconds": 9.306
+}

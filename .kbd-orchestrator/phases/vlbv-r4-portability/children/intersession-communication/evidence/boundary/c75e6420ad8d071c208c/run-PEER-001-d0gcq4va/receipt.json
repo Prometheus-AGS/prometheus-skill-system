@@ -1,0 +1,32 @@
+{
+  "commandId": "run-PEER-001",
+  "case": "PEER-001",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T11:08:07.283Z",
+    "authorizer": "travis@tribehealthsolutions.com",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator approved the explicit JSON response type correction, serialized local rebuild and continuation of checks in order. Installer testing remains pending."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-001"
+  ],
+  "startedAt": "2026-11-24T11:15:41.562256+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "1cbf2d4590d3175315cf0a0ad18cf1bcfbef6feb28173300394ffc9be38ce9a6",
+  "candidateSha256": "4ae37882c81ef151cbc64b8f0e0e1ac3466e4b7355ae87af9cd52b4cebcf9218",
+  "observationsSha256": "bd4beed27b99205503e24bff8a5941c46524e42d7923f9c9483c2f0acf9bf3b4",
+  "exitCode": 1,
+  "status": "FAIL",
+  "durationSeconds": 47.683
+}

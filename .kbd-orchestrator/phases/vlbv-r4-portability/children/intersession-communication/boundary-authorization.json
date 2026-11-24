@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "kind": "kbd.boundary-authorization",
+  "phaseId": "vlbv-r4-portability::intersession-communication",
+  "events": [
+    {
+      "boundary": "B4",
+      "authorizedAt": "2026-11-24T11:03:15.881Z",
+      "authorizer": "travis@tribehealthsolutions.com",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator approved the local communication and health checks. Leave checks requiring restarts in the personal login pending."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T11:08:07.283Z",
+      "authorizer": "travis@tribehealthsolutions.com",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator approved the explicit JSON response type correction, serialized local rebuild and continuation of checks in order. Installer testing remains pending."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T11:48:43.251Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator approved one additional repair for the PEER-001 historical fixture and the ordered local checks beginning at PEER-001. Carry the six local checks forward. Defer the installer."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T11:51:42.840Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator approved checking actual Unix socket connection availability after shutdown, then verifying offline recovery and continuing checks in order. Leave the installer pending."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T12:01:19.939Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator approved capture of the complete resumed PEER-004 push receipt, repair based on the observed failure, and verification in order. Installer remains pending."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T12:05:24.732Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Continue the approved PEER-004 diagnosis: identify the sender timeout stage and whether frames arrived at the restarted receiver."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T12:09:35.424Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Verify PEER-004 addressed recovery with refreshed paired-peer mDNS routes and full push diagnostics; continue other approved local checks and leave installer pending."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T12:20:10.704Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator directed continuation with the GREEN-002 TAP reporter fix and local distribution and negative checks. The installer remains deferred."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T14:12:42.617Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator directed continuing until outstanding items close. Generated plugin packages refreshed from current sources, with local-only files preserved. Verify GREEN-002 and negative controls."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T14:19:19.311Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator directed closure of open items. Verify the exact production receiver byte bound using local file inputs at B and recheck the same-host scenarios. Native installer validation is explicitly deferred to clean machines."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T14:26:38.902Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Operator directed closure of these issues. Verify stable local receiver UDP ports across restart, signed backlog convergence, receiver-local limit rejection, and all non-installer controls."
+    },
+    {
+      "boundary": "B5",
+      "authorizedAt": "2026-11-24T14:32:20.398Z",
+      "authorizer": "project operator",
+      "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+      "reason": "Exercise the authenticated direct resume after receiver readiness, recording gossip membership separately. Compare both UDP ports, signed convergence and exact reader rejection. Installer validation remains deferred."
+    }
+  ]
+}

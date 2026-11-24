@@ -1,0 +1,29 @@
+{
+  "commandId": "run-LOCAL-001",
+  "case": "LOCAL-001",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T11:08:07.283Z",
+    "authorizer": "travis@tribehealthsolutions.com",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator approved the explicit JSON response type correction, serialized local rebuild and continuation of checks in order. Installer testing remains pending."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "LOCAL-001"
+  ],
+  "startedAt": "2026-11-24T11:08:14.050044+00:00",
+  "diagnostic": "locked candidate build failed; see /Volumes/T7/Projects/prometheus/prometheus-skill-pack/.kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/evidence/boundary/c75e6420ad8d071c208c/run-LOCAL-001-mnquth41/companion-build.log",
+  "exitCode": 1,
+  "status": "FAIL",
+  "durationSeconds": 20.714
+}

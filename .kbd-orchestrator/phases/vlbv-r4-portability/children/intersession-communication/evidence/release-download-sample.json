@@ -1,0 +1,27 @@
+{
+  "observedAt": "2026-11-24T15:34:15.871585+00:00",
+  "status": "PASS",
+  "scope": "Operator-accepted representative GitHub release download",
+  "command": "node scripts/binary-release.mjs prepare <empty temporary stage>",
+  "host": "Darwin arm64",
+  "release": {
+    "schemaVersion": 1,
+    "version": "1.17.0",
+    "tag": "v1.17.0",
+    "platform": "darwin-arm64",
+    "archive": "prometheus-binaries-v1.17.0-darwin-arm64.tar.gz",
+    "archiveSha256": "ea0e8bbfcf98f3339d30f092e4b01a02733b4e6f75b4a38744fe8009d135ad21",
+    "manifestSha256": "b392c99e68f7cd13ac635ff0454ef1945e79c924281e6b7a0c7de0935a622d96",
+    "baseUrl": "https://github.com/Prometheus-AGS/prometheus-skill-system/releases/download/v1.17.0/"
+  },
+  "sourceCommit": "acd029107533c07a661a7e3ad90eb28834688afa",
+  "verifiedFiles": 23,
+  "binary": {
+    "path": "bin/prometheus",
+    "sha256": "8574330e24274e4a70adc026601698ec69baf5df2d391334a35a5c4b7e7672b4",
+    "bytes": 17832480,
+    "versionOutput": "prometheus 1.15.0",
+    "versionExit": 0
+  },
+  "limits": "Other platform binaries, Docker pulls and the clean-machine installer and doctor scenarios were not exercised."
+}

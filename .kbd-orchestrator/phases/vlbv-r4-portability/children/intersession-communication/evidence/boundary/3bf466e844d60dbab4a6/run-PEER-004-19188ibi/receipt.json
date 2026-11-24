@@ -1,0 +1,32 @@
+{
+  "commandId": "run-PEER-004",
+  "case": "PEER-004",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T12:05:24.732Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Continue the approved PEER-004 diagnosis: identify the sender timeout stage and whether frames arrived at the restarted receiver."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-004"
+  ],
+  "startedAt": "2026-11-24T12:05:26.914288+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "2ed37743f1648317d8e5b343afd55dab47360934d1b92f245b8c0d4a2e8558e0",
+  "candidateSha256": "ab2bde19ad100f6a1b4d763900d2c967869e463363b429beba174907f3059c29",
+  "observationsSha256": "886661fc6b228a3d8aa853d182da36cfcbfe360a07aa8b485a22562e196d88c2",
+  "exitCode": 1,
+  "status": "FAIL",
+  "durationSeconds": 172.981
+}

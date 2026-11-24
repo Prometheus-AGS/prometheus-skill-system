@@ -1,0 +1,32 @@
+{
+  "commandId": "run-PEER-004",
+  "case": "PEER-004",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf"
+  },
+  "authorization": {
+    "boundary": "B5",
+    "authorizedAt": "2026-11-24T12:01:19.939Z",
+    "authorizer": "project operator",
+    "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+    "reason": "Operator approved capture of the complete resumed PEER-004 push receipt, repair based on the observed failure, and verification in order. Installer remains pending."
+  },
+  "argv": [
+    "bash",
+    "scripts/verify-kbd-intersession.sh",
+    "--case",
+    "PEER-004"
+  ],
+  "startedAt": "2026-11-24T12:01:26.756645+00:00",
+  "runner": "/Volumes/T7/Projects/prometheus/prometheus-companion/scripts/verify-kbd-peers.py",
+  "runnerSha256": "0c93caac3b1313f3167e8044da69537c78709b786bc4fbce4affcc54c5f7bb94",
+  "candidateSha256": "d461c11e239b85c5aad4d0496042802d9cc4df07711ca1ef8a248fdb2b02630c",
+  "observationsSha256": "7c666b5941873bb84675f125342c9e8ec7c41537f0616bf0f10fbba1f153b099",
+  "exitCode": 1,
+  "status": "FAIL",
+  "durationSeconds": 149.811
+}

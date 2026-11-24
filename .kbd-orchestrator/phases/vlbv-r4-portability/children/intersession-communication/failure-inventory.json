@@ -1,0 +1,3342 @@
+{
+  "kind": "kbd.phase.failure-inventory",
+  "phase": "vlbv-r4-portability::intersession-communication",
+  "state": "Baseline and planned dispositions only; implementation and final local boundary evidence are pending.",
+  "sourceRoots": {
+    "receiptRoot": "/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu",
+    "fullCheckout": "repository root containing this inventory"
+  },
+  "sourceReceipts": {
+    "fullStrict": {
+      "root": "receiptRoot",
+      "path": "prometheus-skill-pack/strict.json",
+      "sha256": "5a4512276687ab5984aa8ade546616bc22c1759558e10c35d6fade74c3353a0b"
+    },
+    "companionStrict": {
+      "root": "receiptRoot",
+      "path": "prometheus-companion/strict-after-mirror.json",
+      "sha256": "956268db4529e875a0f85678bf31e839e2c8c043fda6250a02b464b5d5498aca"
+    },
+    "companionPreMirror": {
+      "root": "receiptRoot",
+      "path": "prometheus-companion/strict.json",
+      "sha256": "776f910f95951926d0cc4d37947ee572ba718c56b4431c44e7ef41b22385655e"
+    },
+    "installedDoctor": {
+      "root": "receiptRoot",
+      "path": "standalone/logs/doctor.json",
+      "sha256": "c2c4dd70dfd3d2cb36c721111bf17880b2d2dfe27f155b37cb8eecf789cd8488"
+    },
+    "standalone": {
+      "root": "receiptRoot",
+      "path": "standalone/summary.json",
+      "sha256": "bf5e08a72bfecf7f0744d00f96b47bb6ac61232aec06a524675765e3d907b29d"
+    },
+    "peerWire": {
+      "root": "receiptRoot",
+      "path": "peer-check/live-result.json",
+      "sha256": "bf666b662aac1c32bf8c013dd4ae9355af40e2dbf2919a9f5a4027ed52db0656"
+    },
+    "peerRestart": {
+      "root": "receiptRoot",
+      "path": "peer-check-repair/first-live-result.json",
+      "sha256": "ba3342b980908f712cc2f3c0eabc2541924c736b25135990c8d193e87ee8dd2d"
+    },
+    "peerAfterRestart": {
+      "root": "receiptRoot",
+      "path": "peer-check-repair/live-result.json",
+      "sha256": "ba3342b980908f712cc2f3c0eabc2541924c736b25135990c8d193e87ee8dd2d"
+    },
+    "peerSchema": {
+      "root": "receiptRoot",
+      "path": "peer-check-repair/schema-diagnostic.json",
+      "sha256": "75fe3a33fcc4851cb93aac26607fda1d1ec10853bf37dc612217ef946bca2c42"
+    },
+    "explicitRemote": {
+      "root": "fullCheckout",
+      "path": ".kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/evidence/explicit-remote-missing.json",
+      "sha256": "1d502fd45112e644bf3e842f96007ea37de641fa428325f3d329a904ee6e055d"
+    },
+    "localRead": {
+      "root": "fullCheckout",
+      "path": ".kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/evidence/local-readback.json",
+      "sha256": "d8b8dc58d0621fc8a6b870a93361c0cc1563e528296686bc0ccaeff8fd82bdc4"
+    }
+  },
+  "scenarioDisposition": [
+    {
+      "task": "LIVE-01",
+      "scenario": "LOCAL-001",
+      "baseline": "live-exchange-unverified",
+      "receipts": [
+        "localRead"
+      ],
+      "finding": "Signed local readback exists. Both listening sessions observing an exchange and resuming from a cursor remains unproved.",
+      "closureEvidence": "Two original running readers exchange and resume signed events offline and on the shared local Companion."
+    },
+    {
+      "task": "LIVE-02",
+      "scenario": "LOCAL-002",
+      "baseline": "observed-failure",
+      "receipts": [
+        "explicitRemote"
+      ],
+      "finding": "Explicit unavailable remote status/audit returned successful local reads; watch failed.",
+      "closureEvidence": "Explicit missing remote fails consistently; local reads identify local source; conflicts and uncertain retries preserve authority and do not duplicate the event."
+    },
+    {
+      "task": "LIVE-03",
+      "scenario": "LOCAL-003",
+      "baseline": "coverage-unverified",
+      "receipts": [],
+      "finding": "Live two-session ownership handoff remains unproved.",
+      "closureEvidence": "Second session accepts exactly once and conflicting, unauthorized or replayed claims preserve ownership."
+    },
+    {
+      "task": "PEER-01",
+      "scenario": "PEER-001",
+      "baseline": "observed-failure",
+      "receipts": [
+        "peerRestart",
+        "peerAfterRestart",
+        "peerSchema"
+      ],
+      "finding": "Older embedded reader rejected operator_granted while opening the signed seed.",
+      "closureEvidence": "Align four crate pins and lockfile; replay independently signed supported co-operator and legacy history, and fail closed for a signed unknown future event."
+    },
+    {
+      "task": "PEER-02",
+      "scenario": "PEER-002",
+      "baseline": "observed-failure",
+      "receipts": [
+        "peerWire"
+      ],
+      "finding": "Signed command reached A; B did not discover A or receive the event. Healthy HTTP and an acknowledged A command did not prove B applied anything.",
+      "closureEvidence": "Observe addressed transport and B’s independent audit, live stream and checkout for A’s exact signed event, then the reply in A’s original reader."
+    },
+    {
+      "task": "PEER-03",
+      "scenario": "PEER-003",
+      "baseline": "coverage-unverified",
+      "receipts": [
+        "peerWire"
+      ],
+      "finding": "Disconnected, denied and ambiguous submissions require independent evidence after the receiver works.",
+      "closureEvidence": "Exercise real offline/denied endpoints, restore service, reconcile identity and project rights, verify the duplicate retry leaves history unchanged."
+    },
+    {
+      "task": "PEER-04",
+      "scenario": "PEER-004",
+      "baseline": "static-risk-unverified",
+      "receipts": [],
+      "finding": "Import can durably persist before checkout refresh; a retry that inserts zero updates can leave stale projection. Bounded backlog delivery also remains unverified.",
+      "closureEvidence": "Use the contract backlog size/frame budget; interrupt after durable import and verify a replay repairs the checkout without duplicating journal or stream entries."
+    },
+    {
+      "task": "GREEN-01",
+      "scenario": "GREEN-001",
+      "baseline": "observed-failure",
+      "receipts": [
+        "installedDoctor",
+        "standalone"
+      ],
+      "finding": "Nine installed doctor failures and one discovery warning.",
+      "closureEvidence": "Record unfiltered doctor from separately provisioned skills-only and full consumer installs, resolve failures and discovery warning, justify applicability and skips, and keep signed standalone and service regressions."
+    },
+    {
+      "task": "GREEN-02",
+      "scenario": "GREEN-002",
+      "baseline": "observed-failure",
+      "receipts": [
+        "fullStrict",
+        "companionPreMirror",
+        "companionStrict"
+      ],
+      "finding": "130 Full items failed strict accounting. Companion passed its single change after mirroring.",
+      "closureEvidence": "Both complete workspaces must pass strict validation. Reconcile every original (type,id) to a valid item or an evidenced legitimate successor and retain prior passes."
+    }
+  ],
+  "candidate": {
+    "fullReference": "v1.17.0",
+    "fullCommit": "acd029107533c07a661a7e3ad90eb28834688afa",
+    "priorCompanionEmbeddedFullRevisionPrefix": "cfbc262",
+    "rule": "Record resolved revisions, binary hashes and owning worktrees for the final local run. Use fresh disposable per-authority roots, independent keys, explicit sockets, and a shared local authority only for its designated cases; preserve operator journals and services."
+  },
+  "fullOpenSpec": {
+    "receipt": "fullStrict",
+    "scenario": "GREEN-002",
+    "summary": {
+      "totals": {
+        "items": 158,
+        "passed": 28,
+        "failed": 130
+      },
+      "byType": {
+        "change": {
+          "items": 125,
+          "passed": 21,
+          "failed": 104
+        },
+        "spec": {
+          "items": 33,
+          "passed": 7,
+          "failed": 26
+        }
+      }
+    },
+    "diagnosticLevels": {
+      "WARNING": 31,
+      "ERROR": 102
+    },
+    "diagnosticGroups": {
+      "purpose": 24,
+      "long-requirement": 7,
+      "missing-delta": 102
+    },
+    "failedWithErrors": 102,
+    "failedWithWarningsOnly": 28,
+    "remediationGroups": {
+      "missing-delta": "Recover the change’s approved requirement and its scenarios from the authored record and implement the proper capability delta. Inspect proposal, execution record, signed phase approvals and canonical behavior before mapping; a proposal alone is a lead, not proof of approved wording. If migration genuinely superseded an item, record its exact historical ID, successor, scope, authority, and strict result.",
+      "purpose": "Recover the capability purpose from the accepted requirements and archive/proposal provenance. Replace the main spec placeholder with its actual purpose.",
+      "long-requirement": "Preserve the normative behavior and accepted scenarios. Put examples and exceptional cases in scenarios, or split separately enforceable requirements. Validate the precise item and whole workspace.",
+      "retain-pass": "Preserve prior coverage and strict validation for the exact item or an explicitly evidenced canonical successor."
+    },
+    "itemIdentity": [
+      "type",
+      "id"
+    ],
+    "items": [
+      {
+        "type": "spec",
+        "id": "adversarial-review-gating",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          },
+          {
+            "level": "WARNING",
+            "path": "requirements[2]",
+            "message": "Requirement text is very long (>500 characters). Move examples and edge cases into scenarios, or split it into separate requirements that each state one behavior."
+          },
+          {
+            "level": "WARNING",
+            "path": "requirements[16]",
+            "message": "Requirement text is very long (>500 characters). Move examples and edge cases into scenarios, or split it into separate requirements that each state one behavior."
+          }
+        ],
+        "remediation": [
+          "long-requirement",
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/adversarial-review-gating/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "agent-team-management",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/agent-team-management/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "align-installed-skill-verifier-fixture-filter",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/align-installed-skill-verifier-fixture-filter/proposal.md",
+          "openspec/changes/align-installed-skill-verifier-fixture-filter/tasks.md",
+          "openspec/changes/align-installed-skill-verifier-fixture-filter/specs/installed-surface-verification/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "bound-surrealdb-native-block-cache",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/bound-surrealdb-native-block-cache/proposal.md",
+          "openspec/changes/bound-surrealdb-native-block-cache/tasks.md",
+          "openspec/changes/bound-surrealdb-native-block-cache/specs/surrealdb-native-resource-bounds/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "c15-lossless-team-handoff",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/c15-lossless-team-handoff/proposal.md",
+          "openspec/changes/c15-lossless-team-handoff/tasks.md",
+          "openspec/changes/c15-lossless-team-handoff/specs/agent-team-management/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "c15-reviewed-skill-coverage",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/c15-reviewed-skill-coverage/proposal.md",
+          "openspec/changes/c15-reviewed-skill-coverage/tasks.md",
+          "openspec/changes/c15-reviewed-skill-coverage/specs/reviewed-team-skills/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-003-bdd001-manifest-dual-key-cleanup",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-003-bdd001-manifest-dual-key-cleanup/proposal.md",
+          "openspec/changes/change-003-bdd001-manifest-dual-key-cleanup/execution.md",
+          "openspec/changes/change-003-bdd001-manifest-dual-key-cleanup/README.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-004-bdd002-flake-quarantine",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-004-bdd002-flake-quarantine/proposal.md",
+          "openspec/changes/change-004-bdd002-flake-quarantine/execution.md",
+          "openspec/changes/change-004-bdd002-flake-quarantine/README.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-bdd-001-fork-cucumber-js",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-bdd-001-fork-cucumber-js/proposal.md",
+          "openspec/changes/change-bdd-001-fork-cucumber-js/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-bdd-002-cucumber-js-examples",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-bdd-002-cucumber-js-examples/proposal.md",
+          "openspec/changes/change-bdd-002-cucumber-js-examples/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-bdd-003-cucumber-rs-skill",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-bdd-003-cucumber-rs-skill/proposal.md",
+          "openspec/changes/change-bdd-003-cucumber-rs-skill/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-bdd-004-cucumber-rs-examples",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-bdd-004-cucumber-rs-examples/proposal.md",
+          "openspec/changes/change-bdd-004-cucumber-rs-examples/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-bdd-005-lifecycle-loop-skill",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-bdd-005-lifecycle-loop-skill/proposal.md",
+          "openspec/changes/change-bdd-005-lifecycle-loop-skill/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-bdd-006-video-cert-bundle",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-bdd-006-video-cert-bundle/proposal.md",
+          "openspec/changes/change-bdd-006-video-cert-bundle/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-bdd-007-cross-references",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-bdd-007-cross-references/proposal.md",
+          "openspec/changes/change-bdd-007-cross-references/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-bdd-008-validate-smoke-tests",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-bdd-008-validate-smoke-tests/proposal.md",
+          "openspec/changes/change-bdd-008-validate-smoke-tests/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-001-clone-fork-zed-agent",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-001-clone-fork-zed-agent/proposal.md",
+          "openspec/changes/change-cowork-001-clone-fork-zed-agent/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-002-kimi-agents",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-002-kimi-agents/proposal.md",
+          "openspec/changes/change-cowork-002-kimi-agents/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-003-minimax-detection",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-003-minimax-detection/proposal.md",
+          "openspec/changes/change-cowork-003-minimax-detection/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-004-claude-code-plugin-install",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-004-claude-code-plugin-install/proposal.md",
+          "openspec/changes/change-cowork-004-claude-code-plugin-install/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-005-codex-toml-config",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-005-codex-toml-config/proposal.md",
+          "openspec/changes/change-cowork-005-codex-toml-config/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-006-opencode-plugin-registration",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-006-opencode-plugin-registration/proposal.md",
+          "openspec/changes/change-cowork-006-opencode-plugin-registration/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-007-cowork-pack-subcommand",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-007-cowork-pack-subcommand/proposal.md",
+          "openspec/changes/change-cowork-007-cowork-pack-subcommand/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-008-cowork-toolchain-subcommand",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-008-cowork-toolchain-subcommand/proposal.md",
+          "openspec/changes/change-cowork-008-cowork-toolchain-subcommand/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-009-cowork-disk-stub",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-009-cowork-disk-stub/proposal.md",
+          "openspec/changes/change-cowork-009-cowork-disk-stub/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-010-github-releases-cicd",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-010-github-releases-cicd/proposal.md",
+          "openspec/changes/change-cowork-010-github-releases-cicd/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-011-install-cowork",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-011-install-cowork/proposal.md",
+          "openspec/changes/change-cowork-011-install-cowork/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-cowork-012-skill-md",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-cowork-012-skill-md/proposal.md",
+          "openspec/changes/change-cowork-012-skill-md/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-001-remove-hardcoded-api-key",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-001-remove-hardcoded-api-key/proposal.md",
+          "openspec/changes/change-credibility-001-remove-hardcoded-api-key/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-002-bind-loopback",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-002-bind-loopback/proposal.md",
+          "openspec/changes/change-credibility-002-bind-loopback/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-003-bearer-auth",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-003-bearer-auth/proposal.md",
+          "openspec/changes/change-credibility-003-bearer-auth/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-004-path-confinement",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-004-path-confinement/proposal.md",
+          "openspec/changes/change-credibility-004-path-confinement/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-005-real-validate",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-005-real-validate/proposal.md",
+          "openspec/changes/change-credibility-005-real-validate/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-006-drift-readback",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-006-drift-readback/proposal.md",
+          "openspec/changes/change-credibility-006-drift-readback/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-007-forge-status",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-007-forge-status/proposal.md",
+          "openspec/changes/change-credibility-007-forge-status/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-008-unit-tests",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-008-unit-tests/proposal.md",
+          "openspec/changes/change-credibility-008-unit-tests/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-009-rust-ci",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-009-rust-ci/proposal.md",
+          "openspec/changes/change-credibility-009-rust-ci/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-010-bdd-tests",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-010-bdd-tests/proposal.md",
+          "openspec/changes/change-credibility-010-bdd-tests/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-011-submodule-https",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-011-submodule-https/proposal.md",
+          "openspec/changes/change-credibility-011-submodule-https/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-012-machine-state-gitignore",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-012-machine-state-gitignore/proposal.md",
+          "openspec/changes/change-credibility-012-machine-state-gitignore/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-013-pin-submodule",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-013-pin-submodule/proposal.md",
+          "openspec/changes/change-credibility-013-pin-submodule/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-014-package-lock",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-014-package-lock/proposal.md",
+          "openspec/changes/change-credibility-014-package-lock/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-015-contributing-docs",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-015-contributing-docs/proposal.md",
+          "openspec/changes/change-credibility-015-contributing-docs/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-credibility-016-sycophancy-claim-audit",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-credibility-016-sycophancy-claim-audit/proposal.md",
+          "openspec/changes/change-credibility-016-sycophancy-claim-audit/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dgp-001",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dgp-001/proposal.md",
+          "openspec/changes/change-dgp-001/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dgp-002",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dgp-002/proposal.md",
+          "openspec/changes/change-dgp-002/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dgp-003",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dgp-003/proposal.md",
+          "openspec/changes/change-dgp-003/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dgp-004",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dgp-004/proposal.md",
+          "openspec/changes/change-dgp-004/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dgp-005",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dgp-005/proposal.md",
+          "openspec/changes/change-dgp-005/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dgp-006",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dgp-006/proposal.md",
+          "openspec/changes/change-dgp-006/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dgp-007",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dgp-007/proposal.md",
+          "openspec/changes/change-dgp-007/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dgp-008",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dgp-008/proposal.md",
+          "openspec/changes/change-dgp-008/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dib-001-release-archive-format",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dib-001-release-archive-format/proposal.md",
+          "openspec/changes/change-dib-001-release-archive-format/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dib-002-e2e-verify",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dib-002-e2e-verify/proposal.md",
+          "openspec/changes/change-dib-002-e2e-verify/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-001-directory-structure",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-001-directory-structure/proposal.md",
+          "openspec/changes/change-drs-001-directory-structure/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-002-parent-skill-md",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-002-parent-skill-md/proposal.md",
+          "openspec/changes/change-drs-002-parent-skill-md/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-003-stage-sub-skills",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-003-stage-sub-skills/proposal.md",
+          "openspec/changes/change-drs-003-stage-sub-skills/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-004-scripts-templates",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-004-scripts-templates/proposal.md",
+          "openspec/changes/change-drs-004-scripts-templates/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-005-references-hooks-agents",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-005-references-hooks-agents/proposal.md",
+          "openspec/changes/change-drs-005-references-hooks-agents/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-006-validation",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-006-validation/proposal.md",
+          "openspec/changes/change-drs-006-validation/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-007-docs-updates",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-007-docs-updates/proposal.md",
+          "openspec/changes/change-drs-007-docs-updates/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-008-install-smoke-test",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-008-install-smoke-test/proposal.md",
+          "openspec/changes/change-drs-008-install-smoke-test/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-drs-009-commit-push",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-drs-009-commit-push/proposal.md",
+          "openspec/changes/change-drs-009-commit-push/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dsg-001-capability-specs",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dsg-001-capability-specs/proposal.md",
+          "openspec/changes/change-dsg-001-capability-specs/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dsg-002-push-tag",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dsg-002-push-tag/proposal.md",
+          "openspec/changes/change-dsg-002-push-tag/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dsg-003-dsg-safety-module",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dsg-003-dsg-safety-module/proposal.md",
+          "openspec/changes/change-dsg-003-dsg-safety-module/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dsg-003-release-workflow",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dsg-003-release-workflow/proposal.md",
+          "openspec/changes/change-dsg-003-release-workflow/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dsg-004-scanner-core",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dsg-004-scanner-core/proposal.md",
+          "openspec/changes/change-dsg-004-scanner-core/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dsg-004-submodule-install",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dsg-004-submodule-install/proposal.md",
+          "openspec/changes/change-dsg-004-submodule-install/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-dsg-005-ecosystem-detectors",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-dsg-005-ecosystem-detectors/proposal.md",
+          "openspec/changes/change-dsg-005-ecosystem-detectors/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-exec-001-contracts-verification",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-exec-001-contracts-verification/proposal.md",
+          "openspec/changes/change-exec-001-contracts-verification/tasks.md",
+          "openspec/changes/change-exec-001-contracts-verification/specs/execution-evidence-contracts/spec.md",
+          "openspec/changes/change-exec-001-contracts-verification/specs/execution-receipt-log/spec.md",
+          "openspec/changes/change-exec-001-contracts-verification/specs/execution-receipt-verification/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-hard-001-submodule-guards",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-hard-001-submodule-guards/proposal.md",
+          "openspec/changes/change-hard-001-submodule-guards/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-hard-002-dsg-submodule-advance",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-hard-002-dsg-submodule-advance/proposal.md",
+          "openspec/changes/change-hard-002-dsg-submodule-advance/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-int-001-dsg-submodule",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-int-001-dsg-submodule/proposal.md",
+          "openspec/changes/change-int-001-dsg-submodule/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-int-002-dsg-plugin-marketplace",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-int-002-dsg-plugin-marketplace/proposal.md",
+          "openspec/changes/change-int-002-dsg-plugin-marketplace/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-int-003-dsg-skill-md",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-int-003-dsg-skill-md/proposal.md",
+          "openspec/changes/change-int-003-dsg-skill-md/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-int-004-dsg-opencode-codex",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-int-004-dsg-opencode-codex/proposal.md",
+          "openspec/changes/change-int-004-dsg-opencode-codex/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-int-005-install-dsg",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-int-005-install-dsg/proposal.md",
+          "openspec/changes/change-int-005-install-dsg/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-int-006-cowork-submodule",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-int-006-cowork-submodule/proposal.md",
+          "openspec/changes/change-int-006-cowork-submodule/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-int-007-validate-ci",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-int-007-validate-ci/proposal.md",
+          "openspec/changes/change-int-007-validate-ci/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-lgv-001-third-domain-corpus",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-lgv-001-third-domain-corpus/proposal.md",
+          "openspec/changes/change-lgv-001-third-domain-corpus/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-lgv-002-eval-explanations",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-lgv-002-eval-explanations/proposal.md",
+          "openspec/changes/change-lgv-002-eval-explanations/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-lgv-003-dataset-schema-and-index",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-lgv-003-dataset-schema-and-index/proposal.md",
+          "openspec/changes/change-lgv-003-dataset-schema-and-index/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-lgv-004-grading-harness",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-lgv-004-grading-harness/proposal.md",
+          "openspec/changes/change-lgv-004-grading-harness/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-lgv-005-compute-metrics",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-lgv-005-compute-metrics/proposal.md",
+          "openspec/changes/change-lgv-005-compute-metrics/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-lgv-006-tune-grader",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-lgv-006-tune-grader/proposal.md",
+          "openspec/changes/change-lgv-006-tune-grader/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-lgv-007-regression-test-and-docs",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-lgv-007-regression-test-and-docs/proposal.md",
+          "openspec/changes/change-lgv-007-regression-test-and-docs/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-pglite-002-realtime-plugin-json-license",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-pglite-002-realtime-plugin-json-license/proposal.md",
+          "openspec/changes/change-pglite-002-realtime-plugin-json-license/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-polish-001-vendor-hlsjs",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-polish-001-vendor-hlsjs/proposal.md",
+          "openspec/changes/change-polish-001-vendor-hlsjs/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-polish-002-static-install-step",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-polish-002-static-install-step/proposal.md",
+          "openspec/changes/change-polish-002-static-install-step/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-polish-003-cancel-error-toast",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-polish-003-cancel-error-toast/proposal.md",
+          "openspec/changes/change-polish-003-cancel-error-toast/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-polish-004-sse-reconnect-overlay",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-polish-004-sse-reconnect-overlay/proposal.md",
+          "openspec/changes/change-polish-004-sse-reconnect-overlay/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prb-001-scaffold-crate",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prb-001-scaffold-crate/proposal.md",
+          "openspec/changes/change-prb-001-scaffold-crate/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prb-002-cli-subcommands",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prb-002-cli-subcommands/proposal.md",
+          "openspec/changes/change-prb-002-cli-subcommands/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prb-003-mcp-server",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prb-003-mcp-server/proposal.md",
+          "openspec/changes/change-prb-003-mcp-server/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prb-004-http-sse-server",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prb-004-http-sse-server/proposal.md",
+          "openspec/changes/change-prb-004-http-sse-server/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prb-005-a2ui-components",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prb-005-a2ui-components/proposal.md",
+          "openspec/changes/change-prb-005-a2ui-components/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prb-006-launchd-plist",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prb-006-launchd-plist/proposal.md",
+          "openspec/changes/change-prb-006-launchd-plist/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prb-007-tests",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prb-007-tests/proposal.md",
+          "openspec/changes/change-prb-007-tests/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prb-008-tag-v160",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prb-008-tag-v160/proposal.md",
+          "openspec/changes/change-prb-008-tag-v160/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prui-001-skill-md-update",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prui-001-skill-md-update/proposal.md",
+          "openspec/changes/change-prui-001-skill-md-update/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prui-002-htmx-ui-real-sse",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prui-002-htmx-ui-real-sse/proposal.md",
+          "openspec/changes/change-prui-002-htmx-ui-real-sse/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prui-003-surface-bridge-wiring",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prui-003-surface-bridge-wiring/proposal.md",
+          "openspec/changes/change-prui-003-surface-bridge-wiring/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prui-004-ci-workflow",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prui-004-ci-workflow/proposal.md",
+          "openspec/changes/change-prui-004-ci-workflow/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-prui-005-smoke-test",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-prui-005-smoke-test/proposal.md",
+          "openspec/changes/change-prui-005-smoke-test/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-push-001-version-bump-push-tag",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-push-001-version-bump-push-tag/proposal.md",
+          "openspec/changes/change-push-001-version-bump-push-tag/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-push-002-submodule-pointer",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-push-002-submodule-pointer/proposal.md",
+          "openspec/changes/change-push-002-submodule-pointer/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-push-003-docs-smoke-test",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-push-003-docs-smoke-test/proposal.md",
+          "openspec/changes/change-push-003-docs-smoke-test/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-verify-p2p-transport",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ],
+        "remediation": [
+          "missing-delta"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-verify-p2p-transport/proposal.md",
+          "openspec/changes/change-verify-p2p-transport/tasks.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "change-win-001-host-portable-activation",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/change-win-001-host-portable-activation/proposal.md",
+          "openspec/changes/change-win-001-host-portable-activation/tasks.md",
+          "openspec/changes/change-win-001-host-portable-activation/specs/host-capability-probing/spec.md",
+          "openspec/changes/change-win-001-host-portable-activation/specs/installed-surface-verification/spec.md",
+          "openspec/changes/change-win-001-host-portable-activation/specs/owner-restricted-key-protection/spec.md",
+          "openspec/changes/change-win-001-host-portable-activation/specs/portable-generation-identity/spec.md",
+          "openspec/changes/change-win-001-host-portable-activation/specs/shell-free-hook-dispatch/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "cowork-skill-discovery",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/cowork-skill-discovery/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "delivery-cadence-all-harnesses",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/delivery-cadence-all-harnesses/proposal.md",
+          "openspec/changes/delivery-cadence-all-harnesses/tasks.md",
+          "openspec/changes/delivery-cadence-all-harnesses/specs/delivery-cadence-distribution/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "delivery-cadence-failed-candidate-recovery",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/delivery-cadence-failed-candidate-recovery/proposal.md",
+          "openspec/changes/delivery-cadence-failed-candidate-recovery/tasks.md",
+          "openspec/changes/delivery-cadence-failed-candidate-recovery/specs/delivery-cadence/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "docusaurus-docs-site",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/docusaurus-docs-site/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-artifact-cas",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-artifact-cas/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-certification-evidence",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-certification-evidence/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-component-provenance",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-component-provenance/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-mcp-surface",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-mcp-surface/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-mobile-ffi",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-mobile-ffi/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-policy-grants",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-policy-grants/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-release-distribution",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-release-distribution/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-remote-dispatch",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-remote-dispatch/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "execution-sidecar-service",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/execution-sidecar-service/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "harness-completeness-gate",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/harness-completeness-gate/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "harness-declaration-integrity",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/harness-declaration-integrity/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "harness-mirror-currency",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/harness-mirror-currency/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "ideation-decision-gating",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/ideation-decision-gating/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "initialize-kbd-runtime-on-first-mutation",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/initialize-kbd-runtime-on-first-mutation/proposal.md",
+          "openspec/changes/initialize-kbd-runtime-on-first-mutation/tasks.md",
+          "openspec/changes/initialize-kbd-runtime-on-first-mutation/specs/kbd-runtime-initialization/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "installed-surface-verification",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/installed-surface-verification/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "integrate-uncommitted-worktree-task-subjects",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/integrate-uncommitted-worktree-task-subjects/proposal.md",
+          "openspec/changes/integrate-uncommitted-worktree-task-subjects/tasks.md",
+          "openspec/changes/integrate-uncommitted-worktree-task-subjects/specs/kbd-qualified-task-subjects/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "judge-gateway-availability",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          },
+          {
+            "level": "WARNING",
+            "path": "requirements[0]",
+            "message": "Requirement text is very long (>500 characters). Move examples and edge cases into scenarios, or split it into separate requirements that each state one behavior."
+          }
+        ],
+        "remediation": [
+          "long-requirement",
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/judge-gateway-availability/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "kbd-194-196-delivery-qualification",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/kbd-194-196-delivery-qualification/proposal.md",
+          "openspec/changes/kbd-194-196-delivery-qualification/tasks.md",
+          "openspec/changes/kbd-194-196-delivery-qualification/specs/kbd-control-plane-reconciliation/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "kbd-194-change-identity-repair",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/kbd-194-change-identity-repair/proposal.md",
+          "openspec/changes/kbd-194-change-identity-repair/tasks.md",
+          "openspec/changes/kbd-194-change-identity-repair/specs/kbd-control-plane-reconciliation/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "kbd-195-vlbv-policy-propagation",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/kbd-195-vlbv-policy-propagation/proposal.md",
+          "openspec/changes/kbd-195-vlbv-policy-propagation/tasks.md",
+          "openspec/changes/kbd-195-vlbv-policy-propagation/specs/agent-team-management/spec.md",
+          "openspec/changes/kbd-195-vlbv-policy-propagation/specs/kbd-phase-consistency/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "kbd-196-value-scenario-workflow",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/kbd-196-value-scenario-workflow/proposal.md",
+          "openspec/changes/kbd-196-value-scenario-workflow/tasks.md",
+          "openspec/changes/kbd-196-value-scenario-workflow/specs/value-led-scenario-verification/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "kbd-219-close-evidence-admission",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/kbd-219-close-evidence-admission/proposal.md",
+          "openspec/changes/kbd-219-close-evidence-admission/tasks.md",
+          "openspec/changes/kbd-219-close-evidence-admission/specs/kbd-phase-consistency/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "kbd-control-plane-reconciliation",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/kbd-control-plane-reconciliation/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "kbd-memory-integration",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/kbd-memory-integration/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "kbd-no-silent-journal-fork",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/kbd-no-silent-journal-fork/proposal.md",
+          "openspec/changes/kbd-no-silent-journal-fork/tasks.md",
+          "openspec/changes/kbd-no-silent-journal-fork/specs/kbd-team-authority/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "kbd-phase-consistency",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/kbd-phase-consistency/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "kbd-registry-maintenance",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/kbd-registry-maintenance/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "kbd-task-model-planning",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "kbd-task-model-planning/spec.md",
+            "message": "ADDED \"Latest stable OpenSpec lifecycle\": Requirement text is very long (>500 characters). Move examples and edge cases into scenarios, or split it into separate requirements that each state one behavior."
+          }
+        ],
+        "remediation": [
+          "long-requirement"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/kbd-task-model-planning/proposal.md",
+          "openspec/changes/kbd-task-model-planning/tasks.md",
+          "openspec/changes/kbd-task-model-planning/specs/kbd-task-model-planning/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "kbd-team-device-enrollment",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/kbd-team-device-enrollment/proposal.md",
+          "openspec/changes/kbd-team-device-enrollment/tasks.md",
+          "openspec/changes/kbd-team-device-enrollment/specs/kbd-team-authority/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "learn-model-coherence",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "requirements[1]",
+            "message": "Requirement text is very long (>500 characters). Move examples and edge cases into scenarios, or split it into separate requirements that each state one behavior."
+          }
+        ],
+        "remediation": [
+          "long-requirement"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/learn-model-coherence/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "mcp-protocol-currency",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/mcp-protocol-currency/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "mobile-skill-portability",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/mobile-skill-portability/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "native-execution-sandbox",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/native-execution-sandbox/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "reconcile-kbd-task-state",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/reconcile-kbd-task-state/proposal.md",
+          "openspec/changes/reconcile-kbd-task-state/tasks.md",
+          "openspec/changes/reconcile-kbd-task-state/specs/kbd-task-reconciliation/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "repair-kbd-progress-continuity",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/repair-kbd-progress-continuity/proposal.md",
+          "openspec/changes/repair-kbd-progress-continuity/tasks.md",
+          "openspec/changes/repair-kbd-progress-continuity/specs/kbd-progress-continuity/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "research-pipeline-execution",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "requirements[6]",
+            "message": "Requirement text is very long (>500 characters). Move examples and edge cases into scenarios, or split it into separate requirements that each state one behavior."
+          }
+        ],
+        "remediation": [
+          "long-requirement"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/research-pipeline-execution/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "restore-lease-free-kbd-handoff",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "kbd-cross-harness-handoff/spec.md",
+            "message": "ADDED \"Handoff refuses a half-closed boundary\": Requirement text is very long (>500 characters). Move examples and edge cases into scenarios, or split it into separate requirements that each state one behavior."
+          }
+        ],
+        "remediation": [
+          "long-requirement"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/restore-lease-free-kbd-handoff/proposal.md",
+          "openspec/changes/restore-lease-free-kbd-handoff/tasks.md",
+          "openspec/changes/restore-lease-free-kbd-handoff/specs/kbd-cross-harness-handoff/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "session-artifact-hygiene",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/session-artifact-hygiene/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "submodule-pin-resolvability",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/submodule-pin-resolvability/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "support-terminal-kbd-run-rollover",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/support-terminal-kbd-run-rollover/proposal.md",
+          "openspec/changes/support-terminal-kbd-run-rollover/tasks.md",
+          "openspec/changes/support-terminal-kbd-run-rollover/specs/kbd-run-lifecycle/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "uar-host-execution",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/uar-host-execution/spec.md"
+        ]
+      },
+      {
+        "type": "change",
+        "id": "ui-ux-routing-and-team-defaults",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/changes/ui-ux-routing-and-team-defaults/proposal.md",
+          "openspec/changes/ui-ux-routing-and-team-defaults/tasks.md",
+          "openspec/changes/ui-ux-routing-and-team-defaults/specs/project-team-defaults/spec.md",
+          "openspec/changes/ui-ux-routing-and-team-defaults/specs/ui-ux-routing/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "uiux-agent-routing",
+        "valid": true,
+        "issues": [],
+        "remediation": [
+          "retain-pass"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/uiux-agent-routing/spec.md"
+        ]
+      },
+      {
+        "type": "spec",
+        "id": "wasm-component-execution",
+        "valid": false,
+        "issues": [
+          {
+            "level": "WARNING",
+            "path": "overview",
+            "line": 4,
+            "message": "Purpose section is still a placeholder rather than a Purpose anyone wrote (the sentence `openspec archive` writes for a new capability, or a `TBD`/`TODO` marker left in its place). Replace it with what this capability is for, editing the main spec directly: a `## Purpose` in a delta is read only when the capability is created, so it cannot replace this one."
+          }
+        ],
+        "remediation": [
+          "purpose"
+        ],
+        "sourceCandidates": [
+          "openspec/specs/wasm-component-execution/spec.md"
+        ]
+      }
+    ]
+  },
+  "companionOpenSpec": {
+    "receipt": "companionStrict",
+    "scenario": "GREEN-002",
+    "earlierReceipt": "companionPreMirror",
+    "earlierItems": [
+      {
+        "id": "change-cpc-003-companion-workspace",
+        "type": "change",
+        "valid": false,
+        "issues": [
+          {
+            "level": "ERROR",
+            "path": "file",
+            "message": "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+          }
+        ]
+      }
+    ],
+    "items": [
+      {
+        "id": "change-cpc-003-companion-workspace",
+        "type": "change",
+        "valid": true,
+        "issues": []
+      }
+    ],
+    "disposition": "Preserve the post-mirror pass in whole-workspace strict validation."
+  },
+  "installedDoctor": {
+    "receipt": "installedDoctor",
+    "scenario": "GREEN-001",
+    "statusCounts": {
+      "skip": 8,
+      "fail": 9,
+      "pass": 6,
+      "warn": 1
+    },
+    "checks": [
+      {
+        "id": "services.plist-hardening",
+        "group": "services",
+        "severity": "yellow",
+        "status": "skip",
+        "summary": "shared/launchagents/ not present in this working directory",
+        "optional": true,
+        "disposition": "Reassess applicability on each real install; a skip must have a documented profile-specific reason."
+      },
+      {
+        "id": "skills.directory",
+        "group": "skills",
+        "severity": "red",
+        "status": "fail",
+        "summary": "skills/ is missing",
+        "optional": false,
+        "disposition": "Resolve installed catalog roots from the actual selected installation when launched from a consumer checkout."
+      },
+      {
+        "id": "skills.installed-agents",
+        "group": "skills",
+        "severity": "green",
+        "status": "pass",
+        "summary": "Detected 2 installed agent(s)",
+        "optional": false,
+        "disposition": "Preserve and verify on both installs."
+      },
+      {
+        "id": "learning.surreal-memory",
+        "group": "learning",
+        "severity": "green",
+        "status": "pass",
+        "summary": "Durable operation ledger is ready at http://127.0.0.1:23001",
+        "optional": false,
+        "disposition": "Preserve and verify on both installs."
+      },
+      {
+        "id": "review.judge-gateway",
+        "group": "review",
+        "severity": "green",
+        "status": "pass",
+        "summary": "Reachable at http://localhost:8181/v1",
+        "optional": true,
+        "disposition": "Preserve and verify on both installs."
+      },
+      {
+        "id": "binaries.manifest",
+        "group": "binaries",
+        "severity": "red",
+        "status": "fail",
+        "summary": "6 managed binary defect(s)",
+        "optional": false,
+        "disposition": "Resolve and verify each managed binary required for this profile in the isolated install."
+      },
+      {
+        "id": "execution.runtime",
+        "group": "execution",
+        "severity": "red",
+        "status": "fail",
+        "summary": "2 execution runtime defect(s)",
+        "optional": false,
+        "disposition": "Install and discover the expected executor and manifest/pin for the applicable profile."
+      },
+      {
+        "id": "services.launch-agents",
+        "group": "services",
+        "severity": "red",
+        "status": "fail",
+        "summary": "4 managed service defect(s)",
+        "optional": false,
+        "disposition": "Detect definitions and registration in the selected installation scope; require each elected service for the full profile."
+      },
+      {
+        "id": "learning.worker",
+        "group": "learning",
+        "severity": "red",
+        "status": "fail",
+        "summary": "worker missing, service loaded",
+        "optional": false,
+        "disposition": "Check both executable and service for the selected profile; avoid borrowing host service status."
+      },
+      {
+        "id": "learning.queue",
+        "group": "learning",
+        "severity": "green",
+        "status": "pass",
+        "summary": "0 record(s) in flight, none older than 6h",
+        "optional": true,
+        "disposition": "Preserve and verify on both installs."
+      },
+      {
+        "id": "learning.snapshots",
+        "group": "learning",
+        "severity": "red",
+        "status": "fail",
+        "summary": "3 prompt snapshot defect(s)",
+        "optional": false,
+        "disposition": "Materialize required prompt snapshots and use correct project/install roots."
+      },
+      {
+        "id": "hooks.rotation",
+        "group": "hooks",
+        "severity": "red",
+        "status": "fail",
+        "summary": "config missing, service loaded, dependencies ready, hook-log mode missing",
+        "optional": false,
+        "disposition": "Verify selected rotation configuration, local ownership/mode and actual service scope."
+      },
+      {
+        "id": "mcp.config",
+        "group": "mcp",
+        "severity": "yellow",
+        "status": "skip",
+        "summary": "MCP reconciliation checks are not implemented yet",
+        "optional": true,
+        "disposition": "Reassess applicability on each real install; a skip must have a documented profile-specific reason."
+      },
+      {
+        "id": "hooks.lifecycle",
+        "group": "hooks",
+        "severity": "red",
+        "status": "fail",
+        "summary": "active plugin generation verification failed",
+        "optional": false,
+        "disposition": "Resolve the active installed plugin generation and its verification entry point from a consumer checkout."
+      },
+      {
+        "id": "plugins.source-topology",
+        "group": "plugins",
+        "severity": "green",
+        "status": "skip",
+        "summary": "no directory marketplace source is registered for this pack",
+        "optional": true,
+        "disposition": "Reassess applicability on each real install; a skip must have a documented profile-specific reason."
+      },
+      {
+        "id": "plugins.native-cache-skew",
+        "group": "plugins",
+        "severity": "green",
+        "status": "skip",
+        "summary": "plugin source checker unavailable",
+        "optional": true,
+        "disposition": "Reassess applicability on each real install; a skip must have a documented profile-specific reason."
+      },
+      {
+        "id": "control.kbd-runtime",
+        "group": "control",
+        "severity": "green",
+        "status": "skip",
+        "summary": "no control endpoint discovered; local KBD runtime is authoritative",
+        "optional": true,
+        "disposition": "Reassess applicability on each real install; a skip must have a documented profile-specific reason."
+      },
+      {
+        "id": "state.kbd-orchestrator",
+        "group": "state",
+        "severity": "green",
+        "status": "pass",
+        "summary": "revision 2, projections consistent",
+        "optional": false,
+        "disposition": "Preserve and verify on both installs."
+      },
+      {
+        "id": "control.kbd-rollout",
+        "group": "control",
+        "severity": "green",
+        "status": "skip",
+        "summary": "local KBD is authoritative; no connected rollout is configured",
+        "optional": true,
+        "disposition": "Reassess applicability on each real install; a skip must have a documented profile-specific reason."
+      },
+      {
+        "id": "hooks.harness-adapters",
+        "group": "hooks",
+        "severity": "red",
+        "status": "fail",
+        "summary": "47 installed hook graph defect(s)",
+        "optional": false,
+        "disposition": "Resolve the installed release manifest, contracts and effective adapter paths; validate the complete configured graph."
+      },
+      {
+        "id": "skills.discovery-budget",
+        "group": "skills",
+        "severity": "yellow",
+        "status": "warn",
+        "summary": "313 skills, 93808 discovery characters, 0/4 measured harnesses, 0/4 cover configured discovery profiles",
+        "optional": false,
+        "disposition": "Measure configured discovery for the installed profiles using real harness evidence; include manifests and provenance for every covered harness."
+      },
+      {
+        "id": "state.evolver",
+        "group": "state",
+        "severity": "yellow",
+        "status": "skip",
+        "summary": ".evolver is not initialized",
+        "optional": true,
+        "disposition": "Reassess applicability on each real install; a skip must have a documented profile-specific reason."
+      },
+      {
+        "id": "learning.trace-store",
+        "group": "learning",
+        "severity": "yellow",
+        "status": "skip",
+        "summary": "No trace store yet",
+        "optional": true,
+        "disposition": "Reassess applicability on each real install; a skip must have a documented profile-specific reason."
+      },
+      {
+        "id": "codex.memories",
+        "group": "codex",
+        "severity": "green",
+        "status": "pass",
+        "summary": "All three memory settings are false; known v1/v2 summaries are absent",
+        "optional": true,
+        "disposition": "Preserve and verify on both installs."
+      }
+    ]
+  }
+}

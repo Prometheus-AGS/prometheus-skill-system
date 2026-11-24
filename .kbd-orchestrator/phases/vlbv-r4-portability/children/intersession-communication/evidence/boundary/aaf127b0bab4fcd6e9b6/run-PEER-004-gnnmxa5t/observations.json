@@ -1,0 +1,430 @@
+{
+  "schemaVersion": 1,
+  "case": "PEER-004",
+  "negativeOnly": false,
+  "passed": true,
+  "result": "PASS",
+  "binaries": {
+    "headless": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/prometheus-companion-headless",
+      "sha256": "05f3b14e79077653ad59ced7008a1ffebda083b10c1a54ded85469d0c0ec576b"
+    },
+    "sovereignSync": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/sovereign-sync",
+      "sha256": "06113ada1cdf469cf53f9374610af4431c114c78e644e4723deb30f556490ab5"
+    },
+    "packCandidate": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/debug/prometheus",
+      "sha256": "84889e00fa9217d6768baf75dce94ad9e348cb4b383f8add2709ac036f0f971f",
+      "version": "prometheus 1.15.0"
+    },
+    "installedWriter": {
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "sha256": "666c76b1e9da06048a0376a5c4facb5b0133928c00efe136c2cc31f90defc009",
+      "version": "prometheus 1.15.0"
+    },
+    "fixtureTool": {
+      "path": "/Volumes/T7/Projects/prometheus/prometheus-companion/target/debug/examples/kbd-peer-fixture",
+      "sha256": "f85d92250b0cdd06b3c7f847f860368808736fd4671c4478539d0a60034c1d54"
+    }
+  },
+  "companionSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-companion",
+    "revision": "773aa5e33b2217135bc423e526c497cceb0e7058",
+    "dirtySourceSha256": "299764acf75a7128be0b0426ed6f0e8398cd840589ff6e9e046c19b72293944d",
+    "dirtySourceCount": 52
+  },
+  "fullSource": {
+    "path": "/Volumes/T7/Projects/prometheus/prometheus-skill-pack",
+    "revision": "fd111426f17ad008949890801c146893a08c83ec",
+    "dirtySourceSha256": "00931629254b7b576e1661fb290bc49391997e1c507531d78dbc4fe5bded38ea",
+    "dirtySourceCount": 8
+  },
+  "cargoLockSha256": "c5987f3483621cf1a93f46816b31cc576c1f0265975994bc7723cbd7e9c3e08f",
+  "runnerSha256": "55b8be379b2065a8b69aa66a63087e7c38df9846a7ddf00d312ebee962a2a3e4",
+  "baselineCopy": {
+    "senderSha256": "f87db2d8db22a9a2b531ed8e1260cd24140a7c2abe3bccc4203291d88c8eaf98",
+    "receiverSha256": "f87db2d8db22a9a2b531ed8e1260cd24140a7c2abe3bccc4203291d88c8eaf98"
+  },
+  "authorities": {
+    "A": {
+      "name": "A",
+      "keyId": "ed25519:98ee37132a419ad40bd5a59e848d6508105169a25390a34969dc1e88bb74590b",
+      "endpointId": "1b2b3e51dc2dd824fd93ba1f186d092f2b5d5b0096522fa3c0da2ab233164ad0",
+      "projectId": "d4ba71ad-d559-4583-9d46-3e5f4bd41220",
+      "replicaId": "a60a6010-8dd7-43c0-aab9-8a7c582795d9",
+      "checkout": "/tmp/kbd-peers-x96x1xcg/A/project",
+      "authority": "/tmp/kbd-peers-x96x1xcg/A/data/prometheus/kbd/projects/d4ba71ad-d559-4583-9d46-3e5f4bd41220",
+      "socket": "/tmp/kbd-peers-x96x1xcg/A/control.sock",
+      "companionPids": [
+        21906
+      ]
+    },
+    "B": {
+      "name": "B",
+      "keyId": "ed25519:aa9609760872e502abc8699ca29d3447d83b459b726ec6cc522a801813fc0127",
+      "endpointId": "52483130f3e0489ee95ae4074af0cf0781b7dcee90ea18f6f06494801a2b05c3",
+      "projectId": "d4ba71ad-d559-4583-9d46-3e5f4bd41220",
+      "replicaId": "a2a69e3a-7c06-4a40-af7c-0618e8793d10",
+      "checkout": "/tmp/kbd-peers-x96x1xcg/B/project",
+      "authority": "/tmp/kbd-peers-x96x1xcg/B/data/prometheus/kbd/projects/d4ba71ad-d559-4583-9d46-3e5f4bd41220",
+      "socket": "/tmp/kbd-peers-x96x1xcg/B/control.sock",
+      "companionPids": [
+        21907,
+        28268
+      ]
+    }
+  },
+  "baseline": {
+    "frontier": {
+      "a60a6010-8dd7-43c0-aab9-8a7c582795d9": 3
+    },
+    "eventHashes": [
+      "462ad89715e262e3a5f9a6033b51e79688da562e9e964147b61ead4531c12ccc",
+      "6a201a5d5df66a5788044d66da964de93d4193733d448b5c47aae84cd51b385b",
+      "83e408bd2a1526d142e84ba66a1df6b90bcbf333d80f00b6133c339e026ea49a"
+    ]
+  },
+  "sourceBacklog": {
+    "frameBytes": 114410448,
+    "maximumBytes": 16777216,
+    "commandCount": 40,
+    "fixtureInputSha256": "a623c82d1d32fc3ec86e5ee63186b71f44597745cf44fc4764386d76ea5d06c4",
+    "sourceEventHashes": [
+      "462ad89715e262e3a5f9a6033b51e79688da562e9e964147b61ead4531c12ccc",
+      "6a201a5d5df66a5788044d66da964de93d4193733d448b5c47aae84cd51b385b",
+      "83e408bd2a1526d142e84ba66a1df6b90bcbf333d80f00b6133c339e026ea49a",
+      "367d98d142118f7461cc8ed128fa5d6b3d2cdae76fe2011073d30db2c1f6afd9",
+      "2f45a51f000f3c4f749b2450f2f3ace2bb91207166f7e29464d766b04bbcca88",
+      "86123807dceeda28aaca6825a09bd70a26698c2766e59673ff2edb1ef3aef34c",
+      "743bb7943e9879a4dec86e9ae1cf001e78e80eca9965f7b77e0643b201020f43",
+      "d4826f397217bec37b0ac2eab081c983e9d6cc445e7419f2ba15d2b62c20cfc1",
+      "ebe3fb78b7ebef1ef5fcb29e125fc187c574b5c52bec1955a4aa735e4b382897",
+      "db96fc90a1330a02f88b8e75e35c51ab5a43fed0b12761c1d74f2757fb2fee41",
+      "81ad62f3281fb0e8eae0f392c15d44d869fcf41c7197e5dc550c60fc4e5db396",
+      "836859893cc0782b5362bc2ad404c11a4791bd5db0b14a5484920500d14ca63c",
+      "282c3f7df3ac795dc7a25eac95edfa055b03b00da7a2b02f27a2ee1f8d69e2a7",
+      "73f5a867c7821eb6e9467b77948db88c181f293bef38836892d902556364b866",
+      "5109c85b3f402a5f95a3e4f5e80de4f80e5a6dab2838ddcb6ab0cfa0b80d38f1",
+      "43e57c2eefc083d69c7cff7c7619aee0ed73d9dd0750d2b77e28e93802a22d68",
+      "6bd2ecc1af02afa9b5be0cf46b7c91316483f0e26acbcccd7dc71e58f5ab1f75",
+      "1cbe18bd18206c7a62d0430ca95f12bcd87448379e0295b43cd58661db916949",
+      "53d3a3ec3710ba89b8ae28cc94c8fb294a34da338cd3d10edf15cf766cfae892",
+      "b750b96bd2fd10a28a7f21dbd64a9548545ad2cfc0882f26cf1baf802c2d9a38",
+      "5909a53826051acda2e2d3eb85b7dd48f7deb206da50bf6bd6efb06dc66a3fab",
+      "eebe2faa2b896335c90014a188034d229e45006bc8c54ecf6e21a24d3edd682a",
+      "0bef20fbbae6b28ddd428c69abccb345ccf00d2c2402f7dac8ed01c78ac9bfe0",
+      "5f6d15845e8623189c1d6e06f44d8344c76f0810709e581ab294e49aa30238bb",
+      "2818f0534ee4b0655e1c05788cdf53157c0b1c7b48d5122315ca2cfce49a9bca",
+      "0faba6055273d6e5e0a57e12ace1897f1290aaa25a173bc42ad543e831244edb",
+      "b6bdc259449253089794e55f6bd52d742941dac90375cdb653b75ffb2e9df5ec",
+      "06d20174100080267d89e8276d8338d5614639e6ccc09bcf4cfd28882eb5cf49",
+      "d1048cf3e340914996d1e3476021adb5a91b3d3a80b441dd7e11d7f2e0b45460",
+      "9444330074bbc134f4f837165938aeb686edc9b1d855e6c752380e7379219d2f",
+      "7635c5169c2577a231ebd30509398d935e38c011d83c994f5aed512f7c4f9c42",
+      "b42046350a9b5d681e9bdae05d58c5cfa7d46d70a52ad110ccf45889053cd6ff",
+      "77445a42ccc0c614f9689ed19f236c58819f9cbdd09874aa8d45cf2708c1cda4",
+      "144bb9f9f7d3d22cb21ed1bfb7a08260907836b34cd47e88ba02cc46ec3fdb96",
+      "2831aec315fc3ab17690102475d7c8f00ea6148a6a4eea07b4e0ad5c103bf0a6",
+      "9e3c4c59b3aec4f32acee57e155909dae2ce6572921e8123bd674e67ea9e4285",
+      "a33310f71fa0fe0c815dcb6fa59364e23709bb03d2ae032793fdbf61cd9a1406",
+      "ba9d08f79632b2f38dcfe04d95e97369a9967db956f0079afdb57a71089d81db",
+      "de9de04276c679c09800982435514fef56ac4cab7580cdcf2b9400c3915e478a",
+      "2154af615e09aa48feceb658bcf9b160d1015e5e0ad2b6ba60f3841910894c80",
+      "d01b2c10559bab605577cc1f1ed9ffb3f064168865d517e4560162ec566b99fc",
+      "643289dac261a3ff395ad65d0d7b8791962e545670c59a9a001fa0133b154b1e",
+      "5f4d972459bd140f0726d12e4fdb43498178502e02f6ca3129cd4e8ed2da87d7"
+    ]
+  },
+  "budgets": {
+    "deliveryAttempts": 2,
+    "maximumFrameBytes": 16777216,
+    "operationSeconds": 45,
+    "progressPollSeconds": 0.025
+  },
+  "restartPorts": {
+    "before": {
+      "ipv4": 65452,
+      "ipv6": 62734
+    },
+    "after": {
+      "ipv4": 65452,
+      "ipv6": 62734
+    },
+    "stoppedPid": 21907,
+    "restartedPid": 28268
+  },
+  "gossipAtRestart": {
+    "senderNeighbors": [
+      "52483130f3e0489ee95ae4074af0cf0781b7dcee90ea18f6f06494801a2b05c3"
+    ],
+    "receiverNeighbors": []
+  },
+  "interruption": {
+    "stoppedPid": 21907,
+    "restartedPid": 28268,
+    "beforeRestart": {
+      "a60a6010-8dd7-43c0-aab9-8a7c582795d9": 11
+    },
+    "persistedFrontier": {
+      "a60a6010-8dd7-43c0-aab9-8a7c582795d9": 11
+    },
+    "persistedEventHashes": [
+      "462ad89715e262e3a5f9a6033b51e79688da562e9e964147b61ead4531c12ccc",
+      "6a201a5d5df66a5788044d66da964de93d4193733d448b5c47aae84cd51b385b",
+      "83e408bd2a1526d142e84ba66a1df6b90bcbf333d80f00b6133c339e026ea49a",
+      "367d98d142118f7461cc8ed128fa5d6b3d2cdae76fe2011073d30db2c1f6afd9",
+      "2f45a51f000f3c4f749b2450f2f3ace2bb91207166f7e29464d766b04bbcca88",
+      "86123807dceeda28aaca6825a09bd70a26698c2766e59673ff2edb1ef3aef34c",
+      "743bb7943e9879a4dec86e9ae1cf001e78e80eca9965f7b77e0643b201020f43",
+      "d4826f397217bec37b0ac2eab081c983e9d6cc445e7419f2ba15d2b62c20cfc1",
+      "ebe3fb78b7ebef1ef5fcb29e125fc187c574b5c52bec1955a4aa735e4b382897",
+      "db96fc90a1330a02f88b8e75e35c51ab5a43fed0b12761c1d74f2757fb2fee41",
+      "81ad62f3281fb0e8eae0f392c15d44d869fcf41c7197e5dc550c60fc4e5db396"
+    ],
+    "failedReceipt": {
+      "schemaVersion": "1.7",
+      "pushId": "6ee525c7-e8d5-415b-946c-2ae455a0d22f",
+      "canonicalPayloadHash": "c464daf3ed12991927c8d9a29b0ac637dc88560ffb810309efe8b5f6a1eb6ecb",
+      "domain": "kbd-control:d4ba71ad-d559-4583-9d46-3e5f4bd41220",
+      "targets": [
+        "52483130f3e0489ee95ae4074af0cf0781b7dcee90ea18f6f06494801a2b05c3"
+      ],
+      "localState": "failed",
+      "perPeer": {
+        "52483130f3e0489ee95ae4074af0cf0781b7dcee90ea18f6f06494801a2b05c3": {
+          "state": "failed",
+          "updatedAtMs": 1795531005456,
+          "failure": "peer delivery timed out while waiting for the receiver acknowledgement",
+          "acceptedFrameBytes": [
+            3068
+          ],
+          "insertedEvents": 0,
+          "receiverFrontier": {
+            "a60a6010-8dd7-43c0-aab9-8a7c582795d9": 3
+          },
+          "projectionCurrent": false,
+          "projectionError": "checkout waypoint is unavailable: No such file or directory (os error 2)"
+        }
+      },
+      "createdAtMs": 1795530974469,
+      "updatedAtMs": 1795531005457,
+      "failure": "peer delivery timed out while waiting for the receiver acknowledgement",
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795530974469,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795530974484,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "target_delivery_failed",
+          "timestampMs": 1795531005457,
+          "localState": "failed",
+          "detail": "peer delivery timed out while waiting for the receiver acknowledgement"
+        }
+      ]
+    }
+  },
+  "resumedPush": {
+    "httpStatus": 201,
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "7a132397-08f8-4115-bb99-0783fbdb1fa4",
+      "canonicalPayloadHash": "bb44ffb37b73ea501943f0509641cb24cf8dce9aba2d23aea58800461fe84cd3",
+      "domain": "kbd-control:d4ba71ad-d559-4583-9d46-3e5f4bd41220",
+      "targets": [
+        "52483130f3e0489ee95ae4074af0cf0781b7dcee90ea18f6f06494801a2b05c3"
+      ],
+      "localState": "broadcast",
+      "perPeer": {
+        "52483130f3e0489ee95ae4074af0cf0781b7dcee90ea18f6f06494801a2b05c3": {
+          "state": "applied",
+          "updatedAtMs": 1795531023145,
+          "acceptedFrameBytes": [
+            3068,
+            10461804,
+            7849185,
+            11767429,
+            11768465
+          ],
+          "insertedEvents": 32,
+          "receiverFrontier": {
+            "a60a6010-8dd7-43c0-aab9-8a7c582795d9": 43
+          },
+          "projectionCurrent": true
+        }
+      },
+      "createdAtMs": 1795531011854,
+      "updatedAtMs": 1795531023145,
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795531011854,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795531011868,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "applied_at_targets",
+          "timestampMs": 1795531023145,
+          "localState": "broadcast"
+        }
+      ]
+    }
+  },
+  "catchup": {
+    "acceptedWireFrameBytes": [
+      3068,
+      3068,
+      10461804,
+      7849185,
+      11767429,
+      11768465
+    ],
+    "frameCount": 6,
+    "acceptedWireBytes": 41853019,
+    "receipt": {
+      "schemaVersion": "1.7",
+      "pushId": "7a132397-08f8-4115-bb99-0783fbdb1fa4",
+      "canonicalPayloadHash": "bb44ffb37b73ea501943f0509641cb24cf8dce9aba2d23aea58800461fe84cd3",
+      "domain": "kbd-control:d4ba71ad-d559-4583-9d46-3e5f4bd41220",
+      "targets": [
+        "52483130f3e0489ee95ae4074af0cf0781b7dcee90ea18f6f06494801a2b05c3"
+      ],
+      "localState": "broadcast",
+      "perPeer": {
+        "52483130f3e0489ee95ae4074af0cf0781b7dcee90ea18f6f06494801a2b05c3": {
+          "state": "applied",
+          "updatedAtMs": 1795531023145,
+          "acceptedFrameBytes": [
+            3068,
+            10461804,
+            7849185,
+            11767429,
+            11768465
+          ],
+          "insertedEvents": 32,
+          "receiverFrontier": {
+            "a60a6010-8dd7-43c0-aab9-8a7c582795d9": 43
+          },
+          "projectionCurrent": true
+        }
+      },
+      "createdAtMs": 1795531011854,
+      "updatedAtMs": 1795531023145,
+      "events": [
+        {
+          "sequence": 1,
+          "event": "accepted",
+          "timestampMs": 1795531011854,
+          "localState": "accepted"
+        },
+        {
+          "sequence": 2,
+          "event": "prepared",
+          "timestampMs": 1795531011868,
+          "localState": "prepared"
+        },
+        {
+          "sequence": 3,
+          "event": "applied_at_targets",
+          "timestampMs": 1795531023145,
+          "localState": "broadcast"
+        }
+      ]
+    },
+    "receiverEventHashes": [
+      "462ad89715e262e3a5f9a6033b51e79688da562e9e964147b61ead4531c12ccc",
+      "6a201a5d5df66a5788044d66da964de93d4193733d448b5c47aae84cd51b385b",
+      "83e408bd2a1526d142e84ba66a1df6b90bcbf333d80f00b6133c339e026ea49a",
+      "367d98d142118f7461cc8ed128fa5d6b3d2cdae76fe2011073d30db2c1f6afd9",
+      "2f45a51f000f3c4f749b2450f2f3ace2bb91207166f7e29464d766b04bbcca88",
+      "86123807dceeda28aaca6825a09bd70a26698c2766e59673ff2edb1ef3aef34c",
+      "743bb7943e9879a4dec86e9ae1cf001e78e80eca9965f7b77e0643b201020f43",
+      "d4826f397217bec37b0ac2eab081c983e9d6cc445e7419f2ba15d2b62c20cfc1",
+      "ebe3fb78b7ebef1ef5fcb29e125fc187c574b5c52bec1955a4aa735e4b382897",
+      "db96fc90a1330a02f88b8e75e35c51ab5a43fed0b12761c1d74f2757fb2fee41",
+      "81ad62f3281fb0e8eae0f392c15d44d869fcf41c7197e5dc550c60fc4e5db396",
+      "836859893cc0782b5362bc2ad404c11a4791bd5db0b14a5484920500d14ca63c",
+      "282c3f7df3ac795dc7a25eac95edfa055b03b00da7a2b02f27a2ee1f8d69e2a7",
+      "73f5a867c7821eb6e9467b77948db88c181f293bef38836892d902556364b866",
+      "5109c85b3f402a5f95a3e4f5e80de4f80e5a6dab2838ddcb6ab0cfa0b80d38f1",
+      "43e57c2eefc083d69c7cff7c7619aee0ed73d9dd0750d2b77e28e93802a22d68",
+      "6bd2ecc1af02afa9b5be0cf46b7c91316483f0e26acbcccd7dc71e58f5ab1f75",
+      "1cbe18bd18206c7a62d0430ca95f12bcd87448379e0295b43cd58661db916949",
+      "53d3a3ec3710ba89b8ae28cc94c8fb294a34da338cd3d10edf15cf766cfae892",
+      "b750b96bd2fd10a28a7f21dbd64a9548545ad2cfc0882f26cf1baf802c2d9a38",
+      "5909a53826051acda2e2d3eb85b7dd48f7deb206da50bf6bd6efb06dc66a3fab",
+      "eebe2faa2b896335c90014a188034d229e45006bc8c54ecf6e21a24d3edd682a",
+      "0bef20fbbae6b28ddd428c69abccb345ccf00d2c2402f7dac8ed01c78ac9bfe0",
+      "5f6d15845e8623189c1d6e06f44d8344c76f0810709e581ab294e49aa30238bb",
+      "2818f0534ee4b0655e1c05788cdf53157c0b1c7b48d5122315ca2cfce49a9bca",
+      "0faba6055273d6e5e0a57e12ace1897f1290aaa25a173bc42ad543e831244edb",
+      "b6bdc259449253089794e55f6bd52d742941dac90375cdb653b75ffb2e9df5ec",
+      "06d20174100080267d89e8276d8338d5614639e6ccc09bcf4cfd28882eb5cf49",
+      "d1048cf3e340914996d1e3476021adb5a91b3d3a80b441dd7e11d7f2e0b45460",
+      "9444330074bbc134f4f837165938aeb686edc9b1d855e6c752380e7379219d2f",
+      "7635c5169c2577a231ebd30509398d935e38c011d83c994f5aed512f7c4f9c42",
+      "b42046350a9b5d681e9bdae05d58c5cfa7d46d70a52ad110ccf45889053cd6ff",
+      "77445a42ccc0c614f9689ed19f236c58819f9cbdd09874aa8d45cf2708c1cda4",
+      "144bb9f9f7d3d22cb21ed1bfb7a08260907836b34cd47e88ba02cc46ec3fdb96",
+      "2831aec315fc3ab17690102475d7c8f00ea6148a6a4eea07b4e0ad5c103bf0a6",
+      "9e3c4c59b3aec4f32acee57e155909dae2ce6572921e8123bd674e67ea9e4285",
+      "a33310f71fa0fe0c815dcb6fa59364e23709bb03d2ae032793fdbf61cd9a1406",
+      "ba9d08f79632b2f38dcfe04d95e97369a9967db956f0079afdb57a71089d81db",
+      "de9de04276c679c09800982435514fef56ac4cab7580cdcf2b9400c3915e478a",
+      "2154af615e09aa48feceb658bcf9b160d1015e5e0ad2b6ba60f3841910894c80",
+      "d01b2c10559bab605577cc1f1ed9ffb3f064168865d517e4560162ec566b99fc",
+      "643289dac261a3ff395ad65d0d7b8791962e545670c59a9a001fa0133b154b1e",
+      "5f4d972459bd140f0726d12e4fdb43498178502e02f6ca3129cd4e8ed2da87d7"
+    ],
+    "frontier": {
+      "a60a6010-8dd7-43c0-aab9-8a7c582795d9": 43
+    },
+    "projection": {
+      "sha256": "467746d72df07805ece48107c5b32feb001d2225add308b3367bbcbe3222e926",
+      "sourceRevision": 43,
+      "frontier": {
+        "a60a6010-8dd7-43c0-aab9-8a7c582795d9": 43
+      }
+    }
+  },
+  "cleanup": {
+    "scratchRemoved": true,
+    "processes": [
+      {
+        "role": "A",
+        "pid": 21906,
+        "exit": 0,
+        "intentionalInterruption": false
+      },
+      {
+        "role": "B",
+        "pid": 21907,
+        "exit": -9,
+        "intentionalInterruption": true
+      },
+      {
+        "role": "B",
+        "pid": 28268,
+        "exit": 0,
+        "intentionalInterruption": false
+      }
+    ]
+  },
+  "assertionCount": 160
+}

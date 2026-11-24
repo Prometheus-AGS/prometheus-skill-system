@@ -1,0 +1,61 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "mimo-v2.6-pro",
+  "producer_model": "gpt-6.2-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "unverified-producer-unknown",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 33,
+      "claim": "The plan declares the nested-child strict-adoption prerequisite already discharged, contradicting the spec handoff that left it open including formal binding, and no scheduled work obtains or records that binding.",
+      "evidence": "spec.handoff.json summaryForNext states: \"Before execution resolve the nested child path in strict adoption and obtain formal binding; no behavioral pass is claimed.\" plan.md (Nested phase evidence) states instead: \"Strict adoption and readiness for this registered child already passed during Plan.\" The plan cites no receipt for that adoption, and no row of the implementation table or the task-model assignments covers \"obtain formal binding\", yet exit requires \"Verify the nested runtime admits the receipts and records the operator's phase disposition before advertising closure.\"",
+      "suggested_fix": "Add an explicit pre-execution step (B1/B2) that records the strict-adoption receipt and the formal binding artifact for the nested child path, and cite it by path and SHA-256 in 'Authority and inputs'; otherwise mark the binding as an unresolved prerequisite of dispatch."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 35,
+      "claim": "C-03 documentation updates are owned by GREEN-01 even when an earlier task changes the Codex plugin surface, and C-03 permits no such deferral.",
+      "evidence": "Constraint C-03 requires that a change altering the plugin surface \"must update `docs/codex-plugin.md` and, where relevant, the CLAUDE.md 'Codex CLI Integration' section in the same change\", and only C-01 carries a batching/deferral clause (and only for generated outputs). plan.md (Generated files and documentation) says \"GREEN-01 owns service and plugin reconciliation for every edited installer, hook or template. Earlier tasks record GREEN-01 as the reconciliation owner when they affect shared generator inputs\" and places \"Update `docs/codex-plugin.md` and the relevant Codex section of `CLAUDE.md`... in the same change\" inside that GREEN-01-owned paragraph, so a hook/.mcp.json/.claude-plugin edit made under LIVE/PEER would get its required docs in a different change.",
+      "suggested_fix": "State that the C-01 deferral covers regenerated outputs only, and that whichever task alters the Codex plugin surface must carry its own docs/codex-plugin.md and CLAUDE.md update in that same change."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 41,
+      "claim": "LIVE-01 and PEER-02 have no stated negative outcome, so their `--negative-only` vectors could be satisfied by a non-zero exit from an unrelated cause.",
+      "evidence": "plan.md requires for every row \"its separate `--negative-only` control\" and captures only \"exit status, assertion count\", while PEER-01 (\"rejects a validly signed *future* event... preserves history bytes and the prior chain\"), PEER-03 (\"an unpaired node, a paired but unenrolled project signer, a revoked signer and a wrong project separately\"), PEER-04 (\"reject one frame above it\"), GREEN-01 (\"Require each specific defect to be detected\") and GREEN-02 (\"Require the correct ID to be rejected in each control\") each name a specific rejection that must be observed. Row 1 ends only with \"In the shared-Companion case capture an accepted request on its actual control socket\", and row 5 ends only with \"Require one applied event\" \u2014 no denial/non-effect that their negative controls must produce.",
+      "suggested_fix": "For LIVE-01 and PEER-02 name the exact negative command and the observation that proves rejection or non-application (e.g. a push from an unenrolled signer leaves B's stream, audit and frontier unchanged), and require the runner to assert that observation rather than accept any non-zero exit."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 51,
+      "claim": "Exit evidence leans on a report at an absolute path outside the repo and outside the registered checkouts, which cannot be hash-pinned like the plan's other inputs.",
+      "evidence": "plan.md links \"[Earlier verification report](/Users/gqadonis/Projects/companion-pack-live.wgtMGxnu/REPORT.md)\" and attributes to it that \"The same-host results supply evidence toward CPC-011 and the standalone portion of CPC-013\", while every other input is required to be verified \"against its hash\" from the checkouts under `/Volumes/T7/Projects/prometheus/`. That file appears neither in file_tree nor cited_paths, and the path names a different user home than the execution environment.",
+      "suggested_fix": "Vendor the report (content plus SHA-256) into the child's evidence directory or the plan directory and cite the vendored copy, or drop the CPC-011/CPC-013 attribution from this phase's exit record."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 45,
+      "claim": "The plan schedules the cumulative review activity but never the completed review receipt or signed waiver that the constraints require before final certification.",
+      "evidence": "Constraints: \"Every change requires deterministic artifact validation followed by independent cumulative diff review before archive and final certification... Final certification requires a completed review receipt or the explicit signed waiver required by the current `kbd-execute` contract.\" plan.md (B1/B2/B3 paragraph) says only \"At B4 complete the evidence packet and cumulative static QA and cross-model review\" and names no review-receipt artifact (the repo ships `scripts/local-review-receipt.mjs`), while its per-case receipts cover scenarios, not the cumulative diff review.",
+      "suggested_fix": "Add to the B4/certification gate an explicit requirement to produce a completed local review receipt (or the signed kbd-execute waiver) per change, and record its path in the closure packet."
+    }
+  ],
+  "judge_identity": {
+    "providerConnectionId": "xiaomi-token-plan",
+    "providerId": "xiaomi",
+    "modelId": "mimo-v2.6-pro"
+  },
+  "checked_classes": [],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

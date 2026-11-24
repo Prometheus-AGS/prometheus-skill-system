@@ -1,0 +1,190 @@
+{
+  "phase": "vlbv-r4-portability::intersession-communication",
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "contractDigest": "90e42b1d0498e4a860728a2132cd9e5c947a99c66409fbdf3405ace5866a3cdf",
+  "attemptId": "B4-51214a4501f8c35a3c9d",
+  "attempt": {
+    "boundary": "B4",
+    "authorizedAt": "2026-11-24T11:03:15.881Z",
+    "startedAt": "2026-11-24T11:03:49.639949+00:00",
+    "endedAt": "2026-11-24T11:05:53.156949+00:00",
+    "status": "FAIL",
+    "ended": "Full CLI did not compile: E0277 in crates/prometheus-cli/src/commands/kbd.rs:2165. No live session started."
+  },
+  "executedBy": {
+    "harness": "Codex",
+    "role": "local execution coordinator"
+  },
+  "candidate": {
+    "stage": "locked build",
+    "firstCommand": "run-LOCAL-001",
+    "complete": false
+  },
+  "scenarios": [
+    {
+      "id": "LOCAL-001",
+      "status": "NOT_EXERCISED",
+      "observed": "Full CLI did not compile: E0277 in crates/prometheus-cli/src/commands/kbd.rs:2165. No live session started.",
+      "commands": [
+        "run-LOCAL-001",
+        "negative-LOCAL-001"
+      ]
+    },
+    {
+      "id": "LOCAL-002",
+      "status": "NOT_EXERCISED",
+      "observed": "Packet stopped at the prerequisite build.",
+      "commands": [
+        "run-LOCAL-002",
+        "negative-LOCAL-002"
+      ]
+    },
+    {
+      "id": "LOCAL-003",
+      "status": "NOT_EXERCISED",
+      "observed": "Packet stopped at the prerequisite build.",
+      "commands": [
+        "run-LOCAL-003",
+        "negative-LOCAL-003"
+      ]
+    },
+    {
+      "id": "PEER-001",
+      "status": "NOT_EXERCISED",
+      "observed": "Packet stopped at the prerequisite build.",
+      "commands": [
+        "run-PEER-001",
+        "negative-PEER-001"
+      ]
+    },
+    {
+      "id": "PEER-002",
+      "status": "NOT_EXERCISED",
+      "observed": "Packet stopped at the prerequisite build.",
+      "commands": [
+        "run-PEER-002",
+        "negative-PEER-002"
+      ]
+    },
+    {
+      "id": "PEER-003",
+      "status": "NOT_EXERCISED",
+      "observed": "Packet stopped at the prerequisite build.",
+      "commands": [
+        "run-PEER-003",
+        "negative-PEER-003"
+      ]
+    },
+    {
+      "id": "PEER-004",
+      "status": "NOT_EXERCISED",
+      "observed": "Packet stopped at the prerequisite build.",
+      "commands": [
+        "run-PEER-004",
+        "negative-PEER-004"
+      ]
+    },
+    {
+      "id": "GREEN-001",
+      "status": "NOT_EXERCISED",
+      "observed": "Packet stopped at the prerequisite build.",
+      "commands": [
+        "run-GREEN-001",
+        "negative-GREEN-001"
+      ]
+    },
+    {
+      "id": "GREEN-002",
+      "status": "NOT_EXERCISED",
+      "observed": "Packet stopped at the prerequisite build.",
+      "commands": [
+        "run-GREEN-002",
+        "negative-GREEN-002"
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "id": "run-LOCAL-001",
+      "status": "FAIL",
+      "receipt": "evidence/boundary/51214a4501f8c35a3c9d/run-LOCAL-001-rjm7bxqr/receipt.json",
+      "receiptSha256": "d6981da6bd76295c395834818cded286f8be82bb474df2af4d3996b03dcec2ad"
+    },
+    {
+      "id": "negative-LOCAL-001",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "run-LOCAL-002",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "negative-LOCAL-002",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "run-LOCAL-003",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "negative-LOCAL-003",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "run-PEER-001",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "negative-PEER-001",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "run-PEER-002",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "negative-PEER-002",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "run-PEER-003",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "negative-PEER-003",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "run-PEER-004",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "negative-PEER-004",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "run-GREEN-001",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "negative-GREEN-001",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "run-GREEN-002",
+      "status": "NOT_EXERCISED"
+    },
+    {
+      "id": "negative-GREEN-002",
+      "status": "NOT_EXERCISED"
+    }
+  ],
+  "budgetConsumption": {
+    "repairAttempts": 0
+  },
+  "limitations": [
+    "No session or Companion process ran in this attempt.",
+    "The GUI installer check and receiver-limit evidence remain outstanding."
+  ]
+}

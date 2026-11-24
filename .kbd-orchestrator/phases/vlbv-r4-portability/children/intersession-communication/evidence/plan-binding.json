@@ -1,0 +1,71 @@
+{
+  "purpose": "Plan binding and coverage checks on 2026-11-24",
+  "identity": {
+    "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "phaseId": "vlbv-r4-portability::intersession-communication",
+    "planRevision": 17,
+    "contractDigest": "14be1398ed9e08575e2aa7a0b5f2e8aed02e8bbfa858e5485ffd78b05e354f45"
+  },
+  "predecessorStage": "spec",
+  "taskCount": 9,
+  "scenarioCount": 9,
+  "boundaryCommandCount": 18,
+  "fullOpenSpecBaseline": {
+    "totals": {
+      "items": 158,
+      "passed": 28,
+      "failed": 130
+    },
+    "byType": {
+      "change": {
+        "items": 125,
+        "passed": 21,
+        "failed": 104
+      },
+      "spec": {
+        "items": 33,
+        "passed": 7,
+        "failed": 26
+      }
+    }
+  },
+  "fullDoctorBaseline": {
+    "skip": 8,
+    "fail": 9,
+    "pass": 6,
+    "warn": 1
+  },
+  "adoptionHelperRegression": {
+    "entry": [
+      "node",
+      "scripts/tests/kbd-installed-helpers.integration.test.mjs",
+      "--contract-projections"
+    ],
+    "result": "PASS",
+    "covers": [
+      "parent and nested child first binding",
+      "distinct registered ID and slug",
+      "misplaced file rejected",
+      "snapshot digest",
+      "initial readiness and repeat binding"
+    ]
+  },
+  "phaseReadiness": {
+    "entry": [
+      "bash",
+      "shared/scripts/kbd-phase-readiness-check.sh",
+      "--phase",
+      "vlbv-r4-portability::intersession-communication"
+    ],
+    "result": "READY"
+  },
+  "behavioralCasesExecuted": 0,
+  "receiptHashes": {
+    "failure-inventory.json": "5f46ab85ae29a7c1281a6b11426dfee9145188d1e7392ced4a9284c707fa1cf7",
+    "issue-closure.md": "bdfa9490e53744cb5ed7f4888c77f2569754e1a13cbd49ef2b21ce85d70a874b",
+    "adopted-contract.json": "7dc5cb2e7cb9542f1eab1e328f86fb87ff7ed2cb22649717e1a54e2e82a1c299",
+    "calibration.json": "f57ef1cd1bbe30132c82aa23ab8824ba00f769a9bcf6d236a46bd1c3993a4bc1",
+    "adopted/14be1398ed9e08575e2aa7a0b5f2e8aed02e8bbfa858e5485ffd78b05e354f45.json": "14be1398ed9e08575e2aa7a0b5f2e8aed02e8bbfa858e5485ffd78b05e354f45"
+  }
+}
