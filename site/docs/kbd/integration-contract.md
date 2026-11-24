@@ -24,8 +24,7 @@ in the repository, and it is authoritative where the two differ.
    install-time requirement, no runtime assumption. Extensions depend on the
    pack, never the reverse.
 2. **Capability is discovered, never assumed.** When an extension is present the
-   pack uses it. When it is absent the pack behaves exactly as it does today and
-   emits no warning, no degraded-mode notice, and no error.
+   pack uses it according to the selected operation. Standalone users can use the local signed journal. For a connected read the CLI identifies its source; requesting `--receiver-only` requires the selected receiver to answer. [Two-session example](/docs/guide/working-with-the-packs#work-from-a-second-session)
 
 ## The four seams
 

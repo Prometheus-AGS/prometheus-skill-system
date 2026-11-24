@@ -4,6 +4,10 @@ The native release workflow wraps the architecture-specific release payloads in 
 
 The catalog lists the binaries that supply long-running or scheduled services and accounts for other native release binaries. Add a catalog entry when a release gains a service. The packaging job renders a Dockerfile and an isolated context for each entry. Runtime credentials and configuration belong to the installation.
 
+## Installing a service
+
+Start with the pack installer’s provider selection. Choose Docker for each service you want it to manage and reuse an existing compatible service where appropriate. The published image inventory belongs to the selected release. The [installation guide](../../docs/guide/19-installation.md) explains local discovery and the native, Docker and external choices.
+
 ## Packaging an existing release
 
 Select the native release workflow on the main branch. Set `images_only` to true and `tag` to the existing version, including its leading `v`. This path downloads the two released Linux payload sets. It skips every native build. The platform jobs push architecture-specific manifests. The final job assembles each service's versioned multi-platform tag and attaches `service-images.json` to the GitHub release. A retry reuses matching published architecture manifests and checks the final index before accepting a previously published inventory.

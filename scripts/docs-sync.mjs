@@ -202,7 +202,7 @@ ${table(
       'Plugin distribution',
       `Ed25519-signed generation, shared index, and ${targets.length} signed receipts`,
     ],
-    ['Validation', 'Local certification; hosted automation limited to docs sync and Pages'],
+    ['Validation', 'Local certification. Hosted automation synchronizes docs, deploys Pages and publishes versioned binaries and service images.'],
   ]
 )}
 

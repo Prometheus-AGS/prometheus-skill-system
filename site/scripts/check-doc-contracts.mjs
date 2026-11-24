@@ -77,13 +77,13 @@ if (
   failures.push(`SKILLS.md is not version ${release}`);
 }
 
+const cliManifest = 'tools/prometheus-cli/Cargo.toml';
+const cliPin = releaseMatrix.ownedSurfaces.find(surface => surface.path === cliManifest);
+if (!cliPin || !new RegExp(cliPin.pattern).test(text(path.join(repoRoot, cliManifest)))) {
+  failures.push('Prometheus CLI workspace disagrees with its release matrix pin');
+}
+
 for (const [label, file, table, expected] of [
-  [
-    'Prometheus CLI workspace',
-    path.join(repoRoot, 'tools/prometheus-cli/Cargo.toml'),
-    'workspace.package',
-    release,
-  ],
   [
     'Knowledge workspace',
     path.join(repoRoot, 'tools/prometheus-knowledge/Cargo.toml'),

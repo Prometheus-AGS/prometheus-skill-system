@@ -6,6 +6,8 @@ boundaries; a documented feature does not imply every host or harness is certifi
 The pack supports standalone work, with optional services and a separately
 installed Companion extension for connected controls.
 
+[Choose a pack and work through a change](28-working-with-the-packs.md) covers an existing project, two sessions and optional services. [Upgrade history](27-release-history.md) explains which steps depend on the version you are coming from.
+
 ## How this documentation is organized
 
 The guide is built in layers. Read it top to bottom the first time; use it as a reference after that.

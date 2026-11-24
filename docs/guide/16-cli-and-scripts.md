@@ -49,7 +49,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | `install-prometheus-exec-service.sh` | Render and optionally load the private macOS execution LaunchAgent (`ai.prometheus.exec`, socket daemon). Called automatically by `install-mcp-services.sh`. `[--dry-run] [--no-load]` |
 | `install-platforms.ts` | Multi-platform symlink installer for Claude Code, OpenCode, Cursor, Codex, etc. `[--platform] [--scope] [--uninstall] [--list]` |
 | `install.js` | Copy skills to user or project scope |
-| `install-binaries.sh` | Build and install every source-owned binary to `~/.local/bin/`, from cargo's real target directory. A component that fails is reported at the end with a non-zero exit while the rest still install. `--dry-run` builds, downloads, installs and registers nothing. `[--dry-run]` |
+| `install-binaries.sh` | Fetch checksum-verified binaries for this pack version, or build available source when an asset is absent. Install to `~/.local/bin/`, from cargo's real target directory. A component that fails is reported at the end with a non-zero exit while the rest still install. `--dry-run` builds, downloads, installs and registers nothing. `[--dry-run]` |
 | `install-mcp-services.sh` | Render/reload allowed launchd or systemd user services, including `ai.prometheus.exec` via its delegated installer. Repeatable `--exclude` prevents rendering, restart, or rewrite of a service. `[--unload] [--restart] [--user] [--dry-run] [--exclude]` |
 | `configure-mcp-all-tools.sh` | Merge `mcp-port-table.json` into each tool's native MCP config (idempotent). `[--dry-run] [--tool]` |
 | `prometheus-services.sh` | Manage MCP services as macOS user LaunchAgents (`install`/`load`/`status`/`doctor`/…) |
@@ -72,6 +72,8 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | `validate-kbd-state.js` | Validate KBD projection schemas and revision relationships |
 | `test-kbd-control-plane.sh` | Run runtime/journal/control-plane fixture tests |
 | `generate-skill-eval-corpus.js` / `check-skill-evals.js` | Maintain and validate the 30-prompt critical-skill activation corpus |
+
+For a two-terminal example using an enrolled project, see [Work from a second session](28-working-with-the-packs.md#work-from-a-second-session).
 
 ### `prometheus kbd`
 

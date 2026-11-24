@@ -16,8 +16,8 @@ copy has installed the resident memory/knowledge services.
 
 These maintenance jobs are separate from the managed user-service profile.
 The full pack's native memory service is not described as Docker-owned by these
-templates. Read [installation](../../../docs/guide/19-installation.md) and
-[deployment modes](../../../docs/deployment-modes.md) for the selected service
+templates. Read [installation](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/guide/19-installation.md) and
+[deployment modes](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/deployment-modes.md) for the selected service
 path. Companion is a separately installed optional extension.
 
 After a completed production phase, validate scheduled behavior locally with

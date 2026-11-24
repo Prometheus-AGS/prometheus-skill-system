@@ -37,15 +37,12 @@ restart it; inspect the receipt/frontier before authorizing new work. Preserve
 intent plus receipts through upgrade/restart. Resume receipt events with `after`
 or `Last-Event-ID` using the last real sequence.
 
-## Ownership and evidence
+## Confirm that a particular peer applied an update
 
-These routes remain useful after relocation. The current recovered Companion
-source (`docs/installation.md`, `docs/control-api.md`) has no public remote or
-certified release yet. Source inspection is not installed or peer acceptance;
-final source/artifact identities and publication links remain release-owned.
+For two local Companion authorities, enroll both replicas for the same project and pair their network identities. Address the signed push to the receiving endpoint. From the receiver, read the signed project audit and compare its ordered event IDs and integrity hashes with the sender. The sender's receipt alone cannot tell you what a restarted receiver retained.
 
-Use [local KBD](/docs/kbd/control-plane) without the optional extension, and the
-[service operations guide](/docs/guide/service-operations#optional-companion)
-for pack/Companion ownership. The [integration contract](/docs/kbd/integration-contract)
-is a one-way seam. [Relocation history](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/decisions/sovereign-sync-relocated-to-companion.md)
-is a decision record, not a Companion repository URL.
+In the Full 1.18 local exercise the receiver restarted during a 40-command backlog. It retained 11 events including three baseline events, applied the remaining 32, and matched the sender's 43 unique signed events in order. Two independent runs used the same binaries. This exercise covered one Mac. [Interrupted-transfer receipts](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/30e63d55/.kbd-orchestrator/phases/vlbv-r4-portability/children/intersession-communication/boundary-results.json)
+
+## Companion references
+
+The Companion project owns this interface. [Companion control API](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/control-api.md) · [Installation](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/installation.md) · [Local KBD without Companion](/docs/kbd/control-plane)

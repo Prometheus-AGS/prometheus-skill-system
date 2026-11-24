@@ -5,6 +5,8 @@ Use the canonical guide for commands with current production contracts:
 | Purpose | Reference |
 | --- | --- |
 | Install skills or native services | [Installation](guide/19-installation.md) |
+| Bootstrap a project or exchange a signed blocker between sessions | [Worked example](guide/28-working-with-the-packs.md) |
+| Choose a migration path for an older checkout | [Upgrade history](guide/27-release-history.md) |
 | Update an owned generation | [Updating](guide/20-updating.md) |
 | Select a native tool or MCP | [Tools reference](guide/13-tools-reference.md) |
 | Author a skill | [Contributor workflow](../CONTRIBUTING.md) and [template](SKILL_TEMPLATE.md) |

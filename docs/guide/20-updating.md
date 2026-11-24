@@ -2,6 +2,8 @@
 
 Update independently versioned components from approved source commits and preserve recovery records. No umbrella version implies that memory, knowledge, execution and Companion binaries share a version or acceptance state.
 
+For a checkout several versions behind, use the [release history and upgrade guide](27-release-history.md) to identify the migrations relevant to your installation.
+
 ## Safe sequence
 
 1. Record approved source/gitlink identities, installed artifacts, selected homes and active/previous plugin generation receipts.

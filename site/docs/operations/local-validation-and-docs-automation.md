@@ -40,10 +40,11 @@ receipt or an SSH-signed waiver.
 
 ## What GitHub may do
 
-Only two hosted automation classes are allowed:
+Three publication tasks run on GitHub:
 
-1. deterministic documentation synchronization after a push to `main`; and
-2. packaging and deployment of the already-synchronized Docusaurus site.
+1. Synchronize deterministic documentation after changes on `main`.
+2. Package and deploy the synchronized Docusaurus site to Pages.
+3. Build and publish versioned native binaries with checksums, then package the Linux service binaries into registry images. [Release assets](https://github.com/Prometheus-AGS/prometheus-skill-system/releases)
 
 The docs-sync workflow may update only managed blocks on the reusable
 `automation/docs-sync` branch. It does not run `docs:check`, tests, lint,
