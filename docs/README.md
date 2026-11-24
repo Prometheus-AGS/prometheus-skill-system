@@ -17,6 +17,8 @@ combines guide pages with operational references from `site/docs/`.
 
 ## Design and historical material
 
+The [survey of third-party Rust skills](research/rust-skills/report.md) compares tools for writing, reviewing and porting Rust and documents the evidence behind its selections.
+
 The `prometheus-feynman-learning-agent-*` documents in this directory describe
 an application and marketplace design, not an installed skill-pack product.
 Architecture, functional specifications, implementation plans and business-model
