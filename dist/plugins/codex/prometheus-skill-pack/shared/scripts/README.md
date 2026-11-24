@@ -32,8 +32,8 @@ copy of one skill may also need shared helpers. Read that skill's prerequisites.
 Learning state and queues belong to the configured project and learning roots.
 Do not put credentials in lesson content or provenance. Missing optional services
 must preserve an explicit durable outcome rather than imply publication.
-See [memory tiers](../../docs/guide/memory-tiers.md) and
-[team memory](../../skills/process/agent-team-creator/references/models-memory.md).
+See [memory tiers](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/guide/memory-tiers.md) and
+[team memory](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/skills/process/agent-team-creator/references/models-memory.md).
 
 ## Maintenance
 

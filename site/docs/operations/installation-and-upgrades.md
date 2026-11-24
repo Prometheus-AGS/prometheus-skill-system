@@ -139,10 +139,7 @@ point worktrees at one `CARGO_TARGET_DIR` to bypass contention. A machine that
 deliberately keeps all build output in one redirected directory depends on that
 serialization: two builds writing there at once corrupt each other's output.
 
-KBD is local by default. Companion owns optional connected control through its
-separate recovered source repository and [integration contract](/docs/kbd/integration-contract).
-Its absence is normal. The current source has no public remote or certified
-release; pack installation never builds or installs it.
+KBD uses local signed history by default. Full 1.18.0 supports handoffs between two sessions on the same authority. For replication between separate authorities, use [Companion's source and installation instructions](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/installation.md) and its [control API](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/control-api.md).
 
 For an explicitly selected Companion installation, follow its separate
 [installation and ownership](/docs/sovereign-sync/installation) procedure.
@@ -159,5 +156,5 @@ replay; replacing the ID or recreating a key is not recovery. See
 
 Push only after applicable local gates pass. The owner merges PRs and approves
 protected versions and tags. Hosted automation may synchronize deterministic
-documentation or deploy Pages; it never substitutes for local tests, doctors
+documentation, deploy Pages or publish versioned binaries and service images; it never substitutes for local tests, doctors
 or certification.

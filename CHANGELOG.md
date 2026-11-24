@@ -398,6 +398,10 @@ This release also covers 1.12.0 and 1.12.1, which were never tagged.
 - Learn skills previously disagreed on artifact paths and consumed grounding
   fields that the grounding script did not emit.
 
+## [1.8.0] - 2026-08-30
+
+- Recorded the pack version across the release matrix and generated distribution, and documented installation and rollback for the 1.8 generation. [Tagged source](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/v1.8.0)
+
 ## [1.7.0] - 2026-08-03
 
 ### Added
@@ -442,6 +446,10 @@ This release also covers 1.12.0 and 1.12.1, which were never tagged.
 - Bootstrap missing bundles only from the native plugin payload after hash verification; hook execution no longer follows mutable `stable` or `current` projections.
 - Validate the source manifest, immutable generation, bundle index, fixed runner, and actual Codex cache in `prometheus doctor`.
 - Install versioned hook runtime receipts and retain older bundle mappings so already-open sessions remain resolvable during cache turnover.
+
+## [1.6.0] - 2026-07-08
+
+- Added the native Rust research executable in the substrate. [Tagged source](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/v1.6.0)
 
 ## [1.4.0] - 2026-06-28
 
@@ -519,6 +527,10 @@ This release also covers 1.12.0 and 1.12.1, which were never tagged.
 - `skills/imported/sycophancy-correction` → d973ef370fe238ceeed72c1b462e85ee83144734
 
 [1.4.0]: https://github.com/Prometheus-AGS/prometheus-skill-system/releases/tag/v1.4.0
+
+## [1.2.0] - 2026-04-15
+
+- Integrated Surreal memory and the sycophancy CLI and wired Cargo dependencies for those tools. [Tagged source](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/v1.2.0)
 
 ## [1.1.0] - 2026-04-15
 

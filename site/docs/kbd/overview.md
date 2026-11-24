@@ -33,6 +33,8 @@ Each stage fires `before`/`after` hooks, writes a handoff summary the next
 stage reads first, and emits plain-text progress signals
 (`Starting kbd-assess — <phase> (step N of T)`).
 
+[Work through an export change in two sessions](/docs/guide/working-with-the-packs) to see when a local audit is enough and when to require a receiver read.
+
 ## What the control plane protects
 
 The runtime coordinates Claude Code, Codex, OpenCode, Kimi, CLI operators around one ordered local history:

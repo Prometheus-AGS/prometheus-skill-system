@@ -31,7 +31,7 @@ Plugin targets: **3**
 | --- | --- |
 | Learner model | Loro immutable evidence with deterministic derived-state fold |
 | Plugin distribution | Ed25519-signed generation, shared index, and 3 signed receipts |
-| Validation | Local certification; hosted automation limited to docs sync and Pages |
+| Validation | Local certification. Hosted automation synchronizes docs, deploys Pages and publishes versioned binaries and service images. |
 
 ## Prometheus Exec HTTP routes
 

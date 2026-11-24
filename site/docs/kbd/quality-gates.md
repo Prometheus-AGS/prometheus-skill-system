@@ -35,7 +35,7 @@ evaluation is deterministic, local, and network-free; adversarial review is
 bounded to phase completion, ambiguous authority, or a repeated violation, and
 its output is screened for sycophancy before it can certify work.
 
-Complete every planned production change in the active phase before authoring or running tests, formatters, validators or reviews. A task or change boundary does not independently authorize those operations. Static inspection remains available during implementation; compiler feedback is reserved for an observed blocking compiler error, with the narrowest required check.
+Complete every planned production change in the active phase before authoring or running tests, formatters, validators or reviews. A task or change boundary does not independently authorize those operations. During implementation use source inspection and editor diagnostics. The project retired its compiler exception. The first build runs at the authorized B4 boundary after the phase implementation is complete. A failed boundary requires an owner-authorized repair and the affected B5 checks.
 
 At the final local boundary, run the applicable deterministic checks and real integration gate, then independent review with an actual distinct-model route. A fresh context or different alias alone does not demonstrate a distinct model family. Record unresolved review or collaborator limits rather than fabricating certification. Batch fixes and rerun the smallest confirming integration command before the applicable final gate.
 

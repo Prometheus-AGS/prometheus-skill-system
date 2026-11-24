@@ -14,15 +14,6 @@ Use the separately authorized [pairing procedure](/docs/sovereign-sync/pair-two-
 for membership changes. Keep the same host socket and its configured identity,
 and retain uncertainty rather than switching endpoints after a failed observation.
 
-## Ownership and evidence
+## Companion references
 
-These routes remain useful after relocation. The current recovered Companion
-source (`docs/installation.md`, `docs/control-api.md`) has no public remote or
-certified release yet. Source inspection is not installed or peer acceptance;
-final source/artifact identities and publication links remain release-owned.
-
-Use [local KBD](/docs/kbd/control-plane) without the optional extension, and the
-[service operations guide](/docs/guide/service-operations#optional-companion)
-for pack/Companion ownership. The [integration contract](/docs/kbd/integration-contract)
-is a one-way seam. [Relocation history](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/decisions/sovereign-sync-relocated-to-companion.md)
-is a decision record, not a Companion repository URL.
+The Companion project owns this interface. [Companion control API](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/control-api.md) · [Installation](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/installation.md) · [Local KBD without Companion](/docs/kbd/control-plane)

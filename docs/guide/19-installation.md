@@ -43,6 +43,16 @@ node scripts/service-providers/cli.mjs uninstall --only surface-bridge
 
 In PowerShell use, for example, `./scripts/services.ps1 plan --enabled surface-bridge --service surface-bridge=docker`. Use `--non-interactive` for automation. Set `PROMETHEUS_SERVICE_MODE` for the default, or set `PROMETHEUS_SERVICE_PK_CHERRY_MODE=docker` and `PROMETHEUS_SERVICE_PK_CHERRY_PORT=18942` for one service. The corresponding `_ENDPOINT` variable accepts an explicit URL. Command-line choices take precedence over service environment variables and saved choices. A global default applies to enabled services that have no saved choice.
 
+### Reuse a database started by another tool
+
+Suppose The Boss already owns the database listening on port 28000. Run a read-only plan first, using its actual endpoint:
+
+```bash
+node scripts/service-providers/cli.mjs plan --enabled surrealdb --service surrealdb=reuse --endpoint surrealdb=http://127.0.0.1:28000
+```
+
+Look for the selected endpoint and a compatible readiness result. If the service is unreachable or its identity is incompatible, stop and check the owning tool and URL. A listening port alone cannot identify the database. If you need a separate pack-owned instance, choose a free port and review its persistent data location before applying. When reuse succeeds the original owner remains responsible for startup, upgrades and backups.
+
 | Mode | Installer behavior |
 | --- | --- |
 | `auto` | Probe configured and known endpoints, reuse one compatible service, otherwise choose native where supported. |
@@ -83,7 +93,7 @@ Codex memory policy disables `features.memories`, `memories.generate_memories` a
 
 ## Versioned native binaries
 
-Each release uses the pack version as its Git tag, for example `v1.17.0`. To
+The binary publisher uses the pack version as its Git tag. Full `v1.17.0` is a published example. To
 obtain the exact source, clone with `git clone --branch v1.17.0 --recurse-submodules
 https://github.com/Prometheus-AGS/prometheus-skill-system.git` (one command).
 The release contains a platform archive and a file manifest for each of macOS,
@@ -98,6 +108,7 @@ Linux and Windows on AMD64 and ARM64. SHA256SUMS covers both. See the
 
 The installer requests the exact tag and platform. A missing asset permits the
 source-build path. A corrupt download or a manifest mismatch stops installation.
+The representative local download of the published 1.17.0 macOS ARM64 archive verified 23 files and ran the CLI. Clean-machine installation and Docker pulls remain separate checks.
 Apple MLX resources are included on Apple Silicon, and the Darwin execution
 binary must also match its independently pinned hash.
 

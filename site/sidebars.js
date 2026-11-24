@@ -78,6 +78,7 @@ const sidebars = {
       label: 'Operations',
       items: [
         'operations/installation-and-upgrades',
+        { type: 'link', label: 'Upgrade by release', href: '/docs/guide/release-history' },
         'operations/local-validation-and-docs-automation',
         'operations/generated-reference',
         'operations/doctors-and-mac-certification',
@@ -144,7 +145,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Lifecycle',
-      items: ['kbd/overview', 'kbd/stages', 'kbd/task-model-assignments', 'kbd/openspec-lifecycle', 'kbd/phase-readiness-contract'],
+      items: ['kbd/overview', { type: 'link', label: 'Work through a change', href: '/docs/guide/working-with-the-packs' }, 'kbd/stages', 'kbd/task-model-assignments', 'kbd/openspec-lifecycle', 'kbd/phase-readiness-contract'],
     },
     {
       type: 'category',

@@ -55,9 +55,8 @@ const config = {
         routeBasePath: 'docs/guide',
         sidebarPath: require.resolve('./sidebars-guide.js'),
         // README.md is the book index — Docusaurus serves it as /docs/guide/
-        // editUrl base must include the instance's content dir: Docusaurus
-        // appends the doc path relative to `path` (../docs/guide).
-        editUrl: 'https://github.com/Prometheus-AGS/prometheus-skill-system/edit/main/docs/guide/',
+        editUrl: ({docPath}) =>
+          `https://github.com/Prometheus-AGS/prometheus-skill-system/edit/main/docs/guide/${docPath}`,
       },
     ],
     [
@@ -67,7 +66,8 @@ const config = {
         path: '../docs/learn',
         routeBasePath: 'docs/learn-internals',
         sidebarPath: require.resolve('./sidebars-learn-internals.js'),
-        editUrl: 'https://github.com/Prometheus-AGS/prometheus-skill-system/edit/main/docs/learn/',
+        editUrl: ({docPath}) =>
+          `https://github.com/Prometheus-AGS/prometheus-skill-system/edit/main/docs/learn/${docPath}`,
       },
     ],
     [

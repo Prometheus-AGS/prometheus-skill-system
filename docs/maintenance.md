@@ -1,21 +1,8 @@
 # Maintenance, upgrades and recovery
 
-This contract covers the full Prometheus skill system: its skills, hooks, CLI,
-local KBD authority and declared learning services. The current
-`phase-learning-deploy-and-debt` source is a release candidate. Compilation,
-generated-package reconciliation, local integration, independent review, owner
-approvals, publication and installed functional acceptance are still separate
-requirements. This document does not certify that candidate or authorize a
-machine update.
+Use this runbook to update the Full skill pack while preserving the active installation, project history and data owned by other services. For a version-specific migration, start with [upgrade history](guide/27-release-history.md). For a service change, identify the current provider and its ownership receipt before stopping anything. [Service operations](guide/26-service-operations.md)
 
-The optional Prometheus Companion owns its installation, services and release.
-Its absence is normal. The pack's local KBD path must remain usable without an
-extension. Read [service operations](guide/26-service-operations.md) for service
-ownership and [the integration contract](integration-contract.md) for the
-versioned extension seams. Change 14's Companion source handoff now supplies the
-installation, connected-control and recovery contracts below. Its initial
-origin is a private local mirror, not a public release source. Publication-bound
-links and accepted artifacts remain release-owner work.
+Companion is independently versioned. Its repository owns the [installation procedure](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/installation.md), [control API](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/control-api.md) and [recovery guide](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/maintenance.md). Two sessions using the same local KBD authority can continue to work when Companion is absent.
 
 ## Bounded support matrix
 
@@ -28,12 +15,12 @@ freeze and final local gate.
 
 | Platform/profile | Source prerequisites and boundary | Release acceptance |
 |---|---|---|
-| macOS, skills | Git, Node 22.12+, Bash launcher; selected harness targets | Pending exact host/harness matrix and installed invocation |
+| macOS, skills | Git, Node 22.20.0+, Bash launcher; selected harness targets | Pending exact host/harness matrix and installed invocation |
 | macOS, full | Skills prerequisites plus component toolchains; Bash 4+ for the native service installer; only shipped LaunchAgent templates | Pending binary, service, hook and real operation receipts |
-| Linux, skills | Git, Node 22.12+, Bash launcher; selected harness targets | Pending exact host/harness matrix and installed invocation |
+| Linux, skills | Git, Node 22.20.0+, Bash launcher; selected harness targets | Pending exact host/harness matrix and installed invocation |
 | Linux, full | Skills prerequisites plus component toolchains; Bash 4+; native supervision only for services with supplied Linux management | Pending native installation and real operation receipts |
-| Windows through Git Bash, skills | Node 22.12+, Git Bash; no full-profile native services | Pending native Windows evidence for the approved harness versions |
-| Windows through WSL, skills | Node 22.12+, Git and Bash in WSL; no Windows full profile | Pending separate WSL evidence; Linux evidence does not certify Windows |
+| Windows through Git Bash, skills | Node 22.20.0+, Git Bash; no full-profile native services | Pending native Windows evidence for the approved harness versions |
+| Windows through WSL, skills | Node 22.20.0+, Git and Bash in WSL; no Windows full profile | Pending separate WSL evidence; Linux evidence does not certify Windows |
 | Windows `cmd.exe`/PowerShell, full | Outside the full-pack installation matrix | Use the separately maintained portable mini where its install-scope rule permits |
 
 The full manifest has exactly 14 target IDs. This is a directory matrix, not 14
@@ -72,13 +59,7 @@ versions. Retain the previous accepted graph. Never substitute a moving branch,
 `latest` image, configured model alias or older version-only receipt for that
 graph. New upstream commits receive an explicit compatibility disposition.
 
-The owner-selected full skill-system baseline is
-`ba5c4516fd72e60c21ab3bb1d09a63105aeb3c61`. It is not a memory-server SHA and
-does not identify the pending phase edits. The candidate manifest currently says
-`releaseVersion: 1.11.2` and `minimumActiveVersion: 1.11.0`; these are observed
-source declarations, not an approved next tag or proof that every older version
-has the current features. Change 03 owns the final graph and explicit approval
-for protected version edits and tags.
+Read `releaseVersion` and `minimumActiveVersion` in the checkout's [pack manifest](../skill-system.json). Full 1.18.0 records the pack version separately from its CLI, executor and optional services. Use the manifest and the binary's own version and checksum when diagnosing a mixed installation. The [release matrix](../config/release-version-matrix.json) lists which version surfaces move together.
 
 Extension contract `1.0.0` is versioned independently from the pack. Its policy
 is editorial PATCH, additive compatible MINOR and breaking MAJOR; validation
@@ -87,8 +68,7 @@ identified. A discovered endpoint is only a capability candidate until identity,
 compatibility, authorization and the actual operation are established. Legacy
 discovery names such as `SOVEREIGN_SYNC_SOCKET` do not make the pack the owner of
 the answering daemon. Companion source requires pack contract `1.0.0`; signed
-push schema `1.7` is a separate version domain. Installed interoperability is
-pending the exact compatible freeze and final local gate.
+push schema `1.7` is a separate version domain. The [Companion 0.2.0 verification record](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/intersession-0.2.0-verification.json) identifies the local peer checks and exact binaries. Clean-host installation has separate acceptance criteria.
 
 For every other persisted or process contract, retain its explicit schema or
 contract version in the release graph. Changes to learning envelopes, doctor
@@ -202,13 +182,7 @@ unrelated skills, databases or identity material as a repair.
 
 ## Optional Companion control and recovery
 
-Companion has separate `docs/installation.md`, `docs/control-api.md` and
-`docs/maintenance.md` in its selected source checkout. They are the source
-references for its service/Claude installers, signed push protocol and recovery.
-No public Companion remote or download URL is available for this candidate;
-change 14's publication owner supplies those links after the approved freeze.
-The pack does not install or require Companion. Its local signed KBD authority
-and service owners remain independent.
+Use the [Companion installation](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/installation.md), [control API](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/control-api.md) and [maintenance](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/maintenance.md) guides for the source version you are running. Companion 0.2.0 has local macOS ARM64 peer and connected-client evidence. Clean-machine installation remains deferred. The pack's signed local authority and its service ownership records live independently of Companion.
 
 Choose one host for a control socket: `prometheus-companion-headless`, the
 Tauri-hosted node, or `sovereign-sync --mode daemon`. Server mode disables P2P;
@@ -243,8 +217,7 @@ service installer, native Windows packaging or other-harness installer. Linux
 Unix headless source needs its own accepted artifact/platform gate. The Tauri
 tray observes five service-health states; the main window is a starter, with no
 dashboard, pairing UI or mobile application promised. Desktop Drop cancellation
-does not establish awaited shutdown; headless has explicit bounded shutdown
-whose SIGTERM/crash recovery still needs final evidence.
+does not establish awaited shutdown; the headless service supports bounded shutdown. The 0.2.0 two-process verification covers recovery after a receiver restart and checks its socket after shutdown.
 
 Before MCP submits `POST /api/v2/sync/pushes`, it privately fsyncs the exact
 signed request and selected endpoint to
@@ -374,7 +347,7 @@ provider, missing receipt or failed independent-review route remains pending.
 Known limits include the unaccepted candidate matrix, Unix-only projection
 migration, narrower service-template/Exec coverage, unavailable native harness
 proof, uncertain remote writes without guaranteed exactly-once delivery, and
-unpublished Companion artifacts/unaccepted operations. The full and mini packs must not shadow each
+Companion installations and operations outside the recorded local verification. The full and mini packs must not shadow each
 other in one native home. Maintenance readiness requires all shipping requirements
 and the final phase evidence; source convergence or a completed change flag does
 not establish it.

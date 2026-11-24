@@ -150,7 +150,7 @@ The current test surface is:
 
 ### 3.2 The BDD test surface is small but well-engineered
 
-The BDD testing skill family is shipped and works. `bdd-cucumber-js`, `bdd-cucumber-rs`, `bdd-lifecycle-loop`, `bdd-video-proof` are the four shipped skills. The `bdd-video-proof` v2.0 local cert bundle (Mode A) is the right default — the IPFS pinning Mode B is documented but the [BDD-003 IPFS pin sweep](docs/future-work/02-bdd-testing-evolution/STATUS.md) is partially-shipped at best. The BDD future work matrix has 7 of 15 BDD-* items shipped or partially-shipped.
+The BDD testing skill family is shipped and works. `bdd-cucumber-js`, `bdd-cucumber-rs`, `bdd-lifecycle-loop`, `bdd-video-proof` are the four shipped skills. The `bdd-video-proof` v2.0 local cert bundle (Mode A) is the right default — the IPFS pinning Mode B is documented but the [BDD-003 IPFS pin sweep](../02-bdd-testing-evolution/STATUS.md) is partially-shipped at best. The BDD future work matrix has 7 of 15 BDD-* items shipped or partially-shipped.
 
 **What is genuinely good in the BDD surface:**
 - The immutable-tests rule (`shared/scripts/protect-tests.sh`, `shared/scripts/tests/test-protect-tests.sh`) is enforced and is genuinely load-bearing. New BDD work goes to `tests/features/drafts/`. This is the kind of self-disciplined CI design that [Anthropic's research on agentic coding expertise](https://explainx.ai/blog/anthropic-claude-code-expertise-research-agentic-coding-2026) implicitly endorses: "what separates high-performing users is not their ability to write code themselves but their ability to specify problems clearly" — the immutable-tests rule is the structural enforcement of "specify problems clearly, don't move goalposts."

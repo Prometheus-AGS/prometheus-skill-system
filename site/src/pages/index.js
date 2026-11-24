@@ -29,7 +29,7 @@ const capabilities = [
     label: 'Local-first release',
     title: 'Operations',
     description:
-      'Build, install, diagnose, and recover on the host while keeping hosted automation limited to documentation.',
+      'Choose native binaries, Docker or an existing service, then check its health and ownership.',
     to: '/docs/operations/installation-and-upgrades',
   },
 ];
@@ -71,7 +71,7 @@ export default function Home() {
               <div className={styles.actions}>
                 <Link
                   className={`button button--primary button--lg ${styles.primaryAction}`}
-                  to="/docs/guide/introduction"
+                  to="/docs/guide/working-with-the-packs"
                 >
                   Get started
                 </Link>

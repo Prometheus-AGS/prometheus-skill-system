@@ -4,6 +4,8 @@ Start with the [product README](../README.md) and [guide index](guide/README.md)
 for installation, workflows and support boundaries. The [documentation site](https://prometheus-ags.github.io/prometheus-skill-system/)
 combines guide pages with operational references from `site/docs/`.
 
+[Choose a pack and work through an export change](guide/28-working-with-the-packs.md) · [Upgrade from an earlier release](guide/27-release-history.md)
+
 ## Current product references
 
 - [Agent teams](agent-teams.md): requests, native definitions and ownership.

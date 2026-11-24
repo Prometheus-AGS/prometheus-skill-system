@@ -8,7 +8,7 @@ built against the unified world (`change-msp-006`).
 This directory supplies source for the checked component. UAR and Prometheus Exec
 are distinct hosts: successful instantiation in one does not certify the other.
 The selected signed generation or exact component pin determines the bytes
-allowed by Tier W. Refer to [the execution evidence page](../../../../../site/docs/execution/platform-and-evidence-status.md)
+allowed by Tier W. Refer to [the execution evidence page](https://prometheus-ags.github.io/prometheus-skill-system/docs/execution/platform-and-evidence-status)
 for dated host results and open limits; no new runtime result is asserted here.
 
 ## What it ports, and what changed

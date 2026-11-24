@@ -1,4 +1,10 @@
-# Prometheus CLI in The Boss
+# Prometheus CLI
+
+## Full pack and local KBD
+
+Use the pack installer to acquire the CLI for your platform. To inspect a registered project, run `prometheus kbd --path "$PROJECT" status --json`. Two sessions can follow the same project with `prometheus kbd --path "$PROJECT" watch`; the watcher can resume with `--after-event` and a saved event ID. The optional Companion supplies a separate selected authority. The [CLI guide](../../docs/guide/16-cli-and-scripts.md) covers saving a cursor and confirming receiver-side delivery.
+
+## Application-managed installations
 
 The native `prometheus` source declares both source-checkout and application-managed
 installation paths. Windows, macOS and Linux packaging and live application

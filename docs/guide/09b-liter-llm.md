@@ -130,10 +130,11 @@ Options:
 ### Harness entries start it through a launcher
 
 No harness config the pack writes runs `liter-llm mcp` directly. Each one runs the
-launcher, with no arguments:
+launcher with no arguments. Substitute the absolute path printed by
+`command -v liter-llm-mcp` in the shell where the launcher is installed:
 
 ```json
-{ "mcpServers": { "liter-llm": { "command": "/Users/you/.local/bin/liter-llm-mcp" } } }
+{ "mcpServers": { "liter-llm": { "command": "/absolute/path/to/liter-llm-mcp" } } }
 ```
 
 The launcher (`shared/scripts/liter-llm-mcp-launch.sh`, installed as

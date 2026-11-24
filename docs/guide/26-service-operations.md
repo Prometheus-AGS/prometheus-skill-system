@@ -55,8 +55,7 @@ project.
 
 Components have independent versions. Use mini's approved `versions.toml` and
 the full pack's existing release matrix, gitlinks and artifact manifests together;
-the full pack has no root `versions.toml`. Companion's publication destination belongs in
-its release evidence; a local directory name does not establish a remote.
+the full pack has no root `versions.toml`. Companion publishes its source in [its own repository](https://github.com/Prometheus-AGS/prometheus-companion).
 
 ## Full service templates
 
@@ -160,12 +159,9 @@ its smaller file tier/outbox rather than the full Python/worker pipeline.
 
 ## Optional Companion
 
-Local KBD needs no always-on control daemon. Companion owns optional connected
-control and replication through its separate recovered source repository. The
-pack never builds or installs it. The [integration contract](/docs/kbd/integration-contract)
-defines the one-way extension boundary. Companion has no public remote or
-certified release yet; its `docs/installation.md` and `docs/control-api.md`
-describe the current source candidate, not installed delivery.
+Two sessions registered to the same project can observe its local signed history without a daemon. Select Companion when a second authority needs to receive that history. A peer connection needs enrolled identities, pairing, an addressed signed request and a receiver readback. In the 0.2.0 local two-process check the receiver restarted during transfer and recovered all 40 queued commands. The original three events plus those commands gave both peers the same 43 signed events.
+
+Install Companion independently and select one process to own its socket. A pack install leaves that choice to the operator. [Companion installation](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/installation.md) · [Send and verify a signed push](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/control-api.md) · [Versioned verification record](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/intersession-0.2.0-verification.json)
 
 Headless and windowed Companion share the same-user Unix control socket.
 Standalone `sovereign-sync --mode daemon` is an alternative host; choose one
@@ -194,7 +190,7 @@ before POST in `<data-root>/prometheus/companion/mcp-push-outbox/<request-id>.js
 It returns `intentPath`; failed intent persistence means `not-submitted` and no
 send. A transport/response failure can be uncertain: recover the original ID,
 body and endpoint, then query `sync-push-receipt` on that host before replay.
-This outbox is intent, not acceptance. Local `broadcast` is not peer application.
+The outbox records the sender's intent. For an addressed KBD transfer, inspect the `applied_at_targets` event, the per-peer result and the receiver's signed audit. The top-level state can still read `broadcast` after the receiver acknowledges application.
 See [signed pushes and recovery](/docs/sovereign-sync/signed-pushes-and-receipts).
 
 `prometheus contract show --json` reports discovery; endpoint absence is normal.

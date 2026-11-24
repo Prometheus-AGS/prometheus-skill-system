@@ -7,6 +7,8 @@ work, assign ownership, implement a specification and retain useful lessons.
 Start with the skills profile. Add services when a workflow needs durable memory,
 model routing, native research or signed execution evidence.
 
+[Worked example: adopt a project and hand off a change](docs/guide/28-working-with-the-packs.md) ·
+[Upgrade history](docs/guide/27-release-history.md) ·
 [Product guide](docs/guide/README.md) ·
 [Documentation site](https://prometheus-ags.github.io/prometheus-skill-system/) ·
 [Skill catalog](SKILLS.md) · [Contribution rules](CONTRIBUTING.md)
@@ -17,7 +19,7 @@ model routing, native research or signed execution evidence.
 |---|---|---|
 | Intended use | Broad language and domain guidance, process orchestration, learning and optional native tools | Portable process, team, research and UI guidance with Node entry points |
 | Skill layout | Categorized source under `skills/`; distribution flattens skill names | Flat `skills/<name>/` source |
-| Host requirements | Git, Node and Bash for installation; individual workflows can also require Python, jq or Rust | Node 22+ and Git for the core; optional services have their own requirements |
+| Host requirements | Git, Node and Bash for installation; individual workflows can also require Python, jq or Rust | Node 22.20.0+ and Git for the core; optional services have their own requirements |
 | Windows path | Skills profile through Git Bash or WSL; full native service installation is rejected | Native Node core; host and harness acceptance is specific to the documented path |
 | Optional infrastructure | Native memory, knowledge, gateway, research and execution components | File state and optional HTTP services; no dependency on the full pack's Python learning pipeline |
 
@@ -35,8 +37,7 @@ name. This entry point does not select a new release.
 
 Use a stable checkout you intend to retain. Registered plugin sources must remain
 available after installation; a disposable task worktree is unsuitable as a
-permanent plugin source. Node 22+ covers the team runtime as well as the root
-package's Node requirement.
+permanent plugin source. Use Node.js 22.20.0 or newer for this checkout and its project-scoped spec tooling.
 
 ```bash
 git clone https://github.com/Prometheus-AGS/prometheus-skill-system.git
@@ -139,6 +140,8 @@ Read [the team handbook](docs/guide/24-agent-teams.md),
 The packs operate without Companion. Companion consumes the pack's extension
 contract; the pack does not install or start it as a prerequisite. Companion's
 publication and installation are separate from a pack release. See
+[the Companion installation guide](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/installation.md),
+[the paired-peer procedure](https://github.com/Prometheus-AGS/prometheus-companion/blob/main/docs/control-api.md),
 [the extension contract](docs/integration-contract.md) and
 [the relocation decision](docs/decisions/sovereign-sync-relocated-to-companion.md).
 

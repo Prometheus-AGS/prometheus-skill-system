@@ -8,8 +8,8 @@ output is not certification evidence.
 The KBD phase readiness contract: adopted exit contracts, the Plan→Execute
 readiness gate, and the terminal evidence-bound closure evaluator with the
 budget predicate (missing accounting is `BLOCKED`). See
-[CHANGELOG.md](../../CHANGELOG.md) and
-[site/docs/kbd/phase-readiness-contract.md](../../site/docs/kbd/phase-readiness-contract.md).
+[CHANGELOG.md](../../../CHANGELOG.md) and
+[site/docs/kbd/phase-readiness-contract.md](../../../site/docs/kbd/phase-readiness-contract.md).
 
 ## Candidate qualification (preserved)
 
