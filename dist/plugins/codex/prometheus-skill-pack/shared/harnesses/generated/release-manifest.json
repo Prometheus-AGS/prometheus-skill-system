@@ -358,7 +358,7 @@
     },
     {
       "path": "shared/scripts/lib/waypoint-render.sh",
-      "sha256": "b7e2d25db6ad9632280c4b2f82a09ccb8bdad79f2089f79f397beffde91f5b52",
+      "sha256": "5b3059e501baa3780e0b747a3a8b8314de35571b92d629fb98cefafe4f5290b6",
       "executable": true
     },
     {
@@ -533,7 +533,7 @@
     },
     {
       "path": "shared/scripts/write-position-reminder.sh",
-      "sha256": "f8a3fc8cce61c84f88f441857363b54410b38188f43396a8c488270796bc4424",
+      "sha256": "f9d8c7c03a1aa5b3f33c71832a41a95ab8d490b72b1118ec0dc7ae5892d3f53f",
       "executable": true
     },
     {
@@ -582,5 +582,5 @@
       "executable": true
     }
   ],
-  "bundleId": "8b9aa4281437f565a4ae4b5c3f6342da240bfeae0fe46a87cf2bdf913e72d588"
+  "bundleId": "72d2cf77fc8d44baebac4183b6075e924ee782228fb40c60a041ab9204a091d0"
 }

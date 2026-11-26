@@ -105,6 +105,8 @@ fn phase(title: &str) -> Phase {
         stages: BTreeMap::new(),
         changes: BTreeMap::new(),
         legacy_completion_baseline: None,
+        outcome_first: false,
+        outcome: None,
         legacy_read_only: false,
     }
 }

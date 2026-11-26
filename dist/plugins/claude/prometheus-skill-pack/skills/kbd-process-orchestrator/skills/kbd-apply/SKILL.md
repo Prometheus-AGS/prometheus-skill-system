@@ -8,7 +8,7 @@ description: >
   signal, and syncs progress.json and the waypoint. Replaces the broken pattern
   of handing the turn to the bare openspec-apply-change skill (formerly /opsx:apply) that runs outside KBD.
 metadata:
-  version: '1.0.0'
+  version: '1.1.0'
   tags: "process, orchestration, automation, openspec, spec-kit"
 ---
 
@@ -97,6 +97,12 @@ In this order:
 2. Otherwise the first entry in `phases/<phase>/progress.json` `changes[]` whose
    status is not `DONE`, honouring the phase plan's order. For a child phase,
    read the child's ledger, not the parent's.
+
+In an outcome-first phase (`outcomeFirst: true`) `.nextChange` already skips a
+blocked change when another pending change is eligible; do not pick the blocked
+one by hand. Read `outcome`, `lastEvidence` and `nextAuthorizedAction` from the
+waypoint before starting, and `blockedChanges` for what was set aside. See
+`references/outcome-first.md`.
 
 **Never select work from `exactNextCommand`.** It is a stored operator string
 that only `RunInitialized`, a checkpoint, a plan revision or an explicit

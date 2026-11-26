@@ -5,7 +5,7 @@ argument-hint: '[--plan-revision <n>] [--reason <text> --exact-next-work <text>]
 description: >
   Resume a paused KBD run after validating its checkpoint and plan revision.
 metadata:
-  version: '1.0.0'
+  version: '1.1.0'
   tags: "process, orchestration, control, resume"
 ---
 
@@ -48,6 +48,12 @@ Completed kbd-resume — <phase-name> running at plan revision <n>
    operator also requested execution.
 
 Never resume across a plan-revision mismatch.
+
+In an outcome-first phase, state the `outcome`, `lastEvidence` and
+`nextAuthorizedAction` from `current-waypoint.json` when reporting the resumed
+position. A different priority is not a resume option: it goes through a signed
+contract amendment or a `superseded` disposition
+(`references/outcome-first.md`, "Changing priority").
 
 ## Selected-method recovery and authority
 

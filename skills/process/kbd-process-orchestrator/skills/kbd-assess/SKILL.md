@@ -6,7 +6,7 @@ description: >
   Project-agnostic: reads AGENTS.md, spec files, and codebase to produce
   a structured assessment. Works for any technology stack or language.
 metadata:
-  version: '1.1.0'
+  version: '1.2.0'
   tags: "process, orchestration, automation"
 ---
 
@@ -172,6 +172,11 @@ supported environments, required safety checks, exclusions, risk acceptance,
 decision owner). Explicit prior operator instructions count as adoption; never
 infer adoption from TODOs. See prompts/assess.md and
 references/templates/adopted-contract.template.md.
+
+In an outcome-first phase (`outcomeFirst: true` in the waypoint), scope the
+assessment to the one recorded outcome and complete its record in `goals.md`:
+actor, job, observed need or material risk, real entry point, acceptance
+oracle, hard dependencies and why now. See `references/outcome-first.md`.
 
 ## Selected-method recovery and authority
 

@@ -770,6 +770,13 @@ enum KbdPhaseAction {
         title: String,
         #[arg(long)]
         parent: Option<String>,
+        /// Opt in: scope the phase to one useful outcome. Resume then prefers
+        /// eligible pending work over blocked work. Existing phases are unaffected.
+        #[arg(long)]
+        outcome_first: bool,
+        /// One-line statement of the user outcome the phase must prove.
+        #[arg(long, requires = "outcome_first")]
+        outcome: Option<String>,
     },
     Activate {
         #[command(flatten)]
@@ -949,6 +956,10 @@ enum KbdChangeAction {
         title: String,
         #[arg(long, default_value_t = 0)]
         sequence: u64,
+        /// Change ids in the same phase that must be complete first. Used by
+        /// resume only in a phase created with `--outcome-first`.
+        #[arg(long = "depends-on")]
+        depends_on: Vec<String>,
     },
     Transition {
         #[command(flatten)]
@@ -1319,6 +1330,8 @@ async fn run() -> Result<()> {
                         slug,
                         title,
                         parent,
+                        outcome_first,
+                        outcome,
                     } => typed_command(
                         mutation,
                         kbd_runtime::CommandKind::PhaseDefine {
@@ -1331,6 +1344,10 @@ async fn run() -> Result<()> {
                                 stages: BTreeMap::new(),
                                 changes: BTreeMap::new(),
                                 legacy_completion_baseline: None,
+                                outcome_first,
+                                outcome: outcome
+                                    .map(|text| text.trim().to_string())
+                                    .filter(|text| !text.is_empty()),
                                 legacy_read_only: false,
                             },
                         },
@@ -1510,6 +1527,7 @@ async fn run() -> Result<()> {
                         id,
                         title,
                         sequence,
+                        depends_on,
                     } => typed_command(
                         mutation,
                         kbd_runtime::CommandKind::ChangeRegister {
@@ -1519,6 +1537,7 @@ async fn run() -> Result<()> {
                                 title,
                                 sequence,
                                 status: kbd_runtime::WorkStatus::Pending,
+                                depends_on,
                                 implementation_status: kbd_runtime::WorkStatus::Pending,
                                 tasks: BTreeMap::new(),
                             },

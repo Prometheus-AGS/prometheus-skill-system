@@ -72,6 +72,16 @@ pub(crate) fn admit_registration(state: &RuntimeState, phase_id: &str, change: &
     if state.change_identity_repairs.values().any(|r| r.phase_id == phase_id && r.original_changes.contains_key(&change.id) && r.input.resolution.target_key != change.id) {
         return Err(invalid(format!("change ID {:?} is a retired alias; resolve its canonical target instead of recreating it", change.id)));
     }
+    // A dependency must name a change already registered in this phase, so a
+    // typo is refused here instead of silently leaving the change ineligible.
+    for dependency in &change.depends_on {
+        if dependency == &change.id {
+            return Err(invalid(format!("change {:?} cannot depend on itself", change.id)));
+        }
+        if !phase.changes.contains_key(dependency) {
+            return Err(invalid(format!("change {:?} depends on {dependency:?}, which is not registered in phase {phase_id}; register the dependency first", change.id)));
+        }
+    }
     Ok(())
 }
 

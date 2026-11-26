@@ -72,6 +72,12 @@ PROMETHEUS_HARNESS=claude-code \
 
 Resume refuses a plan-revision mismatch.
 
+In an [outcome-first phase](./outcome-first-phases.md) the waypoint and the
+position reminder also show the outcome, the last evidence and the next
+authorized action, and a blocked change does not hold back pending work that
+does not depend on it. Changing priority there is a signed contract amendment
+or a `superseded` disposition, not a resume option.
+
 ## Cancel
 
 ```bash

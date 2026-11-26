@@ -35,6 +35,8 @@ fn define_phase(
                 stages: BTreeMap::new(),
                 changes: BTreeMap::new(),
                 legacy_completion_baseline: None,
+                outcome_first: false,
+                outcome: None,
                 legacy_read_only: false,
             },
         )
@@ -59,6 +61,7 @@ fn register_change(
                 title: format!("Change {id}"),
                 sequence: state.phases[phase].changes.len() as u64 + 1,
                 status: WorkStatus::Pending,
+                depends_on: Vec::new(),
                 implementation_status: WorkStatus::Pending,
                 tasks: BTreeMap::new(),
             },

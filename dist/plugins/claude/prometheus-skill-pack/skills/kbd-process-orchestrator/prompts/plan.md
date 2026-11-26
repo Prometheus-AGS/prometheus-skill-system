@@ -79,7 +79,7 @@ the change's existing store → `openspec/` → Spec Kit → native KBD).
 
 2. **Order by dependency** — if change B depends on change A, list A first.
 
-3. **Order by customer value** — prefer changes that unlock visible capability over internal refactors.
+3. **Order by customer value** — prefer changes that unlock visible capability over internal refactors. In an outcome-first phase (`outcomeFirst: true` in the waypoint) plan only the changes the recorded outcome needs: rank by operator priority, then material user impact, with time to value as the tie-break, and move speculative, low-consequence work to a later phase. See references/outcome-first.md.
 
 4. **Keep changes implementable in one agent session** — if an area is too large, split into multiple changes.
 
@@ -166,7 +166,10 @@ must recheck the selected route and record explicit alternatives rather than
 silently downgrading. Legacy plans receive explicit selections at execution time.
 
 After writing, register the ordered changes and tasks through typed
-`prometheus kbd change register` and `task register` commands (register each task with its backend task ID, i.e. the ordinal that `kbd-apply list <change>` prints, so `/kbd-apply` transitions the same records), and record the
+`prometheus kbd change register` and `task register` commands. Pass
+`--depends-on <change-id>` for each real "Depends on" entry: in an
+outcome-first phase resume uses it to keep a blocked change from holding back
+pending work that does not depend on it. Use the backend task IDs (register each task with its backend task ID, i.e. the ordinal that `kbd-apply list <change>` prints, so `/kbd-apply` transitions the same records), and record the
 plan stage through `stage enter` / `stage transition`. The runtime regenerates
 the progress and waypoint projections. Resolve the next task from canonical
 pending work; `exactNextCommand` is context, not authority to repeat stale work.

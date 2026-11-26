@@ -1212,3 +1212,174 @@ fn canonical_position_survives_task_advancement_child_exit_and_restart() {
             .contains("completed task change-b/1 has no valid kbd-apply receipt")
     );
 }
+
+/// Issue #256: the opt-in is reachable through the shipped CLI. A phase
+/// created with `--outcome-first` records its outcome, `change register
+/// --depends-on` records the dependency, and the projected waypoint selects
+/// the independent pending change ahead of the blocked one.
+#[test]
+fn outcome_first_phase_and_dependencies_are_reachable_through_the_cli() {
+    let fixture = KbdFixture::registered_without_legacy_phase();
+    let outcome = "An operator can export a signed report from the CLI";
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "create",
+            "--command-id",
+            "outcome-phase-create",
+            "--id",
+            "outcome-phase",
+            "--title",
+            "Outcome phase",
+            "--outcome-first",
+            "--outcome",
+            outcome,
+        ]),
+        "create outcome-first phase",
+    );
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "activate",
+            "--command-id",
+            "outcome-phase-activate",
+            "--id",
+            "outcome-phase",
+        ]),
+        "activate phase",
+    );
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "transition",
+            "--command-id",
+            "outcome-phase-start",
+            "--id",
+            "outcome-phase",
+            "--status",
+            "in-progress",
+        ]),
+        "start phase",
+    );
+    for (sequence, id, depends_on) in [
+        ("1", "change-a", None),
+        ("2", "change-b", None),
+        ("3", "change-c", Some("change-a")),
+    ] {
+        let command_id = format!("register-{id}");
+        let mut args = vec![
+            "change",
+            "register",
+            "--command-id",
+            command_id.as_str(),
+            "--phase",
+            "outcome-phase",
+            "--id",
+            id,
+            "--title",
+            id,
+            "--sequence",
+            sequence,
+        ];
+        if let Some(dependency) = depends_on {
+            args.extend(["--depends-on", dependency]);
+        }
+        require_success(&fixture.command(&args), "register change");
+        let task_command_id = format!("register-{id}-task");
+        require_success(
+            &fixture.command(&[
+                "task",
+                "register",
+                "--command-id",
+                task_command_id.as_str(),
+                "--phase",
+                "outcome-phase",
+                "--change",
+                id,
+                "--id",
+                "1",
+                "--title",
+                "Build it",
+                "--sequence",
+                "1",
+            ]),
+            "register task",
+        );
+    }
+
+    // A dependency that names no registered change is refused.
+    let refused = fixture.command(&[
+        "change",
+        "register",
+        "--command-id",
+        "register-change-d",
+        "--phase",
+        "outcome-phase",
+        "--id",
+        "change-d",
+        "--title",
+        "change-d",
+        "--sequence",
+        "4",
+        "--depends-on",
+        "change-missing",
+    ]);
+    assert!(
+        !refused.status.success(),
+        "an unknown dependency must be refused\nstdout:\n{}",
+        stdout(&refused)
+    );
+    assert!(stderr(&refused).contains("change-missing"));
+
+    require_success(
+        &fixture.command(&[
+            "task",
+            "transition",
+            "--command-id",
+            "block-change-a",
+            "--phase",
+            "outcome-phase",
+            "--change",
+            "change-a",
+            "--id",
+            "1",
+            "--status",
+            "blocked",
+        ]),
+        "block change-a",
+    );
+
+    let waypoint: serde_json::Value = serde_json::from_slice(
+        &fs::read(
+            fixture
+                .project_root
+                .join(".kbd-orchestrator/current-waypoint.json"),
+        )
+        .expect("read waypoint"),
+    )
+    .expect("parse waypoint");
+    assert_eq!(waypoint["outcomeFirst"], true);
+    assert_eq!(waypoint["outcome"], outcome);
+    assert_eq!(waypoint["nextChange"], "change-b");
+    assert_eq!(waypoint["nextAuthorizedAction"], "change change-b, task 1");
+    assert_eq!(waypoint["blockedChanges"][0]["id"], "change-a");
+
+    let reminder = fs::read_to_string(
+        fixture
+            .project_root
+            .join(".kbd-orchestrator/position-reminder.txt"),
+    )
+    .expect("read reminder");
+    assert!(reminder.contains(&format!("Outcome: {outcome}")));
+    assert!(reminder.contains("Blocked, not selected: change-a"));
+
+    let state = fixture.runtime.replay().expect("replay canonical state");
+    assert!(state.phases["outcome-phase"].outcome_first);
+    assert_eq!(
+        state.phases["outcome-phase"].changes["change-c"].depends_on,
+        vec!["change-a".to_string()]
+    );
+    assert!(!state.phases["outcome-phase"]
+        .changes
+        .contains_key("change-d"));
+}

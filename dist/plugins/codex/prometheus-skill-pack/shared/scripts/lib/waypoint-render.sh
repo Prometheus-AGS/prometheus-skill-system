@@ -196,6 +196,19 @@ waypoint_render() {
   fi
   [ -n "$last" ] && printf 'Last: %s\n' "$last"
   [ -n "$next" ] && printf 'Next: %s\n' "$next"
+  # Outcome-first phases (opt-in): outcome, last evidence, next authorized action.
+  if [ "$(jq -r '.outcomeFirst // false' "$wp" 2>/dev/null)" = "true" ]; then
+    jq -r '
+      "Outcome: \(.outcome // "(not recorded)")",
+      "Last evidence: \(
+        if (.lastEvidence | type) != "object" then "(none yet)"
+        elif .lastEvidence.kind == "gate" then "\(.lastEvidence.gate) gate \(.lastEvidence.outcome): \(.lastEvidence.summary // "")"
+        else "change \(.lastEvidence.change), task \(.lastEvidence.task) complete: \(.lastEvidence.title // "")" end)",
+      "Next authorized action: \(.nextAuthorizedAction // "(none)")",
+      (if ((.blockedChanges // []) | length) > 0
+        then "Blocked, not selected: \([.blockedChanges[].id] | join(", "))" else empty end)
+    ' "$wp" 2>/dev/null || true
+  fi
   if [ "${PROMETHEUS_POSITION_VERBOSITY:-dense}" = "explain" ] && [ -n "$why" ]; then
     printf 'Why: %s\n' "$why"
   fi

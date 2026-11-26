@@ -32,6 +32,27 @@
       "minLength": 1,
       "description": "The AI tool or human who last wrote this file"
     },
+    "outcomeFirst": {
+      "type": "boolean",
+      "description": "Present and true only for a phase created with --outcome-first. Absent for every other phase."
+    },
+    "outcome": {
+      "type": ["string", "null"],
+      "description": "One-line user outcome the outcome-first phase must prove."
+    },
+    "lastEvidence": {
+      "type": ["object", "null"],
+      "description": "Last meaningful evidence for the outcome-first phase: the latest gate receipt, else the last completed task. Derived on every projection."
+    },
+    "nextAuthorizedAction": {
+      "type": "string",
+      "description": "Next action derived from canonical state for the outcome-first phase. It never grants authority; boundary runs still need their authorization."
+    },
+    "blockedChanges": {
+      "type": "array",
+      "description": "Blocked changes that resume did not select, with their blocked task titles.",
+      "items": { "type": "object", "required": ["id"], "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "blockers": { "type": "array", "items": { "type": "string" } } } }
+    },
     "assessment_complete": {
       "type": "boolean",
       "description": "True once /kbd-assess has run for this phase"
@@ -119,6 +140,11 @@
           "status": {
             "type": "string",
             "enum": ["PENDING", "IN_PROGRESS", "DONE", "BLOCKED", "SKIPPED"]
+          },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "description": "Change ids that must be complete before this change is eligible. Present only when declared; used by resume only in an outcome-first phase."
           },
           "implementation_status": {
             "type": "string",

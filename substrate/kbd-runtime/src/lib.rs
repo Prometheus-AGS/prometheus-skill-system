@@ -367,6 +367,10 @@ pub fn ensure_device_key_file(path: &Path) -> Result<DeviceSigner> {
     }
 }
 
+fn is_false(value: &bool) -> bool {
+    !*value
+}
+
 fn is_zero(value: &u64) -> bool {
     *value == 0
 }
@@ -497,6 +501,11 @@ pub struct Change {
     pub status: WorkStatus,
     pub implementation_status: WorkStatus,
     pub tasks: BTreeMap<String, Task>,
+    /// Change ids that must be complete before this change is eligible in an
+    /// outcome-first phase. Absent from serialized form when empty so events
+    /// written before this field existed keep their bytes and hashes.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub depends_on: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -537,6 +546,41 @@ pub struct Phase {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub legacy_completion_baseline: Option<LegacyCompletionBaseline>,
     pub legacy_read_only: bool,
+    /// Opt-in: the phase is scoped to one useful outcome and resume prefers
+    /// eligible pending work over blocked work. Never set on existing phases.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub outcome_first: bool,
+    /// One-line statement of the user outcome this phase must prove.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub outcome: Option<String>,
+}
+
+impl Phase {
+    /// True when every change this change depends on is terminal. A
+    /// dependency that names no registered change is unresolved, so a typo
+    /// cannot make dependent work look eligible.
+    pub fn dependencies_resolved(&self, change: &Change) -> bool {
+        change.depends_on.iter().all(|dependency| {
+            self.changes
+                .get(dependency)
+                .is_some_and(|required| required.implementation_status.is_terminal())
+        })
+    }
+
+    /// Non-terminal blocked changes in ledger order.
+    pub fn blocked_change_ids(&self) -> Vec<String> {
+        let mut blocked = self
+            .changes
+            .values()
+            .filter(|change| change.implementation_status == WorkStatus::Blocked)
+            .collect::<Vec<_>>();
+        blocked.sort_by(|left, right| {
+            left.sequence
+                .cmp(&right.sequence)
+                .then_with(|| left.id.cmp(&right.id))
+        });
+        blocked.into_iter().map(|change| change.id.clone()).collect()
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -2607,23 +2651,38 @@ impl KbdStateV2 {
                 .cmp(&right.sequence)
                 .then_with(|| left.id.cmp(&right.id))
         });
-        let change = changes
-            .iter()
-            .copied()
-            .find(|change| {
-                change.implementation_status == WorkStatus::InProgress
-                    || change
-                        .tasks
-                        .values()
-                        .any(|task| task.status == WorkStatus::InProgress)
-            })
-            .or_else(|| {
-                changes
-                    .iter()
-                    .copied()
-                    .find(|change| change.implementation_status == WorkStatus::Blocked)
-            })
-            .or_else(|| changes.first().copied());
+        let in_progress = changes.iter().copied().find(|change| {
+            change.implementation_status == WorkStatus::InProgress
+                || change
+                    .tasks
+                    .values()
+                    .any(|task| task.status == WorkStatus::InProgress)
+        });
+        let blocked = || {
+            changes
+                .iter()
+                .copied()
+                .find(|change| change.implementation_status == WorkStatus::Blocked)
+        };
+        let change = if phase.outcome_first {
+            // Outcome-first phases keep ledger order but do not let blocked
+            // work outrank pending work that does not depend on it. Blocked
+            // work stays visible in the projections and is selected only
+            // when nothing else is eligible.
+            in_progress
+                .or_else(|| {
+                    changes.iter().copied().find(|change| {
+                        change.implementation_status == WorkStatus::Pending
+                            && phase.dependencies_resolved(change)
+                    })
+                })
+                .or_else(blocked)
+                .or_else(|| changes.first().copied())
+        } else {
+            in_progress
+                .or_else(blocked)
+                .or_else(|| changes.first().copied())
+        };
         let Some(change) = change else {
             return (None, None);
         };
@@ -5610,7 +5669,7 @@ impl Runtime {
         // open. Observed: `change: null` for 200 revisions with a task running.
         let waypoint_change = derived_change.clone();
         let waypoint_task = derived_task.clone();
-        let waypoint = serde_json::json!({
+        let mut waypoint = serde_json::json!({
             "schemaVersion": "5",
             "generatedBy": "kbd-runtime",
             "projectionContractVersion": COMPATIBILITY_PROJECTION_CONTRACT_VERSION,
@@ -5648,6 +5707,15 @@ impl Runtime {
             "nextTask": derived_task,
             "updatedAt": projection_time
         });
+        // Outcome-first phases carry the outcome, the last meaningful evidence
+        // and the next authorized action through every projection. Phases that
+        // did not opt in get byte-identical projections to earlier releases.
+        let outcome_fields = active_phase_record
+            .filter(|phase| phase.outcome_first)
+            .map(|phase| outcome_projection(state, phase));
+        if let (Some(fields), Some(object)) = (&outcome_fields, waypoint.as_object_mut()) {
+            object.extend(fields.clone());
+        }
         atomic_json(&kbd_root.join("current-waypoint.json"), &waypoint)?;
 
         // position-reminder.txt — the projection agents actually read every turn.
@@ -5680,6 +5748,10 @@ impl Runtime {
             waypoint_phase.clone()
         } else {
             phase_path.join(" › ")
+        };
+        let next_work_line = match &outcome_fields {
+            Some(fields) => format!("{}{}", outcome_reminder_lines(fields), next_work_line),
+            None => next_work_line,
         };
         let reminder = format!(
             "POSITION REMINDER — read this as your FIRST tool call every turn\n\
@@ -6700,7 +6772,7 @@ fn phase_progress_projection(
                 .iter()
                 .find(|task| !task.status.is_terminal())
                 .map(|task| task.title.clone());
-            serde_json::json!({
+            let mut row = serde_json::json!({
                 "id": change.id,
                 "title": change.title,
                 "status": legacy_change_status(&change.status),
@@ -6713,7 +6785,13 @@ fn phase_progress_projection(
                     .filter(|task| task.status == WorkStatus::Blocked)
                     .map(|task| task.title.clone())
                     .collect::<Vec<_>>()
-            })
+            });
+            if !change.depends_on.is_empty() {
+                if let Some(object) = row.as_object_mut() {
+                    object.insert("depends_on".into(), serde_json::json!(change.depends_on));
+                }
+            }
+            row
         })
         .collect::<Vec<_>>();
     let implementation = Completion {
@@ -6751,7 +6829,7 @@ fn phase_progress_projection(
             )
         })
         .collect::<BTreeMap<_, _>>();
-    serde_json::json!({
+    let mut projection = serde_json::json!({
         "schemaVersion": "2",
         "generatedBy": "kbd-runtime",
         "projectionContractVersion": COMPATIBILITY_PROJECTION_CONTRACT_VERSION,
@@ -6795,7 +6873,170 @@ fn phase_progress_projection(
         } else {
             serde_json::Value::Null
         }
-    })
+    });
+    if phase.outcome_first {
+        if let Some(object) = projection.as_object_mut() {
+            object.extend(outcome_projection(state, phase));
+        }
+    }
+    projection
+}
+
+/// Resume fields for an outcome-first phase: what the phase must prove, the
+/// last meaningful evidence recorded for it, the next authorized action and
+/// the blocked changes that were not selected. Everything except `outcome`
+/// is derived from canonical state on every projection.
+fn outcome_projection(
+    state: &RuntimeState,
+    phase: &Phase,
+) -> serde_json::Map<String, serde_json::Value> {
+    let (next_change, next_task) = state.derive_next_work_for_phase(&phase.id);
+    let ordered = ordered_changes(phase);
+
+    let last_gate = state
+        .latest_gate_receipts
+        .values()
+        .filter(|receipt| receipt.phase_id.as_deref() == Some(phase.id.as_str()))
+        .max_by_key(|receipt| receipt.finished_at);
+    let last_evidence = match last_gate {
+        Some(receipt) => serde_json::json!({
+            "kind": "gate",
+            "gate": receipt.kind,
+            "gateId": receipt.gate_id,
+            "outcome": receipt.outcome,
+            "summary": receipt.summary,
+            "sourceRevision": receipt.source_revision,
+            "at": receipt.finished_at
+        }),
+        None => ordered
+            .iter()
+            .rev()
+            .find_map(|change| {
+                ordered_tasks(change)
+                    .into_iter()
+                    .rev()
+                    .find(|task| task.status.is_complete())
+                    .map(|task| {
+                        serde_json::json!({
+                            "kind": "task",
+                            "change": change.id,
+                            "task": task.id,
+                            "title": task.title,
+                            "summary": task.summary
+                        })
+                    })
+            })
+            .unwrap_or(serde_json::Value::Null),
+    };
+
+    let selected = next_change
+        .as_ref()
+        .and_then(|change_id| phase.changes.get(change_id));
+    let next_authorized_action = match (selected, &next_task) {
+        (Some(change), _) if change.implementation_status == WorkStatus::Blocked => format!(
+            "resolve the blocker on change {}; no other change is eligible",
+            change.id
+        ),
+        (Some(change), _)
+            if change.implementation_status == WorkStatus::Pending
+                && !phase.dependencies_resolved(change) =>
+        {
+            format!(
+                "change {} waits on {}; no other change is eligible",
+                change.id,
+                change.depends_on.join(", ")
+            )
+        }
+        (Some(change), Some(task)) => format!("change {}, task {}", change.id, task),
+        (Some(change), None) => format!("change {}", change.id),
+        (None, _) if phase.changes.is_empty() => {
+            "plan the changes that deliver the outcome".to_string()
+        }
+        (None, _) => "all planned changes are complete; the single boundary run (B4) is next \
+                      once authorized"
+            .to_string(),
+    };
+
+    let blocked_changes = phase
+        .blocked_change_ids()
+        .into_iter()
+        .filter(|change_id| Some(change_id) != next_change.as_ref())
+        .filter_map(|change_id| phase.changes.get(&change_id))
+        .map(|change| {
+            serde_json::json!({
+                "id": change.id,
+                "title": change.title,
+                "blockers": change.tasks.values()
+                    .filter(|task| task.status == WorkStatus::Blocked)
+                    .map(|task| task.title.clone())
+                    .collect::<Vec<_>>()
+            })
+        })
+        .collect::<Vec<_>>();
+
+    let mut fields = serde_json::Map::new();
+    fields.insert("outcomeFirst".into(), serde_json::Value::Bool(true));
+    fields.insert("outcome".into(), serde_json::json!(phase.outcome));
+    fields.insert("lastEvidence".into(), last_evidence);
+    fields.insert(
+        "nextAuthorizedAction".into(),
+        serde_json::Value::String(next_authorized_action),
+    );
+    fields.insert("blockedChanges".into(), serde_json::json!(blocked_changes));
+    fields
+}
+
+/// Position-reminder lines for the fields produced by `outcome_projection`.
+fn outcome_reminder_lines(fields: &serde_json::Map<String, serde_json::Value>) -> String {
+    let outcome = fields
+        .get("outcome")
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or("(not recorded — set with `phase create --outcome`)");
+    let evidence = match fields.get("lastEvidence") {
+        Some(serde_json::Value::Object(evidence)) => {
+            let text = |key: &str| {
+                evidence
+                    .get(key)
+                    .and_then(serde_json::Value::as_str)
+                    .unwrap_or("")
+                    .to_string()
+            };
+            if text("kind") == "gate" {
+                format!("{} gate {}: {}", text("gate"), text("outcome"), text("summary"))
+            } else {
+                format!(
+                    "change {}, task {} complete: {}",
+                    text("change"),
+                    text("task"),
+                    text("title")
+                )
+            }
+        }
+        _ => "(none yet)".to_string(),
+    };
+    let next = fields
+        .get("nextAuthorizedAction")
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or("(none)");
+    let blocked = fields
+        .get("blockedChanges")
+        .and_then(serde_json::Value::as_array)
+        .map(|changes| {
+            changes
+                .iter()
+                .filter_map(|change| change.get("id").and_then(serde_json::Value::as_str))
+                .collect::<Vec<_>>()
+                .join(", ")
+        })
+        .unwrap_or_default();
+    let blocked_line = if blocked.is_empty() {
+        String::new()
+    } else {
+        format!("Blocked, not selected: {blocked}\n")
+    };
+    format!(
+        "Outcome: {outcome}\nLast evidence: {evidence}\nNext authorized action: {next}\n{blocked_line}"
+    )
 }
 
 fn phase_projection_directory(
@@ -7101,6 +7342,7 @@ fn legacy_phase(
                         .to_string(),
                     sequence: index as u64,
                     status: implementation_status.clone(),
+                    depends_on: Vec::new(),
                     implementation_status,
                     tasks,
                 },
@@ -7151,6 +7393,8 @@ fn legacy_phase(
         stages: BTreeMap::new(),
         changes,
         legacy_completion_baseline,
+        outcome_first: false,
+        outcome: None,
         legacy_read_only,
     }
 }
@@ -8915,6 +9159,8 @@ mod tests {
                     stages: BTreeMap::new(),
                     changes: BTreeMap::new(),
                     legacy_completion_baseline: None,
+                    outcome_first: false,
+                    outcome: None,
                     legacy_read_only: false,
                 },
             )
@@ -8929,6 +9175,7 @@ mod tests {
                     title: "Canonical authority".into(),
                     sequence: 0,
                     status: WorkStatus::Pending,
+                    depends_on: Vec::new(),
                     implementation_status: WorkStatus::Pending,
                     tasks: BTreeMap::new(),
                 },
@@ -9317,6 +9564,8 @@ mod tests {
                     stages: BTreeMap::new(),
                     changes: BTreeMap::new(),
                     legacy_completion_baseline: None,
+                    outcome_first: false,
+                    outcome: None,
                     legacy_read_only: false,
                 },
             },
@@ -9365,6 +9614,8 @@ mod tests {
                             stages: BTreeMap::new(),
                             changes: BTreeMap::new(),
                             legacy_completion_baseline: None,
+                            outcome_first: false,
+                            outcome: None,
                             legacy_read_only: false,
                         },
                     },
@@ -9535,6 +9786,8 @@ mod tests {
             stages: BTreeMap::new(),
             changes: BTreeMap::new(),
             legacy_completion_baseline: None,
+            outcome_first: false,
+            outcome: None,
             legacy_read_only: false,
         };
         let with_phase = runtime
@@ -10241,6 +10494,7 @@ mod tests {
                     title: "New canonical change".into(),
                     sequence: 1,
                     status: WorkStatus::Complete,
+                    depends_on: Vec::new(),
                     implementation_status: WorkStatus::Complete,
                     tasks: BTreeMap::new(),
                 },
@@ -10293,6 +10547,8 @@ mod tests {
                     stages: BTreeMap::new(),
                     changes: BTreeMap::new(),
                     legacy_completion_baseline: None,
+                    outcome_first: false,
+                    outcome: None,
                     legacy_read_only: false,
                 },
             )
@@ -10312,6 +10568,7 @@ mod tests {
                         title: format!("Change {id}"),
                         sequence,
                         status: WorkStatus::Pending,
+                        depends_on: Vec::new(),
                         implementation_status: WorkStatus::Pending,
                         tasks: BTreeMap::new(),
                     },
@@ -10581,6 +10838,8 @@ mod tests {
                         stages: BTreeMap::new(),
                         changes: BTreeMap::new(),
                         legacy_completion_baseline: None,
+                        outcome_first: false,
+                        outcome: None,
                         legacy_read_only: false,
                     },
                 )
@@ -10608,6 +10867,7 @@ mod tests {
                 title: "Change A".into(),
                 sequence: 0,
                 status: WorkStatus::Pending,
+                depends_on: Vec::new(),
                 implementation_status: WorkStatus::Pending,
                 tasks: BTreeMap::new(),
             },
