@@ -30,6 +30,8 @@ fn replay_and_projections_advance_from_task_state_without_rewriting_operator_int
                 stages: BTreeMap::new(),
                 changes: BTreeMap::new(),
                 legacy_completion_baseline: None,
+                outcome_first: false,
+                outcome: None,
                 legacy_read_only: false,
             },
         )
@@ -46,6 +48,7 @@ fn replay_and_projections_advance_from_task_state_without_rewriting_operator_int
                     title: format!("Change {change_id}"),
                     sequence,
                     status: WorkStatus::Pending,
+                    depends_on: Vec::new(),
                     implementation_status: WorkStatus::Pending,
                     tasks: BTreeMap::new(),
                 },

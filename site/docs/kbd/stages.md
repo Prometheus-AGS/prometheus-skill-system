@@ -18,6 +18,10 @@ Changes are tracked in `progress.json` (the ledger: `changes[]`,
 `completion.implementation`), and the active position lives in
 `current-waypoint.json`.
 
+A new phase can opt in to [outcome-first scope](./outcome-first-phases.md): one
+smallest useful user outcome per phase, with resume that does not let blocked
+work hold back pending work that does not depend on it.
+
 ## Lifecycle state is separate from stage state
 
 A phase or task can be `pending`, `in_progress`, `blocked`, `complete`, or

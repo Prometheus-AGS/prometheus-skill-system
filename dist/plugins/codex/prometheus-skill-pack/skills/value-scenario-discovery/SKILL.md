@@ -7,7 +7,7 @@ description: >
   mandatory constraints, rejected alternatives and adoption authority. Does not
   author executable tests or run generated-code checks.
 metadata:
-  version: '1.1.0'
+  version: '1.2.0'
   author: prometheus-skill-pack
   category: testing
   tags: "testing, scenarios, discovery, vlbv, kbd"
@@ -83,10 +83,12 @@ when rare. An available test is not automatically relevant. For each candidate:
 |---|---|
 | Candidate identity | Stable local candidate ID; an adopted scenario ID only when it already exists |
 | Actor and useful outcome | Who needs the behavior and the observable value |
+| Job | What the actor is trying to get done when they reach this behavior |
 | Basis | Source requirement/reference or explicitly labelled assumption |
 | Reason now | Why this case matters to the current phase |
 | Likelihood | Credible sourced likelihood, qualitative estimate or UNKNOWN |
 | Mandatory constraints | Separate from ordinary usefulness/priority |
+| Hard dependencies | What must exist before this can be observed, or none |
 | Proposed observation | Real production entry/boundary, oracle source and plausible false positive |
 | Alternatives | Selected, rejected or deferred, with reason |
 | Next decision | What this observation would let the owner decide |

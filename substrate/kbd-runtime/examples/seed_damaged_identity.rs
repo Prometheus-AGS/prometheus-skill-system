@@ -29,6 +29,7 @@ fn change(status: WorkStatus, task_status: WorkStatus) -> Change {
         title: "Damaged change".into(),
         sequence: 1,
         status: status.clone(),
+        depends_on: Vec::new(),
         implementation_status: status,
         tasks: BTreeMap::from([("1".to_string(), task(task_status))]),
     }
@@ -73,6 +74,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             (TARGET.to_string(), change(WorkStatus::InProgress, WorkStatus::InProgress)),
         ]),
         legacy_completion_baseline: None,
+        outcome_first: false,
+        outcome: None,
         legacy_read_only: false,
     };
     let state = runtime.append_command(

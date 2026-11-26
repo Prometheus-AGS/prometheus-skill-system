@@ -145,7 +145,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Lifecycle',
-      items: ['kbd/overview', { type: 'link', label: 'Work through a change', href: '/docs/guide/working-with-the-packs' }, 'kbd/stages', 'kbd/task-model-assignments', 'kbd/openspec-lifecycle', 'kbd/phase-readiness-contract'],
+      items: ['kbd/overview', { type: 'link', label: 'Work through a change', href: '/docs/guide/working-with-the-packs' }, 'kbd/stages', 'kbd/outcome-first-phases', 'kbd/task-model-assignments', 'kbd/openspec-lifecycle', 'kbd/phase-readiness-contract'],
     },
     {
       type: 'category',

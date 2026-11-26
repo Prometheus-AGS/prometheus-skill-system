@@ -8,7 +8,7 @@ description: >
   first phase of a new project), when pivoting away from /kbd-next-phase's
   suggestion, or when initialising state by hand.
 metadata:
-  version: '1.0.0'
+  version: '1.1.0'
   tags: "process, orchestration, automation"
 ---
 
@@ -95,6 +95,21 @@ session:
 ```sh
 "$KBD_ORCHESTRATOR_ROOT/skills/kbd-new-phase/kbd-new-phase.sh" <name> [goal-1] [goal-2] …
 ```
+
+### Outcome-first phase (opt-in)
+
+```sh
+"$KBD_ORCHESTRATOR_ROOT/skills/kbd-new-phase/kbd-new-phase.sh" <name> \
+  --outcome-first --outcome "<the one user outcome this phase must prove>"
+```
+
+This scopes the phase to the smallest independently useful user outcome. The
+flags are passed to `prometheus kbd phase create`, `goals.md` opens with the
+outcome record to complete in Assess, and resume in that phase prefers eligible
+pending work over blocked work. It needs the canonical runtime and writes
+nothing when the runtime is unavailable. Phases created without the flag are
+unchanged. When the operator has not scoped a new phase, propose this form and
+let them decide. Rules: `references/outcome-first.md`.
 
 Or, step-by-step:
 

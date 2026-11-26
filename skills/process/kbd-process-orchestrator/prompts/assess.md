@@ -163,3 +163,15 @@ environments, required safety/security checks, exclusions/deferred items, risk
 acceptance, and the decision owner. Explicit prior operator instructions count
 as adoption; never infer adoption from TODOs or reflections. These inputs feed
 `adopted-contract.json` (schema: references/schemas/adopted-contract.schema.json).
+
+### Outcome-first phases
+
+When the waypoint shows `outcomeFirst: true`, the phase is scoped to the
+smallest independently useful user outcome. Complete the outcome record at the
+top of `goals.md` (actor, job, observed need or material risk, real entry
+point, acceptance oracle, hard dependencies, why now) and keep everything that
+is not needed to prove that outcome out of this phase. When several outcomes
+are eligible, rank by operator priority, then material user impact, with time
+to value as the tie-break, and record the ones not chosen with the reason. For
+a new phase the operator has not scoped, propose outcome-first as the default
+and let the operator decide. Full rules: references/outcome-first.md.

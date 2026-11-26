@@ -2886,6 +2886,7 @@ mod tests {
                         title: change_id.into(),
                         sequence: 1,
                         status: WorkStatus::Pending,
+                        depends_on: Vec::new(),
                         implementation_status: WorkStatus::Pending,
                         tasks: [(task.id.clone(), task)].into_iter().collect(),
                     },
@@ -2903,6 +2904,8 @@ mod tests {
                 stages: Default::default(),
                 changes,
                 legacy_completion_baseline: None,
+                outcome_first: false,
+                outcome: None,
                 legacy_read_only: false,
             },
         );

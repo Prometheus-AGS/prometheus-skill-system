@@ -9,7 +9,7 @@ description: >
   Bridges with iterative-evolver plan items
   when running inside an evolution cycle.
 metadata:
-  version: '1.1.0'
+  version: '1.2.0'
   tags: "process, orchestration, automation"
 ---
 

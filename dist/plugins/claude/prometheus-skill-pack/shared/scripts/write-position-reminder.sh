@@ -86,6 +86,20 @@ elif [[ -n "$NEXT_CHANGE" ]]; then
 else
   NEXT_WORK="none derived"
 fi
+# Outcome-first phases (opt-in) also carry what the phase must prove, the last
+# meaningful evidence and the next authorized action. Empty for other phases.
+OUTCOME_LINES=$(jq -r '
+  if .outcomeFirst == true then
+    "Outcome: \(.outcome // "(not recorded)")",
+    "Last evidence: \(
+      if (.lastEvidence | type) != "object" then "(none yet)"
+      elif .lastEvidence.kind == "gate" then "\(.lastEvidence.gate) gate \(.lastEvidence.outcome): \(.lastEvidence.summary // "")"
+      else "change \(.lastEvidence.change), task \(.lastEvidence.task) complete: \(.lastEvidence.title // "")" end)",
+    "Next authorized action: \(.nextAuthorizedAction // "(none)")",
+    (if ((.blockedChanges // []) | length) > 0
+      then "Blocked, not selected: \([.blockedChanges[].id] | join(", "))" else empty end)
+  else empty end' "$WAYPOINT" 2>/dev/null) || OUTCOME_LINES=""
+[[ -n "$OUTCOME_LINES" ]] && OUTCOME_LINES="$OUTCOME_LINES"$'\n'
 CHANGES_COMPLETED=$(jq -r '.implementationCompleted // .implementation_completed // .changesCompleted // .changes_completed // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_COMPLETED=0
 CHANGES_TOTAL=$(jq -r '.implementationTotal // .implementation_total // .changesTotal // .changes_total // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_TOTAL=0
 
@@ -110,7 +124,7 @@ POSITION REMINDER — operator pause advisory recorded
 Position: $POSITION
 Step: $CHANGES_COMPLETED of $CHANGES_TOTAL
 Stage: $STAGE
-Recorded next work: $NEXT_WORK
+${OUTCOME_LINES}Recorded next work: $NEXT_WORK
 Operator note: ${OPERATOR_NOTE:-none recorded}
 
 Confirm operator intent before advancing the recorded next work. Tools remain
@@ -125,7 +139,7 @@ POSITION REMINDER — read this as your FIRST tool call every turn
 Position: $POSITION
 Step: $CHANGES_COMPLETED of $CHANGES_TOTAL
 Stage: $STAGE
-Next work: $NEXT_WORK
+${OUTCOME_LINES}Next work: $NEXT_WORK
 Operator note (intent only): ${OPERATOR_NOTE:-none recorded}
 
 Required signal format (emit BEFORE any tool call):

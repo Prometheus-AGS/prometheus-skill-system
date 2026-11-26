@@ -2,7 +2,13 @@
 # skills/kbd-new-phase/kbd-new-phase.sh — Manually create a new top-level KBD phase.
 #
 # Usage:
-#   kbd-new-phase.sh <name> [goal-1] [goal-2] …
+#   kbd-new-phase.sh <name> [--outcome-first --outcome "<text>"] [goal-1] [goal-2] …
+#
+# --outcome-first (opt-in, issue #256) scopes the phase to the smallest
+# independently useful user outcome. Resume in such a phase prefers eligible
+# pending work over blocked work, and the projections carry the outcome, the
+# last meaningful evidence and the next authorized action. It needs the
+# canonical runtime; phases created without the flag behave as before.
 #
 # Validates the name, refuses collisions, writes goals.md and progress.json
 # atomically, flips current-waypoint.json + project.json activePhase, fires
@@ -16,9 +22,23 @@ die() { printf 'kbd-new-phase: %s\n' "$*" >&2; exit 1; }
 warn() { printf 'kbd-new-phase: warn: %s\n' "$*" >&2; }
 
 name="${1:-}"
-[[ -n "$name" ]] || die "usage: kbd-new-phase.sh <name> [goal-1] [goal-2] …"
+[[ -n "$name" ]] || die "usage: kbd-new-phase.sh <name> [--outcome-first --outcome <text>] [goal-1] [goal-2] …"
 shift
-goals=("$@")
+goals=()
+outcome_first=false
+outcome=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --outcome-first) outcome_first=true; shift ;;
+    --outcome)
+      [[ $# -ge 2 ]] || die "--outcome needs the outcome statement"
+      outcome="$2"; shift 2 ;;
+    *) goals+=("$1"); shift ;;
+  esac
+done
+[[ -z "$outcome" || "$outcome_first" == true ]] || die "--outcome requires --outcome-first"
+[[ "$outcome_first" == false || -n "$outcome" ]] \
+  || die "--outcome-first needs --outcome \"<the one user outcome this phase must prove>\""
 
 # ---------- Validation ----------
 case "$name" in
@@ -96,10 +116,17 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
   esac
 fi
 
+if [[ "$outcome_first" == true && "$runtime_authoritative" != true ]]; then
+  die "--outcome-first needs the canonical KBD runtime (prometheus CLI with runtime-authority projections); no files were modified"
+fi
+
 if [[ "$runtime_authoritative" == true ]]; then
-  prometheus kbd --path . phase create \
-    --command-id "phase-create:${name}" \
-    --id "$name" --title "$name" >/dev/null
+  create_args=(--command-id "phase-create:${name}" --id "$name" --title "$name")
+  if [[ "$outcome_first" == true ]]; then
+    create_args+=(--outcome-first --outcome "$outcome")
+  fi
+  prometheus kbd --path . phase create "${create_args[@]}" >/dev/null \
+    || die "canonical phase creation failed; no phase directory was written"
   guard_enabled=false
   if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
     guard_enabled=true
@@ -125,8 +152,25 @@ mkdir -p "$phase_dir"
 
 {
   printf '# Goals\n\n'
+  if [[ "$outcome_first" == true ]]; then
+    printf '## Outcome (outcome-first phase)\n\n'
+    printf '%s\n\n' "$outcome"
+    printf 'Complete this record in /kbd-assess before planning. Write UNKNOWN where\n'
+    printf 'a fact is not established; do not guess.\n\n'
+    printf -- '- **Actor:** <who gets the result>\n'
+    printf -- '- **Job:** <what they are trying to get done>\n'
+    printf -- '- **Observed need or material risk:** <evidence, or the risk if this is absent>\n'
+    printf -- '- **Real entry point:** <shipped command, screen or API they use>\n'
+    printf -- '- **Acceptance oracle:** <the observation that shows it worked, and its source of truth>\n'
+    printf -- '- **Hard dependencies:** <what must exist first, or none>\n'
+    printf -- '- **Why now:** <reason this outranks other eligible outcomes>\n\n'
+    printf 'Anything that is not needed to prove this outcome belongs in another phase.\n\n'
+    printf '## Supporting goals\n\n'
+  fi
   if [[ ${#goals[@]} -gt 0 ]]; then
     for g in "${goals[@]}"; do printf -- '- %s\n' "$g"; done
+  elif [[ "$outcome_first" == true ]]; then
+    printf -- '<!-- none recorded -->\n'
   else
     printf -- '<!-- TBD: enumerate goals before /kbd-assess -->\n'
   fi

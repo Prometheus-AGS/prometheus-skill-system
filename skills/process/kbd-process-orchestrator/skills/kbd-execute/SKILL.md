@@ -7,7 +7,7 @@ description: >
   maintain KBD as the source of truth. Supports multi-tool handoff via
   progress.json protocol. Runs the B4 boundary sequence once at phase completion.
 metadata:
-  version: '1.0.0'
+  version: '1.1.0'
   tags: "process, orchestration, automation"
 ---
 
@@ -77,6 +77,16 @@ Refresh assignments after material task, harness or capability changes. Unavaila
 routes remain unresolved; record any deliberate alternative selection and its
 rationale before running it. Other eligible tasks can continue. liter-llm inference
 requires a tool-enabled execution mechanism; KBD retains task completion ownership.
+
+## Outcome-first phases
+
+In a phase created with `--outcome-first`, read `outcome`, `lastEvidence`,
+`nextAuthorizedAction` and `blockedChanges` from `current-waypoint.json` before
+dispatch. Work the selected change; a blocked change listed in `blockedChanges`
+waits for its blocker and does not stop the others. The phase still has exactly
+one boundary run, reached when the changes the outcome needs are complete. A
+changed priority is a signed amendment or a `superseded` disposition, never a
+reorder. See `references/outcome-first.md`.
 
 ## Value-phase boundary (B4)
 

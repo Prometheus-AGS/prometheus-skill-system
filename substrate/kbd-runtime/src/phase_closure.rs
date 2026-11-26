@@ -382,6 +382,8 @@ pub(crate) fn prepare_successor(
         stages: BTreeMap::new(),
         changes: BTreeMap::new(),
         legacy_completion_baseline: None,
+        outcome_first: false,
+        outcome: None,
         legacy_read_only: false,
     };
     let mut phase_path = match &predecessor.parent_phase_id {
