@@ -64,7 +64,7 @@ Full integration contracts are defined in `references/integrations/`:
 | Global Skill           | KBD Phase               | Role                                                                               | Integration Guide                               |
 | ---------------------- | ----------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- |
 | **iterative-evolver**  | Assess                  | Deep codebase + spec gap analysis with cross-session continuity                    | `references/integrations/iterative-evolver.md`  |
-| **artifact-refiner**   | Execute (per-change QA) | Constraint-driven code quality gate before archiving each change                   | `references/integrations/artifact-refiner.md`   |
+| **artifact-refiner**   | Execute (boundary QA)   | One constraint-driven quality pass over the whole phase diff at B4, before archive | `references/integrations/artifact-refiner.md`   |
 | **bdd-testing**        | Assess/Spec/Plan define; phase-end verify | Value scenarios defined before generation; executed once at the authorized complete value-phase boundary | `references/integrations/bdd-testing.md`        |
 | **pmpo-skill-creator** | Reflect (meta)          | KBD self-improvement — extend kbd with new sub-skills discovered during reflection | `references/integrations/pmpo-skill-creator.md` |
 
@@ -110,9 +110,11 @@ PLAN
 
 EXECUTE (per change)
  └─ <executing tool> implements the change
-    └─ no test, build or runner command until every planned production change is done
-    └─ /refine-validate: constraint QA gate            ← artifact-refiner (when policy allows)
-       └─ if FAIL: /refine-code for iterative refinement
+    └─ no test, build, review or runner command until every planned production change is done
+
+EXECUTE (once, at the value-phase boundary — references/boundaries.md)
+ └─ /refine-validate: one cumulative constraint QA pass   ← artifact-refiner (when policy allows)
+       └─ if FAIL: report; refinement is an owner-authorized repair (B5)
     └─ openspec archive --yes (after phase CLOSED) or native archive
 
 PHASE-END VERIFY (separately authorized, complete value phase only)

@@ -73,6 +73,11 @@ Adapt to the project stack:
 - **Python**: Does `mypy` or `ruff check` pass?
 - **Any**: Are there failing tests? Known lint violations?
 
+Answer these from existing evidence: the last recorded boundary or gate result,
+committed reports, or what the operator states. Assess does not run a build,
+compiler check, lint or test to find out; under VLBV those commands run only as
+boundary-packet entries at B4. With no evidence, report UNKNOWN.
+
 Report: **PASS | FAIL | UNKNOWN**
 
 ### 5. Constraint Compliance

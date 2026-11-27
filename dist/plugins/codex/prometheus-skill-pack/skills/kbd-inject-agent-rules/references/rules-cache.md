@@ -23,6 +23,11 @@ Last fetched: 2026-05-27
    criteria, not step-by-step micro-instructions. LLMs loop well toward
    goals.
 
+   > **Where VLBV applies** (every KBD-managed project): rule 5's "up to 3
+   > checkpoints" is superseded by the boundary rule. Generated code runs
+   > once, at the value-phase boundary, and again only for an
+   > owner-authorized repair. The rest of rule 5 stands.
+
 5. **Implementation-First, Test-at-Checkpoints** — For a multi-change
    epoch/plan, implement the ENTIRE plan first — every logical connection
    made, no gaps, no unimplemented important pieces — before verifying it.
