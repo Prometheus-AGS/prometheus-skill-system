@@ -592,6 +592,11 @@ impl From<KbdGateKind> for kbd_runtime::GateKind {
 
 #[derive(Subcommand)]
 enum KbdGuardAction {
+    /// Read advisory recommendations for repeated blockers (writes nothing)
+    Advise {
+        #[arg(long)]
+        json: bool,
+    },
     /// Evaluate one precommit or postcommit lifecycle boundary
     Evaluate {
         #[arg(long, value_enum)]
@@ -1039,6 +1044,29 @@ enum KbdDecisionAction {
     },
 }
 
+#[derive(Clone, clap::ValueEnum)]
+enum KbdBlockerClass {
+    Product,
+    Setup,
+    Measurement,
+    Authority,
+    ApprovalWait,
+    ResourceWait,
+}
+
+impl From<KbdBlockerClass> for kbd_runtime::BlockerClass {
+    fn from(value: KbdBlockerClass) -> Self {
+        match value {
+            KbdBlockerClass::Product => Self::Product,
+            KbdBlockerClass::Setup => Self::Setup,
+            KbdBlockerClass::Measurement => Self::Measurement,
+            KbdBlockerClass::Authority => Self::Authority,
+            KbdBlockerClass::ApprovalWait => Self::ApprovalWait,
+            KbdBlockerClass::ResourceWait => Self::ResourceWait,
+        }
+    }
+}
+
 #[derive(Subcommand)]
 enum KbdBlockerAction {
     Record {
@@ -1048,6 +1076,14 @@ enum KbdBlockerAction {
         id: String,
         #[arg(long)]
         summary: String,
+        /// Stable identity of the underlying problem, shared by repeat attempts
+        #[arg(long)]
+        fingerprint: Option<String>,
+        #[arg(long, value_enum)]
+        class: Option<KbdBlockerClass>,
+        /// Reference to the evidence this attempt produced
+        #[arg(long)]
+        evidence: Option<String>,
     },
     Clear {
         #[command(flatten)]
@@ -1296,6 +1332,7 @@ async fn run() -> Result<()> {
                     KbdRolloutAction::Promote => commands::kbd::Action::RolloutPromote,
                 },
                 KbdAction::Guard { action } => match action {
+                    KbdGuardAction::Advise { json } => commands::kbd::Action::GuardAdvise { json },
                     KbdGuardAction::Evaluate {
                         boundary,
                         edge,
@@ -1644,6 +1681,9 @@ async fn run() -> Result<()> {
                         mutation,
                         id,
                         summary,
+                        fingerprint,
+                        class,
+                        evidence,
                     } => typed_command(
                         mutation,
                         kbd_runtime::CommandKind::BlockerRecord {
@@ -1652,6 +1692,9 @@ async fn run() -> Result<()> {
                                 summary,
                                 resolved: false,
                                 resolution: None,
+                                fingerprint,
+                                class: class.map(Into::into),
+                                evidence_ref: evidence,
                             },
                         },
                     ),

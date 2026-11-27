@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - A new KBD phase can opt in to outcome-first scope with `/kbd-new-phase <name> --outcome-first --outcome "<text>"`. Resume in that phase selects eligible pending work ahead of blocked work, honours `change register --depends-on`, and the waypoint, position reminder and progress ledger show the outcome, the last evidence and the next authorized action. Existing phases are unchanged (issue #256, first of five parts).
+- `prometheus kbd guard advise` reads canonical state and proposes one next step (`setup-repair`, `measurement-repair`, `authority-handoff` or `architecture-child`) when the same blocker was attempted again without new evidence. It appends no event, stops nothing and creates nothing; waits on an approval or a resource are never counted, and a running gate answers `in-flight: do not stop`. `blocker record` takes optional `--fingerprint`, `--class` and `--evidence` (issue #256, third of five parts).
 
 ## [1.18.0] - 2026-11-24
 

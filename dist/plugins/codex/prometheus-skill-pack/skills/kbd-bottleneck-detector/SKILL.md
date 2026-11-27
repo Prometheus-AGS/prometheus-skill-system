@@ -7,7 +7,7 @@ description: >
   the user mentions "bottleneck detector". Do NOT use for creating or
   advancing phases (see kbd-new-child and kbd-next-phase).
 metadata:
-  version: '1.0.0'
+  version: '1.1.0'
   tags: "process, orchestration, recovery"
 ---
 
@@ -18,7 +18,7 @@ metadata:
 Before running the detector, emit:
 
 ```text
-Starting kbd-bottleneck-detector — <status|evaluate|repair> <boundary>
+Starting kbd-bottleneck-detector — <status|advise|evaluate|repair> <boundary>
 ```
 
 After the detector returns, emit its actual outcome:
@@ -35,6 +35,7 @@ Use the bundled adapter for deterministic local checks:
 ```bash
 DETECTOR="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/skills/kbd-bottleneck-detector/scripts/kbd-bottleneck-detector.sh"
 "$DETECTOR" status
+"$DETECTOR" advise
 "$DETECTOR" evaluate task before <task-id>
 "$DETECTOR" repair phase after <phase-id>
 ```
@@ -43,6 +44,13 @@ DETECTOR="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator
 waypoint, progress, and position projections; it must not change the canonical
 revision. Treat `blocked` as a real lifecycle blocker and use the exact progress
 signal returned by the command.
+
+`advise` is read-only. When the same fingerprinted blocker has been attempted
+again without new evidence, it proposes one next step: `setup-repair`,
+`measurement-repair`, `authority-handoff` or `architecture-child`. It never
+stops work, creates a child or changes a disposition, and while a gate is
+running it answers `in-flight: do not stop`. Put the proposal to the operator.
+See [references/advisory.md](references/advisory.md).
 
 Read [references/receipt-contract.md](references/receipt-contract.md) when
 diagnosing duplicate, missing, or out-of-order receipts, certification failures,

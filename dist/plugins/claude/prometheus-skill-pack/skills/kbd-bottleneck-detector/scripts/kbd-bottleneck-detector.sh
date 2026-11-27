@@ -27,6 +27,10 @@ case "$mode" in
       unresolvedBlockers: [.blockers[]? | select(.resolved == false)]
     }'
     ;;
+  advise)
+    # Read-only: appends no event and never fails a boundary.
+    prometheus kbd --path . guard advise --json
+    ;;
   evaluate|repair)
     boundary="${1:?usage: $mode <task|phase> <before|after> <subject>}"
     edge="${2:?usage: $mode <task|phase> <before|after> <subject>}"
@@ -37,7 +41,7 @@ case "$mode" in
     prometheus "${args[@]}"
     ;;
   *)
-    printf 'kbd-bottleneck-detector: unknown mode %s (use status, evaluate, or repair)\n' "$mode" >&2
+    printf 'kbd-bottleneck-detector: unknown mode %s (use status, advise, evaluate, or repair)\n' "$mode" >&2
     exit 64
     ;;
 esac

@@ -1,0 +1,16 @@
+{
+  "id": "approval-wait",
+  "pattern": "Work is waiting for a requested approval. Checking again is not a failed attempt.",
+  "pendingChanges": 2,
+  "gateRunning": false,
+  "blockers": [
+    { "id": "wait-1", "summary": "Waiting for owner approval of the boundary run", "fingerprint": "approval:boundary-run", "class": "approval-wait", "evidenceRef": "request-1" },
+    { "id": "wait-2", "summary": "Still waiting for owner approval of the boundary run", "fingerprint": "approval:boundary-run", "class": "approval-wait", "evidenceRef": "request-1" }
+  ],
+  "expect": {
+    "inFlight": 0,
+    "withheld": 0,
+    "waiting": ["wait-1", "wait-2"],
+    "recommendations": []
+  }
+}

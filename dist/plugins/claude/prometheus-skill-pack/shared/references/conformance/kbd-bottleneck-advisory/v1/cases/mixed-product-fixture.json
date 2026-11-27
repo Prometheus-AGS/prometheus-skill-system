@@ -1,0 +1,19 @@
+{
+  "id": "mixed-product-fixture",
+  "pattern": "A fixture failure repeats beside a single product failure; the two must not be merged into one verdict.",
+  "pendingChanges": 2,
+  "gateRunning": false,
+  "blockers": [
+    { "id": "fixture-1", "summary": "Seed database fixture fails to load", "fingerprint": "measurement:seed-fixture-load", "class": "measurement", "evidenceRef": "logs/fixture-load.txt" },
+    { "id": "product-1", "summary": "Report total is off by one", "fingerprint": "product:report-total", "class": "product", "evidenceRef": "boundary-results.json#report-total" },
+    { "id": "fixture-2", "summary": "Seed database fixture fails to load", "fingerprint": "measurement:seed-fixture-load", "class": "measurement", "evidenceRef": "logs/fixture-load.txt" }
+  ],
+  "expect": {
+    "inFlight": 0,
+    "withheld": 0,
+    "waiting": [],
+    "recommendations": [
+      { "kind": "measurement-repair", "fingerprint": "measurement:seed-fixture-load", "attempts": 2, "suggestsCommand": false }
+    ]
+  }
+}

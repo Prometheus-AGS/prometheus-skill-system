@@ -1,0 +1,16 @@
+{
+  "id": "quiet-running-build",
+  "pattern": "A long build prints nothing for a while. Earlier failures exist, but the gate has not finished.",
+  "pendingChanges": 1,
+  "gateRunning": true,
+  "blockers": [
+    { "id": "build-1", "summary": "Integration build failed to link", "fingerprint": "product:link-error", "class": "product", "evidenceRef": "logs/link.txt" },
+    { "id": "build-2", "summary": "Integration build failed to link", "fingerprint": "product:link-error", "class": "product", "evidenceRef": "logs/link.txt" }
+  ],
+  "expect": {
+    "inFlight": 1,
+    "withheld": 1,
+    "waiting": [],
+    "recommendations": []
+  }
+}
