@@ -57,7 +57,7 @@ Release and cross-platform artifact commands run at milestone, release, or certi
 implementation invalidates the incremental cache and pays full optimization
 for code that is about to change.
 
-Finish the coherent implementation and run the smallest relevant integration gate,
+Finish the coherent implementation; the adopted boundary packet runs once at the phase boundary,
 or open the final-artifact gate deliberately:
 
   PROMETHEUS_TIER3=1 <command>          # one command

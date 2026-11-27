@@ -7,8 +7,8 @@ description: >
   (openai-proxy or `liter-llm api`) with an explicit
   mandate to find problems — the model that produced an artifact or change is
   never the model that reviews it. Runs as a pipeline stage inside
-  kbd-assess/analyze/plan (artifact mode) and kbd-execute's per-change QA gate
-  (diff mode). Findings are severity-bucketed (CRITICAL/WARNING/SUGGESTION)
+  kbd-assess/analyze/plan (artifact mode) and kbd-execute's single phase-boundary
+  QA step (diff mode, once over the whole phase diff). Findings are severity-bucketed (CRITICAL/WARNING/SUGGESTION)
   and the judge's own report is screened by sycophancy-correction before it
   is surfaced.
 authors:
@@ -90,11 +90,13 @@ passed off as a clean cross-model review.
 
 ## Modes
 
-### `--mode diff` — post-implementation (kbd-execute QA gate)
+### `--mode diff` — post-implementation (kbd-execute boundary QA)
 
-Reviews a completed change's diff against its acceptance criteria. Runs
-**after** `refine-validate` passes (cheap deterministic checklist first,
-expensive judgment second) and **before** archive.
+Reviews the completed phase's cumulative diff against its acceptance criteria,
+once, as step 5 of the value-phase boundary (B4). It does not run after an
+individual task or change. Runs **after** `refine-validate` passes (cheap
+deterministic checklist first, expensive judgment second) and **before**
+archive.
 
 Packet contents: change diff, acceptance criteria (`tasks.md` / OpenSpec spec
 / `verification.md`), repo file tree, blocking constraints from

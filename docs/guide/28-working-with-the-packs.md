@@ -34,6 +34,12 @@ bash "$bootstrap" --path "$project" --audit
 bash "$bootstrap" --path "$project" --preview
 ```
 
+To list rule files that contradict the boundary rule, including nested files, imports and other worktrees, run the read-only conflict audit. It changes nothing and also reports whether the installed generation verifies:
+
+```bash
+bash "$bootstrap" --audit-conflicts --path "$project"
+```
+
 Read the proposed edits in the preview. Keep this output local because it can contain existing project instructions. Once you approve the changes, copy the printed digest into the next command:
 
 ```bash

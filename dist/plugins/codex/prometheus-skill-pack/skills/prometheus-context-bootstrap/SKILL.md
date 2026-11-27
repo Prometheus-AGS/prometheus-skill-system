@@ -14,7 +14,7 @@ license: MIT
 compatibility: bash >=4, git; jq optional
 metadata:
   author: prometheus
-  version: '1.1.1'
+  version: '1.2.0'
   category: process
   tags: "bootstrap, context-engineering, agents-md, claude-md, hooks, scaffold"
 ---
@@ -168,6 +168,42 @@ before each atomic change and reads back the change. If an external writer
 intervenes or a platform error interrupts a multi-file apply, reconcile the
 reported partial result with a new audit instead of blind retry or rollback.
 Exit 0 means the named operation completed, 1 means usage, and 2 means blocked.
+
+### Conflict audit: find rules that contradict the boundary rule
+
+```bash
+bash scripts/bootstrap.sh --audit-conflicts --path /absolute/path/to/repo
+bash scripts/bootstrap.sh --audit-conflicts --path /absolute/path/to/repo --json
+```
+
+Read-only. It lists guidance that contradicts the VLBV boundary rule (generated
+code runs once, at the value-phase boundary, and again only for an
+owner-authorized repair) and changes nothing.
+
+| It reads | Detail |
+|---|---|
+| Root rule files | `AGENTS.md`, `CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.override.md`, `.kbd-orchestrator/constraints.md` |
+| Nested rule files | Every `AGENTS.md` and `CLAUDE.md` below the root, and `.claude/rules/**/*.md` |
+| Imports | `@path` lines, followed inside the project; an import outside the project is listed as skipped and not read |
+| Other worktrees | Each entry of `git worktree list`, audited the same way (`--no-worktrees` to skip) |
+| Installed generation | The active pack generation, checked with the installer's own `--verify` |
+
+| Issue | What it matched |
+|---|---|
+| `tier-ladder` | Checks on every edit or when a unit completes |
+| `per-edit-checks` | A test, build or check after each edit, task or change |
+| `per-change-trigger` | A workflow trigger that builds or tests when a change completes |
+| `multiple-checkpoints` | Several test/build checkpoints in one phase |
+| `test-first` | Test-first or red/green cycles |
+| `compiler-exception`, `cadence-exception` | An intermediate compiler check, or time-based verification |
+
+A line that forbids or retires the practice is not reported. Each finding gives
+the file, line, issue, how the file is loaded and, when the harness profile is
+known, whether that harness loads the file. `GENERATION not verified: <reason>`
+is a report, not a failure. Exit is 0 with or without findings and 1 only for a
+usage error. Only recognized patterns are checked: read operator prose yourself.
+The audit never edits a rule file; resolve a finding by changing the rule, or
+record a `KBD-POLICY-ACK` decision where the project keeps it on purpose.
 
 ## Layout v4 — Prometheus Rules Architecture v4 (opt-in)
 

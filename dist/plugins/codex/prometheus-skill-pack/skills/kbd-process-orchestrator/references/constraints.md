@@ -81,20 +81,13 @@ constraints:
 
 ## Workflow Triggers
 
-These run after each change iteration:
+Under VLBV no trigger executes generated code. The build, lint and test commands
+in `project.json` (`build_health_command`, `lint_command`, `test_command`) are
+candidate boundary-packet entries, run once at the value-phase boundary (B4,
+`references/boundaries.md`). The only trigger kept is a notification:
 
 ```yaml
 workflow_triggers:
-  - event: on_iteration_complete
-    action:
-      type: command
-      target: '<build_health_command from project.json>'
-
-  - event: on_change_complete
-    action:
-      type: command
-      target: '<test_command from project.json>'
-
   - event: on_refinement_complete
     action:
       type: command

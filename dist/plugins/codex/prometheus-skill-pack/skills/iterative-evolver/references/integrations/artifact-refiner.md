@@ -19,7 +19,7 @@ When the evolver delegates execution to KBD, artifact-refiner runs
 automatically per completed change:
 
 ```
-evolve-execute → kbd-execute → per-change QA → artifact-refiner
+evolve-execute → kbd-execute → boundary QA (once per phase) → artifact-refiner
 ```
 
 The evolver does not invoke artifact-refiner directly for code QA.

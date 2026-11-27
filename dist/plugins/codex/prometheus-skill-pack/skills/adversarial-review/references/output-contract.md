@@ -36,7 +36,7 @@ Canonical schema: [`../assets/schemas/findings.schema.json`](../assets/schemas/f
 
 ## Gate semantics per caller
 
-### Diff mode (kbd-execute Per-Change QA Gate)
+### Diff mode (kbd-execute boundary QA, once per phase)
 
 | Verdict / severity | Effect |
 |---|---|
