@@ -17,6 +17,7 @@ use uuid::Uuid;
 
 use project_document::ProjectDocument;
 
+pub mod advisory;
 mod authority;
 pub mod change_identity;
 pub mod evidence_admission;
@@ -646,6 +647,34 @@ pub struct Blocker {
     pub summary: String,
     pub resolved: bool,
     pub resolution: Option<String>,
+    /// Stable identity of the underlying problem, shared by repeat attempts.
+    /// Blockers without one are never counted by the advisory reader.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fingerprint: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub class: Option<BlockerClass>,
+    /// Reference to the evidence this attempt produced (a path, receipt id or
+    /// digest). Two attempts with the same reference learned nothing new.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub evidence_ref: Option<String>,
+}
+
+/// What kind of obstacle a blocker is. Waits are never failed attempts.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "kebab-case")]
+pub enum BlockerClass {
+    /// The product behavior under change failed.
+    Product,
+    /// Environment, toolchain or release setup failed.
+    Setup,
+    /// The fixture, oracle or runner failed; the product result is unknown.
+    Measurement,
+    /// The next step needs an authority the agent does not hold.
+    Authority,
+    /// Waiting for an approval that has been requested.
+    ApprovalWait,
+    /// Waiting for a resource, such as a build that is still running.
+    ResourceWait,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -9851,6 +9880,9 @@ mod tests {
                         summary: "old blocker".into(),
                         resolved: false,
                         resolution: None,
+                        fingerprint: None,
+                        class: None,
+                        evidence_ref: None,
                     },
                 },
             )

@@ -6,7 +6,7 @@ description: >
   completion, and next recommended action. Reads progress.json to surface
   work completed by all tools (Antigravity, Roo, Cursor, Cline, Codex, etc.)
 metadata:
-  version: '1.0.0'
+  version: '1.1.0'
   tags: "process, orchestration, automation"
 ---
 
@@ -204,6 +204,13 @@ always reachable with or without the flag.
 
 Decision-log entries follow `references/templates/decision-log.template.md` and
 are written by kbd-analyze, kbd-plan, pmpo-elicit, and pmpo-outer-loop.
+
+## Advisory recommendations
+
+When unresolved blockers exist, also run `prometheus kbd --path . guard advise --json`
+and show its `guidance`, `waiting` and `recommendations`. It is read-only and
+advisory: report the proposal, never act on it without the operator. Details:
+`skills/kbd-bottleneck-detector/references/advisory.md`.
 
 ## Examples
 

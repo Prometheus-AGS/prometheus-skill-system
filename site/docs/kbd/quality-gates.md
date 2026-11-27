@@ -35,6 +35,25 @@ evaluation is deterministic, local, and network-free; adversarial review is
 bounded to phase completion, ambiguous authority, or a repeated violation, and
 its output is screened for sycophancy before it can certify work.
 
+### Advisory recommendations
+
+`prometheus kbd guard advise` reads canonical state and proposes one next step
+when the same blocker was attempted again without new evidence. It writes
+nothing and blocks nothing.
+
+| Recommendation | When |
+|---|---|
+| `setup-repair` | Environment or release setup failed twice the same way |
+| `measurement-repair` | A fixture, oracle or runner failed twice; the product result is not established |
+| `authority-handoff` | The next step needs a decision the agent cannot make |
+| `architecture-child` | The same product failure repeated; a scoped child phase is proposed, not created |
+
+Waiting for an approval or a resource is never counted as a failed attempt.
+While a gate is still running the answer is `in-flight: do not stop`.
+
+Record a blocker with `--fingerprint`, `--class` and `--evidence` for it to be
+counted. Blockers recorded without a fingerprint are ignored.
+
 Complete every planned production change in the active phase before authoring or running tests, formatters, validators or reviews. A task or change boundary does not independently authorize those operations. During implementation use source inspection and editor diagnostics. The project retired its compiler exception. The first build runs at the authorized B4 boundary after the phase implementation is complete. A failed boundary requires an owner-authorized repair and the affected B5 checks.
 
 At the final local boundary, run the applicable deterministic checks and real integration gate, then independent review with an actual distinct-model route. A fresh context or different alias alone does not demonstrate a distinct model family. Record unresolved review or collaborator limits rather than fabricating certification. Batch fixes and rerun the smallest confirming integration command before the applicable final gate.

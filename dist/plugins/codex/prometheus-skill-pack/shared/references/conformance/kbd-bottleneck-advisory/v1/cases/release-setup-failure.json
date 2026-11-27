@@ -1,0 +1,19 @@
+{
+  "id": "release-setup-failure",
+  "pattern": "Release setup fails the same way twice. An earlier, different problem was cleared and must not count.",
+  "pendingChanges": 1,
+  "gateRunning": false,
+  "blockers": [
+    { "id": "cleared-earlier", "summary": "Signing key was not mounted", "fingerprint": "setup:signing-key", "class": "setup", "evidenceRef": "logs/sign-1.txt", "cleared": "Key mounted" },
+    { "id": "pin-1", "summary": "Release pin does not match the built binary", "fingerprint": "setup:release-pin-mismatch", "class": "setup", "evidenceRef": "logs/pin-check.txt" },
+    { "id": "pin-2", "summary": "Release pin does not match the built binary", "fingerprint": "setup:release-pin-mismatch", "class": "setup", "evidenceRef": "logs/pin-check.txt" }
+  ],
+  "expect": {
+    "inFlight": 0,
+    "withheld": 0,
+    "waiting": [],
+    "recommendations": [
+      { "kind": "setup-repair", "fingerprint": "setup:release-pin-mismatch", "attempts": 2, "suggestsCommand": false }
+    ]
+  }
+}

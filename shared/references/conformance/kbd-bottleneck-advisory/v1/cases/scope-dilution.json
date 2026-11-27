@@ -1,0 +1,18 @@
+{
+  "id": "scope-dilution",
+  "pattern": "A broad phase keeps retrying one failing product change while unrelated changes wait behind it.",
+  "pendingChanges": 4,
+  "gateRunning": false,
+  "blockers": [
+    { "id": "attempt-1", "summary": "Export command returns an empty report", "fingerprint": "product:export-empty-report", "class": "product", "evidenceRef": "boundary-results.json#export-signed-report" },
+    { "id": "attempt-2", "summary": "Export command returns an empty report", "fingerprint": "product:export-empty-report", "class": "product", "evidenceRef": "boundary-results.json#export-signed-report" }
+  ],
+  "expect": {
+    "inFlight": 0,
+    "withheld": 0,
+    "waiting": [],
+    "recommendations": [
+      { "kind": "architecture-child", "fingerprint": "product:export-empty-report", "attempts": 2, "suggestsCommand": true }
+    ]
+  }
+}
