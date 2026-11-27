@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Next] - not yet released
+
+- The optional Apple Foundation Models step of an install or update no longer leaves the `ai.prometheus.apple-fm` service unloaded. It waits for launchd to finish removing the job before loading it again, retries the load, and leaves a healthy service running when its job definition has not changed.
+
 ## [1.19.0] - 2026-11-27
 
 - A new KBD phase can opt in to outcome-first scope with `/kbd-new-phase <name> --outcome-first --outcome "<text>"`. Resume in that phase selects eligible pending work ahead of blocked work, honours `change register --depends-on`, and the waypoint, position reminder and progress ledger show the outcome, the last evidence and the next authorized action. Existing phases are unchanged (issue #256, first of five parts).
