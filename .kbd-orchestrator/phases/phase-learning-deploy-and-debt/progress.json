@@ -2,20 +2,22 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 2502,
-  "derivedRevision": 2502,
+  "sourceRevision": 2642,
+  "derivedRevision": 2642,
   "frontier": {
     "017ad87f-9bfd-4e42-9893-f8fefe493479": 6,
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 2305,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
-    "ae1d970b-c060-4b28-9a7f-a9624bca0ed8": 80,
+    "aa57090a-86ae-41df-944d-92d20688da11": 11,
+    "ae1d970b-c060-4b28-9a7f-a9624bca0ed8": 188,
+    "d5226c9c-a7c2-4754-86fa-2d9e46e45021": 21,
     "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
   },
   "conflictCount": 0,
   "phase": "phase-learning-deploy-and-debt",
   "phaseId": "phase-learning-deploy-and-debt",
   "parentPhase": null,
-  "last_updated": "2026-11-16T06:57:40.674615Z",
+  "last_updated": "2026-11-24T11:03:11.018272Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 18,
   "changes_completed": 18,
@@ -53,8 +55,8 @@
     "runId": "sovereign-sync-service-reliability-20260829",
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 104,
-      "total": 107,
+      "completed": 111,
+      "total": 115,
       "status": "IN_PROGRESS"
     },
     "evidence": {

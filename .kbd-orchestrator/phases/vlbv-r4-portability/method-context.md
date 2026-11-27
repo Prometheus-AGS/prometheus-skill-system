@@ -1,6 +1,6 @@
 # Derived method context
 
-Method: VLBV (pack-default); phase: vlbv-r4-portability; revision: 2527; status: RESOLVED_REFERENCES.
+Method: VLBV (pack-default); phase: vlbv-r4-portability; revision: 2572; status: RESOLVED_REFERENCES.
 
 This is a recovery index, not execution permission. Resolve current canonical decisions and contract before dependent action.
 
@@ -8,12 +8,12 @@ This is a recovery index, not execution permission. Resolve current canonical de
 {
   "schemaVersion": 1,
   "kind": "kbd.derived-method-context",
-  "generatedAt": "2026-11-16T08:36:11.034Z",
+  "generatedAt": "2026-11-24T09:10:03.476Z",
   "authority": "derived-read-only-index; canonical signed decisions, phase binding, contract and governing host policy remain authority",
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
   "runId": "sovereign-sync-service-reliability-20260829",
   "phaseId": "vlbv-r4-portability",
-  "sourceRevision": 2527,
+  "sourceRevision": 2572,
   "phaseDirectory": ".kbd-orchestrator/phases/vlbv-r4-portability",
   "contract": {
     "path": ".kbd-orchestrator/phases/vlbv-r4-portability/adopted-contract.json",
@@ -83,9 +83,14 @@ This is a recovery index, not execution permission. Resolve current canonical de
   },
   "governingInstructions": [
     {
+      "path": "AGENTS.md",
+      "observation": "observed",
+      "sha256": "f554be971de98f64c69cfed852aae980dfb4f3762e22ae2b3e5cb59057ee1fc0"
+    },
+    {
       "path": "CLAUDE.md",
       "observation": "observed",
-      "sha256": "245990f7291de1bed30a6171d4785a1c300122ef3ae0eaafc408f611babdd17a"
+      "sha256": "aca3e03cb3f23bef734ae06b9652c232c51c18e5420e39c5282315fe6a536ffc"
     },
     {
       "path": ".kbd-orchestrator/constraints.md",
@@ -94,9 +99,10 @@ This is a recovery index, not execution permission. Resolve current canonical de
     }
   ],
   "effectiveRules": {
-    "harness": "claude-code",
-    "profile": "found",
+    "harness": null,
+    "profile": "unavailable",
     "files": [
+      "AGENTS.md",
       "CLAUDE.md",
       ".kbd-orchestrator/constraints.md"
     ],
@@ -268,6 +274,14 @@ This is a recovery index, not execution permission. Resolve current canonical de
         "sourceRevision": 2425,
         "exactSignal": "Starting phase 11 out of 11: issue-195-closeout"
       },
+      "phase:issue-241-operator-exit": {
+        "key": "phase:issue-241-operator-exit",
+        "receiptId": "5ae914ad06f45a7e46b44d3f02b56751bc744f10e095e9d434ae92747a64efe0",
+        "boundary": "phase",
+        "subject": "issue-241-operator-exit",
+        "sourceRevision": 2567,
+        "exactSignal": "Starting phase 16 out of 16: Operator-decided phase exit, reliable replica recovery and installed hooks"
+      },
       "phase:phase-learning-deploy-and-debt": {
         "key": "phase:phase-learning-deploy-and-debt",
         "receiptId": "56c3998ff5aa9ab39b85591b5ff78bf78ab8b610fa882a3b421279832111c4dd",
@@ -413,7 +427,7 @@ This is a recovery index, not execution permission. Resolve current canonical de
   ],
   "hostCapabilities": {
     "platform": "darwin",
-    "nodeVersion": "v24.11.1",
+    "nodeVersion": "v26.5.0",
     "observedInterfaces": [
       "canonical status",
       "typed phase disposition",
