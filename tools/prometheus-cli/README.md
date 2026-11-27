@@ -37,3 +37,29 @@ Other commands keep their existing behavior. Without the host manifest, the CLI
 retains its full skill-pack setup and doctor workflows. Complete the production phase before compiler or integration work. Installed
 behavior must be accepted through The Boss on the target operating system; a
 manifest, source branch or successful build is not that acceptance.
+
+## Local terminal-close consumer
+
+The host source supports one optional Node.js consumer per canonical checkout and KBD project ID. A direct `kbd phase close` dispatches after the runtime records a terminal closure, including a signed operator exit. An identical close replay can dispatch again. A refused, failed or blocked nonterminal attempt, contract binding, successor start or disposition read does not dispatch. The ordinary close command keeps its stdout contract and exit status. Delivery diagnostics go to stderr.
+
+To opt in, the operator places a UTF-8 JSON registration in `<home>/.prometheus/kbd/close-consumers/<scope>.json`. Compute `scope` as lowercase hexadecimal SHA-256 of the UTF-8 canonical absolute project path with no trailing newline. Remove the file to disable delivery. With no registration, the host launches no consumer. Each registration permits one fixed local invocation and contains exactly these fields:
+
+| Field | Value |
+| --- | --- |
+| `schema` | `kbd.close-consumer/v1` |
+| `projectRoot`, `projectId` | Canonical absolute checkout path and its registered KBD identity |
+| `nodePath`, `nodeSha256` | Canonical absolute path and lowercase SHA-256 of the reviewed Node executable |
+| `packageRoot`, `packageSha256` | Canonical absolute directory and tree digest of the reviewed, immutable installation |
+| `entryPath`, `entrySha256` | Canonical absolute path and lowercase SHA-256 of the dedicated `.mjs` entry inside the installation |
+
+The tree digest covers all regular files, including bundled dependencies and hidden files. Sort their UTF-8 relative paths by byte order using `/` as the separator. For each file append its path bytes, one NUL byte, its 64 lowercase hexadecimal SHA-256 characters, and one LF byte. Hash the concatenated bytes with SHA-256 and encode in lowercase hexadecimal. Empty directories contribute no bytes. Links and special files are rejected. Installation or runtime changes require explicit review and new digests.
+
+Use an operator-controlled home and dedicated, non-project-writable runtime and installation outside the checkout. Keep all consumer code and dependencies inside the registered installation or the trusted Node runtime. The operator is trusting executable code running as their account, including its dependency and subprocess behavior. The host does not sandbox that code. On Unix the registration and its ancestor directories inside the operator home must be owned by the home owner and deny group and other write access. Runtime and package paths must also be operator- or system-owned and deny group and other writes. A system-owned sticky scratch directory may contain a private installation directory. Provision equivalent ACLs for an operator-controlled home and installation on Windows. Registration in the checkout, project discovery, shell strings, configurable arguments and automatic installation are unsupported.
+
+The host invokes the pinned executable directly with the following argument vector, using the installed package as the working directory:
+
+```text
+<entryPath> --project-root <projectRoot> --phase-id <phaseId> --closure-key <terminalClosureKey>
+```
+
+The child gets the operator home and a system utility search path with no inherited project environment, standard input or captured output. It must re-read the canonical disposition for the named project and phase, verify the supplied key and reconcile idempotently. Exit zero acknowledges delivery only. Other exits, configuration errors and the 30-second timeout produce a `kbd.close-delivery/v1` diagnostic with `status: reconcile_required` under `delivery`. The phase stays closed. Use the diagnostic's phase and key to inspect consumer records. Reconcile the original closure with the consumer, or replay the identical close after resolving the cause. A lost acknowledgement can follow a successful write, so consumers must deduplicate against durable records before retrying effects.
