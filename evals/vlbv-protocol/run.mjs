@@ -13,6 +13,8 @@
 //   node evals/vlbv-protocol/run.mjs --harness <id[,id]|all> [--samples 3]
 //   node evals/vlbv-protocol/run.mjs --stub exit0 --samples 3           (EVAL-NOTRUN-1 negative)
 //   [--report-dir <dir>] [--concurrency 3] [--timeout-min 10]
+//   [--corpus <name>]   a corpus other than vlbv-protocol; its reports default to
+//                       evals/reports/<name>/ so the default reports are not replaced
 //   [--keep-scratch --expect-leftover]                                  (AUTH-ISO-1 negative)
 // Exit: 0 reports written and valid with isolation intact; 1 a report failed
 // validation; 3 isolation violated (later harnesses are not started);
@@ -25,7 +27,7 @@ import { buildProject } from './lib/fixture.mjs';
 import { gradeSample, graderFor } from './lib/grade.mjs';
 import { caseVerdict, machineryCases, renderMarkdown, tally, validateReport, deterministicChecks } from './lib/report.mjs';
 import {
-  INSTALLED_HARNESSES, REPORTS_DIR, RUNS_DIR, ROOT, casesByClass, gitCommit, hashPath, loadCorpus,
+  DEFAULT_CORPUS, INSTALLED_HARNESSES, REPORTS_DIR, RUNS_DIR, ROOT, casesByClass, gitCommit, hashPath, loadCorpus,
   parseArgs, passesRequired, readJson, run, sha256, stamp, writeJson, writeText,
 } from './lib/common.mjs';
 import { compareManifests, createScratch, destroyScratch, realStateManifest, repoAuthFiles } from './lib/isolation.mjs';
@@ -220,10 +222,11 @@ function notRunReport(id, reason, corpus, machineryReport, samples) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2), ['keep-scratch', 'expect-leftover']);
-  const corpus = loadCorpus();
+  const corpusName = args.corpus ?? DEFAULT_CORPUS;
+  const corpus = loadCorpus(corpusName);
   const samples = Number(args.samples ?? corpus.decisionRule.samples);
   if (!Number.isInteger(samples) || samples < 1) throw new Error('--samples must be a positive integer');
-  const reportDir = path.resolve(args['report-dir'] ?? REPORTS_DIR);
+  const reportDir = path.resolve(args['report-dir'] ?? (corpusName === DEFAULT_CORPUS ? REPORTS_DIR : path.join(REPORTS_DIR, corpusName)));
   const isNegativeDir = reportDir !== path.resolve(REPORTS_DIR);
   const options = {
     samples,
@@ -232,7 +235,8 @@ async function main() {
     timeoutMs: Math.max(1, Number(args['timeout-min'] ?? 10)) * 60_000,
     keepScratch: Boolean(args['keep-scratch']),
     firstCaseOnly: Boolean(args['expect-leftover']),
-    runsDir: isNegativeDir ? path.join(reportDir, 'runs') : RUNS_DIR,
+    // Transcripts stay under the gitignored evals/runs/ unless --report-dir moved the run.
+    runsDir: args['report-dir'] ? path.join(reportDir, 'runs') : (corpusName === DEFAULT_CORPUS ? RUNS_DIR : path.join(RUNS_DIR, corpusName)),
     leftovers: [],
     keptRoots: [],
   };

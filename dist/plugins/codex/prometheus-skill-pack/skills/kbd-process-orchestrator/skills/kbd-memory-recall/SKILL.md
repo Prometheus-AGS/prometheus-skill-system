@@ -9,7 +9,7 @@ description: >
   budget. Auto-invoked by the assess/analyze/plan/execute/reflect :before
   hooks; degrades to whatever channel is available and always exits 0.
 metadata:
-  version: '2.0.0'
+  version: '2.1.0'
   tags: "process, orchestration, memory, learning"
 ---
 
@@ -48,6 +48,20 @@ The builtin `auto-memory-recall*` hooks run it on `assess:before`,
 kbd-* stage skill reads `prior-context.md` as its first step and cites the
 lessons that apply. Manual invocation re-runs it, e.g. for a different role.
 
+## Task-level lookup during Execute
+
+`KBD_RECALL_QUERY=<text>` makes one lookup about the work in hand: the text
+replaces the goals-derived query and the result is written to `task-recall.md`
+beside `prior-context.md`, which is left as it is. `KBD_RECALL_OUTPUT=<file>`
+names another file in the phase directory. Use it when a task starts, on resume
+and on a material blocker
+([project memory during Execute](../../references/execute-memory.md)).
+
+A child phase is addressed as `<parent>/<child>`, `<parent>::<child>` or
+`"<parent> > <child>"`. With no phase argument the waypoint's `childPointer` is
+used when that child directory exists. Its files are read and written in
+`phases/<parent>/children/<child>/`.
+
 ## Progress Signals (MANDATORY)
 
 ```
@@ -67,6 +81,8 @@ Completed kbd-memory-recall — <phase> wrote prior-context.md
 ```sh
 "$KBD_ORCHESTRATOR_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh" [<phase>] [<stage>]
 KBD_RECALL_ROLE=api-dev "$KBD_ORCHESTRATOR_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh"
+KBD_RECALL_QUERY="export notes in order — importer rejects the file" \
+  "$KBD_ORCHESTRATOR_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh" parent-phase/child-phase execute
 ```
 
 ## Examples

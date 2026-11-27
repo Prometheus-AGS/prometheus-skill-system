@@ -16,6 +16,69 @@ const SKILLS = [
   'skills/testing/value-scenario-discovery',
 ];
 const BOUNDARIES = 'skills/process/kbd-process-orchestrator/references/boundaries.md';
+const ORCHESTRATOR = 'skills/process/kbd-process-orchestrator';
+// A case with a `memory` entry also gets the Execute skills, the recall script
+// and the recall library, laid out so the paths the skills name resolve:
+// $KBD_ORCHESTRATOR_ROOT = <project>/.agents, $KBD_PACK_ROOT = <project>/.agents/pack.
+const MEMORY_SKILLS = ['kbd-execute', 'kbd-apply', 'kbd-resume', 'kbd-memory-recall'];
+const MEMORY_REFERENCE = 'references/execute-memory.md';
+const PACK_FILES = ['shared/scripts/enqueue-memory-operation.py', 'shared/schemas/learning-envelope.schema.json'];
+
+// Stand-in for `pk`, kept outside the project so the agent does not read its
+// data file directly. It records every call in the project's .eval-markers and
+// answers `context` from <scratch>/eval-memory/pk-context.json, or fails when
+// the case declares pk down.
+const PK_STUB = `#!/bin/sh
+root="$(cd "$(dirname "$0")/.." && pwd)"
+markers="$root/project/.eval-markers"
+mkdir -p "$markers"
+printf '%s\\n' "$*" >> "$markers/pk-calls.log"
+case "\${1:-}" in
+  --version) echo "pk 1.11.0"; exit 0 ;;
+  context)
+    : > "$markers/pk-context-called"
+    [ -f "$root/eval-memory/pk-context.json" ] || exit 1
+    cat "$root/eval-memory/pk-context.json"; exit 0 ;;
+esac
+exit 1
+`;
+
+/**
+ * Install the memory fixture for a case.
+ * @param {string} dir project directory
+ * @param {{pk?: 'up'|'down', lessons?: {title: string, text: string}[]}} memory
+ * @returns {string[]} names of the skills added
+ */
+function buildMemory(dir, memory) {
+  const agents = path.join(dir, '.agents');
+  for (const name of MEMORY_SKILLS) {
+    copyTree(path.join(ROOT, ORCHESTRATOR, 'skills', name), path.join(agents, 'skills', name));
+    for (const shim of SKILL_SHIMS) {
+      const link = path.join(dir, shim, name);
+      fs.mkdirSync(path.dirname(link), { recursive: true });
+      fs.symlinkSync(path.relative(path.dirname(link), path.join(agents, 'skills', name)), link);
+    }
+  }
+  writeText(path.join(agents, MEMORY_REFERENCE), fs.readFileSync(path.join(ROOT, ORCHESTRATOR, MEMORY_REFERENCE), 'utf8'));
+  const lib = path.join(ROOT, 'shared/scripts/lib');
+  for (const name of fs.readdirSync(lib).filter(n => n.endsWith('.py'))) {
+    writeText(path.join(agents, 'pack/shared/scripts/lib', name), fs.readFileSync(path.join(lib, name), 'utf8'));
+  }
+  for (const rel of PACK_FILES) writeText(path.join(agents, 'pack', rel), fs.readFileSync(path.join(ROOT, rel), 'utf8'));
+
+  const scratchRoot = path.dirname(dir);
+  const stub = path.join(scratchRoot, 'bin/pk');
+  writeText(stub, PK_STUB);
+  fs.chmodSync(stub, 0o755);
+  if (memory.pk !== 'down') {
+    writeJson(path.join(scratchRoot, 'eval-memory/pk-context.json'), {
+      results: (memory.lessons ?? []).map((lesson, index) => ({
+        id: `eval-lesson-${index + 1}`, scope: 'project', title: lesson.title, snippet: lesson.text,
+      })),
+    });
+  }
+  return MEMORY_SKILLS;
+}
 const AGENTS_BASE = 'skills/process/prometheus-context-bootstrap/references/AGENTS.base.md';
 const SKILL_SHIMS = ['.claude/skills', '.qwen/skills', '.kimi-code/skills'];
 
@@ -95,7 +158,7 @@ function copyTree(from, to) {
 /**
  * Create the case project under `dir`.
  * @param {string} dir destination (must not exist or be empty)
- * @param {{overlay?: Record<string,string>}} testCase
+ * @param {{overlay?: Record<string,string>, memory?: object}} testCase
  * @returns {{project: string, phaseDir: string, skills: string[]}}
  */
 export function buildProject(dir, testCase) {
@@ -146,6 +209,7 @@ export function buildProject(dir, testCase) {
     }
     skills.push(name);
   }
+  if (testCase.memory) skills.push(...buildMemory(dir, testCase.memory));
   return { project: dir, phaseDir, skills };
 }
 

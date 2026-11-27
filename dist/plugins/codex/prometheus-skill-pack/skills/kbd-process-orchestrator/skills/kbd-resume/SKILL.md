@@ -5,7 +5,7 @@ argument-hint: '[--plan-revision <n>] [--reason <text> --exact-next-work <text>]
 description: >
   Resume a paused KBD run after validating its checkpoint and plan revision.
 metadata:
-  version: '1.1.0'
+  version: '1.2.0'
   tags: "process, orchestration, control, resume"
 ---
 
@@ -48,6 +48,14 @@ Completed kbd-resume — <phase-name> running at plan revision <n>
    operator also requested execution.
 
 Never resume across a plan-revision mismatch.
+
+When the resumed stage is Execute, make one bounded memory lookup for the
+resumed outcome and next authorized action before continuing
+(`KBD_RECALL_QUERY`, see
+[project memory during Execute](../../references/execute-memory.md)). Recall
+is evidence only: the checkpoint, the plan revision and the signed contract
+decide what is resumed, and a recalled lesson never restores an authorization.
+If no source answers, resume without it.
 
 In an outcome-first phase, state the `outcome`, `lastEvidence` and
 `nextAuthorizedAction` from `current-waypoint.json` when reporting the resumed
