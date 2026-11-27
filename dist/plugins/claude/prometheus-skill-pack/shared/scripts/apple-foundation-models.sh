@@ -85,16 +85,43 @@ render_plist() {
   sed -e "s|__PROMETHEUS_ROOT__|$ROOT|g" -e "s|__PROMETHEUS_HOME__|$HOME|g" \
       -e "s|__PROMETHEUS_USER__|${USER:-$(id -un)}|g" -e "s|__PROMETHEUS_PATH__|$path_value|g" \
       -e "s|__PROMETHEUS_LOG_DIR__|$LOG_DIR|g" -e "s|__APPLE_FM_PORT__|$PORT|g" \
-      "$ROOT/shared/launchagents/$LABEL.plist" > "$PLIST.tmp" && mv "$PLIST.tmp" "$PLIST"
+      "$ROOT/shared/launchagents/$LABEL.plist" > "$PLIST.tmp" || return 1
+  # An identical plist is left in place, so install can tell that nothing about
+  # the job definition changed and a healthy service need not be restarted.
+  PLIST_CHANGED=1
+  if [ -f "$PLIST" ] && cmp -s "$PLIST.tmp" "$PLIST"; then
+    PLIST_CHANGED=0
+    rm -f "$PLIST.tmp"
+    return 0
+  fi
+  mv "$PLIST.tmp" "$PLIST"
 }
 
 health() { curl -fsS -m 3 "http://127.0.0.1:$PORT/health" >/dev/null 2>&1; }
 
+job_loaded() { launchctl print "gui/$(id -u)/$LABEL" >/dev/null 2>&1; }
+
+# `launchctl bootout` returns before launchd has finished removing the job. A
+# bootstrap issued in that window fails with "5: Input/output error", and a
+# kickstart fallback then finds no job (113), so the service was left unloaded
+# after an update that had found it running. Wait for the removal, and retry
+# the bootstrap, before deciding the service did not start.
+BOOTOUT_WAIT_HALF_SECONDS=20
+BOOTSTRAP_ATTEMPTS=5
 start_service() {
-  local domain="gui/$(id -u)"
-  launchctl bootout "$domain/$LABEL" >/dev/null 2>&1 || true
-  launchctl bootstrap "$domain" "$PLIST" >/dev/null 2>&1 || launchctl kickstart -k "$domain/$LABEL" >/dev/null 2>&1 || true
-  local i=0
+  local domain="gui/$(id -u)" i=0
+  if job_loaded; then
+    launchctl bootout "$domain/$LABEL" >/dev/null 2>&1 || true
+    while job_loaded && [ "$i" -lt "$BOOTOUT_WAIT_HALF_SECONDS" ]; do sleep 0.5; i=$((i + 1)); done
+  fi
+  i=0
+  while [ "$i" -lt "$BOOTSTRAP_ATTEMPTS" ]; do
+    launchctl bootstrap "$domain" "$PLIST" >/dev/null 2>&1 && break
+    # Still loaded (the removal never completed): restart it in place.
+    if job_loaded; then launchctl kickstart -k "$domain/$LABEL" >/dev/null 2>&1 || true; break; fi
+    sleep 1; i=$((i + 1))
+  done
+  i=0
   while [ "$i" -lt 30 ]; do health && return 0; sleep 1; i=$((i + 1)); done
   return 1
 }
@@ -151,7 +178,13 @@ case "$MODE" in
       [ "$ELIGIBLE" -eq 1 ] || { warn "$REASON"; exit 0; }
     fi
     render_plist || { warn "could not write $PLIST"; exit 0; }
-    if ! start_service; then warn "service did not become healthy on :$PORT; see $LOG_DIR/apple-fm.stderr.log"; exit 0; fi
+    # A healthy service whose job definition did not change is left running: an
+    # update must not interrupt it, and restarting is where it used to be lost.
+    if [ "$PLIST_CHANGED" -eq 0 ] && job_loaded && health; then
+      say "Apple Foundation Models: already serving on :$PORT; left running"
+    elif ! start_service; then
+      warn "service did not become healthy on :$PORT; see $LOG_DIR/apple-fm.stderr.log"; exit 0
+    fi
     register
     say "Apple Foundation Models: serving $MODEL_ID on http://127.0.0.1:$PORT/v1 ($("$APFEL" --version 2>/dev/null | head -1))"
     exit 0 ;;

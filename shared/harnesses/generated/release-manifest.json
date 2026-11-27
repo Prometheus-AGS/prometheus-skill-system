@@ -108,7 +108,7 @@
     },
     {
       "path": "shared/scripts/apple-foundation-models.sh",
-      "sha256": "2342f499f23fd658f605b92b426a362c1218613c04a3cc71acaf18b180c00917",
+      "sha256": "1dea4d4da725dabd45e4d34f80c98b3db2d446f440c8e09b220d5ec3701e0f43",
       "executable": true
     },
     {
@@ -582,5 +582,5 @@
       "executable": true
     }
   ],
-  "bundleId": "21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb"
+  "bundleId": "74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739"
 }

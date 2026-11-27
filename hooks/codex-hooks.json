@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook sessionstart-kbd-control --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook sessionstart-kbd-control --harness codex",
             "timeout": 10
           }
         ],
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook sessionstart-kbd-open --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook sessionstart-kbd-open --harness codex",
             "timeout": 10
           }
         ],
@@ -29,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook sessionstart-vlbv --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook sessionstart-vlbv --harness codex",
             "timeout": 5
           }
         ],
@@ -41,7 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook sessionstart-learning --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook sessionstart-learning --harness codex",
             "timeout": 5
           }
         ],
@@ -53,17 +53,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook sessionstart-detect-project-context --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook sessionstart-detect-project-context --harness codex",
             "timeout": 15
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook sessionstart-memory-outbox-flush --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook sessionstart-memory-outbox-flush --harness codex",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook sessionstart-pk-health --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook sessionstart-pk-health --harness codex",
             "timeout": 10
           }
         ]
@@ -74,7 +74,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook prompt-karpathy-learning --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook prompt-karpathy-learning --harness codex"
           }
         ]
       }
@@ -84,31 +84,31 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook posttool-validate-evolution-state --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook posttool-validate-evolution-state --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook posttool-validate-gitops-write --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook posttool-validate-gitops-write --harness codex",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook posttool-scope-record --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook posttool-scope-record --harness codex",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook posttool-write-position-reminder --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook posttool-write-position-reminder --harness codex",
             "timeout": 10
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook posttool-sycophancy-artifact --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook posttool-sycophancy-artifact --harness codex",
             "timeout": 35
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook posttool-memory-writeback --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook posttool-memory-writeback --harness codex",
             "timeout": 10
           }
         ],
@@ -120,7 +120,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagentstart-learning --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagentstart-learning --harness codex",
             "timeout": 5
           }
         ],
@@ -134,11 +134,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-assessor-checkpoint-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-assessor-checkpoint-codex --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-assessor-dispatch-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-assessor-dispatch-codex --harness codex"
           }
         ],
         "matcher": "^assessor$"
@@ -147,11 +147,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-analyst-checkpoint-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-analyst-checkpoint-codex --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-analyst-dispatch-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-analyst-dispatch-codex --harness codex"
           }
         ],
         "matcher": "^analyst$"
@@ -160,11 +160,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-planner-checkpoint-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-planner-checkpoint-codex --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-planner-dispatch-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-planner-dispatch-codex --harness codex"
           }
         ],
         "matcher": "^planner$"
@@ -173,24 +173,24 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-executor-karpathy-learning-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-executor-karpathy-learning-codex --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-executor-validate-state-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-executor-validate-state-codex --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-executor-checkpoint-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-executor-checkpoint-codex --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-executor-evaluate-session-codex --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-executor-evaluate-session-codex --harness codex",
             "timeout": 30
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-executor-dispatch-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-executor-dispatch-codex --harness codex"
           }
         ],
         "matcher": "^executor$"
@@ -199,20 +199,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-reflector-sycophancy-codex --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-reflector-sycophancy-codex --harness codex",
             "timeout": 35
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-reflector-log-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-reflector-log-codex --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-reflector-checkpoint-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-reflector-checkpoint-codex --harness codex"
           },
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-reflector-dispatch-codex --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-reflector-dispatch-codex --harness codex"
           }
         ],
         "matcher": "^reflector$"
@@ -221,7 +221,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagentstop-learning --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagentstop-learning --harness codex",
             "timeout": 5
           }
         ]
@@ -230,7 +230,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook subagent-fallback-checkpoint --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook subagent-fallback-checkpoint --harness codex"
           }
         ]
       }
@@ -240,7 +240,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook stop-karpathy-learning --harness codex"
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook stop-karpathy-learning --harness codex"
           }
         ]
       }
@@ -250,7 +250,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 21a98b62ca4329b96a00f0a0472156951352631fba13094860ebc36a1e6072eb --hook precompact-kbd-control --harness codex",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs --bundle 74ece4abb96c102b1c64040c7be37a37a9e543f7fe6ec4608d3f391570af1739 --hook precompact-kbd-control --harness codex",
             "timeout": 10
           }
         ],
