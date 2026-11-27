@@ -208,7 +208,7 @@
     },
     {
       "path": "shared/scripts/kbd-closure-packet.mjs",
-      "sha256": "ff4171d87ae81b13386b88efbc22d5642230f20ef0ade68d1c48e3c8772b18c0",
+      "sha256": "5f7ba0dc6b8cdf68b6fdba9fdb03cf501288cfcb1e592dd87aece6dd93d10c68",
       "executable": false
     },
     {
@@ -582,5 +582,5 @@
       "executable": true
     }
   ],
-  "bundleId": "72d2cf77fc8d44baebac4183b6075e924ee782228fb40c60a041ab9204a091d0"
+  "bundleId": "8209a07520ac634ed99121c1752ed7245d4971483c6c59ca925e51df1da7ac27"
 }
