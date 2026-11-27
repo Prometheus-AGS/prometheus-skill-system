@@ -10,6 +10,13 @@ set -euo pipefail
 
 SKILL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# The conflict audit is read-only and independent of every other mode.
+for _arg in "$@"; do
+  case "$_arg" in
+    --audit-conflicts) exec node "$SKILL_ROOT/scripts/conflict-audit.mjs" "$@" ;;
+  esac
+done
+
 # Policy-only modes are independent of scaffold/UI/runtime preflight.
 for _arg in "$@"; do
   case "$_arg" in
@@ -76,6 +83,11 @@ Usage: bootstrap.sh [--path <root>] [--stacks rust,typescript,...]
 
 Existing-project instruction-only maintenance:
   bootstrap.sh --path <exact Git root> --audit | --preview | --apply <sha256>
+
+Read-only conflict audit (rule files that contradict the VLBV boundary rule,
+across nested files, imports, .claude/rules and other worktrees; also reports
+the installed generation). Always exits 0 unless the arguments are wrong:
+  bootstrap.sh --audit-conflicts [--path <dir>] [--json] [--harness <id>] [--no-worktrees]
 
 Exit: 0 applied or previewed, 1 usage error, 2 refused (corrupt markers)
 USAGE
@@ -189,7 +201,7 @@ render_region() {
   local s wrote=0
   for s in "${STACKS[@]:-}"; do
     [[ -z "$s" ]] && continue
-    printf -- '- `.claude/rules/%s.md` — %s tiers and hard rules\n' "$s" "$s" >> "$stackfile"
+    printf -- '- `.claude/rules/%s.md` — %s boundary and hard rules\n' "$s" "$s" >> "$stackfile"
     wrote=1
   done
   [[ "$wrote" == "0" ]] && \

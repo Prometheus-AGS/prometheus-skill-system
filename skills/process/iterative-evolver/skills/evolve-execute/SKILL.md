@@ -38,7 +38,7 @@ evolve-execute (outer loop)
   │   ├─ /kbd-plan    → decomposes evolver items into fine-grained changes
   │   │                  auto-detects OpenSpec for structured change management
   │   ├─ /kbd-execute → dispatches to best tool per change
-  │   │   └─ per-change: artifact-refiner QA gate
+  │   │   └─ phase boundary: one artifact-refiner QA pass
   │   └─ /kbd-reflect → reports back via evolver-bridge.json
   │
   └─ Read KBD results back into evolution_state.json

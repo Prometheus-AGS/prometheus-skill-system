@@ -250,8 +250,8 @@ bash "$SKILL_DIR/scripts/check-findings-sycophancy.sh" \
 
 Run evidence and review only after all planned phase production is complete. Stage artifacts can be prepared earlier, but an available review command does not authorize early review. Two packet modes:
 
-- **`--mode diff`** — post-implementation, in kbd-execute's QA gate. Reviews a change's
-  diff against its acceptance criteria, after `refine-validate` passes and before archive.
+- **`--mode diff`** — post-implementation, once at the phase boundary. Reviews the phase's
+  cumulative diff against its acceptance criteria, after `refine-validate` passes and before archive.
 - **`--mode artifact`** — reviews a prepared `assessment.md`, `analysis.md` or `plan.md` artifact at the authorized completed-production boundary.
 
 ## Reading the artifact

@@ -1,5 +1,16 @@
 # Prometheus Base Rules Set — v3
 
+> **Superseded for verification cadence.** This v3 document is kept for
+> projects that still carry it. Its tier ladder (rule A-9, rule C-1 and
+> Appendix A: checks on every edit, tests when a unit completes) is **not** the
+> current method. In a KBD-managed project, and wherever VLBV applies, generated
+> code runs once at the value-phase boundary and again only for an
+> owner-authorized repair. The rule is defined in
+> `skills/process/kbd-process-orchestrator/references/boundaries.md`. Where
+> this document and that rule disagree, that rule governs. Find leftover
+> conflicts in a project with
+> `bootstrap.sh --audit-conflicts`.
+
 Canonical base rules for Claude Code, Codex, OpenAI agents, Gemini CLI, Roo, Cline,
 Kilo Code, Librefang/BossFang, and all Prometheus/UAR-compatible development agents.
 Drop in as base `CLAUDE.md` and `AGENTS.md`. Project files may add stricter rules (see G-2).

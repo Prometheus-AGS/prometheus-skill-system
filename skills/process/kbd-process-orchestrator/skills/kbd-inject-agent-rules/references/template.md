@@ -21,7 +21,10 @@
    multi-change plan first, no gaps, before verifying it. Wait for
    test/build results a maximum of 3 times per epoch (e.g. early, mid,
    end); prefer full end-to-end tests over per-connection checks, built
-   after implementation is done and compiling.
+   after implementation is done and compiling. In a KBD-managed project,
+   or wherever VLBV applies, the stricter boundary rule governs instead:
+   generated code runs once, at the value-phase boundary, and again only
+   for an owner-authorized repair.
 
 ### Workflow principles (Claude Code, Boris Cherny)
 
@@ -30,7 +33,8 @@
 2. **CLAUDE.md as accumulated knowledge** — Long-lived project rules;
    accumulate constraints and lessons over time.
 3. **Verification + feedback loops** — Give the agent a way to verify
-   its work (2-3× quality bump).
+   its work (2-3× quality bump). Under VLBV that verification is the
+   agreed scenario set, run at the phase boundary, not after each edit.
 4. **Code quality matters for AI too** — Partially-migrated codebases
    confuse models. Finish migrations.
 
