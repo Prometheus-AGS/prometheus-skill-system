@@ -7,7 +7,7 @@ description: >
   Preserves oracle sensitivity, attempts, identity, budgets and cleanup; does
   not replace a runner or authorize early checks, repair loops or publication.
 metadata:
-  version: '1.2.0'
+  version: '1.3.0'
   author: prometheus-skill-pack
   category: testing
   tags: "testing, verification, vlbv, evidence, kbd"
@@ -137,6 +137,22 @@ budgetConsumption with its source and measured/estimate/unknown classes. Keep
 original assertions and negative-control receipts linked; do not fabricate fields
 from exit status. Use only supported native writer/evaluator commands and
 dispositions. An unsupported cancelled/deferred closure stays refused.
+
+Optionally record evidence references, so a reader can tell which candidate a
+result belongs to. They are shown in the closure packet and change no verdict:
+
+| Field | Content |
+|---|---|
+| `candidate.baseHead` | `git rev-parse HEAD` of the candidate that was run |
+| `candidate.treeDigest` | `git rev-parse HEAD^{tree}` of that candidate |
+| `venue` | Where it ran: machine, OS, isolation |
+| `scenarios[].scopeRef` | The contract scope reference the result covers |
+| `scenarios[].fixtureRef` | The fixture used: path, digest or id |
+| `scenarios[].oracleRef` | The source of truth the result was compared with |
+
+A result recorded for a candidate that is no longer the current commit is
+labelled stale in the packet: it is NOT_EXERCISED for the current candidate,
+never PASS and never FAIL. Do not copy an earlier result forward.
 
 Report separately: authored implementation, measured contract acceptance,
 demonstrated runtime value, unresolved obligations, release eligibility and

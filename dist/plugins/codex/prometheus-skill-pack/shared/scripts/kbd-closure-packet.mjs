@@ -8,9 +8,14 @@
 //
 // Usage: node kbd-closure-packet.mjs --snapshot <contract.json> --evidence <boundary-results.json>
 //          --out-dir <phase-dir> --disposition <CLOSED|REFUSED_BLOCKED|REFUSED_FAIL> --reason <text>
+//
+// Optional evidence references (issue #256), shown when boundary-results.json
+// carries them and never verdict-changing: `candidate` {baseHead, treeDigest},
+// `venue`, and per scenario `scopeRef`, `fixtureRef`, `oracleRef`.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 
 const args = process.argv.slice(2);
 const opt = name => {
@@ -55,6 +60,40 @@ const verdictOf = id => {
   if (own.every(e => e.status === 'PASS')) return 'PASS';
   return own.some(e => e.status === 'BLOCKED') ? 'BLOCKED' : 'NOT_EXERCISED';
 };
+// Evidence references (issue #256). The recorded candidate is compared with the
+// checkout the packet is generated in. A result recorded for another candidate
+// is labelled stale: it is not a result for the current one. Report only.
+const refProjectRoot = path.resolve(opt('--project-root') ?? findProjectRoot(outDir));
+function git(...gitArgs) {
+  const run = spawnSync('git', ['-C', refProjectRoot, ...gitArgs], { encoding: 'utf8' });
+  return run.status === 0 ? run.stdout.trim() : null;
+}
+function candidateReport() {
+  const recorded = evidence.candidate && typeof evidence.candidate === 'object' ? evidence.candidate : null;
+  const baseHead = typeof recorded?.baseHead === 'string' ? recorded.baseHead : null;
+  const treeDigest = typeof recorded?.treeDigest === 'string' ? recorded.treeDigest : null;
+  if (!baseHead && !treeDigest) return { status: 'not-recorded', recorded: null, current: null, reason: 'boundary-results.json records no candidate' };
+  const head = git('rev-parse', 'HEAD');
+  if (!head) return { status: 'unknown', recorded: { baseHead, treeDigest }, current: null, reason: 'the current checkout is not readable through git' };
+  const dirty = (git('status', '--porcelain', '--', '.', ':(exclude).kbd-orchestrator') ?? '') !== '';
+  const current = { baseHead: head, treeDigest: git('rev-parse', 'HEAD^{tree}'), uncommittedChanges: dirty };
+  const recordedInfo = { baseHead, treeDigest };
+  if (baseHead && baseHead !== head) return { status: 'stale', recorded: recordedInfo, current, reason: 'the recorded base commit is not the current commit' };
+  if (treeDigest && current.treeDigest && treeDigest !== current.treeDigest) return { status: 'stale', recorded: recordedInfo, current, reason: 'the recorded tree is not the current committed tree' };
+  if (dirty) return { status: 'unknown', recorded: recordedInfo, current, reason: 'the checkout has uncommitted changes outside .kbd-orchestrator, so the tree cannot be compared' };
+  return { status: 'current', recorded: recordedInfo, current, reason: 'the recorded candidate is the current commit and tree' };
+}
+const candidate = candidateReport();
+const venue = typeof evidence.venue === 'string' && evidence.venue.trim() ? evidence.venue.trim() : null;
+const refsOf = scenario => {
+  if (operatorExit) return null;
+  const own = entries.filter(e => e.id === scenario.id || String(e.id).startsWith(`${scenario.id}-`));
+  const pick = key => own.map(e => e[key]).find(value => typeof value === 'string' && value.trim()) ?? null;
+  const refs = { scopeRef: pick('scopeRef'), fixtureRef: pick('fixtureRef'), oracleRef: pick('oracleRef') };
+  if (!refs.scopeRef && !refs.fixtureRef && !refs.oracleRef) return null;
+  return { ...refs, scopeRefInContract: refs.scopeRef ? (scenario.scopeRefs ?? []).includes(refs.scopeRef) : null };
+};
+
 const rows = scenarios.map(s => ({
   id: s.id,
   name: s.name,
@@ -62,6 +101,10 @@ const rows = scenarios.map(s => ({
   usefulOutcome: s.usefulOutcome ?? null,
   mandatory: s.mandatory ?? true,
   verdict: verdictOf(s.id),
+  // What the recorded verdict says about the current candidate. A result for
+  // another candidate was not exercised on this one; it is never a failure.
+  currentCandidateVerdict: candidate.status === 'stale' ? 'NOT_EXERCISED' : verdictOf(s.id),
+  evidenceRefs: refsOf(s),
   limitations: s.limitations ?? [],
   substitutedBoundaries: s.substitutedBoundaries ?? [],
   realCollaborators: s.realCollaborators ?? [],
@@ -162,6 +205,8 @@ const closure = {
       }
     : { name: contract.method?.name ?? 'VLBV', source: 'contract', deviation: null },
   executedBy: evidence.executedBy ?? null,
+  candidate,
+  venue,
   preAuthorizationArtifacts: preAuthorization,
   scenarios: rows,
 };
@@ -181,10 +226,12 @@ the bound contract (${closure.contractDigest ? `sha256:${closure.contractDigest}
 
 ## What works, and for whom
 
-${list(
-  works.map(r => `${r.id} — ${r.usefulOutcome ?? r.name}${r.actor ? ` (for ${r.actor})` : ''}`),
-  'no scenario passed'
-)}
+${candidate.status === 'stale'
+  ? `- nothing is established for the current candidate: ${works.length} recorded PASS result(s) belong to an earlier candidate (${candidate.reason})`
+  : list(
+      works.map(r => `${r.id} — ${r.usefulOutcome ?? r.name}${r.actor ? ` (for ${r.actor})` : ''}`),
+      'no scenario passed'
+    )}
 
 ## Under which conditions
 
@@ -206,6 +253,19 @@ ${list(
   remains.map(r => `${r.id} — ${r.verdict}${r.mandatory === false ? ' (not mandatory)' : ''}`),
   'nothing: every scenario passed'
 )}
+
+## Evidence references
+
+${[
+  candidate.status === 'not-recorded'
+    ? '- candidate: not recorded in boundary-results.json'
+    : `- candidate: ${candidate.status.toUpperCase()} — ${candidate.reason} (recorded base ${candidate.recorded.baseHead ?? 'not recorded'}, tree ${candidate.recorded.treeDigest ?? 'not recorded'}${candidate.current ? `; current base ${candidate.current.baseHead}, tree ${candidate.current.treeDigest}` : ''})`,
+  `- venue: ${venue ?? 'not recorded'}`,
+  ...rows.filter(r => r.evidenceRefs).map(r =>
+    `- ${r.id}: recorded ${r.verdict}${candidate.status === 'stale' ? ' on an earlier candidate; NOT_EXERCISED on the current one' : ''}; scope ${r.evidenceRefs.scopeRef ?? 'not recorded'}${r.evidenceRefs.scopeRefInContract === false ? ' (not a scope reference of this scenario in the contract)' : ''}; fixture ${r.evidenceRefs.fixtureRef ?? 'not recorded'}; oracle ${r.evidenceRefs.oracleRef ?? 'not recorded'}`),
+].join('\n')}
+
+References are reported as recorded. They change no verdict and no disposition.
 
 ## Pre-authorization runner artifacts
 
