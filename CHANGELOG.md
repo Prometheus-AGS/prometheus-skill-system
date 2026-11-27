@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Next] - not yet released
+## [1.19.0] - 2026-11-27
 
 - A new KBD phase can opt in to outcome-first scope with `/kbd-new-phase <name> --outcome-first --outcome "<text>"`. Resume in that phase selects eligible pending work ahead of blocked work, honours `change register --depends-on`, and the waypoint, position reminder and progress ledger show the outcome, the last evidence and the next authorized action. Existing phases are unchanged (issue #256, first of five parts).
 - `bootstrap.sh --audit-conflicts` lists, without changing anything, rule-file guidance that contradicts the VLBV boundary rule across root and nested `AGENTS.md`/`CLAUDE.md`, imports, `.claude/rules` and other worktrees, and reports whether the installed generation verifies. Leftover guidance that described per-change QA, per-iteration triggers, several checkpoints per phase or the v3 tier ladder now states the single boundary run (issue #256, second of five parts).
