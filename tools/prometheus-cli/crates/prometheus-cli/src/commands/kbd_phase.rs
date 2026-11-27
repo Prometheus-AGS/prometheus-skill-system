@@ -22,6 +22,9 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
+#[path = "kbd_close_consumer.rs"]
+mod close_consumer;
+
 const EXIT_NOT_FOUND: i32 = 4;
 const EXIT_ALREADY_CLOSED: i32 = 6;
 const EXIT_REFUSED: i32 = 7;
@@ -105,7 +108,7 @@ pub async fn run(
     let (derived_id, phase_id, command) = build(&state, action)?;
     match phase_closure::idempotent_replay(&state, &command) {
         Ok(Some(revision)) => {
-            return print_outcome(&state, &phase_id, &derived_id, &command, revision, true)
+            return print_outcome(runtime.project_root(), &state, &phase_id, &derived_id, &command, revision, true).await
         }
         Ok(None) => {}
         Err(error) => return refuse(&anyhow::Error::new(error)),
@@ -115,13 +118,14 @@ pub async fn run(
             let state: RuntimeState =
                 serde_json::from_value(result["state"].clone()).context("parse committed state")?;
             print_outcome(
+                runtime.project_root(),
                 &state,
                 &phase_id,
                 &derived_id,
                 &command,
                 state.revision,
                 false,
-            )
+            ).await
         }
         Err(error) => refuse(&error),
     }
@@ -407,7 +411,8 @@ fn sha256_hex(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 
-fn print_outcome(
+async fn print_outcome(
+    project_root: &Path,
     state: &RuntimeState,
     phase_id: &str,
     command_id: &str,
@@ -425,6 +430,11 @@ fn print_outcome(
         )?),
         _ => None,
     };
+    if let (Some(key), Some(terminal)) = (closure_key.as_deref(), view.closure.as_ref()) {
+        if key == terminal.closure.closure_key {
+            close_consumer::notify(project_root, &state.project_id, phase_id, key).await;
+        }
+    }
     let successor = view.successor.as_ref().map(|s| s.phase_id.clone());
     println!(
         "{}",
