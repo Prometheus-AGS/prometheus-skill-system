@@ -124,6 +124,9 @@ pub enum Action {
         successful: bool,
     },
     RolloutPromote,
+    GuardAdvise {
+        json: bool,
+    },
     GuardEvaluate {
         boundary: BoundaryKind,
         edge: BoundaryEdge,
@@ -339,6 +342,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         | Action::Migrate { apply: false, .. }
         | Action::RolloutStatus
         | Action::PhaseClosure(PhaseClosureAction::Disposition { .. } | PhaseClosureAction::ValidateExit { .. })
+        | Action::GuardAdvise { .. }
         | Action::GuardEvaluate {
             precommit: true,
             ..
@@ -741,6 +745,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             );
             Ok(())
         }
+        Action::GuardAdvise { json } => guard_advise(&runtime, json),
         Action::GuardEvaluate {
             boundary,
             edge,
@@ -1185,6 +1190,9 @@ async fn record_guard_blocker(
                     ),
                     resolved: false,
                     resolution: None,
+                    fingerprint: None,
+                    class: None,
+                    evidence_ref: None,
                 },
             },
         )
@@ -1230,6 +1238,41 @@ async fn clear_guard_blockers(
 }
 
 #[allow(clippy::too_many_arguments)]
+/// Read advisory bottleneck recommendations. Writes no event and always
+/// succeeds once canonical state can be read: advice never stops work.
+fn guard_advise(runtime: &Runtime, json_output: bool) -> Result<()> {
+    let state = runtime.replay_authority().map_err(|error| anyhow!(error))?;
+    let advice = kbd_runtime::advisory::bottleneck_advice(&state);
+    if json_output {
+        println!("{}", serde_json::to_string_pretty(&advice)?);
+        return Ok(());
+    }
+    println!("ADVISORY (revision {}): {}", advice.revision, advice.guidance);
+    for gate in &advice.in_flight {
+        println!("IN-FLIGHT gate {} ({}) started {}", gate.gate_id, gate.scope, gate.started_at);
+    }
+    for wait in &advice.waiting {
+        println!("WAITING {} — {}", wait.blocker_id, wait.summary);
+    }
+    for item in &advice.recommendations {
+        println!(
+            "RECOMMEND {} for {} ({} attempts, {} distinct evidence): {}",
+            serde_json::to_value(item.kind)?.as_str().unwrap_or_default(),
+            item.fingerprint,
+            item.attempts,
+            item.distinct_evidence,
+            item.proposal
+        );
+        if let Some(command) = &item.suggested_command {
+            println!("  operator may run: {command}");
+        }
+    }
+    if advice.withheld_while_in_flight > 0 {
+        println!("WITHHELD {} recommendation(s) while a gate is running", advice.withheld_while_in_flight);
+    }
+    Ok(())
+}
+
 async fn guard_evaluate(
     root: &Path,
     runtime: &Runtime,

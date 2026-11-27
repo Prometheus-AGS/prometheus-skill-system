@@ -1383,3 +1383,85 @@ fn outcome_first_phase_and_dependencies_are_reachable_through_the_cli() {
         .changes
         .contains_key("change-d"));
 }
+
+/// Issue #256: `guard advise` is reachable from the shipped binary, reports a
+/// repeated blocker recorded with `blocker record --fingerprint`, and appends
+/// nothing to the journal.
+#[test]
+fn guard_advise_reports_a_repeated_blocker_and_writes_nothing() {
+    let fixture = KbdFixture::registered_without_legacy_phase();
+    for attempt in ["pin-1", "pin-2"] {
+        let command_id = format!("record-{attempt}");
+        require_success(
+            &fixture.command(&[
+                "blocker",
+                "record",
+                "--command-id",
+                command_id.as_str(),
+                "--id",
+                attempt,
+                "--summary",
+                "Release pin does not match the built binary",
+                "--fingerprint",
+                "setup:release-pin-mismatch",
+                "--class",
+                "setup",
+                "--evidence",
+                "logs/pin-check.txt",
+            ]),
+            "record fingerprinted blocker",
+        );
+    }
+    require_success(
+        &fixture.command(&[
+            "blocker",
+            "record",
+            "--command-id",
+            "record-wait",
+            "--id",
+            "wait-1",
+            "--summary",
+            "Waiting for owner approval",
+            "--fingerprint",
+            "approval:boundary-run",
+            "--class",
+            "approval-wait",
+        ]),
+        "record approval wait",
+    );
+
+    let status = |label: &str| -> serde_json::Value {
+        let output = fixture.command(&["status", "--json"]);
+        require_success(&output, label);
+        serde_json::from_slice(&output.stdout).expect("parse status JSON")
+    };
+    let before = status("read status before advice");
+    assert_eq!(
+        before["blockers"]["pin-1"]["fingerprint"],
+        "setup:release-pin-mismatch"
+    );
+    assert_eq!(before["blockers"]["pin-1"]["class"], "setup");
+    assert_eq!(before["blockers"]["pin-1"]["evidenceRef"], "logs/pin-check.txt");
+
+    let advised = fixture.command(&["guard", "advise", "--json"]);
+    require_success(&advised, "read advisory recommendations");
+    let advice: serde_json::Value =
+        serde_json::from_slice(&advised.stdout).expect("parse advice JSON");
+    assert_eq!(advice["advisory"], true);
+    assert_eq!(advice["revision"], before["revision"]);
+    let recommendations = advice["recommendations"].as_array().expect("recommendations");
+    assert_eq!(recommendations.len(), 1, "{advice:#}");
+    assert_eq!(recommendations[0]["kind"], "setup-repair");
+    assert_eq!(recommendations[0]["attempts"], 2);
+    assert_eq!(advice["waiting"][0]["blockerId"], "wait-1");
+
+    let human = fixture.command(&["guard", "advise"]);
+    require_success(&human, "render advisory recommendations");
+    assert!(stdout(&human).contains("RECOMMEND setup-repair for setup:release-pin-mismatch"));
+    assert!(stdout(&human).contains("WAITING wait-1"));
+
+    let after = status("read status after advice");
+    assert_eq!(after["revision"], before["revision"], "advice appends no event");
+    assert_eq!(after["blockers"], before["blockers"]);
+    assert_eq!(after["phases"], before["phases"]);
+}
