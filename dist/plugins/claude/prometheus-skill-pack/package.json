@@ -2,5 +2,5 @@
   "name": "@prometheus-ags/prometheus-skill-pack-payload",
   "private": true,
   "type": "module",
-  "version": "1.18.0"
+  "version": "1.19.0"
 }
