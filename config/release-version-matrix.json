@@ -44,7 +44,7 @@
     },
     {
       "path": "skill-system.json",
-      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-process\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.11\\.2\""
+      "pattern": "\\{\\s*\"name\"\\s*:\\s*\"prometheus\\-process\\-skills\"\\s*,\\s*\"path\"\\s*:\\s*\"skills/process\"\\s*,\\s*\"version\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "skill-system.json",
@@ -112,7 +112,7 @@
     },
     {
       "path": "skills/process/.claude-plugin/plugin.json",
-      "pattern": "\"version\"\\s*:\\s*\"1\\.11\\.2\""
+      "pattern": "\"version\"\\s*:\\s*\"1\\.12\\.0\""
     },
     {
       "path": "skills/devops/.claude-plugin/plugin.json",

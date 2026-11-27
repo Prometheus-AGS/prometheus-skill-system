@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Next] - not yet released
 
 - The optional Apple Foundation Models step of an install or update no longer leaves the `ai.prometheus.apple-fm` service unloaded. It waits for launchd to finish removing the job before loading it again, retries the load, and leaves a healthy service running when its job definition has not changed.
+- The `prometheus-process-skills` domain plugin is version 1.12.0 (was 1.11.2), so Claude Code and Codex installs of that plugin pick up the KBD changes released in 1.19.0.
 
 ## [1.19.0] - 2026-11-27
 
