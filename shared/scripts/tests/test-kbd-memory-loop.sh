@@ -288,6 +288,18 @@ grep -q "${TOKEN}-handoff" "$PC" || { cat "$PC" >&2; fail "analyze prior-context
 grep "${TOKEN}-handoff" "$PC" | grep -q '^- \[lead\]' || fail "the stage summary was not recalled from the lead scope"
 ok "assess:after writes the stage handoff summary at visibility lead and analyze:before recalls it"
 
+# --- 7a. task-level lookup during Execute reads the store (issue #256) -----------
+TR="$REPO/.kbd-orchestrator/phases/phase-two-loop/task-recall.md"
+pc_sha="$(shasum -a 256 "$PC" | cut -d' ' -f1)"
+( cd "$REPO" && KBD_ORCHESTRATOR_ROOT="$ORCH" KBD_RECALL_QUERY="resolve KBD hook scripts through the plugin root $TOKEN" \
+    bash "$ORCH/skills/kbd-memory-recall/kbd-memory-recall.sh" phase-two-loop execute ) >/dev/null 2>>"$S/hooks.stderr"
+[ -f "$TR" ] || { cat "$S/hooks.stderr" >&2; fail "the task-level lookup wrote no task-recall.md"; }
+grep "$TOKEN" "$TR" | grep -q 'via surreal-memory' || { cat "$TR" >&2; fail "task-recall.md does not cite the token lesson from surreal-memory"; }
+grep -q 'grants no authority' "$TR" || fail "task-recall.md lacks the evidence-only notice"
+grep -q "$PRIVATE_UI" "$TR" && fail "the task-level lookup leaked a role-private lesson"
+[ "$(shasum -a 256 "$PC" | cut -d' ' -f1)" = "$pc_sha" ] || fail "the task-level lookup changed prior-context.md"
+ok "KBD_RECALL_QUERY recalls the token lesson from surreal-memory into task-recall.md and leaves prior-context.md alone"
+
 # --- 8. pk path: with the store down, the token lesson comes back from pk ------
 scratch_surreal_stop || fail "scratch surreal-memory stop left a process or listener"
 curl -fsS -m 1 "$SURREAL_MEMORY_URL/health" >/dev/null 2>&1 && fail "scratch surreal-memory still answering after stop"

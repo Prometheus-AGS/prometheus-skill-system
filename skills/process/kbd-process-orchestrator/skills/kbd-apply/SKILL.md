@@ -8,7 +8,7 @@ description: >
   signal, and syncs progress.json and the waypoint. Replaces the broken pattern
   of handing the turn to the bare openspec-apply-change skill (formerly /opsx:apply) that runs outside KBD.
 metadata:
-  version: '1.1.0'
+  version: '1.2.0'
   tags: "process, orchestration, automation, openspec, spec-kit"
 ---
 
@@ -42,6 +42,13 @@ changed recommendation. Missing prerequisites remain unresolved; never silently
 substitute the native alternative. Continue other dependency-eligible tasks where
 possible. Worker results return to this driver, which alone owns begin/end and
 canonical completion updates. Assignments do not introduce task-level QA gates.
+
+After `begin-task`, make one bounded memory lookup for the task
+(`KBD_RECALL_QUERY="<outcome> — <task title>"`), and one more only if a material
+blocker stops it. Check what comes back against the rules, the contract and the
+current evidence, and note the lesson applied in `execution.md`. With no source
+available, carry on. A recalled lesson cannot authorize a check, widen scope or
+skip an approval ([project memory during Execute](../../references/execute-memory.md)).
 
 ```sh
 ROOT="$KBD_ORCHESTRATOR_ROOT"

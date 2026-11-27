@@ -10,7 +10,18 @@ export const EVAL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)
 export const ROOT = path.resolve(EVAL_DIR, '../..');
 export const REPORTS_DIR = path.join(ROOT, 'evals/reports');
 export const RUNS_DIR = path.join(ROOT, 'evals/runs');
-export const CORPUS_FILE = path.join(EVAL_DIR, 'cases/vlbv-protocol.json');
+export const DEFAULT_CORPUS = 'vlbv-protocol';
+export const CORPUS_FILE = path.join(EVAL_DIR, `cases/${DEFAULT_CORPUS}.json`);
+
+/**
+ * File of a named corpus under cases/. Reports of the default corpus require its
+ * exact case ids, so further qualification cases live in a corpus of their own.
+ * @param {string} [name]
+ */
+export function corpusFile(name = DEFAULT_CORPUS) {
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(name)) throw new Error(`invalid corpus name: ${name}`);
+  return path.join(EVAL_DIR, 'cases', `${name}.json`);
+}
 
 /** Installed harnesses exercised at the boundary, and those reported not run. */
 export const INSTALLED_HARNESSES = ['claude-code', 'codex', 'opencode', 'kimi', 'qwen-code'];
@@ -96,12 +107,14 @@ export function parseArgs(argv, flags = []) {
   return out;
 }
 
-/** @returns {{decisionRule: any, markers: Record<string,string>, cases: any[]}} */
-export function loadCorpus() {
-  const corpus = readJson(CORPUS_FILE);
-  if (corpus.kind !== 'vlbv.protocol-eval-corpus') throw new Error(`${CORPUS_FILE}: unexpected kind ${corpus.kind}`);
+/** @param {string} [name] @returns {{decisionRule: any, markers: Record<string,string>, cases: any[]}} */
+export function loadCorpus(name = DEFAULT_CORPUS) {
+  const file = corpusFile(name);
+  if (!fs.existsSync(file)) throw new Error(`${file}: no such corpus`);
+  const corpus = readJson(file);
+  if (corpus.kind !== 'vlbv.protocol-eval-corpus') throw new Error(`${file}: unexpected kind ${corpus.kind}`);
   const ids = corpus.cases.map(c => c.id);
-  if (new Set(ids).size !== ids.length) throw new Error(`${CORPUS_FILE}: duplicate case ids`);
+  if (new Set(ids).size !== ids.length) throw new Error(`${file}: duplicate case ids`);
   return corpus;
 }
 

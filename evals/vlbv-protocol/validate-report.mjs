@@ -16,7 +16,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { validateReport } from './lib/report.mjs';
-import { REPORTS_DIR, ROOT, loadCorpus, parseArgs, readJson, writeJson } from './lib/common.mjs';
+import { DEFAULT_CORPUS, REPORTS_DIR, ROOT, loadCorpus, parseArgs, readJson, writeJson } from './lib/common.mjs';
 
 const cryptoDigest = text => crypto.createHash('sha256').update(text).digest('hex');
 
@@ -71,9 +71,10 @@ function negative(report, corpus, machineryReport, harness) {
 function main() {
   const args = parseArgs(process.argv.slice(2), ['negative']);
   if (!args.harness) { process.stderr.write('validate-report: --harness <id> is required\n'); return 2; }
-  const file = path.resolve(args.report ?? path.join(REPORTS_DIR, `${args.harness}.json`));
+  const corpusName = args.corpus ?? DEFAULT_CORPUS;
+  const file = path.resolve(args.report ?? path.join(REPORTS_DIR, corpusName === DEFAULT_CORPUS ? '' : corpusName, `${args.harness}.json`));
   if (!fs.existsSync(file)) { process.stderr.write(`validate-report: ${file} not found\n`); return 2; }
-  const corpus = loadCorpus();
+  const corpus = loadCorpus(corpusName);
   const machineryReport = loadMachinery();
   const report = readJson(file);
   if (args.negative) {

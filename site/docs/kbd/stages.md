@@ -60,3 +60,30 @@ saved build.
 [`kbd-process-orchestrator/skills/`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/skills/process/kbd-process-orchestrator/skills).*
 
 Planning and execution use [Task model assignments](/docs/kbd/task-model-assignments). Existing projects use [OpenSpec lifecycle updates](/docs/kbd/openspec-lifecycle) at startup and phase boundaries.
+
+## Project memory during Execute
+
+The `execute:before` hook recalls lessons once, from the phase goals. During the
+phase an agent also makes **one bounded lookup** at three moments, asking about
+the work in hand: when a task starts, on resume, and when a material blocker
+stops the task.
+
+```sh
+KBD_RECALL_QUERY="<outcome> — <task or blocker>" \
+  "$KBD_ORCHESTRATOR_ROOT/skills/kbd-memory-recall/kbd-memory-recall.sh" "<phase>" execute
+```
+
+The result is written to `task-recall.md` in the phase directory, and
+`prior-context.md` is left as it is. A child phase is addressed as
+`<parent>/<child>`.
+
+- **Order:** surreal-memory first, then `pk`, then the local learning log. The
+  lookup always exits 0. With no source available the agent proceeds and says so.
+- **Recall is evidence.** A recalled lesson is checked against the project rules,
+  the adopted contract and current results. It cannot authorize the boundary run,
+  widen scope, change a priority or replace an approval.
+- **What is recorded:** one line per lookup in `execution.md` with the source,
+  the lesson applied and the next authorized action.
+- **After a verified repair:** the observation, the resolution, its scope and its
+  limits are written once through `learning_write.py`. Text that looks like a
+  credential is refused at `user` and `global` visibility.

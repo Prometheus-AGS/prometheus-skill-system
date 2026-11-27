@@ -9,6 +9,8 @@ Agents get memory from two places. They are sized differently on purpose.
 | File tier | Claude auto-memory `MEMORY.md` (and, for Codex, the user-level memory summary) | Every agent, untargeted | MEMORY.md at most 4,096 bytes |
 | Learning store | Role, team, project and user lessons, written through `learning_write` | Delivered at SubagentStart to the agent the lesson is addressed to | 8,000 characters (Claude) / 2,000 tokens (Codex) |
 
+`learning_write` refuses text that looks like a credential at `user` and `global` visibility, because those scopes are read from every other project on the machine. Rewrite the lesson without it.
+
 Before this change every Claude subagent loaded a ~14 KB index and every Codex agent a ~10.8 KB summary, none of it targeted. The file tier is now a short project index of pointers; role-specific lessons live in the store.
 
 ## Partitioning an existing index

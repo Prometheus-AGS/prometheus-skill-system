@@ -27,12 +27,36 @@ Cases with a `capabilityFields` entry, and AT 04 (early execution, rare-critical
 need 3 of 3 passing samples; the rest need 2 of 3. A sample passes only when its
 deterministic check passes **and** the cross-family grader says PASS.
 
+## Memory recall corpus
+
+`cases/kbd-memory-recall.json` holds four agent cases for project memory during
+Execute (issue #256, `references/execute-memory.md` in the orchestrator): a
+recalled lesson changes the action at task start; `pk` is consulted on a
+material blocker; with every source unavailable the agent proceeds; and a
+conflicting lesson cannot authorize the boundary run or widen scope (critical,
+3 of 3).
+
+It is a separate corpus because a report of the default corpus must carry
+exactly that corpus's case ids. Run it with `--corpus kbd-memory-recall`;
+reports go to `evals/reports/kbd-memory-recall/` and transcripts to
+`evals/runs/kbd-memory-recall/`. These runs are opt-in, billed and not a release
+gate.
+
+A case with a `memory` entry also gets the Execute skills, the recall script and
+the recall library, and a recording stand-in for `pk` that lives outside the
+project. Every eval session has surreal-memory pointed at an address that
+refuses connections, so no session can read or write the user's store. That
+also means these cases never exercise the store itself: store-first ordering is
+covered without a model by `shared/scripts/tests/test-kbd-memory-loop.sh`, and
+the lookup mechanics by `shared/scripts/tests/test-kbd-task-recall.sh`.
+
 ## Scripts
 
 | Script | Purpose |
 |---|---|
 | `machinery.mjs [--negative --at ATnn]` | Machinery cases; `--negative` removes one AT's trigger and requires the real script to accept |
 | `run.mjs --harness <id[,id]\|all> --samples 3` | Agent cases per harness; writes `evals/reports/<harness>.{json,md}` and validates them |
+| `run.mjs --corpus kbd-memory-recall --harness <id> --samples 3` | The memory recall corpus; writes `evals/reports/kbd-memory-recall/<harness>.{json,md}` |
 | `run.mjs --stub exit0` | Negative control: a no-output harness must give BLOCKED, never PASS |
 | `run.mjs --harness claude-code --samples 1 --keep-scratch --expect-leftover` | Negative control: the leftover-auth check must notice kept auth material (one case only; kept scratch is removed afterwards) |
 | `validate-report.mjs --harness <id> [--negative]` | Re-derives every verdict from retained artifacts; `--negative` plants a PASS with a missing transcript and a PASS contradicted by its effects |

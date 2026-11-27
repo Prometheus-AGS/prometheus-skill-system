@@ -66,6 +66,17 @@ KINDS = ("lesson", "gotcha", "decision", "progress", "candidate")
 # format for every writer, so recall parses a single trailer.
 TRAILER = "<!-- prometheus-envelope "
 MAX_PATH_CATEGORIES = 5
+# Credential-shaped text. The same pattern as SECRET in
+# skills/process/karpathy-progress-memory/scripts/record-progress.py; keep the
+# two in step. A lesson that matches is never promoted beyond the project: the
+# user and global scopes are read by every other project on the machine.
+SECRET = re.compile(
+    r"(?i)(?:api[_-]?key|access[_-]?token|password|secret)\s*[:=]\s*\S+"
+    r"|bearer\s+[A-Za-z0-9._~+/=-]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----"
+    r"|gh[pousr]_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}"
+    r"|AKIA[0-9A-Z]{16}|sk-(?:proj-)?[A-Za-z0-9_-]{16,}"
+)
+CROSS_PROJECT_VISIBILITY = ("user", "global")
 
 
 # --- paths for routing (design §7.1) ------------------------------------------------
@@ -592,6 +603,10 @@ def write_lesson(text: str, payload: dict | None = None, *, cwd: Path | None = N
         visibility = "agent" if identity["roleId"] != "unresolved" else "project"
     if visibility == "agent" and identity["roleId"] == "unresolved":
         visibility = "project"
+    if visibility in CROSS_PROJECT_VISIBILITY and SECRET.search(text):
+        # Refused, not redacted: the writer decides what the lesson should say.
+        return {"written": 0, "reason": "secret-like text refused for user/global visibility",
+                "visibility": visibility}
     audience = merge_audience(audience or [], route_audience(payload, cwd, identity, visibility, paths or []))
     envelope = build_envelope(text, identity, kind, visibility, audience, paths or [], stage, importance)
     problems = validate(envelope)

@@ -78,7 +78,9 @@ export function createScratch(label) {
 /** Base environment shared by every adapter: scratch HOME and XDG, no control plane, no learning writes. */
 export function baseEnv(scratch) {
   return {
-    PATH: process.env.PATH,
+    // <scratch>/bin holds the recording `pk` stand-in of a memory case (lib/fixture.mjs);
+    // for every other case the directory does not exist.
+    PATH: `${path.join(scratch.root, 'bin')}${path.delimiter}${process.env.PATH}`,
     LANG: process.env.LANG ?? 'en_US.UTF-8',
     TERM: 'dumb',
     HOME: scratch.home,
@@ -94,6 +96,14 @@ export function baseEnv(scratch) {
     PROMETHEUS_CONTROL_ENDPOINT: 'http://127.0.0.1:1',
     PROMETHEUS_LEARNING_CORTEX: '0',
     PROMETHEUS_LEARNING_PK: '0',
+    // Memory: no session may reach the user's store. The address refuses
+    // connections, so recall falls through to pk (the stand-in, when a case
+    // provides one) and then to the scratch learning log.
+    SURREAL_MEMORY_URL: 'http://127.0.0.1:1',
+    KBD_MEMORY_MCP_URL: 'http://127.0.0.1:1',
+    PROMETHEUS_PROJECT_ID_SKIP_RUNTIME: '1',
+    KBD_ORCHESTRATOR_ROOT: path.join(scratch.project, '.agents'),
+    KBD_PACK_ROOT: path.join(scratch.project, '.agents/pack'),
     GIT_CONFIG_NOSYSTEM: '1',
     GIT_CONFIG_GLOBAL: os.devNull,
     NO_COLOR: '1',
