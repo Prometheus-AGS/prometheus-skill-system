@@ -354,6 +354,15 @@ enum SkillAction {
 
 #[derive(Subcommand)]
 enum KbdAction {
+    /// Inspect offline scoped-admission documents; always BLOCKED, never grants authority
+    InspectScopedAdmission {
+        #[arg(long)]
+        parent_snapshot: PathBuf,
+        #[arg(long)]
+        disposition: PathBuf,
+        #[arg(long)]
+        proposal: PathBuf,
+    },
     /// Show lifecycle, revision, plan, checkpoint, and workflow state
     Status {
         #[arg(long)]
@@ -1194,6 +1203,8 @@ async fn run() -> Result<()> {
                 }
             };
             let action = match action {
+                KbdAction::InspectScopedAdmission { parent_snapshot, disposition, proposal } =>
+                    commands::kbd::Action::InspectScopedAdmission { parent_snapshot, disposition, proposal },
                 KbdAction::Status { json, receiver_only } => {
                     commands::kbd::Action::Status { json, receiver_only }
                 }

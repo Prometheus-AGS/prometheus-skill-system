@@ -27,6 +27,7 @@ pub mod project_document;
 pub mod registry;
 pub mod rollout;
 pub mod scope_authority;
+pub mod scoped_admission_inspection;
 
 pub use phase_closure::{
     ContractBinding, ContractBindingInput, PhaseCloseInput, PhaseClosure, PhaseClosureRegistry,
@@ -1010,6 +1011,12 @@ pub enum EventKind {
     PhaseDispositionRecorded {
         phase_id: String,
         closure: Box<PhaseClosure>,
+    },
+    /// Distinct fresh scoped evidence protocol. Operational admission is
+    /// deliberately refused until the producer and writer floor qualify.
+    ScopedEvidenceJournalRecorded {
+        phase_id: String,
+        record: Box<evidence_admission::ScopedJournalRecord>,
     },
     PhaseSuccessorStarted {
         predecessor_phase_id: String,
@@ -2563,6 +2570,9 @@ impl KbdStateV2 {
             }
             EventKind::PhaseDispositionRecorded { phase_id, closure } => {
                 phase_closure::apply_disposition(self, event.revision, phase_id, closure)?;
+            }
+            EventKind::ScopedEvidenceJournalRecorded { phase_id, record } => {
+                evidence_admission::apply_scoped_journal(self, event, phase_id, record)?;
             }
             EventKind::PhaseSuccessorStarted {
                 predecessor_phase_id,
@@ -4784,6 +4794,10 @@ impl Runtime {
         command_id: impl Into<String>,
         kind: EventKind,
     ) -> Result<RuntimeState> {
+        // Raw event append is not an authenticated scoped evidence producer.
+        if matches!(&kind, EventKind::ScopedEvidenceJournalRecorded { .. }) {
+            return Err(RuntimeError::InvalidState("scoped evidence requires qualified canonical admission; raw append refused".into()));
+        }
         self.ensure_writable_replica()?;
         let command_id = command_id.into();
         if command_id.trim().is_empty() {

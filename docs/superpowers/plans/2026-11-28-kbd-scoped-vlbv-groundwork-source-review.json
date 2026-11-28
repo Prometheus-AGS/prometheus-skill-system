@@ -1,0 +1,43 @@
+{
+  "mode": "static source review only",
+  "first": {
+    "verdict": "BLOCK",
+    "critical": 1,
+    "warnings": 3,
+    "findings": [
+      "Shared safety-check scope not flagged",
+      "Diagnostic work/output amplification",
+      "Disposition document SHA absent",
+      "New tuple and module handoff missing"
+    ]
+  },
+  "second": {
+    "verdict": "PASS for inert source only",
+    "critical": 0,
+    "warnings": 1,
+    "findings": [
+      "Empty or unknown-only required safety mapping not explicitly reported"
+    ],
+    "confirmedRepairs": [
+      "Selected linked safety-check checks flag shared/unselected and unknown IDs",
+      "Bounded inputs and indexed associations, report output cap, wrapper partial stdout refusal",
+      "Exact disposition SHA",
+      "Tuple handoff",
+      "Per-row candidate/reference state, intact tuples; all acceptedCurrent false and closure NOT_EVALUATED; early CLI return"
+    ]
+  },
+  "focusedFollowup": {
+    "verdict": "PASS",
+    "finding": "Global safety mapping report now independently examines all required safety declarations, reports empty and unknown-ID mappings including unknown-only; remains BLOCKED and nonauthorizing."
+  },
+  "limits": [
+    "Uncompiled; no tests, source execution, qualification, live state, install or release",
+    "Separate reviewer turns; no automated gateway review/screen certification",
+    "No actual canonical receipt attribution, permission, evidence reuse, or closure claim"
+  ],
+  "sourceSha256": {
+    "groundwork": "21f550008d378a62ae2d9a4f14f79ab646f4a810be944d008b9fcb94f80ba510",
+    "inspector": "d4ee58ed28d72da1b73b8677c1865c03a734b49b29e937f108d9af4901a68c7b",
+    "fullAndMiniWrapper": "96a3f779d18f418f2a29da57f30e8751e8e6145365da268bd337fc193bc4ae84"
+  }
+}

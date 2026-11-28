@@ -20,6 +20,11 @@ use std::time::{Duration, Instant};
 use super::control_transport::{ControlResponse, ControlTransport, TransportFailure};
 
 pub enum Action {
+    InspectScopedAdmission {
+        parent_snapshot: PathBuf,
+        disposition: PathBuf,
+        proposal: PathBuf,
+    },
     InspectChangeIdentity {
         phase: String,
     },
@@ -170,6 +175,25 @@ fn requires_operator(command: &CommandKind) -> bool {
 
 pub async fn run(path: &str, action: Action) -> Result<()> {
     let action = match action {
+        Action::InspectScopedAdmission { parent_snapshot, disposition, proposal } => {
+            // Deliberately before resolving or opening any project. The provided
+            // documents are not authenticated canonical runtime state.
+            let snapshot = read_inspection_document(&parent_snapshot)?;
+            let binding = read_inspection_document(&disposition)?;
+            let proposal = read_inspection_document(&proposal)?;
+            let report = kbd_runtime::scoped_admission_inspection::inspect(
+                &snapshot, &binding, &proposal,
+            ).map_err(|reason| anyhow!("scoped admission inspection refused: {reason}"))?;
+            // Refuse oversized diagnostic output before emitting any JSON;
+            // keep below the thin clients' bounded child-output buffer.
+            const MAX_REPORT_BYTES: usize = 4 * 1024 * 1024;
+            let rendered = serde_json::to_string_pretty(&report)?;
+            if rendered.len() > MAX_REPORT_BYTES {
+                return Err(anyhow!("BLOCKED: offline scoped admission report exceeds 4 MiB"));
+            }
+            println!("{rendered}");
+            return Err(anyhow!("BLOCKED: offline scoped admission inspection grants no authority"));
+        }
         Action::MigrateProjections { dry_run } => {
             // Projection migration must bypass canonical startup, the control
             // client, legacy journal import and checkpoint/recovery effects.
@@ -826,12 +850,32 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         }
         Action::PhaseClosure(action) => phase::run(&runtime, &client, action).await,
         Action::Device(action) => device::run(&runtime, &client, action).await,
-        Action::Projects { .. }
+        Action::InspectScopedAdmission { .. }
+        | Action::Projects { .. }
         | Action::MigrateProjections { .. }
         | Action::Register { .. }
         | Action::Replicas { .. }
         | Action::Adopt { .. } => unreachable!("early actions return before project open"),
     }
+}
+
+/// Read bounded offline input bytes without opening a runtime or running code.
+fn read_inspection_document(path: &Path) -> Result<Vec<u8>> {
+    use std::io::Read;
+    const MAX_DOCUMENT_BYTES: u64 = 8 * 1024 * 1024;
+    if !fs::metadata(path)?.is_file() {
+        return Err(anyhow!("inspection document must be a regular file: {}", path.display()));
+    }
+    let file = fs::File::open(path).with_context(|| format!("open {}", path.display()))?;
+    if !file.metadata()?.is_file() {
+        return Err(anyhow!("inspection document must be a regular file: {}", path.display()));
+    }
+    let mut bytes = Vec::new();
+    file.take(MAX_DOCUMENT_BYTES + 1).read_to_end(&mut bytes)?;
+    if bytes.len() as u64 > MAX_DOCUMENT_BYTES {
+        return Err(anyhow!("inspection document exceeds 8 MiB: {}", path.display()));
+    }
+    Ok(bytes)
 }
 
 /// Submit one typed command built from `state`, through the control plane when

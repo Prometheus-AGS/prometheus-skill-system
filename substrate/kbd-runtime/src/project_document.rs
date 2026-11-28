@@ -650,7 +650,8 @@ fn event_slot(event: &Event) -> Option<(String, ConflictKind)> {
         }
         EventKind::PhaseTransitioned { phase_id, .. }
         | EventKind::PhaseContractBound { phase_id, .. }
-        | EventKind::PhaseDispositionRecorded { phase_id, .. } => {
+        | EventKind::PhaseDispositionRecorded { phase_id, .. }
+        | EventKind::ScopedEvidenceJournalRecorded { phase_id, .. } => {
             Some((format!("phase:{phase_id}"), ConflictKind::Phase))
         }
         EventKind::ChangeIdentityRepaired { repair } => {

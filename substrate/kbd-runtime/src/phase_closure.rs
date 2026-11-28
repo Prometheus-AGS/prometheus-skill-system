@@ -19,7 +19,7 @@
 //! Phases that were never bound keep their legacy behaviour unchanged.
 //!
 //! Evidence admission (issue #219): disposition events stamped
-//! `admissionVersion >= 2` also carry the evidence facts and are checked by
+//! `admissionVersion == 2` also carry the evidence facts and are checked by
 //! `evidence_admission`. Events without the stamp replay as recorded.
 
 use crate::evidence_admission::{self, EvidenceFacts, EVIDENCE_ADMISSION_VERSION};
@@ -165,6 +165,10 @@ pub struct PhaseClosureState {
     pub terminal: Option<RecordedClosure>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_refusal: Option<RecordedClosure>,
+    /// Rebuilt from mandatory typed scoped journal events. A default/legacy
+    /// projection never activates a scoped phase.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scoped_journal: Option<evidence_admission::ScopedJournalState>,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub consumption_high_water: BTreeMap<String, u64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -236,7 +240,7 @@ fn sha256_hex(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 
-fn is_digest(value: &str) -> bool {
+pub(crate) fn is_digest(value: &str) -> bool {
     value.len() == 64
         && value
             .bytes()
@@ -340,6 +344,9 @@ pub(crate) fn prepare_close(
     phase_id: &str,
     input: &PhaseCloseInput,
 ) -> Result<EventKind> {
+    if state.phase_closure.phases.get(phase_id).is_some_and(|entry| entry.scoped_journal.is_some()) {
+        return Err(refused(phase_id, "scoped phase requires qualified canonical scoped closure; legacy close refused"));
+    }
     if input.disposition.is_operator_exit() {
         return Err(refused(phase_id, "operator-decided exit requires a signed supersede-exit manifest"));
     }
@@ -594,6 +601,10 @@ pub(crate) fn apply_bound(
     phase_id: &str,
     binding: &ContractBinding,
 ) -> Result<()> {
+    if state.phase_closure.phases.get(phase_id).is_some_and(|entry| entry.scoped_journal.is_some()) {
+        return Err(refused(phase_id, "scoped phase cannot use legacy contract rebind"));
+    }
+
     let phase = state
         .phases
         .get(phase_id)
@@ -757,6 +768,10 @@ pub(crate) fn apply_disposition(
     phase_id: &str,
     closure: &PhaseClosure,
 ) -> Result<()> {
+    if state.phase_closure.phases.get(phase_id).is_some_and(|entry| entry.scoped_journal.is_some()) {
+        return Err(refused(phase_id, "scoped phase cannot replay a legacy closure"));
+    }
+    evidence_admission::require_supported_version(phase_id, closure.admission_version)?;
     let input = &closure.input;
     let entry = state
         .phase_closure
@@ -901,35 +916,69 @@ pub(crate) fn require_pass_evidence(
             return Err(refused(phase_id, format!("missing-scenario:{scenario}")));
         }
         for outcome in matched {
-            if outcome.status != SCENARIO_PASS {
-                return Err(refused(
-                    phase_id,
-                    format!("not-pass:{}({})", outcome.id, outcome.status),
-                ));
-            }
-            if outcome
-                .scenario_digest
-                .as_deref()
-                .is_some_and(|digest| digest != scenario_digest)
-            {
-                return Err(refused(
-                    phase_id,
-                    format!("scenario-digest-mismatch:{}", outcome.id),
-                ));
-            }
-            if outcome.carried_from_contract.is_some()
-                && (binding.amended_scenarios.contains(scenario)
-                    || outcome.scenario_digest.as_deref() != Some(scenario_digest))
-            {
-                return Err(refused(
-                    phase_id,
-                    format!(
-                        "carried-evidence-invalid:{} (amended or unbound scenario)",
-                        outcome.id
-                    ),
-                ));
-            }
+            require_pass_outcome(phase_id, binding, scenario, scenario_digest, outcome)?;
         }
+    }
+    Ok(())
+}
+
+// Shared native leaf check. The pre-existing legacy path above retains its
+// prefix matching and optional historical digest semantics.
+fn require_pass_outcome(
+    phase_id: &str,
+    binding: &ContractBinding,
+    scenario: &str,
+    scenario_digest: &str,
+    outcome: &ScenarioOutcome,
+) -> Result<()> {
+    if outcome.status != SCENARIO_PASS {
+        return Err(refused(
+            phase_id,
+            format!("not-pass:{}({})", outcome.id, outcome.status),
+        ));
+    }
+    if outcome.scenario_digest.as_deref().is_some_and(|digest| digest != scenario_digest) {
+        return Err(refused(
+            phase_id,
+            format!("scenario-digest-mismatch:{}", outcome.id),
+        ));
+    }
+    if outcome.carried_from_contract.is_some()
+        && (binding.amended_scenarios.contains(scenario)
+            || outcome.scenario_digest.as_deref() != Some(scenario_digest))
+    {
+        return Err(refused(
+            phase_id,
+            format!("carried-evidence-invalid:{} (amended or unbound scenario)", outcome.id),
+        ));
+    }
+    Ok(())
+}
+
+/// Fresh scoped evidence is already derived from all exact target obligations.
+/// It must have precisely one aggregate per bound scenario and cannot inherit
+/// legacy prefix matching, optional attribution, or cross-contract carry.
+pub(crate) fn require_exact_pass_evidence(
+    phase_id: &str,
+    binding: &ContractBinding,
+    outcomes: &[ScenarioOutcome],
+) -> Result<()> {
+    let mut seen = BTreeSet::new();
+    for outcome in outcomes {
+        let scenario_digest = binding.scenario_digests.get(&outcome.id)
+            .ok_or_else(|| refused(phase_id, format!("unbound-scenario:{}", outcome.id)))?;
+        if !seen.insert(outcome.id.as_str()) {
+            return Err(refused(phase_id, format!("duplicate-scenario:{}", outcome.id)));
+        }
+        if outcome.scenario_digest.as_deref() != Some(scenario_digest.as_str())
+            || outcome.carried_from_contract.is_some()
+        {
+            return Err(refused(phase_id, format!("unattributed-scenario:{}", outcome.id)));
+        }
+        require_pass_outcome(phase_id, binding, &outcome.id, scenario_digest, outcome)?;
+    }
+    if let Some(missing) = binding.scenario_digests.keys().find(|id| !seen.contains(id.as_str())) {
+        return Err(refused(phase_id, format!("missing-scenario:{missing}")));
     }
     Ok(())
 }

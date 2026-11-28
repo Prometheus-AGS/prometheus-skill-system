@@ -8,7 +8,7 @@
 //! Two layers, split so replay stays pure:
 //! * the fact checks (`check_identity`, `check_sources_declared`,
 //!   `check_observations`) read only the event and the state; the reducer
-//!   runs them for events stamped [`EVIDENCE_ADMISSION_VERSION`] or later;
+//!   runs them for events stamped [`EVIDENCE_ADMISSION_VERSION`];
 //! * source freshness and the bound budget ceilings (`admit_close`) read the
 //!   project tree once, at command admission on a host that has it. The
 //!   reducer never reads files, so a later edit cannot change how a recorded
@@ -24,6 +24,14 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::path::{Component, Path};
+
+// Staged pure canonical coverage fold; no operational caller or producer.
+#[allow(dead_code)]
+mod scoped_evidence;
+#[allow(dead_code)]
+mod scoped_journal;
+pub use scoped_journal::{ScopedJournalRecord, ScopedJournalState};
+pub(crate) use scoped_journal::apply_scoped_journal;
 
 /// Stamped by the runtime on every disposition event it admits. Absent on
 /// events written before evidence admission existed.
@@ -56,7 +64,18 @@ pub enum SourceObservation {
 }
 
 pub fn enforces_evidence(admission_version: Option<u32>) -> bool {
-    admission_version.is_some_and(|version| version >= EVIDENCE_ADMISSION_VERSION)
+    admission_version == Some(EVIDENCE_ADMISSION_VERSION)
+}
+
+/// A future evidence format must never be interpreted using the current
+/// or pre-admission rules. Only the documented unstamped legacy format and
+/// the currently implemented version may replay.
+pub(crate) fn require_supported_version(phase_id: &str, admission_version: Option<u32>) -> Result<()> {
+    match admission_version {
+        None | Some(EVIDENCE_ADMISSION_VERSION) => Ok(()),
+        Some(version) => Err(refused(phase_id,
+            format!("unsupported-evidence-admission-version:{version}"))),
+    }
 }
 
 fn refused(phase_id: &str, reason: String) -> RuntimeError {
@@ -184,6 +203,16 @@ pub(crate) fn admit_close(
     let snapshot = project_root
         .map(|root| bound_snapshot(root, state, phase_id, &binding.contract_digest))
         .transpose()?;
+    // An explicitly versioned parent which this runtime does not support
+    // must not fall through to legacy PASS admission. Unversioned historical
+    // snapshots retain their existing behavior.
+    if let Some(snapshot) = &snapshot {
+        if let Some(version) = snapshot.get("contractVersion") {
+            if !matches!(version.as_str(), Some("1" | "2")) {
+                return Err(refused(phase_id, "unsupported-bound-contract-version".into()));
+            }
+        }
+    }
     check_identity(&state.project_id, phase_id, input)?;
     if input.run_id != state.run_id || input.contract_digest != binding.contract_digest {
         return Ok(());

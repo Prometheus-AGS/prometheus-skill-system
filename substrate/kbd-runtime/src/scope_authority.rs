@@ -279,6 +279,18 @@ pub fn verify(
     input: &ScopeAuthorityInput,
 ) -> Result<(ScopeAuthorityManifest, ScopeAuthorityRecord)> {
     let manifest = parse_manifest(&input.manifest_raw)?;
+    let record = verify_canonical_payload(input, &manifest.approver)?;
+    Ok((manifest, record))
+}
+
+/// Shared verification of a typed, already shape-checked canonical payload
+/// using the existing operator-owned trust root and scope signature namespace.
+/// The caller must parse its distinct manifest kind before invoking this
+/// helper; a signature is never itself authority for another action.
+pub(crate) fn verify_canonical_payload(
+    input: &ScopeAuthorityInput,
+    approver: &str,
+) -> Result<ScopeAuthorityRecord> {
     if !input.signature.contains("BEGIN SSH SIGNATURE") {
         return Err(authority_error("signature is not an armored SSH signature"));
     }
@@ -293,7 +305,7 @@ pub fn verify(
     std::fs::write(&signature_file, input.signature.as_bytes())?;
     let outcome = run_ssh_keygen_verify(
         &signers_path,
-        &manifest.approver,
+        approver,
         &signature_file,
         &input.manifest_raw,
     );
@@ -303,11 +315,11 @@ pub fn verify(
         manifest_sha256: sha256_hex(input.manifest_raw.as_bytes()),
         manifest_raw: input.manifest_raw.clone(),
         signature: input.signature.clone(),
-        approver: manifest.approver.clone(),
+        approver: approver.to_owned(),
         namespace: SCOPE_AUTHORITY_NAMESPACE.into(),
         allowed_signers_sha256: sha256_hex(&signers),
     };
-    Ok((manifest, record))
+    Ok(record)
 }
 
 fn tempfile_path(suffix: &str) -> Result<PathBuf> {
@@ -372,7 +384,7 @@ fn run_ssh_keygen_verify(
 
 /// Replay-time check: the stored record still names the manifest it hashes,
 /// and the manifest still parses canonically. No process is spawned.
-pub fn verify_record(record: &ScopeAuthorityRecord) -> Result<ScopeAuthorityManifest> {
+pub(crate) fn verify_record_identity(record: &ScopeAuthorityRecord) -> Result<()> {
     if record.manifest_sha256 != sha256_hex(record.manifest_raw.as_bytes())
         || record.namespace != SCOPE_AUTHORITY_NAMESPACE
     {
@@ -380,6 +392,11 @@ pub fn verify_record(record: &ScopeAuthorityRecord) -> Result<ScopeAuthorityMani
             "stored scope authority record does not match its manifest",
         ));
     }
+    Ok(())
+}
+
+pub fn verify_record(record: &ScopeAuthorityRecord) -> Result<ScopeAuthorityManifest> {
+    verify_record_identity(record)?;
     let manifest = parse_manifest(&record.manifest_raw)?;
     if manifest.approver != record.approver {
         return Err(authority_error("stored scope authority approver mismatch"));

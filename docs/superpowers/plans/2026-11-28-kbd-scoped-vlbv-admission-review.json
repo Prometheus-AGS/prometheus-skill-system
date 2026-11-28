@@ -1,0 +1,65 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "producer_model": "gpt-6.2",
+  "judge_model": "gpt-6.1-terra",
+  "isolation_mode": "harness-native fresh context (fork_turns=none; distinct model family/version; reviewer did not see producer history)",
+  "cross_model_check": "distinct requested harness model; REST/liter-llm attempt was not a valid normalized verdict",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "Proposal: local runner, containment and cumulative budgets",
+      "claim": "The proposed runner does not establish that execution stays within the signed effect and cost authority.",
+      "evidence": "Exact argv and cwd identify an invocation but do not constrain a script's child processes, network effects, duration or spending. The packet proposes measuring effects and costs after invocation, but does not specify an enforceable limit, a complete observation boundary or how teardown retains reserved resources. A command can exceed its ceiling before the journal can record it.",
+      "suggested_fix": "Define supported adapter profiles with concrete effect boundaries, metering, pre-reserved teardown allowance, termination and reconciliation semantics. Fail closed for commands whose effects or costs cannot be bounded and observed. Explicitly identify limits enforced by the host versus claims that depend on trusted operator attestation."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "Proposal: multi-target proof",
+      "claim": "Target identity and independent witnessing are requirements, not a verifiable protocol in the proposal.",
+      "evidence": "An operator-signed statement over a target label and output hash establishes who signed the statement, but the packet does not define enrolled target identities, witness independence, origin evidence, verification rules or how the receipt binds execution to the claimed machine. It therefore cannot distinguish a real second platform run from the same output relabeled for another target.",
+      "suggested_fix": "Specify target enrollment, authenticated origin, witness roles and separation, receipt fields, verification and revocation for each supported environment. Mark an environment unsupported until those mechanisms are concrete; do not count two target keys as two target proofs."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "Proposal: legacy migration and downgrade",
+      "claim": "The design does not establish that an older runtime cannot close or modify a migrated phase through the legacy path.",
+      "evidence": "A scoped-enabled runtime refusing old close commands constrains that runtime only. The packet does not specify how existing installed binaries, journal readers and alternate entry points recognize and enforce the migrated state, or prove that an older writer fails closed. A signed migration record alone cannot make an unaware binary enforce it.",
+      "suggested_fix": "Define and inspect every writer and closure path, the minimum compatible runtime and the persisted migration marker. Demonstrate that incompatible writers cannot accept or mutate migrated state under the stated single-writer assumptions, or require a coordinated cutover that prevents their use and explicitly records the operational limit."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Proposal: candidate freshness and evidence reuse",
+      "claim": "Exact full-tree evidence binding can force every earlier scoped journey to be rerun after later implementation changes.",
+      "evidence": "The proposal allows scoped B4 when selected journeys are fully implemented but other journeys may remain incomplete; closure accepts only evidence for the current candidate and reuse requires the exact same full source tree. Completing an unrelated journey changes that tree, invalidating the earlier evidence. This is safe but its closure cost and expected workflow are not stated.",
+      "suggested_fix": "State explicitly that all affected evidence must be reacquired on the final candidate, including its budget and release implications. If narrower reuse is desired later, require a separately reviewed complete dependency model rather than assuming changed paths are irrelevant."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Proposal: alternatives",
+      "claim": "The decision does not demonstrate that the proposed native runner and journal extension are necessary.",
+      "evidence": "The packet identifies existing signed scope authority, phase closure and full-packet linting but provides no comparable worked design or refusal evidence for using existing supported phase boundaries, a full contract with scoped execution, or a signed interpretation plus existing evidence admission. The stated facts establish deficiencies, but do not by themselves rule out a smaller change.",
+      "suggested_fix": "Evaluate each supported alternative against the concrete 116-row incident, authority and closure requirements, identifying the exact existing behavior that prevents it from satisfying each requirement."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Proposal: authority lifecycle and partial attempts",
+      "claim": "Expiry, revocation, cancellation and cleanup behavior across a long-running command remain underspecified.",
+      "evidence": "The proposal rechecks authority before a step and reserves cleanup, but does not define what happens when a grant expires or is revoked during execution, when the machine restarts before teardown, or whether cleanup authority survives the original expiry and at what bound.",
+      "suggested_fix": "Specify start-versus-continuation rules, durable cleanup authority with explicit bounds, revocation behavior, clock assumptions, and the terminal states that block further attempts and closure."
+    }
+  ],
+  "confidence": 89,
+  "what_would_change_this": "Concrete adapter and host-enforcement specifications, a verifiable enrolled-target receipt protocol, and a code-backed migration proof covering all existing writers could resolve the blocking findings. Evidence that the proposed effects and budgets are solely trusted operator assertions, with that narrower scope explicitly accepted by the owner, would change the first finding's assessment.",
+  "disconfirming": [
+    "An existing supported runner may already enforce the needed effect and resource bounds; the packet says no generic adapter was confirmed, not that none exists.",
+    "Existing journal version handling may already cause every relevant older writer to fail closed after migration; that behavior was not established in the packet.",
+    "A supported target enrollment and witness mechanism may already exist outside the files summarized in the packet."
+  ],
+  "gateway_attempt": {
+    "model": "k3.1-pro",
+    "status": "not a valid verdict; response finish_reason length, no final structured content",
+    "note": "Not counted as reviewed PASS. A fresh-context harness-native reviewer provided the findings."
+  },
+  "review_status": "BLOCK; no implementation authorization"
+}
