@@ -189,6 +189,25 @@ pub(crate) fn admit_close(
         return Ok(());
     }
     check_sources_declared(phase_id, input)?;
+    // Retain the existing whole-parent close path. A selected gate is not
+    // product evidence and unknown carried contract attribution cannot be
+    // promoted by a partial selected run.
+    if state.active_gates.values().any(|g| g.phase_id.as_deref() == Some(phase_id)
+        && g.kind == crate::GateKind::SelectedIntegration) {
+        return Err(refused(phase_id, "selected-start-unsettled".into()));
+    }
+    if state.latest_gate_receipts.values().any(|g| g.phase_id.as_deref() == Some(phase_id)
+        && g.kind == crate::GateKind::SelectedIntegration) {
+        for outcome in &input.scenarios {
+            if outcome.carried_from_contract.as_ref().is_some_and(|digest| !entry.binding_history.contains(digest)) {
+                return Err(refused(phase_id, format!("unknown-carried-contract:{}", outcome.id)));
+            }
+            if binding.scenario_digests.keys().any(|scenario| owns(scenario, &outcome.id))
+                && outcome.scenario_digest.is_none() {
+                return Err(refused(phase_id, format!("unattributed-scenario:{}", outcome.id)));
+            }
+        }
+    }
     let stale: Vec<String> = facts(input)
         .source_digests
         .iter()

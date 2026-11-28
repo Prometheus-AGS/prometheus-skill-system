@@ -614,8 +614,40 @@ enum KbdGuardAction {
     },
 }
 
+#[derive(Debug,clap::Args)]
+struct KbdSelectedPrepareArgs {
+    #[arg(long)] identity: std::path::PathBuf,
+    #[arg(long)] code: std::path::PathBuf,
+    #[arg(long="input")] inputs:Vec<String>,
+    #[arg(long)] phase:String,
+    #[arg(long)] start:String,
+    #[arg(long)] toolchain_hash:String,
+    #[arg(long)] validity_window_secs:u64,
+    #[arg(long)] timeout_ms:u64,
+    #[arg(long,default_value_t=10)] output_mb:u64,
+    #[arg(long)] request_out:std::path::PathBuf,
+}
+impl From<KbdSelectedPrepareArgs> for prometheus_exec_service::client::PrepareRequest {
+    fn from(a:KbdSelectedPrepareArgs)->Self{Self{identity:a.identity,code:a.code,inputs:a.inputs,phase:a.phase,start:a.start,
+        toolchain_hash:a.toolchain_hash,validity_window_secs:a.validity_window_secs,timeout_ms:a.timeout_ms,output_mb:a.output_mb,request_out:a.request_out}}
+}
 #[derive(Subcommand)]
 enum KbdGateAction {
+    /// Resolve the next exact signed selected gate, without launching it
+    SelectedNext,
+    /// Read the currently reserved selected start for the existing product launcher
+    SelectedActive {
+        #[arg(long)]
+        start: String,
+    },
+    /// Consume one already-authorized exact Exec request reservation (no dispatch)
+    SelectedReserve { #[arg(long)] start: String },
+    /// Prepare exact managed Exec request; preparation does not grant dispatch.
+    SelectedPrepare(KbdSelectedPrepareArgs),
+    /// Dispatch the already-consumed selected request; reconcile-only never POSTS.
+    SelectedDispatch { #[arg(long)] start: String, #[arg(long)] reconcile_only: bool },
+    /// Reconcile the independently verified terminal receipt (never reruns)
+    SelectedComplete { #[arg(long)] start: String },
     /// Run argv directly and record a signed gate start and finish
     Run {
         #[arg(long, value_enum)]
@@ -1350,6 +1382,12 @@ async fn run() -> Result<()> {
                     },
                 },
                 KbdAction::Gate { action } => match action {
+                    KbdGateAction::SelectedNext => commands::kbd::Action::GateSelectedNext,
+                    KbdGateAction::SelectedActive { start } => commands::kbd::Action::GateSelectedActive { start },
+                    KbdGateAction::SelectedReserve { start } => commands::kbd::Action::GateSelectedReserve { start },
+                    KbdGateAction::SelectedPrepare(args) => commands::kbd::Action::GateSelectedPrepare(args.into()),
+                    KbdGateAction::SelectedDispatch { start,reconcile_only } => commands::kbd::Action::GateSelectedDispatch { start,reconcile_only },
+                    KbdGateAction::SelectedComplete { start } => commands::kbd::Action::GateSelectedComplete { start },
                     KbdGateAction::Run {
                         kind,
                         scope,

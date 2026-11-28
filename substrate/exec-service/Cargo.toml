@@ -9,7 +9,17 @@ description = "Idempotent service layer for Prometheus Exec"
 [package.metadata.prometheus]
 exec-layer = "service"
 
+[features]
+local-client = ["dep:base64", "dep:bytes", "dep:ed25519-dalek", "dep:http-body-util", "dep:hyper", "dep:hyper-util", "dep:rand_core"]
+
 [dependencies]
+base64 = { version = "0.22", optional = true }
+bytes = { version = "1", optional = true }
+ed25519-dalek = { version = "2", features = ["rand_core"], optional = true }
+http-body-util = { version = "0.1", optional = true }
+hyper = { version = "1", features = ["client", "http1"], optional = true }
+hyper-util = { version = "0.1", features = ["tokio"], optional = true }
+rand_core = { version = "0.6", features = ["getrandom"], optional = true }
 async-trait = "0.1"
 async-stream = "0.3"
 axum = { version = "0.8", features = ["json"] }

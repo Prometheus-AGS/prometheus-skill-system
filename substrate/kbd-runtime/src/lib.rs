@@ -27,6 +27,7 @@ pub mod project_document;
 pub mod registry;
 pub mod rollout;
 pub mod scope_authority;
+pub mod selected_boundary;
 
 pub use phase_closure::{
     ContractBinding, ContractBindingInput, PhaseCloseInput, PhaseClosure, PhaseClosureRegistry,
@@ -746,6 +747,8 @@ pub struct BoundaryObligation {
 pub enum GateKind {
     CompilerCheck,
     Integration,
+    /// Existing gate event, distinct selected execution semantics.
+    SelectedIntegration,
     Certification,
 }
 
@@ -2388,6 +2391,24 @@ impl KbdStateV2 {
                         "gate start requires identity, scope, executable, command digest, and an earlier source revision".into(),
                     ));
                 }
+                if selected_boundary::is_reserved(&gate.scope) || gate.kind == GateKind::SelectedIntegration {
+                    selected_boundary::check_replay_gate(self, gate)?;
+                    let consumed = selected_boundary::consumption_id(&gate.scope);
+                    if !gate.scope.starts_with(selected_boundary::RESERVED_PREFIX)
+                        || gate.kind != GateKind::SelectedIntegration || gate.id != consumed
+                        || self.active_gates.values().any(|g| g.scope == gate.scope)
+                        || self.latest_gate_receipts.values().any(|r| r.scope == gate.scope)
+                        || !self.phase_closure.consumed_manifests.insert(consumed)
+                    {
+                        return Err(RuntimeError::ScopeAuthority("selected boundary start already consumed or malformed".into()));
+                    }
+                }
+                if gate.kind == GateKind::SelectedIntegration {
+                    let request = selected_boundary::selected_exec::start_token(gate)?;
+                    if !self.phase_closure.consumed_manifests.insert(request) {
+                        return Err(RuntimeError::ScopeAuthority("selected Exec request already consumed".into()));
+                    }
+                }
                 if self.active_gates.contains_key(&gate.id) {
                     return Err(RuntimeError::WorkItemExists {
                         kind: "active gate",
@@ -2413,6 +2434,12 @@ impl KbdStateV2 {
                         "gate receipt {} does not match its signed start",
                         receipt.gate_id
                     )));
+                }
+                if active.kind == GateKind::SelectedIntegration {
+                    let verified = selected_boundary::selected_exec::replay_finish(self,active,receipt)?;
+                    if !self.phase_closure.consumed_manifests.insert(verified) {
+                        return Err(RuntimeError::ScopeAuthority("selected Exec receipt already consumed".into()));
+                    }
                 }
                 self.active_gates.remove(&receipt.gate_id);
                 self.latest_gate_receipts.insert(
@@ -4039,7 +4066,7 @@ impl Runtime {
         let Some(document) = self.project_document() else {
             return Ok(0);
         };
-        document.ingest_events(&self.journal_events()?)
+        document.ingest_host_events(&self.journal_events()?)
     }
 
     pub fn migrate_v1_journal(&self) -> Result<Option<JournalMigrationSummary>> {
@@ -4677,6 +4704,7 @@ impl Runtime {
         if incoming.len() == local.len() {
             return Ok(imported);
         }
+        for event in &incoming[local.len()..] { selected_boundary::refuse_unverified_import(event)?; }
         let mut file = OpenOptions::new()
             .create(true)
             .append(true)
@@ -4784,6 +4812,19 @@ impl Runtime {
         command_id: impl Into<String>,
         kind: EventKind,
     ) -> Result<RuntimeState> {
+        if let EventKind::PhaseContractBound { binding, .. } = &kind {
+            if let Some(record) = &binding.authority {
+                if scope_authority::verify_record(record)?.action == scope_authority::ScopeAction::AmendSelectedExecution {
+                    return Err(RuntimeError::ScopeAuthority("selected handoff requires the canonical host binding command".into()));
+                }
+            }
+        }
+        if matches!(&kind, EventKind::GateStarted { gate } if selected_boundary::is_reserved(&gate.scope) || gate.kind == GateKind::SelectedIntegration) {
+            return Err(RuntimeError::ScopeAuthority("selected boundary requires canonical gate admission".into()));
+        }
+        if matches!(&kind, EventKind::GateFinished { receipt } if selected_boundary::is_reserved(&receipt.scope) || receipt.kind == GateKind::SelectedIntegration) {
+            return Err(RuntimeError::ScopeAuthority("selected completion requires canonical host Exec receipt admission".into()));
+        }
         self.ensure_writable_replica()?;
         let command_id = command_id.into();
         if command_id.trim().is_empty() {
@@ -4837,6 +4878,15 @@ impl Runtime {
     /// place the evidence sources and the bound contract snapshot are read.
     /// The reducer never reads files.
     fn admit_close_evidence(&self, state: &KbdStateV2, command: &CommandKind) -> Result<()> {
+        if let CommandKind::PhaseContractBind { phase_id, binding, authority } = command {
+            return selected_boundary::admit_handoff(&self.project_root, state, phase_id, binding, authority.as_ref());
+        }
+        if let CommandKind::GateStart { gate } = command {
+            return selected_boundary::admit_gate(&self.project_root, state, gate);
+        }
+        if let CommandKind::GateFinish { receipt } = command {
+            return selected_boundary::admit_finish(&self.project_root, state, receipt);
+        }
         if let CommandKind::PhaseSupersedeExit { phase_id, authority } = command {
             return operator_exit::validate_exit(state, phase_id, &authority.manifest_raw, &self.project_root);
         }
@@ -5407,7 +5457,7 @@ impl Runtime {
         file.sync_data()?;
         File::open(self.journal_root())?.sync_all()?;
         if let Some(document) = self.project_document() {
-            document.ingest_events(std::slice::from_ref(&event))?;
+            document.ingest_host_events(std::slice::from_ref(&event))?;
         }
         let _ = self.persist_folded_checkpoint_with_signer(&state, Some(&checkpoint_signer));
         self.decorate_replica_view(&mut state);
@@ -8335,6 +8385,17 @@ pub fn prepare_host_signed_event(
     if let CommandKind::PhaseSupersedeExit { phase_id, .. } = &envelope.command {
         return Err(RuntimeError::PhaseCloseRefused { phase_id: phase_id.clone(),
             reason: "supersede-exit requires a host with the bound snapshot and evidence".into() });
+    }
+    if let CommandKind::PhaseContractBind { authority: Some(authority), .. } = &envelope.command {
+        if selected_boundary::selected_authority(authority)? {
+            return Err(RuntimeError::ScopeAuthority("selected handoff requires host snapshot and current candidate".into()));
+        }
+    }
+    if matches!(&envelope.command, CommandKind::GateStart { gate } if selected_boundary::is_reserved(&gate.scope) || gate.kind == GateKind::SelectedIntegration) {
+        return Err(RuntimeError::ScopeAuthority("selected boundary requires the host with the signed snapshot and exact candidate".into()));
+    }
+    if matches!(&envelope.command, CommandKind::GateFinish { receipt } if selected_boundary::is_reserved(&receipt.scope) || receipt.kind == GateKind::SelectedIntegration) {
+        return Err(RuntimeError::ScopeAuthority("selected completion requires host verification of signed Exec request, receipt and artifacts".into()));
     }
     // A filesystem-free replica cannot hash the evidence sources, so it
     // cannot admit a PASS closure.

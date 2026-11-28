@@ -135,6 +135,12 @@ pub enum Action {
         repair_projections: bool,
         precommit: bool,
     },
+    GateSelectedNext,
+    GateSelectedActive { start: String },
+    GateSelectedReserve { start: String },
+    GateSelectedComplete { start: String },
+    GateSelectedPrepare(prometheus_exec_service::client::PrepareRequest),
+    GateSelectedDispatch { start:String,reconcile_only:bool },
     GateRun {
         kind: GateKind,
         scope: String,
@@ -313,6 +319,12 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
     // A legacy checkout has a readable waypoint before its first typed write
     // creates a project identity. Inspecting it must not register the checkout.
     let read_mode = match &action {
+        Action::GateSelectedNext | Action::GateSelectedActive { .. }
+        | Action::GateSelectedReserve { .. } | Action::GateSelectedComplete { .. }
+        | Action::GateSelectedPrepare(_) | Action::GateSelectedDispatch { .. } => {
+            if !remote_control_enabled() { return Err(anyhow!("selected execution requires the configured connected authoritative control plane; offline execution is unsupported")); }
+            ControlMode::ReceiverOnly
+        }
         Action::Status {
             receiver_only: true, ..
         }
@@ -330,9 +342,18 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             return print_uninitialized_status(&root, None, *json, ReadSource::Local);
         }
     }
+    if let Action::GateRun { scope, .. } = &action {
+        if scope.starts_with(kbd_runtime::selected_boundary::REQUEST_PREFIX) || scope.starts_with(kbd_runtime::selected_boundary::RESERVED_PREFIX) {
+            return Err(anyhow!("selected raw argv dispatch is unsupported; use gate selected-reserve, the exact presigned Exec request, then gate selected-complete"));
+        }
+    }
     let runtime = if matches!(
         &action,
-        Action::Status { .. }
+        Action::GateSelectedNext
+        | Action::GateSelectedActive { .. }
+        | Action::GateSelectedPrepare(_)
+        | Action::GateSelectedDispatch { .. }
+        | Action::Status { .. }
         | Action::Audit { .. }
         | Action::Conflicts { .. }
         | Action::Claims { .. }
@@ -767,6 +788,64 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             )
             .await
         }
+        Action::GateSelectedNext => {
+            let state = client.selected_state().await?;
+            println!("{}", serde_json::to_string_pretty(&kbd_runtime::selected_boundary::next(&root,&state)?)?);
+            Ok(())
+        },
+        Action::GateSelectedActive { start } => {
+            let state = client.selected_state().await?;
+            println!("{}", serde_json::to_string_pretty(&kbd_runtime::selected_boundary::active(&root,&state,&start)?)?);
+            Ok(())
+        },
+        Action::GateSelectedReserve { start } => {
+            let state = client.selected_state().await?;
+            let gate = kbd_runtime::selected_boundary::reservation(&root,&state,&start)?;
+            let committed = client.submit_fresh(&state,current_actor(ActorKind::Harness),CommandKind::GateStart { gate: gate.clone() }).await?;
+            if committed.active_gates.get(&gate.id) != Some(&gate) { return Err(anyhow!("authoritative selected reservation not observed; reconcile before any dispatch")); }
+            println!("{}",serde_json::to_string_pretty(&kbd_runtime::selected_boundary::active(&root,&committed,&start)?)?);
+            Ok(())
+        },
+        Action::GateSelectedPrepare(args) => {
+            let state=client.selected_state().await?;
+            if state.active_path.phase_id.as_deref()!=Some(args.phase.as_str()) { return Err(anyhow!("request preparation must name the actual connected active phase")); }
+            if state.phase_closure.phases.get(&args.phase).is_none_or(|entry|entry.binding.is_none()||entry.terminal.is_some()) {return Err(anyhow!("request preparation requires an active adopted phase"));}
+            let code=prometheus_exec_service::client::prepare(args).map_err(|e|anyhow!(e.to_string()))?;
+            if code != std::process::ExitCode::SUCCESS{return Err(anyhow!("selected request preparation failed"));}
+            Ok(())
+        },
+        Action::GateSelectedDispatch { start,reconcile_only } => {
+            let state=client.selected_state().await?;
+            let plan=kbd_runtime::selected_boundary::dispatch_plan(&root,&state,&start,reconcile_only)?;
+            let args=prometheus_exec_service::client::SubmitRequest {
+                socket:plan.socket.clone(),state_dir:plan.state_dir.clone(),identity:plan.identity.clone(),
+                request:plan.request.clone(),expected_request_hash:plan.expected_request_hash.clone(),
+                code:plan.code.clone(),inputs:plan.inputs.clone(),receipt_out:plan.receipt_out.clone(),
+                artifact_root:plan.artifact_root.clone(),reservation_started_at:plan.reservation_started_at,
+                complete_before:plan.complete_before,expected_runner_key:plan.expected_runner_key.clone(),
+                artifact_budget_mb:2048,reconcile_only,
+            };
+            let code=prometheus_exec_service::client::submit(args,||async {
+                let current=client.selected_state().await.map_err(|e|->Box<dyn std::error::Error+Send+Sync>{e.to_string().into()})?;
+                let actual=kbd_runtime::selected_boundary::dispatch_plan(&root,&current,&start,false)?;
+                if actual!=plan {return Err("signed selected dispatch or canonical reservation changed before POST".into());}
+                Ok(())
+            }).await.map_err(|e|anyhow!(e.to_string()))?;
+            // A signed terminal failure is still a settled execution receipt.
+            // Verify and record it via selected-complete, never retry the effect.
+            if code!=std::process::ExitCode::SUCCESS {return Err(anyhow!("selected Exec terminated unsuccessfully; use gate selected-complete to record the signed result"));}
+            println!("Use gate selected-complete --start {} to commit the independently verified receipt; no phase PASS is implied.",start);
+            Ok(())
+        },
+        Action::GateSelectedComplete { start } => {
+            let state = client.selected_state().await?;
+            let receipt = kbd_runtime::selected_boundary::verified_completion(&root,&state,&start)?;
+            let committed = client.submit_fresh(&state,current_actor(ActorKind::Harness),CommandKind::GateFinish{receipt:receipt.clone()}).await?;
+            if committed.active_gates.contains_key(&receipt.gate_id) || !committed.latest_gate_receipts.values().any(|r| r == &receipt) { return Err(anyhow!("verified selected completion not observed; reconcile authoritative audit")); }
+            println!("{}",serde_json::to_string_pretty(&receipt)?);
+            if receipt.outcome != GateOutcome::Passed { return Err(anyhow!("selected Exec request terminated unsuccessfully; no automatic retry")); }
+            Ok(())
+        },
         Action::GateRun {
             kind,
             scope,
@@ -1652,6 +1731,8 @@ async fn gate_run(
         return Err(anyhow!("kbd gate run requires an argv command after --"));
     }
     let state = state_or_replay(client, runtime).await?;
+    if scope.starts_with(kbd_runtime::selected_boundary::REQUEST_PREFIX) || scope.starts_with(kbd_runtime::selected_boundary::RESERVED_PREFIX) { return Err(anyhow!("selected execution requires the presigned Exec reservation and verified receipt, not raw argv")); }
+    kbd_runtime::selected_boundary::refuse_stock_gate_in_selected_scope(root, &state)?;
     let command_parts = command.iter().map(String::as_str).collect::<Vec<_>>();
     let command_sha256 = digest_strings(&command_parts);
     let gate_id = digest_strings(&[
@@ -1744,7 +1825,9 @@ async fn gate_run(
     }
 
     let timer = Instant::now();
-    let status = Command::new(&command[0]).args(&command[1..]).status();
+    let mut process = Command::new(&command[0]);
+    process.args(&command[1..]);
+    let status = process.status();
     let duration_ms = timer.elapsed().as_millis().min(u64::MAX as u128) as u64;
     let (outcome, exit_code, summary) = match status {
         Ok(status) if status.success() => (
@@ -2130,7 +2213,36 @@ impl ControlClient {
         Ok(VerifiedHistory { events, state })
     }
 
+    async fn selected_state(&self) -> Result<RuntimeState> {
+        if self.mode == ControlMode::Local { return Err(anyhow!("selected execution requires connected authoritative control plane")); }
+        self.transport.require_selected_local()?;
+        let state = self.read_remote_status().await.map_err(ControlFailure::into_error)?;
+        let local = self.runtime.replay()?;
+        if local.run_id != state.run_id || local.frontier != state.frontier || local.revision != state.revision
+            || local.replica_view.as_ref().is_some_and(|r| r.active_path_status == kbd_runtime::ReplicaCommitStatus::AheadOfMe)
+            || state.replica_view.as_ref().is_some_and(|r| r.active_path_status == kbd_runtime::ReplicaCommitStatus::AheadOfMe) {
+            return Err(anyhow!("known stale checkout or control frontier; reconcile with authoritative control plane before selected execution"));
+        }
+        Ok(state)
+    }
+
     async fn submit(&self, state: &RuntimeState, envelope: CommandEnvelope) -> Result<Value> {
+        let selected = match &envelope.command {
+            CommandKind::GateStart { gate } => gate.kind == GateKind::SelectedIntegration || gate.scope.starts_with(kbd_runtime::selected_boundary::RESERVED_PREFIX) || gate.scope.starts_with(kbd_runtime::selected_boundary::REQUEST_PREFIX),
+            CommandKind::GateFinish { receipt } => receipt.kind == GateKind::SelectedIntegration || receipt.scope.starts_with(kbd_runtime::selected_boundary::RESERVED_PREFIX) || receipt.scope.starts_with(kbd_runtime::selected_boundary::REQUEST_PREFIX),
+            CommandKind::PhaseContractBind { authority: Some(authority), .. } => kbd_runtime::scope_authority::parse_manifest(&authority.manifest_raw)?.action == kbd_runtime::scope_authority::ScopeAction::AmendSelectedExecution,
+            _ => false,
+        };
+        if selected {
+            let authoritative = self.selected_state().await?;
+            if authoritative.frontier != state.frontier || authoritative.revision != state.revision || authoritative.run_id != state.run_id { return Err(anyhow!("selected command prepared against a stale authoritative frontier")); }
+            // No local fallback and no automatic execution/dispatch retry.
+            return match self.submit_remote(&envelope).await {
+                Ok(result) => Ok(result),
+                Err(ControlFailure::Ambiguous(error)) => self.reconcile_submission(&envelope,error).await,
+                Err(error) => Err(error.into_error()),
+            };
+        }
         if state.command_revisions.contains_key(&envelope.command_id)
             && is_session_command(&envelope.command)
         {
@@ -2501,6 +2613,9 @@ fn matches_session_command(command: &CommandKind, event: &EventKind) -> bool {
                 ..
             },
         ) => scope == recorded_scope && holder_id == recorded_holder && mode == recorded_mode,
+        (CommandKind::GateStart { gate }, EventKind::GateStarted { gate: recorded }) => gate == recorded,
+        (CommandKind::GateFinish { receipt }, EventKind::GateFinished { receipt: recorded }) => receipt == recorded,
+        (CommandKind::GateStart { .. } | CommandKind::GateFinish { .. }, _) => false,
         _ => !is_session_command(command),
     }
 }

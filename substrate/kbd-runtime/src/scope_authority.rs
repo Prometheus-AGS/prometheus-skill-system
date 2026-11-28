@@ -28,6 +28,9 @@ const MIN_REASON_CHARS: usize = 10;
 #[serde(rename_all = "kebab-case")]
 pub enum ScopeAction {
     AmendContract,
+    // Selected handoff uses the existing signed amendment event. Old
+    // manifest readers reject this action before physical gate dispatch.
+    AmendSelectedExecution,
     StartSuccessor,
     SupersedeExit,
 }
@@ -216,7 +219,7 @@ fn validate_common_fields(manifest: &ScopeAuthorityManifest) -> Result<()> {
             }
             crate::operator_exit::validate_shape(manifest)?;
         }
-        ScopeAction::AmendContract => {
+        ScopeAction::AmendContract | ScopeAction::AmendSelectedExecution => {
             let digests = [
                 manifest.previous_contract_digest.as_deref(),
                 manifest.new_contract_digest.as_deref(),
@@ -231,6 +234,11 @@ fn validate_common_fields(manifest: &ScopeAuthorityManifest) -> Result<()> {
                 return Err(authority_error(
                     "amend-contract manifest requires contractPath, previous/new 64-hex digests and scenarioChanges, and no successor fields",
                 ));
+            }
+            if manifest.action == ScopeAction::AmendSelectedExecution
+                && !manifest.scenario_changes.as_ref().is_some_and(|c| c.added.is_empty() && c.modified.is_empty() && c.removed.is_empty())
+            {
+                return Err(authority_error("selected execution handoff cannot change scenario obligations"));
             }
         }
         ScopeAction::StartSuccessor => {

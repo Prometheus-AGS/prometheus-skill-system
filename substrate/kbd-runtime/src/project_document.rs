@@ -71,6 +71,15 @@ impl ProjectDocument {
     /// snapshot. Existing identical event IDs are idempotent; an event ID with
     /// different bytes is integrity corruption and is rejected.
     pub fn ingest_events(&self, events: &[Event]) -> Result<usize> {
+        self.ingest_events_inner(events,false)
+    }
+
+    // Only the Runtime's locally originated durable journal enters here.
+    pub(crate) fn ingest_host_events(&self, events: &[Event]) -> Result<usize> {
+        self.ingest_events_inner(events,true)
+    }
+
+    fn ingest_events_inner(&self, events: &[Event], local_host_journal: bool) -> Result<usize> {
         if events.is_empty() {
             return Ok(0);
         }
@@ -105,6 +114,7 @@ impl ProjectDocument {
                     }
                     continue;
                 }
+                if !local_host_journal { crate::selected_boundary::refuse_unverified_import(event)?; }
                 let canonical = if event.schema_version == "1" {
                     serde_json::to_string(event)?
                 } else {
@@ -210,6 +220,11 @@ impl ProjectDocument {
                 return Err(RuntimeError::InvalidState(
                     "project.loro updates attempted to mutate or delete committed events".into(),
                 ));
+            }
+            // Check the fully merged roster, including operations whose
+            // selected event is visible only after merging with local state.
+            for event in &merged {
+                if !before_by_id.contains_key(event.event_id.as_str()) { crate::selected_boundary::refuse_unverified_import(event)?; }
             }
             let state = fold_project_events(&merged)?;
             let inserted = incoming_events

@@ -7,6 +7,8 @@
 // in kbd-process-orchestrator/references/boundaries.md.
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 
 const readJson = file => { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } };
 
@@ -35,6 +37,36 @@ function contractFor(state, phaseId) {
   return { file, contract: readJson(file) };
 }
 
+// Production checkpoint admission resolves the actual canonical binding. A
+// stale or edited projection must not hide a selected handoff. This is only
+// a read of existing KBD authority; cadence cannot consume a reservation.
+function canonicalContractForCheckpoint(state, phaseId) {
+  if (!phaseId) throw new Error('VLBV: KBD checkpoint requires a canonical phase identity');
+  const root = fs.realpathSync(projectRoot(state));
+  const result = spawnSync('prometheus', ['kbd', '--path', root, 'phase', 'disposition', '--id', phaseId, '--json'], {
+    cwd: root, encoding: 'utf8', timeout: 60_000, maxBuffer: 16 * 1024 * 1024,
+  });
+  if (result.status !== 0) throw new Error('VLBV: cannot read canonical KBD phase disposition; do not launch a checkpoint');
+  let disposition;
+  try { disposition = JSON.parse(result.stdout); } catch { throw new Error('VLBV: invalid canonical phase disposition'); }
+  const binding = disposition.binding;
+  if (disposition.schema !== 'kbd.phase-disposition/v1' || !/^[0-9a-f]{64}$/.test(binding?.contractDigest ?? '') || typeof binding.contractPath !== 'string') {
+    throw new Error('VLBV: checkpoint requires the canonical adopted contract binding');
+  }
+  const confined = file => {
+    const actual = fs.realpathSync(file);
+    const relative = path.relative(root,actual);
+    if (path.isAbsolute(relative) || relative === '..' || relative.startsWith('..' + path.sep)) throw new Error('VLBV: canonical contract path leaves project');
+    return actual;
+  };
+  const file = confined(path.join(path.dirname(path.resolve(root,binding.contractPath)), 'adopted', binding.contractDigest + '.json'));
+  const bytes = fs.readFileSync(file);
+  if (createHash('sha256').update(bytes).digest('hex') !== binding.contractDigest) throw new Error('VLBV: bound contract snapshot is stale');
+  const contract = JSON.parse(bytes.toString('utf8'));
+  if (contract.kind !== 'kbd.adopted-contract' || contract.identity?.phaseId !== phaseId) throw new Error('VLBV: bound contract identity mismatch');
+  return { file, contract };
+}
+
 const argvOf = entry => {
   if (typeof entry === 'string') return entry.trim().split(/\s+/);
   if (entry && Array.isArray(entry.argv)) return entry.argv.map(String);
@@ -48,12 +80,17 @@ const argvOf = entry => {
  */
 export function assertCheckpointInBoundaryPacket(state, iteration, step) {
   const phaseId = iteration.phaseId ?? state.profile?.binding?.phaseId;
+  if (state.profile?.mode !== 'kbd') return null;
+  const { file, contract } = canonicalContractForCheckpoint(state, phaseId);
+  if (Object.hasOwn(contract.boundaryPacket ?? {}, 'selectedExecution')) {
+    // A second cadence-owned process under the same active gate would repeat
+    // the effect. A raw cadence child is not a verified Exec request.
+    throw new Error('VLBV: signed selected handoff requires the connected native gate selected-next / selected-reserve / selected-dispatch / selected-complete path and exact independently qualified signed Exec request; cadence will not duplicate the launch');
+  }
   if (!vlbvActive(state, phaseId)) return null;
-  const { file, contract } = contractFor(state, phaseId);
-  if (!contract) throw new Error(`VLBV: KBD-mode checkpoint needs the phase's adopted contract (${file}); cadence runs generated code only as boundary-packet entries (B4 step 3)`);
-  const wanted = [step.command, ...(step.args ?? [])].map(String).join(' ');
+  const wanted = [step.command, ...(step.args ?? [])].map(String);
   const entries = contract.boundaryPacket?.commands ?? [];
-  const match = entries.find(entry => (argvOf(entry) ?? []).join(' ') === wanted);
+  const match = entries.find(entry => JSON.stringify(argvOf(entry)) === JSON.stringify(wanted));
   if (!match) throw new Error(`VLBV: checkpoint "${step.id}" (${wanted}) is not an entry of the adopted boundary packet; add it to boundaryPacket.commands through a signed amendment or run the packet with value-scenario-verify`);
   return { contractFile: file, entry: match };
 }

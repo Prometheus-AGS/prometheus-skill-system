@@ -44,7 +44,7 @@ while [ $# -gt 0 ]; do
     *) fail "unknown argument: $1" ;;
   esac
 done
-case "$ACTION" in amend-contract|start-successor|supersede-exit) ;; *) fail "action must be amend-contract, start-successor or supersede-exit" ;; esac
+case "$ACTION" in amend-contract|amend-selected-execution|start-successor|supersede-exit) ;; *) fail "action must be amend-contract, amend-selected-execution, start-successor or supersede-exit" ;; esac
 [ -n "$PHASE" ] || fail "--phase is required"
 [ -n "$REASON" ] || fail "--reason is required (at least 10 characters)"
 [ -n "$APPROVER" ] || APPROVER="$(git config user.email 2>/dev/null || true)"
@@ -66,7 +66,7 @@ BASE="$(jq -n --arg ns "$NAMESPACE" --arg action "$ACTION" --arg reason "$REASON
   '{schemaVersion:"1", kind:"kbd.scope-authority", namespace:$ns, action:$action, projectId:$project,
     runId:$run, phaseId:$phase, reason:$reason, approver:$approver, timestamp:$now, nonce:$nonce}')"
 
-if [ "$ACTION" = "amend-contract" ]; then
+if [ "$ACTION" = "amend-contract" ] || [ "$ACTION" = "amend-selected-execution" ]; then
   [ -n "$CONTRACT" ] || fail "--contract is required for amend-contract"
   [ -f "$ROOT/$CONTRACT" ] || fail "contract not found: $ROOT/$CONTRACT"
   BOUND="$(printf '%s' "$DISP" | jq -r '.binding.contractDigest // empty')"
@@ -85,6 +85,10 @@ if [ "$ACTION" = "amend-contract" ]; then
     sdig="$(jq -S -c --arg i "$sid" '.scenarioMatrix[] | select(.id == $i)' "$ROOT/$CONTRACT" | shasum -a 256 | awk '{print $1}')"
     NEW_MAP="$(printf '%s' "$NEW_MAP" | jq -c --arg k "$sid" --arg v "$sdig" '. + {($k): $v}')"
   done
+  if [ "$ACTION" = "amend-selected-execution" ]; then
+    jq -e '.boundaryPacket.selectedExecution | type == "object"' "$ROOT/$CONTRACT" >/dev/null || fail "selectedExecution metadata is required" 2
+    [ "$(jq -S -c . <<<"$NEW_MAP")" = "$(jq -S -c . <<<"$(jq -c '.binding.scenarioDigests' <<<"$DISP")")" ] || fail "selected handoff cannot change scenario digests" 2
+  fi
   printf '%s' "$BASE" | jq -S -c --arg path "$CONTRACT" --arg prev "$BOUND" --arg new "$NEW" \
     --argjson old "$(printf '%s' "$DISP" | jq -c '.binding.scenarioDigests')" --argjson next "$NEW_MAP" '
     . + {contractPath:$path, previousContractDigest:$prev, newContractDigest:$new,

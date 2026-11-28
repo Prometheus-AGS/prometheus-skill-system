@@ -16,6 +16,7 @@ prometheus-agents.workspace = true
 prometheus-learn.workspace = true
 prometheus-cedar.workspace = true
 kbd-runtime.workspace = true
+prometheus-exec-service = { path = "../../../../substrate/exec-service", version = "1.7.0", features = ["local-client"] }
 
 # Core
 anyhow.workspace = true

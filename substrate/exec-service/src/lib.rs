@@ -6,6 +6,8 @@
 
 #![forbid(unsafe_code)]
 
+#[cfg(feature = "local-client")]
+pub mod client;
 mod event_log;
 mod facade;
 mod http;

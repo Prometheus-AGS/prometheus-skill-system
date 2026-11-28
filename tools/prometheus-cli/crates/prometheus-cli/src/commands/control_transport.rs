@@ -58,6 +58,7 @@ pub(super) struct ControlTransport {
     http: reqwest::Client,
     target: Target,
     timeout: Duration,
+    selected_local: std::sync::atomic::AtomicBool,
 }
 
 impl ControlTransport {
@@ -73,6 +74,7 @@ impl ControlTransport {
                 .build()?,
             target,
             timeout,
+            selected_local: false.into(),
         })
     }
 
@@ -82,7 +84,25 @@ impl ControlTransport {
             http: reqwest::Client::builder().timeout(timeout).build()?,
             target: Target::Unix(socket),
             timeout,
+            selected_local: false.into(),
         })
+    }
+
+    /// Selected execution is confined to the managed same-host control
+    /// socket, never an HTTP override, remote or offline replica.
+    pub(super) fn require_selected_local(&self)->Result<()> {
+        #[cfg(unix)] {
+            use std::os::unix::fs::{FileTypeExt,MetadataExt,PermissionsExt};
+            let home=prometheus_exec_service::client::managed_home().map_err(|e|anyhow::anyhow!(e.to_string()))?;
+            let managed=if cfg!(target_os="macos"){home.join("Library/Application Support/prometheus/run/sovereign-sync.sock")}else{home.join(".local/share/prometheus/run/sovereign-sync.sock")};
+            let Target::Unix(socket)=&self.target else {return Err(anyhow::anyhow!("selected authority requires the managed local Unix control socket"));};
+            if socket!=&managed{return Err(anyhow::anyhow!("selected authority refuses non-managed control socket"));}
+            let info=std::fs::symlink_metadata(socket)?;
+            if !info.file_type().is_socket()||info.uid()!=prometheus_exec_service::client::effective_uid()||info.permissions().mode()&0o777!=0o600{return Err(anyhow::anyhow!("selected control socket ownership/type/mode is not qualified"));}
+            self.selected_local.store(true,std::sync::atomic::Ordering::Release);
+            Ok(())
+        }
+        #[cfg(not(unix))] {Err(anyhow::anyhow!("selected authority requires managed local Unix control socket"))}
     }
 
     pub(super) async fn get(&self, path: &str) -> Result<ControlResponse> {
@@ -125,7 +145,7 @@ impl ControlTransport {
             Target::Unix(socket) => {
                 match tokio::time::timeout(
                     self.timeout,
-                    request_unix(socket.clone(), method, path.to_string(), body),
+                    request_unix(socket.clone(), method, path.to_string(), body,self.selected_local.load(std::sync::atomic::Ordering::Acquire)),
                 )
                 .await
                 {
@@ -284,6 +304,7 @@ async fn request_unix(
     method: Method,
     path: String,
     body: Bytes,
+    selected_local: bool,
 ) -> std::result::Result<ControlResponse, TransportFailure> {
     let stream = UnixStream::connect(&socket).await.map_err(|error| {
         let kind = error.kind();
@@ -294,6 +315,10 @@ async fn request_unix(
             TransportFailure::Invalid(error)
         }
     })?;
+    if selected_local {
+        let cred=stream.peer_cred().map_err(|e|TransportFailure::Invalid(anyhow!(e).context("selected control peer identity")))?;
+        if cred.uid()!=prometheus_exec_service::client::effective_uid(){return Err(TransportFailure::Invalid(anyhow!("selected control peer UID differs from managed host")));}
+    }
     let (mut sender, connection) =
         hyper::client::conn::http1::handshake::<_, Full<Bytes>>(TokioIo::new(stream))
             .await

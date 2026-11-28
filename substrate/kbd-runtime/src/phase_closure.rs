@@ -694,6 +694,9 @@ fn check_amendment(
     manifest: &ScopeAuthorityManifest,
 ) -> Result<()> {
     let expected = scenario_diff(&previous.scenario_digests, &next.scenario_digests);
+    if manifest.action == ScopeAction::AmendSelectedExecution && previous.scenario_digests != next.scenario_digests {
+        return Err(RuntimeError::ScopeAuthority("selected execution amendment must preserve every bound scenario".into()));
+    }
     let amended: BTreeSet<String> = expected
         .added
         .iter()
@@ -702,8 +705,8 @@ fn check_amendment(
         .collect();
     let checks = [
         (
-            manifest.action == ScopeAction::AmendContract,
-            "action must be amend-contract",
+            matches!(manifest.action, ScopeAction::AmendContract | ScopeAction::AmendSelectedExecution),
+            "action must be amend-contract or amend-selected-execution",
         ),
         (
             manifest.project_id == state.project_id,
